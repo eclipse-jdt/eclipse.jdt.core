@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Hashtable;
 
 import junit.framework.*;
@@ -128,20 +126,6 @@ public class BasicBuildTests extends BuilderTests {
 		fullBuild(projectPath);
 		IMarker[] markers = env.getTaskMarkersFor(pathToA);
 		assertEquals("Wrong size", 3, markers.length);
-		Arrays.sort(markers, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				IMarker marker1 = (IMarker) o1;
-				IMarker marker2 = (IMarker) o2;
-				try {
-					final int start1 = ((Integer) marker1.getAttribute(IMarker.CHAR_START)).intValue();
-					final int start2 = ((Integer) marker2.getAttribute(IMarker.CHAR_START)).intValue();
-					return start1 - start2;
-				} catch (CoreException e) {
-					return 0;
-				}
-			}
-		});
-		
 		try {
 			IMarker marker = markers[0];
 			Object priority = marker.getAttribute(IMarker.PRIORITY);
@@ -198,20 +182,6 @@ public class BasicBuildTests extends BuilderTests {
 		fullBuild(projectPath);
 		IMarker[] markers = env.getTaskMarkersFor(pathToA);
 		assertEquals("Wrong size", 3, markers.length);
-		Arrays.sort(markers, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				IMarker marker1 = (IMarker) o1;
-				IMarker marker2 = (IMarker) o2;
-				try {
-					final int start1 = ((Integer) marker1.getAttribute(IMarker.CHAR_START)).intValue();
-					final int start2 = ((Integer) marker2.getAttribute(IMarker.CHAR_START)).intValue();
-					return start1 - start2;
-				} catch (CoreException e) {
-					return 0;
-				}
-			}
-		});
-
 		try {
 			IMarker marker = markers[2];
 			Object priority = marker.getAttribute(IMarker.PRIORITY);
@@ -268,20 +238,6 @@ public class BasicBuildTests extends BuilderTests {
 		fullBuild(projectPath);
 		IMarker[] markers = env.getTaskMarkersFor(pathToA);
 		assertEquals("Wrong size", 2, markers.length);
-		Arrays.sort(markers, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				IMarker marker1 = (IMarker) o1;
-				IMarker marker2 = (IMarker) o2;
-				try {
-					final int start1 = ((Integer) marker1.getAttribute(IMarker.CHAR_START)).intValue();
-					final int start2 = ((Integer) marker2.getAttribute(IMarker.CHAR_START)).intValue();
-					return start1 - start2;
-				} catch (CoreException e) {
-					return 0;
-				}
-			}
-		});
-
 		try {
 			IMarker marker = markers[1];
 			Object priority = marker.getAttribute(IMarker.PRIORITY);
@@ -308,29 +264,29 @@ public class BasicBuildTests extends BuilderTests {
 	 */
 	public void testTags3() throws CoreException {
 		Hashtable options = JavaCore.getOptions();
-		
+
 		try {
 			Hashtable newOptions = JavaCore.getOptions();
 			newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX"); //$NON-NLS-1$
 			newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,HIGH,LOW"); //$NON-NLS-1$
-			
+
 			JavaCore.setOptions(newOptions);
-			
+
 			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 			env.addExternalJars(projectPath, Util.getJavaClassLibs());
-	
+
 			// remove old package fragment root so that names don't collide
 			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-	
+
 			IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	
+
 			IPath pathToA = env.addClass(root, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p; \n"+ //$NON-NLS-1$
 				"// TODO need to review\n" + //$NON-NLS-1$
 				"public class A {\n" + //$NON-NLS-1$
 				"}");
-	
+
 			fullBuild(projectPath);
 			IMarker[] markers = env.getTaskMarkersFor(pathToA);
 			assertEquals("Marker should not be editable", Boolean.FALSE, markers[0].getAttribute(IMarker.USER_EDITABLE));
