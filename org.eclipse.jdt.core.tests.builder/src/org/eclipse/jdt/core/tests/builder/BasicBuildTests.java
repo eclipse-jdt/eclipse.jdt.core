@@ -510,9 +510,7 @@ public class BasicBuildTests extends BuilderTests {
 		}
 	}
 
-	// TODO (Olivier) DISABLED: The test pas while running the test suite alone but fails while running all builder tests
-	// It seems that the order of markers returned by ENV.getTaskMarkersFor(IPath) is not always the same...
-	public void _testTags4() throws JavaModelException {
+	public void testTags4() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO!,TODO,TODO?"); //$NON-NLS-1$
@@ -537,22 +535,35 @@ public class BasicBuildTests extends BuilderTests {
 	
 		fullBuild(projectPath);
 		IMarker[] markers = env.getTaskMarkersFor(pathToA);
+		Arrays.sort(markers, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				IMarker marker1 = (IMarker) o1;
+				IMarker marker2 = (IMarker) o2;
+				try {
+					final int start1 = ((Integer) marker1.getAttribute(IMarker.PRIORITY)).intValue();
+					final int start2 = ((Integer) marker2.getAttribute(IMarker.PRIORITY)).intValue();
+					return start1 - start2;
+				} catch (CoreException e) {
+					return 0;
+				}
+			}
+		});
 		assertEquals("Wrong size", 2, markers.length);
 	
 		try {
 			IMarker marker = markers[1];
 			Object priority = marker.getAttribute(IMarker.PRIORITY);
 			String message = (String) marker.getAttribute(IMarker.MESSAGE);
-			assertEquals("Wrong message", "TODO? need to review the loop", message);
+			assertEquals("Wrong message", "TODO! need to review the loop", message);
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_LOW), priority);
+			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_HIGH), priority);
 	
 			marker = markers[0];
 			priority = marker.getAttribute(IMarker.PRIORITY);
 			message = (String) marker.getAttribute(IMarker.MESSAGE);
-			assertEquals("Wrong message", "TODO! need to review the loop", message);
+			assertEquals("Wrong message", "TODO? need to review the loop", message);
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_HIGH), priority);
+			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_LOW), priority);
 		} catch (CoreException e) {
 			assertTrue(false);
 		}
