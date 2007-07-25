@@ -535,35 +535,22 @@ public class BasicBuildTests extends BuilderTests {
 	
 		fullBuild(projectPath);
 		IMarker[] markers = env.getTaskMarkersFor(pathToA);
-		Arrays.sort(markers, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				IMarker marker1 = (IMarker) o1;
-				IMarker marker2 = (IMarker) o2;
-				try {
-					final int start1 = ((Integer) marker1.getAttribute(IMarker.PRIORITY)).intValue();
-					final int start2 = ((Integer) marker2.getAttribute(IMarker.PRIORITY)).intValue();
-					return start1 - start2;
-				} catch (CoreException e) {
-					return 0;
-				}
-			}
-		});
 		assertEquals("Wrong size", 2, markers.length);
 	
 		try {
 			IMarker marker = markers[1];
 			Object priority = marker.getAttribute(IMarker.PRIORITY);
 			String message = (String) marker.getAttribute(IMarker.MESSAGE);
-			assertEquals("Wrong message", "TODO! need to review the loop", message);
+			assertEquals("Wrong message", "TODO? need to review the loop", message);
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_HIGH), priority);
+			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_LOW), priority);
 	
 			marker = markers[0];
 			priority = marker.getAttribute(IMarker.PRIORITY);
 			message = (String) marker.getAttribute(IMarker.MESSAGE);
-			assertEquals("Wrong message", "TODO? need to review the loop", message);
+			assertEquals("Wrong message", "TODO! need to review the loop", message);
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_LOW), priority);
+			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_HIGH), priority);
 		} catch (CoreException e) {
 			assertTrue(false);
 		}
