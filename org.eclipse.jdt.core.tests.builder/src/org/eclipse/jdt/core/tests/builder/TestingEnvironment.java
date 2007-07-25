@@ -566,19 +566,21 @@ public void cleanBuild() {
 		try {
 			if (resource != null) {
 				final IMarker[] markers = resource.findMarkers(IJavaModelMarker.TASK_MARKER, true, IResource.DEPTH_INFINITE);
-				Arrays.sort(markers, new Comparator() {
-					public int compare(Object o1, Object o2) {
-						IMarker marker1 = (IMarker) o1;
-						IMarker marker2 = (IMarker) o2;
-						try {
-							final int start1 = ((Integer) marker1.getAttribute(IMarker.CHAR_START)).intValue();
-							final int start2 = ((Integer) marker2.getAttribute(IMarker.CHAR_START)).intValue();
-							return start1 - start2;
-						} catch (CoreException e) {
-							return 0;
+				if (markers.length > 1) {
+					Arrays.sort(markers, new Comparator() {
+						public int compare(Object o1, Object o2) {
+							IMarker marker1 = (IMarker) o1;
+							IMarker marker2 = (IMarker) o2;
+							try {
+								final int start1 = ((Integer) marker1.getAttribute(IMarker.CHAR_START)).intValue();
+								final int start2 = ((Integer) marker2.getAttribute(IMarker.CHAR_START)).intValue();
+								return start1 - start2;
+							} catch (CoreException e) {
+								return 0;
+							}
 						}
-					}
-				});
+					});
+				}
 				return markers;
 			}
 		} catch(CoreException e){
