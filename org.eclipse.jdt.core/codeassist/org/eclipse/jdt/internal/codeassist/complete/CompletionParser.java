@@ -987,7 +987,8 @@ private void buildMoreGenericsCompletionContext(ASTNode node, boolean consumeTyp
 						} else {
 							currentElement = currentElement.add(ref, 0);
 						}
-					} else if (currentElement.enclosingMethod().methodDeclaration.isConstructor()) {
+					} else if (currentElement.enclosingMethod() != null &&
+							currentElement.enclosingMethod().methodDeclaration.isConstructor()) {
 						currentElement = currentElement.add((TypeReference)node, 0);
 					}
 				}

@@ -10800,4 +10800,77 @@ public void test0213_Method() {
 			expectedReplacedSource,
 			"full ast");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=197400
+public void test0214_Diet() {
+
+	String str = 
+		"public class X {\n" +
+		"	static {\n" +
+		"      <>\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "<";
+	int cursorLocation = str.lastIndexOf("<") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  static {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=197400
+public void test0214_Method() {
+
+	String str = 
+		"public class X {\n" +
+		"	static {\n" +
+		"      <>\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "<";
+	int cursorLocation = str.lastIndexOf("<") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	// we are not in a constructor then the completion node isn't attached to the ast
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  static {\n" + 
+			"  }\n" + 
+			"  <clinit>() {\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }
