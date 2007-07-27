@@ -23,11 +23,11 @@
   <!-- This target defines the tests that need to be run. -->
   <target name="suite">
   	
-  	<property name="apt-folder" value="${eclipse-home}/apt_folder"/>
-  	<delete dir="${apt-folder}" quiet="true"/>
+  	<property name="jdt-apt-pluggable-folder" value="${eclipse-home}/jdt_apt_pluggable_folder"/>
+  	<delete dir="${jdt-apt-pluggable-folder}" quiet="true"/>
   	
   	<ant target="ui-test" antfile="${library-file}" dir="${eclipse-home}">
-  	      <property name="data-dir" value="${apt-folder}"/>
+  	      <property name="data-dir" value="${jdt-apt-pluggable-folder}"/>
   	      <property name="plugin-name" value="${plugin-name}"/>
   	      <property name="classname" value="org.eclipse.jdt.apt.pluggable.tests.TestAll"/>
   	</ant>
