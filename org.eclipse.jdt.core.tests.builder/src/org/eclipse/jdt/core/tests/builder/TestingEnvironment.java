@@ -178,14 +178,31 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	public IPath addProject(String projectName, String compliance){
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IProject project = createProject(projectName);
+		int requiredComplianceFlag = 0;
+		String compilerVersion = null;
 		if ("1.5".equals(compliance)) {
-			if ((AbstractCompilerTest.getPossibleComplianceLevels()  & AbstractCompilerTest.F_1_5) == 0)
-				throw new RuntimeException("This test should run on top of a 1.5 JRE");
+			requiredComplianceFlag = AbstractCompilerTest.F_1_5;
+			compilerVersion = CompilerOptions.VERSION_1_5;
+		}
+		else if ("1.6".equals(compliance)) {
+			requiredComplianceFlag = AbstractCompilerTest.F_1_6;
+			compilerVersion = CompilerOptions.VERSION_1_6;
+		}
+		else if ("1.7".equals(compliance)) {
+			requiredComplianceFlag = AbstractCompilerTest.F_1_7;
+			compilerVersion = CompilerOptions.VERSION_1_7;
+		}
+		else if (!"1.4".equals(compliance) && !"1.3".equals(compliance)) {
+			throw new UnsupportedOperationException("Test framework doesn't support compliance level: " + compliance);
+		}
+		if (requiredComplianceFlag != 0) {
+			if ((AbstractCompilerTest.getPossibleComplianceLevels() & requiredComplianceFlag) == 0)
+				throw new RuntimeException("This test requires a " + compliance + " JRE");
 			IJavaProject javaProject = JavaCore.create(project);
 			Map options = new HashMap();
-			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+			options.put(CompilerOptions.OPTION_Compliance, compilerVersion);
+			options.put(CompilerOptions.OPTION_Source, compilerVersion);	
+			options.put(CompilerOptions.OPTION_TargetPlatform, compilerVersion);	
 			javaProject.setOptions(options);
 		}
 		return project.getFullPath();
