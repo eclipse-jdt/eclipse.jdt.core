@@ -201,8 +201,8 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 			IJavaProject javaProject = JavaCore.create(project);
 			Map options = new HashMap();
 			options.put(CompilerOptions.OPTION_Compliance, compilerVersion);
-			options.put(CompilerOptions.OPTION_Source, compilerVersion);	
-			options.put(CompilerOptions.OPTION_TargetPlatform, compilerVersion);	
+			options.put(CompilerOptions.OPTION_Source, compilerVersion);
+			options.put(CompilerOptions.OPTION_TargetPlatform, compilerVersion);
 			javaProject.setOptions(options);
 		}
 		return project.getFullPath();
