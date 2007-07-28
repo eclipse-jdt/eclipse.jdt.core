@@ -11,11 +11,17 @@
 
 package org.eclipse.jdt.apt.pluggable.tests;
 
+import java.util.Map;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
+import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.pluggable.tests.processors.message6.Message6Proc;
 import org.eclipse.jdt.core.IJavaProject;
 import org.osgi.framework.Bundle;
 
@@ -61,4 +67,25 @@ public class InfrastructureTests extends TestBase
 		expectingCompiledClasses(expectedClasses);
 	}
 
+	/**
+	 * Does the factory path show Java 6 processors from this plug-in?
+	 */
+	public void testFactoryPathContents() throws Throwable
+	{
+		IJavaProject jproj = createJavaProject(_projectName);
+		FactoryPath fpath = (FactoryPath) AptConfig.getFactoryPath(jproj);
+		Map<FactoryContainer, FactoryPath.Attributes> map = fpath.getAllContainers();
+		boolean foundThisPlugin = false;
+		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : map.entrySet()) {
+			FactoryContainer fc = entry.getKey();
+			if (Apt6TestsPlugin.PLUGIN_ID.equals(fc.getId())) {
+				foundThisPlugin = true;
+				Map<String, String> names = fc.getFactoryNames();
+				String service = names.get(Message6Proc.class.getName());
+				assertNotNull("Message6Proc was not found in apt.pluggable.tests plug-in", service);
+				break;
+			}
+		}
+		assertTrue("apt.pluggable.tests plug-in was not found in project factory path", foundThisPlugin);
+	}
 }
