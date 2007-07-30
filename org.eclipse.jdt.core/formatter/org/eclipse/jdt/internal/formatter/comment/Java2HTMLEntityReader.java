@@ -7,12 +7,15 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Matt McCutchen - fix for bug 197169
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.comment;
 
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.parser.*;
 
 /**
  * <code>SubstitutionTextReader</code> that will substitute html entities for
@@ -25,6 +28,12 @@ public class Java2HTMLEntityReader extends SubstitutionTextReader {
 
 	/** The hardcoded entity map. */
 	private static final Map fgEntityLookup;
+
+	/**
+	 * True if we have not yet seen a non-whitespace character on the current
+	 * line.
+	 */
+	private boolean beginLine = true;
 	
 	static {
 		fgEntityLookup= new HashMap(7);
@@ -50,7 +59,18 @@ public class Java2HTMLEntityReader extends SubstitutionTextReader {
 	 * @see org.eclipse.jdt.internal.ui.text.SubstitutionTextReader#computeSubstitution(int)
 	 */
 	protected String computeSubstitution(int c) {
-		String lookup= (String) fgEntityLookup.get(String.valueOf((char) c));
-		return lookup;
+		/*
+		 * When @ is first on a line, translate it to &#064; so it isn't
+		 * misinterpreted as a Javadoc tag.
+		 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=197169
+		 */
+		if (c == '@')
+			return this.beginLine ? "&#064;" : null; //$NON-NLS-1$
+		else if (c == '\n' || c == '\r')
+			this.beginLine = true;
+		else if (!ScannerHelper.isWhitespace((char) c)) {
+			this.beginLine = false;
+		}
+		return (String) fgEntityLookup.get(String.valueOf((char) c));
 	}
 }

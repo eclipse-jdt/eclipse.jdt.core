@@ -822,4 +822,37 @@ public class JavaDocTestCase extends CommentTestCase {
 		String result=testFormat(input, options);
 		assertEquals(expected, result);
 	}
+	
+	public void test197169() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+
+		String input = "/**" + DELIMITER + 
+				" * <pre>" + DELIMITER + 
+				" * &#064;Anno1 class Foo {" + DELIMITER + 
+				" * &#064;Anno1 class Bar {}" + DELIMITER + 
+				" * }" + DELIMITER + 
+				" * &#064;Anno2(&#064;Anno1) class Baz {}" + DELIMITER + 
+				" * </pre>" + DELIMITER + 
+				" */";
+		
+		String expected = "/**" + DELIMITER + 
+				" * <pre>" + DELIMITER + 
+				// Initial &#064 left alone.
+				" * &#064;Anno1" + DELIMITER + 
+				" * class Foo {" + DELIMITER + 
+				// Left alone even after whitespace.
+				" * 	&#064;Anno1" + DELIMITER + 
+				" * 	class Bar {" + DELIMITER + 
+				" * 	}" + DELIMITER + 
+				" * }" + DELIMITER + 
+				" * " + DELIMITER + 
+				// Non-initial &#064; expanded.
+				" * &#064;Anno2(@Anno1)" + DELIMITER + 
+				" * class Baz {" + DELIMITER + 
+				" * }" + DELIMITER + 
+				" * </pre>" + DELIMITER + 
+				" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
 }
