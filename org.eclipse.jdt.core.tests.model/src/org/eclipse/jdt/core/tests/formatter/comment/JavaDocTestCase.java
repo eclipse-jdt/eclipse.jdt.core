@@ -26,7 +26,7 @@ import org.eclipse.text.edits.TextEdit;
 public class JavaDocTestCase extends CommentTestCase {
 	
 	static {
-//		TESTS_NAMES = new String[] { "testMultiLineCommentCodeSnippet6" } ;
+//		TESTS_NAMES = new String[] { "test198153" } ;
 	}
 
 	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
@@ -802,5 +802,24 @@ public class JavaDocTestCase extends CommentTestCase {
 		TextEdit edit = ToolFactory.createCodeFormatter(CommentFormatterUtil.createOptions(options)).format(getCommentKind(), input, 0, input.length(), 0, "\n");
 		assertNotNull(edit);
 		assertEquals("No edit", 0, edit.getChildrenSize());
+	}
+	
+	public void test198153() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+
+		String input = "/**" + DELIMITER +
+				" * <pre>" + DELIMITER +
+				" * System.out.println(&#34;hello world&#34;);" + DELIMITER +
+				" * </pre>" + DELIMITER +
+				" */";
+		
+		String expected = "/**" + DELIMITER +
+				" * <pre>" + DELIMITER +
+				// No space after "world".
+				" * System.out.println(&quot;hello world&quot;);" + DELIMITER +
+				" * </pre>" + DELIMITER +
+				" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
 	}
 }

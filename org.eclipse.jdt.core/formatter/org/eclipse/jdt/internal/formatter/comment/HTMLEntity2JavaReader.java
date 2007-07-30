@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Matt McCutchen - fix for bug 198153
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.comment;
 
@@ -75,7 +76,7 @@ public class HTMLEntity2JavaReader extends SubstitutionTextReader {
 				} else {
 					ch= Integer.parseInt(symbol.substring(1), 10);
 				}
-				return " " + (char) ch; //$NON-NLS-1$
+				return String.valueOf((char) ch);
 			} catch (NumberFormatException e) {
 				// ignore
 			}
