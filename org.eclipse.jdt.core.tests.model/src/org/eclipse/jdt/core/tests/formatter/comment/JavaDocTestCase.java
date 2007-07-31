@@ -26,7 +26,7 @@ import org.eclipse.text.edits.TextEdit;
 public class JavaDocTestCase extends CommentTestCase {
 	
 	static {
-//		TESTS_NAMES = new String[] { "test198153" } ;
+//		TESTS_NAMES = new String[] { "test109636" } ;
 	}
 
 	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
@@ -851,6 +851,42 @@ public class JavaDocTestCase extends CommentTestCase {
 				" * class Baz {" + DELIMITER + 
 				" * }" + DELIMITER + 
 				" * </pre>" + DELIMITER + 
+				" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
+	
+	public void test109636() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+
+		String input =
+				"/**" + DELIMITER + 
+				" * <code>" + DELIMITER + 
+				" * <pre>" + DELIMITER + 
+				" * setLeadingComment(\"/&#42; traditional comment &#42;/\");  // correct" + DELIMITER + 
+				" * setLeadingComment(\"missing comment delimiters\");  // wrong" + DELIMITER + 
+				" * setLeadingComment(\"/&#42; unterminated traditional comment \");  // wrong" + DELIMITER + 
+				" * setLeadingComment(\"/&#42; broken\\n traditional comment &#42;/\");  // correct" + DELIMITER + 
+				" * setLeadingComment(\"// end-of-line comment\\n\");  // correct" + DELIMITER + 
+				" * setLeadingComment(\"// end-of-line comment without line terminator\");  // correct" + DELIMITER + 
+				" * setLeadingComment(\"// broken\\n end-of-line comment\\n\");  // wrong" + DELIMITER + 
+				" * </pre>" + DELIMITER + 
+				" * </code>" + DELIMITER + 
+				" */";
+		
+		String expected =
+				"/**" + DELIMITER + 
+				" * <code>" + DELIMITER + 
+				" * <pre>" + DELIMITER + 
+				" * setLeadingComment(&quot;/* traditional comment &#42;/&quot;); // correct" + DELIMITER + 
+				" * setLeadingComment(&quot;missing comment delimiters&quot;); // wrong" + DELIMITER + 
+				" * setLeadingComment(&quot;/* unterminated traditional comment &quot;); // wrong" + DELIMITER + 
+				" * setLeadingComment(&quot;/* broken\\n traditional comment &#42;/&quot;); // correct" + DELIMITER + 
+				" * setLeadingComment(&quot;// end-of-line comment\\n&quot;); // correct" + DELIMITER + 
+				" * setLeadingComment(&quot;// end-of-line comment without line terminator&quot;); // correct" + DELIMITER + 
+				" * setLeadingComment(&quot;// broken\\n end-of-line comment\\n&quot;); // wrong" + DELIMITER + 
+				" * </pre>" + DELIMITER + 
+				" * </code>" + DELIMITER + 
 				" */";
 		String result=testFormat(input, options);
 		assertEquals(expected, result);
