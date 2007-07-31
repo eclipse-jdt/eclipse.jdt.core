@@ -54,7 +54,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 	
 	static {
-//		TESTS_NUMBERS = new int[] { 667 };
+//		TESTS_NUMBERS = new int[] { 668 };
 //		TESTS_RANGE = new int[] { 658, -1 };
 	}
 	public static Test suite() {
@@ -9360,5 +9360,13 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		} finally {
 			JavaCore.setOptions(javaCoreOptions);
 		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=198362
+	public void test668() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test668", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
