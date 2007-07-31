@@ -7,7 +7,7 @@
 <!ELEMENT sources (source+)>
 <!ELEMENT source (problems*,tasks*,(classfile | error)*)>
 <!ELEMENT problems (problem+)>
-<!ELEMENT problem (message,source_context,arguments)>
+<!ELEMENT problem (message,source_context,arguments?)>
 <!ELEMENT arguments (argument+)>
 <!ELEMENT tasks (task+)>
 <!ELEMENT task (message, source_context)>
