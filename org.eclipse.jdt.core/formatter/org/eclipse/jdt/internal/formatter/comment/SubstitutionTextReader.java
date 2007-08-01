@@ -113,7 +113,7 @@ public abstract class SubstitutionTextReader extends Reader {
 		do {
 			
 			c= nextChar();
-			while (!fReadFromBuffer) {
+			while (!fReadFromBuffer && c != -1) {
 				String s= computeSubstitution(c);
 				if (s == null)
 					break;

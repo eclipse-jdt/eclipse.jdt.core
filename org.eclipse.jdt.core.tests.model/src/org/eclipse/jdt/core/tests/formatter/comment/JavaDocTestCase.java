@@ -892,7 +892,7 @@ public class JavaDocTestCase extends CommentTestCase {
 		assertEquals(expected, result);
 	}
 
-	public void _test109636_2() {
+	public void test109636_2() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 
 		String input =
@@ -907,7 +907,29 @@ public class JavaDocTestCase extends CommentTestCase {
 			"/**" + DELIMITER + 
 			" * <pre>" + DELIMITER + 
 			" * /* Comment ending in multiple stars *&#42;/" + DELIMITER + 
-			" * /* Entity-needing character after a star *< &#42;/" + DELIMITER + 
+			" * /* Entity-needing character after a star *&lt; &#42;/" + DELIMITER + 
+			" * </pre>" + DELIMITER + 
+			" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
+	
+	public void test109636_3() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+
+		String input =
+				"/**" + DELIMITER + 
+				" * <pre>" + DELIMITER + 
+				" * /* Comment ending in multiple stars ***&#42;/" + DELIMITER + 
+				" * /* Entity-needing character after a star *&lt; &#42;/" + DELIMITER + 
+				" * </pre>" + DELIMITER + 
+				" */";
+		
+		String expected =
+			"/**" + DELIMITER + 
+			" * <pre>" + DELIMITER + 
+			" * /* Comment ending in multiple stars ***&#42;/" + DELIMITER + 
+			" * /* Entity-needing character after a star *&lt; &#42;/" + DELIMITER + 
 			" * </pre>" + DELIMITER + 
 			" */";
 		String result=testFormat(input, options);
