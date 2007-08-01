@@ -7,7 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ *     Matt McCutchen - add check for EOF handling
+ ******************************************************************************/
 
 package org.eclipse.jdt.internal.formatter.comment;
 
