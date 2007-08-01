@@ -26,7 +26,7 @@ import org.eclipse.text.edits.TextEdit;
 public class JavaDocTestCase extends CommentTestCase {
 	
 	static {
-//		TESTS_NAMES = new String[] { "test109636" } ;
+//		TESTS_NAMES = new String[] { "test109636_2" } ;
 	}
 
 	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
@@ -888,6 +888,28 @@ public class JavaDocTestCase extends CommentTestCase {
 				" * </pre>" + DELIMITER + 
 				" * </code>" + DELIMITER + 
 				" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
+
+	public void _test109636_2() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+
+		String input =
+				"/**" + DELIMITER + 
+				" * <pre>" + DELIMITER + 
+				" * /* Comment ending in multiple stars *&#42;/" + DELIMITER + 
+				" * /* Entity-needing character after a star *&lt; &#42;/" + DELIMITER + 
+				" * </pre>" + DELIMITER + 
+				" */";
+		
+		String expected =
+			"/**" + DELIMITER + 
+			" * <pre>" + DELIMITER + 
+			" * /* Comment ending in multiple stars *&#42;/" + DELIMITER + 
+			" * /* Entity-needing character after a star *< &#42;/" + DELIMITER + 
+			" * </pre>" + DELIMITER + 
+			" */";
 		String result=testFormat(input, options);
 		assertEquals(expected, result);
 	}
