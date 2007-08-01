@@ -3692,34 +3692,34 @@ private int processPaths(String[] args, int index, String currentArg, ArrayList 
 	} else {
 		StringBuffer currentPath = new StringBuffer(currentArg);
 		while (true) {
-    		if (localIndex >= args.length) {
-    			throw new InvalidInputException(
-    					this.bind("configure.unexpectedBracket", //$NON-NLS-1$
-    								currentArg));
-    		}
-    		localIndex++;
-    		String nextArg = args[localIndex];
-    		for (int i = 0, max = nextArg.length(); i < max; i++) {
-    			switch(nextArg.charAt(i)) {
-    				case '[' :
-    					if (count > 1) {
-    						throw new InvalidInputException(
-    								this.bind("configure.unexpectedBracket", //$NON-NLS-1$
-    											nextArg));
-    					}
-    					count++;
-    					break;
-    				case ']' :
-    					count--;
-    					break;
-    			}
-    		}
-    		if (count == 0) {
-    			currentPath.append(' ');
-    			currentPath.append(nextArg);
-    			paths.add(currentPath.toString());
-    			return localIndex - index;
-    		} else if (count < 0) {
+			if (localIndex >= args.length) {
+				throw new InvalidInputException(
+						this.bind("configure.unexpectedBracket", //$NON-NLS-1$
+								currentArg));
+			}
+			localIndex++;
+			String nextArg = args[localIndex];
+			for (int i = 0, max = nextArg.length(); i < max; i++) {
+				switch(nextArg.charAt(i)) {
+					case '[' :
+						if (count > 1) {
+							throw new InvalidInputException(
+									this.bind("configure.unexpectedBracket", //$NON-NLS-1$
+											nextArg));
+						}
+						count++;
+						break;
+					case ']' :
+						count--;
+						break;
+				}
+			}
+			if (count == 0) {
+				currentPath.append(' ');
+				currentPath.append(nextArg);
+				paths.add(currentPath.toString());
+				return localIndex - index;
+			} else if (count < 0) {
 				throw new InvalidInputException(
 						this.bind("configure.unexpectedBracket", //$NON-NLS-1$
 									nextArg));
@@ -3750,34 +3750,34 @@ private int processPaths(String[] args, int index, String currentArg, String[] p
 	} else {
 		StringBuffer currentPath = new StringBuffer(currentArg);
 		while (true) {
-    		localIndex++;
-    		if (localIndex >= args.length) {
-    			throw new InvalidInputException(
-    					this.bind("configure.unexpectedBracket", //$NON-NLS-1$
-    								currentArg));
-    		}
-    		String nextArg = args[localIndex];
-    		for (int i = 0, max = nextArg.length(); i < max; i++) {
-    			switch(nextArg.charAt(i)) {
-    				case '[' :
-    					if (count > 1) {
-    						throw new InvalidInputException(
-    								this.bind("configure.unexpectedBracket", //$NON-NLS-1$
-    											currentArg));
-    					}
-    					count++;
-    					break;
-    				case ']' :
-    					count--;
-    					break;
-    			}
-    		}
-    		if (count == 0) {
-    			currentPath.append(' ');
-    			currentPath.append(nextArg);
-    			paths[0] = currentPath.toString();
-    			return localIndex - index;
-    		} else if (count < 0) {
+			localIndex++;
+			if (localIndex >= args.length) {
+				throw new InvalidInputException(
+						this.bind("configure.unexpectedBracket", //$NON-NLS-1$
+								currentArg));
+			}
+			String nextArg = args[localIndex];
+			for (int i = 0, max = nextArg.length(); i < max; i++) {
+				switch(nextArg.charAt(i)) {
+					case '[' :
+						if (count > 1) {
+							throw new InvalidInputException(
+									this.bind("configure.unexpectedBracket", //$NON-NLS-1$
+											currentArg));
+						}
+						count++;
+						break;
+					case ']' :
+						count--;
+						break;
+				}
+			}
+			if (count == 0) {
+				currentPath.append(' ');
+				currentPath.append(nextArg);
+				paths[0] = currentPath.toString();
+				return localIndex - index;
+			} else if (count < 0) {
 				throw new InvalidInputException(
 						this.bind("configure.unexpectedBracket", //$NON-NLS-1$
 									currentArg));
