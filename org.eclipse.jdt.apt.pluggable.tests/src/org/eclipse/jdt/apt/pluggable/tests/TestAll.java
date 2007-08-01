@@ -33,7 +33,7 @@ public class TestAll extends TestCase {
 	{
 		TestSuite suite = new TestSuite();
 		
-//		suite.addTest(AptReconcileTests.suite());
+		suite.addTest(InfrastructureTests.suite());
 	
 		return suite;
 		
