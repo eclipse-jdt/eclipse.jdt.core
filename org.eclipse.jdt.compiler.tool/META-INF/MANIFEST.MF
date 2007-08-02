@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %fragmentName
 Bundle-SymbolicName: org.eclipse.jdt.compiler.tool
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.100.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: compiler_tool_fragment
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
