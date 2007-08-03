@@ -151,6 +151,31 @@ public class BuilderTests extends TestCase {
 		org.eclipse.jdt.internal.core.util.Util.sort(expected);
 		expectingCompiling(actual, expected, "unexpected recompiled units"); //$NON-NLS-1$
 	}
+	
+	/** 
+	 * Verifies that the given classes and no others have been compiled, 
+	 * but permits the classes to have been compiled more than once.
+	 */
+	protected void expectingUniqueCompiledClasses(String[] expected) {
+		String[] actual = debugRequestor.getCompiledClasses();
+		org.eclipse.jdt.internal.core.util.Util.sort(actual);
+		// Eliminate duplicate entries
+		int dups = 0;
+		for (int i = 0; i < actual.length - 1; ++i) {
+			if (actual[i + 1].equals(actual[i])) {
+				++dups;
+				actual[i] = null;
+			}
+		}
+		String[] uniqueActual = new String[actual.length - dups];
+		for (int i = 0, j = 0; i < actual.length; ++i) {
+			if (actual[i] != null) {
+				uniqueActual[j++] = actual[i];
+			}
+		}
+		org.eclipse.jdt.internal.core.util.Util.sort(expected);
+		expectingCompiling(uniqueActual, expected, "unexpected compiled units"); //$NON-NLS-1$
+	}
 
 	/** Verifies that given classes have been compiled in the specified order.
 	 */
