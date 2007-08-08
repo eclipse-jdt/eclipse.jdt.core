@@ -149,8 +149,9 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 					case IClasspathEntry.CPE_CONTAINER:
 						IClasspathContainer container = JavaCore.getClasspathContainer(rawEntry.getPath(), javaProject);
 						if (container == null) break;
-						if ((container.getKind() == IClasspathContainer.K_APPLICATION && (includeMask & APPLICATION_LIBRARIES) != 0)
-								|| (includeMask & SYSTEM_LIBRARIES) != 0) {
+						int containerKind = container.getKind();
+						if ((containerKind == IClasspathContainer.K_APPLICATION && (includeMask & APPLICATION_LIBRARIES) != 0)
+								|| (containerKind == IClasspathContainer.K_SYSTEM && (includeMask & SYSTEM_LIBRARIES) != 0)) {
 							IPath path = entry.getPath();
 							if (pathToAdd == null || pathToAdd.equals(path)) {
 								String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();

@@ -1149,7 +1149,7 @@ public void testBug153133() throws JavaModelException {
 			}
 		}
 	} finally {
-		removeLibraryEntry(new Path("/JavaSearchBugs/lib/b148215.jar"));
+		removeClasspathEntry(new Path("/JavaSearchBugs/lib/b148215.jar"));
 		root.close();
 	}
 }

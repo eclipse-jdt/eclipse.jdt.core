@@ -6975,7 +6975,7 @@ public void testBug148215_Types() throws CoreException {
 		);
 	}
 	finally {
-		removeLibraryEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b148215.jar"));
+		removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b148215.jar"));
 	}
 }
 public void testBug148215_Messages() throws CoreException {
@@ -6990,7 +6990,7 @@ public void testBug148215_Messages() throws CoreException {
 		);
 	}
 	finally {
-		removeLibraryEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b148215.jar"));
+		removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b148215.jar"));
 	}
 }
 public void testBug148215_Fields() throws CoreException {
@@ -7005,7 +7005,7 @@ public void testBug148215_Fields() throws CoreException {
 		);
 	}
 	finally {
-		removeLibraryEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b148215.jar"));
+		removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b148215.jar"));
 	}
 }
 
@@ -8303,6 +8303,90 @@ public void testBug196339b() throws CoreException {
 		"src/b196339/x/y/z/Test3.java b196339.x.y.z.Test3 [a.b.c.Foo196339]",
 		collector
 	);
+}
+
+/**
+ * @bug 199004: [search] Java Search in 'JRE libraries' finds matches in Application Libraries
+ * @test 1) That only match in system libraries are returned when SYSTEM_LIBRARIES is used in scope
+ * 			2) That only match outside system libraries are returned when SYSTEM_LIBRARIES is NOT used in scope
+ * 			3) That match in system libraries are returned when no mask is used in scope
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=199004"
+ * @throws CoreException
+ */
+public void testBug199004_SystemLibraries() throws CoreException {
+	DefaultContainerInitializer intializer = new DefaultContainerInitializer(new String[] {"JavaSearchBugs", "/JavaSearchBugs/lib/b199004.jar"}) {
+		protected DefaultContainer newContainer(char[][] libPaths) {
+			return new DefaultContainer(libPaths) {
+				public int getKind() {
+					return IClasspathContainer.K_SYSTEM;
+				}
+			};
+		}
+	};
+	ContainerInitializer.setInitializer(intializer);
+	Path libPath = new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER");
+	addClasspathEntry(JAVA_PROJECT, JavaCore.newContainerEntry(libPath));
+	try {
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JAVA_PROJECT }, IJavaSearchScope.SYSTEM_LIBRARIES);
+		search("length", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, scope);
+		assertSearchResults(
+			"lib/b199004.jar int Test.length() EXACT_MATCH"
+		);
+	}
+	finally {
+		removeClasspathEntry(JAVA_PROJECT, libPath);
+	}
+}
+public void testBug199004_ApplicationLibraries() throws CoreException {
+	DefaultContainerInitializer intializer = new DefaultContainerInitializer(new String[] {"JavaSearchBugs", "/JavaSearchBugs/lib/b199004.jar"}) {
+		protected DefaultContainer newContainer(char[][] libPaths) {
+			return new DefaultContainer(libPaths) {
+				public int getKind() {
+					return IClasspathContainer.K_SYSTEM;
+				}
+			};
+		}
+	};
+	ContainerInitializer.setInitializer(intializer);
+	Path libPath = new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER");
+	addClasspathEntry(JAVA_PROJECT, JavaCore.newContainerEntry(libPath));
+	try {
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JAVA_PROJECT }, mask);
+		search("length", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, scope);
+		assertSearchResults(
+			""+ getExternalJCLPathString("1.5") + " int java.lang.CharSequence.length() EXACT_MATCH\n" + 
+			""+ getExternalJCLPathString("1.5") + " int java.lang.String.length() EXACT_MATCH"
+		);
+	}
+	finally {
+		removeClasspathEntry(JAVA_PROJECT, libPath);
+	}
+}
+public void testBug199004_NoMask() throws CoreException {
+	DefaultContainerInitializer intializer = new DefaultContainerInitializer(new String[] {"JavaSearchBugs", "/JavaSearchBugs/lib/b199004.jar"}) {
+		protected DefaultContainer newContainer(char[][] libPaths) {
+			return new DefaultContainer(libPaths) {
+				public int getKind() {
+					return IClasspathContainer.K_SYSTEM;
+				}
+			};
+		}
+	};
+	ContainerInitializer.setInitializer(intializer);
+	Path libPath = new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER");
+	addClasspathEntry(JAVA_PROJECT, JavaCore.newContainerEntry(libPath));
+	try {
+		search("length", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS);
+		assertSearchResults(
+			""+ getExternalJCLPathString("1.5") + " int java.lang.CharSequence.length() EXACT_MATCH\n" + 
+			""+ getExternalJCLPathString("1.5") + " int java.lang.String.length() EXACT_MATCH\n" + 
+			"lib/b199004.jar int Test.length() EXACT_MATCH"
+		);
+	}
+	finally {
+		removeClasspathEntry(JAVA_PROJECT, libPath);
+	}
 }
 
 }

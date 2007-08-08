@@ -1944,7 +1944,7 @@ public void testDuplicateTypeDeclaration7() throws CoreException, IOException {
 				elements
 		);
 	} finally {
-		removeLibraryEntry(this.currentProject, new Path(jarName));
+		removeClasspathEntry(this.currentProject, new Path(jarName));
 		deleteFile(new File(jarName));
 	}
 }

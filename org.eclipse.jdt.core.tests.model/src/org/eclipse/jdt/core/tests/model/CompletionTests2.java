@@ -2331,7 +2331,7 @@ public void testChangeInternalJar() throws CoreException, IOException {
 			"doit2C[METHOD_REF]{doit2C, Lpack.Util;, (I)V, doit2C, "+(R_DEFAULT + R_RESOLVED + R_CASE + R_INTERESTING + R_NON_RESTRICTED + R_NON_STATIC) + "}",
 			requestor.getResults());
 	} finally {
-		removeLibraryEntry(this.currentProject, new Path(jarName));
+		removeClasspathEntry(this.currentProject, new Path(jarName));
 		deleteFile(new File(jarName));
 	}
 }

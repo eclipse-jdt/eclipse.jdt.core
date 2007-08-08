@@ -17,7 +17,6 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
@@ -49,74 +48,6 @@ public static class DefaultVariableInitializer implements VariablesInitializer.I
 	}
 }
 
-public static class DefaultContainerInitializer implements ContainerInitializer.ITestInitializer {
-	
-	public static class DefaultContainer implements IClasspathContainer {
-		char[][] libPaths;
-		public DefaultContainer(char[][] libPaths) {
-			this.libPaths = libPaths;
-		}
-		public IClasspathEntry[] getClasspathEntries() {
-			int length = this.libPaths.length;
-			IClasspathEntry[] entries = new IClasspathEntry[length];
-			for (int j = 0; j < length; j++) {
-			    IPath path = new Path(new String(this.libPaths[j]));
-			    if (path.segmentCount() == 1) {
-			        entries[j] = JavaCore.newProjectEntry(path);
-			    } else {
-					entries[j] = JavaCore.newLibraryEntry(path, null, null);
-			    }
-			}
-			return entries;
-		}
-		public String getDescription() {
-			return "Test container";
-		}
-		public int getKind() {
-			return IClasspathContainer.K_APPLICATION;
-		}
-		public IPath getPath() {
-			return new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER");
-		}
-	}
-	
-	Map containerValues;
-	CoreException exception;
-	
-	/*
-	 * values is [<project name>, <lib path>[,<lib path>]* ]*
-	 */
-	public DefaultContainerInitializer(String[] values) {
-		containerValues = new HashMap();
-		for (int i = 0; i < values.length; i+=2) {
-			final String projectName = values[i];
-			final char[][] libPaths = CharOperation.splitOn(',', values[i+1].toCharArray());
-			containerValues.put(
-				projectName, 
-				newContainer(libPaths)
-			);
-		}
-	}
-	protected DefaultContainer newContainer(final char[][] libPaths) {
-		return new DefaultContainer(libPaths);
-	}
-	public boolean allowFailureContainer() {
-		return true;
-	}
-	public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
-		if (containerValues == null) return;
-		try {
-			JavaCore.setClasspathContainer(
-				containerPath, 
-				new IJavaProject[] {project},
-				new IClasspathContainer[] {(IClasspathContainer)containerValues.get(project.getElementName())}, 
-				null);
-		} catch (CoreException e) {
-			this.exception = e;
-			throw e;
-		}
-	}
-}
 // Simple container initializer, which keeps setting container to null
 // (30920 - stackoverflow when setting container to null)
 public class NullContainerInitializer implements ContainerInitializer.ITestInitializer {
@@ -485,7 +416,7 @@ public void testContainerInitializer08() throws CoreException {
  */
 public void testContainerInitializer09() throws CoreException {
 	try {
-		ClasspathInitializerTests.DefaultContainerInitializer initializer = new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}) {
+		DefaultContainerInitializer initializer = new DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}) {
 			protected DefaultContainer newContainer(char[][] libPaths) {
 				return new DefaultContainer(libPaths) {
 					public IClasspathEntry[] getClasspathEntries() {
@@ -622,7 +553,7 @@ public void testContainerInitializer11() throws CoreException {
 			new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
 			"");
 		simulateExitRestart();
-		ClasspathInitializerTests.DefaultContainerInitializer initializer = new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {}) {
+		DefaultContainerInitializer initializer = new DefaultContainerInitializer(new String[] {}) {
 			public void initialize(IPath containerPath,IJavaProject project) throws CoreException {
 				assertTrue("Should not initialize container on shutdown", false);
 			}

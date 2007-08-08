@@ -133,7 +133,7 @@ public void testApplicationLibrairiesClasspathVariable() throws CoreException {
  */
 public void testApplicationLibrairiesClasspathContainer() throws CoreException {
 	try {
-		ContainerInitializer.setInitializer(new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}));
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}));
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
@@ -151,7 +151,7 @@ public void testApplicationLibrairiesClasspathContainer() throws CoreException {
  */
 public void testSystemLibraries() throws CoreException {
 	try {
-		ClasspathInitializerTests.DefaultContainerInitializer intializer = new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}) {
+		DefaultContainerInitializer intializer = new DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}) {
 			protected DefaultContainer newContainer(char[][] libPaths) {
 				return new DefaultContainer(libPaths) {
 					public int getKind() {
@@ -199,7 +199,7 @@ public void testSourcesOrDirectReferencedProjects() throws CoreException {
 public void testSourcesOrContainerReferencedProjects() throws CoreException {
 	try {
 		createJavaProject("P1");
-		ContainerInitializer.setInitializer(new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P2", "/P1"}));
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1"}));
 		IJavaProject project = createJavaProject("P2", new String[] {"src"}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "bin");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS);
 		assertScopeEquals(

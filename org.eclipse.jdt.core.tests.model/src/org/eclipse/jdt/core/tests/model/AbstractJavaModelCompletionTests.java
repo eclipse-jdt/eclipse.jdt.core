@@ -67,7 +67,7 @@ protected void removeLibrary(String projectName, String jarName) throws CoreExce
 	IJavaProject javaProject = getJavaProject(projectName);		
 	IProject project = javaProject.getProject();
 	String projectPath = '/' + project.getName() + '/';
-	removeLibraryEntry(javaProject, new Path(projectPath + jarName));
+	removeClasspathEntry(javaProject, new Path(projectPath + jarName));
 }
 public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
 	return super.getWorkingCopy(path, source, this.wcOwner);

@@ -59,7 +59,7 @@ public void testDeadlock01() throws CoreException {
 		final Semaphore step2 = new Semaphore("<2:permission to perform resource modification >", 0); // first acquisition to wait
 		final Semaphore hasCompleted = new Semaphore(0); 
 		
-		ContainerInitializer.setInitializer(new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P", ""}){
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", ""}){
 			public void initialize(IPath containerPath, IJavaProject javaProject) throws CoreException {
 				step2.release();
 				System.out.println(Thread.currentThread() + " initializer has started: attempting to acquire workspace lock");

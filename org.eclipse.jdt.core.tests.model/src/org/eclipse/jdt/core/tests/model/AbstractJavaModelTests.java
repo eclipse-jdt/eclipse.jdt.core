@@ -255,6 +255,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			actual
 		);
 	}
+	protected void addClasspathEntry(IJavaProject project, IClasspathEntry entry) throws JavaModelException{
+		IClasspathEntry[] entries = project.getRawClasspath();
+		int length = entries.length;
+		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 0, length);
+		entries[length] = entry;
+		project.setRawClasspath(entries, null);
+	}
 	protected void addLibrary(String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
 		addLibrary(this.currentProject, jarName, sourceZipName, pathAndContents, null, null, compliance);
 	}
@@ -314,17 +321,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		);
 	}
 	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, IClasspathAttribute[] extraAttributes, boolean exported) throws JavaModelException{
-		IClasspathEntry[] entries = project.getRawClasspath();
-		int length = entries.length;
-		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 0, length);
-		entries[length] = JavaCore.newLibraryEntry(
+		IClasspathEntry entry = JavaCore.newLibraryEntry(
 			path, 
 			srcAttachmentPath, 
 			srcAttachmentPathRoot, 
 			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles), 
 			extraAttributes, 
 			exported);
-		project.setRawClasspath(entries, null);
+		addClasspathEntry(project, entry);
 	}
 	protected void assertSortedElementsEqual(String message, String expected, IJavaElement[] elements) {
 		sortElements(elements);
@@ -1763,16 +1767,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void removeLibrary(IJavaProject javaProject, String jarName, String sourceZipName) throws CoreException, IOException {
 		IProject project = javaProject.getProject();
 		String projectPath = '/' + project.getName() + '/';
-		removeLibraryEntry(javaProject, new Path(projectPath + jarName));
+		removeClasspathEntry(javaProject, new Path(projectPath + jarName));
 		org.eclipse.jdt.core.tests.util.Util.delete(project.getFile(jarName));
 		if (sourceZipName != null && sourceZipName.length() != 0) {
 			org.eclipse.jdt.core.tests.util.Util.delete(project.getFile(sourceZipName));
 		}
 	}
-	protected void removeLibraryEntry(IPath path) throws JavaModelException {
-		removeLibraryEntry(this.currentProject, path);
+	protected void removeClasspathEntry(IPath path) throws JavaModelException {
+		removeClasspathEntry(this.currentProject, path);
 	}
-	protected void removeLibraryEntry(IJavaProject project, IPath path) throws JavaModelException {
+	protected void removeClasspathEntry(IJavaProject project, IPath path) throws JavaModelException {
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;
 		IClasspathEntry[] newEntries = null;

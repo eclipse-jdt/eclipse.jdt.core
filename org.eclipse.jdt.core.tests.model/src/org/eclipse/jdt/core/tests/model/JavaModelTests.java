@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.tests.model.ClasspathInitializerTests.DefaultContainerInitializer;
 
 import junit.framework.Test;
 /**

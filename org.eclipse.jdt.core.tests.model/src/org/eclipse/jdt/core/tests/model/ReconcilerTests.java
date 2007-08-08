@@ -867,7 +867,7 @@ public void testChangeExternalJar() throws CoreException, IOException {
 			"----------\n"
 		);
 	} finally {
-		removeLibraryEntry(project, new Path(jarPath));
+		removeClasspathEntry(project, new Path(jarPath));
 		deleteFile(new File(jarPath));
 	}
 }
@@ -960,7 +960,7 @@ public void testChangeInternalJar() throws CoreException, IOException {
 			"----------\n"
 		);
 	} finally {
-		removeLibraryEntry(project, new Path(jarName));
+		removeClasspathEntry(project, new Path(jarName));
 		deleteFile(new File(jarName));
 	}
 }
@@ -1281,7 +1281,7 @@ public void testExternal2() throws CoreException {
 		this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 		this.workingCopy = null;
 		this.problemRequestor =  new ProblemRequestor();
-		ContainerInitializer.setInitializer(new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {" ", getExternalJCLPathString()}));
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {" ", getExternalJCLPathString()}));
 		IClasspathEntry[] classpath = new IClasspathEntry[] {
 			JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"))
 		};
