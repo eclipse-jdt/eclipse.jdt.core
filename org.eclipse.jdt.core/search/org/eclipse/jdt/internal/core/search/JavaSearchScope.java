@@ -134,7 +134,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 					rawEntry = (IClasspathEntry) rootPathToRawEntries.get(entry.getPath());
 				}
 				if (rawEntry == null) break;
-				switch (rawEntry.getEntryKind()) {
+				rawKind: switch (rawEntry.getEntryKind()) {
 					case IClasspathEntry.CPE_LIBRARY:
 					case IClasspathEntry.CPE_VARIABLE:
 						if ((includeMask & APPLICATION_LIBRARIES) != 0) {
@@ -149,15 +149,22 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 					case IClasspathEntry.CPE_CONTAINER:
 						IClasspathContainer container = JavaCore.getClasspathContainer(rawEntry.getPath(), javaProject);
 						if (container == null) break;
-						int containerKind = container.getKind();
-						if ((containerKind == IClasspathContainer.K_APPLICATION && (includeMask & APPLICATION_LIBRARIES) != 0)
-								|| (containerKind == IClasspathContainer.K_SYSTEM && (includeMask & SYSTEM_LIBRARIES) != 0)) {
-							IPath path = entry.getPath();
-							if (pathToAdd == null || pathToAdd.equals(path)) {
-								String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
-								add(projectPath.toString(), "", pathToString, false/*not a package*/, access); //$NON-NLS-1$
-								addEnclosingProjectOrJar(path);
-							}
+						switch (container.getKind()) {
+							case IClasspathContainer.K_APPLICATION:
+								if ((includeMask & APPLICATION_LIBRARIES) == 0) break rawKind;
+								break;
+							case IClasspathContainer.K_SYSTEM:
+							case IClasspathContainer.K_DEFAULT_SYSTEM:
+								if ((includeMask & SYSTEM_LIBRARIES) == 0) break rawKind;
+								break;
+							default:
+								break rawKind;
+						}
+						IPath path = entry.getPath();
+						if (pathToAdd == null || pathToAdd.equals(path)) {
+							String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
+							add(projectPath.toString(), "", pathToString, false/*not a package*/, access); //$NON-NLS-1$
+							addEnclosingProjectOrJar(path);
 						}
 						break;
 				}

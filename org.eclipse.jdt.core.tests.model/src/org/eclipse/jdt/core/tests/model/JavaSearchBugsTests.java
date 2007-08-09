@@ -8337,6 +8337,30 @@ public void testBug199004_SystemLibraries() throws CoreException {
 		removeClasspathEntry(JAVA_PROJECT, libPath);
 	}
 }
+public void testBug199004_DefaultSystemLibraries() throws CoreException {
+	DefaultContainerInitializer intializer = new DefaultContainerInitializer(new String[] {"JavaSearchBugs", "/JavaSearchBugs/lib/b199004.jar"}) {
+		protected DefaultContainer newContainer(char[][] libPaths) {
+			return new DefaultContainer(libPaths) {
+				public int getKind() {
+					return IClasspathContainer.K_DEFAULT_SYSTEM;
+				}
+			};
+		}
+	};
+	ContainerInitializer.setInitializer(intializer);
+	Path libPath = new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER");
+	addClasspathEntry(JAVA_PROJECT, JavaCore.newContainerEntry(libPath));
+	try {
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JAVA_PROJECT }, IJavaSearchScope.SYSTEM_LIBRARIES);
+		search("length", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, scope);
+		assertSearchResults(
+			"lib/b199004.jar int Test.length() EXACT_MATCH"
+		);
+	}
+	finally {
+		removeClasspathEntry(JAVA_PROJECT, libPath);
+	}
+}
 public void testBug199004_ApplicationLibraries() throws CoreException {
 	DefaultContainerInitializer intializer = new DefaultContainerInitializer(new String[] {"JavaSearchBugs", "/JavaSearchBugs/lib/b199004.jar"}) {
 		protected DefaultContainer newContainer(char[][] libPaths) {
