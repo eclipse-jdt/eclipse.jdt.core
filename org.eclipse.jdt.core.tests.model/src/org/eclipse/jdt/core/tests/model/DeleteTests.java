@@ -280,6 +280,35 @@ public void testDeleteCompilationUnit4() throws CoreException {
 		deleteFolder("P/p");
 	}
 }
+
+/*
+ * Ensures that the primary type is not found after the file has been deleted
+ * (regression test for 197157 Old compilation unit contents retrieved even after file is deleted)
+ */
+public void testDeleteCompilationUnit5() throws CoreException {
+	try {
+		IPackageFragment pkg = getPackage("/P");
+		pkg.createCompilationUnit(
+			"X.java", 
+			"public class X {\n" +
+			"}",
+			true,
+			null
+		);
+		// force opening
+		getCompilationUnit("P/X.java").open(null);
+		
+		IFile file = getFile("P/X.java");
+		file.delete(true, null);
+
+		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
+		IType type = cu.findPrimaryType();
+		assertNull("Should not find primary type", type);
+	} finally {
+		deleteFile("P/X.java");
+	}
+}
+
 /**
  * Ensures that a constructor can be deleted.
  * Verify that the correct change deltas are generated.
