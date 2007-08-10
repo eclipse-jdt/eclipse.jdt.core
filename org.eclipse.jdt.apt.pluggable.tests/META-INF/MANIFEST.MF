@@ -18,3 +18,4 @@ Require-Bundle: org.junit,
  org.eclipse.ui.ide
 Eclipse-LazyStart: true
 Bundle-Vendor: %providerName
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
