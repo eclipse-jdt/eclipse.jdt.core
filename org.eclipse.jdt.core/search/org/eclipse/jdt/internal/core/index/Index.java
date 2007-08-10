@@ -31,6 +31,10 @@ public class Index {
 public String containerPath;
 public ReadWriteMonitor monitor;
 
+// Separator to use after the container path
+private static final char DEFAULT_SEPARATOR = '/';
+public char separator = DEFAULT_SEPARATOR;
+
 protected DiskIndex diskIndex;
 protected MemoryIndex memoryIndex;
 

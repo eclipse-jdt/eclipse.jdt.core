@@ -918,4 +918,86 @@ public void testBug167743() throws CoreException {
 		deleteProject("P");
 	}
 }
+
+/**
+ * @bug 199392: [search] Type Dialog Error 'Items filtering ... Reason: Class file name must end with .class'
+ * @test Ensure that types are found even in project which name ends either with ".jar" or ".zip"
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=199392"
+ */
+public void testBug199392_Jar() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("Test.jar");
+		createFolder("/Test.jar/test");
+		createFile(
+			"/Test.jar/test/MyClass.java",
+			"package test;\n" + 
+			"public class MyClass {\n" + 
+			"}\n"
+		);
+
+		// Search all type names with TypeNameMatchRequestor
+		AbstractJavaSearchTests.TypeNameMatchCollector collector = new AbstractJavaSearchTests.TypeNameMatchCollector() {
+			public String toString(){
+				return toFullyQualifiedNamesString();
+			}
+		};
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
+		new SearchEngine().searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			new char[] { 'M', 'y' },
+			SearchPattern.R_CAMELCASE_MATCH,
+			IJavaSearchConstants.TYPE,
+			scope,
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		// Should have same types with these 2 searches
+		assertEquals("Invalid number of types found!", 1, collector.size());
+		assertEquals("Found types sounds not to be correct", 
+			"test.MyClass",
+			collector.toString()
+		);
+	} finally {
+		deleteProject("Test.jar");
+	}
+}
+public void testBug199392_Zip() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("Test.zip");
+		createFolder("/Test.zip/test");
+		createFile(
+			"/Test.zip/test/MyClass.java",
+			"package test;\n" + 
+			"public class MyClass {\n" + 
+			"}\n"
+		);
+
+		// Search all type names with TypeNameMatchRequestor
+		AbstractJavaSearchTests.TypeNameMatchCollector collector = new AbstractJavaSearchTests.TypeNameMatchCollector() {
+			public String toString(){
+				return toFullyQualifiedNamesString();
+			}
+		};
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
+		new SearchEngine().searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			new char[] { 'M', 'y' },
+			SearchPattern.R_CAMELCASE_MATCH,
+			IJavaSearchConstants.TYPE,
+			scope,
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		// Should have same types with these 2 searches
+		assertEquals("Invalid number of types found!", 1, collector.size());
+		assertEquals("Found types sounds not to be correct", 
+			"test.MyClass",
+			collector.toString()
+		);
+	} finally {
+		deleteProject("Test.zip");
+	}
+}
 }

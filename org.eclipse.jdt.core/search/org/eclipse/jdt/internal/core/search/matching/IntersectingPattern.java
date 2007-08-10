@@ -67,10 +67,11 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 	}
 
 	String containerPath = index.containerPath;
+	char separator = index.separator;
 	Object[] names = intersectedNames.values;
 	for (int i = 0, l = names.length; i < l; i++)
 		if (names[i] != null)
-			((InternalSearchPattern) this).acceptMatch((String) names[i], containerPath, null/*no pattern*/, requestor, participant, scope); // AndPatterns cannot provide the decoded result
+			((InternalSearchPattern) this).acceptMatch((String) names[i], containerPath, separator, null/*no pattern*/, requestor, participant, scope); // AndPatterns cannot provide the decoded result
 }
 /**
  * Returns whether another query must be done.

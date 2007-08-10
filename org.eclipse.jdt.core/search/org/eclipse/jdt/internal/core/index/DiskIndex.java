@@ -45,7 +45,7 @@ private byte[] streamBuffer;
 private int bufferIndex, bufferEnd; // used when reading from the file into the streamBuffer
 private int streamEnd; // used when writing data from the streamBuffer to the file
 
-public static final String SIGNATURE= "INDEX VERSION 1.121"; //$NON-NLS-1$
+public static final String SIGNATURE= "INDEX VERSION 1.122"; //$NON-NLS-1$
 private static final char[] SIGNATURE_CHARS = SIGNATURE.toCharArray();
 public static boolean DEBUG = false;
 
