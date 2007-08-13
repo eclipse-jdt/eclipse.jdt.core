@@ -706,13 +706,13 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 			IJavaProject project = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.4");
 			IMethodBinding[] bindings = createMethodBindings(
 				new String[] {
-					"/P/p1/X.java",
+					"/P2/p1/X.java",
 					"package p1;\n" +
 					"public class X {\n" +
 					"  Object foo() {\n" +
 					"  }\n" +
 					"}",
-					"/P/p1/Y.java",
+					"/P2/p1/Y.java",
 					"package p1;\n" +
 					"public class Y extends X {\n" +
 					"  String foo() {\n" +
