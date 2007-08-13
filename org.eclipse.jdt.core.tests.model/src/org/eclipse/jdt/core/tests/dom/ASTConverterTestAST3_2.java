@@ -9229,4 +9229,20 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertNotNull("No fields", fields);
 		assertTrue("Empty", fields.length != 0);
 	}
+	
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=196354
+	 */
+	public void test0678() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "Sample", "Sample.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runConversion(AST.JLS3, sourceUnit, true);
+		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		final PackageDeclaration packageDeclaration = compilationUnit.getPackage();
+		final IPackageBinding packageBinding = packageDeclaration.resolveBinding();
+		assertNotNull("No binding", packageBinding);
+		assertEquals("Wrong name", "Sample", packageBinding.getName());
+	}
 }

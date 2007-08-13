@@ -1,0 +1,3 @@
+package Sample;
+
+class Sample {}

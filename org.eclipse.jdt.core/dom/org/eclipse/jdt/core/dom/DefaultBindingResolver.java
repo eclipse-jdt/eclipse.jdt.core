@@ -1327,16 +1327,23 @@ class DefaultBindingResolver extends BindingResolver {
 				ImportReference importReference = (ImportReference) node;
 				Binding binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
 				if ((binding != null) && (binding.isValidBinding())) {
-					IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
-					if (packageBinding == null) {
-						return null;
+					if (binding instanceof ReferenceBinding) {
+						// this only happens if a type name has the same name as its package
+						ReferenceBinding referenceBinding = (ReferenceBinding) binding;
+						binding = referenceBinding.fPackage;
 					}
-					this.bindingsToAstNodes.put(packageBinding, pkg);
-					String key = packageBinding.getKey();
-					if (key != null) {
-						this.bindingTables.bindingKeysToBindings.put(key, packageBinding);
+					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
+						IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
+						if (packageBinding == null) {
+							return null;
+						}
+						this.bindingsToAstNodes.put(packageBinding, pkg);
+						String key = packageBinding.getKey();
+						if (key != null) {
+							this.bindingTables.bindingKeysToBindings.put(key, packageBinding);
+						}
+						return packageBinding;
 					}
-					return packageBinding;
 				}
 			}
 		} catch (AbortCompilation e) {
