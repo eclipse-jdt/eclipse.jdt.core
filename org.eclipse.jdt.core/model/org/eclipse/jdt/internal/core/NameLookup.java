@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -164,14 +165,16 @@ public class NameLookup implements SuffixConstants {
 				// ignore (implementation of HashtableOfArrayToObject supports cloning)
 			}
 			this.typesInWorkingCopies = new HashMap();
-			HashSet rootsSet = new HashSet();
+			HashtableOfObjectToInt rootPositions = new HashtableOfObjectToInt();
 			for (int i = 0, length = packageFragmentRoots.length; i < length; i++) {
-				rootsSet.add(packageFragmentRoots[i]);
+				rootPositions.put(packageFragmentRoots[i], i);
 			}
 			for (int i = 0, length = workingCopies.length; i < length; i++) {
 				ICompilationUnit workingCopy = workingCopies[i];
 				PackageFragment pkg = (PackageFragment) workingCopy.getParent();
-				if (!rootsSet.contains(pkg.getParent()))
+				IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
+				int rootPosition = rootPositions.get(root);
+				if (rootPosition == -1)
 					continue; // working copy is not visible from this project (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=169970)
 				HashMap typeMap = (HashMap) this.typesInWorkingCopies.get(pkg);
 				if (typeMap == null) {
@@ -207,7 +210,6 @@ public class NameLookup implements SuffixConstants {
 				}
 				
 				// add root of package fragment to cache
-				IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
 				String[] pkgName = pkg.names;
 				Object existing = this.packageFragments.get(pkgName);
 				if (existing == null || existing == JavaProjectElementInfo.NO_ROOTS) {
@@ -217,22 +219,39 @@ public class NameLookup implements SuffixConstants {
 					JavaProjectElementInfo.addSuperPackageNames(pkgName, this.packageFragments);
 				} else {
 					if (existing instanceof PackageFragmentRoot) {
-						if (!existing.equals(root))
-							this.packageFragments.put(pkgName, new IPackageFragmentRoot[] {(PackageFragmentRoot) existing, root});
+						int exisitingPosition = rootPositions.get(existing);
+						if (rootPosition != exisitingPosition) { // if not equal
+							this.packageFragments.put(
+								pkgName, 
+								exisitingPosition < rootPosition ?
+									new IPackageFragmentRoot[] {(PackageFragmentRoot) existing, root} :
+									new IPackageFragmentRoot[] {root, (PackageFragmentRoot) existing});
+						}
 					} else {
+						// insert root in the existing list
 						IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) existing;
 						int rootLength = roots.length;
-						boolean containsRoot = false;
+						int insertionIndex = 0;
 						for (int j = 0; j < rootLength; j++) {
-							if (roots[j].equals(root)) {
-								containsRoot = true;
+							int existingPosition = rootPositions.get(roots[j]);
+							if (rootPosition > existingPosition) {
+								// root is after this index
+								insertionIndex = j;
+							} else if (rootPosition == existingPosition) {
+								 // root already in the existing list
+								insertionIndex = -1;
+								break;
+							} else if (rootPosition < existingPosition) {
+								// root is before this index (thus it is at the insertion index)
 								break;
 							}
 						}
-						if (containsRoot) {
-							System.arraycopy(roots, 0, roots = new IPackageFragmentRoot[rootLength+1], 0, rootLength);
-							roots[rootLength] = root;
-							this.packageFragments.put(pkgName, roots);
+						if (insertionIndex != -1) {
+							IPackageFragmentRoot[] newRoots = new IPackageFragmentRoot[rootLength+1];
+							System.arraycopy(roots, 0, newRoots, 0, insertionIndex);
+							newRoots[insertionIndex] = root;
+							System.arraycopy(roots, insertionIndex, newRoots, insertionIndex+1, rootLength-insertionIndex);
+							this.packageFragments.put(pkgName, newRoots);
 						}
 					}
 				}

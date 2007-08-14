@@ -1933,15 +1933,10 @@ public void testDuplicateTypeDeclaration7() throws CoreException, IOException {
 		int length = "Type".length();
 		IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
 		
-		
-		// The result should be "Type [in Type.class [in test.p [in src [in Resolve]]]]" but it is
-		// currently "Type [in Type.class [in test.p [in bug119434.jar [in Resolve]]]]". 
-		// This is caused by the bug 194432
-		// This test must be updated once bug 194432 will be fixed
 		assertElementsEqual(
-				"Unexpected elements",
-				"Type [in Type.class [in test.p [in bug119434.jar [in Resolve]]]]",
-				elements
+			"Unexpected elements",
+			"Type [in [Working copy] Type.java [in test.p [in src [in Resolve]]]]",
+			elements
 		);
 	} finally {
 		removeClasspathEntry(this.currentProject, new Path(jarName));
@@ -2221,5 +2216,31 @@ public void testSelectOnCursor1() throws JavaModelException {
 		"doLoad() [in AType [in [Working copy] AType.java [in <default> [in src [in Resolve]]]]]",
 		elements
 	);
+}
+
+/*
+ * Ensures that the first type is found when defined in 2 different roots by working copies.
+ * (regression test for 194399 IJavaProject.findType(String, String, WorkingCopyOwner) doesn't return the same element with different VMs.)
+ */
+public void testWorkingCopyOrder1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/p/Type.java",
+		"package test.p;\n" + 
+		"public class Type {\n" + 
+		"}\n"
+	);
+	this.workingCopies[1] = getWorkingCopy(
+		"/Resolve/src2/test/p/Type.java", 
+		"package test.p;\n" + 
+		"public class Type {\n" + 
+		"}\n"
+	);
+	IJavaProject javaProject = getJavaProject("Resolve");
+	IType foundType = javaProject.findType("test.p", "Type", this.wcOwner);
+	assertElementEquals(
+		"Unexpected type",
+		"Type [in [Working copy] Type.java [in test.p [in src [in Resolve]]]]",
+		foundType);
 }
 }
