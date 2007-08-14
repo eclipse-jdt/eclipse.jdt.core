@@ -164,9 +164,15 @@ public class NameLookup implements SuffixConstants {
 				// ignore (implementation of HashtableOfArrayToObject supports cloning)
 			}
 			this.typesInWorkingCopies = new HashMap();
+			HashSet rootsSet = new HashSet();
+			for (int i = 0, length = packageFragmentRoots.length; i < length; i++) {
+				rootsSet.add(packageFragmentRoots[i]);
+			}
 			for (int i = 0, length = workingCopies.length; i < length; i++) {
 				ICompilationUnit workingCopy = workingCopies[i];
 				PackageFragment pkg = (PackageFragment) workingCopy.getParent();
+				if (!rootsSet.contains(pkg.getParent()))
+					continue; // working copy is not visible from this project (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=169970)
 				HashMap typeMap = (HashMap) this.typesInWorkingCopies.get(pkg);
 				if (typeMap == null) {
 					typeMap = new HashMap();

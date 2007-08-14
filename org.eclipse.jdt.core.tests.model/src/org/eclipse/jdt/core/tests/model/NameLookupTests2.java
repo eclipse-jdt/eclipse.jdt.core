@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
 
@@ -293,6 +294,34 @@ public void testFindBinaryTypeWithSameNameAsMember() throws CoreException, IOExc
 			new IType[] {type});
 	} finally {
 		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a type in working copy opened in an unrelated project is not found
+ * (regression test for bug 169970 [model] code assist favorites must honour build path of project in context)
+ */
+public void testFindTypeWithUnrelatedWorkingCopy() throws Exception {
+	ICompilationUnit workingCopy = null;
+	try {
+		createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java", 
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		workingCopy = getCompilationUnit("/P1/p/X.java");
+		workingCopy.becomeWorkingCopy(null);
+		IJavaProject p2 = createJavaProject("P2");
+		NameLookup nameLookup = ((JavaProject) p2).newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
+		IType type = nameLookup.findType("p.X", false, NameLookup.ACCEPT_ALL);
+		assertNull("Should not find p.X in P2", type);
+	} finally {
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 }
