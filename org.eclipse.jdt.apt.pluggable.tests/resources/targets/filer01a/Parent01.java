@@ -9,15 +9,15 @@
  *    wharley@bea.com - initial API and implementation
  *******************************************************************************/
 
-package targets.infrastructure;
+package targets.filer;
 
-import org.eclipse.jdt.apt.pluggable.tests.annotations.Message6;
+import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;
 
 /**
- * A simple class with no annotations, to test compilation of vanilla projects
+ * Processing this class should result in creation of a source file
  */
-public class NoAnno {
-	// This is here to verify that we have access to the annotations jar from within the test project.
-	Class<?> _annoClass = Message6.class;
+@GenClass6(name="Generated01", pkg="gen6", summary=true)
+public class Parent01 {
+	
 }
 

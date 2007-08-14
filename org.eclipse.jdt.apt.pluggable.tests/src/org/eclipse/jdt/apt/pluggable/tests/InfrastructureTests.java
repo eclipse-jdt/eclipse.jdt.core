@@ -59,8 +59,7 @@ public class InfrastructureTests extends TestBase
 	{
 		IJavaProject jproj = createJavaProject(_projectName);
 		IProject proj = jproj.getProject();
-		
-		IdeTestUtils.copyResources(proj, "targets/infrastructure", "src/targets/infrastructure");
+		IdeTestUtils.copyResources(proj, "targets/infrastructure", "src/targets/infrastructure"); // source code
 		fullBuild();
 		expectingNoProblems();
 		String[] expectedClasses = { "targets.infrastructure.NoAnno" };
