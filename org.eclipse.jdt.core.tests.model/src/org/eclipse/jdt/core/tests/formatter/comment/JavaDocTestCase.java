@@ -803,4 +803,136 @@ public class JavaDocTestCase extends CommentTestCase {
 		assertNotNull(edit);
 		assertEquals("No edit", 0, edit.getChildrenSize());
 	}
+
+	public void test198153() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+
+		String input = "/**" + DELIMITER +
+				" * <pre>" + DELIMITER +
+				" * System.out.println(&#34;hello world&#34;);" + DELIMITER +
+				" * </pre>" + DELIMITER +
+				" */";
+		
+		String expected = "/**" + DELIMITER +
+				" * <pre>" + DELIMITER +
+				// No space after "world".
+				" * System.out.println(&quot;hello world&quot;);" + DELIMITER +
+				" * </pre>" + DELIMITER +
+				" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
+
+	public void test197169() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+
+		String input = "/**" + DELIMITER + 
+				" * <pre>" + DELIMITER + 
+				" * &#064;Anno1 class Foo {" + DELIMITER + 
+				" * &#064;Anno1 class Bar {}" + DELIMITER + 
+				" * }" + DELIMITER + 
+				" * &#064;Anno2(&#064;Anno1) class Baz {}" + DELIMITER + 
+				" * </pre>" + DELIMITER + 
+				" */";
+		
+		String expected = "/**" + DELIMITER + 
+				" * <pre>" + DELIMITER + 
+				// Initial &#064 left alone.
+				" * &#064;Anno1" + DELIMITER + 
+				" * class Foo {" + DELIMITER + 
+				// Left alone even after whitespace.
+				" * 	&#064;Anno1" + DELIMITER + 
+				" * 	class Bar {" + DELIMITER + 
+				" * 	}" + DELIMITER + 
+				" * }" + DELIMITER + 
+				" * " + DELIMITER + 
+				// Non-initial &#064; expanded.
+				" * &#064;Anno2(@Anno1)" + DELIMITER + 
+				" * class Baz {" + DELIMITER + 
+				" * }" + DELIMITER + 
+				" * </pre>" + DELIMITER + 
+				" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
+	
+	public void test109636() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+
+		String input =
+				"/**" + DELIMITER + 
+				" * <code>" + DELIMITER + 
+				" * <pre>" + DELIMITER + 
+				" * setLeadingComment(\"/&#42; traditional comment &#42;/\");  // correct" + DELIMITER + 
+				" * setLeadingComment(\"missing comment delimiters\");  // wrong" + DELIMITER + 
+				" * setLeadingComment(\"/&#42; unterminated traditional comment \");  // wrong" + DELIMITER + 
+				" * setLeadingComment(\"/&#42; broken\\n traditional comment &#42;/\");  // correct" + DELIMITER + 
+				" * setLeadingComment(\"// end-of-line comment\\n\");  // correct" + DELIMITER + 
+				" * setLeadingComment(\"// end-of-line comment without line terminator\");  // correct" + DELIMITER + 
+				" * setLeadingComment(\"// broken\\n end-of-line comment\\n\");  // wrong" + DELIMITER + 
+				" * </pre>" + DELIMITER + 
+				" * </code>" + DELIMITER + 
+				" */";
+		
+		String expected =
+				"/**" + DELIMITER + 
+				" * <code>" + DELIMITER + 
+				" * <pre>" + DELIMITER + 
+				" * setLeadingComment(&quot;/* traditional comment &#42;/&quot;); // correct" + DELIMITER + 
+				" * setLeadingComment(&quot;missing comment delimiters&quot;); // wrong" + DELIMITER + 
+				" * setLeadingComment(&quot;/* unterminated traditional comment &quot;); // wrong" + DELIMITER + 
+				" * setLeadingComment(&quot;/* broken\\n traditional comment &#42;/&quot;); // correct" + DELIMITER + 
+				" * setLeadingComment(&quot;// end-of-line comment\\n&quot;); // correct" + DELIMITER + 
+				" * setLeadingComment(&quot;// end-of-line comment without line terminator&quot;); // correct" + DELIMITER + 
+				" * setLeadingComment(&quot;// broken\\n end-of-line comment\\n&quot;); // wrong" + DELIMITER + 
+				" * </pre>" + DELIMITER + 
+				" * </code>" + DELIMITER + 
+				" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
+
+	public void test109636_2() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+
+		String input =
+				"/**" + DELIMITER + 
+				" * <pre>" + DELIMITER + 
+				" * /* Comment ending in multiple stars *&#42;/" + DELIMITER + 
+				" * /* Entity-needing character after a star *&lt; &#42;/" + DELIMITER + 
+				" * </pre>" + DELIMITER + 
+				" */";
+		
+		String expected =
+			"/**" + DELIMITER + 
+			" * <pre>" + DELIMITER + 
+			" * /* Comment ending in multiple stars *&#42;/" + DELIMITER + 
+			" * /* Entity-needing character after a star *&lt; &#42;/" + DELIMITER + 
+			" * </pre>" + DELIMITER + 
+			" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
+	
+	public void test109636_3() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+
+		String input =
+				"/**" + DELIMITER + 
+				" * <pre>" + DELIMITER + 
+				" * /* Comment ending in multiple stars ***&#42;/" + DELIMITER + 
+				" * /* Entity-needing character after a star *&lt; &#42;/" + DELIMITER + 
+				" * </pre>" + DELIMITER + 
+				" */";
+		
+		String expected =
+			"/**" + DELIMITER + 
+			" * <pre>" + DELIMITER + 
+			" * /* Comment ending in multiple stars ***&#42;/" + DELIMITER + 
+			" * /* Entity-needing character after a star *&lt; &#42;/" + DELIMITER + 
+			" * </pre>" + DELIMITER + 
+			" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
 }
