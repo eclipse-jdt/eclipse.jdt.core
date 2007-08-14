@@ -38260,4 +38260,37 @@ public void test1148() {
 		"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
 		"----------\n");
 }
+public void test1149() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"public class A {\n" + 
+			"    <T extends Throwable> A() throws T {}\n" + 
+			"    void a() throws ClassNotFoundException {\n" + 
+			"	    new<ClassNotFoundException> A();\n" + 
+			"    }\n" + 
+			"}\n",
+			"B.java",
+			"public class B {\n" + 
+			"    	void b() throws ClassNotFoundException {\n" + 
+			"	    new<ClassNotFoundException> A();\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		""
+	);
+	this.runConformTest(
+		new String[] {
+			"B.java",
+			"public class B {\n" + 
+			"    	void b() throws ClassNotFoundException {\n" + 
+			"	    new<ClassNotFoundException> A();\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"",
+		null,
+		false, // do not flush output
+		null);		
+}
 }
