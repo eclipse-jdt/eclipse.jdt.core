@@ -2242,4 +2242,36 @@ public void testWorkingCopyOrder1() throws JavaModelException {
 		foundType);
 }
 
+/*
+ * Ensures that a working copy is put in the right order on the classpath (thus it is found before a type on another classpath entry)
+ * (regression test for bug 194432 IJavaProject.findType(String, String, WorkingCopyOwner) return the wrong duplicate element)
+ */
+public void testWorkingCopyOrder2() throws Exception {
+	String jarName = "bug194432.jar";
+	String srcName = "bug194432_src.zip";
+	try {
+		String[] pathAndContents = new String[] { 
+			"test/p/Type.java",
+			"package test.p;\n" + 
+			"public class Type {\n" + 
+			"}\n" 
+		};
+		addLibrary(jarName, srcName, pathAndContents, JavaCore.VERSION_1_4);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/p/Type.java", 
+			"package test.p;\n" + 
+			"public class Type {\n" + 
+			"}\n"
+		);
+		IJavaProject javaProject = getJavaProject("Resolve");
+		IType foundType = javaProject.findType("test.p", "Type", this.wcOwner);
+		assertElementEquals(
+			"Unexpected type",
+			"Type [in [Working copy] Type.java [in test.p [in src [in Resolve]]]]",
+			foundType);
+	} finally {
+		removeLibrary(this.currentProject, jarName, srcName);
+	}
+}
 }
