@@ -1637,15 +1637,28 @@ protected void consumeBinaryExpression(int op) {
 				}
 			} else if (expr1 instanceof CombinedBinaryExpression) {
 					CombinedBinaryExpression cursor;
+					int numberOfParens = (expr1.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 					// shift cursor; create BE/CBE as needed
 					if ((cursor = (CombinedBinaryExpression)expr1).arity <
 								cursor.arityMax) {
 						cursor.left = new BinaryExpression(cursor.left,
 								cursor.right, PLUS);
+						if (numberOfParens != 0) {
+							// clear the bits on cursor and put them back on cursor.left
+							cursor.bits &= ~ASTNode.ParenthesizedMASK;
+							cursor.left.bits &= ~ASTNode.ParenthesizedMASK;
+							cursor.left.bits |= numberOfParens << ASTNode.ParenthesizedSHIFT;
+						}
 						cursor.arity++;
 					} else {
 						cursor.left = new CombinedBinaryExpression(cursor.left,
 								cursor.right, PLUS, cursor.arity);
+						if (numberOfParens != 0) {
+							// clear the bits on cursor and put them back on cursor.left
+							cursor.bits &= ~ASTNode.ParenthesizedMASK;
+							cursor.left.bits &= ~ASTNode.ParenthesizedMASK;
+							cursor.left.bits |= numberOfParens << ASTNode.ParenthesizedSHIFT;
+						}
 						cursor.arity = 0;
 						cursor.tuneArityMax();
 					}
@@ -1655,10 +1668,10 @@ protected void consumeBinaryExpression(int op) {
 //					cursor.depthTracker = ((BinaryExpression)cursor.left).
 //						depthTracker + 1;
 					this.expressionStack[this.expressionPtr] = cursor;
-			} else if (expr1 instanceof BinaryExpression && 
-							// single out the a + b case
-						((expr1.bits & ASTNode.OperatorMASK) >> 
+			} else if (expr1 instanceof BinaryExpression
+					&& ((expr1.bits & ASTNode.OperatorMASK) >> 
 							ASTNode.OperatorSHIFT) == OperatorIds.PLUS) {
+				// single out the a + b case
 				this.expressionStack[this.expressionPtr] = 
 					new CombinedBinaryExpression(expr1, expr2, PLUS, 1);
 			} else {
@@ -1679,7 +1692,7 @@ protected void consumeBinaryExpression(int op) {
 				new BinaryExpression(
 					expr1, 
 					expr2, 
-					op);		
+					op);
 	}
 }
 /**
