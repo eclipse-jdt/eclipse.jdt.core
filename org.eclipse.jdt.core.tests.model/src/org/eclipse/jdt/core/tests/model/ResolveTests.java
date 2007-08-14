@@ -10,11 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 
 import junit.framework.*;
@@ -1904,6 +1902,7 @@ public void testDuplicateTypeDeclaration6() throws JavaModelException {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119434
 public void testDuplicateTypeDeclaration7() throws CoreException, IOException {
 	String jarName = "bug119434.jar";
+	String srcName = "bug119434_src.zip";
 	try {
 		String[] pathAndContents = new String[] {
 			"test/p/Type.java",
@@ -1912,7 +1911,7 @@ public void testDuplicateTypeDeclaration7() throws CoreException, IOException {
 			"}\n"
 		};
 		
-		addLibrary(jarName, "bug119434_src.zip", pathAndContents, JavaCore.VERSION_1_4);
+		addLibrary(jarName, srcName, pathAndContents, JavaCore.VERSION_1_4);
 		
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
@@ -1939,8 +1938,7 @@ public void testDuplicateTypeDeclaration7() throws CoreException, IOException {
 			elements
 		);
 	} finally {
-		removeClasspathEntry(this.currentProject, new Path(jarName));
-		deleteFile(new File(jarName));
+		removeLibrary(this.currentProject, jarName, srcName);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=120766
@@ -2243,4 +2241,5 @@ public void testWorkingCopyOrder1() throws JavaModelException {
 		"Type [in [Working copy] Type.java [in test.p [in src [in Resolve]]]]",
 		foundType);
 }
+
 }
