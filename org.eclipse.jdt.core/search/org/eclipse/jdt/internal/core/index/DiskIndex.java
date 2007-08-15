@@ -44,8 +44,9 @@ private static final int BUFFER_WRITE_SIZE = DEFAULT_BUFFER_SIZE;
 private byte[] streamBuffer;
 private int bufferIndex, bufferEnd; // used when reading from the file into the streamBuffer
 private int streamEnd; // used when writing data from the streamBuffer to the file
+char separator = Index.DEFAULT_SEPARATOR;
 
-public static final String SIGNATURE= "INDEX VERSION 1.122"; //$NON-NLS-1$
+public static final String SIGNATURE= "INDEX VERSION 1.123"; //$NON-NLS-1$
 private static final char[] SIGNATURE_CHARS = SIGNATURE.toCharArray();
 public static boolean DEBUG = false;
 
@@ -423,6 +424,7 @@ private void initializeFrom(DiskIndex diskIndex, File newIndexFile) throws IOExc
 	this.categoryOffsets = new HashtableOfIntValues(size);
 	this.categoryEnds = new HashtableOfIntValues(size);
 	this.categoryTables = new HashtableOfObject(size);
+	this.separator = diskIndex.separator;
 }
 private void mergeCategories(DiskIndex onDisk, int[] positions, FileOutputStream stream) throws IOException {
 	// at this point, this.categoryTables contains the names -> wordsToDocs added in copyQueryResults()
@@ -770,6 +772,7 @@ private void readHeaderInfo(FileInputStream stream) throws IOException {
 	this.numberOfChunks = readStreamInt(stream);
 	this.sizeOfLastChunk = this.streamBuffer[this.bufferIndex++] & 0xFF;
 	this.documentReferenceSize = this.streamBuffer[this.bufferIndex++] & 0xFF;
+	this.separator = (char) (this.streamBuffer[this.bufferIndex++] & 0xFF);
 
 	this.chunkOffsets = new int[this.numberOfChunks];
 	for (int i = 0; i < this.numberOfChunks; i++)
@@ -1123,13 +1126,14 @@ private void writeDocumentNumbers(int[] documentNumbers, FileOutputStream stream
 }
 private void writeHeaderInfo(FileOutputStream stream) throws IOException {
 	writeStreamInt(stream, this.numberOfChunks);
-	if ((this.bufferIndex + 2) >= BUFFER_WRITE_SIZE)  {
+	if ((this.bufferIndex + 3) >= BUFFER_WRITE_SIZE)  {
 		stream.write(this.streamBuffer, 0, this.bufferIndex);
 		this.bufferIndex = 0;
 	}
 	this.streamBuffer[this.bufferIndex++] = (byte) this.sizeOfLastChunk;
 	this.streamBuffer[this.bufferIndex++] = (byte) this.documentReferenceSize;
-	this.streamEnd += 2;
+	this.streamBuffer[this.bufferIndex++] = (byte) this.separator;
+	this.streamEnd += 3;
 
 	// apend the file with chunk offsets
 	for (int i = 0; i < this.numberOfChunks; i++) {
