@@ -1037,7 +1037,7 @@ public void testSearchPatternValidMatchRule05() {
  * @test Verify that correct types are found even with project and source folders in the classpath
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=195228"
  */
-public void testONLY_Bug195228() throws CoreException {
+public void testBug195228() throws CoreException {
 	try {
 		// Create projects and files
 		final IJavaProject project = createJavaProject("P1", new String[] {"src"}, "bin");
