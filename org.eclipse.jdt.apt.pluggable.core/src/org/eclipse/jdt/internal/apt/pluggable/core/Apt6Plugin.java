@@ -19,6 +19,12 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
+/**
+ * The plug-in responsible for dispatch of Java 6 (JSR269 Pluggable Annotation
+ * Processing API) annotation processors in the IDE.
+ * This is named Apt6Plugin to distinguish it from AptPlugin, which is responsible
+ * for Java 5 (com.sun.mirror) processors.
+ */
 public class Apt6Plugin extends Plugin {
 
 	private static final SimpleDateFormat TRACE_DATE_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS"); //$NON-NLS-1$

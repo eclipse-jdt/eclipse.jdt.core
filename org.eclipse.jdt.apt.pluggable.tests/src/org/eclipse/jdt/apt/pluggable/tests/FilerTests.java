@@ -47,6 +47,7 @@ public class FilerTests extends TestBase
 		expectingNoProblems();
 		
 		// Check whether generated sources were generated and compiled
+		expectingFile(proj, ".apt_generated/gen6/Generated01.java");
 		final String[] expectedClasses = { "targets.filer.Parent01", "gen6.Generated01" };
 		expectingUniqueCompiledClasses(expectedClasses);
 		
