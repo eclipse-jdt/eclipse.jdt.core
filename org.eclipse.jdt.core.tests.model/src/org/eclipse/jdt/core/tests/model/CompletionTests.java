@@ -11795,7 +11795,8 @@ public void testCompletionType1() throws JavaModelException {
 
 	assertEquals(
 		"element:CT1    completion:CT1    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:CT1    completion:q2.CT1    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_NON_RESTRICTED),
+		"element:CT1    completion:q2.CT1    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_NON_RESTRICTED)+"\n"+
+		"element:CompletionType1    completion:CompletionType1    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED  + R_NON_RESTRICTED),
 		requestor.getResults());
 }
 public void testCompletionUnaryOperator1() throws JavaModelException {

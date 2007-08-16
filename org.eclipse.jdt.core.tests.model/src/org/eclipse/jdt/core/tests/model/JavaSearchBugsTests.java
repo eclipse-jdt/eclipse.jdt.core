@@ -90,11 +90,11 @@ class TypeReferencesCollector extends JavaSearchResultCollector {
 	}
 }
 
-IJavaSearchScope getJavaSearchScopeBugs() {
+IJavaSearchScope getJavaSearchScope() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")});
 }
 IJavaSearchScope getJavaSearchScopeBugs(String packageName, boolean addSubpackages) throws JavaModelException {
-	if (packageName == null) return getJavaSearchScopeBugs();
+	if (packageName == null) return getJavaSearchScope();
 	return getJavaSearchPackageScope("JavaSearchBugs", packageName, addSubpackages);
 }
 public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
@@ -104,16 +104,16 @@ public ICompilationUnit getWorkingCopy(String path, String source) throws JavaMo
 	return getWorkingCopy(path, source, this.wcOwner);
 }
 protected void search(IJavaElement element, int limitTo) throws CoreException {
-	search(element, limitTo, EXACT_RULE, getJavaSearchScopeBugs(), resultCollector);
+	search(element, limitTo, EXACT_RULE, getJavaSearchScope(), resultCollector);
 }
 protected void search(IJavaElement element, int limitTo, int matchRule) throws CoreException {
-	search(element, limitTo, matchRule, getJavaSearchScopeBugs(), resultCollector);
+	search(element, limitTo, matchRule, getJavaSearchScope(), resultCollector);
 }
 protected void search(String patternString, int searchFor, int limitTo) throws CoreException {
-	search(patternString, searchFor, limitTo, EXACT_RULE, getJavaSearchScopeBugs(), resultCollector);
+	search(patternString, searchFor, limitTo, EXACT_RULE, getJavaSearchScope(), resultCollector);
 }
 protected void search(String patternString, int searchFor, int limitTo, int matchRule) throws CoreException {
-	search(patternString, searchFor, limitTo, matchRule, getJavaSearchScopeBugs(), resultCollector);
+	search(patternString, searchFor, limitTo, matchRule, getJavaSearchScope(), resultCollector);
 }
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#setUpSuite()
@@ -2058,7 +2058,7 @@ public void testBug83388() throws CoreException {
 	new SearchEngine(workingCopies).search(
 		pattern,
 		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		resultCollector,
 		null
 	);
@@ -2086,7 +2086,7 @@ public void testBug83388b() throws CoreException {
 	new SearchEngine(workingCopies).search(
 		pattern,
 		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		resultCollector,
 		null
 	);
@@ -2912,7 +2912,7 @@ public void testBug92264a() throws CoreException {
 		IIndexConstants.ONE_STAR,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -2942,7 +2942,7 @@ public void testBug92264b() throws CoreException {
 		"*tion".toCharArray(),
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -2966,7 +2966,7 @@ public void testBug92264c() throws CoreException {
 		IIndexConstants.ONE_STAR,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -2994,7 +2994,7 @@ public void testBug92264d() throws CoreException {
 		new char[] { 'X' },
 		SearchPattern.R_PREFIX_MATCH, // case insensitive
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -3197,7 +3197,7 @@ public void testBug93392() throws CoreException {
 	);
 	IType type = selectType(workingCopies[0], "Annot");
 	IMethod method = type.getMethod("value", new String[0]);
-	search(method, REFERENCES, getJavaSearchScopeBugs(), collector);
+	search(method, REFERENCES, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b93392/Test.java b93392.Test [41] EXACT_MATCH\n" +
 		"src/b93392/Test.java b93392.Test.bar [21] EXACT_MATCH\n" +
@@ -3272,7 +3272,7 @@ public void testBug94389() throws CoreException {
 	int methodsLength = methods.length;
 
 	// Perform search on each duplicate method
-	IJavaSearchScope scope = getJavaSearchScopeBugs();
+	IJavaSearchScope scope = getJavaSearchScope();
 	for (int m=0; m<methodsLength; m++) {
 
 		// Search method declaration
@@ -3507,7 +3507,7 @@ public void testBug95794() throws CoreException {
 	// Verify matches
 	TestCollector occurencesCollector = new TestCollector();
 	occurencesCollector.showAccuracy = true;
-	search(type, ALL_OCCURRENCES, getJavaSearchScopeBugs(), occurencesCollector);
+	search(type, ALL_OCCURRENCES, getJavaSearchScope(), occurencesCollector);
 	assertSearchResults(
 		"src/b95794/Test.java [b95794.Test] EXACT_MATCH\n" +
 		"src/b95794/Test.java [b95794.Test] EXACT_MATCH\n" +
@@ -3518,7 +3518,7 @@ public void testBug95794() throws CoreException {
 
 	// Verify with references matches
 	TestCollector referencesCollector = new TestCollector();
-	search(type, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
+	search(type, REFERENCES, getJavaSearchScope(), referencesCollector);
 	assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
 }
 public void testBug95794b() throws CoreException {
@@ -3529,7 +3529,7 @@ public void testBug95794b() throws CoreException {
 	// Verify matches
 	TestCollector occurencesCollector = new TestCollector();
 	occurencesCollector.showAccuracy = true;
-	search(type, ALL_OCCURRENCES, getJavaSearchScopeBugs(), occurencesCollector);
+	search(type, ALL_OCCURRENCES, getJavaSearchScope(), occurencesCollector);
 	assertSearchResults(
 		"src/b95794/Test.java [b95794.Test.Color] EXACT_MATCH\n" +
 		"src/b95794/Test.java [b95794.Test.Color] EXACT_MATCH\n" +
@@ -3540,7 +3540,7 @@ public void testBug95794b() throws CoreException {
 
 	// Verify with references matches
 	TestCollector referencesCollector = new TestCollector();
-	search(type, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
+	search(type, REFERENCES, getJavaSearchScope(), referencesCollector);
 	assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
 }
 public void testBug95794c() throws CoreException {
@@ -3551,7 +3551,7 @@ public void testBug95794c() throws CoreException {
 	// Verify matches
 	TestCollector occurencesCollector = new TestCollector();
 	occurencesCollector.showAccuracy = true;
-	search(field, ALL_OCCURRENCES, getJavaSearchScopeBugs(), occurencesCollector);
+	search(field, ALL_OCCURRENCES, getJavaSearchScope(), occurencesCollector);
 	assertSearchResults(
 		"src/b95794/Test.java [WHITE] EXACT_MATCH\n" +
 		"src/b95794/Test.java void b95794.Test.main(String[]) [WHITE] EXACT_MATCH\n" +
@@ -3561,7 +3561,7 @@ public void testBug95794c() throws CoreException {
 
 	// Verify with references matches
 	TestCollector referencesCollector = new TestCollector();
-	search(field, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
+	search(field, REFERENCES, getJavaSearchScope(), referencesCollector);
 	assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
 }
 
@@ -4710,9 +4710,161 @@ public void testBug108088() throws CoreException {
 	IMethod method = type.getMethod("subroutine", new String[] { "F" });
 	SearchPattern pattern = SearchPattern.createPattern(method, REFERENCES, EXACT_RULE);
 	assertNotNull("Pattern should not be null", pattern);
-	search(pattern, getJavaSearchScopeBugs(), resultCollector);
+	search(pattern, getJavaSearchScope(), resultCollector);
 	assertSearchResults(
 		"src/b108088/B108088.java void b108088.B108088.doit(A108088, String) [subroutine(1.2f)] EXACT_MATCH"
+	);
+}
+
+/**
+ *	@bug 109695: [search] Numbers should be treated as upper-case letters in CamelCase matching
+ *	@test Ensure that camel case pattern including numbers return correct set of types
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=109695"
+ */
+public void testBug109695() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/IDocumentExtension.java",
+		"public interface IDocumentExtension {}\n" + 
+		"interface IDocumentExtension2 {}\n" + 
+		"interface IDocumentExtension3 {}\n" + 
+		"interface IDocumentExtension135 {}\n" + 
+		"interface IDocumentExtension315 {}\n"
+	);
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	searchAllTypeNames("IDE3", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	assertSearchResults(
+		"IDocumentExtension135\n" + 
+		"IDocumentExtension3\n" + 
+		"IDocumentExtension315",
+		requestor
+	);
+}
+public void testBug109695b() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/IDocumentProviderExtension.java",
+		"public interface IDocumentProviderExtension {}\n" + 
+		"interface IDocumentProviderExtension2 {}\n" + 
+		"interface IDocumentProviderExtension3 {}\n" + 
+		"interface IDocumentProviderExtension4 {}\n" + 
+		"interface IDocumentProviderExtension5 {}\n" + 
+		"interface IDocumentProviderExtension12345 {}\n" + 
+		"interface IDocumentProviderExtension54321 {}\n"
+	);
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	searchAllTypeNames("IDPE3", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	assertSearchResults(
+		"IDocumentProviderExtension12345\n" + 
+		"IDocumentProviderExtension3\n" + 
+		"IDocumentProviderExtension54321",
+		requestor
+	);
+}
+public void testBug109695c() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/IPerspectiveListener.java",
+		"public interface IPerspectiveListener {}\n" + 
+		"interface IPerspectiveListener2 {}\n" + 
+		"interface IPerspectiveListener3 {}\n"
+	);
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	searchAllTypeNames("IPL3", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	assertSearchResults(
+		"IPerspectiveListener3",
+		requestor
+	);
+}
+public void testBug109695d() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/IPropertySource.java",
+		"public interface IPropertySource {}\n" + 
+		"interface IPropertySource2 {}\n"
+	);
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	searchAllTypeNames("IPS2", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	assertSearchResults(
+		"IPropertySource2",
+		requestor
+	);
+}
+public void testBug109695e() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/IWorkbenchWindowPulldownDelegate.java",
+		"public interface IWorkbenchWindowPulldownDelegate {}\n" + 
+		"interface IWorkbenchWindowPulldownDelegate1 {}\n" + 
+		"interface IWorkbenchWindowPulldownDelegate2 {}\n" + 
+		"interface IWorkbenchWindowPulldownDelegate3 {}\n" + 
+		"interface IWorkbenchWindowPulldownDelegate4 {}\n"
+	);
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	searchAllTypeNames("IWWPD2", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	assertSearchResults(
+		"IWorkbenchWindowPulldownDelegate2",
+		requestor
+	);
+}
+public void testBug109695f() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/UTF16DocumentScannerSupport.java",
+		"public class UTF16DocumentScannerSupport {}\n" + 
+		"class UTF1DocScannerSupport {}\n" +
+		"class UTF6DocScannerSupport {}\n" +
+		"class UTFDocScannerSupport {}\n"
+	);
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	searchAllTypeNames("UTF16DSS", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	assertSearchResults(
+		"UTF16DocumentScannerSupport",
+		requestor
+	);
+}
+public void testBug109695g() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/UTF16DocumentScannerSupport.java",
+		"public class UTF16DocumentScannerSupport {}\n" + 
+		"class UTF1DocScannerSupport {}\n" +
+		"class UTF6DocScannerSupport {}\n" +
+		"class UTFDocScannerSupport {}\n"
+	);
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	searchAllTypeNames("UTF1DSS", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	assertSearchResults(
+		"UTF16DocumentScannerSupport\n" + 
+		"UTF1DocScannerSupport",
+		requestor
+	);
+}
+public void testBug109695h() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/UTF16DocumentScannerSupport.java",
+		"public class UTF16DocumentScannerSupport {}\n" + 
+		"class UTF1DocScannerSupport {}\n" +
+		"class UTF6DocScannerSupport {}\n" +
+		"class UTFDocScannerSupport {}\n"
+	);
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	searchAllTypeNames("UTF6DSS", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	assertSearchResults(
+		"UTF16DocumentScannerSupport\n" + 
+		"UTF6DocScannerSupport",
+		requestor
+	);
+}
+public void testBug109695i() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/UTF16DocumentScannerSupport.java",
+		"public class UTF16DocumentScannerSupport {}\n" + 
+		"class UTF1DocScannerSupport {}\n" +
+		"class UTF6DocScannerSupport {}\n" +
+		"class UTFDocScannerSupport {}\n"
+	);
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	searchAllTypeNames("UTFDSS", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	assertSearchResults(
+		"UTF16DocumentScannerSupport\n" + 
+		"UTF1DocScannerSupport\n" + 
+		"UTF6DocScannerSupport\n" + 
+		"UTFDocScannerSupport",
+		requestor
 	);
 }
 
@@ -4892,7 +5044,7 @@ public void testBug110060_AllTypeNames01() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4915,7 +5067,7 @@ public void testBug110060_AllTypeNames02() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4938,7 +5090,7 @@ public void testBug110060_AllTypeNames03() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4961,7 +5113,7 @@ public void testBug110060_AllTypeNames04() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -4984,7 +5136,7 @@ public void testBug110060_AllTypeNames05() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_PREFIX_MATCH,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -5005,7 +5157,7 @@ public void testBug110060_AllTypeNames06() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -5025,7 +5177,7 @@ public void testBug110060_AllTypeNames07() throws CoreException {
 		"AA".toCharArray(),
 		SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -5046,7 +5198,7 @@ public void testBug110060_AllTypeNames08() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -5067,7 +5219,7 @@ public void testBug110060_AllTypeNames09() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -5088,7 +5240,7 @@ public void testBug110060_AllTypeNames10() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -5108,7 +5260,7 @@ public void testBug110060_AllTypeNames11() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -5128,7 +5280,7 @@ public void testBug110060_AllTypeNames12() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_PREFIX_MATCH,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -5149,7 +5301,7 @@ public void testBug110060_AllTypeNames13() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -5169,7 +5321,7 @@ public void testBug110060_AllTypeNames14() throws CoreException {
 		"aa".toCharArray(),
 		SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -5506,7 +5658,7 @@ public void testBug110336a() throws CoreException {
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
-	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java void b110336.Test.method(Class<Test>).TP [Test]\n" +
 		"src/b110336/Test.java void b110336.Test.method(Class<Test>).clazz [Test]\n" +
@@ -5534,7 +5686,7 @@ public void testBug110336b() throws CoreException {
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
-	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1 [Test]\n" +
 		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1.c [Test]\n" +
@@ -5558,7 +5710,7 @@ public void testBug110336c() throws CoreException {
 	);
 	IType type = this.workingCopies[0].getType("X");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
-	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java b110336.Test.TP [X]\n" +
 		"src/b110336/Test.java b110336.Test.x [X]",
@@ -5577,7 +5729,7 @@ public void testBug110336d() throws CoreException {
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
-	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java b110336.Test.a1Test [Test]+[b1Test,c1Test]\n" +
 		"src/b110336/Test.java b110336.Test.b1Test [Test]\n" +
@@ -5602,7 +5754,7 @@ public void testBug110336e() throws CoreException {
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
-	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java void b110336.Test.foo().lv1 [Test]+[lv2,lv3]\n" +
 		"src/b110336/Test.java void b110336.Test.foo().lv2 [Test]\n" +
@@ -5632,7 +5784,7 @@ public void testBug110336f() throws CoreException {
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
-	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java void b110336.Test.foo(Test).test1 [Test]\n" +
 		"src/b110336/Test.java void b110336.Test.foo(Test).test2 [Test]\n" +
@@ -5656,7 +5808,7 @@ public void testBug110336g() throws CoreException {
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
-	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java b110336.Test.{}.lv1 [Test]+[lv2,lv3]\n" +
 		"src/b110336/Test.java b110336.Test.{}.lv2 [Test]\n" +
@@ -5681,7 +5833,7 @@ public void testBug110336h() throws CoreException {
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
-	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java b110336.Test.static {}.lv1 [Test]+[lv2,lv3]\n" +
 		"src/b110336/Test.java b110336.Test.static {}.lv2 [Test]\n" +
@@ -5722,7 +5874,7 @@ public void testBug113671() throws CoreException {
 		CharOperation.NO_CHAR,
 		SearchPattern.R_PREFIX_MATCH,
 		IJavaSearchConstants.TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -6239,7 +6391,7 @@ public void testBug124489() throws CoreException {
 	new SearchEngine(workingCopies).search(
 		SearchPattern.createPattern(type, REFERENCES),
 		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		this.resultCollector,
 		null
 	);
@@ -6374,7 +6526,7 @@ public void testBug127628() throws CoreException {
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null
@@ -6827,7 +6979,7 @@ public void testBug142044() throws CoreException {
 	SearchPattern leftPattern = SearchPattern.createPattern(type1, IMPLEMENTORS);
 	IType type2 = getCompilationUnit("JavaSearchBugs", "src", "b142044", "I142044_B.java").getType("I142044_B");
 	SearchPattern rightPattern = SearchPattern.createPattern(type2, IMPLEMENTORS);
-	search(SearchPattern.createAndPattern(leftPattern, rightPattern), getJavaSearchScopeBugs(), this.resultCollector);
+	search(SearchPattern.createAndPattern(leftPattern, rightPattern), getJavaSearchScope(), this.resultCollector);
 	assertSearchResults("");
 }
 /**
@@ -6838,7 +6990,7 @@ public void testBug142044_Identical() throws CoreException {
 	SearchPattern leftPattern = SearchPattern.createPattern(type1, IMPLEMENTORS);
 	IType type2 = getCompilationUnit("JavaSearchBugs", "src", "b142044", "I142044_A.java").getType("I142044_A");
 	SearchPattern rightPattern = SearchPattern.createPattern(type2, IMPLEMENTORS);
-	search(SearchPattern.createAndPattern(leftPattern, rightPattern), getJavaSearchScopeBugs(), this.resultCollector);
+	search(SearchPattern.createAndPattern(leftPattern, rightPattern), getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
 		"src/b142044/X142044.java b142044.X142044$XX1 [I142044_A] EXACT_MATCH\n" +
 		"src/b142044/X142044.java b142044.X142044$XX12 [I142044_A] EXACT_MATCH\n" +
@@ -6853,7 +7005,7 @@ public void testBug142044_And01() throws CoreException {
 	SearchPattern leftPattern = createPattern("X*", CLASS, DECLARATIONS, true);
 	IType iType = getCompilationUnit("JavaSearchBugs", "src", "b142044", "I142044_A.java").getType("I142044_A");
 	SearchPattern rightPattern = SearchPattern.createPattern(iType, IMPLEMENTORS);
-	search(SearchPattern.createAndPattern(leftPattern, rightPattern), getJavaSearchScopeBugs(), this.resultCollector);
+	search(SearchPattern.createAndPattern(leftPattern, rightPattern), getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(""); // currently no results as only same kind of pattern are ANDoable...
 }
 /**
@@ -6863,7 +7015,7 @@ public void testBug142044_And02() throws CoreException {
 	IType type1 = getCompilationUnit("JavaSearchBugs", "src", "b142044", "I142044_A.java").getType("I142044_A");
 	SearchPattern leftPattern = SearchPattern.createPattern(type1, IMPLEMENTORS);
 	SearchPattern rightPattern = createPattern("I*", CLASS, IMPLEMENTORS, true);
-	search(SearchPattern.createAndPattern(leftPattern, rightPattern), getJavaSearchScopeBugs(), this.resultCollector);
+	search(SearchPattern.createAndPattern(leftPattern, rightPattern), getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
 		"src/b142044/X142044.java b142044.X142044$XX1 [I142044_A] EXACT_MATCH\n" +
 		"src/b142044/X142044.java b142044.X142044$XX12 [I142044_A] EXACT_MATCH\n" +
@@ -6879,7 +7031,7 @@ public void testBug142044_Or() throws CoreException {
 	SearchPattern leftPattern = SearchPattern.createPattern(type1, IMPLEMENTORS);
 	IType type2 = getCompilationUnit("JavaSearchBugs", "src", "b142044", "I142044_B.java").getType("I142044_B");
 	SearchPattern rightPattern = SearchPattern.createPattern(type2, IMPLEMENTORS);
-	search(SearchPattern.createOrPattern(leftPattern, rightPattern), getJavaSearchScopeBugs(), this.resultCollector);
+	search(SearchPattern.createOrPattern(leftPattern, rightPattern), getJavaSearchScope(), this.resultCollector);
 	assertSearchResults(
 		"src/b142044/X142044.java b142044.X142044$XX1 [I142044_A] EXACT_MATCH\n" +
 		"src/b142044/X142044.java b142044.X142044$XX2 [I142044_B] EXACT_MATCH\n" +
@@ -7034,7 +7186,7 @@ public void testBug148380_SearchAllTypes_wc() throws CoreException {
 		"package b148380;\n" +
 		"public class Y {}\n"
 	);
-	IJavaSearchScope scope = getJavaSearchScopeBugs();
+	IJavaSearchScope scope = getJavaSearchScope();
 	TypeNameMatchCollector requestor1 = new TypeNameMatchCollector();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		"b148380".toCharArray(),
@@ -7066,7 +7218,7 @@ public void testBug148380_SearchAllTypes_wc() throws CoreException {
 	assertSearchResults(expected, requestor2);
 }
 public void testBug148380_SearchAllTypes_cu() throws CoreException, JavaModelException {
-	IJavaSearchScope scope = getJavaSearchScopeBugs();
+	IJavaSearchScope scope = getJavaSearchScope();
 	TypeNameMatchCollector requestor = new TypeNameMatchCollector();
 	new SearchEngine().searchAllTypeNames(
 		null,
@@ -7529,7 +7681,7 @@ public void testBug160323() throws CoreException {
 		null,
 		SearchPattern.R_PREFIX_MATCH,
 		IJavaSearchConstants.TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		collector,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
@@ -7541,7 +7693,7 @@ public void testBug160323() throws CoreException {
 		null,
 		SearchPattern.R_PREFIX_MATCH,
 		IJavaSearchConstants.TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
@@ -7567,7 +7719,7 @@ public void testBug160324a() throws CoreException {
 	new SearchEngine().searchAllTypeNames(
 		null,
 		null,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		collector,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
@@ -7576,7 +7728,7 @@ public void testBug160324a() throws CoreException {
 	new SearchEngine().searchAllTypeNames(
 		null,
 		null,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
@@ -7595,7 +7747,7 @@ public void testBug160324b() throws CoreException {
 	new SearchEngine().searchAllTypeNames(
 		null,
 		new char[][] { "Test".toCharArray() },
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		collector,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
@@ -7604,7 +7756,7 @@ public void testBug160324b() throws CoreException {
 	new SearchEngine().searchAllTypeNames(
 		null,
 		new char[][] { "Test".toCharArray() },
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
@@ -7642,7 +7794,7 @@ public void testBug160324c() throws CoreException {
 	new SearchEngine().searchAllTypeNames(
 		packagesList,
 		typesList,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		collector,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
@@ -7652,7 +7804,7 @@ public void testBug160324c() throws CoreException {
 	new SearchEngine().searchAllTypeNames(
 		packagesList,
 		typesList,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
@@ -7680,7 +7832,7 @@ public void testBug160854() throws CoreException {
 	new SearchEngine().searchAllTypeNames(
 		packagesList,
 		null,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		collector,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
@@ -7689,7 +7841,7 @@ public void testBug160854() throws CoreException {
 	new SearchEngine().searchAllTypeNames(
 		packagesList,
 		null,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
@@ -7749,7 +7901,7 @@ public void testBug161190() throws CoreException {
 	new SearchEngine().searchAllTypeNames(
 		packagesList,
 		null,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		collector,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
@@ -7758,7 +7910,7 @@ public void testBug161190() throws CoreException {
 	new SearchEngine().searchAllTypeNames(
 		packagesList,
 		null,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
@@ -7867,7 +8019,7 @@ public void testBug164791() throws CoreException {
 		}
 	};
 	collector.showAccuracy = true;
-	search(type, REFERENCES, getJavaSearchScopeBugs(), collector);
+	search(type, REFERENCES, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"lib/b164791.jar test.<anonymous> EXACT_MATCH\n" +
 		"lib/b164791.jar test.<anonymous> EXACT_MATCH",
@@ -7901,7 +8053,7 @@ public void testBug166348_Qualified() throws CoreException {
  */
 public void testBug167190() throws CoreException, JavaModelException {
 	IJavaSearchScope scope = new AbstractSearchScope() {
-		IJavaSearchScope jsScope = getJavaSearchScopeBugs();
+		IJavaSearchScope jsScope = getJavaSearchScope();
 		public void processDelta(IJavaElementDelta delta) {
 			// we should have no delta on this test case
 		}
@@ -8296,7 +8448,7 @@ public void testBug196339b() throws CoreException {
 		}
 		
 	};
-	search("Foo196339", IJavaSearchConstants.TYPE, IJavaSearchConstants.IMPLEMENTORS, getJavaSearchScopeBugs(), collector);
+	search("Foo196339", IJavaSearchConstants.TYPE, IJavaSearchConstants.IMPLEMENTORS, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b196339/x/y/z/Test1.java b196339.x.y.z.Test1 [Foo196339]\n" + 
 		"src/b196339/x/y/z/Test2.java b196339.x.y.z.Test2 [Foo196339]\n" + 
@@ -8430,7 +8582,7 @@ public void testBug200064() throws CoreException {
 		"Object".toCharArray(),
 		SearchPattern.R_PREFIX_MATCH,
 		IJavaSearchConstants.TYPE,
-		getJavaSearchScopeBugs(),
+		getJavaSearchScope(),
 		collector,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);

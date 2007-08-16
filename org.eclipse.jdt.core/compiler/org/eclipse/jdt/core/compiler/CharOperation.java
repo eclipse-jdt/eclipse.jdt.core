@@ -363,11 +363,11 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 
 		// If characters are not equals, then it's not a match if patternChar is lowercase
 		if (patternChar < ScannerHelper.MAX_OBVIOUS) {
-			if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] & ScannerHelper.C_UPPER_LETTER) == 0) {
+			if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] & (ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_DIGIT)) == 0) {
 				return false;
 			}
 		}
-		else if (Character.isJavaIdentifierPart(patternChar) && !Character.isUpperCase(patternChar)) {
+		else if (Character.isJavaIdentifierPart(patternChar) && !Character.isUpperCase(patternChar) && !Character.isDigit(patternChar)) {
 			return false;
 		}
 
@@ -380,8 +380,13 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 
 			nameChar = name[iName];
 			if (nameChar < ScannerHelper.MAX_OBVIOUS) {
-				if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar] & (ScannerHelper.C_LOWER_LETTER | ScannerHelper.C_SPECIAL | ScannerHelper.C_DIGIT)) != 0) {
+				int charNature = ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar];
+				if ((charNature & (ScannerHelper.C_LOWER_LETTER | ScannerHelper.C_SPECIAL)) != 0) {
 					// nameChar is lowercase    
+					iName++;
+				} else if ((charNature & ScannerHelper.C_DIGIT) != 0) {
+					// nameChar is digit => break if the digit is current pattern character otherwise consume it
+					if (patternChar == nameChar) break;
 					iName++;
 				// nameChar is uppercase...
 				} else  if (patternChar != nameChar) {
@@ -392,15 +397,15 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 					break;
 				}
 			}
+			// Same tests for non-obvious characters
 			else if (Character.isJavaIdentifierPart(nameChar) && !Character.isUpperCase(nameChar)) {
-				// nameChar is lowercase    
 				iName++;
-			// nameChar is uppercase...
+			} else if (Character.isDigit(nameChar)) {
+				if (patternChar == nameChar) break;
+				iName++;
 			} else  if (patternChar != nameChar) {
-				//.. and it does not match patternChar, so it's not a match
 				return false;
 			} else {
-				//.. and it matched patternChar. Back to the big loop
 				break;
 			}
 		}
