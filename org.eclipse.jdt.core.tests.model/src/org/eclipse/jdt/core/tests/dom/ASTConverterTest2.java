@@ -5484,6 +5484,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		}
 	}
 	
+	
 	/*
 	 * Ensures that no exception is thrown in case of a syntax error in a for statement
 	 * (regression test for bug 199668 IAE in ASTNode.setSourceRange while editing a class)
@@ -5501,6 +5502,29 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"}"
 			);
 			ASTNode cu = buildAST(null, workingCopy, false, true);
+			assertNotNull("Should get an AST", cu);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * Ensures that no exception is thrown in case of a syntax error in method parameter declarations
+	 * (regression test for bug 200080 Endless illegal arg exceptions from java editor's ASTProvider)
+	 */
+	public void test0609() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy(
+				"/Converter/src/X.java", 
+				"public class X {\n" + 
+				"        void foo(a, b, ) {\n" + 
+				"        	if\n" + 
+				"        }\n" + 
+				"}"
+			);
+			ASTNode cu = workingCopy.reconcile(AST.JLS3, true, true, null, null);
 			assertNotNull("Should get an AST", cu);
 		} finally {
 			if (workingCopy != null)
