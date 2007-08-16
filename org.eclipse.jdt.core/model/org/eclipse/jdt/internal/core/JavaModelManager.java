@@ -3620,13 +3620,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					ICompilationUnit unit = JavaModelManager.createCompilationUnitFrom((IFile)resource, null);
 					if (unit != null) {
 						String typeString = new String(typeName);
-						String packageString = new String(packageName);
+						IType type = unit.getType(typeString);
+						// String packageString = new String(packageName);
+						// use package fragment name instead of parameter as it may be invalid...
+						// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=186781
+						String packageString = type.getPackageFragment().getElementName();
 						HashMap packageTypes = (HashMap) allTypes.get(packageString);
 						if (packageTypes == null) {
 							packageTypes = new HashMap(3);
 							allTypes.put(packageString, packageTypes);
 						}
-						packageTypes.put(typeString, unit.getType(typeString));
+						packageTypes.put(typeString, type);
 					}
 					if (VERBOSE) {
 						Util.verbose("	- indexing cache:"); //$NON-NLS-1$

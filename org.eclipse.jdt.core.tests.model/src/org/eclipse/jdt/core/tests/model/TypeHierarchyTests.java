@@ -1877,4 +1877,22 @@ public void testVisibility2() throws JavaModelException {
 		hierarchy
 	);
 }
+
+/**
+ * @bug 186781: StackOverflowError while computing launch button tooltip
+ * @test Verify that StackOverflowException does no longer occur with the given test case
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=186781"
+ */
+public void testBug186781() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy/src/q186871/X.java").getType("X");
+	assertTrue("Type should exist!", type.exists());
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null); // when bug occurred a stack overflow happened here...
+	assertHierarchyEquals(
+		"Focus: X [in X.java [in q186871 [in src [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  Super [in X.java [in q186871 [in src [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+		"Sub types:\n",
+		hierarchy);
+}
 }
