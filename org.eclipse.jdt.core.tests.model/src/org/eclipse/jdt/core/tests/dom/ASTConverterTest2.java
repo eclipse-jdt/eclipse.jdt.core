@@ -5483,4 +5483,29 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+	
+	/*
+	 * Ensures that no exception is thrown in case of a syntax error in a for statement
+	 * (regression test for bug 199668 IAE in ASTNode.setSourceRange while editing a class)
+	 */
+	public void test0608() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy(
+				"/Converter/src/X.java", 
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    for (int i=0,; i<10; i++) {\n" +
+				"    }\n" +
+				"  }\n" +
+				"}"
+			);
+			ASTNode cu = buildAST(null, workingCopy, false, true);
+			assertNotNull("Should get an AST", cu);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
 }
