@@ -2210,8 +2210,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) {
 					// initializer failed to do its job: redirect to the failure container
 					container = initializer.getFailureContainer(containerPath, project);
-					if (container == null)
+					if (container == null) {
+						if (CP_RESOLVE_VERBOSE)
+							verbose_container_null_failure_container(project, containerPath, initializer);
 						return null; // break cycle
+					}
+					if (CP_RESOLVE_VERBOSE)
+						verbose_container_using_failure_container(project, containerPath, initializer);
 					containerPut(project, containerPath, container);
 				}
 				ok = true;
@@ -2298,6 +2303,22 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				"	container path: " + containerPath + '\n' + //$NON-NLS-1$
 				"	initializer: " + initializer); //$NON-NLS-1$
 		}
+	}
+
+	private void verbose_container_null_failure_container(IJavaProject project, IPath containerPath,  ClasspathContainerInitializer initializer) {
+		Util.verbose(
+			"CPContainer INIT - FAILED (and failure container is null)\n" + //$NON-NLS-1$
+			"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+			"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+			"	initializer: " + initializer); //$NON-NLS-1$
+	}
+
+	private void verbose_container_using_failure_container(IJavaProject project, IPath containerPath,  ClasspathContainerInitializer initializer) {
+		Util.verbose(
+			"CPContainer INIT - FAILED (using failure container)\n" + //$NON-NLS-1$
+			"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+			"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+			"	initializer: " + initializer); //$NON-NLS-1$
 	}
 
 	private void verbose_triggering_container_initialization(IJavaProject project, IPath containerPath,  ClasspathContainerInitializer initializer) {
