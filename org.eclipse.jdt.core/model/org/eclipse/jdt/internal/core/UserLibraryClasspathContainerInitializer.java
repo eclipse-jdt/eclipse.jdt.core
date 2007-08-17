@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  *
@@ -27,13 +28,17 @@ public class UserLibraryClasspathContainerInitializer extends ClasspathContainer
 	 */
 	public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 		if (isUserLibraryContainer(containerPath)) {
-			String userLibName= containerPath.segment(1);
+			String userLibName = containerPath.segment(1);
 						
-			UserLibrary entries= UserLibraryManager.getUserLibrary(userLibName);
+			UserLibrary entries = UserLibraryManager.getUserLibrary(userLibName);
 			if (entries != null) {
-				UserLibraryClasspathContainer container= new UserLibraryClasspathContainer(userLibName);
+				UserLibraryClasspathContainer container = new UserLibraryClasspathContainer(userLibName);
 				JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, 	new IClasspathContainer[] { container }, null);
+			} else if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+				verbose_no_user_library_found(project, userLibName);
 			}
+		} else if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+			verbose_not_a_user_library(project, containerPath);
 		}
 	}
 	
@@ -79,4 +84,19 @@ public class UserLibraryClasspathContainerInitializer extends ClasspathContainer
 	public Object getComparisonID(IPath containerPath, IJavaProject project) {
 		return containerPath;
 	}
+	
+	private void verbose_not_a_user_library(IJavaProject project, IPath containerPath) {
+		Util.verbose(
+			"UserLibrary INIT - FAILED (not a user library)\n" + //$NON-NLS-1$
+			"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+			"	container path: " + containerPath); //$NON-NLS-1$
+	}
+
+	private void verbose_no_user_library_found(IJavaProject project, String userLibraryName) {
+		Util.verbose(
+			"UserLibrary INIT - FAILED (no user library found)\n" + //$NON-NLS-1$
+			"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+			"	userLibraryName: " + userLibraryName); //$NON-NLS-1$
+	}
+	
 }
