@@ -1706,7 +1706,7 @@ public static int validateMatchRule(String stringPattern, int matchRule) {
 		boolean uppercase = false;
 		for (int i=0; i<length && validCamelCase; i++) {
 			char ch = stringPattern.charAt(i);
-			validCamelCase = ScannerHelper.isJavaIdentifierStart(ch);
+			validCamelCase = i==0 ? ScannerHelper.isJavaIdentifierStart(ch) : ScannerHelper.isJavaIdentifierPart(ch);
 			// at least one uppercase character is need in CamelCase pattern
 			// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=136313)
 			if (!uppercase) uppercase = ScannerHelper.isUpperCase(ch);

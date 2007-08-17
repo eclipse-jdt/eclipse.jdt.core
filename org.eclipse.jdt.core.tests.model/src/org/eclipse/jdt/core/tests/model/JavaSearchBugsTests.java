@@ -4731,7 +4731,8 @@ public void testBug109695() throws CoreException {
 		"interface IDocumentExtension315 {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("IDE3", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	int validatedRule = SearchPattern.validateMatchRule("IDE3", SearchPattern.R_CAMELCASE_MATCH);
+	searchAllTypeNames("IDE3", validatedRule, requestor);
 	assertSearchResults(
 		"IDocumentExtension135\n" + 
 		"IDocumentExtension3\n" + 
@@ -4751,7 +4752,8 @@ public void testBug109695b() throws CoreException {
 		"interface IDocumentProviderExtension54321 {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("IDPE3", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	int validatedRule = SearchPattern.validateMatchRule("IDPE3", SearchPattern.R_CAMELCASE_MATCH);
+	searchAllTypeNames("IDPE3", validatedRule, requestor);
 	assertSearchResults(
 		"IDocumentProviderExtension12345\n" + 
 		"IDocumentProviderExtension3\n" + 
@@ -4767,7 +4769,8 @@ public void testBug109695c() throws CoreException {
 		"interface IPerspectiveListener3 {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("IPL3", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	int validatedRule = SearchPattern.validateMatchRule("IPL3", SearchPattern.R_CAMELCASE_MATCH);
+	searchAllTypeNames("IPL3", validatedRule, requestor);
 	assertSearchResults(
 		"IPerspectiveListener3",
 		requestor
@@ -4780,7 +4783,8 @@ public void testBug109695d() throws CoreException {
 		"interface IPropertySource2 {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("IPS2", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	int validatedRule = SearchPattern.validateMatchRule("IPS2", SearchPattern.R_CAMELCASE_MATCH);
+	searchAllTypeNames("IPS2", validatedRule, requestor);
 	assertSearchResults(
 		"IPropertySource2",
 		requestor
@@ -4796,7 +4800,8 @@ public void testBug109695e() throws CoreException {
 		"interface IWorkbenchWindowPulldownDelegate4 {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("IWWPD2", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	int validatedRule = SearchPattern.validateMatchRule("IWWPD2", SearchPattern.R_CAMELCASE_MATCH);
+	searchAllTypeNames("IWWPD2", validatedRule, requestor);
 	assertSearchResults(
 		"IWorkbenchWindowPulldownDelegate2",
 		requestor
@@ -4811,7 +4816,8 @@ public void testBug109695f() throws CoreException {
 		"class UTFDocScannerSupport {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("UTF16DSS", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	int validatedRule = SearchPattern.validateMatchRule("UTF16DSS", SearchPattern.R_CAMELCASE_MATCH);
+	searchAllTypeNames("UTF16DSS", validatedRule, requestor);
 	assertSearchResults(
 		"UTF16DocumentScannerSupport",
 		requestor
@@ -4826,7 +4832,8 @@ public void testBug109695g() throws CoreException {
 		"class UTFDocScannerSupport {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("UTF1DSS", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	int validatedRule = SearchPattern.validateMatchRule("UTF1DSS", SearchPattern.R_CAMELCASE_MATCH);
+	searchAllTypeNames("UTF1DSS", validatedRule, requestor);
 	assertSearchResults(
 		"UTF16DocumentScannerSupport\n" + 
 		"UTF1DocScannerSupport",
@@ -4842,7 +4849,8 @@ public void testBug109695h() throws CoreException {
 		"class UTFDocScannerSupport {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("UTF6DSS", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	int validatedRule = SearchPattern.validateMatchRule("UTF6DSS", SearchPattern.R_CAMELCASE_MATCH);
+	searchAllTypeNames("UTF6DSS", validatedRule, requestor);
 	assertSearchResults(
 		"UTF16DocumentScannerSupport\n" + 
 		"UTF6DocScannerSupport",
@@ -4858,7 +4866,8 @@ public void testBug109695i() throws CoreException {
 		"class UTFDocScannerSupport {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("UTFDSS", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	int validatedRule = SearchPattern.validateMatchRule("UTFDSS", SearchPattern.R_CAMELCASE_MATCH);
+	searchAllTypeNames("UTFDSS", validatedRule, requestor);
 	assertSearchResults(
 		"UTF16DocumentScannerSupport\n" + 
 		"UTF1DocScannerSupport\n" + 
@@ -5544,7 +5553,12 @@ public void testBug110060_MethodPattern07() throws CoreException {
 public void testBug110060_MethodPattern08() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("aMW1D", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
-	assertSearchResults("");
+	assertSearchResults(
+		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
+		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH\n" + 
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH"
+	);
 }
 
 public void testBug110060_MethodPattern09() throws CoreException {
