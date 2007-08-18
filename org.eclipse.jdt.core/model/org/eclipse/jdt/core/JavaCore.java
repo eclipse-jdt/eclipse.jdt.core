@@ -1752,7 +1752,42 @@ public final class JavaCore extends Plugin {
 	 * @since 3.3
 	 */
 	public static String getClasspathVariableDeprecationMessage(String variableName) {
-	    return (String) JavaModelManager.getJavaModelManager().deprecatedVariables.get(variableName);
+	    JavaModelManager manager = JavaModelManager.getJavaModelManager();
+
+		// Returns the stored deprecation message
+		String message = (String) manager.deprecatedVariables.get(variableName);
+		if (message != null) {
+		    return message;
+		}
+	    
+	    // If the variable has been already initialized, then there's no deprecation message
+		IPath variablePath = manager.variableGet(variableName);
+		if (variablePath != null && variablePath != JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS) {
+			return null;
+		}
+
+		// Search for extension point to get the possible deprecation message
+		Plugin jdtCorePlugin = JavaCore.getPlugin();
+		if (jdtCorePlugin == null) return null;
+
+		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.CPVARIABLE_INITIALIZER_EXTPOINT_ID);
+		if (extension != null) {
+			IExtension[] extensions =  extension.getExtensions();
+			for(int i = 0; i < extensions.length; i++){
+				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
+				for(int j = 0; j < configElements.length; j++){
+					IConfigurationElement configElement = configElements[j];
+					String varAttribute = configElement.getAttribute("variable"); //$NON-NLS-1$
+					if (variableName.equals(varAttribute)) {
+						String deprecatedAttribute = configElement.getAttribute("deprecated"); //$NON-NLS-1$
+						if (deprecatedAttribute != null) {
+							return deprecatedAttribute;
+						}
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
