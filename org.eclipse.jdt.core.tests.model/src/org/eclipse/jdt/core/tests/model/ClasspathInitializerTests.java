@@ -1317,6 +1317,50 @@ public void testVariableInitializerBug172207() throws CoreException {
 }
 
 /**
+ * @bug 186113: [model] classpath variable deprecation messages not initialized when called
+ * @test	a) Verify that deprecation message can be get through {@link JavaCore#getClasspathVariableDeprecationMessage(String)}
+ * 	even if the variable initializer was not called before
+ * 			b) Verify that message is not stored in cache when variable is not initialized (othwerise we could not free it up...)
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=186113"
+ */
+public void testVariableInitializerBug186113a() throws CoreException {
+	assertEquals("Invalid deprecation message!",
+		"Test deprecated flag",
+		JavaCore.getClasspathVariableDeprecationMessage("TEST_DEPRECATED")
+	);
+}
+public void testVariableInitializerBug186113b() throws CoreException {
+	JavaCore.getClasspathVariableDeprecationMessage("TEST_DEPRECATED");
+	assertNull("Deprecation message should not have been stored!", JavaModelManager.getJavaModelManager().deprecatedVariables.get("TEST_DEPRECATED"));
+}
+
+/**
+ * @bug 200449: [model] classpath variable deprecation messages not initialized when called
+ * @test	a) Verify that deprecation message is well stored in cache when variable is iniatialized
+ * 			b) Verify that deprecation message is well removed in cache when variable is removed
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=200449"
+ */
+public void testVariableInitializerBug200449() throws CoreException {
+	try {
+		// Create initializer
+		String varName = "TEST_DEPRECATED";
+		String filePath = "/P1/lib.jar";
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {varName, filePath}));
+		JavaCore.getClasspathVariable(varName); // init variable
+		
+		// Verify that deprecation message has been stored
+		assertNotNull("Deprecation message should have been stored!", JavaModelManager.getJavaModelManager().deprecatedVariables.get("TEST_DEPRECATED"));
+	} finally {
+		VariablesInitializer.reset();
+		deleteProject("P1");
+	}
+}
+public void testVariableInitializerBug200449b() throws CoreException {
+	// Verify that deprecated variable has been removed
+	assertNull("Deprecation message should have been removed!", JavaModelManager.getJavaModelManager().deprecatedVariables.get("TEST_DEPRECATED"));
+}
+
+/**
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=61872"
  */
 public void testUserLibraryInitializer1() throws CoreException {
