@@ -175,7 +175,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public IPath getPath() { return null; }
 		public String toString() { return getDescription(); }
 	};
-	
+
 	private static final String BUFFER_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/buffermanager" ; //$NON-NLS-1$
 	private static final String INDEX_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
 	private static final String COMPILER_DEBUG = JavaCore.PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
@@ -4274,6 +4274,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				// if path is null, record that the variable was removed to avoid asking the initializer to initialize it again
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=112609
 				this.variables.put(variableName, CP_ENTRY_IGNORE_PATH);
+				// clean other variables caches
+				this.variablesWithInitializer.remove(variableName);
+				this.deprecatedVariables.remove(variableName);
 			} else {
 				this.variables.put(variableName, variablePath);
 			}
@@ -4285,7 +4288,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void variablePreferencesPut(String variableName, IPath variablePath) {
 		String variableKey = CP_VARIABLE_PREFERENCES_PREFIX+variableName;
 		if (variablePath == null) {
-			this.variablesWithInitializer.remove(variableName);
 			getInstancePreferences().remove(variableKey);
 		} else {
 			getInstancePreferences().put(variableKey, variablePath.toString());
