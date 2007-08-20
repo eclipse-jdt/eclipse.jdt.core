@@ -1587,4 +1587,19 @@ public void testBug148859() throws CoreException {
 		deleteProject("P");
 	}
 }
+
+/**
+ * @bug 183923: [prefs] NPE in JavaProject#setOptions
+ * @test Verify that no NPE occurs when options is set on an invalid project
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=183923"
+ */
+public void testBug183923() throws CoreException, IOException {
+	try {
+		setUpJavaProject("JavaProjectTestsInvalidProject");
+	} catch (JavaModelException jme) {
+		assertEquals("Unexpected JavaModelException", "JavaProjectTestsInvalidProject does not exist", jme.getMessage());
+	} finally {
+		deleteProject("JavaProjectTestsInvalidProject");
+	}
+}
 }

@@ -1177,7 +1177,6 @@ public void testCatchClauseExceptionRef14() throws JavaModelException {
 		"}\n");
 	
 	IJavaProject project = this.workingCopies[0].getJavaProject();
-	String visibilityCheck = project.getOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, true);
 	
 	try {
 		project.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
@@ -1192,7 +1191,7 @@ public void testCatchClauseExceptionRef14() throws JavaModelException {
 				"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		project.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, visibilityCheck);
+		project.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, null);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=173907

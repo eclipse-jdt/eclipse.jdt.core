@@ -1376,7 +1376,8 @@ public class JavaProject
 		/**
     	 * Returns the project custom preference pool.
     	 * Project preferences may include custom encoding.
-    	 * @return IEclipsePreferences
+    	 * @return IEclipsePreferences or <code>null</code> if the project
+    	 * 	does not have a java nature.
     	 */
     	public IEclipsePreferences getEclipsePreferences(){
     		if (!JavaProject.hasJavaNature(this.project)) return null;
@@ -2673,11 +2674,9 @@ public class JavaProject
 	 */
 	public void setOption(String optionName, String optionValue) {
 		if (!JavaModelManager.getJavaModelManager().optionNames.contains(optionName)) return; // unrecognized option
-		if (optionValue == null) return; // invalid value
 		IEclipsePreferences projectPreferences = getEclipsePreferences();
-		String defaultValue = JavaCore.getOption(optionName);
-		if (optionValue.equals(defaultValue)) {
-			// set default value => remove preference
+		if (optionValue == null) {
+			// remove preference
 			projectPreferences.remove(optionName);
 		} else {
 			projectPreferences.put(optionName, optionValue);
@@ -2697,6 +2696,7 @@ public class JavaProject
 	public void setOptions(Map newOptions) {
 
 		IEclipsePreferences projectPreferences = getEclipsePreferences();
+		if (projectPreferences == null) return;
 		try {
 			if (newOptions == null){
 				projectPreferences.clear();
