@@ -808,13 +808,23 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	IClasspathEntry[] readRawClasspath();
 
 	/**
-	 * Helper method for setting one option value only. Equivalent to <code>Map options = this.getOptions(false); map.put(optionName, optionValue); this.setOptions(map)</code>
+	 * Helper method for setting one option value only.
+	 *<p>
+	 * Equivalent to:
+	 * <pre>
+	 * 	Map options = this.getOptions(false);
+	 * 	map.put(optionName, optionValue);
+	 * 	this.setOptions(map)
+	 *  </pre>
 	 * <p>
 	 * For a complete description of the configurable options, see <code>JavaCore#getDefaultOptions</code>.
 	 * </p>
 	 * 
 	 * @param optionName the name of an option
-	 * @param optionValue the value of the option to set
+	 * @param optionValue the value of the option to set. If <code>null</code>, then the option
+	 * 	is removed from project preferences.
+	 * @throws NullPointerException if <code>optionName</code> is <code>null</code>
+	 * 	(see {@link org.osgi.service.prefs.Preferences#put(String, String)}).
 	 * @see JavaCore#getDefaultOptions()
 	 * @since 3.0
 	 */
