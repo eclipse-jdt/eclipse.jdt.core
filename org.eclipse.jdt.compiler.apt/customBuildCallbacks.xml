@@ -27,13 +27,13 @@
 	<!-- ===================================================================== -->
 	<target name="post.build.jars">
 		<property name="buildLabel" value="global" />
-		<property name="postingDirectory" value="${basedir}/ecj" />
+		<property name="postingDirectory" value="${basedir}/../org.eclipse.jdt.core/ecj" />
 		<property name="dest" value="${postingDirectory}/${buildLabel}" />
 		<mkdir dir="${dest}/checksum" />
-		<checksum file="${dest}/ecj.jar" property="md5" />
-		<echo message="${md5} ecj.jar" file="${dest}/checksum/ecj.jar.md5" />
-		<checksum file="${dest}/ecjsrc.zip" property="md5" />
-		<echo message="${md5} ecjsrc.zip" file="${dest}/checksum/ecjsrc.zip.md5" />
+		<checksum file="${dest}/ecj-${buildLabel}.jar" property="md5-ecj.jar" />
+		<echo message="${md5-ecj.jar} ecj-${buildLabel}.jar" file="${dest}/checksum/ecj-${buildLabel}.jar.md5" />
+		<checksum file="${dest}/ecjsrc-${buildLabel}.zip" property="md5-ecjsrc.zip" />
+		<echo message="${md5-ecjsrc.zip} ecjsrc-${buildLabel}.zip" file="${dest}/checksum/ecjsrc-${buildLabel}.zip.md5" />
 	</target>
 
 	<!-- ===================================================================== -->
@@ -82,14 +82,14 @@
 
 	<target name="post.compile.@dot">
 		<property name="buildLabel" value="global" />
-		<property name="postingDirectory" value="${basedir}/ecj" />
-		<echo message="UPDATE ecj.jar" />
+		<property name="postingDirectory" value="${basedir}/../org.eclipse.jdt.core/ecj" />
+		<echo message="UPDATE ecj-${buildLabel}.jar" />
 		<property name="unjarDestBin" value="${basedir}/tempbin"/>
 		<mkdir dir="${unjarDestBin}"/>
 		<unjar
-			src="${postingDirectory}/${buildLabel}/ecj.jar"
+			src="${postingDirectory}/${buildLabel}/ecj-${buildLabel}.jar"
 			dest="${unjarDestBin}"/>
-		<zip destfile="${postingDirectory}/${buildLabel}/ecj.jar">
+		<zip destfile="${postingDirectory}/${buildLabel}/ecj-${buildLabel}.jar">
 			<fileset dir="${unjarDestBin}"/>
 			<fileset dir="${target.folder}">
 				<include name="**/*"/>
@@ -100,13 +100,13 @@
 		</zip>
 		<delete dir="${unjarDestBin}" failonerror="false"/>
 
-		<echo message="UPDATE ecjsrc.zip" />
+		<echo message="UPDATE ecjsrc-${buildLabel}.zip" />
 		<property name="unjarDestSrc" value="${basedir}/tempsrc"/>
 		<mkdir dir="${unjarDestSrc}"/>
 		<unzip
-			src="${postingDirectory}/${buildLabel}/ecjsrc.zip"
+			src="${postingDirectory}/${buildLabel}/ecjsrc-${buildLabel}.zip"
 			dest="${unjarDestSrc}"/>
-		<zip destfile="${postingDirectory}/${buildLabel}/ecjsrc.zip">
+		<zip destfile="${postingDirectory}/${buildLabel}/ecjsrc-${buildLabel}.zip">
 			<zipfileset dir="src" />
 			<zipfileset dir="${unjarDestSrc}"/>
 			<zipfileset dir="${basedir}">

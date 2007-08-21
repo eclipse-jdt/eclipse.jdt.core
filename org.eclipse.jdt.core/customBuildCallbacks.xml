@@ -27,11 +27,10 @@
 	<!-- ===================================================================== -->
 	<target name="post.build.jars">
 		<property name="buildLabel" value="global" />
-		<property name="postingDirectory" value="${basedir}/ecj" />
+		<property name="build.result.folder" value="${basedir}" />
+		<property name="postingDirectory" value="${build.result.folder}/ecj" />
 		<property name="dest" value="${postingDirectory}/${buildLabel}" />
-		<ant antfile="${basedir}/scripts/export-ecj.xml" target="export">
-			<property name="dest" value="${dest}" />
-		</ant>
+		<ant antfile="${basedir}/scripts/export-ecj.xml" target="export"/>
 	</target>
 	
 	<!-- ===================================================================== -->
@@ -79,9 +78,7 @@
 	</target>
 
 	<target name="post.compile.@dot">
-		<ant antfile="${basedir}/scripts/export-ecj.xml" target="extract-batch-compiler">
-			<property name="target.folder" value="${target.folder}" />
-		</ant>
+		<ant antfile="${basedir}/scripts/export-ecj.xml" target="extract-batch-compiler"/>
 	</target>
 	
 	<!-- ===================================================================== -->
@@ -176,9 +173,7 @@
 	<!-- Steps to do after the target compile.jdtCompilerAdapter.jar           -->
 	<!-- ===================================================================== -->
 	<target name="post.compile.jdtCompilerAdapter.jar">
-		<ant antfile="${basedir}/scripts/export-ecj.xml" target="extract-ant-adapter-compiler">
-			<property name="target.folder" value="${target.folder}" />
-		</ant>
+		<ant antfile="${basedir}/scripts/export-ecj.xml" target="extract-ant-adapter-compiler"/>
 	</target>
 	
 	<!-- ===================================================================== -->
