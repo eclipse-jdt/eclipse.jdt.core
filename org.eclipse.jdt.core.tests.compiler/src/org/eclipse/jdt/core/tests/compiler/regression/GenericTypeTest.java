@@ -23207,7 +23207,7 @@ public void test0747() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100007
 public void test0748() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -23222,7 +23222,12 @@ public void test0748() {
 			"	}\n" + 
 			"}\n",
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\r\n" + 
+		"	static class BytesFactory implements Factory<byte[]> {\r\n" + 
+		"	             ^^^^^^^^^^^^\n" + 
+		"The type X.BytesFactory must implement the inherited abstract method X.Factory<byte[]>.create(Class<U>)\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100149
 public void test0749() {
