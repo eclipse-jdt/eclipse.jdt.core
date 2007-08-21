@@ -58,8 +58,8 @@ public class IdeFilerImpl implements Filer {
 	@Override
 	public FileObject createResource(Location location, CharSequence pkg,
 			CharSequence relativeName, Element... originatingElements) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO
+		throw new UnsupportedOperationException("Creating resource files is not yet implemented"); //$NON-NLS-1$
 	}
 
 	/**
@@ -76,8 +76,6 @@ public class IdeFilerImpl implements Filer {
 		for (Element elem : originatingElements) {
 			parentFiles.add(_env.getEnclosingIFile(elem));
 		}
-		// Convert originatingElements to List<IFile>.  The originatingElements should all 
-		// be source types, else they would not be getting 
 		return new IdeJavaFileObject(_env, name, parentFiles);
 	}
 
@@ -87,8 +85,8 @@ public class IdeFilerImpl implements Filer {
 	@Override
 	public FileObject getResource(Location location, CharSequence pkg, CharSequence relativeName)
 			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO
+		throw new UnsupportedOperationException("Reading resource files is not yet implemented"); //$NON-NLS-1$
 	}
 
 }

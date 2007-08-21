@@ -43,7 +43,7 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 	
 	private IJavaProject _javaProject;
 	private ICompilationUnitLocator _cuLocator;
-	private Map<IServiceFactory, FactoryPath.Attributes> _processors;
+	private Map<IServiceFactory, FactoryPath.Attributes> _processorFactories;
 	private Iterator<Entry<IServiceFactory, Attributes>> _processorIter;
 
 	/**
@@ -95,6 +95,7 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 				if (Apt6Plugin.DEBUG) {
 					Apt6Plugin.trace("Discovered processor " + p.toString());
 				}
+				_processors.add(pi);
 				return pi;
 			} catch (CoreException e) {
 				Apt6Plugin.log(e, "Unable to create instance of annotation processor " + entry.getKey()); //$NON-NLS-1$
@@ -125,11 +126,11 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 	 */
 	@Override
 	public void processAnnotations(CompilationUnitDeclaration[] units, ReferenceBinding[] referenceBindings, boolean isLastRound) {
-		if (null == _processors ) {
-			_processors = AnnotationProcessorFactoryLoader.getLoader().getJava6FactoriesAndAttributesForProject(_javaProject);
-			_processorIter = _processors.entrySet().iterator();
+		if (null == _processorFactories ) {
+			_processorFactories = AnnotationProcessorFactoryLoader.getLoader().getJava6FactoriesAndAttributesForProject(_javaProject);
+			_processorIter = _processorFactories.entrySet().iterator();
 		}
-		if (!_processors.isEmpty()) {
+		if (!_processorFactories.isEmpty()) {
 			super.processAnnotations(units, referenceBindings, isLastRound);
 		}
 	}

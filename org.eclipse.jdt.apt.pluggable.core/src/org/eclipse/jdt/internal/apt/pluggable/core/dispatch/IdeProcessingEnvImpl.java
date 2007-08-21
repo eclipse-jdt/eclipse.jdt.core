@@ -20,7 +20,9 @@ import java.util.Map;
 import javax.lang.model.element.Element;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.env.Phase;
+import org.eclipse.jdt.apt.core.internal.AptCompilationParticipant;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.generatedfile.FileGenerationResult;
@@ -108,10 +110,13 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 		if (name == null) {
 			return null;
 		}
-		return _javaProject.getProject().getFile(name);
+		// The name will be workspace-relative, e.g., /project/src/packages/File.java.
+		IFile file = _javaProject.getProject().getParent().getFile(new Path(name));
+		return file;
 	}
 
 	public void addNewUnit(FileGenerationResult result) {
+		AptCompilationParticipant.getInstance().addJava6GeneratedFile(result.getFile());
 		addNewUnit(_dispatchManager.findCompilationUnit(result.getFile()));
 	}
 
