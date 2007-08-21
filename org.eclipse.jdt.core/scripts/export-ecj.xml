@@ -63,6 +63,7 @@
 	</target>
 
 	<target name="export" depends="init">
+		<property name="buildLabel" value="" />
 		<property name="dest" value="../../ecj-export" />
 		<mkdir dir="${dest}" />
 		<echo message="UPDATE ecj-${buildLabel}.jar" />
@@ -92,7 +93,7 @@
 		</zip>
 		<antcall target="cleanup"/>
 	</target>
-	
+
 	<target name="export_src_bin">
 		<property name="dest" value="../../ecj-export" />
 		<mkdir dir="${dest}" />
@@ -133,8 +134,8 @@
 		<antcall target="extract-ant-adapter-compiler"/>
 		<antcall target="extract-_jsr199"/>
 		<antcall target="extract-_jsr269"/>
-		<antcall target="export"/>
 		<antcall target="export_src_bin"/>
+		<antcall target="export"/>
 		<antcall target="cleanup"/>
 	</target>
 </project>
