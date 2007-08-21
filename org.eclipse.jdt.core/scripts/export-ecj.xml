@@ -63,7 +63,7 @@
 	</target>
 
 	<target name="export" depends="init">
-		<property name="buildLabel" value="" />
+		<property name="buildLabel" value="head" />
 		<property name="dest" value="../../ecj-export" />
 		<mkdir dir="${dest}" />
 		<echo message="UPDATE ecj-${buildLabel}.jar" />
