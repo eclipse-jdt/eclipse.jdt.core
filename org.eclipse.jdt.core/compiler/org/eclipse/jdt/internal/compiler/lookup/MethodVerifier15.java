@@ -447,9 +447,10 @@ void checkMethods() {
 					continue;
 				otherInheritedMethod = computeSubstituteMethod(otherInheritedMethod, inheritedMethod);
 				if (otherInheritedMethod != null) {
-					if (doesSubstituteMethodOverride(inheritedMethod, otherInheritedMethod)) {
-						matchingInherited[++index] = otherInheritedMethod;
-						foundMatch[j] = 1; // cannot null out inherited methods
+					if (inheritedMethod.declaringClass != otherInheritedMethod.declaringClass
+						&& doesSubstituteMethodOverride(inheritedMethod, otherInheritedMethod)) {
+							matchingInherited[++index] = otherInheritedMethod;
+							foundMatch[j] = 1; // cannot null out inherited methods
 					} else {
 						checkInheritedMethods(inheritedMethod, otherInheritedMethod);
 					}
@@ -582,30 +583,41 @@ public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedM
 	MethodBinding substitute = computeSubstituteMethod(inheritedMethod, method);
 	return substitute != null && doesSubstituteMethodOverride(method, substitute);
 }
+// if method "overrides" substituteMethod then we can skip over substituteMethod while resolving a message send
+// if it does not then a name clash error is likely
 boolean doesSubstituteMethodOverride(MethodBinding method, MethodBinding substituteMethod) {
-	if (doTypeVariablesClash(method, substituteMethod)) return false;
-	if (areParametersEqual(method, substituteMethod)) return true;
-	if (method.declaringClass == substituteMethod.declaringClass) return false;
+	if (!areParametersEqual(method, substituteMethod)) {
+		// method can still override substituteMethod in cases like :
+		// <U extends Number> void c(U u) {}
+		// @Override void c(Number n) {}
+		// but method cannot have a "generic-enabled" parameter type
+		if (substituteMethod.hasSubstitutedParameters() && method.areParameterErasuresEqual(substituteMethod))
+			return method.typeVariables == Binding.NO_TYPE_VARIABLES && !hasGenericParameter(method);
+		return false;
+	}
 
+	if (substituteMethod instanceof ParameterizedGenericMethodBinding) {
+		// since substituteMethod has substituted type variables, method cannot have a generic signature AND no variables -> its a name clash if it does
+		return ! (hasGenericParameter(method) && method.typeVariables == Binding.NO_TYPE_VARIABLES);
+	}
+
+	// if method has its own variables, then substituteMethod failed bounds check in computeSubstituteMethod()
+	return method.typeVariables == Binding.NO_TYPE_VARIABLES;
+}
+boolean hasGenericParameter(MethodBinding method) {
+	if (method.genericSignature() == null) return false;
+
+	// may be only the return type that is generic, need to check parameters
 	TypeBinding[] params = method.parameters;
-	TypeBinding[] inheritedParams = substituteMethod.parameters;
-	int length = params.length;
-	if (length != inheritedParams.length)
-		return false;
-
-	// also allow a method such as Number foo(Number) to override <U> T foo(T) where T extends Number
-	if (method.typeVariables != Binding.NO_TYPE_VARIABLES || !substituteMethod.hasSubstitutedParameters())
-		return false;
-
-	for (int i = 0; i < length; i++) {
-		if (inheritedParams[i].kind() == Binding.TYPE_PARAMETER) {
-			if (params[i] != ((TypeVariableBinding) inheritedParams[i]).upperBound())
-				return false;
-		} else if (params[i] != inheritedParams[i]) {
-			return false;			
+	for (int i = 0, l = params.length; i < l; i++) {
+		TypeBinding param = params[i].leafComponentType();
+		if (param instanceof ReferenceBinding) {
+			int modifiers = ((ReferenceBinding) param).modifiers;
+			if ((modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+				return true;
 		}
 	}
-	return true;
+	return false;
 }
 boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
 	// one has type variables and substituteTwo did not pass bounds check in computeSubstituteMethod()

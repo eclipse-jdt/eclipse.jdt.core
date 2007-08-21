@@ -4426,43 +4426,57 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}"
 			},
 			"----------\n" + 
-			"1. ERROR in Errors.java (at line 6)\n" + 
+			"1. ERROR in Errors.java (at line 5)\n" + 
+			"	ex.five(\"eclipse\");\n" + 
+			"	   ^^^^\n" + 
+			"The method five(String) is ambiguous for the type Ex<String>\n" + 
+			"----------\n" + 
+			"2. ERROR in Errors.java (at line 6)\n" + 
 			"	ex.six(\"eclipse\");\n" + 
 			"	   ^^^\n" + 
 			"The method six(String) is ambiguous for the type Ex<String>\n" + 
 			"----------\n" + 
-			"2. WARNING in Errors.java (at line 7)\n" + 
+			"3. WARNING in Errors.java (at line 7)\n" + 
 			"	Ex ex2 = ex;\n" + 
 			"	^^\n" + 
 			"Ex is a raw type. References to generic type Ex<C> should be parameterized\n" + 
 			"----------\n" + 
-			"3. WARNING in Errors.java (at line 9)\n" + 
+			"4. ERROR in Errors.java (at line 9)\n" + 
 			"	ex2.five(\"eclipse\");\n" + 
-			"	^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The method five(Object) belongs to the raw type Ex. References to generic type Ex<C> should be parameterized\n" + 
+			"	    ^^^^\n" + 
+			"The method five(Object) is ambiguous for the type Ex\n" + 
 			"----------\n" + 
-			"4. ERROR in Errors.java (at line 10)\n" + 
+			"5. ERROR in Errors.java (at line 10)\n" + 
 			"	ex2.six(\"eclipse\");\n" + 
 			"	    ^^^\n" + 
 			"The method six(Object) is ambiguous for the type Ex\n" + 
 			"----------\n" + 
-			"5. ERROR in Errors.java (at line 21)\n" + 
+			"6. ERROR in Errors.java (at line 20)\n" + 
+			"	@Override void five(C cEx) {}\n" + 
+			"	               ^^^^^^^^^^^\n" + 
+			"Name clash: The method five(C) of type Ex<C> has the same erasure as five(TC) of type Top<TC> but does not override it\n" + 
+			"----------\n" + 
+			"7. ERROR in Errors.java (at line 20)\n" + 
+			"	@Override void five(C cEx) {}\n" + 
+			"	               ^^^^^^^^^^^\n" + 
+			mustOverrideMessage("five(C)", "Ex<C>") + 
+			"----------\n" + 
+			"8. ERROR in Errors.java (at line 21)\n" + 
 			"	@Override <M> void six(C cEx) {}\n" + 
 			"	                   ^^^^^^^^^^\n" + 
 			"Name clash: The method six(C) of type Ex<C> has the same erasure as six(TC) of type Top<TC> but does not override it\n" + 
 			"----------\n" + 
-			"6. ERROR in Errors.java (at line 21)\n" + 
+			"9. ERROR in Errors.java (at line 21)\n" + 
 			"	@Override <M> void six(C cEx) {}\n" + 
 			"	                   ^^^^^^^^^^\n" + 
 			mustOverrideMessage("six(C)", "Ex<C>") + 
 			"----------\n"
-			// we disagree about the ambiguous errors on lines 5, 9 & 20, see the message sends to proof()
 			// 5: reference to five is ambiguous, both method <TM>five(TC) in Top<java.lang.String> and method five(C) in Ex<java.lang.String> match
 			// 6: reference to six is ambiguous, both method six(TC) in Top<java.lang.String> and method <M>six(C) in Ex<java.lang.String> match
 			// 9: reference to five is ambiguous, both method <TM>five(TC) in Top and method five(C) in Ex match
-			// 9: warning: [unchecked] unchecked call to <TM>five(TC) as a member of the raw type Top
+			// **** 9: warning: [unchecked] unchecked call to <TM>five(TC) as a member of the raw type Top
 			// 10: reference to six is ambiguous, both method six(TC) in Top and method <M>six(C) in Ex match
-			// 10: warning: [unchecked] unchecked call to six(TC) as a member of the raw type Top
+			// **** 10: warning: [unchecked] unchecked call to six(TC) as a member of the raw type Top
 			// 20: method does not override a method from its superclass
 			// 21: method does not override a method from its superclass
 		);
@@ -7200,21 +7214,6 @@ public void test120() {
 			"X.java",
 			"public class X {\n" + 
 			"	abstract class M<T extends CharSequence, S> {\n" + 
-			"		abstract void a(T t);\n" + 
-			"		abstract void a(S s);\n" + 
-			"		void a(String s) {}\n" + 
-			"\n" + 
-			"		abstract void b(T t);\n" + 
-			"		protected void b(String s) {}\n" + 
-			"		protected abstract void b(S s);\n" + 
-			"\n" + 
-			"		public void c(String s) {}\n" + 
-			"		protected abstract void c(T t);\n" + 
-			"		abstract void c(S s);\n" + 
-			"\n" + 
-			"		protected abstract void d(T t);\n" + 
-			"		public void d(S s) {}\n" + 
-			"\n" + 
 			"		void e(T t) {}\n" + 
 			"		void e(S s) {}\n" +
 			"	}\n" + 
@@ -7222,7 +7221,7 @@ public void test120() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 21)\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
 		"	class N extends M<String, String> {}\n" + 
 		"	      ^\n" + 
 		"Duplicate methods named e with the parameters (S) and (T) are defined by the type X.M<String,String>\n" + 

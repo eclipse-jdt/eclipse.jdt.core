@@ -2197,4 +2197,80 @@ public void test061() {
 		"----------\n"
 	);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193265
+public void test062() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"enum E implements I {\n" +
+			"	F;\n" +
+			"}\n" + 
+			"interface I {}\n" + 
+			"interface Spec {\n" + 
+			"	<T1 extends Enum<T1> & I> void method(T1 t);\n" + 
+			"}\n" + 
+			"abstract class X implements Spec {\n" + 
+			"	public <T2 extends Enum<T2> & I> void method(T2 t) {}\n" + 
+			"	void test() { method(E.F); }\n" + 
+			"}"
+		},
+		""
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=196254
+public void test063() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"interface I<R> {}\n" + 
+			"class X<T extends I> {\n" + 
+			"	void method(X<?> that) {}\n" + 
+			"}\n" + 
+			"class Y<T extends I> extends X<T> {\n" + 
+			"	@Override void method(X<? extends I> that) { System.out.print(1); }\n" + 
+			"}\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) { new Y().method((X) null); }\n" + 
+			"}"
+		},
+		"1"
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=198120
+public void test064() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface I<E> {\n" + 
+			"	void x(I<? extends E> i);\n" + 
+			"}\n" + 
+			"public abstract class A implements I {\n" + 
+			"	public void x(I i) {}\n" + 
+			"}\n" + 
+			"class B extends A {\n" + 
+			"	void y(A a) { super.x(a); }\n" + 
+			"}"
+		},
+		""
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=200547
+public void test065() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"public abstract class A {\n" + 
+			"	abstract <T extends Number & Comparable<T>> void m(T x);\n" + 
+			"}\n" + 
+			"class B extends A {\n" + 
+			"	@Override <T extends Number & Comparable<T>> void m(T x) {}\n" + 
+			"}"
+		},
+		""
+	);
+}
 }

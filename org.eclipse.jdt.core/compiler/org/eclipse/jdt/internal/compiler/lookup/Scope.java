@@ -699,6 +699,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding()) {
+						if (concreteMatch != null && concreteMatch.declaringClass.findSuperTypeWithSameErasure(compatibleMethod.declaringClass) != null)
+							if (environment().methodVerifier().doesMethodOverride(concreteMatch, compatibleMethod))
+								continue; // can skip this method since concreteMatch overrides it
 						if (candidatesCount == 0) {
 							candidates = new MethodBinding[foundSize - startFoundSize + 1];
 							if (concreteMatch != null)
@@ -1053,6 +1056,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		boolean isCompliant14 = complianceLevel >= ClassFileConstants.JDK1_4;
 		boolean isCompliant15 = complianceLevel >= ClassFileConstants.JDK1_5;
 		ReferenceBinding classHierarchyStart = currentType;
+		MethodVerifier verifier = environment().methodVerifier();
 		while (currentType != null) {
 			unitScope.recordTypeReference(currentType);
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
@@ -1075,12 +1079,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						// BUT we can also ignore any overridden method since we already know the better match (fixes 80028)
 						for (int j = 0, max = found.size; j < max; j++) {
 							MethodBinding matchingMethod = (MethodBinding) found.elementAt(j);
-							if (currentMethod.areParametersEqual(matchingMethod)) {
+							if (verifier.doesMethodOverride(matchingMethod.original(), currentMethod.original())) {
 								if (isCompliant15) {
-									if (matchingMethod.typeVariables != Binding.NO_TYPE_VARIABLES && invocationSite.genericTypeArguments() == null)
-										continue nextMethod; // keep inherited substituted methods to detect anonymous errors
-									if (matchingMethod.hasSubstitutedParameters() && !currentMethod.original().areParametersEqual(matchingMethod.original()))
-										continue nextMethod; // keep inherited substituted methods to detect anonymous errors
 									if (matchingMethod.isBridge() && !currentMethod.isBridge())
 										continue nextMethod; // keep inherited methods to find concrete method over a bridge method
 								}
@@ -3386,9 +3386,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 									}
 								}
 							}
-							if (original.typeVariables != Binding.NO_TYPE_VARIABLES)
-								original2 = original.computeSubstitutedMethod(original2, environment());
-							if (original2 == null || !original.areParametersEqual(original2))
+							if (!environment().methodVerifier().doesMethodOverride(original, original2))
 								continue nextSpecific; // current does not override next
 						}
 					} else if (receiverType != null) { // should not be null if original isAbstract, but be safe
