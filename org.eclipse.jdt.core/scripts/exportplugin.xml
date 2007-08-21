@@ -10,17 +10,17 @@
 		<param name="jdt_core_version" value="3.4.0"/>
 	</antcall>
 </target>
-<target name="export plug-in [_3.4.0.qualifier]">
+<target name="export plug-in [_3.4.0.qualifier] (binary only)">
     <tstamp/>
 	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export">
+	<antcall target="zz_internal_export_binary_only">
 		<param name="jdt_core_version" value="3.4.0.${qualifier}"/>
 	</antcall>
 </target>
 <target name="export plug-in [_3.4.0.qualifier] (with sources)">
     <tstamp/>
 	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export_structure">
+	<antcall target="zz_internal_export">
 		<param name="jdt_core_version" value="3.4.0.${qualifier}"/>
 	</antcall>
 </target>
@@ -145,7 +145,7 @@
 	-->
 </target>
 
-<target name="zz_internal_export_structure">
+<target name="zz_internal_export_binary_only">
 
 	<tstamp/>
 	<property name="export-dir" value="../../plugin-export" />
@@ -179,19 +179,6 @@
 		</fileset>
         <fileset dir="bin" />
         <fileset file="${plugin-dir}/jdtCompilerAdapter.jar"/>
-	</zip>
-	<zip zipfile="${plugin-dir}/src.zip">
-        <zipfileset dir="batch" includes="**/*.java"/>
-	    <zipfileset dir="codeassist" includes="**/*.java"/>
-	    <zipfileset dir="compiler" includes="**/*.java"/>
-	    <zipfileset dir="dom" includes="**/*.java"/>
-	    <zipfileset dir="eval" includes="**/*.java"/>
-	    <zipfileset dir="formatter" includes="**/*.java"/>
-	    <zipfileset dir="model" includes="**/*.java"/>
-	    <zipfileset dir="search" includes="**/*.java"/>		
-	</zip>
-	<zip zipfile="${plugin-dir}/jdtCompilerAdaptersrc.zip">
-        <zipfileset dir="antadapter" includes="**/*.java"/>
 	</zip>
 	<delete dir="${plugin-dir}/META-INF" />
 
