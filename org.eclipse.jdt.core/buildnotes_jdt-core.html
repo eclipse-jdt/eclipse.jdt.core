@@ -42,13 +42,21 @@
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.4M2 - %date% - 3.4 MILESTONE 2 
+Eclipse SDK 3.4M2 - August 21, 2007 - 3.4 MILESTONE 2 
 <br>Project org.eclipse.jdt.core v_808
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_808">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
 <li>New fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=186781">bug 186781</a> required the index version to be incremented.
      Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
+</li>
+<li>API method <code>JavaProject.setOption(String, String)</code> behavior has been slightly changed consequent upon following bugs fixing:
+<ul>
+<li><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=152562">bug 152562</a>: 
+<code>null</code> is now accepted for the option value and remove the corresponding preference from the project,</li>
+<li><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=152578">bug 152578</a>: 
+the preference is not removed from project when the value is equals to the workspace preference value.</li>
+</ul>
 </li>
 </ul>
 
