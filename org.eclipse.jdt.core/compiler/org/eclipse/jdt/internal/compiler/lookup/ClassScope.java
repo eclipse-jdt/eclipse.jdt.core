@@ -308,9 +308,15 @@ public class ClassScope extends Scope {
 			className[className.length - 1] =
 				CharOperation.concat(className[className.length - 1], referenceContext.name, '$');
 			ReferenceBinding existingType = packageBinding.getType0(className[className.length - 1]);
-			if (existingType != null)
-				// report the error against the parent - its still safe to answer the member type
-				this.parent.problemReporter().duplicateNestedType(referenceContext);
+			if (existingType != null) {
+				if (existingType instanceof UnresolvedReferenceBinding) {
+					// its possible that a BinaryType referenced the member type before its enclosing source type was built
+					// so just replace the unresolved type with a new member type
+				} else {
+					// report the error against the parent - its still safe to answer the member type
+					this.parent.problemReporter().duplicateNestedType(referenceContext);
+				}
+			}
 			referenceContext.binding = new MemberTypeBinding(className, this, enclosingType);
 		}
 
