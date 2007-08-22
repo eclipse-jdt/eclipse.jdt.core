@@ -34,7 +34,7 @@ public class TestAll extends TestCase {
 		TestSuite suite = new TestSuite();
 		
 		suite.addTest(InfrastructureTests.suite());
-		suite.addTest(FilerTests.suite());
+		//suite.addTest(FilerTests.suite());
 	
 		return suite;
 		
