@@ -26,7 +26,7 @@
   	<property name="apt-folder" value="${eclipse-home}/apt_folder"/>
   	<delete dir="${apt-folder}" quiet="true"/>
   	
-  	<ant target="ui-test" antfile="${library-file}" dir="${eclipse-home}">
+  	<ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
   	      <property name="data-dir" value="${apt-folder}"/>
   	      <property name="plugin-name" value="${plugin-name}"/>
   	      <property name="classname" value="org.eclipse.jdt.apt.tests.TestAll"/>
