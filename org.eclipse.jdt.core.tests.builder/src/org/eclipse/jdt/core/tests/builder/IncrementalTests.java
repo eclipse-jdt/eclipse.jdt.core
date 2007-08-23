@@ -684,6 +684,67 @@ public class IncrementalTests extends BuilderTests {
 		}
 	}
 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=191739
+	public void testMemberTypeCollisionWithBinary2() throws JavaModelException {
+		int max = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
+		try {
+			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+			env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	
+			// remove old package fragment root so that names don't collide
+			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+	
+			IPath src1 = env.addPackageFragmentRoot(projectPath, "src1"); //$NON-NLS-1$
+			IPath bin1 = env.setOutputFolder(projectPath, "bin1"); //$NON-NLS-1$
+
+			env.addClass(src1, "p1", "NoSource", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p1;	\n"+ 
+				"import p2.Foo;\n"+ //$NON-NLS-1$
+				"public class NoSource {\n"+ //$NON-NLS-1$
+				"	public NoSource(Foo.Bar b) {}\n" + //$NON-NLS-1$
+				"}");	//$NON-NLS-1$
+
+			IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", null, "bin2"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			env.addClass(src2, "p2", "Foo", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p2; \n"+ 
+				"public class Foo {\n"+ //$NON-NLS-1$
+				"	public static class Bar {\n" + //$NON-NLS-1$
+				"		public static Bar LocalBar = new Bar();\n" + //$NON-NLS-1$
+				"	}\n" + //$NON-NLS-1$
+				"}");	//$NON-NLS-1$
+
+			env.addClass(src2, "p2", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p2; \n"+ 
+				"import p1.NoSource;\n"+ //$NON-NLS-1$
+				"import p2.Foo.Bar;\n"+ //$NON-NLS-1$
+				"public class Test {\n"+ //$NON-NLS-1$
+				"	NoSource nosrc = new NoSource(Bar.LocalBar);\n" + //$NON-NLS-1$
+				"}");	//$NON-NLS-1$
+
+			fullBuild(projectPath);
+			expectingNoProblems();
+
+			env.removePackageFragmentRoot(projectPath, "src1"); //$NON-NLS-1$
+			env.addClassFolder(projectPath, bin1, false);
+
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 1;
+
+			env.addClass(src2, "p2", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p2; \n"+ 
+				"import p1.NoSource;\n"+ //$NON-NLS-1$
+				"import p2.Foo.Bar;\n"+ //$NON-NLS-1$
+				"public class Test {\n"+ //$NON-NLS-1$
+				"	NoSource nosrc = new NoSource(Bar.LocalBar);\n" + //$NON-NLS-1$
+				"}");	//$NON-NLS-1$
+
+			incrementalBuild(projectPath);
+			expectingNoProblems();
+		} finally {
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = max;
+		}
+	}
+
 	
 	public void test129316() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
