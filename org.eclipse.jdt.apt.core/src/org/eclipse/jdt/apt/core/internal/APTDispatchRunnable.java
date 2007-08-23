@@ -345,7 +345,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		Set<IFile> allGeneratedFiles = null;
 		Set<IFile> java6GeneratedFiles = AptCompilationParticipant.getInstance().getJava6GeneratedFiles();
 		if (java5GeneratedFiles == null || java5GeneratedFiles.isEmpty()) {
-			if (java6GeneratedFiles == null || java6GeneratedFiles.isEmpty()) {
+			if (java6GeneratedFiles.isEmpty()) {
 				allGeneratedFiles = Collections.emptySet();
 			}
 			else {
@@ -353,7 +353,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			}
 		}
 		else {
-			if (java6GeneratedFiles == null || java6GeneratedFiles.isEmpty()) {
+			if (java6GeneratedFiles.isEmpty()) {
 				allGeneratedFiles = java5GeneratedFiles;
 			}
 			else {
@@ -701,11 +701,12 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		}
 		final Set<IFile> deleted = new HashSet<IFile>();
 		GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
+		Set<IFile> java6GeneratedFiles = AptCompilationParticipant.getInstance().getJava6GeneratedFiles();
 		for( BuildContext cpResult : cpResults){
 			final IFile parentFile = cpResult.getFile();
 			cleanupNoLongerGeneratedFiles( 
 					parentFile, 
-					Collections.<IFile>emptySet(), 
+					java6GeneratedFiles, 
 					gfm,
 					null, 
 					deleted);
