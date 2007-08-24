@@ -24,16 +24,36 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class UserLibraryClasspathContainerInitializer extends ClasspathContainerInitializer {
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.ClasspathContainerInitializer#initialize(org.eclipse.core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
+	 * @see org.eclipse.jdt.core.ClasspathContainerInitializer#canUpdateClasspathContainer(org.eclipse.core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
 	 */
+	public boolean canUpdateClasspathContainer(IPath containerPath, IJavaProject project) {
+		return isUserLibraryContainer(containerPath);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.ClasspathContainerInitializer#getComparisonID(org.eclipse.core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
+	 */
+	public Object getComparisonID(IPath containerPath, IJavaProject project) {
+		return containerPath;
+	}
+	
+	/**
+	 * @see org.eclipse.jdt.core.ClasspathContainerInitializer#getDescription(org.eclipse.core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
+	 */
+	public String getDescription(IPath containerPath, IJavaProject project) {
+		if (isUserLibraryContainer(containerPath)) {
+			return containerPath.segment(1);
+		}
+		return super.getDescription(containerPath, project);
+	}
+
 	public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 		if (isUserLibraryContainer(containerPath)) {
 			String userLibName = containerPath.segment(1);
-						
-			UserLibrary entries = UserLibraryManager.getUserLibrary(userLibName);
-			if (entries != null) {
+			UserLibrary userLibrary = JavaModelManager.getUserLibraryManager().getUserLibrary(userLibName);
+			if (userLibrary != null) {
 				UserLibraryClasspathContainer container = new UserLibraryClasspathContainer(userLibName);
-				JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, 	new IClasspathContainer[] { container }, null);
+				JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, new IClasspathContainer[] { container }, null);
 			} else if (JavaModelManager.CP_RESOLVE_VERBOSE) {
 				verbose_no_user_library_found(project, userLibName);
 			}
@@ -46,50 +66,19 @@ public class UserLibraryClasspathContainerInitializer extends ClasspathContainer
 		return path != null && path.segmentCount() == 2 && JavaCore.USER_LIBRARY_CONTAINER_ID.equals(path.segment(0));
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.ClasspathContainerInitializer#canUpdateClasspathContainer(org.eclipse.core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
-	 */
-	public boolean canUpdateClasspathContainer(IPath containerPath, IJavaProject project) {
-		return isUserLibraryContainer(containerPath);
-	}
-
 	/**
 	 * @see org.eclipse.jdt.core.ClasspathContainerInitializer#requestClasspathContainerUpdate(org.eclipse.core.runtime.IPath, org.eclipse.jdt.core.IJavaProject, org.eclipse.jdt.core.IClasspathContainer)
 	 */
 	public void requestClasspathContainerUpdate(IPath containerPath, IJavaProject project, IClasspathContainer containerSuggestion) throws CoreException {
 		if (isUserLibraryContainer(containerPath)) {
-			String name= containerPath.segment(1);
+			String name = containerPath.segment(1);
 			if (containerSuggestion != null) {
-				UserLibrary library= new UserLibrary(containerSuggestion.getClasspathEntries(), containerSuggestion.getKind() == IClasspathContainer.K_SYSTEM);
-				UserLibraryManager.setUserLibrary(name, library, null); // should use a real progress monitor
+				JavaModelManager.getUserLibraryManager().setUserLibrary(name, containerSuggestion.getClasspathEntries(), containerSuggestion.getKind() == IClasspathContainer.K_SYSTEM);
 			} else {
-				UserLibraryManager.setUserLibrary(name, null, null); // should use a real progress monitor
+				JavaModelManager.getUserLibraryManager().removeUserLibrary(name);
 			}
+			// update of affected projects was done as a consequence of setUserLibrary() or removeUserLibrary()
 		}
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.ClasspathContainerInitializer#getDescription(org.eclipse.core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
-	 */
-	public String getDescription(IPath containerPath, IJavaProject project) {
-		if (isUserLibraryContainer(containerPath)) {
-			return containerPath.segment(1);
-		}
-		return super.getDescription(containerPath, project);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.ClasspathContainerInitializer#getComparisonID(org.eclipse.core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
-	 */
-	public Object getComparisonID(IPath containerPath, IJavaProject project) {
-		return containerPath;
-	}
-	
-	private void verbose_not_a_user_library(IJavaProject project, IPath containerPath) {
-		Util.verbose(
-			"UserLibrary INIT - FAILED (not a user library)\n" + //$NON-NLS-1$
-			"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
-			"	container path: " + containerPath); //$NON-NLS-1$
 	}
 
 	private void verbose_no_user_library_found(IJavaProject project, String userLibraryName) {
@@ -99,4 +88,10 @@ public class UserLibraryClasspathContainerInitializer extends ClasspathContainer
 			"	userLibraryName: " + userLibraryName); //$NON-NLS-1$
 	}
 	
+	private void verbose_not_a_user_library(IJavaProject project, IPath containerPath) {
+		Util.verbose(
+			"UserLibrary INIT - FAILED (not a user library)\n" + //$NON-NLS-1$
+			"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+			"	container path: " + containerPath); //$NON-NLS-1$
+	}
 }
