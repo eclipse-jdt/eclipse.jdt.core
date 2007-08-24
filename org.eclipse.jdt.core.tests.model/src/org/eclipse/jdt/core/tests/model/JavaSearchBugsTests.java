@@ -8502,6 +8502,7 @@ public void testBug185452() throws CoreException {
 		"src/b137984 b137984\n" +
 		"src/b142044 b142044\n" +
 		"src/b163984 b163984\n" +
+		"src/b201064 b201064\n" +
 		"src/b81556 b81556\n" +
 		"src/b81556/a b81556.a\n" +
 		"src/b86380 b86380\n" +
@@ -8510,7 +8511,7 @@ public void testBug185452() throws CoreException {
 }
 
 /**
- * @bug 194185 [search] for package declarations finds also subpackages
+ * @bug 194185 [search] for package declarations finds also sub-packages
  * @test Ensure that exact package is found when no
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=194185"
  */
@@ -8836,6 +8837,84 @@ public void testBug200064() throws CoreException {
 		"Object (not open) [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 		collector
 	);
+}
+
+/**
+ * @bug 201064: [search] SearchEngine.searchAllTypeNames(..) does not find CamelCase match
+ * @test Ensure that indexing still works properly after close/restart
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=201064"
+ */
+public void testBug201064() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CCase", SearchPattern.R_CAMEL_CASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CxxCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064b() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CaCase", SearchPattern.R_CAMEL_CASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064c() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CamelCase", SearchPattern.R_CAMEL_CASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064d() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CC", SearchPattern.R_CAMEL_CASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CxxCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CxxxxCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064e() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CaC", SearchPattern.R_CAMEL_CASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064f() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CamelC", SearchPattern.R_CAMEL_CASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064g() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CCa", SearchPattern.R_CAMEL_CASE_MATCH, collector);
+	assertSearchResults("", collector);
+}
+public void testBug201064h() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CaCa", SearchPattern.R_CAMEL_CASE_MATCH, collector);
+	assertSearchResults("", collector);
+}
+public void testBug201064i() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CamelCa", SearchPattern.R_CAMEL_CASE_MATCH, collector);
+	assertSearchResults("", collector);
 }
 
 }

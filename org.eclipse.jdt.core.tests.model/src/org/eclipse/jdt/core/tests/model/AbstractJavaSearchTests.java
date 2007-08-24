@@ -658,6 +658,19 @@ protected JavaSearchResultCollector resultCollector;
 			null
 		);
 	}
+	protected void searchAllTypeNames(String pattern, int matchRule, TypeNameMatchCollector collector) throws JavaModelException {
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			pattern.toCharArray(),
+			matchRule,
+			TYPE,
+			getJavaSearchScope(),
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+	}
 	protected void searchDeclarationsOfAccessedFields(IJavaElement enclosingElement, SearchRequestor requestor) throws JavaModelException {
 		new SearchEngine().searchDeclarationsOfAccessedFields(enclosingElement, requestor, null);
 	}

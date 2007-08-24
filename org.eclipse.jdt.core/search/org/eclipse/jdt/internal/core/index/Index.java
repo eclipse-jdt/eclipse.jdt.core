@@ -59,7 +59,9 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 	// First test camel case if necessary
 	boolean isCamelCase = (matchRule & SearchPattern.R_CAMEL_CASE_MATCH) != 0;
 	if (isCamelCase) {
-		if (pattern[0] == word[0] && CharOperation.camelCaseMatch(pattern, word, (matchRule & SearchPattern.R_PREFIX_MATCH) != 0)) {
+		// prefix is always needed as index key got characters after type simple name
+		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=201064
+		if (pattern[0] == word[0] && CharOperation.camelCaseMatch(pattern, word, true/*prefix match*/)) {
 			return true;
 		}
 		if ((matchRule & SearchPattern.R_CASE_SENSITIVE) != 0) return false;
