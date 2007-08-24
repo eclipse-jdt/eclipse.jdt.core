@@ -102,15 +102,19 @@ class TypeBinding implements ITypeBinding {
 			org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations = refType.getAnnotations();
 			int length = internalAnnotations == null ? 0 : internalAnnotations.length;
 			if (length != 0) {
-				IAnnotationBinding[] domInstances = new IAnnotationBinding[length];
+				IAnnotationBinding[] tempAnnotations = new IAnnotationBinding[length];
+				int annotationsCounter = 0;
 				for (int i = 0; i < length; i++) {
 					final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(internalAnnotations[i]);
 					if (annotationInstance == null) {
-						return AnnotationBinding.NoAnnotations;
+						continue;
 					}
-					domInstances[i] = annotationInstance;
+					tempAnnotations[annotationsCounter++] = annotationInstance;
 				}
-				return this.annotations = domInstances;
+				if (length != annotationsCounter) {
+					System.arraycopy(tempAnnotations, 0, (tempAnnotations = new IAnnotationBinding[annotationsCounter]), 0, annotationsCounter);
+				}
+				return this.annotations = tempAnnotations;
 			}
 		}
 		return this.annotations = AnnotationBinding.NoAnnotations;
