@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 277 };
+//		TESTS_NUMBERS = new int[] { 281 };
 //		TESTS_RANGE = new int[] { 277, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -9321,5 +9321,27 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
 		
 		assertTrue("Doesn't overrides", methodBinding2.overrides(methodBinding1));
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=198085
+	public void test0281() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"@Invalid\n" +
+			"@Deprecated\n" +
+			"public class X {}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 1, "Invalid cannot be resolved to a type");
+		node = getASTNode(unit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		IAnnotationBinding[] annotations = typeBinding.getAnnotations();
+		assertEquals("wrong size", 1, annotations.length);
 	}
 }
