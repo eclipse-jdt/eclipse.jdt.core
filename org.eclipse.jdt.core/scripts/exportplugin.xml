@@ -13,7 +13,7 @@
 
 <target name="export plug-in [_3.3.1.qualifier] (with sources)">
     <tstamp/>
-	<property name="qualifier" value="${DSTAMP}-${TSTAMP}" />
+	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
 	<antcall target="zz_internal_export">
 		<param name="jdt_core_version" value="3.3.1.${qualifier}"/>
 	</antcall>
