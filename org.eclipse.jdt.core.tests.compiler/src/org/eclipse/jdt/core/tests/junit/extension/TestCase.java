@@ -304,7 +304,7 @@ protected void assumeTrue(String msg, boolean cond) {
 
 private void printAssertionFailure(AssertionFailedError afe) {
 	System.out.println("\n!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!");
-	System.out.println("Catched assertion failure while running test "+getName()+":");
+	System.out.println("Caught assertion failure while running test "+getName()+":");
 	System.out.println("	"+afe.getMessage());
 	System.out.println("--------------------------------------------------------------------------------\n");
 }
