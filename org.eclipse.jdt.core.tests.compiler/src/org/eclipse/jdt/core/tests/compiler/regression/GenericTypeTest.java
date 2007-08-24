@@ -38265,6 +38265,7 @@ public void test1148() {
 		"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=198051
 public void test1149() {
 	this.runConformTest(
 		new String[] {
