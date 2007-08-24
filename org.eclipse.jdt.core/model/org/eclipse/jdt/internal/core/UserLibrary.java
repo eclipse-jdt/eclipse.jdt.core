@@ -98,18 +98,18 @@ public class UserLibrary {
 		return hashCode;
 	}
 	
-	/* package */  String serialize() throws IOException {
+	public static String serialize(IClasspathEntry[] entries, boolean isSystemLibrary) throws IOException {
 		ByteArrayOutputStream s = new ByteArrayOutputStream();
 		OutputStreamWriter writer = new OutputStreamWriter(s, "UTF8"); //$NON-NLS-1$
 		XMLWriter xmlWriter = new XMLWriter(writer, null/*use the workspace line delimiter*/, true/*print XML version*/);
 		
 		HashMap library = new HashMap();
 		library.put(TAG_VERSION, String.valueOf(CURRENT_VERSION));
-		library.put(TAG_SYSTEMLIBRARY, String.valueOf(this.isSystemLibrary));
+		library.put(TAG_SYSTEMLIBRARY, String.valueOf(isSystemLibrary));
 		xmlWriter.printTag(TAG_USERLIBRARY, library, true, true, false);
 		
-		for (int i = 0; i < this.entries.length; ++i) {
-			ClasspathEntry cpEntry = (ClasspathEntry) this.entries[i];
+		for (int i = 0, length = entries.length; i < length; ++i) {
+			ClasspathEntry cpEntry = (ClasspathEntry) entries[i];
 		
 			HashMap archive = new HashMap();
 			archive.put(TAG_PATH, cpEntry.getPath().toString());
@@ -145,7 +145,7 @@ public class UserLibrary {
 		return s.toString("UTF8");//$NON-NLS-1$
 	}
 	
-	/* package */ static UserLibrary createFromString(Reader reader) throws IOException {
+	public static UserLibrary createFromString(Reader reader) throws IOException {
 		Element cpElement;
 		try {
 			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();

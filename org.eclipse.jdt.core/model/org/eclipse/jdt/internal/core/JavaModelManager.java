@@ -1213,6 +1213,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	private ThreadLocal zipFiles = new ThreadLocal();
 	
+	private UserLibraryManager userLibraryManager;
 	
 	/**
 	 * Update the classpath variable cache
@@ -1950,6 +1951,20 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (!project.exists()) return null;
 		IPath workingLocation = project.getWorkingLocation(JavaCore.PLUGIN_ID);
 		return workingLocation.append("state.dat").toFile(); //$NON-NLS-1$
+	}
+	
+	public static UserLibraryManager getUserLibraryManager() {
+		JavaModelManager modelManager = getJavaModelManager();
+		if (modelManager.userLibraryManager == null) {
+			UserLibraryManager libraryManager = new UserLibraryManager();
+			synchronized(modelManager) {
+				if (modelManager.userLibraryManager == null) { // ensure another library manager was not set while creating the instance above
+					modelManager.userLibraryManager = libraryManager;
+					modelManager.getInstancePreferences().addPreferenceChangeListener(libraryManager);
+				}
+			}
+		}
+		return modelManager.userLibraryManager;
 	}
 	
 	/*
@@ -4203,6 +4218,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		
 		// Stop listening to content-type changes
 		Platform.getContentTypeManager().removeContentTypeChangeListener(this);
+		
+		// Stop listening to user library changes
+		if (this.userLibraryManager != null)
+			getInstancePreferences().removePreferenceChangeListener(this.userLibraryManager);
 	
 		if (this.indexManager != null){ // no more indexing
 			this.indexManager.shutdown();

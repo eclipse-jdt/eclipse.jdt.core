@@ -3219,7 +3219,7 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static String[] getUserLibraryNames() {
-		 return UserLibraryManager.getUserLibraryNames();
+		 return JavaModelManager.getUserLibraryManager().getUserLibraryNames();
 	}
 
 	/**

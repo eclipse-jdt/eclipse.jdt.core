@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.UserLibrary;
 import org.eclipse.jdt.internal.core.UserLibraryManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -1523,8 +1522,7 @@ public void testUserLibrary() throws JavaModelException {
 	userEntries[1] = JavaCore.newLibraryEntry(path, null, null, pathRules, extraAttributes, false);
 	
 	// Create user library
-	UserLibrary library = new UserLibrary(userEntries, false);
-	UserLibraryManager.setUserLibrary("TEST", library, null);
+	JavaModelManager.getUserLibraryManager().setUserLibrary("TEST", userEntries, false);
 	
 	// Verify it has been written in preferences
 	IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
