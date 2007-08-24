@@ -73,8 +73,8 @@ public ConstructorPattern(
 	this.findDeclarations = findDeclarations;
 	this.findReferences = findReferences;
 
-	this.declaringQualification = isCaseSensitive() ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
-	this.declaringSimpleName = (isCaseSensitive() || isCamelCase()) ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
+	this.declaringQualification = this.isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
+	this.declaringSimpleName = (this.isCaseSensitive || this.isCamelCase) ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
 	if (parameterSimpleNames != null) {
 		this.parameterCount = parameterSimpleNames.length;
 		boolean synthetic = this.parameterCount>0 && declaringQualification != null && CharOperation.equals(CharOperation.concat(parameterQualifications[0], parameterSimpleNames[0], '.'), declaringQualification);
@@ -87,8 +87,8 @@ public ConstructorPattern(
 		this.parameterQualifications = new char[this.parameterCount][];
 		this.parameterSimpleNames = new char[this.parameterCount][];
 		for (int i = 0; i < this.parameterCount; i++) {
-			this.parameterQualifications[i] = isCaseSensitive() ? parameterQualifications[i+offset] : CharOperation.toLowerCase(parameterQualifications[i+offset]);
-			this.parameterSimpleNames[i] = isCaseSensitive() ? parameterSimpleNames[i+offset] : CharOperation.toLowerCase(parameterSimpleNames[i+offset]);
+			this.parameterQualifications[i] = this.isCaseSensitive ? parameterQualifications[i+offset] : CharOperation.toLowerCase(parameterQualifications[i+offset]);
+			this.parameterSimpleNames[i] = this.isCaseSensitive ? parameterSimpleNames[i+offset] : CharOperation.toLowerCase(parameterSimpleNames[i+offset]);
 		}
 	} else {
 		this.parameterCount = -1;

@@ -46,9 +46,285 @@ Eclipse SDK 3.4M2 - %date% - 3.4 MILESTONE 2
 <br>Project org.eclipse.jdt.core v_809
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_809">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Prefix matching can be disabled while using Camel Case API methods. (see 
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124624">bug 124624</a>).<br>
+Following API methods have been added on <code>org.eclipse.jdt.core.compiler.CharOperation</code>:
+<pre>
+/**
+ * Answers true if the pattern matches the given name using CamelCase rules, or
+ * false otherwise. char[] CamelCase matching does NOT accept explicit wild-cards
+ * '*' and '?' and is inherently case sensitive.
+ *
+ * CamelCase denotes the convention of writing compound names without spaces,
+ * and capitalizing every term. This function recognizes both upper and lower
+ * CamelCase, depending whether the leading character is capitalized or not.
+ * The leading part of an upper CamelCase pattern is assumed to contain a
+ * sequence of capitals which are appearing in the matching name; e.g. 'NPE' will
+ * match 'NullPointerException', but not 'NewPerfData'. A lower CamelCase pattern
+ * uses a lowercase first character. In Java, type names follow the upper
+ * CamelCase convention, whereas method or field names follow the lower
+ * CamelCase convention.
+ *
+ * The pattern may contain lowercase characters, which will be match in a case
+ * sensitive way. These characters must appear in sequence in the name.
+ * For instance, 'NPExcep' will match 'NullPointerException', but not
+ * 'NullPointerExCEPTION' or 'NuPoEx' will match 'NullPointerException', but not
+ * 'NoPointerException'.
+ *
+ * Digit characters are treated in a special way. They can be used in the pattern
+ * but are not always considered as leading character. For instance, both
+ * 'UTF16DSS' and 'UTFDSS' patterns will match 'UTF16DocumentScannerSupport'.
+ *
+ * CamelCase may or may not match prefixes depending on the given parameter.
+ * When the prefix match parameter is <code>true</code>, the given pattern can
+ * match only a prefix of the given name. For instance, 'HM' , 'HaMa' and  'HMap'
+ * patterns will all match 'HashMap', 'HatMapper' <b>and</b> 'HashMapEntry'.
+ * Reversely, if the prefix match parameter is <code>false</code>, then pattern
+ * and name must have <b>exactly</b> the same number of parts, and their last
+ * parts must be identical if they contain lowercase characters.
+ * For instance, 'HMap' and 'HaMap' patterns will match 'HashMap' but neither
+ * 'HashMapEntry' nor 'HatMapper'. Note that when the last part does not contain
+ * lowercase characters, then the name may end with lowercase characters.
+ * So, 'HM' pattern will match both 'HashMap' <b>and</b> 'HatMapper' but will not
+ * match 'HashMapEntry'.
+ *
+ * Examples:
+ *  1.	pattern = { 'N', 'P', 'E' }
+ *  	name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *  	result => true
+ *  2.	pattern = { 'N', 'P', 'E' }
+ *  	name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *  	result => true
+ *  3.	pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ *  	name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *  	result => true
+ *  4.	pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ *  	name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *  	result => false
+ *  5.	pattern = { 'n', p', 'e' }
+ *  	name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *  	result => false
+ *  6.	pattern = { 'I', 'P', 'L', '3' }
+ *  	name = { 'I', 'P', 'e', 'r', 's', 'p', 'e', 'c', 't', 'i', 'v', 'e', 'L', 'i', 's', 't', 'e', 'n', 'e', 'r', '3' }
+ *  	result => true
+ *  7.	pattern = { 'H', M' }
+ *  	name = { 'H', 'a', 's', 'h', 'M', 'a', 'p', 'E', 'n', 't', 'r', 'y' }
+ *  	result => (prefixMatch == true)
+ *  8.	pattern = { 'H', M', 'a', 'p' }
+ *  	name = { 'H', 'a', 't', 'M', 'a', 'p', 'p', 'e', 'r' }
+ *  	result => (prefixMatch == true)
+ * 
+ * @param pattern the given pattern
+ * @param name the given name
+ * @param prefixMatch flag telling whether the pattern can match name prefix or not.
+ * 		. For example, when it's <code>true</code>:
+ * 			- 'HM' type string pattern will match  'HashMap' and 'HtmlMapper' types,
+ * 			  but not 'HashMapEntry'
+ * 			- 'HMap' type string pattern will match  'HashMap' type but not 'HtmlMapper'.
+ * 		. and, when it's <code>false</code>:
+ * 			- 'HM' type string pattern will match both   'HashMap' and 'HtmlMapper'
+ * 			  and 'HashMapEntry'
+ * 			- 'HMap' type string pattern will match both 'HashMap' and 'HtmlMapper'
+ * 			  types.
+ *
+ * @return true if the pattern matches the given name, false otherwise
+ * @since 3.4
+ */
+public static final boolean camelCaseMatch(char[] pattern, char[] name, boolean prefixMatch) {
+...
+}
+
+/**
+ * Answers true if a sub-pattern matches the sub-part of the given name using 
+ * CamelCase rules, or false otherwise.  char[] CamelCase matching does NOT
+ * accept explicit wild-cards '*' and '?' and is inherently case sensitive. 
+ * Can match only subset of name/pattern, considering end positions as
+ * non-inclusive. The sub-pattern is defined by the patternStart and patternEnd
+ * positions.
+ *
+ * CamelCase denotes the convention of writing compound names without spaces,
+ * and capitalizing every term. This function recognizes both upper and lower
+ * CamelCase, depending whether the leading character is capitalized or not.
+ * The leading part of an upper CamelCase pattern is assumed to contain
+ * a sequence of capitals which are appearing in the matching name; e.g. 'NPE' will
+ * match 'NullPointerException', but not 'NewPerfData'. A lower CamelCase pattern
+ * uses a lowercase first character. In Java, type names follow the upper
+ * CamelCase convention, whereas method or field names follow the lower
+ * CamelCase convention.
+ *
+ * The pattern may contain lowercase characters, which will be match in a case
+ * sensitive way. These characters must appear in sequence in the name.
+ * For instance, 'NPExcep' will match 'NullPointerException', but not
+ * 'NullPointerExCEPTION' or 'NuPoEx' will match 'NullPointerException', but not
+ * 'NoPointerException'.
+ *
+ * Digit characters are treated in a special way. They can be used in the pattern
+ * but are not always considered as leading character. For instance, both
+ * 'UTF16DSS' and 'UTFDSS' patterns will match 'UTF16DocumentScannerSupport'.
+ *
+ * CamelCase may or may not match prefixes depending on the given parameter.
+ * When the prefix match parameter is <code>true</code>, the given pattern can
+ * match only a prefix of the given name. For instance, 'HM' , 'HaMa' and  'HMap'
+ * patterns will all match 'HashMap', 'HatMapper' <b>and</b> 'HashMapEntry'.
+ * Reversely, if the prefix match parameter is <code>false</code>, then pattern
+ * and name must have <b>exactly</b> the same number of parts, and their last
+ * parts must be identical if they contain lowercase characters.
+ * For instance, 'HMap' and 'HaMap' patterns will match 'HashMap' but neither
+ * 'HashMapEntry' nor 'HatMapper'. Note that when the last part does not contain
+ * lowercase characters, then the name may end with lowercase characters.
+ * So, 'HM' pattern will match both 'HashMap' <b>and</b> 'HatMapper' but will not
+ * match 'HashMapEntry'.
+ *
+ * Examples:
+ *  1.	pattern = { 'N', 'P', 'E' }
+ *  	patternStart = 0
+ *  	patternEnd = 3
+ *  	name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *  	nameStart = 0
+ *  	nameEnd = 20
+ *  	result => true
+ *  2.	pattern = { 'N', 'P', 'E' }
+ *  	patternStart = 0
+ *  	patternEnd = 3
+ *  	name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *  	nameStart = 0
+ *  	nameEnd = 21
+ *  	result => true
+ *  3.	pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ *  	patternStart = 0
+ *  	patternEnd = 6
+ *  	name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *  	nameStart = 0
+ *  	nameEnd = 20
+ *  	result => true
+ *  4.	pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ *  	patternStart = 0
+ *  	patternEnd = 6
+ *  	name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *  	nameStart = 0
+ *  	nameEnd = 21
+ *  	result => false
+ *  5.	pattern = { 'n', p', 'e' }
+ *  	patternStart = 0
+ *  	patternEnd = 3
+ *  	name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ *  	nameStart = 20
+ *  	nameEnd = 9
+ *  	result => false
+ *  6.	pattern = { 'I', 'P', 'L', '3' }
+ *  	patternStart = 0
+ *  	patternEnd = 4
+ *  	name = { 'I', 'P', 'e', 'r', 's', 'p', 'e', 'c', 't', 'i', 'v', 'e', 'L', 'i', 's', 't', 'e', 'n', 'e', 'r', '3' }
+ *  	nameStart = 0
+ *  	nameEnd = 21
+ *  	result => true
+ *  7.	pattern = { 'H', M' }
+ *  	patternStart = 0
+ *  	patternEnd = 2
+ *  	name = { 'H', 'a', 's', 'h', 'M', 'a', 'p', 'E', 'n', 't', 'r', 'y' }
+ *  	nameStart = 0
+ *  	nameEnd = 12
+ *  	result => (prefixMatch == true)
+ *  8.	pattern = { 'H', M', 'a', 'p' }
+ *  	patternStart = 0
+ *  	patternEnd = 4
+ *  	name = { 'H', 'a', 't', 'M', 'a', 'p', 'p', 'e', 'r' }
+ *  	nameStart = 0
+ *  	nameEnd = 9
+ *  	result => (prefixMatch == true)
+ * 
+ * @param pattern the given pattern
+ * @param patternStart the start index of the pattern, inclusive
+ * @param patternEnd the end index of the pattern, exclusive
+ * @param name the given name
+ * @param nameStart the start index of the name, inclusive
+ * @param nameEnd the end index of the name, exclusive
+ * @param prefixMatch flag telling whether the pattern can match name prefix or not.
+ * 		. For example, when it's <code>true</code>:
+ * 			- 'HM' type string pattern will match  'HashMap' and 'HtmlMapper' types,
+ * 			  but not 'HashMapEntry'
+ * 			- 'HMap' type string pattern will match  'HashMap' type but not 'HtmlMapper'.
+ * 		. and, when it's <code>false</code>:
+ * 			- 'HM' type string pattern will match both   'HashMap' and 'HtmlMapper'
+ * 			  and 'HashMapEntry'
+ * 			- 'HMap' type string pattern will match both 'HashMap' and 'HtmlMapper'
+ * 			  types.
+ *
+ * @return true if a sub-pattern matches the sub-part of the given name, false otherwise
+ * @since 3.4
+ */
+public static final boolean camelCaseMatch(char[] pattern, int patternStart, int patternEnd, char[] name, int nameStart, int nameEnd, boolean prefixMatch) {
+...
+}
+</pre>
+Note that same methods have been added on <code>SearchPattern</code> but with
+<code>String</code> parameters instead of <code>char[]</code> ones (javadoc comments
+are identical):
+<pre>
+public static final boolean camelCaseMatch(String pattern, String name, boolean prefixMatch) {
+...
+}
+public static final boolean camelCaseMatch(String pattern, int patternStart, int patternEnd, String name, int nameStart, int nameEnd, boolean prefixMatch) {
+...
+}
+</pre>
+Note also that methods <code>camelCaseMatch(String, int, int, String, int, int)</code>
+of <code>CharOperation</code> and <code>SearchPattern</code> classes have been
+depreciated to avoid too many 'camelCaseMatch*' methods on these classes.
+</li>
+<li>Search Engine has been modified to better handle additional <code>SearchPattern</code>
+constants while using Camel Case one (see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=200400">bug 200400</a>).<br>
+Existing <code>SearchPattern#R_CAMELCASE_MATCH</code> constant has been depreciated and<br>
+is <b>now replaced by <code>SearchPattern#R_CAMEL_CASE_MATCH</code></b>:<pre>
+	/**
+	 * Match rule: The search pattern contains a Camel Case expression with
+	 * a strict number of parts and preventing automatic prefix matching for the last
+	 * part (if it consists of multiple letters).
+	 * 
+	 * Examples:
+	 * 	. 'HM' type string pattern will match 'HashMap' and 'HtmlMapper' types,
+	 * 		but not 'HashMapEntry'
+	 * 	. 'HMap' type string pattern will match 'HashMap' type but not 'HtmlMapper'.
+	 *
+	 * This Camel Case match rule does not allow prefix match but accept insensitive
+	 * case. For instance, 'HashMap' or 'HASHMAP' patterns using this Camel Case
+	 * rule will match both 'HashMap' but not 'HashMapEntry'.
+	 *
+	 * This rule still can be combined to prefix match to accept prefix matches
+	 * ('HashMap' pattern matching 'HashMapEntry' name). It can also be combined
+	 * to case sensitive match to reject case insensitive matches ('HAMA' pattern
+	 * will not match 'HashMap' name).
+	 *
+	 * If {@link #R_PATTERN_MATCH} rule is also combined, then the real used
+	 * match rule will depend on whether string pattern contains specific pattern
+	 * characters (e.g. '*' or '?') or not. If it does, then only Pattern match rule will
+	 * be used, otherwise only Camel Case match will be used.
+	 * For example, with 'NPE' string pattern, search will only use
+	 * Camel Case match rule, but with 'N*P*E*' string pattern, it will 
+	 * use only Pattern match rule.
+	 *
+	 * @see CharOperation#camelCaseMatch(char[], char[], boolean) for a detailed
+	 * explanation of Camel Case matching.
+	 *
+	 * @since 3.4
+	 */
+	public static final int R_CAMEL_CASE_MATCH = 0x0100;
+</pre>
+This change was necessary has the obsolete <code>R_CAMELCASE_MATCH</code> could
+not support correctly additional constants as <code>R_PREFIX_MATCH</code> or 
+<code>R_CASE_SENSITIVE</code>.<br>
+However, this depreciated constant is still accepted for backward compatibility
+but user is advised to replace it with <code>R_CAMEL_CASE_MATCH | R_PREFIX_MATCH</code>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=191739">191739</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=200400">200400</a>
+[search] Camel Case match prefix insensitive although spec says prefix sensitive
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124624">124624</a>
+[search] Camelcase matching routines should support end character
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=191739">191739</a>
 "Duplicate nested type" bogus error on static class of abstract class or interface
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=200931">200931</a>
 GENERATED_BY references still exist in some javadoc comments

@@ -32,8 +32,8 @@ import org.eclipse.jdt.internal.core.util.Util;
 	public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRule) {
 		this(matchRule);
 	
-		this.qualification = isCaseSensitive() ? qualification : CharOperation.toLowerCase(qualification);
-		this.simpleName = (isCaseSensitive() || isCamelCase())  ? simpleName : CharOperation.toLowerCase(simpleName);
+		this.qualification = this.isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
+		this.simpleName = (this.isCaseSensitive || this.isCamelCase) ? simpleName : CharOperation.toLowerCase(simpleName);
 	
 		if (simpleName == null)
 			this.segments = this.qualification == null ? ONE_STAR_CHAR : CharOperation.splitOn('.', this.qualification);

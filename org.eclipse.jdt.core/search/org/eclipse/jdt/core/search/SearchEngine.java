@@ -570,7 +570,7 @@ public class SearchEngine {
 	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
 	 *			of the searched types.</li>
 	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
-	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if type name are camel case of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_CAMEL_CASE_MATCH} if type name are camel case of the names of the searched types.</li>
 	 * </ul>
 	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
 	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
@@ -637,7 +637,7 @@ public class SearchEngine {
 	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
 	 *			of the searched types.</li>
 	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
-	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if type name are camel case of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_CAMEL_CASE_MATCH} if type name are camel case of the names of the searched types.</li>
 	 * </ul>
 	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
 	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
@@ -649,7 +649,7 @@ public class SearchEngine {
 	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
 	 *			of the searched types.</li>
 	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
-	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if type name are camel case of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_CAMEL_CASE_MATCH} if type name are camel case of the names of the searched types.</li>
 	 * </ul>
 	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
 	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
@@ -694,7 +694,15 @@ public class SearchEngine {
 		IProgressMonitor progressMonitor)  throws JavaModelException {
 		
 		TypeNameRequestorWrapper requestorWrapper = new TypeNameRequestorWrapper(nameRequestor);
-		this.basicEngine.searchAllTypeNames(packageName, packageMatchRule, typeName, typeMatchRule, searchFor, scope, requestorWrapper, waitingPolicy, progressMonitor);
+		this.basicEngine.searchAllTypeNames(packageName,
+			packageMatchRule,
+			typeName,
+			SearchPattern.updateMatchRule(typeMatchRule), 
+			searchFor,
+			scope,
+			requestorWrapper,
+			waitingPolicy,
+			progressMonitor);
 	}
 
 	/**
@@ -716,7 +724,7 @@ public class SearchEngine {
 	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
 	 *			of the searched types.</li>
 	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
-	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if type name are camel case of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_CAMEL_CASE_MATCH} if type name are camel case of the names of the searched types.</li>
 	 * </ul>
 	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
 	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
@@ -732,7 +740,7 @@ public class SearchEngine {
 	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
 	 *			of the searched types.</li>
 	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
-	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if type name are camel case of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_CAMEL_CASE_MATCH} if type name are camel case of the names of the searched types.</li>
 	 * </ul>
 	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
 	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
@@ -778,7 +786,15 @@ public class SearchEngine {
 		IProgressMonitor progressMonitor)  throws JavaModelException {
 		
 		TypeNameMatchRequestorWrapper requestorWrapper = new TypeNameMatchRequestorWrapper(nameMatchRequestor, scope);
-		this.basicEngine.searchAllTypeNames(packageName, packageMatchRule, typeName, typeMatchRule, searchFor, scope, requestorWrapper, waitingPolicy, progressMonitor);
+		this.basicEngine.searchAllTypeNames(packageName, 
+			packageMatchRule, 
+			typeName, 
+			SearchPattern.updateMatchRule(typeMatchRule), 
+			searchFor, 
+			scope, 
+			requestorWrapper, 
+			waitingPolicy, 
+			progressMonitor);
 	}
 
 	/**

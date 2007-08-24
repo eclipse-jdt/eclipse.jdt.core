@@ -3715,44 +3715,53 @@ public void testStaticImportPackage02() throws CoreException {
  *
  * These tests are not really duplicates of {@link JavaSearchBugsTests} ones
  * as they also test camel case in indexes...
+ * @deprecated As using a depreciated constant
  */
 public void testCamelCaseTypePattern01() throws CoreException {
-	search("RE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH, getJavaSearchScope());
+	search("RE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/a3/References.java a3.References [References]\n" + 
 		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
 	);
 }
-
+public void testCamelCaseTypePattern01b() throws CoreException {
+	search("RE", TYPE, DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH);
+	assertSearchResults(
+		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
+	);
+}
+/** @deprecated As using a depreciated constant */
 public void testCamelCaseTypePattern02() throws CoreException {
-	search("RException", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH, getJavaSearchScope());
+	search("RException", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
 	);
 }
-
+/** @deprecated As using a depreciated constant */
 public void testCamelCaseTypePattern03() throws CoreException {
-	search("RuntimeException", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH, getJavaSearchScope());
+	search("RuntimeException", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
 	);
 }
-
+/** @deprecated As using a depreciated constant */
 public void testCamelCaseTypePattern04() throws CoreException {
-	search("RUNTIMEEXCEPTION", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH, getJavaSearchScope());
+	search("RUNTIMEEXCEPTION", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
 	);
 }
-
+/**
+ * @deprecated As using a depreciated constant
+ */
 public void testCamelCaseTypePattern05() throws CoreException {
-	search("R*E*", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH, getJavaSearchScope());
+	search("R*E*", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/a3/References.java a3.References [References]\n" + 
 		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
 	);
 }
-
+/** @deprecated As using a depreciated constant */
 public void testCamelCaseTypePattern06() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine().searchAllTypeNames(
@@ -3771,7 +3780,7 @@ public void testCamelCaseTypePattern06() throws CoreException {
 		"java.lang.CloneNotSupportedException",
 		requestor);
 }
-
+/** @deprecated As using a depreciated constant */
 public void testCamelCaseTypePattern07() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine().searchAllTypeNames(
@@ -3794,7 +3803,7 @@ public void testCamelCaseTypePattern07() throws CoreException {
 		"q1.AA",
 		requestor);
 }
-
+/** @deprecated As using a depreciated constant */
 public void testCamelCaseTypePattern08() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine().searchAllTypeNames(
@@ -3816,7 +3825,7 @@ public void testCamelCaseTypePattern08() throws CoreException {
 		"q1.AA",
 		requestor);
 }
-
+/** @deprecated As using a depreciated constant */
 public void testCamelCaseTypePattern09() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine().searchAllTypeNames(
@@ -3837,6 +3846,152 @@ public void testCamelCaseTypePattern09() throws CoreException {
 		"p6.AA\n" + 
 		"q1.AA",
 		requestor);
+}
+/** @deprecated As using a depreciated constant */
+public void testCamelCaseTypePattern10() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" + 
+		"class NULL {}\n" + 
+		"class NullPointerException {}\n" + 
+		"class NULLPointerException {}\n" + 
+		"class NULLPOINTERException {}\n" + 
+		"class NULLPOINTEREXCEPTION {}\n"
+	);
+	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
+	assertSearchResults(
+		"src/Test.java Null [Null]\n" +
+		"src/Test.java NULL [NULL]\n" +
+		"src/Test.java NullPointerException [NullPointerException]\n" +
+		"src/Test.java NULLPointerException [NULLPointerException]\n" +
+		"src/Test.java NULLPOINTERException [NULLPOINTERException]\n" +
+		"src/Test.java NULLPOINTEREXCEPTION [NULLPOINTEREXCEPTION]"
+	);
+}
+/** @deprecated As using a depreciated constant */
+public void testCamelCaseTypePattern11() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" + 
+		"class NULL {}\n" + 
+		"class NullPointerException {}\n" + 
+		"class NULLPointerException {}\n" + 
+		"class NULLPOINTERException {}\n" + 
+		"class NULLPOINTEREXCEPTION {}\n"
+	);
+	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH);
+	assertSearchResults(
+		"src/Test.java Null [Null]\n" +
+		"src/Test.java NULL [NULL]\n" +
+		"src/Test.java NullPointerException [NullPointerException]\n" +
+		"src/Test.java NULLPointerException [NULLPointerException]\n" +
+		"src/Test.java NULLPOINTERException [NULLPOINTERException]\n" +
+		"src/Test.java NULLPOINTEREXCEPTION [NULLPOINTEREXCEPTION]"
+	);
+}
+/** @deprecated As using a depreciated constant */
+public void testCamelCaseTypePattern12() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" + 
+		"class NULL {}\n" + 
+		"class NullPointerException {}\n" + 
+		"class NULLPointerException {}\n" + 
+		"class NULLPOINTERException {}\n" + 
+		"class NULLPOINTEREXCEPTION {}\n"
+	);
+	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	assertSearchResults(
+		"src/Test.java Null [Null]"
+	);
+}
+/** @deprecated As using a depreciated constant */
+public void testCamelCaseTypePattern13() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" + 
+		"class NULL {}\n" + 
+		"class NullPointerException {}\n" + 
+		"class NULLPointerException {}\n" + 
+		"class NULLPOINTERException {}\n" + 
+		"class NULLPOINTEREXCEPTION {}\n"
+	);
+	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	assertSearchResults(
+		"src/Test.java Null [Null]\n" + 
+		"src/Test.java NULL [NULL]\n" + 
+		"src/Test.java NullPointerException [NullPointerException]\n" + 
+		"src/Test.java NULLPointerException [NULLPointerException]\n" + 
+		"src/Test.java NULLPOINTERException [NULLPOINTERException]\n" + 
+		"src/Test.java NULLPOINTEREXCEPTION [NULLPOINTEREXCEPTION]"
+	);
+}
+public void testCamelCaseTypePattern14() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" + 
+		"class NULL {}\n" + 
+		"class NullPointerException {}\n" + 
+		"class NULLPointerException {}\n" + 
+		"class NULLPOINTERException {}\n" + 
+		"class NULLPOINTEREXCEPTION {}\n"
+	);
+	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH);
+	assertSearchResults(
+		"src/Test.java Null [Null]\n" +
+		"src/Test.java NULL [NULL]"
+	);
+}
+public void testCamelCaseTypePattern15() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" + 
+		"class NULL {}\n" + 
+		"class NullPointerException {}\n" + 
+		"class NULLPointerException {}\n" + 
+		"class NULLPOINTERException {}\n" + 
+		"class NULLPOINTEREXCEPTION {}\n"
+	);
+	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH);
+	assertSearchResults(
+		"src/Test.java Null [Null]\n" +
+		"src/Test.java NULL [NULL]\n" +
+		"src/Test.java NullPointerException [NullPointerException]\n" +
+		"src/Test.java NULLPointerException [NULLPointerException]\n" +
+		"src/Test.java NULLPOINTERException [NULLPOINTERException]\n" +
+		"src/Test.java NULLPOINTEREXCEPTION [NULLPOINTEREXCEPTION]"
+	);
+}
+public void testCamelCaseTypePattern16() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" + 
+		"class NULL {}\n" + 
+		"class NullPointerException {}\n" + 
+		"class NULLPointerException {}\n" + 
+		"class NULLPOINTERException {}\n" + 
+		"class NULLPOINTEREXCEPTION {}\n"
+	);
+	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	assertSearchResults(
+		"src/Test.java Null [Null]"
+	);
+}
+public void testCamelCaseTypePattern17() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch/src/Test.java",
+		"class Null {}\n" + 
+		"class NULL {}\n" + 
+		"class NullPointerException {}\n" + 
+		"class NULLPointerException {}\n" + 
+		"class NULLPOINTERException {}\n" + 
+		"class NULLPOINTEREXCEPTION {}\n"
+	);
+	search("Null", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	assertSearchResults(
+		"src/Test.java Null [Null]\n" +
+		"src/Test.java NullPointerException [NullPointerException]"
+	);
 }
 
 /**

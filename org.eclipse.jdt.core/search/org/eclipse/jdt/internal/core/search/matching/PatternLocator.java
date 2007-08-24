@@ -118,7 +118,7 @@ public static char[] qualifiedSourceName(TypeBinding binding) {
 public PatternLocator(SearchPattern pattern) {
 	int matchRule = pattern.getMatchRule();
 	this.isCaseSensitive = (matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
-	this.isCamelCase = (matchRule & SearchPattern.R_CAMELCASE_MATCH) != 0;
+	this.isCamelCase = (matchRule & SearchPattern.R_CAMEL_CASE_MATCH) != 0;
 	this.isErasureMatch = (matchRule & SearchPattern.R_ERASURE_MATCH) != 0;
 	this.isEquivalentMatch = (matchRule & SearchPattern.R_EQUIVALENT_MATCH) != 0;
 	this.matchMode = matchRule & JavaSearchPattern.MATCH_MODE_MASK;
@@ -282,24 +282,25 @@ protected int matchNameValue(char[] pattern, char[] name) {
 	boolean matchFirstChar = !this.isCaseSensitive || pattern[0] == name[0];
 	boolean sameLength = pattern.length == name.length;
 	boolean canBePrefix = name.length >= pattern.length;
-	if (this.isCamelCase && matchFirstChar && CharOperation.camelCaseMatch(pattern, name)) {
-		return POSSIBLE_MATCH;
+	if (this.isCamelCase) {
+		if (matchFirstChar && CharOperation.camelCaseMatch(pattern, name, (this.matchMode & SearchPattern.R_PREFIX_MATCH) != 0)) {
+			return POSSIBLE_MATCH;
+		}
+		if (this.isCaseSensitive) return IMPOSSIBLE_MATCH;
 	}
 	switch (this.matchMode) {
 		case SearchPattern.R_EXACT_MATCH:
-			if (!this.isCamelCase) {
-				if (sameLength && matchFirstChar && CharOperation.equals(pattern, name, this.isCaseSensitive)) {
-					return POSSIBLE_MATCH | EXACT_FLAVOR;
-				}
-				break;
+			if (sameLength && matchFirstChar && CharOperation.equals(pattern, name, this.isCaseSensitive)) {
+				return POSSIBLE_MATCH | EXACT_FLAVOR;
 			}
-			// fall through next case to match as prefix if camel case failed
+			break;
 		case SearchPattern.R_PREFIX_MATCH:
 			if (canBePrefix && matchFirstChar && CharOperation.prefixEquals(pattern, name, this.isCaseSensitive)) {
 				return POSSIBLE_MATCH;
 			}
 			break;
 		case SearchPattern.R_PATTERN_MATCH:
+			// TODO_PERFS (frederic) Not sure this lowercase is necessary
 			if (!this.isCaseSensitive) {
 				pattern = CharOperation.toLowerCase(pattern);
 			}
@@ -717,13 +718,13 @@ protected int resolveLevelForType(char[] simpleNamePattern, char[] qualification
 		}
 	}
 	if (this.isCamelCase) {
-		if (!this.isCaseSensitive || (qualifiedPattern.length>0 && sourceName.length>0 && qualifiedPattern[0] == sourceName[0])) {
-			if (CharOperation.camelCaseMatch(qualifiedPattern, sourceName)) {
+		if ((qualifiedPattern.length>0 && sourceName.length>0 && qualifiedPattern[0] == sourceName[0])) {
+			if (CharOperation.camelCaseMatch(qualifiedPattern, sourceName, (this.matchMode & SearchPattern.R_PREFIX_MATCH) != 0)) {
 				return ACCURATE_MATCH;
 			}
 		}
-		if (this.matchMode == SearchPattern.R_EXACT_MATCH) {
-			boolean matchPattern = CharOperation.prefixEquals(qualifiedPattern, sourceName, this.isCaseSensitive);
+		if (!this.isCaseSensitive && this.matchMode == SearchPattern.R_EXACT_MATCH) {
+			boolean matchPattern = CharOperation.equals(qualifiedPattern, sourceName, false);
 			return matchPattern ? ACCURATE_MATCH : IMPOSSIBLE_MATCH;
 		}
 	}

@@ -47,7 +47,7 @@ static final int MATCH_RULE_INDEX_MASK =
 	SearchPattern.R_PATTERN_MATCH |
 	SearchPattern.R_REGEXP_MATCH |
 	SearchPattern.R_CASE_SENSITIVE |
-	SearchPattern.R_CAMELCASE_MATCH;
+	SearchPattern.R_CAMEL_CASE_MATCH;
 
 public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 	if (pattern == null) return true;
@@ -57,28 +57,25 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 	if (wordLength == 0) return (matchRule & SearchPattern.R_PATTERN_MATCH) != 0 && patternLength == 1 && pattern[0] == '*';
 
 	// First test camel case if necessary
-	boolean isCamelCase = (matchRule & SearchPattern.R_CAMELCASE_MATCH) != 0;
-	if (isCamelCase &&  pattern[0] == word[0] && CharOperation.camelCaseMatch(pattern, word)) {
-		return true;
+	boolean isCamelCase = (matchRule & SearchPattern.R_CAMEL_CASE_MATCH) != 0;
+	if (isCamelCase) {
+		if (pattern[0] == word[0] && CharOperation.camelCaseMatch(pattern, word, (matchRule & SearchPattern.R_PREFIX_MATCH) != 0)) {
+			return true;
+		}
+		if ((matchRule & SearchPattern.R_CASE_SENSITIVE) != 0) return false;
 	}
 
 	// need to mask some bits of pattern rule (bug 79790)
-	matchRule &= ~SearchPattern.R_CAMELCASE_MATCH;
+	matchRule &= ~SearchPattern.R_CAMEL_CASE_MATCH;
 	switch(matchRule & MATCH_RULE_INDEX_MASK) {
 		case SearchPattern.R_EXACT_MATCH :
-			if (!isCamelCase) {
-				return patternLength == wordLength && CharOperation.equals(pattern, word, false);
-			}
-			// fall through prefix match if camel case failed
+			return patternLength == wordLength && CharOperation.equals(pattern, word, false);
 		case SearchPattern.R_PREFIX_MATCH :
 			return patternLength <= wordLength && CharOperation.prefixEquals(pattern, word, false);
 		case SearchPattern.R_PATTERN_MATCH :
 			return CharOperation.match(pattern, word, false);
 		case SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE :
-			if (!isCamelCase) {
-				return pattern[0] == word[0] && patternLength == wordLength && CharOperation.equals(pattern, word);
-			}
-			// fall through prefix match if camel case failed
+			return pattern[0] == word[0] && patternLength == wordLength && CharOperation.equals(pattern, word);
 		case SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE :
 			return pattern[0] == word[0] && patternLength <= wordLength && CharOperation.prefixEquals(pattern, word);
 		case SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE :

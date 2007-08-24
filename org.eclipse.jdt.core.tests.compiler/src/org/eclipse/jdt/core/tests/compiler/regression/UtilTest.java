@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 
 //import org.apache.tools.ant.types.selectors.SelectorUtils;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 //import junit.framework.AssertionFailedError;
@@ -36,7 +37,14 @@ public static Test suite() {
  * If result is invalid then store warning in buffer and display it.
  */
 void assertCamelCase(String pattern, String name, boolean match) {
-	boolean camelCase = CharOperation.camelCaseMatch(pattern==null?null:pattern.toCharArray(), name==null?null:name.toCharArray());
+	assertCamelCase(pattern, name, true /*prefix match*/, match);
+}
+/**
+ * Assert that a pattern and a name matches or not.
+ * If result is invalid then store warning in buffer and display it.
+ */
+void assertCamelCase(String pattern, String name, boolean prefixMatch, boolean match) {
+	boolean camelCase = CharOperation.camelCaseMatch(pattern==null?null:pattern.toCharArray(), name==null?null:name.toCharArray(), prefixMatch);
 	if (match != camelCase) {
 		StringBuffer line = new StringBuffer("'");
 		line.append(name);
@@ -605,6 +613,128 @@ public void test69() {
 	assertCamelCase("AA", "AxxAyy", true /* should match */);
 	assertCamelCase("aa", "AbcdAbcdefAbcAbcdefghAbAAzzzzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnAbcAbcdefghijklm", false /* should not match */);
 	assertCamelCase("AA", "AbcdAbcdefAbcAbcdefghAbAAzzzzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnAbcAbcdefghijklm", true /* should match */);
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
+}
+
+// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=109695
+public void test70() throws CoreException {
+	assertCamelCase("IDE3", "IDocumentExtension", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("IDE3", "IDocumentExtension2", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("IDE3", "IDocumentExtension3", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("IDE3", "IDocumentExtension135", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("IDE3", "IDocumentExtension315", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("IDPE3", "IDocumentProviderExtension", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("IDPE3", "IDocumentProviderExtension2", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("IDPE3", "IDocumentProviderExtension4", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("IDPE3", "IDocumentProviderExtension3", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("IDPE3", "IDocumentProviderExtension5", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("IDPE3", "IDocumentProviderExtension54321", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("IDPE3", "IDocumentProviderExtension12345", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("IPL3", "IPerspectiveListener", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("IPL3", "IPerspectiveListener2", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("IPL3", "IPerspectiveListener3", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("IPS2", "IPropertySource", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("IPS2", "IPropertySource2", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("IWWPD2", "IWorkbenchWindowPulldownDelegate", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("IWWPD2", "IWorkbenchWindowPulldownDelegate2", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("UTF16DSS", "UTF16DocumentScannerSupport", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("UTF16DSS", "UTF1DocScannerSupport", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("UTF16DSS", "UTF6DocScannerSupport", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("UTF16DSS", "UTFDocScannerSupport", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("UTF1DSS", "UTF16DocumentScannerSupport", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("UTF1DSS", "UTF1DocScannerSupport", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("UTF1DSS", "UTF6DocScannerSupport", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("UTF1DSS", "UTFDocScannerSupport", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("UTF6DSS", "UTF16DocumentScannerSupport", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("UTF6DSS", "UTF1DocScannerSupport", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("UTF6DSS", "UTF6DocScannerSupport", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("UTF6DSS", "UTFDocScannerSupport", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("UTFDSS", "UTF16DocumentScannerSupport", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("UTFDSS", "UTF1DocScannerSupport", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("UTFDSS", "UTF6DocScannerSupport", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("UTFDSS", "UTFDocScannerSupport", false /*no prefix match*/, true /* should match */);
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
+}
+// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=124624
+public void test71() {
+	assertCamelCase("HM", "HashMap", false /*no prefix match*/, true /*should match*/);
+	assertCamelCase("HM", "HtmlMapper", false /*no prefix match*/, true /*should match*/);
+	assertCamelCase("HM", "HashMapEntry", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HaM", "HashMap", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("HaM", "HtmlMapper", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HaM", "HashMapEntry", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HashM", "HashMap", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("HashM", "HtmlMapper", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HashM", "HashMapEntry", false /*no prefix match*/, false /* should not match */);
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
+}
+public void test71b() { // previous test cases but with 3.3 behavior
+	assertCamelCase("HM", "HashMap", true /*should match*/);
+	assertCamelCase("HM", "HtmlMapper", true /*should match*/);
+	assertCamelCase("HM", "HashMapEntry", true /*should match*/);
+	assertCamelCase("HaM", "HashMap", true /* should match */);
+	assertCamelCase("HaM", "HtmlMapper", false /*should not match*/);
+	assertCamelCase("HaM", "HashMapEntry", true /*should match*/);
+	assertCamelCase("HashM", "HashMap", true /* should match */);
+	assertCamelCase("HashM", "HtmlMapper", false /*should not match*/);
+	assertCamelCase("HashM", "HashMapEntry", true /*should match*/);
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
+}
+// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=124624
+public void test72() {
+	assertCamelCase("HMa", "HashMap", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HMa", "HtmlMapper", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HMa", "HashMapEntry", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HaMa", "HashMap", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HaMa", "HtmlMapper", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HaMa", "HashMapEntry", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HashMa", "HashMap", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HashMa", "HtmlMapper", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HashMa", "HashMapEntry", false /*no prefix match*/, false /* should not match */);
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
+}
+public void test72b() { // previous test cases but with 3.3 behavior
+	assertCamelCase("HMa", "HashMap", true /*should match*/);
+	assertCamelCase("HMa", "HtmlMapper", true /*should match*/);
+	assertCamelCase("HMa", "HashMapEntry", true /*should match*/);
+	assertCamelCase("HaMa", "HashMap", true /* should match */);
+	assertCamelCase("HaMa", "HtmlMapper", false /*should not match*/);
+	assertCamelCase("HaMa", "HashMapEntry", true /*should match*/);
+	assertCamelCase("HashMa", "HashMap", true /* should match */);
+	assertCamelCase("HashMa", "HtmlMapper", false /*should not match*/);
+	assertCamelCase("HashMa", "HashMapEntry", true /*should match*/);
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
+}
+// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=124624
+public void test73() {
+	assertCamelCase("HMap", "HashMap", false /*no prefix match*/, true /*should match*/);
+	assertCamelCase("HMap", "HtmlMapper", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HMap", "HashMapEntry", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HaMap", "HashMap", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("HaMap", "HtmlMapper", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HaMap", "HashMapEntry", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HashMap", "HashMap", false /*no prefix match*/, true /* should match */);
+	assertCamelCase("HashMap", "HtmlMapper", false /*no prefix match*/, false /* should not match */);
+	assertCamelCase("HashMap", "HashMapEntry", false /*no prefix match*/, false /* should not match */);
+	// Verify that there were no unexpected results
+    assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
+}
+public void test73b() { // previous test cases but with 3.3 behavior
+	assertCamelCase("HMap", "HashMap", true /*should match*/);
+	assertCamelCase("HMap", "HtmlMapper", true /*should match*/);
+	assertCamelCase("HMap", "HashMapEntry", true /*should match*/);
+	assertCamelCase("HaMap", "HashMap", true /* should match */);
+	assertCamelCase("HaMap", "HtmlMapper", false /*should not match*/);
+	assertCamelCase("HaMap", "HashMapEntry", true /*should match*/);
+	assertCamelCase("HashMap", "HashMap", true /* should match */);
+	assertCamelCase("HashMap", "HtmlMapper", false /*should not match*/);
+	assertCamelCase("HashMap", "HashMapEntry", true /*should match*/);
 	// Verify that there were no unexpected results
     assertTrue(this.camelCaseErrors.toString(), this.camelCaseErrors.length()==0);
 }

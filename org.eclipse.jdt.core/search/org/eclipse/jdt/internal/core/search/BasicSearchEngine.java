@@ -246,7 +246,7 @@ public class BasicSearchEngine {
 			return "R_EXACT_MATCH"; //$NON-NLS-1$
 		}
 		StringBuffer buffer = new StringBuffer();
-		for (int i=1; i<=8; i++) {
+		for (int i=1; i<=16; i++) {
 			int bit = matchRule & (1<<(i-1));
 			if (bit != 0 && buffer.length()>0) buffer.append(" | "); //$NON-NLS-1$
 			switch (bit) {
@@ -271,8 +271,11 @@ public class BasicSearchEngine {
 				case SearchPattern.R_REGEXP_MATCH:
 					buffer.append("R_REGEXP_MATCH"); //$NON-NLS-1$
 					break;
-				case SearchPattern.R_CAMELCASE_MATCH:
+				case 0x0080: // SearchPattern.R_CAMELCASE_MATCH:
 					buffer.append("R_CAMELCASE_MATCH"); //$NON-NLS-1$
+					break;
+				case SearchPattern.R_CAMEL_CASE_MATCH:
+					buffer.append("R_CAMEL_CASE_MATCH"); //$NON-NLS-1$
 					break;
 			}
 		}
@@ -454,21 +457,21 @@ public class BasicSearchEngine {
 				return false;
 		
 		if (patternTypeName != null) {
-			boolean isCamelCase = (matchRule & SearchPattern.R_CAMELCASE_MATCH) != 0;
+			boolean isCamelCase = (matchRule & SearchPattern.R_CAMEL_CASE_MATCH) != 0;
 			int matchMode = matchRule & JavaSearchPattern.MATCH_MODE_MASK;
 			if (!isCaseSensitive && !isCamelCase) {
 				patternTypeName = CharOperation.toLowerCase(patternTypeName);
 			}
 			boolean matchFirstChar = !isCaseSensitive || patternTypeName[0] == typeName[0];
-			if (isCamelCase && matchFirstChar && CharOperation.camelCaseMatch(patternTypeName, typeName)) {
-				return true;
+			if (isCamelCase) {
+				if (matchFirstChar && CharOperation.camelCaseMatch(patternTypeName, typeName, (matchRule & SearchPattern.R_PREFIX_MATCH) != 0)) {
+					return true;
+				}
+				if (isCaseSensitive) return false;
 			}
 			switch(matchMode) {
 				case SearchPattern.R_EXACT_MATCH :
-					if (!isCamelCase) {
-						return matchFirstChar && CharOperation.equals(patternTypeName, typeName, isCaseSensitive);
-					}
-					// fall through next case to match as prefix if camel case failed
+					return matchFirstChar && CharOperation.equals(patternTypeName, typeName, isCaseSensitive);
 				case SearchPattern.R_PREFIX_MATCH :
 					return matchFirstChar && CharOperation.prefixEquals(patternTypeName, typeName, isCaseSensitive);
 				case SearchPattern.R_PATTERN_MATCH :
@@ -842,7 +845,7 @@ public class BasicSearchEngine {
 								}
 								public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope classScope) {
 									if (match(typeSuffix, packageName, typeName, typeMatchRule, TypeDeclaration.kind(memberTypeDeclaration.modifiers), packageDeclaration, memberTypeDeclaration.name)) {
-										// compute encloising type names
+										// compute enclosing type names
 										TypeDeclaration enclosing = memberTypeDeclaration.enclosingType;
 										char[][] enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
 										while (enclosing != null) {

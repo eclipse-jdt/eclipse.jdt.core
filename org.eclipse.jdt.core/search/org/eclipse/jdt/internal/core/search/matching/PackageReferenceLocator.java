@@ -98,9 +98,10 @@ protected int matchLevelForTokens(char[][] tokens) {
 	char[] packageName = null;
 	if (this.isCamelCase) {
 		packageName = CharOperation.concatWith(tokens, '.');
-		if (CharOperation.camelCaseMatch(this.pattern.pkgName, packageName)) {
+		if (CharOperation.camelCaseMatch(this.pattern.pkgName, packageName, (this.matchMode & SearchPattern.R_PREFIX_MATCH) != 0)) {
 			return POSSIBLE_MATCH;
 		}
+		if (this.isCaseSensitive) return IMPOSSIBLE_MATCH;
 	}
 	switch (this.matchMode) {
 		case SearchPattern.R_EXACT_MATCH:

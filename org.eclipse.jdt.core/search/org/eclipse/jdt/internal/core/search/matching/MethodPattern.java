@@ -83,18 +83,18 @@ public MethodPattern(
 	this.findDeclarations = findDeclarations;
 	this.findReferences = findReferences;
 
-	this.selector = (isCaseSensitive() || isCamelCase())  ? selector : CharOperation.toLowerCase(selector);
-	this.declaringQualification = isCaseSensitive() ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
-	this.declaringSimpleName = isCaseSensitive() ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
-	this.returnQualification = isCaseSensitive() ? returnQualification : CharOperation.toLowerCase(returnQualification);
-	this.returnSimpleName = isCaseSensitive() ? returnSimpleName : CharOperation.toLowerCase(returnSimpleName);
+	this.selector = (this.isCaseSensitive || this.isCamelCase) ? selector : CharOperation.toLowerCase(selector);
+	this.declaringQualification = this.isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
+	this.declaringSimpleName = this.isCaseSensitive ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
+	this.returnQualification = this.isCaseSensitive ? returnQualification : CharOperation.toLowerCase(returnQualification);
+	this.returnSimpleName = this.isCaseSensitive ? returnSimpleName : CharOperation.toLowerCase(returnSimpleName);
 	if (parameterSimpleNames != null) {
 		this.parameterCount = parameterSimpleNames.length;
 		this.parameterQualifications = new char[this.parameterCount][];
 		this.parameterSimpleNames = new char[this.parameterCount][];
 		for (int i = 0; i < this.parameterCount; i++) {
-			this.parameterQualifications[i] = isCaseSensitive() ? parameterQualifications[i] : CharOperation.toLowerCase(parameterQualifications[i]);
-			this.parameterSimpleNames[i] = isCaseSensitive() ? parameterSimpleNames[i] : CharOperation.toLowerCase(parameterSimpleNames[i]);
+			this.parameterQualifications[i] = this.isCaseSensitive ? parameterQualifications[i] : CharOperation.toLowerCase(parameterQualifications[i]);
+			this.parameterSimpleNames[i] = this.isCaseSensitive ? parameterSimpleNames[i] : CharOperation.toLowerCase(parameterSimpleNames[i]);
 		}
 	} else {
 		this.parameterCount = -1;

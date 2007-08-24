@@ -48,7 +48,7 @@ public MultiTypeDeclarationPattern(
 	}
 	// null simple names are allowed (should return all names)
 	if (simpleNames != null) {
-		if ((isCaseSensitive() || isCamelCase()) ) {
+		if (this.isCaseSensitive || this.isCamelCase) {
 			this.simpleNames = simpleNames;
 		} else {
 			int length = simpleNames.length;

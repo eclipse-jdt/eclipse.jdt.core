@@ -24,12 +24,12 @@ protected char[] name;
 public VariablePattern(int patternKind, boolean findDeclarations, boolean readAccess, boolean writeAccess, char[] name, int matchRule) {
 	super(patternKind, matchRule);
 
-	this.findDeclarations = findDeclarations; // set to find declarations & all occurences
-	this.readAccess = readAccess; // set to find any reference, read only references & all occurences
-	this.writeAccess = writeAccess; // set to find any reference, write only references & all occurences
+	this.findDeclarations = findDeclarations; // set to find declarations & all occurrences
+	this.readAccess = readAccess; // set to find any reference, read only references & all occurrences
+	this.writeAccess = writeAccess; // set to find any reference, write only references & all occurrences
 	this.findReferences = readAccess || writeAccess;
 
-	this.name = (isCaseSensitive() || isCamelCase())  ? name : CharOperation.toLowerCase(name);
+	this.name = (this.isCaseSensitive || this.isCamelCase) ? name : CharOperation.toLowerCase(name);
 }
 /*
  * Returns whether a method declaration or message send will need to be resolved to 

@@ -380,7 +380,7 @@ public class SearchableEnvironment
 			};
 			try {
 				int matchRule = SearchPattern.R_PREFIX_MATCH;
-				if (camelCaseMatch) matchRule |= SearchPattern.R_CAMELCASE_MATCH;
+				if (camelCaseMatch) matchRule |= SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH;
 				new BasicSearchEngine(this.workingCopies).searchAllTypeNames(
 					qualification,
 					SearchPattern.R_EXACT_MATCH,

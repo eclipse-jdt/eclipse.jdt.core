@@ -58,7 +58,7 @@ public final class CharOperation {
  * </pre></li>
  * </ol>
  * 
- * @param array the array that is concanated with the suffix character
+ * @param array the array that is concatenated with the suffix character
  * @param suffix the suffix character
  * @return the new array
  */
@@ -72,8 +72,8 @@ public static final char[] append(char[] array, char suffix) {
 }
 
 /**
- * Append the given subarray to the target array starting at the given index in the target array.
- * The start of the subarray is inclusive, the end is exclusive.
+ * Append the given sub-array to the target array starting at the given index in the target array.
+ * The start of the sub-array is inclusive, the end is exclusive.
  * Answers a new target array if it needs to grow, otherwise answers the same target array.
  * <br>
  * For example:<br>
@@ -178,53 +178,60 @@ public static final char[][] arrayConcat(char[][] first, char[][] second) {
 }
 
 /**
- * Answers true if the pattern matches the given name using CamelCase rules, or false otherwise. 
- * char[] CamelCase matching does NOT accept explicit wild-cards '*' and '?' and is inherently case sensitive.
- * <br>
- * CamelCase denotes the convention of writing compound names without spaces, and capitalizing every term.
- * This function recognizes both upper and lower CamelCase, depending whether the leading character is capitalized
- * or not. The leading part of an upper CamelCase pattern is assumed to contain a sequence of capitals which are appearing
- * in the matching name; e.g. 'NPE' will match 'NullPointerException', but not 'NewPerfData'. A lower CamelCase pattern
- * uses a lowercase first character. In Java, type names follow the upper CamelCase convention, whereas method or field
- * names follow the lower CamelCase convention.
- * <br>
- * The pattern may contain lowercase characters, which will be match in a case sensitive way. These characters must
- * appear in sequence in the name. For instance, 'NPExcep' will match 'NullPointerException', but not 'NullPointerExCEPTION'
- * or 'NuPoEx' will match 'NullPointerException', but not 'NoPointerException'.
- * <br><br>
- * Examples:
- * <ol>
- * <li><pre>
- *    pattern = { 'N', 'P', 'E' }
- *    name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *    result => true
- * </pre>
- * </li>
- * <li><pre>
- *    pattern = { 'N', 'P', 'E' }
- *    name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *    result => true
- * </pre>
- * </li>
- * <li><pre>
- *    pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
- *    name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *    result => true
- * </pre>
- * </li>
- * <li><pre>
- *    pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
- *    name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *    result => false
- * </pre>
- * </li>
- * <li><pre>
- *    pattern = { 'n', p', 'e' }
- *    name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *    result => false
- * </pre>
- * </li>
- * </ol>
+ * Answers true if the pattern matches the given name using CamelCase rules, or
+ * false otherwise. char[] CamelCase matching does NOT accept explicit wild-cards
+ * '*' and '?' and is inherently case sensitive.
+ * <p>
+ * CamelCase denotes the convention of writing compound names without spaces,
+ * and capitalizing every term. This function recognizes both upper and lower
+ * CamelCase, depending whether the leading character is capitalized or not.
+ * The leading part of an upper CamelCase pattern is assumed to contain a
+ * sequence of capitals which are appearing in the matching name; e.g. 'NPE' will
+ * match 'NullPointerException', but not 'NewPerfData'. A lower CamelCase pattern
+ * uses a lowercase first character. In Java, type names follow the upper
+ * CamelCase convention, whereas method or field names follow the lower
+ * CamelCase convention.
+ * <p>
+ * The pattern may contain lowercase characters, which will be matched in a case
+ * sensitive way. These characters must appear in sequence in the name.
+ * For instance, 'NPExcep' will match 'NullPointerException', but not
+ * 'NullPointerExCEPTION' or 'NuPoEx' will match 'NullPointerException', but not
+ * 'NoPointerException'.
+ * <p>
+ * Digit characters are treated in a special way. They can be used in the pattern
+ * but are not always considered as leading character. For instance, both
+ * 'UTF16DSS' and 'UTFDSS' patterns will match 'UTF16DocumentScannerSupport'.
+ * <p>
+ * This method allows prefix match in Camel Case (see
+ * {@link #camelCaseMatch(char[], char[], boolean)}).
+ * <p>
+ * <pre>
+ * Examples:<ol>
+ * <li> pattern = { 'N', 'P', 'E' }
+ * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * result => true</li>
+ * <li> pattern = { 'N', 'P', 'E' }
+ * name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * result => true</li>
+ * <li> pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * result => true</li>
+ * <li> pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ * name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * result => false</li>
+ * <li> pattern = { 'n', p', 'e' }
+ * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * result => false</li>
+ * <li> pattern = { 'I', 'P', 'L', '3' }
+ * name = { 'I', 'P', 'e', 'r', 's', 'p', 'e', 'c', 't', 'i', 'v', 'e', 'L', 'i', 's', 't', 'e', 'n', 'e', 'r', '3' }
+ * result => true</li>
+ * <li> pattern = { 'H', M' }
+ * name = { 'H', 'a', 's', 'h', 'M', 'a', 'p', 'E', 'n', 't', 'r', 'y' }
+ * result => true</li>
+ * <li>pattern = { 'H', M', 'a', 'p' }
+ * name = { 'H', 'a', 't', 'M', 'a', 'p', 'p', 'e', 'r' }
+ * result => true</li>
+ * </ol></pre>
  * 
  * @param pattern the given pattern
  * @param name the given name
@@ -237,26 +244,138 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
 	if (name == null)
 		return false; // null name cannot match
 
-	return camelCaseMatch(pattern, 0, pattern.length, name, 0, name.length);
+	return camelCaseMatch(pattern, 0, pattern.length, name, 0, name.length, true/*prefix match*/);
 }
 
 /**
- * Answers true if a sub-pattern matches the subpart of the given name using CamelCase rules, or false otherwise.  
- * char[] CamelCase matching does NOT accept explicit wild-cards '*' and '?' and is inherently case sensitive. 
+ * Answers true if the pattern matches the given name using CamelCase rules, or
+ * false otherwise. char[] CamelCase matching does NOT accept explicit wild-cards
+ * '*' and '?' and is inherently case sensitive.
+ * <p>
+ * CamelCase denotes the convention of writing compound names without spaces,
+ * and capitalizing every term. This function recognizes both upper and lower
+ * CamelCase, depending whether the leading character is capitalized or not.
+ * The leading part of an upper CamelCase pattern is assumed to contain a
+ * sequence of capitals which are appearing in the matching name; e.g. 'NPE' will
+ * match 'NullPointerException', but not 'NewPerfData'. A lower CamelCase pattern
+ * uses a lowercase first character. In Java, type names follow the upper
+ * CamelCase convention, whereas method or field names follow the lower
+ * CamelCase convention.
+ * <p>
+ * The pattern may contain lowercase characters, which will be matched in a case
+ * sensitive way. These characters must appear in sequence in the name.
+ * For instance, 'NPExcep' will match 'NullPointerException', but not
+ * 'NullPointerExCEPTION' or 'NuPoEx' will match 'NullPointerException', but not
+ * 'NoPointerException'.
+ * <p>
+ * Digit characters are treated in a special way. They can be used in the pattern
+ * but are not always considered as leading character. For instance, both
+ * 'UTF16DSS' and 'UTFDSS' patterns will match 'UTF16DocumentScannerSupport'.
+ * <p>
+ * CamelCase may or may not match prefixes depending on the given parameter.
+ * When the prefix match parameter is <code>true</code>, the given pattern can
+ * match only a prefix of the given name. For instance, 'HM' , 'HaMa' and  'HMap'
+ * patterns will all match 'HashMap', 'HatMapper' <b>and</b> 'HashMapEntry'.
+ * <br>
+ * Reversely, if the prefix match parameter is <code>false</code>, then pattern
+ * and name must have <b>exactly</b> the same number of parts, and their last
+ * parts must be identical if they contain lowercase characters.
+ * For instance, 'HMap' and 'HaMap' patterns will match 'HashMap' but neither
+ * 'HashMapEntry' nor 'HatMapper'. Note that when the last part does not contain
+ * lowercase characters, then the name may end with lowercase characters.
+ * So, 'HM' pattern will match both 'HashMap' <b>and</b> 'HatMapper' but will not
+ * match 'HashMapEntry'.
+ * <p>
+ * <pre>
+ * Examples:<ol>
+ * <li> pattern = { 'N', 'P', 'E' }
+ * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * result => true</li>
+ * <li> pattern = { 'N', 'P', 'E' }
+ * name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * result => true</li>
+ * <li> pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * result => true</li>
+ * <li> pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ * name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * result => false</li>
+ * <li> pattern = { 'n', p', 'e' }
+ * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * result => false</li>
+ * <li> pattern = { 'I', 'P', 'L', '3' }
+ * name = { 'I', 'P', 'e', 'r', 's', 'p', 'e', 'c', 't', 'i', 'v', 'e', 'L', 'i', 's', 't', 'e', 'n', 'e', 'r', '3' }
+ * result => true</li>
+ * <li> pattern = { 'H', M' }
+ * name = { 'H', 'a', 's', 'h', 'M', 'a', 'p', 'E', 'n', 't', 'r', 'y' }
+ * result => (prefixMatch == true)</li>
+ * <li> pattern = { 'H', M', 'a', 'p' }
+ * name = { 'H', 'a', 't', 'M', 'a', 'p', 'p', 'e', 'r' }
+ * result => (prefixMatch == true)</li>
+ * </ol></pre>
+ * 
+ * @param pattern the given pattern
+ * @param name the given name
+ * @param prefixMatch flag telling whether the pattern can match name prefix or not.
+ * 	<ul>
+ * 		<li>For example, when it's <code>true</code>:<br>
+ * 			- 'HM' type string pattern will match  'HashMap' and 'HtmlMapper' types,
+ * 			  but not 'HashMapEntry'<br>
+ * 			- 'HMap' type string pattern will match  'HashMap' type but not 'HtmlMapper'.
+ * 		</li>
+ * 		<li>and, when it's <code>false</code>:<br>
+ * 			- 'HM' type string pattern will match both   'HashMap' and 'HtmlMapper'
+ * 			  and 'HashMapEntry'<br>
+ * 			- 'HMap' type string pattern will match both 'HashMap' and 'HtmlMapper'
+ * 			  types.
+ * 		</li>
+ * 	</ul>
+ * @return true if the pattern matches the given name, false otherwise
+ * @since 3.4
+ */
+public static final boolean camelCaseMatch(char[] pattern, char[] name, boolean prefixMatch) {
+	if (pattern == null)
+		return true; // null pattern is equivalent to '*'
+	if (name == null)
+		return false; // null name cannot match
+
+	return camelCaseMatch(pattern, 0, pattern.length, name, 0, name.length, prefixMatch);
+}
+
+/**
+ * Answers true if a sub-pattern matches the sub-part of the given name using
+ * CamelCase rules, or false otherwise.  char[] CamelCase matching does NOT
+ * accept explicit wild-cards '*' and '?' and is inherently case sensitive. 
  * Can match only subset of name/pattern, considering end positions as non-inclusive.
- * The subpattern is defined by the patternStart and patternEnd positions.
- * <br>
- * CamelCase denotes the convention of writing compound names without spaces, and capitalizing every term.
- * This function recognizes both upper and lower CamelCase, depending whether the leading character is capitalized
- * or not. The leading part of an upper CamelCase pattern is assumed to contain a sequence of capitals which are appearing
- * in the matching name; e.g. 'NPE' will match 'NullPointerException', but not 'NewPerfData'. A lower CamelCase pattern
- * uses a lowercase first character. In Java, type names follow the upper CamelCase convention, whereas method or field
- * names follow the lower CamelCase convention.
- * <br>
- * The pattern may contain lowercase characters, which will be match in a case sensitive way. These characters must
- * appear in sequence in the name. For instance, 'NPExcep' will match 'NullPointerException', but not 'NullPointerExCEPTION'
- * or 'NuPoEx' will match 'NullPointerException', but not 'NoPointerException'.
- * <br><br>
+ * The sub-pattern is defined by the patternStart and patternEnd positions.
+ * <p>
+ * CamelCase denotes the convention of writing compound names without spaces,
+ * and capitalizing every term. This function recognizes both upper and lower
+ * CamelCase, depending whether the leading character is capitalized or not.
+ * The leading part of an upper CamelCase pattern is assumed to contain a
+ * sequence of capitals which are appearing in the matching name; e.g. 'NPE' will
+ * match 'NullPointerException', but not 'NewPerfData'. A lower CamelCase pattern
+ * uses a lowercase first character. In Java, type names follow the upper
+ * CamelCase convention, whereas method or field names follow the lower
+ * CamelCase convention.
+ * <p>
+ * The pattern may contain lowercase characters, which will be matched in a case
+ * sensitive way. These characters must appear in sequence in the name.
+ * For instance, 'NPExcep' will match 'NullPointerException', but not
+ * 'NullPointerExCEPTION' or 'NuPoEx' will match 'NullPointerException', but not
+ * 'NoPointerException'.
+ * <p>
+ * Digit characters are treated in a special way. They can be used in the pattern
+ * but are not always considered as leading character. For instance, both
+ * 'UTF16DSS' and 'UTFDSS' patterns will match 'UTF16DocumentScannerSupport'.
+ * <p>
+ * Digit characters are treated in a special way. They can be used in the pattern
+ * but are not always considered as leading character. For instance, both
+ * 'UTF16DSS' and 'UTFDSS' patterns will match 'UTF16DocumentScannerSupport'.
+ * <p>
+ * This method allows prefix match in Camel Case (see
+ * {@link #camelCaseMatch(char[], int, int, char[], int, int, boolean)}).
+ * <p>
  * Examples:
  * <ol>
  * <li><pre>
@@ -309,6 +428,16 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
  *    result => false
  * </pre>
  * </li>
+ * <li><pre>
+ *    pattern = { 'I', 'P', 'L', '3' }
+ *    patternStart = 0
+ *    patternEnd = 4
+ *    name = { 'I', 'P', 'e', 'r', 's', 'p', 'e', 'c', 't', 'i', 'v', 'e', 'L', 'i', 's', 't', 'e', 'n', 'e', 'r', '3' }
+ *    nameStart = 0
+ *    nameEnd = 21
+ *    result => true
+ * </pre>
+ * </li>
  * </ol>
  * 
  * @param pattern the given pattern
@@ -317,10 +446,141 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
  * @param name the given name
  * @param nameStart the start index of the name, inclusive
  * @param nameEnd the end index of the name, exclusive
- * @return true if a sub-pattern matches the subpart of the given name, false otherwise
+ * @return true if a sub-pattern matches the sub-part of the given name, false otherwise
  * @since 3.2
  */
 public static final boolean camelCaseMatch(char[] pattern, int patternStart, int patternEnd, char[] name, int nameStart, int nameEnd) {
+	return camelCaseMatch(pattern, patternStart, patternEnd, name, nameStart, nameEnd, true/*prefix match*/);
+}
+
+/**
+ * Answers true if a sub-pattern matches the sub-part of the given name using 
+ * CamelCase rules, or false otherwise.  char[] CamelCase matching does NOT
+ * accept explicit wild-cards '*' and '?' and is inherently case sensitive. 
+ * Can match only subset of name/pattern, considering end positions as
+ * non-inclusive. The sub-pattern is defined by the patternStart and patternEnd
+ * positions.
+ * <p>
+ * CamelCase denotes the convention of writing compound names without spaces,
+ * and capitalizing every term. This function recognizes both upper and lower
+ * CamelCase, depending whether the leading character is capitalized or not.
+ * The leading part of an upper CamelCase pattern is assumed to contain
+ * a sequence of capitals which are appearing in the matching name; e.g. 'NPE' will
+ * match 'NullPointerException', but not 'NewPerfData'. A lower CamelCase pattern
+ * uses a lowercase first character. In Java, type names follow the upper
+ * CamelCase convention, whereas method or field names follow the lower
+ * CamelCase convention.
+ * <p>
+ * The pattern may contain lowercase characters, which will be matched in a case
+ * sensitive way. These characters must appear in sequence in the name.
+ * For instance, 'NPExcep' will match 'NullPointerException', but not
+ * 'NullPointerExCEPTION' or 'NuPoEx' will match 'NullPointerException', but not
+ * 'NoPointerException'.
+ * <p>
+ * Digit characters are treated in a special way. They can be used in the pattern
+ * but are not always considered as leading character. For instance, both
+ * 'UTF16DSS' and 'UTFDSS' patterns will match 'UTF16DocumentScannerSupport'.
+ * <p>
+ * CamelCase may or may not match prefixes depending on the given parameter.
+ * When the prefix match parameter is <code>true</code>, the given pattern can
+ * match only a prefix of the given name. For instance, 'HM' , 'HaMa' and  'HMap'
+ * patterns will all match 'HashMap', 'HatMapper' <b>and</b> 'HashMapEntry'.
+ * <br>
+ * Reversely, if the prefix match parameter is <code>false</code>, then pattern
+ * and name must have <b>exactly</b> the same number of parts, and their last
+ * parts must be identical if they contain lowercase characters.
+ * For instance, 'HMap' and 'HaMap' patterns will match 'HashMap' but neither
+ * 'HashMapEntry' nor 'HatMapper'. Note that when the last part does not contain
+ * lowercase characters, then the name may end with lowercase characters.
+ * So, 'HM' pattern will match both 'HashMap' <b>and</b> 'HatMapper' but will not
+ * match 'HashMapEntry'.
+ * <p>
+ * <pre>
+ * Examples:
+ * <ol>
+ * <li> pattern = { 'N', 'P', 'E' }
+ * patternStart = 0
+ * patternEnd = 3
+ * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * nameStart = 0
+ * nameEnd = 20
+ * result => true</li>
+ * <li> pattern = { 'N', 'P', 'E' }
+ * patternStart = 0
+ * patternEnd = 3
+ * name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * nameStart = 0
+ * nameEnd = 21
+ * result => true</li>
+ * <li> pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ * patternStart = 0
+ * patternEnd = 6
+ * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * nameStart = 0
+ * nameEnd = 20
+ * result => true</li>
+ * <li> pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ * patternStart = 0
+ * patternEnd = 6
+ * name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * nameStart = 0
+ * nameEnd = 21
+ * result => false</li>
+ * <li> pattern = { 'n', p', 'e' }
+ * patternStart = 0
+ * patternEnd = 3
+ * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * nameStart = 0
+ * nameEnd = 20
+ * result => false</li>
+ * <li> pattern = { 'I', 'P', 'L', '3' }
+ * patternStart = 0
+ * patternEnd = 4
+ * name = { 'I', 'P', 'e', 'r', 's', 'p', 'e', 'c', 't', 'i', 'v', 'e', 'L', 'i', 's', 't', 'e', 'n', 'e', 'r', '3' }
+ * nameStart = 0
+ * nameEnd = 21
+ * result => true</li>
+ * <li> pattern = { 'H', M' }
+ * patternStart = 0
+ * patternEnd = 2
+ * name = { 'H', 'a', 's', 'h', 'M', 'a', 'p', 'E', 'n', 't', 'r', 'y' }
+ * nameStart = 0
+ * nameEnd = 12
+ * result => (exactMode == false)</li>
+ * <li> pattern = { 'H', M', 'a', 'p' }
+ * patternStart = 0
+ * patternEnd = 4
+ * name = { 'H', 'a', 't', 'M', 'a', 'p', 'p', 'e', 'r' }
+ * nameStart = 0
+ * nameEnd = 9
+ * result => (exactMode == false)</li>
+ * </ol>
+ * </pre>
+ * 
+ * @param pattern the given pattern
+ * @param patternStart the start index of the pattern, inclusive
+ * @param patternEnd the end index of the pattern, exclusive
+ * @param name the given name
+ * @param nameStart the start index of the name, inclusive
+ * @param nameEnd the end index of the name, exclusive
+ * @param prefixMatch flag telling whether the pattern can match name prefix or not.
+ * 	<ul>
+ * 		<li>For example, when it's <code>true</code>:<br>
+ * 			- 'HM' type string pattern will match  'HashMap' and 'HtmlMapper' types,
+ * 			  but not 'HashMapEntry'<br>
+ * 			- 'HMap' type string pattern will match  'HashMap' type but not 'HtmlMapper'.
+ * 		</li>
+ * 		<li>and, when it's <code>false</code>:<br>
+ * 			- 'HM' type string pattern will match both   'HashMap' and 'HtmlMapper'
+ * 			  and 'HashMapEntry'<br>
+ * 			- 'HMap' type string pattern will match both 'HashMap' and 'HtmlMapper'
+ * 			  types.
+ * 		</li>
+ * 	</ul>
+ * @return true if a sub-pattern matches the sub-part of the given name, false otherwise
+ * @since 3.4
+ */
+public static final boolean camelCaseMatch(char[] pattern, int patternStart, int patternEnd, char[] name, int nameStart, int nameEnd, boolean prefixMatch) {
 	if (name == null)
 		return false; // null name cannot match
 	if (pattern == null)
@@ -346,9 +606,38 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 		iPattern++;
 		iName++;
 
-		if (iPattern == patternEnd) {
-			// We have exhausted pattern, so it's a match
-			return true;
+		if (iPattern == patternEnd) { // we have exhausted pattern...
+			// it's a match if not exact mode or name is also exhausted
+			if (prefixMatch || iName == nameEnd) return true;
+
+			// it's not a match if last pattern character is a lowercase
+			if ((patternChar = pattern[iPattern-1]) < ScannerHelper.MAX_OBVIOUS) {
+				if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] & (ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_DIGIT)) == 0) {
+					return false;
+				}
+			}
+			else if (Character.isJavaIdentifierPart(patternChar) && !Character.isUpperCase(patternChar) && !Character.isDigit(patternChar)) {
+				return false;
+			}
+
+			// it's a match only if name has no more uppercase characters (exact mode)
+			while (true) {
+				if (iName == nameEnd) {
+					// we have exhausted name, so it's a match
+					return true;
+				}
+				nameChar = name[iName];
+				if (nameChar < ScannerHelper.MAX_OBVIOUS) {
+					if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar] & ScannerHelper.C_UPPER_LETTER) != 0) {
+						// nameChar is uppercase, so it's not a match
+						return false;
+					}
+				}
+				else if (!Character.isJavaIdentifierPart(nameChar) || Character.isUpperCase(nameChar)) {
+					return false;
+				}
+				iName++;
+			}
 		}
 
 		if (iName == nameEnd){
@@ -873,7 +1162,7 @@ public static final char[] concat(
  * </ol>
  * 
  * @param prefix the prefix character
- * @param array the array that is concanated with the prefix and suffix characters
+ * @param array the array that is concatenated with the prefix and suffix characters
  * @param suffix the suffix character
  * @return the new array
  */
@@ -2700,7 +2989,7 @@ public static final boolean prefixEquals(
 
 /**
  * Answers a new array removing a given character. Answers the given array if there is
- * no occurence of the character to remove.
+ * no occurrence of the character to remove.
  * <br>
  * <br>
  * For example:
@@ -2749,7 +3038,7 @@ public static final char[] remove(char[] array, char toBeRemoved) {
 }
 
 /**
- * Replace all occurrence of the character to be replaced with the remplacement character in the
+ * Replace all occurrence of the character to be replaced with the replacement character in the
  * given array.
  * <br>
  * <br>
@@ -2789,7 +3078,7 @@ public static final void replace(
 }
 
 /**
- * Replace all occurrences of characters to be replaced with the remplacement character in the
+ * Replace all occurrences of characters to be replaced with the replacement character in the
  * given array.
  * <br>
  * <br>
@@ -2815,7 +3104,7 @@ public static final void replace(char[] array, char[] toBeReplaced, char replace
 }
 
 /**
- * Replace all occurrences of characters to be replaced with the remplacement character in the
+ * Replace all occurrences of characters to be replaced with the replacement character in the
  * given array from the start position (inclusive) to the end position (exclusive).
  * <br>
  * <br>
@@ -2933,7 +3222,7 @@ public static final char[] replace(
 }
 
 /**
- * Replace all occurrence of the character to be replaced with the remplacement character 
+ * Replace all occurrence of the character to be replaced with the replacement character 
  * in a copy of the given array. Returns the given array if no occurrences of the character
  * to be replaced are found.
  * <br>
@@ -2985,7 +3274,7 @@ public static final char[] replaceOnCopy(
 }
 
 /**
- * Return a new array which is the split of the given array using the given divider and triming each subarray to remove
+ * Return a new array which is the split of the given array using the given divider and trimming each subarray to remove
  * whitespaces equals to ' '.
  * <br>
  * <br>
@@ -3019,7 +3308,7 @@ public static final char[] replaceOnCopy(
  * 
  * @param divider the given divider
  * @param array the given array
- * @return a new array which is the split of the given array using the given divider and triming each subarray to remove
+ * @return a new array which is the split of the given array using the given divider and trimming each subarray to remove
  * whitespaces equals to ' '
  */
 public static final char[][] splitAndTrimOn(char divider, char[] array) {

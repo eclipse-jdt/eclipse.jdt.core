@@ -150,8 +150,8 @@ public SuperTypeReferencePattern(
 
 	this(matchRule);
 
-	this.superQualification = isCaseSensitive() ? superQualification : CharOperation.toLowerCase(superQualification);
-	this.superSimpleName = (isCaseSensitive() || isCamelCase())  ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
+	this.superQualification = this.isCaseSensitive ? superQualification : CharOperation.toLowerCase(superQualification);
+	this.superSimpleName = (this.isCaseSensitive || this.isCamelCase) ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
 	((InternalSearchPattern)this).mustResolve = superQualification != null;
 	this.superRefKind = superRefKind;
 }

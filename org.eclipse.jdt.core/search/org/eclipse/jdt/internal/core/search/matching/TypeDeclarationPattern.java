@@ -140,8 +140,8 @@ public TypeDeclarationPattern(
 
 	this(matchRule);
 
-	this.pkg = isCaseSensitive() ? pkg : CharOperation.toLowerCase(pkg);
-	if (isCaseSensitive() || enclosingTypeNames == null) {
+	this.pkg = this.isCaseSensitive ? pkg : CharOperation.toLowerCase(pkg);
+	if (this.isCaseSensitive || enclosingTypeNames == null) {
 		this.enclosingTypeNames = enclosingTypeNames;
 	} else {
 		int length = enclosingTypeNames.length;
@@ -149,7 +149,7 @@ public TypeDeclarationPattern(
 		for (int i = 0; i < length; i++)
 			this.enclosingTypeNames[i] = CharOperation.toLowerCase(enclosingTypeNames[i]);
 	}
-	this.simpleName = (isCaseSensitive() || isCamelCase())  ? simpleName : CharOperation.toLowerCase(simpleName);
+	this.simpleName = (this.isCaseSensitive || this.isCamelCase) ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.typeSuffix = typeSuffix;
 
 	((InternalSearchPattern)this).mustResolve = (this.pkg != null && this.enclosingTypeNames != null) || typeSuffix != TYPE_SUFFIX;

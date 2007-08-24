@@ -503,6 +503,7 @@ protected JavaSearchResultCollector resultCollector;
 					}
 				}
 				System.out.println("--------------------------------------------------------------------------------");
+				length *= 2;
 				for (int i=0; i<length; i+=2) {
 					System.out.println(sources[i]);
 					System.out.println(sources[i+1]);
@@ -631,6 +632,18 @@ protected JavaSearchResultCollector resultCollector;
 			scope,
 			requestor,
 			null);
+	}
+	protected void search(IJavaElement element, int limitTo) throws CoreException {
+		search(element, limitTo, EXACT_RULE, getJavaSearchScope(), resultCollector);
+	}
+	protected void search(IJavaElement element, int limitTo, int matchRule) throws CoreException {
+		search(element, limitTo, matchRule, getJavaSearchScope(), resultCollector);
+	}
+	protected void search(String patternString, int searchFor, int limitTo) throws CoreException {
+		search(patternString, searchFor, limitTo, EXACT_RULE, getJavaSearchScope(), resultCollector);
+	}
+	protected void search(String patternString, int searchFor, int limitTo, int matchRule) throws CoreException {
+		search(patternString, searchFor, limitTo, matchRule, getJavaSearchScope(), resultCollector);
 	}
 	protected void searchAllTypeNames(String pattern, int matchRule, TypeNameRequestor requestor) throws JavaModelException {
 		new SearchEngine(this.workingCopies).searchAllTypeNames(

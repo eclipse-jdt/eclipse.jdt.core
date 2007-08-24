@@ -124,7 +124,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		}
 	}
 static {
-//	TESTS_NAMES = new String[] { "testSearchPatternCreation25" };
+	TESTS_PREFIX = "testSearchPatternValidateMatchRule";
 }
 public static Test suite() {
 	return buildModelTestSuite(SearchTests.class);
@@ -185,13 +185,18 @@ protected void assertValidMatchRule(String pattern, int rule) {
 }
 protected void assertValidMatchRule(String pattern, int rule, int expected) {
 	int validated = SearchPattern.validateMatchRule(pattern, rule);
+	String givenRule = BasicSearchEngine.getMatchRuleString(rule);
 	String validatedRule = BasicSearchEngine.getMatchRuleString(validated);
 	String expectedRule = BasicSearchEngine.getMatchRuleString(expected);
 	if (!validatedRule.equals(expectedRule)) {
 		System.out.println("Test "+getName());
 		System.out.print("	assertValidMatchRule(\"");
 		System.out.print(pattern);
-		System.out.print("\", ");
+		System.out.println("\",");
+		System.out.print("		SearchPattern.");
+		System.out.print(givenRule);
+		System.out.println("\",");
+		System.out.print("		SearchPattern.");
 		System.out.print(validatedRule);
 		System.out.println(");");
 		assertEquals(pattern+"' does not match expected match rule!", expectedRule, validatedRule);
@@ -993,43 +998,165 @@ public void testSearchPatternCreation36() {
 		"TypeReferencePattern: qualification<X.*>, type<Y>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
+
 /**
- * Test CamelCase validation
+ * Test pattern  validation
  */
 public void testSearchPatternValidMatchRule01() {
-	assertValidMatchRule("foo", SearchPattern.R_EXACT_MATCH, SearchPattern.R_EXACT_MATCH);
-	assertValidMatchRule("foo", SearchPattern.R_PREFIX_MATCH, SearchPattern.R_PREFIX_MATCH);
-	assertValidMatchRule("foo", SearchPattern.R_PATTERN_MATCH, SearchPattern.R_EXACT_MATCH);
-	assertValidMatchRule("foo", SearchPattern.R_PATTERN_MATCH|SearchPattern.R_PREFIX_MATCH, SearchPattern.R_PREFIX_MATCH);
-	assertValidMatchRule("foo", SearchPattern.R_CAMELCASE_MATCH, SearchPattern.R_PREFIX_MATCH|SearchPattern.R_CASE_SENSITIVE);
+	assertValidMatchRule("foo", 
+		SearchPattern.R_EXACT_MATCH,
+		SearchPattern.R_EXACT_MATCH);
 }
 public void testSearchPatternValidMatchRule02() {
-	assertValidMatchRule("CP*P", SearchPattern.R_EXACT_MATCH, SearchPattern.R_PATTERN_MATCH);
-	assertValidMatchRule("CP*P", SearchPattern.R_PREFIX_MATCH, SearchPattern.R_PATTERN_MATCH);
-	assertValidMatchRule("CP*P", SearchPattern.R_PATTERN_MATCH, SearchPattern.R_PATTERN_MATCH);
-	assertValidMatchRule("CP*P", SearchPattern.R_PATTERN_MATCH|SearchPattern.R_PREFIX_MATCH, SearchPattern.R_PATTERN_MATCH);
-	assertValidMatchRule("CP*P", SearchPattern.R_CAMELCASE_MATCH, SearchPattern.R_PATTERN_MATCH);
-}
-public void testSearchPatternValidMatchRule03() {
-	assertValidMatchRule("NPE", SearchPattern.R_CAMELCASE_MATCH);
-	assertValidMatchRule("NPE",
-		SearchPattern.R_CAMELCASE_MATCH|SearchPattern.R_PREFIX_MATCH|SearchPattern.R_CASE_SENSITIVE,
-		SearchPattern.R_CAMELCASE_MATCH);
-	assertValidMatchRule("nPE", SearchPattern.R_CAMELCASE_MATCH);
-	assertValidMatchRule("NuPoEx", SearchPattern.R_CAMELCASE_MATCH);
-	assertValidMatchRule("oF", SearchPattern.R_CAMELCASE_MATCH);
-}
-public void testSearchPatternValidMatchRule04() {
-	assertValidMatchRule("Nu/Po/Ex",
-		SearchPattern.R_CAMELCASE_MATCH,
-		SearchPattern.R_PREFIX_MATCH|SearchPattern.R_CASE_SENSITIVE);
-	assertValidMatchRule("Nu.Po.Ex",
-		SearchPattern.R_CAMELCASE_MATCH|SearchPattern.R_PREFIX_MATCH,
+	assertValidMatchRule("foo",
+		SearchPattern.R_PREFIX_MATCH,
 		SearchPattern.R_PREFIX_MATCH);
 }
+public void testSearchPatternValidMatchRule03() {
+	assertValidMatchRule("foo", 
+		SearchPattern.R_PATTERN_MATCH,
+		SearchPattern.R_EXACT_MATCH);
+}
+public void testSearchPatternValidMatchRule04() {
+	assertValidMatchRule("foo",
+		SearchPattern.R_PATTERN_MATCH | SearchPattern.R_PREFIX_MATCH,
+		SearchPattern.R_PREFIX_MATCH);
+}
+/** @deprecated As using a depreciated constant */
 public void testSearchPatternValidMatchRule05() {
-	assertValidMatchRule("hashMap", SearchPattern.R_CAMELCASE_MATCH);
-	assertValidMatchRule("Hashmap", SearchPattern.R_CAMELCASE_MATCH);
+	assertValidMatchRule("foo",
+		SearchPattern.R_CAMELCASE_MATCH,
+		SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
+}
+public void testSearchPatternValidMatchRule06() {
+	assertValidMatchRule("foo",
+		SearchPattern.R_CAMEL_CASE_MATCH,
+		SearchPattern.R_PREFIX_MATCH);
+}
+public void testSearchPatternValidMatchRule10() {
+	assertValidMatchRule("CP*P",
+		SearchPattern.R_EXACT_MATCH,
+		SearchPattern.R_PATTERN_MATCH);
+}
+public void testSearchPatternValidMatchRule11() {
+	assertValidMatchRule("CP*P",
+		SearchPattern.R_PREFIX_MATCH,
+		SearchPattern.R_PATTERN_MATCH);
+}
+public void testSearchPatternValidMatchRule12() {
+	assertValidMatchRule("CP*P",
+		SearchPattern.R_PATTERN_MATCH,
+		SearchPattern.R_PATTERN_MATCH);
+}
+public void testSearchPatternValidMatchRule13() {
+	assertValidMatchRule("CP*P",
+		SearchPattern.R_PATTERN_MATCH | SearchPattern.R_PREFIX_MATCH,
+		SearchPattern.R_PATTERN_MATCH);
+}
+/** @deprecated As using a depreciated constant */
+public void testSearchPatternValidMatchRule14() {
+	assertValidMatchRule("CP*P",
+		SearchPattern.R_CAMELCASE_MATCH,
+		SearchPattern.R_PATTERN_MATCH);
+}
+public void testSearchPatternValidMatchRule15() {
+	assertValidMatchRule("CP*P",
+		SearchPattern.R_CAMEL_CASE_MATCH,
+		SearchPattern.R_PATTERN_MATCH);
+}
+/** @deprecated As using a depreciated constant */
+public void testSearchPatternValidMatchRule20() {
+	assertValidMatchRule("NPE", 
+		SearchPattern.R_CAMELCASE_MATCH);
+}
+/** @deprecated As using a depreciated constant */
+public void testSearchPatternValidMatchRule21() {
+	assertValidMatchRule("NPE",
+		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
+		SearchPattern.R_CAMELCASE_MATCH);
+}
+/** @deprecated As using a depreciated constant */
+public void testSearchPatternValidMatchRule22() {
+	assertValidMatchRule("nPE",
+		SearchPattern.R_CAMELCASE_MATCH);
+}
+/** @deprecated As using a depreciated constant */
+public void testSearchPatternValidMatchRule23() {
+	assertValidMatchRule("NuPoEx", 
+		SearchPattern.R_CAMELCASE_MATCH);
+}
+/** @deprecated As using a depreciated constant */
+public void testSearchPatternValidMatchRule24() {
+	assertValidMatchRule("oF",
+		SearchPattern.R_CAMELCASE_MATCH);
+}
+public void testSearchPatternValidMatchRule30() {
+	assertValidMatchRule("NPE",
+		SearchPattern.R_CAMEL_CASE_MATCH);
+}
+public void testSearchPatternValidMatchRule31() {
+	assertValidMatchRule("NPE",
+		SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH);
+}
+public void testSearchPatternValidMatchRule32() {
+	assertValidMatchRule("NPE",
+		SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+}
+public void testSearchPatternValidMatchRule33() {
+	assertValidMatchRule("NPE",
+		SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
+}
+public void testSearchPatternValidMatchRule34() {
+	assertValidMatchRule("nPE",
+		SearchPattern.R_CAMEL_CASE_MATCH);
+}
+public void testSearchPatternValidMatchRule35() {
+	assertValidMatchRule("NuPoEx", 
+		SearchPattern.R_CAMEL_CASE_MATCH);
+}
+public void testSearchPatternValidMatchRule36() {
+	assertValidMatchRule("oF",
+		SearchPattern.R_CAMEL_CASE_MATCH);
+}
+/** @deprecated As using a depreciated constant */
+public void testSearchPatternValidMatchRule40() {
+	assertValidMatchRule("Nu/Po/Ex",
+		SearchPattern.R_CAMELCASE_MATCH,
+		SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
+}
+/** @deprecated As using a depreciated constant */
+public void testSearchPatternValidMatchRule41() {
+	assertValidMatchRule("Nu.Po.Ex",
+		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH,
+		SearchPattern.R_PREFIX_MATCH);
+}
+/** @deprecated As using a depreciated constant */
+public void testSearchPatternValidMatchRule42() {
+	assertValidMatchRule("hashMap",
+		SearchPattern.R_CAMELCASE_MATCH);
+}
+/** @deprecated As using a depreciated constant */
+public void testSearchPatternValidMatchRule43() {
+	assertValidMatchRule("Hashmap",
+		SearchPattern.R_CAMELCASE_MATCH);
+}
+public void testSearchPatternValidMatchRule44() {
+	assertValidMatchRule("Nu/Po/Ex",
+		SearchPattern.R_CAMEL_CASE_MATCH,
+		SearchPattern.R_PREFIX_MATCH);
+}
+public void testSearchPatternValidMatchRule45() {
+	assertValidMatchRule("Nu.Po.Ex",
+		SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH,
+		SearchPattern.R_PREFIX_MATCH);
+}
+public void testSearchPatternValidMatchRule46() {
+	assertValidMatchRule("hashMap",
+		SearchPattern.R_CAMEL_CASE_MATCH);
+}
+public void testSearchPatternValidMatchRule47() {
+	assertValidMatchRule("Hashmap",
+		SearchPattern.R_CAMEL_CASE_MATCH);
 }
 
 /**

@@ -46,15 +46,15 @@ public FieldPattern(
 
 	super(FIELD_PATTERN, findDeclarations, readAccess, writeAccess, name, matchRule);
 
-	this.declaringQualification = isCaseSensitive() ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
-	this.declaringSimpleName = isCaseSensitive() ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
-	this.typeQualification = isCaseSensitive() ? typeQualification : CharOperation.toLowerCase(typeQualification);
-	this.typeSimpleName = (isCaseSensitive() || isCamelCase())  ? typeSimpleName : CharOperation.toLowerCase(typeSimpleName);
+	this.declaringQualification = this.isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
+	this.declaringSimpleName = this.isCaseSensitive ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
+	this.typeQualification = this.isCaseSensitive ? typeQualification : CharOperation.toLowerCase(typeQualification);
+	this.typeSimpleName = (this.isCaseSensitive || this.isCamelCase) ? typeSimpleName : CharOperation.toLowerCase(typeSimpleName);
 
 	((InternalSearchPattern)this).mustResolve = mustResolve();
 }
 /*
- * Instanciate a field pattern with additional information for generics search
+ * Instantiate a field pattern with additional information for generic search
  */
 public FieldPattern(
 	boolean findDeclarations,

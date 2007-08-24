@@ -42,7 +42,7 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	 *		<li>{@link #R_PREFIX_MATCH}</li>
 	 *		<li>{@link #R_PATTERN_MATCH}</li>
 	 *		<li>{@link #R_REGEXP_MATCH}</li>
-	 *		<li>{@link #R_CAMELCASE_MATCH}</li>
+	 *		<li>{@link #R_CAMEL_CASE_MATCH}</li>
 	 * </ul>
 	 */
 	int matchMode;
@@ -75,7 +75,7 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=81377
 		int rule = getMatchRule();
 		this.isCaseSensitive = (rule & R_CASE_SENSITIVE) != 0;
-		this.isCamelCase = (rule & R_CAMELCASE_MATCH) != 0;
+		this.isCamelCase = (rule & R_CAMEL_CASE_MATCH) != 0;
 		this.matchCompatibility = rule & MATCH_COMPATIBILITY_MASK;
 		this.matchMode = rule & MATCH_MODE_MASK;
 	}
@@ -84,23 +84,23 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 		return null;
 	}
 
-	int getMatchMode() {
+	final int getMatchMode() {
 		return this.matchMode;
 	}
 
-	boolean isCamelCase() {
+	final boolean isCamelCase() {
 		return this.isCamelCase;
 	}
 
-	boolean isCaseSensitive () {
+	final boolean isCaseSensitive () {
 		return this.isCaseSensitive;
 	}
 
-	boolean isErasureMatch() {
+	final boolean isErasureMatch() {
 		return (this.matchCompatibility & R_ERASURE_MATCH) != 0;
 	}
 
-	boolean isEquivalentMatch() {
+	final boolean isEquivalentMatch() {
 		return (this.matchCompatibility & R_EQUIVALENT_MATCH) != 0;
 	}
 
