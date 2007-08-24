@@ -150,9 +150,9 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * 		'NullPointerException' type.</li>
 	 * </ul>
 	 *
-	 * This Camel Case match rule also accepts both prefix and case insensitive
-	 * matches. For instance 'HashMap' or 'HASHMAP' pattern using Camel Case rule will match
-	 * both 'HashMap' and 'HashMapEntry'.
+	 * Can be combined to {@link #R_PREFIX_MATCH} match rule. For example,
+	 * when prefix match rule is combined with Camel Case match rule,
+	 * 'nPE' pattern will match 'nPException'.
 	 *<p>
 	 * Match rule {@link #R_PATTERN_MATCH} may also be combined but both rules
 	 * will not be used simultaneously as they are mutually exclusive.
@@ -2299,7 +2299,7 @@ public static int validateMatchRule(String stringPattern, int matchRule) {
 }
 
 /**
- * Update depreciated flags if necessary in the given match rule.
+ * Update deprecated flags if necessary in the given match rule.
  * 
  * @param matchRule The match rule to update
  * @return The updated match rule with the updated flags

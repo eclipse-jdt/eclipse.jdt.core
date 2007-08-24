@@ -271,11 +271,11 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
 </pre>
 Note also that methods <code>camelCaseMatch(String, int, int, String, int, int)</code>
 of <code>CharOperation</code> and <code>SearchPattern</code> classes have been
-depreciated to avoid too many 'camelCaseMatch*' methods on these classes.
+deprecated to avoid too many 'camelCaseMatch*' methods on these classes.
 </li>
 <li>Search Engine has been modified to better handle additional <code>SearchPattern</code>
 constants while using Camel Case one (see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=200400">bug 200400</a>).<br>
-Existing <code>SearchPattern#R_CAMELCASE_MATCH</code> constant has been depreciated and<br>
+Existing <code>SearchPattern#R_CAMELCASE_MATCH</code> constant has been deprecated and<br>
 is <b>now replaced by <code>SearchPattern#R_CAMEL_CASE_MATCH</code></b>:<pre>
 	/**
 	 * Match rule: The search pattern contains a Camel Case expression with
@@ -314,7 +314,7 @@ is <b>now replaced by <code>SearchPattern#R_CAMEL_CASE_MATCH</code></b>:<pre>
 This change was necessary has the obsolete <code>R_CAMELCASE_MATCH</code> could
 not support correctly additional constants as <code>R_PREFIX_MATCH</code> or 
 <code>R_CASE_SENSITIVE</code>.<br>
-However, this depreciated constant is still accepted for backward compatibility
+However, this deprecated constant is still accepted for backward compatibility
 but user is advised to replace it with <code>R_CAMEL_CASE_MATCH | R_PREFIX_MATCH</code>
 </li>
 </ul>
