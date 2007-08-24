@@ -471,11 +471,11 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 			}
 		}
 
-		if (!method.isConstructor())
-			returnType = environment.getTypeFromTypeSignature(wrapper, typeVars, this);
+		// always retrieve return type (for constructors, its V for void - will be ignored)
+		returnType = environment.getTypeFromTypeSignature(wrapper, typeVars, this);
 
 		if (!wrapper.atEnd() && wrapper.signature[wrapper.start] == '^') {
-			// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
+			// attempt to find each exception if it exists in the cache (otherwise - resolve it when requested)
 			java.util.ArrayList types = new java.util.ArrayList(2);
 			do {
 				wrapper.start++; // skip '^'

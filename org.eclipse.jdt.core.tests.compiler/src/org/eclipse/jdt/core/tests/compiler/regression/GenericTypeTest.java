@@ -38031,4 +38031,38 @@ public void test1141() {
 		"Cycle detected: the type X cannot extend/implement itself or one of its own member types\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=198051
+public void test1149() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"public class A {\n" + 
+			"    <T extends Throwable> A() throws T {}\n" + 
+			"    void a() throws ClassNotFoundException {\n" + 
+			"	    new<ClassNotFoundException> A();\n" + 
+			"    }\n" + 
+			"}\n",
+			"B.java",
+			"public class B {\n" + 
+			"    	void b() throws ClassNotFoundException {\n" + 
+			"	    new<ClassNotFoundException> A();\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		""
+	);
+	this.runConformTest(
+		new String[] {
+			"B.java",
+			"public class B {\n" + 
+			"    	void b() throws ClassNotFoundException {\n" + 
+			"	    new<ClassNotFoundException> A();\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"",
+		null,
+		false, // do not flush output
+		null);		
+}
 }
