@@ -9144,65 +9144,53 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=180905
 	 */
 	public void test0676() throws JavaModelException {
-		ICompilationUnit workingCopy = null;
-		try {
-			String contents =
-				"package p;\n" +
-				"public class X {\n" + 
-				"	B foo() {\n" + 
-				"	}\n" + 
-				"}";
-			workingCopy = getWorkingCopy("/Converter/src/p/X.java", true/*resolve*/);
-			workingCopy.getBuffer().setContents(contents);
-			ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
-			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-			CompilationUnit unit = (CompilationUnit) node;
-			assertTrue("no binding recovery", unit.getAST().hasBindingsRecovery());
-			assertTrue("no statement recovery", unit.getAST().hasStatementsRecovery());
-			assertTrue("no binding resolution", unit.getAST().hasResolvedBindings());
-			String expectedError = "B cannot be resolved to a type";
-			assertProblemsSize(unit, 1, expectedError);
-			assertTrue("No binding recovery", unit.getAST().hasBindingsRecovery());
-			node = getASTNode(unit, 0, 0);
-			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
-			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-			Type type = methodDeclaration.getReturnType2();
-			assertNotNull("No type", type);
-			ITypeBinding typeBinding = type.resolveBinding();
-			assertNotNull("No type binding", typeBinding);
-			assertTrue("Not a recovered binding", typeBinding.isRecovered());
-			IJavaElement javaElement = typeBinding.getJavaElement();
-			assertNotNull("No java element", javaElement);
-			assertTrue("Javalement exists", !javaElement.exists());
-			IPackageBinding packageBinding = typeBinding.getPackage();
-			assertNotNull("No package", packageBinding);
-			assertEquals("Not the package p", "p", packageBinding.getName());
-			ITypeBinding arrayBinding = typeBinding.createArrayType(2);
-			assertNotNull("No array binding", arrayBinding);
-			assertEquals("Wrong dimensions", 2, arrayBinding.getDimensions());
-			ITypeBinding elementType = arrayBinding.getElementType();
-			assertNotNull("No element type", elementType);
-			assertNotNull("No key", typeBinding.getKey());
-			assertTrue("Not equals", elementType.isEqualTo(typeBinding));
-			
-			node = getASTNode(unit, 0);
-			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
-			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
-			ITypeBinding typeBinding2 = typeDeclaration.resolveBinding();
-			ITypeBinding javaLangObject = typeBinding2.getSuperclass();
-			assertEquals("Not java.lang.Object", "java.lang.Object", javaLangObject.getQualifiedName());
-			assertTrue("Not isCastCompatible", typeBinding.isCastCompatible(javaLangObject));
-			assertTrue("Not isCastCompatible", typeBinding.isCastCompatible(elementType));
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0676", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runConversion(AST.JLS3, sourceUnit, true, true, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertTrue("no binding recovery", unit.getAST().hasBindingsRecovery());
+		assertTrue("no statement recovery", unit.getAST().hasStatementsRecovery());
+		assertTrue("no binding resolution", unit.getAST().hasResolvedBindings());
+		String expectedError = "B cannot be resolved to a type";
+		assertProblemsSize(unit, 1, expectedError);
+		assertTrue("No binding recovery", unit.getAST().hasBindingsRecovery());
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Type type = methodDeclaration.getReturnType2();
+		assertNotNull("No type", type);
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertTrue("Not a recovered binding", typeBinding.isRecovered());
+		IJavaElement javaElement = typeBinding.getJavaElement();
+		assertNotNull("No java element", javaElement);
+		assertTrue("Java element exists", !javaElement.exists());
+		IPackageBinding packageBinding = typeBinding.getPackage();
+		assertNotNull("No package", packageBinding);
+		assertNotNull("No java element for package", packageBinding.getJavaElement());
+		assertEquals("Not the package test0676", "test0676", packageBinding.getName());
+		ITypeBinding arrayBinding = typeBinding.createArrayType(2);
+		assertNotNull("No array binding", arrayBinding);
+		assertEquals("Wrong dimensions", 2, arrayBinding.getDimensions());
+		ITypeBinding elementType = arrayBinding.getElementType();
+		assertNotNull("No element type", elementType);
+		assertNotNull("No key", typeBinding.getKey());
+		assertTrue("Not equals", elementType.isEqualTo(typeBinding));
+		
+		node = getASTNode(unit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding2 = typeDeclaration.resolveBinding();
+		ITypeBinding javaLangObject = typeBinding2.getSuperclass();
+		assertEquals("Not java.lang.Object", "java.lang.Object", javaLangObject.getQualifiedName());
+		assertTrue("Not isCastCompatible", typeBinding.isCastCompatible(javaLangObject));
+		assertTrue("Not isCastCompatible", typeBinding.isCastCompatible(elementType));
 
-			assertTrue("Not isSubTypeCompatible", typeBinding.isSubTypeCompatible(javaLangObject));
-			assertTrue("Not isSubTypeCompatible", typeBinding.isSubTypeCompatible(elementType));
+		assertTrue("Not isSubTypeCompatible", typeBinding.isSubTypeCompatible(javaLangObject));
+		assertTrue("Not isSubTypeCompatible", typeBinding.isSubTypeCompatible(elementType));
 
-			assertTrue("Not isAssignmentCompatible", typeBinding.isAssignmentCompatible(javaLangObject));
-			assertTrue("Not isAssignmentCompatible", typeBinding.isAssignmentCompatible(elementType));
-		} finally {
-			if (workingCopy != null)
-				workingCopy.discardWorkingCopy();
-		}
+		assertTrue("Not isAssignmentCompatible", typeBinding.isAssignmentCompatible(javaLangObject));
+		assertTrue("Not isAssignmentCompatible", typeBinding.isAssignmentCompatible(elementType));
 	}
 	
 	/**
