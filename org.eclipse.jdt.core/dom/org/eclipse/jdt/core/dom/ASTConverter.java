@@ -3054,7 +3054,7 @@ class ASTConverter {
 			}
 			return wildcardType;
 		}
-		Type type = null;				
+		Type type = null;
 		int sourceStart = -1;
 		int length = 0;
 		int dimensions = typeReference.dimensions();
@@ -3584,7 +3584,8 @@ class ASTConverter {
 		while(currentNode != null
 			&&!(currentNode instanceof MethodDeclaration)
 			&& !(currentNode instanceof Initializer)
-			&& !(currentNode instanceof FieldDeclaration)) {
+			&& !(currentNode instanceof FieldDeclaration)
+			&& !(currentNode instanceof AbstractTypeDeclaration)) {
 			currentNode = currentNode.getParent();
 		}
 		if (currentNode == null) {
@@ -3610,9 +3611,7 @@ class ASTConverter {
 			while(!(currentNode instanceof AbstractTypeDeclaration)) {
 				currentNode = currentNode.getParent();
 			}
-			if (currentNode instanceof TypeDeclaration
-					|| currentNode instanceof EnumDeclaration
-					|| currentNode instanceof AnnotationTypeDeclaration) {
+			if (currentNode instanceof AbstractTypeDeclaration) {
 				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 				if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
 					return typeDecl.staticInitializerScope;
@@ -3620,6 +3619,9 @@ class ASTConverter {
 					return typeDecl.initializerScope;
 				}
 			}
+		} else if (currentNode instanceof AbstractTypeDeclaration) {
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
+			return typeDecl.initializerScope;
 		}
 		AbstractMethodDeclaration abstractMethodDeclaration = (AbstractMethodDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 		return abstractMethodDeclaration.scope;

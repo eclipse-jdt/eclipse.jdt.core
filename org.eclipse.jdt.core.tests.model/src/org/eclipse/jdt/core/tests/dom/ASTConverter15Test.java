@@ -9344,8 +9344,59 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IAnnotationBinding[] annotations = typeBinding.getAnnotations();
 		assertEquals("wrong size", 1, annotations.length);
 	}
-	
-
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=190622
+	public void test0282() throws JavaModelException {
+		String contents =
+			"public class X {\n" + 
+			"	public @interface Moo {\n" + 
+			"		Class<?> value();\n" + 
+			"	}\n" + 
+			"	@Moo(Bar.Baz.class)\n" + 
+			"	public static class Bar {\n" + 
+			"		public static class Baz {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 1);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		final List modifiers = typeDeclaration.modifiers();
+		assertEquals("Wrong size", 3, modifiers.size());
+		IExtendedModifier extendedModifier = (IExtendedModifier) modifiers.get(0);
+		assertTrue("Not an annotation", extendedModifier instanceof SingleMemberAnnotation);
+		SingleMemberAnnotation annotation = (SingleMemberAnnotation) extendedModifier;
+		final Expression value = annotation.getValue();
+		assertEquals("Not a type literal", ASTNode.TYPE_LITERAL, value.getNodeType());
+		TypeLiteral typeLiteral = (TypeLiteral) value;
+		final Type type = typeLiteral.getType();
+		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
+		SimpleType simpleType = (SimpleType) type;
+		final Name name = simpleType.getName();
+		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, name.getNodeType());
+		QualifiedName qualifiedName = (QualifiedName) name;
+		final IBinding binding = qualifiedName.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong value", "Bar.Baz", qualifiedName.getFullyQualifiedName());
+		final SimpleName simpleName = qualifiedName.getName();
+		final IBinding binding2 = simpleName.resolveBinding();
+		assertNotNull("No binding2", binding2);
+		assertFalse("Not a recovered binding", binding2.isRecovered());
+		final Name qualifier = qualifiedName.getQualifier();
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, qualifier.getNodeType());
+		SimpleName simpleName2 = (SimpleName) qualifier;
+		final IBinding binding3 = simpleName2.resolveBinding();
+		assertNotNull("No binding3", binding3);
+		assertFalse("Not a recovered binding", binding3.isRecovered());
+		final IJavaElement javaElement = binding3.getJavaElement();
+		assertNotNull("No java element", javaElement);
+		assertEquals("Not a type", IJavaElement.TYPE, javaElement.getElementType());
+	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=201104
 	public void test0283() throws JavaModelException {
 		String contents =
