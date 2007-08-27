@@ -112,6 +112,38 @@ public void testClassFileInLibraryInOtherProject() throws CoreException {
 		this.deleteProject("P2");
 	}
 }
+/*
+ * Ensures that a package with a name ending with a slash '/' doesn't exist
+ * (regression test for bug 108456 IPackageFragmentRoot#getPackageFragment() should not accept invalid package names)
+ */
+public void testInvalidPackageName1() throws Exception {
+	try {
+		createJavaProject("P");
+		createFolder("/P/p1");
+		IPackageFragmentRoot root = getPackageFragmentRoot("/P");
+		IPackageFragment pkg = root.getPackageFragment("p1/");
+		assertFalse("Package p1/ should not exist", pkg.exists());
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a package with a name ending with a slash '/' cannot be opened
+ * (regression test for bug 108456 IPackageFragmentRoot#getPackageFragment() should not accept invalid package names)
+ */
+public void testInvalidPackageName2() throws Exception {
+	try {
+		createJavaProject("P");
+		createFolder("/P/p1");
+		IPackageFragmentRoot root = getPackageFragmentRoot("/P");
+		IPackageFragment pkg = root.getPackageFragment("p1/");
+		assertOpenFails(
+			"p1/ [in <project root> [in P]] does not exist",
+			pkg);
+	} finally {
+		deleteProject("P");
+	}
+}
 public void testJarFile() throws Exception {
 	try {
 		IJavaProject p2 = createJavaProject("P2");

@@ -73,6 +73,9 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	if (kind == IPackageFragmentRoot.K_SOURCE && Util.isExcluded(this)) 
 		throw newNotPresentException();
 
+	// check that the name of the package is valid (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=108456)
+	if (!isValidPackageName())
+		throw newNotPresentException();
 
 	// add compilation units/class files from resources
 	HashSet vChildren = new HashSet();
@@ -176,8 +179,10 @@ public boolean equals(Object o) {
 }
 public boolean exists() {
 	// super.exist() only checks for the parent and the resource existence
-	// so also ensure that the package is not exceluded (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=138577)
-	return super.exists() && !Util.isExcluded(this); 
+	// so also ensure that:
+	//  - the package is not excluded (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=138577)
+	//  - its name is valide (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=108456)
+	return super.exists() && !Util.isExcluded(this) && isValidPackageName(); 
 }
 /**
  * @see IPackageFragment#getClassFile(String)
@@ -400,6 +405,16 @@ public boolean hasSubpackages() throws JavaModelException {
  */
 public boolean isDefaultPackage() {
 	return this.names.length == 0;
+}
+private boolean isValidPackageName() {
+	JavaProject javaProject = (JavaProject) getJavaProject();
+	String sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
+	String complianceLevel = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+	for (int i = 0, length = this.names.length; i < length; i++) {
+		if (!Util.isValidFolderNameForPackage(this.names[i], sourceLevel, complianceLevel))
+			return false;
+	}
+	return true;
 }
 /**
  * @see ISourceManipulation#move(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
