@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.PackageFragment;
 
 /**
  * This class represents the recovered binding for a type
@@ -495,7 +496,13 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 */
 	public IJavaElement getJavaElement() {
 		try {
-			return new CompilationUnit(null, this.getInternalName(), this.resolver.getWorkingCopyOwner()).getWorkingCopy(this.resolver.getWorkingCopyOwner(), null);
+			IPackageBinding packageBinding = getPackage();
+			if (packageBinding != null) {
+				final IJavaElement javaElement = packageBinding.getJavaElement();
+				if (javaElement!= null && javaElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
+					return new CompilationUnit((PackageFragment) javaElement, this.getInternalName(), this.resolver.getWorkingCopyOwner()).getWorkingCopy(this.resolver.getWorkingCopyOwner(), null);
+				}
+			}
 		} catch (JavaModelException e) {
 			//ignore
 		}

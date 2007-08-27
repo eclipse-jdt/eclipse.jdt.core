@@ -9347,7 +9347,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=201104
-	public void test0282() throws JavaModelException {
+	public void test0283() throws JavaModelException {
 		String contents =
 			"public class X {\n" + 
 			"	public @interface Moo {\n" + 
