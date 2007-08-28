@@ -14,8 +14,18 @@ import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.core.SourceType;
 
 /**
@@ -1165,5 +1175,73 @@ public void testFindSecondaryType_Unknown02() throws JavaModelException, CoreExc
 }
 public void testFindSecondaryType_Unknown03() throws JavaModelException, CoreException {
 	assertTypeUnknown("org.eclipse.jdt.core.test.Unknown");
+}
+
+/**
+ * @bug 152841: [model] IJavaProject.findType(name, monitor) doesn't find secondary type
+ * @test Ensure that secondary type is found just after having created the compilation unit
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=152841"
+ */
+public void testBug152841() throws Exception{
+	try {
+		IJavaProject project= createJavaProject("P", new String[] { "src" }, new String[] { "JCL_LIB" }, "bin");
+		IPackageFragmentRoot root = (IPackageFragmentRoot) project.getChildren()[0];
+		IPackageFragment pack= root.createPackageFragment("p", true, null);
+	
+		String source= "package p;\n" +
+		"//use Object\n" +
+		"class A {\n" +
+		"	public void foo(){};\n" +
+		"}";
+		pack.createCompilationUnit("A.java", source, true, null);
+		
+		source= "package p;\n" +
+		"\n" + 
+		"class Test{\n" +
+		"	void test(){\n" +
+		"		A a= new A();\n" +
+		"		test(a);\n" +
+		"	}\n" +
+		"	void test(Object o){\n" +
+		"		o.hashCode();\n" +
+		"	}\n" +
+		"}";
+		ICompilationUnit cu= pack.createCompilationUnit("Test.java", source, true, null);
+	
+		ASTParser parser= ASTParser.newParser(AST.JLS3);
+		parser.setSource(cu);
+		parser.setResolveBindings(true);
+		parser.createAST(null);
+						
+		source= "package p;\n" +
+		"//use C\n" +
+		"interface I{}\n" +
+		"class C implements I{\n" +
+		"}\n" +
+		"class B extends C{\n" +
+		"}\n" +
+		"class A extends B{" +
+		"}\n" +
+		"class Test{\n" +
+		"	void f(){\n" +
+		"		A c= new A();\n" +
+		"		c.toString();\n" +
+		"	}\n" +
+		"}";
+	
+		ICompilationUnit unit= pack.createCompilationUnit("I.java", source, true, null);
+		IType type= project.findType("p.I", (IProgressMonitor) null);
+		assertNotNull(type);
+		
+		// C exists
+		assertTrue(unit.getType("C").exists());
+		
+		// but can't be found
+		type= project.findType("p.C", (IProgressMonitor) null);
+		assertNotNull(type);
+	}
+	finally {
+		deleteProject("P");
+	}
 }
 }
