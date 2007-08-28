@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 
 /**
  * Richer description of a Java problem, as detected by the compiler or some of the underlying
- * technology reusing the compiler. With the introduction of {@link CompilationParticipant},
+ * technology reusing the compiler. With the introduction of <code>org.eclipse.jdt.core.compiler.CompilationParticipant</code>,
  * the simpler problem interface {@link IProblem} did not carry enough information to better
  * separate and categorize Java problems. In order to minimize impact on existing API, Java problems
  * are still passed around as {@link IProblem}, though actual implementations should explicitly
