@@ -47,13 +47,13 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
  * defining their own domain specific problem/category IDs.
  * <p>
  * Note: standard Java problems produced by Java default tooling will set the marker
- * {@link org.eclipse.core.resources.IMarker#SOURCE_ID} attribute to
- * {@link org.eclipse.jdt.internal.core.builder.JavaBuilder#SOURCE_ID}; compiler
- * participants may specify the {@link org.eclipse.core.resources.IMarker#SOURCE_ID}
+ * <code> IMarker#SOURCE_ID</code> attribute to
+ * <code> JavaBuilder#SOURCE_ID</code>; compiler
+ * participants may specify the <code> IMarker#SOURCE_ID</code>
  * attribute of their markers by adding it to the extra marker attributes of the problems they generate; 
  * markers resulting from compiler participants' problems that do not have the
- * {@link org.eclipse.core.resources.IMarker#SOURCE_ID} extra attribute set do not have the
- * {@link org.eclipse.jdt.internal.core.builder.JavaBuilder#SOURCE_ID} attribute set either.
+ * <code> IMarker#SOURCE_ID</code> extra attribute set do not have the
+ * <code> JavaBuilder#SOURCE_ID</code> attribute set either.
  * 
  * @since 3.2
  */
@@ -119,17 +119,17 @@ public abstract String getMarkerType();
  * by the JavaBuilder. Extra attributes are only optional, and are allowing client customization of generated
  * markers. By default, no EXTRA attributes is persisted, and a categorized problem only persists the following attributes:
  * <ul>
- * <li>	{@link org.eclipse.core.resources.IMarker#MESSAGE} -&gt; {@link IProblem#getMessage()}</li>
- * <li>	{@link org.eclipse.core.resources.IMarker#SEVERITY} -&gt; {@link  org.eclipse.core.resources.IMarker#SEVERITY_ERROR} or 
- *         {@link org.eclipse.core.resources.IMarker#SEVERITY_WARNING} depending on {@link IProblem#isError()} or {@link IProblem#isWarning()}</li>
- * <li>	{@link org.eclipse.jdt.core.IJavaModelMarker#ID} -&gt; {@link IProblem#getID()}</li>
- * <li>	{@link org.eclipse.core.resources.IMarker#CHAR_START}  -&gt; {@link IProblem#getSourceStart()}</li>
- * <li>	{@link org.eclipse.core.resources.IMarker#CHAR_END}  -&gt; {@link IProblem#getSourceEnd()}</li>
- * <li>	{@link org.eclipse.core.resources.IMarker#LINE_NUMBER}  -&gt; {@link IProblem#getSourceLineNumber()}</li>
- * <li>	{@link org.eclipse.jdt.core.IJavaModelMarker#ARGUMENTS}  -&gt; some <code>String[]</code> used to compute quickfixes </li>
- * <li>	{@link org.eclipse.jdt.core.IJavaModelMarker#CATEGORY_ID} -&gt; {@link CategorizedProblem#getCategoryID()}</li>
+ * <li>	<code>IMarker#MESSAGE</code> -&gt; {@link IProblem#getMessage()}</li>
+ * <li>	<code>IMarker#SEVERITY</code> -&gt; <code> IMarker#SEVERITY_ERROR</code> or 
+ *         <code>IMarker#SEVERITY_WARNING</code> depending on {@link IProblem#isError()} or {@link IProblem#isWarning()}</li>
+ * <li>	<code>IJavaModelMarker#ID</code> -&gt; {@link IProblem#getID()}</li>
+ * <li>	<code>IMarker#CHAR_START</code>  -&gt; {@link IProblem#getSourceStart()}</li>
+ * <li>	<code>IMarker#CHAR_END</code>  -&gt; {@link IProblem#getSourceEnd()}</li>
+ * <li>	<code>IMarker#LINE_NUMBER</code>  -&gt; {@link IProblem#getSourceLineNumber()}</li>
+ * <li>	<code>IJavaModelMarker#ARGUMENTS</code>  -&gt; some <code>String[]</code> used to compute quickfixes </li>
+ * <li>	<code>IJavaModelMarker#CATEGORY_ID</code> -&gt; {@link CategorizedProblem#getCategoryID()}</li>
  * </ul>
- * The names must be eligible for marker creation, as defined by {@link org.eclipse.core.resources.IMarker#setAttributes(String[], Object[])}, 
+ * The names must be eligible for marker creation, as defined by <code>IMarker#setAttributes(String[], Object[])</code>, 
  * and there must be as many names as values according to {@link #getExtraMarkerAttributeValues()}.
  * Note that extra marker attributes will be inserted after default ones (as described in {@link CategorizedProblem#getMarkerType()},
  * and thus could be used to override defaults.
@@ -143,7 +143,7 @@ public String[] getExtraMarkerAttributeNames() {
  * Returns the respective values for the extra marker attributes associated to this problem when persisted into 
  * a marker by the JavaBuilder. Each value must correspond to a matching attribute name, as defined by
  * {@link #getExtraMarkerAttributeNames()}. 
- * The values must be eligible for marker creation, as defined by {@link org.eclipse.core.resources.IMarker#setAttributes(String[], Object[])}.
+ * The values must be eligible for marker creation, as defined by <code> IMarker#setAttributes(String[], Object[])}.
  * @return the values of the corresponding extra marker attributes
  */
 public Object[] getExtraMarkerAttributeValues() {
