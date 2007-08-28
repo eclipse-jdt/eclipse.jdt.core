@@ -1214,7 +1214,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	private ThreadLocal zipFiles = new ThreadLocal();
 	
-	UserLibraryManager userLibraryManager;
+	private UserLibraryManager userLibraryManager;
 	
 	/**
 	 * Update the classpath variable cache
