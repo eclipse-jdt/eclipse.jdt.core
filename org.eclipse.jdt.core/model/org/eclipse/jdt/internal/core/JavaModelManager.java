@@ -133,6 +133,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
+	public final static String CP_USERLIBRARY_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".userLibrary."; //$NON-NLS-1$
 	public final static String CP_ENTRY_IGNORE = "##<cp entry ignore>##"; //$NON-NLS-1$
 	public final static IPath CP_ENTRY_IGNORE_PATH = new Path(CP_ENTRY_IGNORE);
 	public final static String TRUE = "true"; //$NON-NLS-1$
@@ -1213,7 +1214,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	private ThreadLocal zipFiles = new ThreadLocal();
 	
-	private UserLibraryManager userLibraryManager;
+	UserLibraryManager userLibraryManager;
 	
 	/**
 	 * Update the classpath variable cache
@@ -1281,9 +1282,49 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				} catch (JavaModelException e) {
 					// skip
 				}
+        	} else if (propertyName.startsWith(CP_USERLIBRARY_PREFERENCES_PREFIX)) {
+				String libName = propertyName.substring(CP_USERLIBRARY_PREFERENCES_PREFIX.length());
+				UserLibraryManager manager = JavaModelManager.getUserLibraryManager();
+        		manager.updateUserLibrary(libName, (String)event.getNewValue());
         	}
         }
 	}
+	/**
+	 * Listener on eclipse preferences changes.
+	 */
+	EclipsePreferencesListener instancePreferencesListener = new EclipsePreferencesListener();
+	/**
+	 * Listener on eclipse preferences default/instance node changes.
+	 */
+	IEclipsePreferences.INodeChangeListener instanceNodeListener = new IEclipsePreferences.INodeChangeListener() {
+		public void added(IEclipsePreferences.NodeChangeEvent event) {
+			// do nothing
+		}
+		public void removed(IEclipsePreferences.NodeChangeEvent event) {
+			if (event.getChild() == preferencesLookup[PREF_INSTANCE]) {
+				preferencesLookup[PREF_INSTANCE] = ((IScopeContext) new InstanceScope()).getNode(JavaCore.PLUGIN_ID);
+				preferencesLookup[PREF_INSTANCE].addPreferenceChangeListener(new EclipsePreferencesListener());
+			}
+		}
+	};
+	IEclipsePreferences.INodeChangeListener defaultNodeListener = new IEclipsePreferences.INodeChangeListener() {
+		public void added(IEclipsePreferences.NodeChangeEvent event) {
+			// do nothing
+		}
+		public void removed(IEclipsePreferences.NodeChangeEvent event) {
+			if (event.getChild() == preferencesLookup[PREF_DEFAULT]) {
+				preferencesLookup[PREF_DEFAULT] = ((IScopeContext) new DefaultScope()).getNode(JavaCore.PLUGIN_ID);
+			}
+		}
+	};
+	/**
+	 * Listener on properties changes.
+	 */
+	Preferences.IPropertyChangeListener propertyListener = new Preferences.IPropertyChangeListener() {
+		public void propertyChange(Preferences.PropertyChangeEvent event) {
+			JavaModelManager.this.optionsCache = null;
+		}
+	};
 
 	/**
 	 * Constructs a new JavaModelManager
@@ -1552,6 +1593,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public DeltaProcessor getDeltaProcessor() {
 		return this.deltaState.getDeltaProcessor();
 	}
+
+	public static DeltaProcessingState getDeltaState() {
+		return MANAGER.deltaState;
+	}
 	
 	/** 
 	 * Returns the set of elements which are out of synch with their buffers.
@@ -1560,8 +1605,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return this.elementsOutOfSynchWithBuffers;
 	}
 
-	public IndexManager getIndexManager() {
-		return this.indexManager;
+	public static IndexManager getIndexManager() {
+		return MANAGER.indexManager;
 	}
 
 	/**
@@ -1579,7 +1624,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	/**
-	 * Get workpsace eclipse preference for JavaCore plugin.
+	 * Get workspace eclipse preference for JavaCore plug-in.
 	 */
 	public IEclipsePreferences getInstancePreferences() {
 		return preferencesLookup[PREF_INSTANCE];
@@ -1954,17 +1999,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 	
 	public static UserLibraryManager getUserLibraryManager() {
-		JavaModelManager modelManager = getJavaModelManager();
-		if (modelManager.userLibraryManager == null) {
+		if (MANAGER.userLibraryManager == null) {
 			UserLibraryManager libraryManager = new UserLibraryManager();
-			synchronized(modelManager) {
-				if (modelManager.userLibraryManager == null) { // ensure another library manager was not set while creating the instance above
-					modelManager.userLibraryManager = libraryManager;
-					modelManager.getInstancePreferences().addPreferenceChangeListener(libraryManager);
+			synchronized(MANAGER) {
+				if (MANAGER.userLibraryManager == null) { // ensure another library manager was not set while creating the instance above
+					MANAGER.userLibraryManager = libraryManager;
 				}
 			}
 		}
-		return modelManager.userLibraryManager;
+		return MANAGER.userLibraryManager;
 	}
 	
 	/*
@@ -2352,16 +2395,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	/**
-	 * Initialize preferences lookups for JavaCore plugin.
+	 * Initialize preferences lookups for JavaCore plug-in.
 	 */
 	public void initializePreferences() {
-		
+
 		// Create lookups
 		preferencesLookup[PREF_INSTANCE] = ((IScopeContext) new InstanceScope()).getNode(JavaCore.PLUGIN_ID);
 		preferencesLookup[PREF_DEFAULT] = ((IScopeContext) new DefaultScope()).getNode(JavaCore.PLUGIN_ID);
 
 		// Listen to instance preferences node removal from parent in order to refresh stored one
-		IEclipsePreferences.INodeChangeListener listener = new IEclipsePreferences.INodeChangeListener() {
+		this.instanceNodeListener = new IEclipsePreferences.INodeChangeListener() {
 			public void added(IEclipsePreferences.NodeChangeEvent event) {
 				// do nothing
 			}
@@ -2372,11 +2415,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				}
 			}
 		};
-		((IEclipsePreferences) preferencesLookup[PREF_INSTANCE].parent()).addNodeChangeListener(listener);
-		preferencesLookup[PREF_INSTANCE].addPreferenceChangeListener(new EclipsePreferencesListener());
+		((IEclipsePreferences) preferencesLookup[PREF_INSTANCE].parent()).addNodeChangeListener(this.instanceNodeListener);
+		preferencesLookup[PREF_INSTANCE].addPreferenceChangeListener(this.instancePreferencesListener = new EclipsePreferencesListener());
 
 		// Listen to default preferences node removal from parent in order to refresh stored one
-		listener = new IEclipsePreferences.INodeChangeListener() {
+		this.defaultNodeListener = new IEclipsePreferences.INodeChangeListener() {
 			public void added(IEclipsePreferences.NodeChangeEvent event) {
 				// do nothing
 			}
@@ -2386,7 +2429,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				}
 			}
 		};
-		((IEclipsePreferences) preferencesLookup[PREF_DEFAULT].parent()).addNodeChangeListener(listener);
+		((IEclipsePreferences) preferencesLookup[PREF_DEFAULT].parent()).addNodeChangeListener(this.defaultNodeListener);
 	}
 
 	public synchronized char[] intern(char[] array) {
@@ -3918,8 +3961,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				secondaryTypesRemoving(projectInfo.secondaryTypes, file);
 				
 				// Clean indexing cache if necessary
-				if (!cleanIndexCache) return;
 				HashMap indexingCache = (HashMap) projectInfo.secondaryTypes.get(INDEXED_SECONDARY_TYPES);
+				if (!cleanIndexCache) {
+					if (indexingCache == null) {
+						// Need to signify that secondary types indexing will happen before any request happens
+						// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=152841
+						projectInfo.secondaryTypes.put(INDEXED_SECONDARY_TYPES, new HashMap());
+					}
+					return;
+				}
 				if (indexingCache != null) {
 					Set keys = indexingCache.keySet();
 					int filesSize = keys.size(), filesCount = 0;
@@ -4136,12 +4186,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			initializePreferences();
 
 			// Listen to preference changes
-			Preferences.IPropertyChangeListener propertyListener = new Preferences.IPropertyChangeListener() {
+			this.propertyListener = new Preferences.IPropertyChangeListener() {
 				public void propertyChange(Preferences.PropertyChangeEvent event) {
 					JavaModelManager.this.optionsCache = null;
 				}
 			};
-			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(propertyListener);
+			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(this.propertyListener);
 			
 			// Listen to content-type changes
 			 Platform.getContentTypeManager().addContentTypeChangeListener(this);
@@ -4203,10 +4253,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	/**
 	 * Initiate the background indexing process.
-	 * This should be deferred after the plugin activation.
+	 * This should be deferred after the plug-in activation.
 	 */
 	private void startIndexing() {
-		getIndexManager().reset();
+		if (this.indexManager != null) this.indexManager.reset();
 	}
 
 	public void shutdown () {
@@ -4218,14 +4268,19 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		
 		// Stop listening to content-type changes
 		Platform.getContentTypeManager().removeContentTypeChangeListener(this);
-		
-		// Stop listening to user library changes
-		if (this.userLibraryManager != null)
-			getInstancePreferences().removePreferenceChangeListener(this.userLibraryManager);
-	
-		if (this.indexManager != null){ // no more indexing
+
+		// Stop indexing
+		if (this.indexManager != null) {
 			this.indexManager.shutdown();
 		}
+		
+		// Stop listening to preferences changes
+		JavaCore.getPlugin().getPluginPreferences().removePropertyChangeListener(this.propertyListener);
+		((IEclipsePreferences) preferencesLookup[PREF_DEFAULT].parent()).removeNodeChangeListener(this.defaultNodeListener);
+		preferencesLookup[PREF_DEFAULT] = null;
+		((IEclipsePreferences) preferencesLookup[PREF_INSTANCE].parent()).removeNodeChangeListener(this.instanceNodeListener);
+		preferencesLookup[PREF_INSTANCE].removePreferenceChangeListener(this.instancePreferencesListener);
+		preferencesLookup[PREF_INSTANCE] = null;
 		
 		// wait for the initialization job to finish
 		try {
