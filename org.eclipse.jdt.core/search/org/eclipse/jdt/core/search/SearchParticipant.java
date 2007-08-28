@@ -173,7 +173,7 @@ public abstract class SearchParticipant {
 	 * @since 3.2
 	 */
 	public void removeIndex(IPath indexLocation){
-		IndexManager manager = JavaModelManager.getJavaModelManager().getIndexManager();
+		IndexManager manager = JavaModelManager.getIndexManager();
 		manager.removeIndexPath(indexLocation);
 	}
 
@@ -204,7 +204,7 @@ public abstract class SearchParticipant {
 		} else if (file == null) {
 			containerPath = documentPath.removeLastSegments(documentPath.segmentCount()-1);
 		}
-		IndexManager manager = JavaModelManager.getJavaModelManager().getIndexManager();
+		IndexManager manager = JavaModelManager.getIndexManager();
 		// TODO (frederic) should not have to create index manually, should expose API that recreates index instead
 		manager.ensureIndexExists(indexLocation, containerPath);
 		manager.scheduleDocumentIndexing(document, containerPath, indexLocation, this);

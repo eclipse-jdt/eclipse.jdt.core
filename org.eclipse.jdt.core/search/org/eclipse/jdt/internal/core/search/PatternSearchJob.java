@@ -81,7 +81,7 @@ public Index[] getIndexes(IProgressMonitor progressMonitor) {
 	int length = indexLocations.length;
 	Index[] indexes = new Index[length];
 	int count = 0;
-	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+	IndexManager indexManager = JavaModelManager.getIndexManager();
 	for (int i = 0; i < length; i++) {
 		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 		// may trigger some index recreation work

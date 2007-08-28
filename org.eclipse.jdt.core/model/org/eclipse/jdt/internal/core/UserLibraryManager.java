@@ -31,7 +31,7 @@ import org.osgi.service.prefs.BackingStoreException;
 /**
  *
  */
-public class UserLibraryManager implements IEclipsePreferences.IPreferenceChangeListener {
+public class UserLibraryManager {
 	
 	public final static String CP_USERLIBRARY_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".userLibrary."; //$NON-NLS-1$
 
@@ -98,59 +98,54 @@ public class UserLibraryManager implements IEclipsePreferences.IPreferenceChange
 		}
 	}
 
-	public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
-		String key = event.getKey();
-		if (key.startsWith(CP_USERLIBRARY_PREFERENCES_PREFIX)) {
-			String libName = key.substring(CP_USERLIBRARY_PREFERENCES_PREFIX.length());
-			try {
-				// find affected projects
-				IPath containerPath = new Path(JavaCore.USER_LIBRARY_CONTAINER_ID).append(libName);
-				IJavaProject[] allJavaProjects = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot()).getJavaProjects();
-				ArrayList affectedProjects = new ArrayList();
-				for (int i= 0; i < allJavaProjects.length; i++) {
-					IJavaProject javaProject = allJavaProjects[i];
-					IClasspathEntry[] entries= javaProject.getRawClasspath();
-					for (int j= 0; j < entries.length; j++) {
-						IClasspathEntry entry = entries[j];
-						if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
-							if (containerPath.equals(entry.getPath())) {
-								affectedProjects.add(javaProject);
-								break;
-							}				
-						}
+	public void updateUserLibrary(String libName, String encodedUserLibrary) {
+		try {
+			// find affected projects
+			IPath containerPath = new Path(JavaCore.USER_LIBRARY_CONTAINER_ID).append(libName);
+			IJavaProject[] allJavaProjects = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot()).getJavaProjects();
+			ArrayList affectedProjects = new ArrayList();
+			for (int i= 0; i < allJavaProjects.length; i++) {
+				IJavaProject javaProject = allJavaProjects[i];
+				IClasspathEntry[] entries= javaProject.getRawClasspath();
+				for (int j= 0; j < entries.length; j++) {
+					IClasspathEntry entry = entries[j];
+					if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
+						if (containerPath.equals(entry.getPath())) {
+							affectedProjects.add(javaProject);
+							break;
+						}				
 					}
 				}
-				
-				// decode user library
-				String encodedUserLibrary = (String) event.getNewValue();
-				UserLibrary userLibrary = encodedUserLibrary == null ? null : UserLibrary.createFromString(new StringReader(encodedUserLibrary));
-				
-				// update user libraries map
-				if (userLibrary != null) {
-					this.userLibraries.put(libName, userLibrary);
-				} else {
-					this.userLibraries.remove(libName);
-				}
-				
-				// update affected projects
-				int length = affectedProjects.size();
-				if (length == 0)
-					return;
-				IJavaProject[] projects = new IJavaProject[length];
-				affectedProjects.toArray(projects);
-				IClasspathContainer[] containers = new IClasspathContainer[length];
-				if (userLibrary != null) {
-					UserLibraryClasspathContainer container = new UserLibraryClasspathContainer(libName);
-					for (int i = 0; i < length; i++) {
-						containers[i] = container;
-					}
-				}
-				JavaCore.setClasspathContainer(containerPath, projects, containers, null);
-			} catch (IOException e) {
-				Util.log(e, "Exception while decoding user library '"+ libName +"'."); //$NON-NLS-1$ //$NON-NLS-2$
-			} catch (JavaModelException e) {
-				Util.log(e, "Exception while setting user library '"+ libName +"'."); //$NON-NLS-1$ //$NON-NLS-2$
 			}
+			
+			// decode user library
+			UserLibrary userLibrary = encodedUserLibrary == null ? null : UserLibrary.createFromString(new StringReader(encodedUserLibrary));
+			
+			// update user libraries map
+			if (userLibrary != null) {
+				this.userLibraries.put(libName, userLibrary);
+			} else {
+				this.userLibraries.remove(libName);
+			}
+			
+			// update affected projects
+			int length = affectedProjects.size();
+			if (length == 0)
+				return;
+			IJavaProject[] projects = new IJavaProject[length];
+			affectedProjects.toArray(projects);
+			IClasspathContainer[] containers = new IClasspathContainer[length];
+			if (userLibrary != null) {
+				UserLibraryClasspathContainer container = new UserLibraryClasspathContainer(libName);
+				for (int i = 0; i < length; i++) {
+					containers[i] = container;
+				}
+			}
+			JavaCore.setClasspathContainer(containerPath, projects, containers, null);
+		} catch (IOException e) {
+			Util.log(e, "Exception while decoding user library '"+ libName +"'."); //$NON-NLS-1$ //$NON-NLS-2$
+		} catch (JavaModelException e) {
+			Util.log(e, "Exception while setting user library '"+ libName +"'."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 	

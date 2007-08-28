@@ -40,7 +40,7 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 	 * - create resolved classpath markers
 	 */
 	protected void classpathChanged(JavaProject project) throws JavaModelException {
-		DeltaProcessingState state = JavaModelManager.getJavaModelManager().deltaState;
+		DeltaProcessingState state = JavaModelManager.getDeltaState();
 		DeltaProcessor deltaProcessor = state.getDeltaProcessor();
 		ClasspathChange change = (ClasspathChange) deltaProcessor.classpathChanges.get(project.getProject());
 		if (this.canChangeResources) {

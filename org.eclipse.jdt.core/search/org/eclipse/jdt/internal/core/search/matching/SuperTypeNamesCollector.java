@@ -226,7 +226,7 @@ protected String[] getPathsOfDeclaringType() {
 
 	final PathCollector pathCollector = new PathCollector();
 	IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
-	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+	IndexManager indexManager = JavaModelManager.getIndexManager();
 	SearchPattern searchPattern = new TypeDeclarationPattern(
 		this.typeSimpleName != null ? null : this.typeQualification, // use the qualification only if no simple name
 		null, // do find member types

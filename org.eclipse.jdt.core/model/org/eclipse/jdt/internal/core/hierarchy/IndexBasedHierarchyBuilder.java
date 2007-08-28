@@ -451,7 +451,7 @@ public static void searchAllPossibleSubTypes(
 	final Queue queue = new Queue();
 	final HashtableOfObject foundSuperNames = new HashtableOfObject(5);
 
-	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+	IndexManager indexManager = JavaModelManager.getIndexManager();
 
 	/* use a special collector to collect paths and queue new subtype names */
 	IndexQueryRequestor searchRequestor = new IndexQueryRequestor() {

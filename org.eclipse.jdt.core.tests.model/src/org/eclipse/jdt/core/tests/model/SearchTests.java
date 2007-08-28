@@ -233,7 +233,7 @@ public void tearDownSuite() throws Exception {
  * a project causes another request to reindex.
  */
 public void testChangeClasspath() throws CoreException, TimeOutException {
-	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+	IndexManager indexManager = JavaModelManager.getIndexManager();
 	WaitingJob job = new WaitingJob();
 	try {
 		// setup: suspend indexing and create a project (prj=src) with one cu
@@ -335,7 +335,7 @@ public void testChangeClasspath2() throws CoreException {
  * (regression test for bug 35306 Index update request can be incorrectly handled)
  */
 public void testConcurrentJob() throws CoreException, InterruptedException, IOException, TimeOutException {
-	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+	IndexManager indexManager = JavaModelManager.getIndexManager();
 	WaitingJob job = new WaitingJob();
 	try {
 		// setup: suspend indexing and create a project with one empty jar on its classpath
@@ -413,7 +413,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
  * (regression test for bug 33571 SearchEngine.searchAllTypeNames: NPE when passing null as progress monitor)
  */
  public void testNullProgressMonitor() throws CoreException, TimeOutException {
-	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+	IndexManager indexManager = JavaModelManager.getIndexManager();
 	WaitingJob job = new WaitingJob();
  	try {
  		// add waiting job and wait for it to be executed

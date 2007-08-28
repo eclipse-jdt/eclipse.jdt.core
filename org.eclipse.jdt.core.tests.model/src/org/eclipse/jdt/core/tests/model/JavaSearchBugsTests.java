@@ -8404,7 +8404,7 @@ public void testBug178847() throws CoreException {
  */
 public void testBug181488a() throws CoreException {
 	waitUntilIndexesReady();
-	IndexManager manager = JavaModelManager.getJavaModelManager().getIndexManager();
+	IndexManager manager = JavaModelManager.getIndexManager();
 	Index index = manager.getIndex(JAVA_PROJECT.getPath(), true, false);
 	long lastModified = index.getIndexFile().lastModified();
 	simulateExitRestart();
@@ -8416,7 +8416,7 @@ public void testBug181488b() throws CoreException {
 	IJavaProject project = createJavaProject("Bug181488");
 	try {
 		waitUntilIndexesReady();
-		IndexManager manager = JavaModelManager.getJavaModelManager().getIndexManager();
+		IndexManager manager = JavaModelManager.getIndexManager();
 		Index index = manager.getIndex(project.getPath(), true, false);
 		assertEquals("Index file should at least contains the signature!!!", DiskIndex.SIGNATURE.length()+6, index.getIndexFile().length());
 	}

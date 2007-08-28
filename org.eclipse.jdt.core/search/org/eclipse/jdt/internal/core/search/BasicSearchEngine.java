@@ -186,7 +186,7 @@ public class BasicSearchEngine {
 			int length = participants.length;
 			if (monitor != null)
 				monitor.beginTask(Messages.engine_searching, 100 * length); 
-			IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+			IndexManager indexManager = JavaModelManager.getIndexManager();
 			requestor.beginReporting();
 			for (int i = 0; i < length; i++) {
 				if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
@@ -528,7 +528,7 @@ public class BasicSearchEngine {
 			Util.verbose(buffer.toString());
 		}
 
-		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+		IndexManager indexManager = JavaModelManager.getIndexManager();
 		final TypeDeclarationPattern pattern = new SecondaryTypeDeclarationPattern();
 
 		// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
@@ -656,7 +656,7 @@ public class BasicSearchEngine {
 		}
 
 		// Create pattern
-		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+		IndexManager indexManager = JavaModelManager.getIndexManager();
 		final char typeSuffix;
 		switch(searchFor){
 			case IJavaSearchConstants.CLASS :
@@ -907,7 +907,7 @@ public class BasicSearchEngine {
 			Util.verbose("	- search for: "+searchFor); //$NON-NLS-1$
 			Util.verbose("	- scope: "+scope); //$NON-NLS-1$
 		}
-		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+		IndexManager indexManager = JavaModelManager.getIndexManager();
 
 		final char typeSuffix;
 		switch(searchFor){

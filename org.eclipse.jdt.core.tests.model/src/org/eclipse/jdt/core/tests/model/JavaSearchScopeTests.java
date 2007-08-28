@@ -997,7 +997,7 @@ public void testBug179199() throws CoreException {
 		deleteFile("/P1/src/Test.java");
 
 		// Index the output location as it is a library for the project
-		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+		IndexManager indexManager = JavaModelManager.getIndexManager();
 		indexManager.indexLibrary(new Path("/P1/bin"), project.getProject());
 		waitUntilIndexesReady();
 		

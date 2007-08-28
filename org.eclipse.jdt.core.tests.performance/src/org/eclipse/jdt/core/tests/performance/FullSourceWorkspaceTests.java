@@ -128,7 +128,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 
 	// Index variables
-	protected static IndexManager INDEX_MANAGER = JavaModelManager.getJavaModelManager().getIndexManager();
+	protected static IndexManager INDEX_MANAGER = JavaModelManager.getIndexManager();
 	
 	// Tests infos
 	protected static int ALL_TESTS_COUNT = 0;

@@ -20,7 +20,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
-import org.eclipse.jdt.internal.core.UserLibraryManager;
 
 import junit.framework.Test;
 
@@ -1379,7 +1378,7 @@ public void testUserLibraryInitializer1() throws CoreException {
 
 		// Modify user library
 		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
-		String propertyName = UserLibraryManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"SWT";
+		String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"SWT";
 		StringBuffer propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
 		String jarFullPath = getWorkspaceRoot().getLocation().append(jarFile.getFullPath()).toString();
 		propertyValue.append(" path=\""+jarFullPath);

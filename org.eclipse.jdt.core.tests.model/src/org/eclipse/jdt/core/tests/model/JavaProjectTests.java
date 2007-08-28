@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.UserLibraryManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class JavaProjectTests extends ModifyingResourceTests {
@@ -1526,7 +1525,7 @@ public void testUserLibrary() throws JavaModelException {
 	
 	// Verify it has been written in preferences
 	IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
-	String containerKey = UserLibraryManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"TEST";
+	String containerKey = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"TEST";
 	String libraryPreference = instancePreferences.get(containerKey, null);
 	assertNotNull("Should get a preference for TEST user library", libraryPreference);
 

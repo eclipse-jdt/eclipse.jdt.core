@@ -125,7 +125,7 @@ public class ModelUpdater {
 
 		switch (elementType) {
 			case IJavaElement.JAVA_MODEL :
-				JavaModelManager.getJavaModelManager().getIndexManager().reset();
+				JavaModelManager.getIndexManager().reset();
 				break;
 			case IJavaElement.JAVA_PROJECT :
 				JavaModelManager manager = JavaModelManager.getJavaModelManager();

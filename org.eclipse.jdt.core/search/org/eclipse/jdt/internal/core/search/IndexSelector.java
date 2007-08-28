@@ -118,7 +118,7 @@ public static boolean canSeeFocus(IJavaElement focus, JavaProject javaProject, I
  */
 private void initializeIndexLocations() {
 	IPath[] projectsAndJars = this.searchScope.enclosingProjectsAndJars();
-	IndexManager manager = JavaModelManager.getJavaModelManager().getIndexManager();
+	IndexManager manager = JavaModelManager.getIndexManager();
 	SimpleSet locations = new SimpleSet();
 	IJavaElement focus = MatchLocator.projectOrJarFocus(this.pattern);
 	if (focus == null) {

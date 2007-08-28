@@ -714,7 +714,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 				if (canModifyRoots()) {
 					// computes the root infos before executing the operation
 					// noop if aready initialized
-					JavaModelManager.getJavaModelManager().deltaState.initializeRoots();
+					JavaModelManager.getDeltaState().initializeRoots();
 				}
 				
 				executeOperation();

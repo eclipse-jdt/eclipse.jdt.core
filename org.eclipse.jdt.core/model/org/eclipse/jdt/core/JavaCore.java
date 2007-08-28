@@ -1224,7 +1224,7 @@ public final class JavaCore extends Plugin {
 	 * @since 2.0
 	 */
 	public static void addElementChangedListener(IElementChangedListener listener, int eventMask) {
-		JavaModelManager.getJavaModelManager().deltaState.addElementChangedListener(listener, eventMask);
+		JavaModelManager.getDeltaState().addElementChangedListener(listener, eventMask);
 	}
 
 	/**
@@ -1317,7 +1317,7 @@ public final class JavaCore extends Plugin {
 	 * @since 3.2
 	 */
 	public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener, int eventMask) {
-		JavaModelManager.getJavaModelManager().deltaState.addPreResourceChangedListener(listener, eventMask);
+		JavaModelManager.getDeltaState().addPreResourceChangedListener(listener, eventMask);
 	}
 
 	/**
@@ -4396,7 +4396,7 @@ public final class JavaCore extends Plugin {
 	 * @param listener the listener
 	 */
 	public static void removeElementChangedListener(IElementChangedListener listener) {
-		JavaModelManager.getJavaModelManager().deltaState.removeElementChangedListener(listener);
+		JavaModelManager.getDeltaState().removeElementChangedListener(listener);
 	}
 
 	/**
@@ -4421,7 +4421,7 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static void removePreProcessingResourceChangedListener(IResourceChangeListener listener) {
-		JavaModelManager.getJavaModelManager().deltaState.removePreResourceChangedListener(listener);
+		JavaModelManager.getDeltaState().removePreResourceChangedListener(listener);
 	}
 
 

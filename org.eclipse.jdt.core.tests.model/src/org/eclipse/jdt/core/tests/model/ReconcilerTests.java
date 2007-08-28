@@ -107,7 +107,7 @@ protected void assertProblems(String message, String expected) {
 }
 // Expect no error as soon as indexing is finished
 protected void assertNoProblem(char[] source, ICompilationUnit unit) throws InterruptedException, JavaModelException {
-	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+	IndexManager indexManager = JavaModelManager.getIndexManager();
 	if (this.problemRequestor.problemCount > 0) {
 		// If errors then wait for indexes to finish
 		while (indexManager.awaitingJobsCount() > 0) {
