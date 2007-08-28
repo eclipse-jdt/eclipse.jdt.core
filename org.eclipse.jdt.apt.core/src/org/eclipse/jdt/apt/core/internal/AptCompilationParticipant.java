@@ -272,7 +272,15 @@ public class AptCompilationParticipant extends CompilationParticipant
 		_java6GeneratedFiles.add(file);
 	}
 	
+	/**
+	 * Get the files generated during this build by Java 6 processors.
+	 * This is only meaningful in the context of a build, not a reconcile.
+	 * @return an unmodifiable, non-null but possibly empty, set of IFiles.
+	 */
 	public Set<IFile> getJava6GeneratedFiles() {
+		if (null == _java6GeneratedFiles) {
+			return Collections.emptySet();
+		}
 		return Collections.unmodifiableSet(_java6GeneratedFiles);
 	}
 	
