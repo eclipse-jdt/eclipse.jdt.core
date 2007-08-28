@@ -92,6 +92,7 @@ public class TestBase extends BuilderTests
 	protected void setUp() throws Exception
 	{
 		super.setUp();
+		env.setAutoBuilding(false);
 		_projectName = String.format("testproj%04d", ++_projectSerial);
 	}
 	
