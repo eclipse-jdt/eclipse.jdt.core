@@ -224,7 +224,7 @@ public class MethodScope extends BlockScope {
 		this.maxOffset = initOffset;
 
 		// manage arguments	
-		int ilocal = 0, maxLocals = this.localIndex;	
+		int ilocal = 0, maxLocals = this.localIndex;
 		while (ilocal < maxLocals) {
 			LocalVariableBinding local = locals[ilocal];
 			if (local == null || ((local.tagBits & TagBits.IsArgument) == 0)) break; // done with arguments

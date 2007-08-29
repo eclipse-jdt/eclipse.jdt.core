@@ -906,7 +906,7 @@ public final char[] signature(ClassFile classFile) {
 	}
 	int nameLength = buffer.length();
 	signature = new char[nameLength];
-	buffer.getChars(0, nameLength, signature, 0);	    
+	buffer.getChars(0, nameLength, signature, 0);
 	
 	return signature;
 }
