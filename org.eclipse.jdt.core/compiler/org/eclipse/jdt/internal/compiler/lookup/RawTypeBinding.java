@@ -34,7 +34,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	    StringBuffer sig = new StringBuffer(10);
 		if (isMemberType() && enclosingType().isParameterizedType()) {
 		    char[] typeSig = enclosingType().computeUniqueKey(false/*not a leaf*/);
-		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+		    sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
 		    sig.append('.').append(sourceName()).append('<').append('>').append(';');
 		} else {
 		     sig.append(genericType().computeUniqueKey(false/*not a leaf*/));
@@ -80,7 +80,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		    StringBuffer sig = new StringBuffer(10);
 			if (this.isMemberType() && this.enclosingType().isParameterizedType()) {
 			    char[] typeSig = this.enclosingType().genericTypeSignature();
-			    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+			    sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
 			    sig.append('.').append(this.sourceName()).append(';');
 				int sigLength = sig.length();
 				this.genericTypeSignature = new char[sigLength];

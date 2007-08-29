@@ -336,16 +336,12 @@ public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
 	StringBuffer sig = new StringBuffer(10);
 	if (isMemberOfGeneric) {
 	    char[] typeSig = enclosingType().genericTypeSignature();
-	    for (int i = 0; i < typeSig.length-1; i++) { // copy all but trailing semicolon
-	    	sig.append(typeSig[i]);
-	    }
+	    sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
 	    sig.append('.'); // NOTE: cannot override trailing ';' with '.' in enclosing signature, since shared char[]
 	    sig.append(this.sourceName);
 	}	else {
 	    char[] typeSig = signature();
-	    for (int i = 0; i < typeSig.length-1; i++) { // copy all but trailing semicolon
-	    	sig.append(typeSig[i]);
-	    }
+	    sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
 	}
 	if (typeVariables == Binding.NO_TYPE_VARIABLES) {
 	    sig.append(';');

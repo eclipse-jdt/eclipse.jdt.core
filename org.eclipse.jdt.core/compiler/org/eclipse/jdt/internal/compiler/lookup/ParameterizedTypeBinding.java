@@ -227,7 +227,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	    ReferenceBinding enclosing;
 		if (isMemberType() && ((enclosing = enclosingType()).isParameterizedType() || enclosing.isRawType())) {
 		    char[] typeSig = enclosing.computeUniqueKey(false/*not a leaf*/);
-		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+		    sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
 		    sig.append('.').append(sourceName());
 		} else if(this.type.isLocalType()){
 			LocalTypeBinding localTypeBinding = (LocalTypeBinding) this.type;
@@ -236,12 +236,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			while ((temp = enclosing.enclosingType()) != null)
 				enclosing = temp;
 			char[] typeSig = enclosing.computeUniqueKey(false/*not a leaf*/);
-		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+		    sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
 			sig.append('$');
 			sig.append(localTypeBinding.sourceStart);
 		} else {
 		    char[] typeSig = this.type.computeUniqueKey(false/*not a leaf*/);
-		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+		    sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
 		}
 		ReferenceBinding captureSourceType = null;
 		if (this.arguments != null) {
@@ -366,11 +366,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    StringBuffer sig = new StringBuffer(10);
 			if (this.isMemberType() && this.enclosingType().isParameterizedType()) {
 			    char[] typeSig = this.enclosingType().genericTypeSignature();
-			    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+			    sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
 			    sig.append('.').append(this.sourceName());
 			} else {
 			    char[] typeSig = this.type.signature();
-			    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
+			    sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
 			}	   	    
 			if (this.arguments != null) {
 			    sig.append('<');
