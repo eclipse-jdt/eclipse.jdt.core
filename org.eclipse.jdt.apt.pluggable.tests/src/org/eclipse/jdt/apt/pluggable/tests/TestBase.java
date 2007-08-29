@@ -85,7 +85,15 @@ public class TestBase extends BuilderTests
 	{
 		IPath path = proj.getLocation().append(fileName);
 		File file = new File(path.toOSString());
-		assertTrue("File " + fileName + " was expected to not exist", file == null || !file.exists());
+		boolean exists = file.exists();
+		// work around a timing bug in some versions of JRE 1.6 on Linux:
+		// Before assuming the test has failed, wait half a second and try again.
+		// This delay is not encountered when the test is passing normally.
+		if (exists) {
+			Thread.sleep(500);
+			exists = file.exists();
+		}
+		assertTrue("File " + fileName + " was expected to not exist", file == null || !exists);
 	}
 	
 	@Override
