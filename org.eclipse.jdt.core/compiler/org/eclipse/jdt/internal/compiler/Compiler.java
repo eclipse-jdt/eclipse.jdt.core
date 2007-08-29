@@ -678,7 +678,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		} while (newUnitSize != 0 || newClassFilesSize != 0);
 		// one more loop to create possible resources
 		// this loop cannot create any java source files
-		// TODO (olivier) we should check if we should pass any unit at all for the last round
 		this.annotationProcessorManager.processAnnotations(null, null, true);
 		// TODO we might want to check if this loop created new units
 	}
