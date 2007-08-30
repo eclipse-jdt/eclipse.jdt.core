@@ -166,7 +166,7 @@ public class FileGenerationTests extends APTTestBase {
 		
 		assertTrue("File was not found: " + theFile.getAbsolutePath(), theFile.exists());
 		
-		fullBuild( project.getFullPath() );
+		incrementalBuild( project.getFullPath() );
 		expectingNoProblems();
 		checkProcessorResult(TextGenAnnotationProcessor.class);
 		assertTrue("File was not found: " + theFile.getAbsolutePath(), theFile.exists());
@@ -181,7 +181,7 @@ public class FileGenerationTests extends APTTestBase {
 			"}";
 		env.addClass(srcRoot, "test", "Test", code);
 		
-		fullBuild( project.getFullPath() );
+		incrementalBuild( project.getFullPath() );
 		expectingNoProblems();
 		assertEquals("Could not generate text file due to IOException", getProcessorResult(TextGenAnnotationProcessor.class));
 		assertTrue("File was found, but should be deleted: " + theFile.getAbsolutePath(), !theFile.exists());
@@ -194,7 +194,7 @@ public class FileGenerationTests extends APTTestBase {
 			"}";
 		env.addClass(srcRoot, "test", "Test", code);
 		
-		fullBuild( project.getFullPath() );
+		incrementalBuild( project.getFullPath() );
 		expectingNoProblems();
 		assertEquals(null, getProcessorResult(TextGenAnnotationProcessor.class));
 		assertTrue("File was found, but should be deleted: " + theFile.getAbsolutePath(), !theFile.exists());

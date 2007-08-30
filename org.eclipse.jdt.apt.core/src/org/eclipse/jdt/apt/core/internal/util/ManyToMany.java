@@ -20,9 +20,11 @@ import java.util.Set;
  * Manage a Map<T1, Set<T2>>, with reverse links so that it is possible to
  * efficiently find all T1s that have a particular T2 associated with them.
  * Access to the map is synchronized, so that it is possible to read and
- * write simultaneously from multiple threads.
+ * write simultaneously from multiple threads.  Set semantics are preserved
+ * in both directions, so there is no distinction between calling this a
+ * Map<T1, Set<T2>> versus a Map<T2, Set<T1>>.  It is symmetric.
  * <p>
- * The map permits the null value for keys nor for value elements. 
+ * The map permits the null value for keys and for value elements. 
  * <p>
  * Design invariants preserved by all operations on this map are as follows:
  * <ul>

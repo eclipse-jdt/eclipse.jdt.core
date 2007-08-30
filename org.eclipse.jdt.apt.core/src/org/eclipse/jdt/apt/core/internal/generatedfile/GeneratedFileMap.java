@@ -18,7 +18,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -30,18 +35,79 @@ import org.eclipse.jdt.apt.core.internal.util.ManyToMany;
 /**
  * A bidirectional many-to-many map from parent files to generated files.
  * This extends the functionality of ManyToMany by adding serialization.
+ * The object also tracks attributes of the generated files.  
  */
 public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
+	
+	public enum Flags {
+		/** Non-source files, e.g., text or xml. */
+		NONSOURCE;
+	}
 
-	private static final int SERIALIZATION_VERSION = 1;
+	// Version 2 since Eclipse 3.3.1: add ability to track attributes of generated files
+	private static final int SERIALIZATION_VERSION = 2;
 	
 	private final IProject _proj;
+	
+	private final Map<IFile, Set<Flags>> _flags = new HashMap<IFile, Set<Flags>>();
 	
 	public GeneratedFileMap(IProject proj) {
 		_proj = proj;
 		readState();
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.apt.core.internal.util.ManyToMany#clear()
+	 */
+	@Override
+	public synchronized boolean clear() {
+		_flags.clear();
+		return super.clear();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.apt.core.internal.util.ManyToMany#remove(java.lang.Object, java.lang.Object)
+	 */
+	@Override
+	public synchronized boolean remove(IFile key, IFile value) {
+		boolean removed = super.remove(key, value);
+		if (removed) {
+			if (!containsValue(value)) {
+				_flags.remove(value);
+			}
+		}
+		return removed;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.apt.core.internal.util.ManyToMany#removeKey(java.lang.Object)
+	 */
+	@Override
+	public synchronized boolean removeKey(IFile key) {
+		Set<IFile> values = getValues(key);
+		boolean removed = super.removeKey(key);
+		if (removed) {
+			for (IFile value : values) {
+				if (!containsValue(value)) {
+					_flags.remove(value);
+				}
+			}
+		}
+		return removed;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.apt.core.internal.util.ManyToMany#removeValue(java.lang.Object)
+	 */
+	@Override
+	public synchronized boolean removeValue(IFile value) {
+		boolean removed = super.removeValue(value);
+		if (removed) {
+			_flags.remove(value);
+		}
+		return removed;
+	}
+
 	/**
 	 * Clear the file dependencies and delete the serialized state.
 	 * This will take effect even if the dirty bit is not set.
@@ -57,6 +123,50 @@ public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
 			}
 		}
 		clearDirtyBit();
+	}
+	
+	/**
+	 * Convenience method, equivalent to put(key, value, [no flags])
+	 */
+	@Override
+	public boolean put(IFile parent, IFile generated) {
+		return put(parent, generated, Collections.<Flags>emptySet());
+	}
+	
+	/**
+	 * Convenience method, equivalent to put(key, value, isSource ? [no flags] : [NONSOURCE])
+	 */
+	public boolean put(IFile parent, IFile generated, boolean isSource) {
+		return put(parent, generated, isSource ? Collections.<Flags>emptySet() : EnumSet.of(Flags.NONSOURCE));
+	}
+	
+	/**
+	 * Add a parent-to-generated association and specify attributes for the generated file.
+	 * The attributes are associated with the file, not the link: that is, a given generated
+	 * file can only have one set of attributes, not a different set per parent. The attributes
+	 * set in the most recent call will override those set in previous calls. 
+	 */
+	public synchronized boolean put(IFile parent, IFile generated, Set<Flags> flags) {
+		if (flags.isEmpty()) {
+			_flags.remove(generated);
+		}
+		else {
+			_flags.put(generated, flags);
+		}
+		return super.put(parent, generated);
+	}
+	
+	public Set<Flags> getFlags(IFile generated) {
+		Set<Flags> flags = _flags.get(generated);
+		return flags == null ? Collections.<Flags>emptySet() : flags;
+	}
+	
+	/**
+	 * Convenience method, equivalent to !getFlags(generated).contains(Flags.NONSOURCE)
+	 * @return true if the generated file is a source (Java) file rather than text, xml, etc.
+	 */
+	public boolean isSource(IFile generated) {
+		return !getFlags(generated).contains(Flags.NONSOURCE);
 	}
 	
 	/**
@@ -129,12 +239,40 @@ public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
 					put(parent, child);
 				}
 			}
+			
+			// Now the _flags map:
+			int sizeOfFlags = in.readInt();
+			for (int i = 0; i < sizeOfFlags; ++i) {
+				String childPath = in.readUTF();
+				IFile child = convertPathToIFile(childPath);
+				if (!containsValue(child)) {
+					throw new IOException("Error in generated file attributes: did not expect file " + childPath); //$NON-NLS-1$
+				}
+				
+				int attributeCount = in.readInt();
+				EnumSet<Flags> flags = EnumSet.noneOf(Flags.class);
+				for (int j = 0; j < attributeCount; ++j) {
+					String attr = in.readUTF();
+					Flags f = Flags.valueOf(attr);
+					flags.add(f);
+				}
+				_flags.put(child, flags);
+			}
+			
 			// our serialized and in-memory states are now identical
 			clearDirtyBit();
 		}
 		catch (IOException ioe) {
+			// Avoid partial initialization
+			clear();
 			// We can safely continue without having read our dependencies.
-			AptPlugin.log(ioe, "Could not deserialize APT dependencies"); //$NON-NLS-1$
+			AptPlugin.logWarning(ioe, "Could not read APT dependencies: generated files may not be deleted until the next clean"); //$NON-NLS-1$
+		}
+		catch (IllegalArgumentException iae) {
+			// Avoid partial initialization
+			clear();
+			// We can safely continue without having read our dependencies.
+			AptPlugin.logWarning(iae, "Could not read APT dependencies: generated files may not be deleted until the next clean"); //$NON-NLS-1$
 		}
 		finally {
 			if (in != null) {
@@ -184,13 +322,31 @@ public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
 					out.writeUTF(convertIFileToPath(child));
 				}
 			}
+			
+			// Number of generated files with attributes
+			out.writeInt(_flags.size());
+			
+			// for each generated file that has attributes...
+			for (Entry<IFile, Set<Flags>> entry : _flags.entrySet()) {
+				// ...generated file name
+				out.writeUTF(convertIFileToPath(entry.getKey()));
+				
+				Set<Flags> flags = entry.getValue();
+				// ...number of attributes
+				out.writeInt(flags.size());
+				for (Flags f : flags) {
+					// ...attribute name
+					out.writeUTF(f.name());
+				}
+			}
+			
 			// our serialized and in-memory states are now identical
 			clearDirtyBit();
 			out.flush();
 		}
 		catch (IOException ioe) {
 			// We can safely continue without having written our dependencies.
-			AptPlugin.log(ioe, "Could not serialize APT dependencies"); //$NON-NLS-1$
+			AptPlugin.logWarning(ioe, "Could not serialize APT dependencies"); //$NON-NLS-1$
 		}
 		finally {
 			if (out != null) {
