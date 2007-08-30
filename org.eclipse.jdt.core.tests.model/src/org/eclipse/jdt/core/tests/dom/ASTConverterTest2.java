@@ -5483,4 +5483,104 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+	
+	/*
+	 * Ensures that no exception is thrown in case of a syntax error in a for statement
+	 * (regression test for bug 199668 IAE in ASTNode.setSourceRange while editing a class)
+	 */
+	public void test0608() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy(
+				"/Converter/src/X.java", 
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    for (/*start*/int i=0,/*end*/; i<10; i++) {\n" +
+				"    }\n" +
+				"  }\n" +
+				"}"
+			);
+			ASTNode node = buildAST(null, workingCopy, false, true);
+			assertNotNull("Should get an AST", node);
+			assertEquals("Unexpected node type", ASTNode.VARIABLE_DECLARATION_EXPRESSION, node.getNodeType());
+			VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) node;
+			List fragments = variableDeclarationExpression.fragments();
+			assertEquals("Wrong size", 2, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(1);
+			SimpleName name = fragment.getName();
+			assertEquals("Wrong name", name.getIdentifier(), "$missing$");
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * Ensures that no exception is thrown in case of a syntax error in method parameter declarations
+	 * (regression test for bug 200080 Endless illegal arg exceptions from java editor's ASTProvider)
+	 */
+	public void test0609() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy(
+				"/Converter/src/X.java", 
+				"public class X {\n" + 
+				"        void foo(a, b, ) {\n" + 
+				"        	if\n" + 
+				"        }\n" + 
+				"}"
+			);
+			CompilationUnit cu = workingCopy.reconcile(AST.JLS3, true, true, null, null);
+			assertNotNull("Should get an AST", cu);
+			ASTNode node = getASTNode(cu, 0, 0);
+			assertEquals("Unexpected node type", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			List parameters = methodDeclaration.parameters();
+			assertEquals("Wrong size", 0, parameters.size());
+			Block body = methodDeclaration.getBody();
+			assertNotNull("Should not be null", body);
+			List statements = body.statements();
+			assertEquals("Wrong size", 1, statements.size());
+			node = (ASTNode)statements.get(0);
+			assertEquals("Unexpected node type", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
+			List fragments = variableDeclarationStatement.fragments();
+			assertEquals("Wrong size", 2, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(1);
+			SimpleName name = fragment.getName();
+			assertEquals("Wrong name", name.getIdentifier(), "$missing$");
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * (regression test for bug 199668)
+	 */
+	public void test0610() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy(
+				"/Converter/src/X.java", 
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    /*start*/int i=0,/*end*/;\n" +
+				"  }\n" +
+				"}"
+			);
+			ASTNode node = buildAST(null, workingCopy, false, true);
+			assertNotNull("Should get an AST", node);
+			assertEquals("Unexpected node type", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
+			List fragments = variableDeclarationStatement.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			SimpleName name = fragment.getName();
+			assertEquals("Wrong name", name.getIdentifier(), "i");
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }

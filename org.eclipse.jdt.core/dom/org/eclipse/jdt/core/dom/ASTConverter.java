@@ -2992,6 +2992,13 @@ class ASTConverter {
 		name.setSourceRange(localDeclaration.sourceStart, localDeclaration.sourceEnd - localDeclaration.sourceStart + 1);
 		variableDeclarationFragment.setName(name);
 		int start = localDeclaration.sourceEnd;
+		if (localDeclaration.name == RecoveryScanner.FAKE_IDENTIFIER) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=199668
+			// sourceEnd is equals to sourceStart - 1 when the token is empty (token created by the statements recovery).
+			// sourceStart must be used instead otherwise retrievePositionBeforeNextCommaOrSemiColon() could find the
+			// previous comma or semicolon.
+			start = localDeclaration.sourceStart;
+		}
 		org.eclipse.jdt.internal.compiler.ast.Expression initialization = localDeclaration.initialization;
 		boolean hasInitialization = initialization != null;
 		if (hasInitialization) {
