@@ -181,7 +181,7 @@ public class GenClass6Proc extends AbstractProcessor {
 		try {
 			Element[] parents = new Element[_classesToSummarize.size()];
 			parents = _classesToSummarize.values().toArray(parents);
-			FileObject summaryFile = _filer.createResource(StandardLocation.SOURCE_OUTPUT, null, "summary.txt", parents);
+			FileObject summaryFile = _filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "summary.txt", parents);
 			pw = new PrintWriter(summaryFile.openWriter());
 			for (String clazz : _classesToSummarize.keySet()) {
 				pw.println(clazz);

@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -333,9 +334,9 @@ public class GeneratedFileManager
 	 * This method must only be called during build, not reconcile. It is not possible to add
 	 * non-Java-source files during reconcile.
 	 */
-	public void addGeneratedFileDependency(IFile parentFile, IFile generatedFile)
+	public void addGeneratedFileDependency(Collection<IFile> parentFiles, IFile generatedFile)
 	{
-		addBuiltFileToMaps(parentFile, generatedFile, false);
+		addBuiltFileToMaps(parentFiles, generatedFile, false);
 	}
 
 	/**
@@ -487,7 +488,7 @@ public class GeneratedFileManager
 	 * @return - the newly created IFile along with whether it was modified
 	 * @throws CoreException
 	 */
-	public FileGenerationResult generateFileDuringBuild(List<IFile> parentFiles, String typeName, String contents,
+	public FileGenerationResult generateFileDuringBuild(Collection<IFile> parentFiles, String typeName, String contents,
 			boolean clearDuringReconcile, IProgressMonitor progressMonitor) throws CoreException
 	{
 		if (_skipTypeGeneration)
@@ -543,11 +544,7 @@ public class GeneratedFileManager
 
 			// during a batch build, parentFile will be null.
 			// Only keep track of ownership in iterative builds
-			for (IFile parentFile : parentFiles) {
-				if (parentFile != null) {
-					addBuiltFileToMaps(parentFile, file, true);
-				}
-			}
+			addBuiltFileToMaps(parentFiles, file, true);
 			if (clearDuringReconcile) {
 				_clearDuringReconcile.add(file);
 			}
@@ -746,14 +743,20 @@ public class GeneratedFileManager
 	 * 
 	 * @param isSource true for source files that will be compiled; false for non-source, e.g., text or xml.
 	 */
-	private synchronized void addBuiltFileToMaps(IFile parentFile, IFile generatedFile, boolean isSource)
+	private synchronized void addBuiltFileToMaps(Collection<IFile> parentFiles, IFile generatedFile, boolean isSource)
 	{
-		boolean added = _buildDeps.put(parentFile, generatedFile, isSource);
-		if (AptPlugin.DEBUG_GFM_MAPS) {
-			if (added)
-				AptPlugin.trace("build file dependency added: " + parentFile + " -> " + generatedFile); //$NON-NLS-1$//$NON-NLS-2$
-			else
-				AptPlugin.trace("build file dependency already exists: " + parentFile + " -> " + generatedFile); //$NON-NLS-1$//$NON-NLS-2$
+		// during a batch build, parentFile will be null.
+		// Only keep track of ownership in iterative builds
+		for (IFile parentFile : parentFiles) {
+			if (parentFile != null) {
+				boolean added = _buildDeps.put(parentFile, generatedFile, isSource);
+				if (AptPlugin.DEBUG_GFM_MAPS) {
+					if (added)
+						AptPlugin.trace("build file dependency added: " + parentFile + " -> " + generatedFile); //$NON-NLS-1$//$NON-NLS-2$
+					else
+						AptPlugin.trace("build file dependency already exists: " + parentFile + " -> " + generatedFile); //$NON-NLS-1$//$NON-NLS-2$
+				}
+			}
 		}
 	}
 	

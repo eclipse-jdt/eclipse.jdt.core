@@ -1,43 +1,45 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    jgarms@bea.com - initial API and implementation
- *    
+ *    wharley@bea.com - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.apt.core.internal.env;
+
+package org.eclipse.jdt.internal.apt.pluggable.core.filer;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
+import java.util.Collection;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.apt.core.internal.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.env.BinaryFileOutputStream;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
+import org.eclipse.jdt.internal.apt.pluggable.core.Apt6Plugin;
+import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeProcessingEnvImpl;
 
 /**
- * Wrap output operations, caching them in memory,
- * then writing them out at the end if the content
- * is different than what is on disk
+ * @see BinaryFileOutputStream
  */
-public class BinaryFileOutputStream extends ByteArrayOutputStream {
-
-	protected final IFile _file;
-	private final BuildEnv _env;
+public class IdeNonSourceOutputStream  extends ByteArrayOutputStream
+{
+	private final IdeProcessingEnvImpl _env;
+	private final IFile _file;
+	private final Collection<IFile> _parentFiles;
 	
-	public BinaryFileOutputStream(IFile file, BuildEnv env) {
-		_file = file;
+	public IdeNonSourceOutputStream(IdeProcessingEnvImpl env, IFile file, Collection<IFile> parentFiles) {
 		_env = env;
+		_file = file;
+		_parentFiles = parentFiles;
 	}
-	
+
 	@Override
 	public void close() throws IOException {
 		super.close();
@@ -77,11 +79,11 @@ public class BinaryFileOutputStream extends ByteArrayOutputStream {
 		finally {
 			closeInputStream(contents);
 		}
-			
-		IFile parentFile = _env.getFile();
-		if (parentFile != null) {
-			_env.getAptProject().getGeneratedFileManager().addGeneratedFileDependency(Collections.singleton(parentFile), _file);
-			_env.addGeneratedNonSourceFile(_file);
+		
+		// If there are no parents, we don't need to track dependencies
+		if (_parentFiles != null && !_parentFiles.isEmpty()) {
+			_env.getAptProject().getGeneratedFileManager().addGeneratedFileDependency(_parentFiles, _file);
+			_env.addNewResource(_file);
 		}
 	}
 	
@@ -111,8 +113,10 @@ public class BinaryFileOutputStream extends ByteArrayOutputStream {
 				// and the underlying platform has saved the contents already.
 			}
 			else {
-				AptPlugin.log(ce, "Could not create generated file"); //$NON-NLS-1$
-				throw new IOException(ce.getMessage());
+				Apt6Plugin.log(ce, "Could not create generated non-Java file " + _file.getName()); //$NON-NLS-1$
+				IOException ioe = new IOException();
+				ioe.initCause(ce);
+				throw ioe;
 			}
 		}
 	}

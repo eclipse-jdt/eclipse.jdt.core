@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
  * The implementation of ProcessingEnvironment that is used when compilation is
  * driven by the command line or by the Tool interface.  This environment uses
  * the JavaFileManager provided by the compiler.
- * @see org.eclipse.jdt.internal.compiler.apt.ide.dispatch.IdeProcessingEnvImpl
+ * @see org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeProcessingEnvImpl
  */
 public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 

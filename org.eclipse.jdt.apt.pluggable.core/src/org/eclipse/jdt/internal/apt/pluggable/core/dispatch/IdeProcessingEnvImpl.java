@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.lang.model.element.Element;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.AptCompilationParticipant;
@@ -86,6 +87,14 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 	public AptProject getAptProject() {
 		return _aptProject;
 	}
+	
+	public IJavaProject getJavaProject() {
+		return _javaProject;
+	}
+	
+	public IProject getProject() {
+		return _javaProject.getProject();
+	}
 
 	/**
 	 * @return whether this environment supports building or reconciling.
@@ -101,7 +110,7 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 	 * to the containing top-level type.
 	 * If the element is not a source type at all, then return null.
 	 * @param elem
-	 * @return
+	 * @return may be null
 	 */
 	public IFile getEnclosingIFile(Element elem) {
 		// if this cast fails it could be that a non-Eclipse element got passed in somehow.
@@ -115,9 +124,26 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 		return file;
 	}
 
+	/**
+	 * Inform the environment that a new Java file has been generated.
+	 * @param result must be non-null
+	 */
 	public void addNewUnit(FileGenerationResult result) {
 		AptCompilationParticipant.getInstance().addJava6GeneratedFile(result.getFile());
 		addNewUnit(_dispatchManager.findCompilationUnit(result.getFile()));
+	}
+	
+	/**
+	 * Inform the environment that a new non-Java file has been generated.
+	 * This file will not be submitted to a subsequent round of processing in
+	 * the current build, even if the file happens to be in a source location
+	 * and named with a Java-like name.  However, its dependencies will be
+	 * tracked in the same manner as Java files, e.g., it will be deleted
+	 * if changes in source cause it to no longer be generated.
+	 * @param file must be non-null
+	 */
+	public void addNewResource(IFile file) {
+		AptCompilationParticipant.getInstance().addJava6GeneratedFile(file);
 	}
 
 	public boolean currentProcessorSupportsRTTG()

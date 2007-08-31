@@ -26,7 +26,7 @@
   	<property name="jdt-apt-pluggable-folder" value="${eclipse-home}/jdt_apt_pluggable_folder"/>
   	<delete dir="${jdt-apt-pluggable-folder}" quiet="true"/>
   	
-  	<ant target="ui-test" antfile="${library-file}" dir="${eclipse-home}">
+  	<ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
   	      <property name="data-dir" value="${jdt-apt-pluggable-folder}"/>
   	      <property name="plugin-name" value="${plugin-name}"/>
   	      <property name="classname" value="org.eclipse.jdt.apt.pluggable.tests.TestAll"/>
