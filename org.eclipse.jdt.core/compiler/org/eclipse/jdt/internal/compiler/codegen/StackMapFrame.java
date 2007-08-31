@@ -15,7 +15,7 @@ import java.text.MessageFormat;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
-public class StackMapFrame implements Cloneable {
+public class StackMapFrame {
 	public static final int USED = 1;
 	public static final int SAME_FRAME = 0;
 	public static final int CHOP_FRAME = 1;
@@ -27,14 +27,15 @@ public class StackMapFrame implements Cloneable {
 
 	public int pc;
 	public int numberOfStackItems;
-	private int numberOfLocals;	
+	private int numberOfLocals;
 	public int localIndex;
 	public VerificationTypeInfo[] locals;
 	public VerificationTypeInfo[] stackItems;
 	private int numberOfDifferentLocals = -1;
 	public int tagBits;
 
-public StackMapFrame() {
+public StackMapFrame(int initialLocalSize) {
+	this.locals = new VerificationTypeInfo[initialLocalSize];
 	this.numberOfLocals = -1;
 	this.numberOfDifferentLocals = -1;
 }
@@ -76,7 +77,9 @@ public void addLocal(int resolvedPosition, VerificationTypeInfo info) {
 	}
 }
 public void addStackItem(VerificationTypeInfo info) {
-	if (info == null) return;
+	if (info == null) {
+		throw new IllegalArgumentException("info cannot be null"); //$NON-NLS-1$
+	}
 	if (this.stackItems == null) {
 		this.stackItems = new VerificationTypeInfo[1];
 		this.stackItems[0] = info;
@@ -90,22 +93,32 @@ public void addStackItem(VerificationTypeInfo info) {
 	}
 }
 public void addStackItem(TypeBinding binding) {
-	this.addStackItem(new VerificationTypeInfo(binding));
+	if (this.stackItems == null) {
+		this.stackItems = new VerificationTypeInfo[1];
+		this.stackItems[0] = new VerificationTypeInfo(binding);
+		this.numberOfStackItems = 1;
+	} else {
+		final int length = this.stackItems.length;
+		if (this.numberOfStackItems == length) {
+			System.arraycopy(this.stackItems, 0, this.stackItems = new VerificationTypeInfo[length + 1], 0, length);
+		}
+		this.stackItems[this.numberOfStackItems++] = new VerificationTypeInfo(binding);
+	}
 }
-public Object clone() throws CloneNotSupportedException {
-	StackMapFrame result = (StackMapFrame) super.clone();
+public StackMapFrame duplicate() {
+	StackMapFrame result = new StackMapFrame(this.locals.length);
 	result.numberOfLocals = -1;
 	result.numberOfDifferentLocals = -1;
 	result.pc = this.pc;
 	result.numberOfStackItems = this.numberOfStackItems;
-	
+
 	int length = this.locals == null ? 0 : this.locals.length;
 	if (length != 0) {
 		result.locals = new VerificationTypeInfo[length];
 		for (int i = 0; i < length; i++) {
 			final VerificationTypeInfo verificationTypeInfo = this.locals[i];
 			if (verificationTypeInfo != null) {
-				result.locals[i] = (VerificationTypeInfo) verificationTypeInfo.clone();
+				result.locals[i] = verificationTypeInfo.duplicate();
 			}
 		}
 	}
@@ -113,16 +126,10 @@ public Object clone() throws CloneNotSupportedException {
 	if (length != 0) {
 		result.stackItems = new VerificationTypeInfo[length];
 		for (int i = 0; i < length; i++) {
-			result.stackItems[i] = (VerificationTypeInfo) this.stackItems[i].clone();
+			result.stackItems[i] = this.stackItems[i].duplicate();
 		}
 	}
 	return result;
-}
-public int numberOfDiffentStackItems(StackMapFrame prevFrame) {
-	if (prevFrame == null) {
-		return this.numberOfStackItems;
-	}
-	return this.numberOfStackItems - prevFrame.numberOfStackItems;
 }
 public int numberOfDifferentLocals(StackMapFrame prevFrame) {
 	if (this.numberOfDifferentLocals != -1) return this.numberOfDifferentLocals;
@@ -214,7 +221,7 @@ public int numberOfDifferentLocals(StackMapFrame prevFrame) {
 					// locals at the same location are not equals - this has to be a full frame
 					result = Integer.MAX_VALUE;
 					this.numberOfDifferentLocals = result;
-					return result;						
+					return result;
 				}
 				indexInPrevLocals++;
 				continue currentLocalsLoop;
@@ -298,7 +305,7 @@ public String toString() {
 	return String.valueOf(buffer);
 }
 private void printFrame(StringBuffer buffer, StackMapFrame frame) {
-	String pattern = "[pc : {0} locals: {1} stack items: {2}\n{3}\n{4}\n]"; //$NON-NLS-1$
+	String pattern = "[pc : {0} locals: {1} stack items: {2}\nlocals: {3}\nstack: {4}\n]"; //$NON-NLS-1$
 	int localsLength = frame.locals == null ? 0 : frame.locals.length;
 	buffer.append(MessageFormat.format(
 		pattern,
@@ -317,44 +324,16 @@ private String print(VerificationTypeInfo[] infos, int length) {
 	if (infos != null) {
 		for (int i = 0; i < length; i++) {
 			if (i != 0) buffer.append(',');
-			if (infos[i] == null) {
+			VerificationTypeInfo verificationTypeInfo = infos[i];
+			if (verificationTypeInfo == null) {
 				buffer.append("top"); //$NON-NLS-1$
 				continue;
 			}
-			switch(infos[i].tag) {
-				case VerificationTypeInfo.ITEM_NULL :
-					buffer.append("null"); //$NON-NLS-1$
-					break;
-				case VerificationTypeInfo.ITEM_UNINITIALIZED_THIS :
-					buffer.append("uninitialized_this"); //$NON-NLS-1$
-					break;
-				case VerificationTypeInfo.ITEM_TOP :
-					buffer.append("top"); //$NON-NLS-1$
-					break;
-				case VerificationTypeInfo.ITEM_UNINITIALIZED :
-					buffer.append("uninitialized(").append(infos[i].readableName()).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
-					break;
-				default:
-					buffer.append(infos[i].readableName());
-			}
+			buffer.append(verificationTypeInfo);
 		}
 	}
 	buffer.append(']');
 	return String.valueOf(buffer);
-}
-public void setTopOfStack(TypeBinding typeBinding) {
-	this.stackItems[this.numberOfStackItems - 1].setBinding(typeBinding);
-}
-public void initializeReceiver() {
-	if (this.numberOfStackItems > 0) {
-		this.stackItems[this.numberOfStackItems - 1].tag = VerificationTypeInfo.ITEM_OBJECT;
-	}
-}
-public void removeLocals(int resolvedPosition) {
-	if (this.locals == null || resolvedPosition < 0) return;
-	if (resolvedPosition < this.locals.length) {
-		this.locals[resolvedPosition] = null;
-	}
 }
 public void putLocal(int resolvedPosition, VerificationTypeInfo info) {
 	if (this.locals == null) {
@@ -370,13 +349,9 @@ public void putLocal(int resolvedPosition, VerificationTypeInfo info) {
 }
 public void replaceWithElementType() {
 	VerificationTypeInfo info = this.stackItems[this.numberOfStackItems - 1];
-	try {
-		VerificationTypeInfo info2 = (VerificationTypeInfo) info.clone();
-		info2.replaceWithElementType();
-		this.stackItems[this.numberOfStackItems - 1] = info2;
-	} catch (CloneNotSupportedException e) {
-		// ignore
-	}
+	VerificationTypeInfo info2 = info.duplicate();
+	info2.replaceWithElementType();
+	this.stackItems[this.numberOfStackItems - 1] = info2;
 }
 public int getIndexOfDifferentLocals(int differentLocalsCount) {
 	for (int i = this.locals.length - 1; i >= 0; i--) {
@@ -399,26 +374,5 @@ private boolean equals(VerificationTypeInfo info, VerificationTypeInfo info2) {
 	}
 	if (info2 == null) return false;
 	return info.equals(info2);
-}
-public void mergeLocals(StackMapFrame currentFrame) {
-	int currentFrameLocalsLength = currentFrame.locals == null ? 0 : currentFrame.locals.length;
-	int localsLength = this.locals == null ? 0 : this.locals.length;
-	for (int i = 0, max = Math.min(currentFrameLocalsLength, localsLength); i < max; i++) {
-		VerificationTypeInfo info = this.locals[i];
-		VerificationTypeInfo info2 = currentFrame.locals[i];
-		if (info == null) {
-			if (info2 != null) {
-				this.locals[i] = info2;
-			}
-		} else if (info2 == null) {
-			this.locals[i] = null;
-		} else {
-			int tag1 = info.tag;
-			int tag2 = info2.tag;
-			if (tag1 != tag2) {
-				this.locals[i] = null;
-			}
-		}
-	}
 }
 }

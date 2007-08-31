@@ -109,6 +109,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	} else {
 		// enter the monitor
 		codeStream.store(synchroVariable, true);
+		codeStream.addVariable(synchroVariable);
 		codeStream.monitorenter();
 
 		// generate  the body of the synchronized block
@@ -128,7 +129,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			this.enterAnyExceptionHandler(codeStream);
 		}
 		// generate the body of the exception handler
-		codeStream.pushOnStack(scope.getJavaLangThrowable());
+		codeStream.pushExceptionOnStack(scope.getJavaLangThrowable());
 		if (this.preSynchronizedInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSynchronizedInitStateIndex);
 		}

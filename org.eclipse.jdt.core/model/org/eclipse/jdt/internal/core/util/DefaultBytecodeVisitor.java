@@ -19,8 +19,8 @@ import org.eclipse.jdt.core.util.IConstantPoolConstant;
 import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.ILocalVariableAttribute;
 import org.eclipse.jdt.core.util.ILocalVariableTableEntry;
-import org.eclipse.jdt.core.util.IOpcodeMnemonics;
 import org.eclipse.jdt.core.util.OpcodeStringValues;
+import org.eclipse.jdt.internal.compiler.util.IOpcodeMnemonics;
 
 /**
  * Default implementation of ByteCodeVisitor

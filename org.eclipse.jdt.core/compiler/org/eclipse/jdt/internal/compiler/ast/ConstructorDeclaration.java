@@ -320,6 +320,10 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 				this.statements[i].generateCode(this.scope, codeStream);
 			}
 		}
+		// if a problem got reported during code gen, then trigger problem method creation
+		if (this.ignoreFurtherInvestigation) {
+			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
+		}
 		if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
 			codeStream.return_();
 		}
@@ -330,11 +334,6 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		attributeNumber++;
 	}
 	classFile.completeMethodInfo(methodAttributeOffset, attributeNumber);
-
-	// if a problem got reported during code gen, then trigger problem method creation
-	if (this.ignoreFurtherInvestigation) {
-		throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
-	}
 }
 
 public boolean isConstructor() {

@@ -132,7 +132,7 @@ public class ForeachStatement extends Statement {
 		switch(this.kind) {
 			case ARRAY :
 				if (!hasEmptyAction
-						|| this.elementVariable.binding.resolvedPosition != -1) {				
+						|| this.elementVariable.binding.resolvedPosition != -1) {
 					this.collectionVariable.useFlag = LocalVariableBinding.USED;
 					if (this.continueLabel != null) {
 						this.indexVariable.useFlag = LocalVariableBinding.USED;
@@ -184,7 +184,7 @@ public class ForeachStatement extends Statement {
 			codeStream.exitUserScope(scope);
 			if (mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
-				codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);				
+				codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
@@ -194,13 +194,16 @@ public class ForeachStatement extends Statement {
 		switch(this.kind) {
 			case ARRAY :
 				collection.generateCode(scope, codeStream, true);
-				codeStream.store(this.collectionVariable, true); 
+				codeStream.store(this.collectionVariable, true);
+				codeStream.addVariable(this.collectionVariable);
 				if (this.continueLabel != null) {
 					// int length = (collectionVariable = [collection]).length;
 					codeStream.arraylength();
 					codeStream.store(this.maxVariable, false);
+					codeStream.addVariable(this.maxVariable);
 					codeStream.iconst_0();
 					codeStream.store(this.indexVariable, false);
+					codeStream.addVariable(this.indexVariable);
 				} else {
 					// leave collectionVariable on execution stack (will be consumed when swapping condition further down)
 				}
@@ -223,6 +226,7 @@ public class ForeachStatement extends Statement {
 					codeStream.invokevirtual(iteratorMethodBinding);
 				}
 				codeStream.store(this.indexVariable, false);
+				codeStream.addVariable(this.indexVariable);
 				break;
 		}
 		// label management
@@ -342,6 +346,18 @@ public class ForeachStatement extends Statement {
 					break;
 			}
 			codeStream.recordPositionsFrom(continuationPC, this.elementVariable.sourceStart);
+		}
+		switch(this.kind) {
+			case ARRAY :
+				codeStream.removeVariable(this.indexVariable);
+				codeStream.removeVariable(this.maxVariable);
+				codeStream.removeVariable(this.collectionVariable);
+				break;
+			case RAW_ITERABLE :
+			case GENERIC_ITERABLE :
+				// generate the condition
+				codeStream.removeVariable(this.indexVariable);
+				break;
 		}
 		codeStream.exitUserScope(scope);
 		if (mergedInitStateIndex != -1) {

@@ -33,7 +33,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 23 };
+//		TESTS_NUMBERS = new int[] { 15 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
@@ -665,9 +665,8 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 35, pc: 38] local: l index: 4 type: int\n" + 
 				"        [pc: 41, pc: 82] local: l index: 4 type: int\n" + 
 				"        [pc: 28, pc: 82] local: b index: 5 type: boolean\n" + 
-				"      Stack map table: number of frames 6\n" + 
+				"      Stack map table: number of frames 5\n" + 
 				"        [pc: 19, append: {int}]\n" + 
-				"        [pc: 21, full, stack: {}, locals: {java.lang.String[], int, _, int}]\n" + 
 				"        [pc: 38, full, stack: {}, locals: {java.lang.String[], int, _, int, _, int}]\n" + 
 				"        [pc: 41, full, stack: {}, locals: {java.lang.String[], int, _, int, int, int}]\n" + 
 				"        [pc: 65, full, stack: {}, locals: {java.lang.String[], int, int, int, int, int}]\n" + 
@@ -2737,6 +2736,35 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"		foo4();\n" + 
 				"		System.out.print(\"SUCCESS\");\n" +
 				"	}\n" + 
+				"}",
+			},
+		"SUCCESS");
+	}
+
+	// fix verify error
+	public void test036() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Map;\n" + 
+				"import java.util.Set;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.print(\"SUCCESS\");\n" +
+				"	}\n" + 
+				"	public void foo(Object o, boolean b) {\n" + 
+				"		String[] models = new String[] {};\n" + 
+				"		Map map = null;\n" + 
+				"		Set set  = null;\n" + 
+				"		for (int n = 0; n < models.length; n++) {	bar(models[n]); }\n" + 
+				"		foo2(new Object(),\n" + 
+				"				set,\n" + 
+				"				map,\n" + 
+				"				!b);\n" + 
+				"	}\n" + 
+				"	void bar(String s) {}\n" + 
+				"	void foo2(Object o, Object s, Object m, boolean b) {}\n" + 
 				"}",
 			},
 		"SUCCESS");

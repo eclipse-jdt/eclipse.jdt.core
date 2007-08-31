@@ -225,6 +225,10 @@ public abstract class AbstractMethodDeclaration
 				for (int i = 0, max = this.statements.length; i < max; i++)
 					this.statements[i].generateCode(this.scope, codeStream);
 			}
+			// if a problem got reported during code gen, then trigger problem method creation
+			if (this.ignoreFurtherInvestigation) {
+				throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
+			}
 			if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
 				codeStream.return_();
 			}
@@ -237,11 +241,6 @@ public abstract class AbstractMethodDeclaration
 			checkArgumentsSize();
 		}
 		classFile.completeMethodInfo(methodAttributeOffset, attributeNumber);
-
-		// if a problem got reported during code gen, then trigger problem method creation
-		if (this.ignoreFurtherInvestigation) {
-			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
-		}
 	}
 
 	private void checkArgumentsSize() {
@@ -404,10 +403,11 @@ public abstract class AbstractMethodDeclaration
 					&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0
 					&& this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 				this.scope.problemReporter().missingDeprecatedAnnotationForMethod(this);
-			}			
-		} catch (AbortMethod e) {	// ========= abort on fatal error =============
+			}
+		} catch (AbortMethod e) {
+			// ========= abort on fatal error =============
 			this.ignoreFurtherInvestigation = true;
-		} 
+		}
 	}
 
 	public void resolveJavadoc() {

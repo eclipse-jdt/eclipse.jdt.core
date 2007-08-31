@@ -434,13 +434,19 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			postCatchesFinallyLabel = new BranchLabel(codeStream);
 			
 			for (int i = 0; i < maxCatches; i++) {
+				/*
+				 * This should not happen. For consistency purpose, if the exception label is never used
+				 * we also don't generate the corresponding catch block, otherwise we have some
+				 * unreachable bytecodes
+				 */
+				if (exceptionLabels[i].count == 0) continue;
 				enterAnyExceptionHandler(codeStream);
 				// May loose some local variable initializations : affecting the local variable attributes
 				if (this.preTryInitStateIndex != -1) {
 					codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
 					codeStream.addDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
 				}
-				codeStream.pushOnStack(exceptionLabels[i].exceptionType);
+				codeStream.pushExceptionOnStack(exceptionLabels[i].exceptionType);
 				exceptionLabels[i].place();
 				// optimizing the case where the exception variable is not actually used
 				LocalVariableBinding catchVar;
@@ -500,8 +506,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		// addition of a special handler so as to ensure that any uncaught exception (or exception thrown
 		// inside catch blocks) will run the finally block
 		int finallySequenceStartPC = codeStream.position;
-		if (this.subRoutineStartLabel != null) {
-			codeStream.pushOnStack(this.scope.getJavaLangThrowable());
+		if (this.subRoutineStartLabel != null && this.anyExceptionLabel.count != 0) {
+			codeStream.pushExceptionOnStack(this.scope.getJavaLangThrowable());
 			if (this.preTryInitStateIndex != -1) {
 				// reset initialization state, as for a normal catch block
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
@@ -516,12 +522,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 					codeStream.store(this.anyExceptionVariable, false);
 					codeStream.jsr(this.subRoutineStartLabel);
 					codeStream.recordPositionsFrom(finallySequenceStartPC, this.finallyBlock.sourceStart);
-					int position = codeStream.position;						
+					int position = codeStream.position;
 					codeStream.throwAnyException(this.anyExceptionVariable);
 					codeStream.recordPositionsFrom(position, this.finallyBlock.sourceEnd);
 					// subroutine
 					this.subRoutineStartLabel.place();
-					codeStream.pushOnStack(this.scope.getJavaLangThrowable());
+					codeStream.pushExceptionOnStack(this.scope.getJavaLangThrowable());
 					position = codeStream.position;	
 					codeStream.store(this.returnAddressVariable, false);
 					codeStream.recordPositionsFrom(position, this.finallyBlock.sourceStart);
@@ -536,11 +542,13 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				case FINALLY_INLINE :
 					// any exception handler
 					codeStream.store(this.anyExceptionVariable, false);
+					codeStream.addVariable(this.anyExceptionVariable);
 					codeStream.recordPositionsFrom(finallySequenceStartPC, this.finallyBlock.sourceStart);
 					// subroutine
 					this.finallyBlock.generateCode(currentScope, codeStream);
 					position = codeStream.position;
 					codeStream.throwAnyException(this.anyExceptionVariable);
+					codeStream.removeVariable(this.anyExceptionVariable);
 					if (this.preTryInitStateIndex != -1) {
 						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
 					}

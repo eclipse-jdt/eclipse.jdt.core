@@ -140,6 +140,9 @@ public class CodeStream {
 	public int lastEntryPC; // last entry recorded
 	public int lastAbruptCompletion; // position of last instruction which abrupts completion: goto/return/athrow
 	public int[] lineSeparatorPositions;
+	// line number of the body start and the body end
+	public int lineNumberStart;
+	public int lineNumberEnd;
 	
 	public LocalVariableBinding[] locals = new LocalVariableBinding[LOCALS_INCREMENT];
 	public int maxFieldCount;
@@ -1652,7 +1655,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 	
 		// Wrap the code in an exception handler to convert a ClassNotFoundException into a NoClassDefError
 	
-		anyExceptionHandler = new ExceptionLabel(this, TypeBinding.NULL /* represents ClassNotFoundException*/);
+		anyExceptionHandler = new ExceptionLabel(this, TypeBinding.NULL /*represents ClassNotFoundException*/);
 		anyExceptionHandler.placeStart();
 		this.ldc(accessedType == TypeBinding.NULL ? "java.lang.Object" : String.valueOf(accessedType.constantPoolName()).replace('/', '.')); //$NON-NLS-1$
 		this.invokeClassForName();
@@ -2536,6 +2539,8 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 	this.arraylength();
 	this.newarray(ClassFileConstants.INT_ARRAY);
 	this.astore_0();
+	LocalVariableBinding localVariableBinding = new LocalVariableBinding(" tab".toCharArray(), scope.createArrayType(TypeBinding.INT, 1), 0, false); //$NON-NLS-1$
+	this.addVariable(localVariableBinding);
 	final FieldBinding[] fields = enumBinding.fields();
 	if (fields != null) {
 		for (int i = 0, max = fields.length; i < max; i++) {
@@ -2552,10 +2557,10 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 				anyExceptionHandler.placeEnd();
 				this.goto_(endLabel);
 				// Generate the body of the exception handler
-				this.pushOnStack(scope.getJavaLangThrowable());
+				this.pushExceptionOnStack(TypeBinding.LONG /*represents NoSuchFieldError*/);
 				anyExceptionHandler.place();
 				this.pop(); // we don't use it so we can pop it
-				endLabel.place();				
+				endLabel.place();
 			}
 		}
 	}
@@ -2563,6 +2568,7 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 	this.dup();
 	this.putstatic(syntheticFieldBinding);
 	areturn();
+	this.removeVariable(localVariableBinding);
 }
 /**
  * Code responsible to generate the suitable code to supply values for the synthetic enclosing
@@ -3005,10 +3011,9 @@ public void goto_(BranchLabel label) {
 			int[] forwardRefs = label.forwardReferences();
 			for (int i = 0, max = label.forwardReferenceCount(); i < max; i++) {
 				this.writePosition(label, forwardRefs[i]);
-			}				
+			}
 			this.countLabels = 0; // backward jump, no further chaining allowed
 		}
-//		this.lastAbruptCompletion = -1;
 		return;
 	}
 	position++;
@@ -5704,6 +5709,10 @@ public void pushOnStack(TypeBinding binding) {
 	if (++stackDepth > stackMax)
 		stackMax = stackDepth;
 }
+public void pushExceptionOnStack(TypeBinding binding) {
+	if (++stackDepth > stackMax)
+		stackMax = stackDepth;
+}
 public void putfield(FieldBinding fieldBinding) {
 	if (DEBUG) System.out.println(position + "\t\tputfield:"+fieldBinding); //$NON-NLS-1$
 	int returnTypeSize = 1;
@@ -5766,11 +5775,236 @@ public void recordPositionsFrom(int startPC, int sourcePos, boolean widen) {
 		// resize the array pcToSourceMap
 		System.arraycopy(pcToSourceMap, 0, pcToSourceMap = new int[pcToSourceMapSize << 1], 0, pcToSourceMapSize);
 	}
-	int lineNumber = Util.getLineNumber(sourcePos, lineSeparatorPositions, 0, lineSeparatorPositions.length-1);
 	// lastEntryPC represents the endPC of the lastEntry.
 	if (pcToSourceMapSize > 0) {
+		int lineNumber;
+		int previousLineNumber = pcToSourceMap[pcToSourceMapSize - 1];
+		if (this.lineNumberStart == this.lineNumberEnd) {
+			// method on one line
+			lineNumber = this.lineNumberStart;
+		} else {
+			// Check next line number if this is the one we are looking for
+			int[] lineSeparatorPositions2 = this.lineSeparatorPositions;
+			int length = lineSeparatorPositions2.length;
+			if (previousLineNumber == 1) {
+				if (sourcePos < lineSeparatorPositions2[0]) {
+					lineNumber = 1;
+					/* the last recorded entry is on the same line. But it could be relevant to widen this entry.
+					   we want to extend this entry forward in case we generated some bytecode before the last entry that are not related to any statement
+					*/	
+					if (startPC < pcToSourceMap[pcToSourceMapSize - 2]) {
+						int insertionIndex = insertionIndex(pcToSourceMap, pcToSourceMapSize, startPC);
+						if (insertionIndex != -1) {
+							// widen the existing entry
+							// we have to figure out if we need to move the last entry at another location to keep a sorted table
+							/* First we need to check if at the insertion position there is not an existing entry
+							 * that includes the one we want to insert. This is the case if pcToSourceMap[insertionIndex - 1] == newLine.
+							 * In this case we don't want to change the table. If not, we want to insert a new entry. Prior to insertion
+							 * we want to check if it is worth doing an arraycopy. If not we simply update the recorded pc.
+							 */
+							if (!((insertionIndex > 1) && (pcToSourceMap[insertionIndex - 1] == lineNumber))) {
+								if ((pcToSourceMapSize > 4) && (pcToSourceMap[pcToSourceMapSize - 4] > startPC)) {
+									System.arraycopy(pcToSourceMap, insertionIndex, pcToSourceMap, insertionIndex + 2, pcToSourceMapSize - 2 - insertionIndex);
+									pcToSourceMap[insertionIndex++] = startPC;
+									pcToSourceMap[insertionIndex] = lineNumber;
+								} else {
+									pcToSourceMap[pcToSourceMapSize - 2] = startPC;
+								}
+							}
+						}
+					}
+					lastEntryPC = position;
+					return;
+				} else if (length == 1 || sourcePos < lineSeparatorPositions2[1]) {
+					lineNumber = 2;
+					if (startPC <= lastEntryPC) {
+						// we forgot to add an entry.
+						// search if an existing entry exists for startPC
+						int insertionIndex = insertionIndex(pcToSourceMap, pcToSourceMapSize, startPC);
+						if (insertionIndex != -1) {
+							// there is no existing entry starting with startPC.
+							int existingEntryIndex = indexOfSameLineEntrySincePC(startPC, lineNumber); // index for PC
+							/* the existingEntryIndex corresponds to an entry with the same line and a PC >= startPC.
+								in this case it is relevant to widen this entry instead of creating a new one.
+								line1: this(a,
+								  b,
+								  c);
+								with this code we generate each argument. We generate a aload0 to invoke the constructor. There is no entry for this
+								aload0 bytecode. The first entry is the one for the argument a.
+								But we want the constructor call to start at the aload0 pc and not just at the pc of the first argument.
+								So we widen the existing entry (if there is one) or we create a new entry with the startPC.
+							*/
+							if (existingEntryIndex != -1) {
+								// widen existing entry
+								pcToSourceMap[existingEntryIndex] = startPC;
+							} else if (insertionIndex < 1 || pcToSourceMap[insertionIndex - 1] != lineNumber) {
+								// we have to add an entry that won't be sorted. So we sort the pcToSourceMap.
+								System.arraycopy(pcToSourceMap, insertionIndex, pcToSourceMap, insertionIndex + 2, pcToSourceMapSize - insertionIndex);
+								pcToSourceMap[insertionIndex++] = startPC;
+								pcToSourceMap[insertionIndex] = lineNumber;
+								pcToSourceMapSize += 2;
+							}
+						} else if (position != lastEntryPC) { // no bytecode since last entry pc
+							if (lastEntryPC == startPC || lastEntryPC == pcToSourceMap[pcToSourceMapSize - 2]) {
+								pcToSourceMap[pcToSourceMapSize - 1] = lineNumber;
+							} else {
+								pcToSourceMap[pcToSourceMapSize++] = lastEntryPC;
+								pcToSourceMap[pcToSourceMapSize++] = lineNumber;
+							}
+						} else if (pcToSourceMap[pcToSourceMapSize - 1] < lineNumber && widen) {
+							// see if we can widen the existing entry
+							pcToSourceMap[pcToSourceMapSize - 1] = lineNumber;
+						}
+					} else {
+						// we can safely add the new entry. The endPC of the previous entry is not in conflit with the startPC of the new entry.
+						pcToSourceMap[pcToSourceMapSize++] = startPC;
+						pcToSourceMap[pcToSourceMapSize++] = lineNumber;
+					}
+					lastEntryPC = position;
+					return;
+				} else {
+					// since lineSeparatorPositions is zero-based, we pass this.lineNumberStart - 1 and this.lineNumberEnd - 1
+					lineNumber = Util.getLineNumber(sourcePos, lineSeparatorPositions, this.lineNumberStart - 1, this.lineNumberEnd - 1);
+				}
+			} else if (previousLineNumber < length) {
+				if (lineSeparatorPositions2[previousLineNumber - 2] < sourcePos) {
+					if (sourcePos < lineSeparatorPositions2[previousLineNumber - 1]) {
+						lineNumber = previousLineNumber;
+						/* the last recorded entry is on the same line. But it could be relevant to widen this entry.
+						   we want to extend this entry forward in case we generated some bytecode before the last entry that are not related to any statement
+						*/	
+						if (startPC < pcToSourceMap[pcToSourceMapSize - 2]) {
+							int insertionIndex = insertionIndex(pcToSourceMap, pcToSourceMapSize, startPC);
+							if (insertionIndex != -1) {
+								// widen the existing entry
+								// we have to figure out if we need to move the last entry at another location to keep a sorted table
+								/* First we need to check if at the insertion position there is not an existing entry
+								 * that includes the one we want to insert. This is the case if pcToSourceMap[insertionIndex - 1] == newLine.
+								 * In this case we don't want to change the table. If not, we want to insert a new entry. Prior to insertion
+								 * we want to check if it is worth doing an arraycopy. If not we simply update the recorded pc.
+								 */
+								if (!((insertionIndex > 1) && (pcToSourceMap[insertionIndex - 1] == lineNumber))) {
+									if ((pcToSourceMapSize > 4) && (pcToSourceMap[pcToSourceMapSize - 4] > startPC)) {
+										System.arraycopy(pcToSourceMap, insertionIndex, pcToSourceMap, insertionIndex + 2, pcToSourceMapSize - 2 - insertionIndex);
+										pcToSourceMap[insertionIndex++] = startPC;
+										pcToSourceMap[insertionIndex] = lineNumber;
+									} else {
+										pcToSourceMap[pcToSourceMapSize - 2] = startPC;
+									}
+								}
+							}
+						}
+						lastEntryPC = position;
+						return;
+					} else if (sourcePos < lineSeparatorPositions2[previousLineNumber]) {
+						lineNumber = previousLineNumber + 1;
+						if (startPC <= lastEntryPC) {
+							// we forgot to add an entry.
+							// search if an existing entry exists for startPC
+							int insertionIndex = insertionIndex(pcToSourceMap, pcToSourceMapSize, startPC);
+							if (insertionIndex != -1) {
+								// there is no existing entry starting with startPC.
+								int existingEntryIndex = indexOfSameLineEntrySincePC(startPC, lineNumber); // index for PC
+								/* the existingEntryIndex corresponds to an entry with the same line and a PC >= startPC.
+									in this case it is relevant to widen this entry instead of creating a new one.
+									line1: this(a,
+									  b,
+									  c);
+									with this code we generate each argument. We generate a aload0 to invoke the constructor. There is no entry for this
+									aload0 bytecode. The first entry is the one for the argument a.
+									But we want the constructor call to start at the aload0 pc and not just at the pc of the first argument.
+									So we widen the existing entry (if there is one) or we create a new entry with the startPC.
+								*/
+								if (existingEntryIndex != -1) {
+									// widen existing entry
+									pcToSourceMap[existingEntryIndex] = startPC;
+								} else if (insertionIndex < 1 || pcToSourceMap[insertionIndex - 1] != lineNumber) {
+									// we have to add an entry that won't be sorted. So we sort the pcToSourceMap.
+									System.arraycopy(pcToSourceMap, insertionIndex, pcToSourceMap, insertionIndex + 2, pcToSourceMapSize - insertionIndex);
+									pcToSourceMap[insertionIndex++] = startPC;
+									pcToSourceMap[insertionIndex] = lineNumber;
+									pcToSourceMapSize += 2;
+								}
+							} else if (position != lastEntryPC) { // no bytecode since last entry pc
+								if (lastEntryPC == startPC || lastEntryPC == pcToSourceMap[pcToSourceMapSize - 2]) {
+									pcToSourceMap[pcToSourceMapSize - 1] = lineNumber;
+								} else {
+									pcToSourceMap[pcToSourceMapSize++] = lastEntryPC;
+									pcToSourceMap[pcToSourceMapSize++] = lineNumber;
+								}
+							} else if (pcToSourceMap[pcToSourceMapSize - 1] < lineNumber && widen) {
+								// see if we can widen the existing entry
+								pcToSourceMap[pcToSourceMapSize - 1] = lineNumber;
+							}
+						} else {
+							// we can safely add the new entry. The endPC of the previous entry is not in conflit with the startPC of the new entry.
+							pcToSourceMap[pcToSourceMapSize++] = startPC;
+							pcToSourceMap[pcToSourceMapSize++] = lineNumber;
+						}
+						lastEntryPC = position;
+						return;
+					} else {
+						// since lineSeparatorPositions is zero-based, we pass this.lineNumberStart - 1 and this.lineNumberEnd - 1
+						lineNumber = Util.getLineNumber(sourcePos, lineSeparatorPositions, this.lineNumberStart - 1, this.lineNumberEnd - 1);
+					}
+				} else {
+					// since lineSeparatorPositions is zero-based, we pass this.lineNumberStart - 1 and this.lineNumberEnd - 1
+					lineNumber = Util.getLineNumber(sourcePos, lineSeparatorPositions, this.lineNumberStart - 1, this.lineNumberEnd - 1);
+				}
+			} else if (lineSeparatorPositions2[length - 1] < sourcePos) {
+				lineNumber = length + 1;
+				if (startPC <= lastEntryPC) {
+					// we forgot to add an entry.
+					// search if an existing entry exists for startPC
+					int insertionIndex = insertionIndex(pcToSourceMap, pcToSourceMapSize, startPC);
+					if (insertionIndex != -1) {
+						// there is no existing entry starting with startPC.
+						int existingEntryIndex = indexOfSameLineEntrySincePC(startPC, lineNumber); // index for PC
+						/* the existingEntryIndex corresponds to an entry with the same line and a PC >= startPC.
+							in this case it is relevant to widen this entry instead of creating a new one.
+							line1: this(a,
+							  b,
+							  c);
+							with this code we generate each argument. We generate a aload0 to invoke the constructor. There is no entry for this
+							aload0 bytecode. The first entry is the one for the argument a.
+							But we want the constructor call to start at the aload0 pc and not just at the pc of the first argument.
+							So we widen the existing entry (if there is one) or we create a new entry with the startPC.
+						*/
+						if (existingEntryIndex != -1) {
+							// widen existing entry
+							pcToSourceMap[existingEntryIndex] = startPC;
+						} else if (insertionIndex < 1 || pcToSourceMap[insertionIndex - 1] != lineNumber) {
+							// we have to add an entry that won't be sorted. So we sort the pcToSourceMap.
+							System.arraycopy(pcToSourceMap, insertionIndex, pcToSourceMap, insertionIndex + 2, pcToSourceMapSize - insertionIndex);
+							pcToSourceMap[insertionIndex++] = startPC;
+							pcToSourceMap[insertionIndex] = lineNumber;
+							pcToSourceMapSize += 2;
+						}
+					} else if (position != lastEntryPC) { // no bytecode since last entry pc
+						if (lastEntryPC == startPC || lastEntryPC == pcToSourceMap[pcToSourceMapSize - 2]) {
+							pcToSourceMap[pcToSourceMapSize - 1] = lineNumber;
+						} else {
+							pcToSourceMap[pcToSourceMapSize++] = lastEntryPC;
+							pcToSourceMap[pcToSourceMapSize++] = lineNumber;
+						}
+					} else if (pcToSourceMap[pcToSourceMapSize - 1] < lineNumber && widen) {
+						// see if we can widen the existing entry
+						pcToSourceMap[pcToSourceMapSize - 1] = lineNumber;
+					}
+				} else {
+					// we can safely add the new entry. The endPC of the previous entry is not in conflit with the startPC of the new entry.
+					pcToSourceMap[pcToSourceMapSize++] = startPC;
+					pcToSourceMap[pcToSourceMapSize++] = lineNumber;
+				}
+				lastEntryPC = position;
+				return;
+			} else {
+				// since lineSeparatorPositions is zero-based, we pass this.lineNumberStart - 1 and this.lineNumberEnd - 1
+				lineNumber = Util.getLineNumber(sourcePos, lineSeparatorPositions, this.lineNumberStart - 1, this.lineNumberEnd - 1);
+			}
+		}
 		// in this case there is already an entry in the table
-		if (pcToSourceMap[pcToSourceMapSize - 1] != lineNumber) {
+		if (previousLineNumber != lineNumber) {
 			if (startPC <= lastEntryPC) {
 				// we forgot to add an entry.
 				// search if an existing entry exists for startPC
@@ -5832,7 +6066,7 @@ public void recordPositionsFrom(int startPC, int sourcePos, boolean widen) {
 						if ((pcToSourceMapSize > 4) && (pcToSourceMap[pcToSourceMapSize - 4] > startPC)) {
 							System.arraycopy(pcToSourceMap, insertionIndex, pcToSourceMap, insertionIndex + 2, pcToSourceMapSize - 2 - insertionIndex);
 							pcToSourceMap[insertionIndex++] = startPC;
-							pcToSourceMap[insertionIndex] = lineNumber;						
+							pcToSourceMap[insertionIndex] = lineNumber;
 						} else {
 							pcToSourceMap[pcToSourceMapSize - 2] = startPC;
 						}
@@ -5842,6 +6076,14 @@ public void recordPositionsFrom(int startPC, int sourcePos, boolean widen) {
 		}
 		lastEntryPC = position;
 	} else {
+		int lineNumber = 0;
+		if (this.lineNumberStart == this.lineNumberEnd) {
+			// method on one line
+			lineNumber = this.lineNumberStart;
+		} else {
+			// since lineSeparatorPositions is zero-based, we pass this.lineNumberStart - 1 and this.lineNumberEnd - 1
+			lineNumber = Util.getLineNumber(sourcePos, lineSeparatorPositions, this.lineNumberStart - 1, this.lineNumberEnd - 1);
+		}
 		// record the first entry
 		pcToSourceMap[pcToSourceMapSize++] = startPC;
 		pcToSourceMap[pcToSourceMapSize++] = lineNumber;
@@ -5902,14 +6144,39 @@ public void removeVariable(LocalVariableBinding localBinding) {
 public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetClassFile) {
 	init(targetClassFile);
 	this.methodDeclaration = referenceMethod;
+	int[] lineSeparatorPositions2 = this.lineSeparatorPositions;
+	if (lineSeparatorPositions2 != null) {
+		int length = lineSeparatorPositions2.length;
+		int lineSeparatorPositionsEnd = length - 1;
+		if (referenceMethod.isClinit()
+				|| referenceMethod.isConstructor()) {
+			this.lineNumberStart = 1;
+			this.lineNumberEnd = length == 0 ? 1 : length;
+		} else {
+			int start = Util.getLineNumber(referenceMethod.bodyStart, lineSeparatorPositions2, 0, lineSeparatorPositionsEnd);
+			this.lineNumberStart = start;
+			if (start > lineSeparatorPositionsEnd) {
+				this.lineNumberEnd = start;
+			} else {
+				int end = Util.getLineNumber(referenceMethod.bodyEnd, lineSeparatorPositions2, start - 1, lineSeparatorPositionsEnd);
+				if (end >= lineSeparatorPositionsEnd) {
+					end = length;
+				}
+				this.lineNumberEnd = end == 0 ? 1 : end;
+			}
+		}
+	}
 	this.preserveUnusedLocals = referenceMethod.scope.compilerOptions().preserveAllLocalVariables;
 	initializeMaxLocals(referenceMethod.binding);
 }
 public void reset(ClassFile givenClassFile) {
 	this.targetLevel = givenClassFile.targetJDK;
-	this.generateAttributes = givenClassFile.produceAttributes;
-	if ((givenClassFile.produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
+	int produceAttributes = givenClassFile.produceAttributes;
+	this.generateAttributes = produceAttributes;
+	if ((produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
 		this.lineSeparatorPositions = givenClassFile.referenceBinding.scope.referenceCompilationUnit().compilationResult.getLineSeparatorPositions();
+	} else {
+		this.lineSeparatorPositions = null;
 	}
 }
 /**
@@ -6387,7 +6654,7 @@ protected final void writeSignedWord(int value) {
 	bCodeStream[classFileOffset++] = (byte) ((value & 0xFF00) >> 8);
 	bCodeStream[classFileOffset++] = (byte) (value & 0xFF);
 }
-protected final void writeSignedWord(int pos, int value) {
+protected void writeSignedWord(int pos, int value) {
 	int currentOffset = startingClassFileOffset + pos;
 	if (currentOffset + 3 >= bCodeStream.length) {
 		resizeByteArray();

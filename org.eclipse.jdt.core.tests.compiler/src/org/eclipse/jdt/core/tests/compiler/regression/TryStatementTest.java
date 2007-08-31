@@ -25,7 +25,7 @@ public class TryStatementTest extends AbstractRegressionTest {
 	
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-	TESTS_NUMBERS = new int[] { 63, 64 };
+//	TESTS_NUMBERS = new int[] { 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public TryStatementTest(String name) {
@@ -2855,71 +2855,30 @@ public void test044() {
 
 	if (expectedOutput == null) {
 		if (compilerOptions.targetJDK == ClassFileConstants.JDK1_5) {
-			expectedOutput = "  // Method descriptor #19 ()Ljava/lang/Object;\n" + 
-			"  // Stack: 2, Locals: 2\n" + 
-			"  static java.lang.Object foo();\n" + 
-			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
-			"     3  ldc <String \"SUCCESS\"> [28]\n" + 
-			"     5  invokevirtual java.io.PrintStream.println(java.lang.String) : void [30]\n" + 
-			"     8  aconst_null\n" + 
-			"     9  areturn\n" + 
-			"    10  astore_0 [e]\n" + 
-			"    11  goto 0\n" + 
-			"    14  astore_1\n" + 
-			"    15  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
-			"    18  ldc <String \"SUCCESS\"> [28]\n" + 
-			"    20  invokevirtual java.io.PrintStream.println(java.lang.String) : void [30]\n" + 
-			"    23  aload_1\n" + 
-			"    24  athrow\n" + 
-			"      Exception Table:\n" + 
-			"        [pc: 10, pc: 14] -> 14 when : any\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 11]\n" + 
-			"        [pc: 8, line: 7]\n" + 
-			"        [pc: 10, line: 8]\n" + 
-			"        [pc: 11, line: 9]\n" + 
-			"        [pc: 14, line: 10]\n" + 
-			"        [pc: 15, line: 11]\n" + 
-			"        [pc: 23, line: 12]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 11, pc: 14] local: e index: 0 type: java.lang.Exception\n";
+			expectedOutput =
+				"  // Method descriptor #19 ()Ljava/lang/Object;\n" + 
+				"  // Stack: 2, Locals: 0\n" + 
+				"  static java.lang.Object foo();\n" + 
+				"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
+				"     3  ldc <String \"SUCCESS\"> [28]\n" + 
+				"     5  invokevirtual java.io.PrintStream.println(java.lang.String) : void [30]\n" + 
+				"     8  aconst_null\n" + 
+				"     9  areturn\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 11]\n" + 
+				"        [pc: 8, line: 7]\n";
 		} else {
 			expectedOutput = "  // Method descriptor #19 ()Ljava/lang/Object;\n" + 
-			"  // Stack: 2, Locals: 2\n" + 
+			"  // Stack: 2, Locals: 0\n" + 
 			"  static java.lang.Object foo();\n" + 
 			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
 			"     3  ldc <String \"SUCCESS\"> [28]\n" + 
 			"     5  invokevirtual java.io.PrintStream.println(java.lang.String) : void [30]\n" + 
 			"     8  aconst_null\n" + 
 			"     9  areturn\n" + 
-			"    10  astore_0 [e]\n" + 
-			"    11  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
-			"    14  ldc <String \"SUCCESS\"> [28]\n" + 
-			"    16  invokevirtual java.io.PrintStream.println(java.lang.String) : void [30]\n" + 
-			"    19  aconst_null\n" + 
-			"    20  areturn\n" + 
-			"    21  astore_1\n" + 
-			"    22  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
-			"    25  ldc <String \"SUCCESS\"> [28]\n" + 
-			"    27  invokevirtual java.io.PrintStream.println(java.lang.String) : void [30]\n" + 
-			"    30  aload_1\n" + 
-			"    31  athrow\n" + 
-			"      Exception Table:\n" + 
-			"        [pc: 10, pc: 11] -> 21 when : any\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 11]\n" + 
-			"        [pc: 8, line: 7]\n" + 
-			"        [pc: 10, line: 8]\n" + 
-			"        [pc: 11, line: 11]\n" + 
-			"        [pc: 19, line: 9]\n" + 
-			"        [pc: 21, line: 10]\n" + 
-			"        [pc: 22, line: 11]\n" + 
-			"        [pc: 30, line: 12]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 11, pc: 21] local: e index: 0 type: java.lang.Exception\n" + 
-			"      Stack map table: number of frames 2\n" + 
-			"        [pc: 10, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" + 
-			"        [pc: 21, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n";
+			"        [pc: 8, line: 7]\n";
 		}
 	}
  	try {
@@ -3574,139 +3533,137 @@ public void test048() {
 	
 	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_6
 		?	"  // Method descriptor #6 ()V\n" + 
-			"  // Stack: 1, Locals: 2\n" + 
-			"  void foo();\n" + 
-			"     0  aload_0 [this]\n" + 
-			"     1  invokevirtual X.bool() : boolean [17]\n" + 
-			"     4  ifeq 9\n" + 
-			"     7  return\n" + 
-			"     8  astore_1\n" + 
-			"     9  return\n" + 
-			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 7] -> 8 when : java.lang.Exception\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 5]\n" + 
-			"        [pc: 7, line: 6]\n" + 
-			"        [pc: 8, line: 8]\n" + 
-			"        [pc: 9, line: 10]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  // Method descriptor #22 ()I\n" + 
-			"  // Stack: 1, Locals: 2\n" + 
-			"  int foo2();\n" + 
-			"     0  aload_0 [this]\n" + 
-			"     1  invokevirtual X.bool() : boolean [17]\n" + 
-			"     4  ifeq 10\n" + 
-			"     7  iconst_0\n" + 
-			"     8  ireturn\n" + 
-			"     9  astore_1\n" + 
-			"    10  iconst_1\n" + 
-			"    11  ireturn\n" + 
-			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 7] -> 9 when : java.lang.Exception\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 13]\n" + 
-			"        [pc: 7, line: 14]\n" + 
-			"        [pc: 9, line: 16]\n" + 
-			"        [pc: 10, line: 18]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 12] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  // Method descriptor #24 ()J\n" + 
-			"  // Stack: 2, Locals: 2\n" + 
-			"  long foo3();\n" + 
-			"    0  lconst_0\n" + 
-			"    1  lreturn\n" + 
-			"    2  astore_1\n" + 
-			"    3  lconst_1\n" + 
-			"    4  lreturn\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 23]\n" + 
-			"        [pc: 2, line: 25]\n" + 
-			"        [pc: 3, line: 27]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  // Method descriptor #26 ()F\n" + 
-			"  // Stack: 1, Locals: 2\n" + 
-			"  float foo4();\n" + 
-			"     0  iconst_0\n" + 
-			"     1  istore_1 [i]\n" + 
-			"     2  aload_0 [this]\n" + 
-			"     3  invokevirtual X.bool() : boolean [17]\n" + 
-			"     6  ifeq 12\n" + 
-			"     9  fconst_0\n" + 
-			"    10  freturn\n" + 
-			"    11  astore_1\n" + 
-			"    12  fconst_1\n" + 
-			"    13  freturn\n" + 
-			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 9] -> 11 when : java.lang.Exception\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 31]\n" + 
-			"        [pc: 9, line: 32]\n" + 
-			"        [pc: 11, line: 34]\n" + 
-			"        [pc: 12, line: 36]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 14] local: this index: 0 type: X\n" + 
-			"        [pc: 2, pc: 11] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"  // Method descriptor #30 ()D\n" + 
-			"  // Stack: 2, Locals: 1\n" + 
-			"  double bar();\n" + 
-			"     0  aload_0 [this]\n" + 
-			"     1  invokevirtual X.bool() : boolean [17]\n" + 
-			"     4  ifeq 16\n" + 
-			"     7  aload_0 [this]\n" + 
-			"     8  invokevirtual X.bool() : boolean [17]\n" + 
-			"    11  ifeq 31\n" + 
-			"    14  dconst_0\n" + 
-			"    15  dreturn\n" + 
-			"    16  aload_0 [this]\n" + 
-			"    17  invokevirtual X.bool() : boolean [17]\n" + 
-			"    20  ifeq 31\n" + 
-			"    23  new java.lang.NullPointerException [31]\n" + 
-			"    26  dup\n" + 
-			"    27  invokespecial java.lang.NullPointerException() [33]\n" + 
-			"    30  athrow\n" + 
-			"    31  dconst_1\n" + 
-			"    32  dreturn\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 39]\n" + 
-			"        [pc: 7, line: 40]\n" + 
-			"        [pc: 14, line: 41]\n" + 
-			"        [pc: 16, line: 43]\n" + 
-			"        [pc: 23, line: 44]\n" + 
-			"        [pc: 31, line: 47]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 33] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  // Method descriptor #35 (I)V\n" + 
-			"  // Stack: 1, Locals: 2\n" + 
-			"  void baz(int i);\n" + 
-			"     0  aload_0 [this]\n" + 
-			"     1  invokevirtual X.bool() : boolean [17]\n" + 
-			"     4  ifeq 32\n" + 
-			"     7  iload_1 [i]\n" + 
-			"     8  tableswitch default: 29\n" + 
-			"          case 0: 28\n" + 
-			"    28  return\n" + 
-			"    29  goto 37\n" + 
-			"    32  aload_0 [this]\n" + 
-			"    33  invokevirtual X.bool() : boolean [17]\n" + 
-			"    36  pop\n" + 
-			"    37  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 50]\n" + 
-			"        [pc: 7, line: 51]\n" + 
-			"        [pc: 28, line: 52]\n" + 
-			"        [pc: 29, line: 53]\n" + 
-			"        [pc: 32, line: 56]\n" + 
-			"        [pc: 37, line: 58]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 38] local: this index: 0 type: X\n" + 
-			"        [pc: 0, pc: 38] local: i index: 1 type: int\n"
+				"  // Stack: 1, Locals: 2\n" + 
+				"  void foo();\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokevirtual X.bool() : boolean [17]\n" + 
+				"     4  ifeq 9\n" + 
+				"     7  return\n" + 
+				"     8  astore_1\n" + 
+				"     9  return\n" + 
+				"      Exception Table:\n" + 
+				"        [pc: 0, pc: 7] -> 8 when : java.lang.Exception\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 5]\n" + 
+				"        [pc: 7, line: 6]\n" + 
+				"        [pc: 8, line: 8]\n" + 
+				"        [pc: 9, line: 10]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+				"  \n" + 
+				"  // Method descriptor #22 ()I\n" + 
+				"  // Stack: 1, Locals: 2\n" + 
+				"  int foo2();\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokevirtual X.bool() : boolean [17]\n" + 
+				"     4  ifeq 10\n" + 
+				"     7  iconst_0\n" + 
+				"     8  ireturn\n" + 
+				"     9  astore_1\n" + 
+				"    10  iconst_1\n" + 
+				"    11  ireturn\n" + 
+				"      Exception Table:\n" + 
+				"        [pc: 0, pc: 7] -> 9 when : java.lang.Exception\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 13]\n" + 
+				"        [pc: 7, line: 14]\n" + 
+				"        [pc: 9, line: 16]\n" + 
+				"        [pc: 10, line: 18]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 12] local: this index: 0 type: X\n" + 
+				"  \n" + 
+				"  // Method descriptor #24 ()J\n" + 
+				"  // Stack: 2, Locals: 1\n" + 
+				"  long foo3();\n" + 
+				"    0  lconst_0\n" + 
+				"    1  lreturn\n" + 
+				"    2  lconst_1\n" + 
+				"    3  lreturn\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 23]\n" + 
+				"        [pc: 2, line: 27]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 4] local: this index: 0 type: X\n" + 
+				"  \n" + 
+				"  // Method descriptor #26 ()F\n" + 
+				"  // Stack: 1, Locals: 2\n" + 
+				"  float foo4();\n" + 
+				"     0  iconst_0\n" + 
+				"     1  istore_1 [i]\n" + 
+				"     2  aload_0 [this]\n" + 
+				"     3  invokevirtual X.bool() : boolean [17]\n" + 
+				"     6  ifeq 12\n" + 
+				"     9  fconst_0\n" + 
+				"    10  freturn\n" + 
+				"    11  astore_1\n" + 
+				"    12  fconst_1\n" + 
+				"    13  freturn\n" + 
+				"      Exception Table:\n" + 
+				"        [pc: 0, pc: 9] -> 11 when : java.lang.Exception\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 31]\n" + 
+				"        [pc: 9, line: 32]\n" + 
+				"        [pc: 11, line: 34]\n" + 
+				"        [pc: 12, line: 36]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 14] local: this index: 0 type: X\n" + 
+				"        [pc: 2, pc: 11] local: i index: 1 type: int\n" + 
+				"  \n" + 
+				"  // Method descriptor #30 ()D\n" + 
+				"  // Stack: 2, Locals: 1\n" + 
+				"  double bar();\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokevirtual X.bool() : boolean [17]\n" + 
+				"     4  ifeq 16\n" + 
+				"     7  aload_0 [this]\n" + 
+				"     8  invokevirtual X.bool() : boolean [17]\n" + 
+				"    11  ifeq 31\n" + 
+				"    14  dconst_0\n" + 
+				"    15  dreturn\n" + 
+				"    16  aload_0 [this]\n" + 
+				"    17  invokevirtual X.bool() : boolean [17]\n" + 
+				"    20  ifeq 31\n" + 
+				"    23  new java.lang.NullPointerException [31]\n" + 
+				"    26  dup\n" + 
+				"    27  invokespecial java.lang.NullPointerException() [33]\n" + 
+				"    30  athrow\n" + 
+				"    31  dconst_1\n" + 
+				"    32  dreturn\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 39]\n" + 
+				"        [pc: 7, line: 40]\n" + 
+				"        [pc: 14, line: 41]\n" + 
+				"        [pc: 16, line: 43]\n" + 
+				"        [pc: 23, line: 44]\n" + 
+				"        [pc: 31, line: 47]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 33] local: this index: 0 type: X\n" + 
+				"  \n" + 
+				"  // Method descriptor #35 (I)V\n" + 
+				"  // Stack: 1, Locals: 2\n" + 
+				"  void baz(int i);\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokevirtual X.bool() : boolean [17]\n" + 
+				"     4  ifeq 32\n" + 
+				"     7  iload_1 [i]\n" + 
+				"     8  tableswitch default: 29\n" + 
+				"          case 0: 28\n" + 
+				"    28  return\n" + 
+				"    29  goto 37\n" + 
+				"    32  aload_0 [this]\n" + 
+				"    33  invokevirtual X.bool() : boolean [17]\n" + 
+				"    36  pop\n" + 
+				"    37  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 50]\n" + 
+				"        [pc: 7, line: 51]\n" + 
+				"        [pc: 28, line: 52]\n" + 
+				"        [pc: 29, line: 53]\n" + 
+				"        [pc: 32, line: 56]\n" + 
+				"        [pc: 37, line: 58]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 38] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 38] local: i index: 1 type: int\n"
 		:
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
@@ -3750,29 +3707,24 @@ public void test048() {
 			"        [pc: 10, line: 18]\n" + 
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 12] local: this index: 0 type: X\n" + 
-			"      Stack map table: number of frames 3\n" + 
-			"        [pc: 7, same]\n" + 
+			"      Stack map table: number of frames 2\n" + 
 			"        [pc: 9, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" + 
 			"        [pc: 10, same]\n" + 
 			"  \n" + 
 			"  // Method descriptor #25 ()J\n" + 
-			"  // Stack: 2, Locals: 2\n" + 
+			"  // Stack: 2, Locals: 1\n" + 
 			"  long foo3();\n" + 
 			"    0  lconst_0\n" + 
 			"    1  lreturn\n" + 
-			"    2  astore_1\n" + 
-			"    3  lconst_1\n" + 
-			"    4  lreturn\n" + 
+			"    2  lconst_1\n" + 
+			"    3  lreturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 23]\n" + 
-			"        [pc: 2, line: 25]\n" + 
-			"        [pc: 3, line: 27]\n" + 
+			"        [pc: 2, line: 27]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"      Stack map table: number of frames 3\n" + 
-			"        [pc: 0, same]\n" + 
-			"        [pc: 2, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" + 
-			"        [pc: 3, same]\n" + 
+			"        [pc: 0, pc: 4] local: this index: 0 type: X\n" + 
+			"      Stack map table: number of frames 1\n" + 
+			"        [pc: 2, same]\n" + 
 			"  \n" + 
 			"  // Method descriptor #27 ()F\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
@@ -3797,9 +3749,8 @@ public void test048() {
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 14] local: this index: 0 type: X\n" + 
 			"        [pc: 2, pc: 11] local: i index: 1 type: int\n" + 
-			"      Stack map table: number of frames 3\n" + 
-			"        [pc: 9, append: {int}]\n" + 
-			"        [pc: 11, full, stack: {java.lang.Exception}, locals: {X}]\n" + 
+			"      Stack map table: number of frames 2\n" + 
+			"        [pc: 11, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" + 
 			"        [pc: 12, same]\n" + 
 			"  \n" + 
 			"  // Method descriptor #31 ()D\n" + 
@@ -4141,8 +4092,7 @@ public void test049() {
 			"        [pc: 16, line: 18]\n" + 
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 17] local: this index: 0 type: X\n" + 
-			"      Stack map table: number of frames 3\n" + 
-			"        [pc: 7, same]\n" + 
+			"      Stack map table: number of frames 2\n" + 
 			"        [pc: 15, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" + 
 			"        [pc: 16, same]\n" + 
 			"  \n" + 
@@ -4163,10 +4113,8 @@ public void test049() {
 			"        [pc: 9, line: 26]\n" + 
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
-			"      Stack map table: number of frames 3\n" + 
-			"        [pc: 0, same]\n" + 
+			"      Stack map table: number of frames 1\n" + 
 			"        [pc: 8, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" + 
-			"        [pc: 9, same]\n" + 
 			"  \n" + 
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
@@ -4192,9 +4140,8 @@ public void test049() {
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 19] local: this index: 0 type: X\n" + 
 			"        [pc: 2, pc: 17] local: i index: 1 type: int\n" + 
-			"      Stack map table: number of frames 3\n" + 
-			"        [pc: 9, append: {int}]\n" + 
-			"        [pc: 17, full, stack: {java.lang.Exception}, locals: {X}]\n" + 
+			"      Stack map table: number of frames 2\n" + 
+			"        [pc: 17, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" + 
 			"        [pc: 18, same]\n" + 
 			"  \n" + 
 			"  // Method descriptor #6 ()V\n" + 
@@ -4347,126 +4294,122 @@ public void test050() {
 	
 	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_6
 		?	"  // Method descriptor #6 ()V\n" + 
-			"  // Stack: 1, Locals: 2\n" + 
-			"  void foo();\n" + 
-			"     0  aload_0 [this]\n" + 
-			"     1  invokevirtual X.bool() : boolean [17]\n" + 
-			"     4  ifeq 11\n" + 
-			"     7  goto 11\n" + 
-			"    10  astore_1\n" + 
-			"    11  return\n" + 
-			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 7] -> 10 when : java.lang.Exception\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 5]\n" + 
-			"        [pc: 7, line: 6]\n" + 
-			"        [pc: 10, line: 8]\n" + 
-			"        [pc: 11, line: 10]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 12] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  // Method descriptor #6 ()V\n" + 
-			"  // Stack: 1, Locals: 2\n" + 
-			"  void foo2();\n" + 
-			"     0  aload_0 [this]\n" + 
-			"     1  invokevirtual X.bool() : boolean [17]\n" + 
-			"     4  ifeq 11\n" + 
-			"     7  goto 11\n" + 
-			"    10  astore_1\n" + 
-			"    11  return\n" + 
-			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 7] -> 10 when : java.lang.Exception\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 13]\n" + 
-			"        [pc: 7, line: 14]\n" + 
-			"        [pc: 10, line: 16]\n" + 
-			"        [pc: 11, line: 18]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 12] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  // Method descriptor #6 ()V\n" + 
-			"  // Stack: 1, Locals: 2\n" + 
-			"  void foo3();\n" + 
-			"    0  goto 4\n" + 
-			"    3  astore_1\n" + 
-			"    4  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 22]\n" + 
-			"        [pc: 3, line: 24]\n" + 
-			"        [pc: 4, line: 26]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  // Method descriptor #6 ()V\n" + 
-			"  // Stack: 1, Locals: 2\n" + 
-			"  void foo4();\n" + 
-			"     0  iconst_0\n" + 
-			"     1  istore_1 [i]\n" + 
-			"     2  aload_0 [this]\n" + 
-			"     3  invokevirtual X.bool() : boolean [17]\n" + 
-			"     6  ifeq 13\n" + 
-			"     9  goto 13\n" + 
-			"    12  astore_1\n" + 
-			"    13  return\n" + 
-			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 9] -> 12 when : java.lang.Exception\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 29]\n" + 
-			"        [pc: 9, line: 30]\n" + 
-			"        [pc: 12, line: 32]\n" + 
-			"        [pc: 13, line: 34]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 14] local: this index: 0 type: X\n" + 
-			"        [pc: 2, pc: 12] local: i index: 1 type: int\n" + 
-			"  \n" + 
-			"  // Method descriptor #6 ()V\n" + 
-			"  // Stack: 1, Locals: 1\n" + 
-			"  void bar();\n" + 
-			"     0  aload_0 [this]\n" + 
-			"     1  invokevirtual X.bool() : boolean [17]\n" + 
-			"     4  ifeq 17\n" + 
-			"     7  aload_0 [this]\n" + 
-			"     8  invokevirtual X.bool() : boolean [17]\n" + 
-			"    11  ifeq 24\n" + 
-			"    14  goto 24\n" + 
-			"    17  aload_0 [this]\n" + 
-			"    18  invokevirtual X.bool() : boolean [17]\n" + 
-			"    21  ifeq 24\n" + 
-			"    24  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 36]\n" + 
-			"        [pc: 7, line: 37]\n" + 
-			"        [pc: 14, line: 38]\n" + 
-			"        [pc: 17, line: 40]\n" + 
-			"        [pc: 24, line: 44]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 25] local: this index: 0 type: X\n" + 
-			"  \n" + 
-			"  // Method descriptor #28 (I)V\n" + 
-			"  // Stack: 1, Locals: 2\n" + 
-			"  void baz(int i);\n" + 
-			"     0  aload_0 [this]\n" + 
-			"     1  invokevirtual X.bool() : boolean [17]\n" + 
-			"     4  ifeq 34\n" + 
-			"     7  iload_1 [i]\n" + 
-			"     8  tableswitch default: 31\n" + 
-			"          case 0: 28\n" + 
-			"    28  goto 39\n" + 
-			"    31  goto 39\n" + 
-			"    34  aload_0 [this]\n" + 
-			"    35  invokevirtual X.bool() : boolean [17]\n" + 
-			"    38  pop\n" + 
-			"    39  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 46]\n" + 
-			"        [pc: 7, line: 47]\n" + 
-			"        [pc: 28, line: 48]\n" + 
-			"        [pc: 31, line: 49]\n" + 
-			"        [pc: 34, line: 52]\n" + 
-			"        [pc: 39, line: 54]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 40] local: this index: 0 type: X\n" + 
-			"        [pc: 0, pc: 40] local: i index: 1 type: int\n"
+				"  // Stack: 1, Locals: 2\n" + 
+				"  void foo();\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokevirtual X.bool() : boolean [17]\n" + 
+				"     4  ifeq 11\n" + 
+				"     7  goto 11\n" + 
+				"    10  astore_1\n" + 
+				"    11  return\n" + 
+				"      Exception Table:\n" + 
+				"        [pc: 0, pc: 7] -> 10 when : java.lang.Exception\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 5]\n" + 
+				"        [pc: 7, line: 6]\n" + 
+				"        [pc: 10, line: 8]\n" + 
+				"        [pc: 11, line: 10]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 12] local: this index: 0 type: X\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 1, Locals: 2\n" + 
+				"  void foo2();\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokevirtual X.bool() : boolean [17]\n" + 
+				"     4  ifeq 11\n" + 
+				"     7  goto 11\n" + 
+				"    10  astore_1\n" + 
+				"    11  return\n" + 
+				"      Exception Table:\n" + 
+				"        [pc: 0, pc: 7] -> 10 when : java.lang.Exception\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 13]\n" + 
+				"        [pc: 7, line: 14]\n" + 
+				"        [pc: 10, line: 16]\n" + 
+				"        [pc: 11, line: 18]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 12] local: this index: 0 type: X\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 0, Locals: 1\n" + 
+				"  void foo3();\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 26]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 1, Locals: 2\n" + 
+				"  void foo4();\n" + 
+				"     0  iconst_0\n" + 
+				"     1  istore_1 [i]\n" + 
+				"     2  aload_0 [this]\n" + 
+				"     3  invokevirtual X.bool() : boolean [17]\n" + 
+				"     6  ifeq 13\n" + 
+				"     9  goto 13\n" + 
+				"    12  astore_1\n" + 
+				"    13  return\n" + 
+				"      Exception Table:\n" + 
+				"        [pc: 0, pc: 9] -> 12 when : java.lang.Exception\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 29]\n" + 
+				"        [pc: 9, line: 30]\n" + 
+				"        [pc: 12, line: 32]\n" + 
+				"        [pc: 13, line: 34]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 14] local: this index: 0 type: X\n" + 
+				"        [pc: 2, pc: 12] local: i index: 1 type: int\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  void bar();\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokevirtual X.bool() : boolean [17]\n" + 
+				"     4  ifeq 17\n" + 
+				"     7  aload_0 [this]\n" + 
+				"     8  invokevirtual X.bool() : boolean [17]\n" + 
+				"    11  ifeq 24\n" + 
+				"    14  goto 24\n" + 
+				"    17  aload_0 [this]\n" + 
+				"    18  invokevirtual X.bool() : boolean [17]\n" + 
+				"    21  ifeq 24\n" + 
+				"    24  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 36]\n" + 
+				"        [pc: 7, line: 37]\n" + 
+				"        [pc: 14, line: 38]\n" + 
+				"        [pc: 17, line: 40]\n" + 
+				"        [pc: 24, line: 44]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 25] local: this index: 0 type: X\n" + 
+				"  \n" + 
+				"  // Method descriptor #28 (I)V\n" + 
+				"  // Stack: 1, Locals: 2\n" + 
+				"  void baz(int i);\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokevirtual X.bool() : boolean [17]\n" + 
+				"     4  ifeq 34\n" + 
+				"     7  iload_1 [i]\n" + 
+				"     8  tableswitch default: 31\n" + 
+				"          case 0: 28\n" + 
+				"    28  goto 39\n" + 
+				"    31  goto 39\n" + 
+				"    34  aload_0 [this]\n" + 
+				"    35  invokevirtual X.bool() : boolean [17]\n" + 
+				"    38  pop\n" + 
+				"    39  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 46]\n" + 
+				"        [pc: 7, line: 47]\n" + 
+				"        [pc: 28, line: 48]\n" + 
+				"        [pc: 31, line: 49]\n" + 
+				"        [pc: 34, line: 52]\n" + 
+				"        [pc: 39, line: 54]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 40] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 40] local: i index: 1 type: int\n"
 		:	
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
@@ -4508,27 +4451,18 @@ public void test050() {
 			"        [pc: 11, line: 18]\n" + 
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 12] local: this index: 0 type: X\n" + 
-			"      Stack map table: number of frames 3\n" + 
-			"        [pc: 7, same]\n" + 
+			"      Stack map table: number of frames 2\n" + 
 			"        [pc: 10, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" + 
 			"        [pc: 11, same]\n" + 
 			"  \n" + 
 			"  // Method descriptor #6 ()V\n" + 
-			"  // Stack: 1, Locals: 2\n" + 
+			"  // Stack: 0, Locals: 1\n" + 
 			"  void foo3();\n" + 
-			"    0  goto 4\n" + 
-			"    3  astore_1\n" + 
-			"    4  return\n" + 
+			"    0  return\n" + 
 			"      Line numbers:\n" + 
-			"        [pc: 0, line: 22]\n" + 
-			"        [pc: 3, line: 24]\n" + 
-			"        [pc: 4, line: 26]\n" + 
+			"        [pc: 0, line: 26]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-			"      Stack map table: number of frames 3\n" + 
-			"        [pc: 0, same]\n" + 
-			"        [pc: 3, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" + 
-			"        [pc: 4, same]\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
 			"  \n" + 
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 1, Locals: 2\n" + 
@@ -4551,9 +4485,8 @@ public void test050() {
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 14] local: this index: 0 type: X\n" + 
 			"        [pc: 2, pc: 12] local: i index: 1 type: int\n" + 
-			"      Stack map table: number of frames 3\n" + 
-			"        [pc: 9, append: {int}]\n" + 
-			"        [pc: 12, full, stack: {java.lang.Exception}, locals: {X}]\n" + 
+			"      Stack map table: number of frames 2\n" + 
+			"        [pc: 12, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" + 
 			"        [pc: 13, same]\n" + 
 			"  \n" + 
 			"  // Method descriptor #6 ()V\n" + 
@@ -4716,10 +4649,9 @@ public void test051() {
 			"      Local variable table:\n" + 
 			"        [pc: 2, pc: 22] local: count index: 0 type: int\n" + 
 			"        [pc: 4, pc: 16] local: i index: 1 type: int\n" + 
-			"      Stack map table: number of frames 4\n" + 
+			"      Stack map table: number of frames 3\n" + 
 			"        [pc: 4, append: {int, int}]\n" + 
-			"        [pc: 16, chop 1 local(s)]\n" + 
-			"        [pc: 19, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" + 
+			"        [pc: 19, full, stack: {java.lang.Exception}, locals: {int}]\n" + 
 			"        [pc: 20, same]\n";
 	
 	try {
@@ -5617,26 +5549,16 @@ public void test063() {
 			"     4  aload_0 [this]\n" + 
 			"     5  invokespecial X$MyClass(X) [17]\n" + 
 			"     8  astore_1 [myClass]\n" + 
-			"     9  jsr 40\n" + 
+			"     9  jsr 21\n" + 
 			"    12  return\n" + 
-			"    13  astore_2 [ex]\n" + 
-			"    14  aload_1 [myClass]\n" + 
-			"    15  aload_0 [this]\n" + 
-			"    16  ifnonnull 24\n" + 
-			"    19  ldc <String \"\"> [20]\n" + 
-			"    21  goto 26\n" + 
-			"    24  ldc <String \"\"> [20]\n" + 
-			"    26  invokevirtual X$MyClass.foo(java.lang.String) : void [22]\n" + 
-			"    29  goto 9\n" + 
-			"    32  astore 4\n" + 
-			"    34  jsr 40\n" + 
-			"    37  aload 4\n" + 
-			"    39  athrow\n" + 
-			"    40  astore_3\n" + 
-			"    41  ret 3\n" + 
+			"    13  astore 4\n" + 
+			"    15  jsr 21\n" + 
+			"    18  aload 4\n" + 
+			"    20  athrow\n" + 
+			"    21  astore_3\n" + 
+			"    22  ret 3\n" + 
 			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 12] -> 32 when : any\n" + 
-			"        [pc: 13, pc: 32] -> 32 when : any\n"
+			"        [pc: 0, pc: 12] -> 13 when : any\n"
 		:	new CompilerOptions(this.getCompilerOptions()).complianceLevel <= ClassFileConstants.JDK1_5 ?
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 3, Locals: 4\n" + 
@@ -5647,21 +5569,11 @@ public void test063() {
 			"     5  invokespecial X$MyClass(X) [17]\n" + 
 			"     8  astore_1 [myClass]\n" + 
 			"     9  return\n" + 
-			"    10  astore_2 [ex]\n" + 
-			"    11  aload_1 [myClass]\n" + 
-			"    12  aload_0 [this]\n" + 
-			"    13  ifnonnull 21\n" + 
-			"    16  ldc <String \"\"> [20]\n" + 
-			"    18  goto 23\n" + 
-			"    21  ldc <String \"\"> [20]\n" + 
-			"    23  invokevirtual X$MyClass.foo(java.lang.String) : void [22]\n" + 
-			"    26  goto 9\n" + 
-			"    29  astore_3\n" + 
-			"    30  aload_3\n" + 
-			"    31  athrow\n" + 
+			"    10  astore_3\n" + 
+			"    11  aload_3\n" + 
+			"    12  athrow\n" + 
 			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 9] -> 29 when : any\n" + 
-			"        [pc: 10, pc: 29] -> 29 when : any\n"
+			"        [pc: 0, pc: 9] -> 10 when : any\n"
 		:
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 3, Locals: 4\n" + 
@@ -5672,21 +5584,12 @@ public void test063() {
 			"     5  invokespecial X$MyClass(X) [17]\n" + 
 			"     8  astore_1 [myClass]\n" + 
 			"     9  return\n" + 
-			"    10  astore_2 [ex]\n" + 
-			"    11  aload_1 [myClass]\n" + 
-			"    12  aload_0 [this]\n" + 
-			"    13  ifnonnull 21\n" + 
-			"    16  ldc <String \"\"> [20]\n" + 
-			"    18  goto 23\n" + 
-			"    21  ldc <String \"\"> [20]\n" + 
-			"    23  invokevirtual X$MyClass.foo(java.lang.String) : void [22]\n" + 
-			"    26  return\n" + 
-			"    27  astore_3\n" + 
-			"    28  aload_3\n" + 
-			"    29  athrow\n" + 
+			"    10  return\n" + 
+			"    11  astore_3\n" + 
+			"    12  aload_3\n" + 
+			"    13  athrow\n" + 
 			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 9] -> 27 when : any\n" + 
-			"        [pc: 10, pc: 26] -> 27 when : any\n";
+			"        [pc: 0, pc: 9] -> 11 when : any\n";
 
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -5748,27 +5651,17 @@ public void test064() {
 			"     4  aload_0 [this]\n" + 
 			"     5  invokespecial X$MyClass(X) [18]\n" + 
 			"     8  astore_1 [myClass]\n" + 
-			"     9  jsr 41\n" + 
+			"     9  jsr 22\n" + 
 			"    12  aconst_null\n" + 
 			"    13  areturn\n" + 
-			"    14  astore_2 [ex]\n" + 
-			"    15  aload_1 [myClass]\n" + 
-			"    16  aload_0 [this]\n" + 
-			"    17  ifnonnull 25\n" + 
-			"    20  ldc <String \"\"> [21]\n" + 
-			"    22  goto 27\n" + 
-			"    25  ldc <String \"\"> [21]\n" + 
-			"    27  invokevirtual X$MyClass.foo(java.lang.String) : void [23]\n" + 
-			"    30  goto 9\n" + 
-			"    33  astore 4\n" + 
-			"    35  jsr 41\n" + 
-			"    38  aload 4\n" + 
-			"    40  athrow\n" + 
-			"    41  astore_3\n" + 
-			"    42  ret 3\n" + 
+			"    14  astore 4\n" + 
+			"    16  jsr 22\n" + 
+			"    19  aload 4\n" + 
+			"    21  athrow\n" + 
+			"    22  astore_3\n" + 
+			"    23  ret 3\n" + 
 			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 12] -> 33 when : any\n" + 
-			"        [pc: 14, pc: 33] -> 33 when : any\n"
+			"        [pc: 0, pc: 12] -> 14 when : any\n"
 		:	new CompilerOptions(this.getCompilerOptions()).complianceLevel <= ClassFileConstants.JDK1_5 ?
 			"  // Method descriptor #15 ()Ljava/lang/Object;\n" + 
 			"  // Stack: 3, Locals: 4\n" + 
@@ -5780,21 +5673,11 @@ public void test064() {
 			"     8  astore_1 [myClass]\n" + 
 			"     9  aconst_null\n" + 
 			"    10  areturn\n" + 
-			"    11  astore_2 [ex]\n" + 
-			"    12  aload_1 [myClass]\n" + 
-			"    13  aload_0 [this]\n" + 
-			"    14  ifnonnull 22\n" + 
-			"    17  ldc <String \"\"> [21]\n" + 
-			"    19  goto 24\n" + 
-			"    22  ldc <String \"\"> [21]\n" + 
-			"    24  invokevirtual X$MyClass.foo(java.lang.String) : void [23]\n" + 
-			"    27  goto 9\n" + 
-			"    30  astore_3\n" + 
-			"    31  aload_3\n" + 
-			"    32  athrow\n" + 
+			"    11  astore_3\n" + 
+			"    12  aload_3\n" + 
+			"    13  athrow\n" + 
 			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 9] -> 30 when : any\n" + 
-			"        [pc: 11, pc: 30] -> 30 when : any\n"
+			"        [pc: 0, pc: 9] -> 11 when : any\n"
 		:
 			"  // Method descriptor #15 ()Ljava/lang/Object;\n" + 
 			"  // Stack: 3, Locals: 4\n" + 
@@ -5806,22 +5689,13 @@ public void test064() {
 			"     8  astore_1 [myClass]\n" + 
 			"     9  aconst_null\n" + 
 			"    10  areturn\n" + 
-			"    11  astore_2 [ex]\n" + 
-			"    12  aload_1 [myClass]\n" + 
-			"    13  aload_0 [this]\n" + 
-			"    14  ifnonnull 22\n" + 
-			"    17  ldc <String \"\"> [21]\n" + 
-			"    19  goto 24\n" + 
-			"    22  ldc <String \"\"> [21]\n" + 
-			"    24  invokevirtual X$MyClass.foo(java.lang.String) : void [23]\n" + 
-			"    27  aconst_null\n" + 
-			"    28  areturn\n" + 
-			"    29  astore_3\n" + 
-			"    30  aload_3\n" + 
-			"    31  athrow\n" + 
+			"    11  aconst_null\n" + 
+			"    12  areturn\n" + 
+			"    13  astore_3\n" + 
+			"    14  aload_3\n" + 
+			"    15  athrow\n" + 
 			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 9] -> 29 when : any\n" + 
-			"        [pc: 11, pc: 27] -> 29 when : any\n";
+			"        [pc: 0, pc: 9] -> 13 when : any\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");

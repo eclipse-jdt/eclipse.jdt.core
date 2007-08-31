@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.util;
+package org.eclipse.jdt.internal.compiler.util;
 
 /**
  * Description of each opcode mnemonic according to the JVM specifications.

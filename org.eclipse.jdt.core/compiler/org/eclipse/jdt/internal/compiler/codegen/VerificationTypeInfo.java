@@ -14,7 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
-public class VerificationTypeInfo implements Cloneable {
+public class VerificationTypeInfo {
 	/**
 	 * The tag value representing top variable info
 	 * @since 3.2
@@ -60,19 +60,22 @@ public class VerificationTypeInfo implements Cloneable {
 	 * @since 3.2
 	 */
 	public static final int ITEM_UNINITIALIZED = 8;
-	
+
 	public int tag;
 	private int id;
 	private char[] constantPoolName;
 	public int offset;
 
+private VerificationTypeInfo() {
+	// for duplication
+}
 public VerificationTypeInfo(int id, char[] constantPoolName) {
 	this(id, VerificationTypeInfo.ITEM_OBJECT, constantPoolName);
 }
 public VerificationTypeInfo(int id, int tag, char[] constantPoolName) {
 	this.id = id;
-	this.constantPoolName = constantPoolName;
 	this.tag = tag;
+	this.constantPoolName = constantPoolName;
 }
 public VerificationTypeInfo(int tag, TypeBinding binding) {
 	this(binding);
@@ -102,8 +105,8 @@ public VerificationTypeInfo(TypeBinding binding) {
 			break;
 		default:
 			this.tag =  VerificationTypeInfo.ITEM_OBJECT;
+			this.constantPoolName = binding.constantPoolName();
 	}
-	this.constantPoolName = binding.constantPoolName();
 }
 public void setBinding(TypeBinding binding) {
 	this.constantPoolName = binding.constantPoolName();
@@ -145,13 +148,32 @@ public String toString() {
 		case VerificationTypeInfo.ITEM_UNINITIALIZED :
 			buffer.append("uninitialized(").append(this.readableName()).append(")"); //$NON-NLS-1$//$NON-NLS-2$
 			break;
-		default:
+		case VerificationTypeInfo.ITEM_OBJECT :
 			buffer.append(this.readableName());
+			break;
+		case VerificationTypeInfo.ITEM_DOUBLE :
+			buffer.append('D');
+			break;
+		case VerificationTypeInfo.ITEM_FLOAT :
+			buffer.append('F');
+			break;
+		case VerificationTypeInfo.ITEM_INTEGER :
+			buffer.append('I');
+			break;
+		case VerificationTypeInfo.ITEM_LONG :
+			buffer.append('J');
+			break;
+		case VerificationTypeInfo.ITEM_NULL :
+			buffer.append("null"); //$NON-NLS-1$
+			break;
+		case VerificationTypeInfo.ITEM_TOP :
+			buffer.append("top"); //$NON-NLS-1$
+			break;
 	}
 	return String.valueOf(buffer);
 }
-protected Object clone() throws CloneNotSupportedException {
-	final VerificationTypeInfo verificationTypeInfo = (VerificationTypeInfo) super.clone();
+public VerificationTypeInfo duplicate() {
+	final VerificationTypeInfo verificationTypeInfo = new VerificationTypeInfo();
 	verificationTypeInfo.id = this.id;
 	verificationTypeInfo.tag = this.tag;
 	verificationTypeInfo.constantPoolName = this.constantPoolName;

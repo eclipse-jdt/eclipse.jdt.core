@@ -34,7 +34,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 public class CompilationUnitDeclaration
 	extends ASTNode
 	implements ProblemSeverities, ReferenceContext {
-
+	
 	private static final Comparator STRING_LITERAL_COMPARATOR = new Comparator() {
 		public int compare(Object o1, Object o2) {
 			StringLiteral literal1 = (StringLiteral) o1;
@@ -195,7 +195,6 @@ public class CompilationUnitDeclaration
 	 * Bytecode generation
 	 */
 	public void generateCode() {
-
 		if (ignoreFurtherInvestigation) {
 			if (types != null) {
 				for (int i = 0, count = types.length; i < count; i++) {
