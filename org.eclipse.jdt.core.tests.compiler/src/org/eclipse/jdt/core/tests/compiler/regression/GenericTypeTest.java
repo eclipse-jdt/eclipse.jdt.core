@@ -38299,4 +38299,325 @@ public void test1149() {
 		false, // do not flush output
 		null);		
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=189158
+public void test1150() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.ref.Reference;\n"+
+			"public class X<T> {\n" + 
+			"	static class Rather {\n" + 
+			"		static class Deeply {\n" + 
+			"			static class Inside {\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	Reference<X.Rather.Deeply> x;\n" + 
+			"	Reference<X.Rather> y;	\n" + 
+			"	Reference<X.Rather.Deeply.Inside> z;	\n" + 
+			"\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		System.out.print(X.class.getDeclaredField(\"x\").getGenericType());\n" + 
+			"		System.out.print(\"##\");\n" + 
+			"		System.out.print(X.class.getDeclaredField(\"y\").getGenericType());\n" + 
+			"		System.out.print(\"##\");\n" + 
+			"		System.out.print(X.class.getDeclaredField(\"z\").getGenericType());\n" + 
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"java.lang.ref.Reference<X$Rather$Deeply>##java.lang.ref.Reference<X$Rather>##java.lang.ref.Reference<X$Rather$Deeply$Inside>"
+	);
+	String expectedOutput = 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX$Rather$Deeply;>;\n" + 
+		"  java.lang.ref.Reference x;\n" + 
+		"  \n" + 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX$Rather;>;\n" + 
+		"  java.lang.ref.Reference y;\n" + 
+		"  \n" + 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX$Rather$Deeply$Inside;>;\n" + 
+		"  java.lang.ref.Reference z;\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}			
+	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=189158 - variation
+public void test1151() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.ref.Reference;\n"+
+			"public class X<T> {\n" + 
+			"	class Other<U> {\n" + 
+			"		class Deeply {\n" + 
+			"			class Inside<V> {\n" + 
+			"			}			\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply> t;\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply.Inside<Number>> u;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		System.out.print(X.class.getDeclaredField(\"t\").getGenericType());\n" + 
+			"		//System.out.print(\"##\");\n" + 
+			"		//System.out.print(X.class.getDeclaredField(\"u\").getGenericType());\n" + // TODO disabled due to bug in libs (unable to re-read the generated signature)
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		//"java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>##java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply$Inside<java.lang.Number>>"
+		"java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>"
+	);
+	String expectedOutput = 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX<Ljava/lang/String;>.Other<Ljava/lang/Thread;>.Deeply;>;\n" + 
+		"  java.lang.ref.Reference t;\n" + 
+		"  \n" + 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX<Ljava/lang/String;>.Other<Ljava/lang/Thread;>.Deeply.Inside<Ljava/lang/Number;>;>;\n" + 
+		"  java.lang.ref.Reference u;\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}			
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=189158 - variation
+public void test1152() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.lang.ref.Reference;\n"+
+			"public class X<T> {\n" + 
+			"	class Other<U> {\n" + 
+			"		class Deeply {\n" + 
+			"			class Inside<V> {\n" + 
+			"			}			\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply.Inside> u;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		System.out.print(X.class.getDeclaredField(\"u\").getGenericType());\n" + 
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	Reference<X<String>.Other<Thread>.Deeply.Inside> u;\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The member type X<String>.Other<Thread>.Deeply.Inside must be parameterized, since it is qualified with a parameterized type\n" + 
+		"----------\n"	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=189158 - variation
+public void test1153() {
+	// check proper decoding of binary signatures, by compiling against generated binary
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" +
+			"import java.lang.ref.Reference;\n" + 
+			"public class X<T> {\n" + 
+			"	public static class Rather {\n" + 
+			"		public static class Deeply {\n" + 
+			"			public static class Inside {\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public class Other<U> {\n" + 
+			"		public class Deeply {\n" + 
+			"			public class Inside<V> {\n" + 
+			"			}			\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public Reference<X.Rather.Deeply> x;\n" + 
+			"	public Reference<X.Rather> y;	\n" + 
+			"	public Reference<X.Rather.Deeply.Inside> z;	\n" + 
+			"	public Reference<X<String>.Other<Thread>.Deeply> t;\n" + 
+			"	public Reference<X<String>.Other<Thread>.Deeply.Inside<Number>> u;\n" + 
+			"}\n",
+		},
+		""
+	);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"import java.lang.ref.Reference;\n" + 
+			"import p.X;\n" +
+			"public class Y {\n" + 
+			"	Reference<X.Rather.Deeply> x;\n" + 
+			"	Reference<X.Rather> y;	\n" + 
+			"	Reference<X.Rather.Deeply.Inside> z;	\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply> t;\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply.Inside<Number>> u;\n" + 
+			"	Y(X someX) {\n" + 
+			"		this.x = someX.x;\n" + 
+			"		this. y = someX.y;	\n" + 
+			"		this.z = someX.z;	\n" + 
+			"		this.t = someX.t;\n" + 
+			"		this.u = someX.u;		\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		System.out.print(Y.class.getDeclaredField(\"x\").getGenericType());\n" + 
+			"		System.out.print(\"##\");\n" + 
+			"		System.out.print(Y.class.getDeclaredField(\"y\").getGenericType());\n" + 
+			"		System.out.print(\"##\");\n" + 
+			"		System.out.print(Y.class.getDeclaredField(\"z\").getGenericType());\n" + 
+			"		System.out.print(\"##\");\n" + 
+			"		System.out.print(Y.class.getDeclaredField(\"t\").getGenericType());\n" + 
+			"		//System.out.print(\"##\");\n" + 
+			"		//System.out.print(Y.class.getDeclaredField(\"u\").getGenericType());\n" + // TODO disabled due to bug in libs (unable to re-read the generated signature)
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"java.lang.ref.Reference<p.X$Rather$Deeply>##java.lang.ref.Reference<p.X$Rather>##java.lang.ref.Reference<p.X$Rather$Deeply$Inside>##java.lang.ref.Reference<p.X<java.lang.String>.Other<java.lang.Thread>.Deeply>",
+		null,
+		false, // do not flush output
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=189158 - variation
+public void test1154() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.ref.Reference;\n" + 
+			"public class X {\n" + 
+			"	class Other<U> {\n" + 
+			"		class Deeply {\n" + 
+			"			class Deeper {\n" + 
+			"				class Inside<V> {\n" + 
+			"				}			\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	Reference<X.Other<Thread>.Deeply> t;\n" + 
+			"	Reference<X.Other<Thread>.Deeply.Deeper.Inside<Number>> u;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		//System.out.print(X.class.getDeclaredField(\"t\").getGenericType());\n" +  // TODO disabled due to bug in libs (unable to re-read the generated signature)
+			"		//System.out.print(\"##\");\n" + 
+			"		//System.out.print(X.class.getDeclaredField(\"u\").getGenericType());\n" + // TODO disabled due to bug in libs (unable to re-read the generated signature)
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"");
+	
+	String expectedOutput = 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX$Other<Ljava/lang/Thread;>.Deeply;>;\n" + 
+		"  java.lang.ref.Reference t;\n" + 
+		"  \n" + 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX$Other<Ljava/lang/Thread;>.Deeply.Deeper.Inside<Ljava/lang/Number;>;>;\n" + 
+		"  java.lang.ref.Reference u;\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=189158 - variation
+public void test1155() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.ref.Reference;\n" + 
+			"public class X<T> {\n" + 
+			"	class Other<U> {\n" + 
+			"		class Deeply {\n" + 
+			"			class Deeper {\n" + 
+			"				class Inside<V> {\n" + 
+			"				}			\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply> t;\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply.Deeper.Inside<Number>> u;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		System.out.print(X.class.getDeclaredField(\"t\").getGenericType());\n" + 
+			"		//System.out.print(\"##\");\n" + 
+			"		//System.out.print(X.class.getDeclaredField(\"u\").getGenericType());\n" + // TODO disabled due to bug in libs (unable to re-read the generated signature)
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>"	);
+	
+	String expectedOutput = 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX<Ljava/lang/String;>.Other<Ljava/lang/Thread;>.Deeply;>;\n" + 
+		"  java.lang.ref.Reference t;\n" + 
+		"  \n" + 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX<Ljava/lang/String;>.Other<Ljava/lang/Thread;>.Deeply.Deeper.Inside<Ljava/lang/Number;>;>;\n" + 
+		"  java.lang.ref.Reference u;\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+
 }

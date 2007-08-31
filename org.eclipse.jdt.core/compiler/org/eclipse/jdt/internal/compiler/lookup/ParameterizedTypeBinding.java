@@ -362,29 +362,40 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * LY<TT;>;
 	 */
 	public char[] genericTypeSignature() {
-	    if (this.genericTypeSignature == null) {
-		    StringBuffer sig = new StringBuffer(10);
-			if (this.isMemberType() && this.enclosingType().isParameterizedType()) {
-			    char[] typeSig = this.enclosingType().genericTypeSignature();
-			    sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
-			    sig.append('.').append(this.sourceName());
+		if (this.genericTypeSignature == null) {
+			if ((this.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0) {
+		    	this.genericTypeSignature = this.type.signature();
 			} else {
-			    char[] typeSig = this.type.signature();
-			    sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
-			}	   	    
-			if (this.arguments != null) {
-			    sig.append('<');
-			    for (int i = 0, length = this.arguments.length; i < length; i++) {
-			        sig.append(this.arguments[i].genericTypeSignature());
-			    }
-			    sig.append('>');
+			    StringBuffer sig = new StringBuffer(10);
+			    if (this.isMemberType()) {
+			    	ReferenceBinding enclosing = enclosingType();
+			    	boolean hasParameterizedEnclosing = enclosing.isParameterizedType();
+					char[] typeSig = hasParameterizedEnclosing ? enclosing.genericTypeSignature() : enclosing.signature();
+					sig.append(typeSig, 0, typeSig.length-1);// copy all but trailing semicolon
+			    	if (hasParameterizedEnclosing && (enclosing.modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
+			    		sig.append('.');
+			    	} else {
+			    		sig.append('$');
+			    	}
+			    	sig.append(this.sourceName());
+			    } else {
+			    	char[] typeSig = this.type.signature();
+					sig.append(typeSig, 0, typeSig.length-1);// copy all but trailing semicolon
+		    	}
+				if (this.arguments != null) {
+				    sig.append('<');
+				    for (int i = 0, length = this.arguments.length; i < length; i++) {
+				        sig.append(this.arguments[i].genericTypeSignature());
+				    }
+				    sig.append('>');
+				}
+				sig.append(';');
+				int sigLength = sig.length();
+				this.genericTypeSignature = new char[sigLength];
+				sig.getChars(0, sigLength, this.genericTypeSignature, 0);						
 			}
-			sig.append(';');
-			int sigLength = sig.length();
-			this.genericTypeSignature = new char[sigLength];
-			sig.getChars(0, sigLength, this.genericTypeSignature, 0);			
-	    }
-		return this.genericTypeSignature;	    
+		}
+		return this.genericTypeSignature;
 	}
 	
 	/**
