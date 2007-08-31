@@ -14,7 +14,7 @@ package org.eclipse.jdt.internal.apt.pluggable.core.filer;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.List;
+import java.util.Collection;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -32,10 +32,10 @@ public class IdeJavaSourceFileWriter extends StringWriter {
 	
 	private final IdeProcessingEnvImpl _env;
 	private final CharSequence _name;
-	private final List<IFile> _parentFiles;
+	private final Collection<IFile> _parentFiles;
 	private boolean _closed = false;
 
-	public IdeJavaSourceFileWriter(IdeProcessingEnvImpl env, CharSequence name, List<IFile> parentFiles) {
+	public IdeJavaSourceFileWriter(IdeProcessingEnvImpl env, CharSequence name, Collection<IFile> parentFiles) {
 		_env = env;
 		_parentFiles = parentFiles;
 		_name = name;
@@ -63,8 +63,7 @@ public class IdeJavaSourceFileWriter extends StringWriter {
 				//TODO - implement reconcile
 			}
 			else if ( phase == Phase.BUILD)	{
-				// TODO: actually we need to be more sophisticated about dependencies, because they can be specified.  
-				// Remember empty-parent situation.
+				// TODO: Remember empty-parent situation.
 				result = gfm.generateFileDuringBuild( 
 						_parentFiles,  _name.toString(), this.toString(), 
 						_env.currentProcessorSupportsRTTG(), null /* progress monitor */ );

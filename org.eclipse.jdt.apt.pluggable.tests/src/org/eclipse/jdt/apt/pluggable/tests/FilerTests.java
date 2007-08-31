@@ -51,9 +51,8 @@ public class FilerTests extends TestBase
 		final String[] expectedClasses = { "targets.filer.Parent01", "gen6.Generated01" };
 		expectingUniqueCompiledClasses(expectedClasses);
 		
-		// TODO: disabled because final round is not yet working 
 		// Check whether non-source resource was generated in final round
-		// expectingFile( proj, "src/summary.txt" );
+		expectingFile( proj, ".apt_generated/summary.txt" );
 		
 		//TODO: if a parent file is modified,
 		// the generated file should be regenerated and recompiled.
@@ -61,11 +60,11 @@ public class FilerTests extends TestBase
 	
 		// Modify target file to remove annotation and incrementally rebuild; 
 		// generated file should be deleted.
-		// TODO: doesn't work yet.  See https://bugs.eclipse.org/bugs/show_bug.cgi?id=188559
 		IdeTestUtils.copyResources(proj, "targets/filer01b", "src/targets/filer");
 		incrementalBuild();
 		expectingNoProblems();
 		expectingNoFile(proj, ".apt_generated/gen6/Generated01.java");
+		expectingNoFile( proj, ".apt_generated/summary.txt" );
 	}
 
 }

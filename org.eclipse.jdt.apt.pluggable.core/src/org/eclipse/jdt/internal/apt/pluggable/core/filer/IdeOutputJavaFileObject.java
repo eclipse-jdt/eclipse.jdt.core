@@ -18,7 +18,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URI;
-import java.util.List;
+import java.util.Collection;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;
@@ -33,13 +33,13 @@ import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeProcessingEnvImpl
  * 
  * @since 3.3
  */
-public class IdeJavaFileObject implements JavaFileObject {
+public class IdeOutputJavaFileObject implements JavaFileObject {
 	
 	private final IdeProcessingEnvImpl _env;
 	private final CharSequence _name;
-	private final List<IFile> _parentFiles;
+	private final Collection<IFile> _parentFiles;
 
-	public IdeJavaFileObject(IdeProcessingEnvImpl env, CharSequence name, List<IFile> parentFiles) {
+	public IdeOutputJavaFileObject(IdeProcessingEnvImpl env, CharSequence name, Collection<IFile> parentFiles) {
 		_env = env;
 		_parentFiles = parentFiles;
 		_name = name;
@@ -50,8 +50,8 @@ public class IdeJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public Modifier getAccessLevel() {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	/* (non-Javadoc)
@@ -59,8 +59,8 @@ public class IdeJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public Kind getKind() {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	/* (non-Javadoc)
@@ -68,8 +68,8 @@ public class IdeJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public NestingKind getNestingKind() {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	/* (non-Javadoc)
@@ -77,8 +77,8 @@ public class IdeJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public boolean isNameCompatible(String simpleName, Kind kind) {
-		// TODO Auto-generated method stub
-		return false;
+		//TODO
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	/* (non-Javadoc)
@@ -86,7 +86,7 @@ public class IdeJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public boolean delete() {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException("Deleting a file is not permitted from within an annotation processor");
 	}
 
 	/* (non-Javadoc)
@@ -94,8 +94,8 @@ public class IdeJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO
+		throw new IllegalStateException("Generated files are write-only");
 	}
 
 	/* (non-Javadoc)
@@ -103,8 +103,8 @@ public class IdeJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public long getLastModified() {
-		// TODO Auto-generated method stub
-		return 0;
+		//TODO
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	/* (non-Javadoc)
@@ -112,8 +112,7 @@ public class IdeJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return _name.toString();
 	}
 
 	/* (non-Javadoc)
@@ -121,7 +120,7 @@ public class IdeJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public InputStream openInputStream() throws IOException {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Opening an input stream on a generated file is not permitted");
 	}
 
 	/* (non-Javadoc)
@@ -129,8 +128,8 @@ public class IdeJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public OutputStream openOutputStream() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	/* (non-Javadoc)
@@ -138,7 +137,7 @@ public class IdeJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public Reader openReader(boolean ignoreEncodingErrors) throws IOException {
-		throw new UnsupportedOperationException();
+		throw new IllegalStateException("Opening a reader on a generated file is not permitted");
 	}
 
 	/* (non-Javadoc)
@@ -154,8 +153,8 @@ public class IdeJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public URI toUri() {
-		// TODO Auto-generated method stub
-		return null;
+		// The file does not exist until its writer is closed.
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 }
