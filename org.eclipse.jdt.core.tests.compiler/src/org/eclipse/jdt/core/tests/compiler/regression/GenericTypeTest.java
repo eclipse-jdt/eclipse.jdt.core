@@ -38619,5 +38619,38 @@ public void test1155() {
 		assertTrue(false);
 	}	
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=196253
+public void test1156() {
+	this.runConformTest(
+		new String[] {
+			"C.java",
+			"public class C {\n" + 
+			"	R<X.N<X.N<?>>> xx = D.r;\n" +
+			"}", 
+			"D.java",
+			"public class D {\n" + 
+			"	public static R<X.N<X.N<?>>> r;\n" +
+			"}", 
+			"R.java",
+			"public class R<T> {}", 
+			"X.java",
+			"public class X<T> {\n" + 
+			"	public static class N<U> {}\n" +
+			"}"
+		},
+		""
+	);
+	this.runConformTest(
+		new String[] {
+			"C.java",
+			"public class C {\n" + 
+			"	R<X.N<X.N<?>>> xx = D.r;\n" +
+			"}", 
+		},
+		"",
+		null,
+		false, // do not flush output
+		null
+	);
+}
 }

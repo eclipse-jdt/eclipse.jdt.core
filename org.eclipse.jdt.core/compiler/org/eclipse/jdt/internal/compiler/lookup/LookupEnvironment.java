@@ -1107,11 +1107,17 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 
 	// type must be a ReferenceBinding at this point, cannot be a BaseTypeBinding or ArrayTypeBinding
 	ReferenceBinding actualType = (ReferenceBinding) type;
-	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, actualType);
+	if (actualType instanceof UnresolvedReferenceBinding)
+		if (CharOperation.indexOf('$', actualType.compoundName[actualType.compoundName.length - 1]) > 0)
+			actualType = BinaryTypeBinding.resolveType(actualType, this, false); // must resolve member types before asking for enclosingType
+	ReferenceBinding genericType = actualType;
 	ReferenceBinding actualEnclosing = actualType.enclosingType();
 	if (actualEnclosing != null) { // convert needed if read some static member type
 		actualEnclosing = (ReferenceBinding) convertToRawType(actualEnclosing);
+		// The actualType needs to be a ParameterizedTypeBinding when its a member type, whose enclosing type is a generic
+		genericType = createParameterizedType(actualType, null, actualEnclosing);
 	}
+	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, genericType);
 	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, actualEnclosing);
 
 	while (wrapper.signature[wrapper.start] == '.') {
