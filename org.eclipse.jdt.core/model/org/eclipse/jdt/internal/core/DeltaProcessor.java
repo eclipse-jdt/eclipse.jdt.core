@@ -234,12 +234,6 @@ public class DeltaProcessor {
 	/* A set of IJavaProject whose caches need to be reset */
 	public HashSet projectCachesToReset = new HashSet();  
 
-	/*
-	 * A list of IJavaElement used as a scope for external archives refresh during POST_CHANGE.
-	 * This is null if no refresh is needed.
-	 */
-	private HashSet refreshedElements;
-	
 	/* A table from IJavaProject to an array of IPackageFragmentRoot.
 	 * This table contains the pkg fragment roots of the project that are being deleted.
 	 */
@@ -300,15 +294,6 @@ public class DeltaProcessor {
 		}
 	}
 	/*
-	 * Adds the given element to the list of elements used as a scope for external jars refresh.
-	 */
-	public void addForRefresh(IJavaElement element) {
-		if (this.refreshedElements == null) {
-			this.refreshedElements = new HashSet();
-		}
-		this.refreshedElements.add(element);
-	}
-	/*
 	 * Adds the given child handle to its parent's cache of children. 
 	 */
 	private void addToParentInfo(Openable child) {
@@ -328,66 +313,6 @@ public class DeltaProcessor {
 	private void addToRootsToRefreshWithDependents(IJavaProject javaProject) {
 		this.rootsToRefresh.add(javaProject);
 		this.addDependentProjects(javaProject, this.state.projectDependencies, this.rootsToRefresh);
-	}
-	/*
-	 * Check all external archive (referenced by given roots, projects or model) status and issue a corresponding root delta.
-	 * Also triggers index updates
-	 */
-	public void checkExternalArchiveChanges(IJavaElement[] elementsToRefresh, IProgressMonitor monitor) throws JavaModelException {
-		if (monitor != null && monitor.isCanceled()) 
-			throw new OperationCanceledException(); 
-		try {
-			if (monitor != null) monitor.beginTask("", 1); //$NON-NLS-1$
-
-			for (int i = 0, length = elementsToRefresh.length; i < length; i++) {
-				this.addForRefresh(elementsToRefresh[i]);
-			}
-			boolean hasDelta = this.createExternalArchiveDelta(monitor);
-			if (hasDelta){
-				// force classpath marker refresh of affected projects
-				JavaModel.flushExternalFileCache();
-				
-				// flush jar type cache
-				JavaModelManager.getJavaModelManager().resetJarTypeCache();
-				
-				IJavaElementDelta[] projectDeltas = this.currentDelta.getAffectedChildren();
-				final int length = projectDeltas.length;
-				final IProject[] projectsToTouch = new IProject[length];
-				for (int i = 0; i < length; i++) {
-					IJavaElementDelta delta = projectDeltas[i];
-					JavaProject javaProject = (JavaProject)delta.getElement();
-					projectsToTouch[i] = javaProject.getProject();
-				}
-				
-				// touch the projects to force them to be recompiled while taking the workspace lock 
-				// so that there is no concurrency with the Java builder
-				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=96575
-				IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
-					public void run(IProgressMonitor progressMonitor) throws CoreException {
-						for (int i = 0; i < length; i++) {
-							IProject project = projectsToTouch[i];
-							
-							// touch to force a build of this project
-							if (JavaBuilder.DEBUG)
-								System.out.println("Touching project " + project.getName() + " due to external jar file change"); //$NON-NLS-1$ //$NON-NLS-2$
-							project.touch(progressMonitor);
-						}
-					}
-				};
-				try {
-					ResourcesPlugin.getWorkspace().run(runnable, monitor);
-				} catch (CoreException e) {
-					throw new JavaModelException(e);
-				}
-				
-				if (this.currentDelta != null) { // if delta has not been fired while creating markers
-					this.fire(this.currentDelta, DEFAULT_CHANGE_EVENT);
-				}
-			}
-		} finally {
-			this.currentDelta = null;
-			if (monitor != null) monitor.done();
-		}
 	}
 	/*
 	 * Process the given delta and look for projects being added, opened, closed or
@@ -513,9 +438,6 @@ public class DeltaProcessor {
 						this.state.rootsAreStale = true;
 						break;
 				}
-				
-				// in all cases, refresh the external jars for this project
-				addForRefresh(javaProject);
 				
 				break;
 			case IResource.FILE :
@@ -771,20 +693,72 @@ public class DeltaProcessor {
 		return this.currentElement;
 	}
 	/*
-	 * Check if external archives have changed and create the corresponding deltas.
-	 * Returns whether at least on delta was created.
+	 * Check all external archive (referenced by given roots, projects or model) status and issue a corresponding root delta.
+	 * Also triggers index updates
 	 */
-	private boolean createExternalArchiveDelta(IProgressMonitor monitor) {
+	public void checkExternalArchiveChanges(IJavaElement[] elementsScope, IProgressMonitor monitor) throws JavaModelException {
+		if (monitor != null && monitor.isCanceled()) 
+			throw new OperationCanceledException(); 
+		try {
+			if (monitor != null) monitor.beginTask("", 1); //$NON-NLS-1$
+
+			for (int i = 0, length = elementsScope.length; i < length; i++) {
+				this.state.addForRefresh(elementsScope[i]);
+			}
+			HashSet elementsToRefresh = this.state.removeExternalElementsToRefresh();
+			boolean hasDelta = createExternalArchiveDelta(elementsToRefresh, monitor);
+			if (hasDelta){
+				IJavaElementDelta[] projectDeltas = this.currentDelta.getAffectedChildren();
+				final int length = projectDeltas.length;
+				final IProject[] projectsToTouch = new IProject[length];
+				for (int i = 0; i < length; i++) {
+					IJavaElementDelta delta = projectDeltas[i];
+					JavaProject javaProject = (JavaProject)delta.getElement();
+					projectsToTouch[i] = javaProject.getProject();
+				}
+				
+				// touch the projects to force them to be recompiled while taking the workspace lock 
+				// so that there is no concurrency with the Java builder
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=96575
+				IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+					public void run(IProgressMonitor progressMonitor) throws CoreException {
+						for (int i = 0; i < length; i++) {
+							IProject project = projectsToTouch[i];
+							
+							// touch to force a build of this project
+							if (JavaBuilder.DEBUG)
+								System.out.println("Touching project " + project.getName() + " due to external jar file change"); //$NON-NLS-1$ //$NON-NLS-2$
+							project.touch(progressMonitor);
+						}
+					}
+				};
+				try {
+					ResourcesPlugin.getWorkspace().run(runnable, monitor);
+				} catch (CoreException e) {
+					throw new JavaModelException(e);
+				}
+				
+				if (this.currentDelta != null) { // if delta has not been fired while creating markers
+					this.fire(this.currentDelta, DEFAULT_CHANGE_EVENT);
+				}
+			}
+		} finally {
+			this.currentDelta = null;
+			if (monitor != null) monitor.done();
+		}
+	}
+	/*
+	 * Check if external archives have changed for the given elements and create the corresponding deltas.
+	 * Returns whether at least one delta was created.
+	 */
+	private boolean createExternalArchiveDelta(HashSet refreshedElements, IProgressMonitor monitor) {
 		
-		if (this.refreshedElements == null) return false;
-			
 		HashMap externalArchivesStatus = new HashMap();
 		boolean hasDelta = false;
 		
 		// find JARs to refresh
 		HashSet archivePathsToRefresh = new HashSet();
-		Iterator iterator = this.refreshedElements.iterator();
-		this.refreshedElements = null; // null out early to avoid concurrent modification exception (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63534)
+		Iterator iterator = refreshedElements.iterator();
 		while (iterator.hasNext()) {
 			IJavaElement element = (IJavaElement)iterator.next();
 			switch(element.getElementType()){
@@ -945,6 +919,13 @@ public class DeltaProcessor {
 					}
 				}
 			}
+		}
+		if (hasDelta){
+			// force classpath marker refresh of affected projects
+			JavaModel.flushExternalFileCache();
+			
+			// flush jar type cache
+			JavaModelManager.getJavaModelManager().resetJarTypeCache();
 		}
 		return hasDelta;
 	}
@@ -1861,7 +1842,9 @@ public class DeltaProcessor {
 				return;
 				
 			case IResourceChangeEvent.POST_CHANGE :
-				if (isAffectedBy(delta)) { // avoid populating for SYNC or MARKER deltas
+				HashSet elementsToRefresh = this.state.removeExternalElementsToRefresh();
+				if (isAffectedBy(delta) // avoid populating for SYNC or MARKER deltas
+						|| elementsToRefresh != null) { 
 					try {
 						try {
 							stopDeltas();
@@ -1890,8 +1873,8 @@ public class DeltaProcessor {
 							}
 							
 							// generate external archive change deltas
-							if (this.refreshedElements != null) {
-								createExternalArchiveDelta(null);
+							if (elementsToRefresh != null) {
+								createExternalArchiveDelta(elementsToRefresh, null);
 							}
 							
 							// generate Java deltas from resource changes
@@ -1920,11 +1903,10 @@ public class DeltaProcessor {
 				return;
 				
 			case IResourceChangeEvent.PRE_BUILD :
-				if(!isAffectedBy(delta))
-					return; // avoid populating for SYNC or MARKER deltas
+				boolean isAffected = isAffectedBy(delta);
+				boolean needCycleValidation = isAffected && validateClasspaths(delta);
 
 				// create classpath markers if necessary
-				boolean needCycleValidation = validateClasspaths(delta);
 				ClasspathValidation[] validations = this.state.removeClasspathValidations();
 				if (validations != null) {
 					for (int i = 0, length = validations.length; i < length; i++) {
@@ -1954,8 +1936,10 @@ public class DeltaProcessor {
 					}
 				}
 				
-				JavaModel.flushExternalFileCache();
-				JavaBuilder.buildStarting();
+				if (isAffected) {
+					JavaModel.flushExternalFileCache();
+					JavaBuilder.buildStarting();
+				}
 				
 				// does not fire any deltas
 				return;

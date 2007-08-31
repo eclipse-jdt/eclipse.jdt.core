@@ -93,6 +93,12 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	private HashSet javaProjectNamesCache;
 	
 	/*
+	 * A list of IJavaElement used as a scope for external archives refresh during POST_CHANGE.
+	 * This is null if no refresh is needed.
+	 */
+	private HashSet externalElementsToRefresh;
+	
+	/*
 	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
 	 * any of the other (for example, if it deregisters itself).
 	 */
@@ -119,6 +125,16 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		this.elementChangedListenerCount++;
 	}
 
+	/*
+	 * Adds the given element to the list of elements used as a scope for external jars refresh.
+	 */
+	public synchronized void addForRefresh(IJavaElement externalElement) {
+		if (this.externalElementsToRefresh == null) {
+			this.externalElementsToRefresh = new HashSet();
+		}
+		this.externalElementsToRefresh.add(externalElement);
+	}
+	
 	public synchronized void addPreResourceChangedListener(IResourceChangeListener listener, int eventMask) {
 		for (int i = 0; i < this.preResourceChangeListenerCount; i++){
 			if (this.preResourceChangeListeners[i] == listener) {
@@ -288,6 +304,12 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	    this.projectReferenceChanges.values().toArray(updates);
 	    this.projectReferenceChanges.clear();
 	    return updates;
+	}
+	
+	public synchronized HashSet removeExternalElementsToRefresh() {
+		HashSet result = this.externalElementsToRefresh;
+		this.externalElementsToRefresh = null;
+		return result;
 	}
 	
 	public synchronized void removeElementChangedListener(IElementChangedListener listener) {

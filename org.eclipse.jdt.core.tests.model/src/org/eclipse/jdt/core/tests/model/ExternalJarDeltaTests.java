@@ -16,7 +16,6 @@ import java.io.IOException;
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -257,43 +256,6 @@ public void testExternalJarChanged5() throws CoreException, IOException {
 	}
 }
 /**
- * Ensure that the external jars are refreshed by full build
- * (regression test for bug 93668 Search indexes not rebuild)
- */
-public void testExternalJarChanged6() throws CoreException, IOException {
-	File f = null;
-	try {
-		String pPath = getExternalPath() + "p.jar";
-		f = new File(pPath);
-		f.createNewFile();
-		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB", pPath}, "");
-		createFile("/P/X.java", "public class X{}");
-		getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-		getJavaModel().refreshExternalArchives(null,null);
-		waitUntilIndexesReady();
-		
-		// exit, change the jar, and restart
-		simulateExit();
-		touch(f);
-		simulateRestart();
-
-		startDeltas();
-		getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-		
-		assertDeltas(
-			"Unexpected delta", 
-			"P[*]: {CHILDREN}\n"+
-			"	"+f.getCanonicalPath()+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
-		);
-	} finally {
-		if(f != null) {
-			deleteFile(f);
-		}
-		this.deleteProject("P");
-		this.stopDeltas();
-	}
-}
-/**
  * Refresh the JavaModel after an addition of an external jar.
  */
 public void testExternalJarAdded1() throws CoreException, IOException {
@@ -493,6 +455,7 @@ public void testExternalJarRemoved3() throws CoreException, IOException {
 /**
  * - add an internal jar to claspath
  * - remove internal jar and the same jar as external jar
+ * - touch the extenal jar
  * - refresh the JavaModel
  */
 public void testExternalJarInternalExternalJar() throws CoreException, IOException {
@@ -512,17 +475,16 @@ public void testExternalJarInternalExternalJar() throws CoreException, IOExcepti
 		IPath externalFooPath = new Path(fooIFile.getLocation().toFile().getCanonicalPath());
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(externalFooPath, null, null)});
 		
+		project.open(null); // ensure that project is opened, as external jar delta is optimized for this case (if the project is not opened, there is no need for broadcasting an external jar delta)
 		f = new File(externalFooPath.toOSString());
-		f.createNewFile();
 		touch(f);
-		
 		getJavaModel().refreshExternalArchives(null,null);
 		
 		String externalFooPathString = f.getCanonicalPath();
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n"+
-			"	"+externalFooPathString+"[+]: {}\n"+
+			"	"+externalFooPathString+"[*]: {ADDED TO CLASSPATH}\n"+
 			"	foo.jar[*]: {REMOVED FROM CLASSPATH}\n"+
 			"	ResourceDelta(/P/.classpath)[*]\n"+
 			"\n"+
