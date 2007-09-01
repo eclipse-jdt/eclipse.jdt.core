@@ -39,6 +39,13 @@ public class FilerTests extends TestBase
 	 */
 	public void testCreateSourceFile() throws Throwable
 	{
+		// Temporary workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=201931
+		// Bail out on Linux
+		String osName = System.getProperty("os.name");
+		if (null == osName || !osName.contains("Windows")) {
+			return;
+		}
+
 		IJavaProject jproj = createJavaProject(_projectName);
 		IProject proj = jproj.getProject();
 		IdeTestUtils.copyResources(proj, "targets/filer01a", "src/targets/filer");
@@ -63,6 +70,7 @@ public class FilerTests extends TestBase
 		IdeTestUtils.copyResources(proj, "targets/filer01b", "src/targets/filer");
 		incrementalBuild();
 		expectingNoProblems();
+		
 		expectingNoFile(proj, ".apt_generated/gen6/Generated01.java");
 		expectingNoFile( proj, ".apt_generated/summary.txt" );
 	}
