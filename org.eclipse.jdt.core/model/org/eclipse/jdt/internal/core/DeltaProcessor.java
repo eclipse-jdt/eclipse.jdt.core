@@ -706,7 +706,7 @@ public class DeltaProcessor {
 				this.state.addForRefresh(elementsScope[i]);
 			}
 			HashSet elementsToRefresh = this.state.removeExternalElementsToRefresh();
-			boolean hasDelta = createExternalArchiveDelta(elementsToRefresh, monitor);
+			boolean hasDelta = elementsToRefresh != null && createExternalArchiveDelta(elementsToRefresh, monitor);
 			if (hasDelta){
 				IJavaElementDelta[] projectDeltas = this.currentDelta.getAffectedChildren();
 				final int length = projectDeltas.length;

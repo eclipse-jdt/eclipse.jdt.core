@@ -47,6 +47,21 @@ static {
 private void touch(File f) {
 	f.setLastModified(f.lastModified() + 10000);
 }
+
+/*
+ * Ensures that passing an empty scope to refreshExternalArchives(..) doesn't throw a NPE
+ * (regression test for bug 202076 NPE in DeltaProcessor)
+ */
+public void testEmptyScope() throws Exception {
+	try {
+		startDeltas();
+		getJavaModel().refreshExternalArchives(new IJavaElement[0], null);
+		assertDeltas("Unexpected delta", "");
+	} finally {
+		stopDeltas();
+	}
+}
+
 /**
  * Test if a modification is detected without doing a refresh.
  * Currently no modification are detected.
