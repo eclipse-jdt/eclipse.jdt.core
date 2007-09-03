@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IExceptionTableEntry;
 import org.eclipse.jdt.core.util.ILineNumberAttribute;
 import org.eclipse.jdt.core.util.ILocalVariableAttribute;
-import org.eclipse.jdt.internal.compiler.util.IOpcodeMnemonics;
+import org.eclipse.jdt.core.util.IOpcodeMnemonics;
 
 /**
  * Default implementation of ICodeAttribute.

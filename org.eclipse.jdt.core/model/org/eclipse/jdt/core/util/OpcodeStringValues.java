@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.util;
 
-import org.eclipse.jdt.internal.compiler.util.IOpcodeMnemonics;
-
 /**
  * Description of each opcode mnemonic according to the JVM specifications.
  * <p>
