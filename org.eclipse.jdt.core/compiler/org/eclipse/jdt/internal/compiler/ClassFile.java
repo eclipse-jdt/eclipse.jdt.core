@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.codegen.ExceptionLabel;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrame;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.VerificationTypeInfo;
@@ -69,7 +70,6 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
-import org.eclipse.jdt.internal.compiler.util.IOpcodeMnemonics;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -6113,80 +6113,50 @@ public class ClassFile
 					return;
 				}
 			}
-			int opcode = u1At(bytecodes, 0, pc);
+			byte opcode = (byte) u1At(bytecodes, 0, pc);
 			switch (opcode) {
-				case IOpcodeMnemonics.NOP:
+				case Opcodes.OPC_nop:
 					pc++;
 					break;
-				case IOpcodeMnemonics.ACONST_NULL:
+				case Opcodes.OPC_aconst_null:
 					frame.addStackItem(TypeBinding.NULL);
 					pc++;
 					break;
-				case IOpcodeMnemonics.ICONST_M1:
+				case Opcodes.OPC_iconst_m1:
+				case Opcodes.OPC_iconst_0:
+				case Opcodes.OPC_iconst_1:
+				case Opcodes.OPC_iconst_2:
+				case Opcodes.OPC_iconst_3:
+				case Opcodes.OPC_iconst_4:
+				case Opcodes.OPC_iconst_5:
 					frame.addStackItem(TypeBinding.INT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.ICONST_0:
-					frame.addStackItem(TypeBinding.INT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.ICONST_1:
-					frame.addStackItem(TypeBinding.INT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.ICONST_2:
-					frame.addStackItem(TypeBinding.INT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.ICONST_3:
-					frame.addStackItem(TypeBinding.INT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.ICONST_4:
-					frame.addStackItem(TypeBinding.INT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.ICONST_5:
-					frame.addStackItem(TypeBinding.INT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.LCONST_0:
+				case Opcodes.OPC_lconst_0:
+				case Opcodes.OPC_lconst_1:
 					frame.addStackItem(TypeBinding.LONG);
 					pc++;
 					break;
-				case IOpcodeMnemonics.LCONST_1:
-					frame.addStackItem(TypeBinding.LONG);
-					pc++;
-					break;
-				case IOpcodeMnemonics.FCONST_0:
+				case Opcodes.OPC_fconst_0:
+				case Opcodes.OPC_fconst_1:
+				case Opcodes.OPC_fconst_2:
 					frame.addStackItem(TypeBinding.FLOAT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.FCONST_1:
-					frame.addStackItem(TypeBinding.FLOAT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.FCONST_2:
-					frame.addStackItem(TypeBinding.FLOAT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.DCONST_0:
+				case Opcodes.OPC_dconst_0:
+				case Opcodes.OPC_dconst_1:
 					frame.addStackItem(TypeBinding.DOUBLE);
 					pc++;
 					break;
-				case IOpcodeMnemonics.DCONST_1:
-					frame.addStackItem(TypeBinding.DOUBLE);
-					pc++;
-					break;
-				case IOpcodeMnemonics.BIPUSH:
+				case Opcodes.OPC_bipush:
 					frame.addStackItem(TypeBinding.BYTE);
 					pc += 2;
 					break;
-				case IOpcodeMnemonics.SIPUSH:
+				case Opcodes.OPC_sipush:
 					frame.addStackItem(TypeBinding.SHORT);
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.LDC:
+				case Opcodes.OPC_ldc:
 					index = u1At(bytecodes, 1, pc);
 					switch (u1At(poolContents, 0, constantPoolOffsets[index])) {
 						case ClassFileConstants.StringTag:
@@ -6212,7 +6182,7 @@ public class ClassFile
 					}
 					pc += 2;
 					break;
-				case IOpcodeMnemonics.LDC_W:
+				case Opcodes.OPC_ldc_w:
 					index = u2At(bytecodes, 1, pc);
 					switch (u1At(poolContents, 0, constantPoolOffsets[index])) {
 						case ClassFileConstants.StringTag:
@@ -6239,7 +6209,7 @@ public class ClassFile
 					}
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.LDC2_W:
+				case Opcodes.OPC_ldc2_w:
 					index = u2At(bytecodes, 1, pc);
 					switch (u1At(poolContents, 0, constantPoolOffsets[index])) {
 						case ClassFileConstants.DoubleTag:
@@ -6251,23 +6221,23 @@ public class ClassFile
 					}
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.ILOAD:
+				case Opcodes.OPC_iload:
 					frame.addStackItem(TypeBinding.INT);
 					pc += 2;
 					break;
-				case IOpcodeMnemonics.LLOAD:
+				case Opcodes.OPC_lload:
 					frame.addStackItem(TypeBinding.LONG);
 					pc += 2;
 					break;
-				case IOpcodeMnemonics.FLOAD:
+				case Opcodes.OPC_fload:
 					frame.addStackItem(TypeBinding.FLOAT);
 					pc += 2;
 					break;
-				case IOpcodeMnemonics.DLOAD:
+				case Opcodes.OPC_dload:
 					frame.addStackItem(TypeBinding.DOUBLE);
 					pc += 2;
 					break;
-				case IOpcodeMnemonics.ALOAD:
+				case Opcodes.OPC_aload:
 					index = u1At(bytecodes, 1, pc);
 					VerificationTypeInfo localsN = frame.locals[index];
 					if (localsN == null) {
@@ -6276,71 +6246,35 @@ public class ClassFile
 					frame.addStackItem(localsN);
 					pc += 2;
 					break;
-				case IOpcodeMnemonics.ILOAD_0:
+				case Opcodes.OPC_iload_0:
+				case Opcodes.OPC_iload_1:
+				case Opcodes.OPC_iload_2:
+				case Opcodes.OPC_iload_3:
 					frame.addStackItem(TypeBinding.INT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.ILOAD_1:
-					frame.addStackItem(TypeBinding.INT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.ILOAD_2:
-					frame.addStackItem(TypeBinding.INT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.ILOAD_3:
-					frame.addStackItem(TypeBinding.INT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.LLOAD_0:
+				case Opcodes.OPC_lload_0:
+				case Opcodes.OPC_lload_1:
+				case Opcodes.OPC_lload_2:
+				case Opcodes.OPC_lload_3:
 					frame.addStackItem(TypeBinding.LONG);
 					pc++;
 					break;
-				case IOpcodeMnemonics.LLOAD_1:
-					frame.addStackItem(TypeBinding.LONG);
-					pc++;
-					break;
-				case IOpcodeMnemonics.LLOAD_2:
-					frame.addStackItem(TypeBinding.LONG);
-					pc++;
-					break;
-				case IOpcodeMnemonics.LLOAD_3:
-					frame.addStackItem(TypeBinding.LONG);
-					pc++;
-					break;
-				case IOpcodeMnemonics.FLOAD_0:
+				case Opcodes.OPC_fload_0:
+				case Opcodes.OPC_fload_1:
+				case Opcodes.OPC_fload_2:
+				case Opcodes.OPC_fload_3:
 					frame.addStackItem(TypeBinding.FLOAT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.FLOAD_1:
-					frame.addStackItem(TypeBinding.FLOAT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.FLOAD_2:
-					frame.addStackItem(TypeBinding.FLOAT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.FLOAD_3:
-					frame.addStackItem(TypeBinding.FLOAT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.DLOAD_0:
+				case Opcodes.OPC_dload_0:
+				case Opcodes.OPC_dload_1:
+				case Opcodes.OPC_dload_2:
+				case Opcodes.OPC_dload_3:
 					frame.addStackItem(TypeBinding.DOUBLE);
 					pc++;
 					break;
-				case IOpcodeMnemonics.DLOAD_1:
-					frame.addStackItem(TypeBinding.DOUBLE);
-					pc++;
-					break;
-				case IOpcodeMnemonics.DLOAD_2:
-					frame.addStackItem(TypeBinding.DOUBLE);
-					pc++;
-					break;
-				case IOpcodeMnemonics.DLOAD_3:
-					frame.addStackItem(TypeBinding.DOUBLE);
-					pc++;
-					break;
-				case IOpcodeMnemonics.ALOAD_0:
+				case Opcodes.OPC_aload_0:
 					VerificationTypeInfo locals0 = frame.locals[0];
 					// special case to handle uninitialized object
 					if (locals0 == null) {
@@ -6349,200 +6283,116 @@ public class ClassFile
 					frame.addStackItem(locals0);
 					pc++;
 					break;
-				case IOpcodeMnemonics.ALOAD_1:
+				case Opcodes.OPC_aload_1:
 					VerificationTypeInfo locals1 = retrieveLocal(currentPC, 1);
 					frame.addStackItem(locals1);
 					pc++;
 					break;
-				case IOpcodeMnemonics.ALOAD_2:
+				case Opcodes.OPC_aload_2:
 					VerificationTypeInfo locals2 = retrieveLocal(currentPC, 2);
 					frame.addStackItem(locals2);
 					pc++;
 					break;
-				case IOpcodeMnemonics.ALOAD_3:
+				case Opcodes.OPC_aload_3:
 					VerificationTypeInfo locals3 = retrieveLocal(currentPC, 3);
 					frame.addStackItem(locals3);
 					pc++;
 					break;
-				case IOpcodeMnemonics.IALOAD:
+				case Opcodes.OPC_iaload:
 					frame.numberOfStackItems -=2;
 					frame.addStackItem(TypeBinding.INT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.LALOAD:
+				case Opcodes.OPC_laload:
 					frame.numberOfStackItems -=2;
 					frame.addStackItem(TypeBinding.LONG);
 					pc++;
 					break;
-				case IOpcodeMnemonics.FALOAD:
+				case Opcodes.OPC_faload:
 					frame.numberOfStackItems -=2;
 					frame.addStackItem(TypeBinding.FLOAT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.DALOAD:
+				case Opcodes.OPC_daload:
 					frame.numberOfStackItems -=2;
 					frame.addStackItem(TypeBinding.DOUBLE);
 					pc++;
 					break;
-				case IOpcodeMnemonics.AALOAD:
+				case Opcodes.OPC_aaload:
 					frame.numberOfStackItems--;
 					frame.replaceWithElementType();
 					pc++;
 					break;
-				case IOpcodeMnemonics.BALOAD:
+				case Opcodes.OPC_baload:
 					frame.numberOfStackItems -=2;
 					frame.addStackItem(TypeBinding.BYTE);
 					pc++;
 					break;
-				case IOpcodeMnemonics.CALOAD:
+				case Opcodes.OPC_caload:
 					frame.numberOfStackItems -=2;
 					frame.addStackItem(TypeBinding.CHAR);
 					pc++;
 					break;
-				case IOpcodeMnemonics.SALOAD:
+				case Opcodes.OPC_saload:
 					frame.numberOfStackItems -=2;
 					frame.addStackItem(TypeBinding.SHORT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.ISTORE:
+				case Opcodes.OPC_istore:
+				case Opcodes.OPC_lstore:
+				case Opcodes.OPC_fstore:
+				case Opcodes.OPC_dstore:
 					frame.numberOfStackItems--;
 					pc += 2;
 					break;
-				case IOpcodeMnemonics.LSTORE:
-					frame.numberOfStackItems--;
-					pc += 2;
-					break;
-				case IOpcodeMnemonics.FSTORE:
-					frame.numberOfStackItems--;
-					pc += 2;
-					break;
-				case IOpcodeMnemonics.DSTORE:
-					frame.numberOfStackItems--;
-					pc += 2;
-					break;
-				case IOpcodeMnemonics.ASTORE:
+				case Opcodes.OPC_astore:
 					index = u1At(bytecodes, 1, pc);
 					frame.numberOfStackItems--;
 					pc += 2;
 					break;
-				case IOpcodeMnemonics.ISTORE_0:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.ISTORE_1:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.ISTORE_2:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.ISTORE_3:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LSTORE_0:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LSTORE_1:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LSTORE_2:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LSTORE_3:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.FSTORE_0:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.FSTORE_1:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.FSTORE_2:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.FSTORE_3:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.DSTORE_0:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.DSTORE_1:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.DSTORE_2:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.DSTORE_3:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.ASTORE_0:
+				case Opcodes.OPC_astore_0:
 					frame.locals[0] = frame.stackItems[frame.numberOfStackItems - 1];
 					frame.numberOfStackItems--;
 					pc++;
 					break;
-				case IOpcodeMnemonics.ASTORE_1:
+				case Opcodes.OPC_astore_1:
+				case Opcodes.OPC_astore_2:
+				case Opcodes.OPC_astore_3:
+				case Opcodes.OPC_istore_0:
+				case Opcodes.OPC_istore_1:
+				case Opcodes.OPC_istore_2:
+				case Opcodes.OPC_istore_3:
+				case Opcodes.OPC_lstore_0:
+				case Opcodes.OPC_lstore_1:
+				case Opcodes.OPC_lstore_2:
+				case Opcodes.OPC_lstore_3:
+				case Opcodes.OPC_fstore_0:
+				case Opcodes.OPC_fstore_1:
+				case Opcodes.OPC_fstore_2:
+				case Opcodes.OPC_fstore_3:
+				case Opcodes.OPC_dstore_0:
+				case Opcodes.OPC_dstore_1:
+				case Opcodes.OPC_dstore_2:
+				case Opcodes.OPC_dstore_3:
 					frame.numberOfStackItems--;
 					pc++;
 					break;
-				case IOpcodeMnemonics.ASTORE_2:
+				case Opcodes.OPC_iastore:
+				case Opcodes.OPC_lastore:
+				case Opcodes.OPC_fastore:
+				case Opcodes.OPC_dastore:
+				case Opcodes.OPC_aastore:
+				case Opcodes.OPC_bastore:
+				case Opcodes.OPC_castore:
+				case Opcodes.OPC_sastore:
+					frame.numberOfStackItems-=3;
+					pc++;
+					break;
+				case Opcodes.OPC_pop:
 					frame.numberOfStackItems--;
 					pc++;
 					break;
-				case IOpcodeMnemonics.ASTORE_3:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.IASTORE:
-					frame.numberOfStackItems-=3;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LASTORE:
-					frame.numberOfStackItems-=3;
-					pc++;
-					break;
-				case IOpcodeMnemonics.FASTORE:
-					frame.numberOfStackItems-=3;
-					pc++;
-					break;
-				case IOpcodeMnemonics.DASTORE:
-					frame.numberOfStackItems-=3;
-					pc++;
-					break;
-				case IOpcodeMnemonics.AASTORE:
-					frame.numberOfStackItems-=3;
-					pc++;
-					break;
-				case IOpcodeMnemonics.BASTORE:
-					frame.numberOfStackItems-=3;
-					pc++;
-					break;
-				case IOpcodeMnemonics.CASTORE:
-					frame.numberOfStackItems-=3;
-					pc++;
-					break;
-				case IOpcodeMnemonics.SASTORE:
-					frame.numberOfStackItems-=3;
-					pc++;
-					break;
-				case IOpcodeMnemonics.POP:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.POP2:
+				case Opcodes.OPC_pop2:
 					int numberOfStackItems = frame.numberOfStackItems;
 					switch(frame.stackItems[numberOfStackItems - 1].id()) {
 						case TypeIds.T_long :
@@ -6554,11 +6404,11 @@ public class ClassFile
 					}
 					pc++;
 					break;
-				case IOpcodeMnemonics.DUP:
+				case Opcodes.OPC_dup:
 					frame.addStackItem(frame.stackItems[frame.numberOfStackItems - 1]);
 					pc++;
 					break;
-				case IOpcodeMnemonics.DUP_X1:
+				case Opcodes.OPC_dup_x1:
 					VerificationTypeInfo info = frame.stackItems[frame.numberOfStackItems - 1];
 					frame.numberOfStackItems--;
 					VerificationTypeInfo info2 = frame.stackItems[frame.numberOfStackItems - 1];
@@ -6568,7 +6418,7 @@ public class ClassFile
 					frame.addStackItem(info);
 					pc++;
 					break;
-				case IOpcodeMnemonics.DUP_X2:
+				case Opcodes.OPC_dup_x2:
 					info = frame.stackItems[frame.numberOfStackItems - 1];
 					frame.numberOfStackItems--;
 					info2 = frame.stackItems[frame.numberOfStackItems - 1];
@@ -6591,7 +6441,7 @@ public class ClassFile
 					}
 					pc++;
 					break;
-				case IOpcodeMnemonics.DUP2:
+				case Opcodes.OPC_dup2:
 					info = frame.stackItems[frame.numberOfStackItems - 1];
 					frame.numberOfStackItems--;
 					switch(info.id()) {
@@ -6610,7 +6460,7 @@ public class ClassFile
 					}
 					pc++;
 					break;
-				case IOpcodeMnemonics.DUP2_X1:
+				case Opcodes.OPC_dup2_x1:
 					info = frame.stackItems[frame.numberOfStackItems - 1];
 					frame.numberOfStackItems--;
 					info2 = frame.stackItems[frame.numberOfStackItems - 1];
@@ -6633,7 +6483,7 @@ public class ClassFile
 					}
 					pc++;
 					break;
-				case IOpcodeMnemonics.DUP2_X2:
+				case Opcodes.OPC_dup2_x2:
 					numberOfStackItems = frame.numberOfStackItems;
 					info = frame.stackItems[numberOfStackItems - 1];
 					frame.numberOfStackItems--;
@@ -6690,7 +6540,7 @@ public class ClassFile
 					}
 					pc++;
 					break;
-				case IOpcodeMnemonics.SWAP:
+				case Opcodes.OPC_swap:
 					numberOfStackItems = frame.numberOfStackItems;
 					info = frame.stackItems[numberOfStackItems - 1];
 					info2 = frame.stackItems[numberOfStackItems - 2];
@@ -6698,294 +6548,143 @@ public class ClassFile
 					frame.stackItems[numberOfStackItems - 2] = info;
 					pc++;
 					break;
-				case IOpcodeMnemonics.IADD:
+				case Opcodes.OPC_iadd:
+				case Opcodes.OPC_ladd:
+				case Opcodes.OPC_fadd:
+				case Opcodes.OPC_dadd:
+				case Opcodes.OPC_isub:
+				case Opcodes.OPC_lsub:
+				case Opcodes.OPC_fsub:
+				case Opcodes.OPC_dsub:
+				case Opcodes.OPC_imul:
+				case Opcodes.OPC_lmul:
+				case Opcodes.OPC_fmul:
+				case Opcodes.OPC_dmul:
+				case Opcodes.OPC_idiv:
+				case Opcodes.OPC_ldiv:
+				case Opcodes.OPC_fdiv:
+				case Opcodes.OPC_ddiv:
+				case Opcodes.OPC_irem:
+				case Opcodes.OPC_lrem:
+				case Opcodes.OPC_frem:
+				case Opcodes.OPC_drem:
+				case Opcodes.OPC_ishl:
+				case Opcodes.OPC_lshl:
+				case Opcodes.OPC_ishr:
+				case Opcodes.OPC_lshr:
+				case Opcodes.OPC_iushr:
+				case Opcodes.OPC_lushr:
+				case Opcodes.OPC_iand:
+				case Opcodes.OPC_land:
+				case Opcodes.OPC_ior:
+				case Opcodes.OPC_lor:
+				case Opcodes.OPC_ixor:
+				case Opcodes.OPC_lxor:
 					frame.numberOfStackItems--;
 					pc++;
 					break;
-				case IOpcodeMnemonics.LADD:
-					frame.numberOfStackItems--;
+				case Opcodes.OPC_ineg:
+				case Opcodes.OPC_lneg:
+				case Opcodes.OPC_fneg:
+				case Opcodes.OPC_dneg:
 					pc++;
 					break;
-				case IOpcodeMnemonics.FADD:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.DADD:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.ISUB:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LSUB:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.FSUB:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.DSUB:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.IMUL:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LMUL:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.FMUL:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.DMUL:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.IDIV:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LDIV:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.FDIV:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.DDIV:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.IREM:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LREM:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.FREM:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.DREM:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.INEG:
-					pc++;
-					break;
-				case IOpcodeMnemonics.LNEG:
-					pc++;
-					break;
-				case IOpcodeMnemonics.FNEG:
-					pc++;
-					break;
-				case IOpcodeMnemonics.DNEG:
-					pc++;
-					break;
-				case IOpcodeMnemonics.ISHL:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LSHL:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.ISHR:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LSHR:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.IUSHR:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LUSHR:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.IAND:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LAND:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.IOR:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LOR:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.IXOR:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.LXOR:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.IINC:
+				case Opcodes.OPC_iinc:
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.I2L:
+				case Opcodes.OPC_i2l:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.LONG);
 					pc++;
 					break;
-				case IOpcodeMnemonics.I2F:
+				case Opcodes.OPC_i2f:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.FLOAT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.I2D:
+				case Opcodes.OPC_i2d:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.DOUBLE);
 					pc++;
 					break;
-				case IOpcodeMnemonics.L2I:
+				case Opcodes.OPC_l2i:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.INT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.L2F:
+				case Opcodes.OPC_l2f:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.FLOAT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.L2D:
+				case Opcodes.OPC_l2d:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.DOUBLE);
 					pc++;
 					break;
-				case IOpcodeMnemonics.F2I:
+				case Opcodes.OPC_f2i:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.INT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.F2L:
+				case Opcodes.OPC_f2l:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.LONG);
 					pc++;
 					break;
-				case IOpcodeMnemonics.F2D:
+				case Opcodes.OPC_f2d:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.DOUBLE);
 					pc++;
 					break;
-				case IOpcodeMnemonics.D2I:
+				case Opcodes.OPC_d2i:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.INT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.D2L:
+				case Opcodes.OPC_d2l:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.LONG);
 					pc++;
 					break;
-				case IOpcodeMnemonics.D2F:
+				case Opcodes.OPC_d2f:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.FLOAT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.I2B:
+				case Opcodes.OPC_i2b:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.BYTE);
 					pc++;
 					break;
-				case IOpcodeMnemonics.I2C:
+				case Opcodes.OPC_i2c:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.CHAR);
 					pc++;
 					break;
-				case IOpcodeMnemonics.I2S:
+				case Opcodes.OPC_i2s:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.SHORT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.LCMP:
+				case Opcodes.OPC_lcmp:
+				case Opcodes.OPC_fcmpl:
+				case Opcodes.OPC_fcmpg:
+				case Opcodes.OPC_dcmpl:
+				case Opcodes.OPC_dcmpg:
 					frame.numberOfStackItems-=2;
 					frame.addStackItem(TypeBinding.INT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.FCMPL:
-					frame.numberOfStackItems-=2;
-					frame.addStackItem(TypeBinding.INT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.FCMPG:
-					frame.numberOfStackItems-=2;
-					frame.addStackItem(TypeBinding.INT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.DCMPL:
-					frame.numberOfStackItems-=2;
-					frame.addStackItem(TypeBinding.INT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.DCMPG:
-					frame.numberOfStackItems-=2;
-					frame.addStackItem(TypeBinding.INT);
-					pc++;
-					break;
-				case IOpcodeMnemonics.IFEQ:
+				case Opcodes.OPC_ifeq:
+				case Opcodes.OPC_ifne:
+				case Opcodes.OPC_iflt:
+				case Opcodes.OPC_ifge:
+				case Opcodes.OPC_ifgt:
+				case Opcodes.OPC_ifle:
 					frame.numberOfStackItems--;
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.IFNE:
-					frame.numberOfStackItems--;
-					pc += 3;
-					break;
-				case IOpcodeMnemonics.IFLT:
-					frame.numberOfStackItems--;
-					pc += 3;
-					break;
-				case IOpcodeMnemonics.IFGE:
-					frame.numberOfStackItems--;
-					pc += 3;
-					break;
-				case IOpcodeMnemonics.IFGT:
-					frame.numberOfStackItems--;
-					pc += 3;
-					break;
-				case IOpcodeMnemonics.IFLE:
-					frame.numberOfStackItems--;
-					pc += 3;
-					break;
-				case IOpcodeMnemonics.IF_ICMPEQ:
+				case Opcodes.OPC_if_icmpeq:
+				case Opcodes.OPC_if_icmpne:
+				case Opcodes.OPC_if_icmplt:
+				case Opcodes.OPC_if_icmpge:
+				case Opcodes.OPC_if_icmpgt:
+				case Opcodes.OPC_if_icmple:
+				case Opcodes.OPC_if_acmpeq:
+				case Opcodes.OPC_if_acmpne:
 					frame.numberOfStackItems -= 2;
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.IF_ICMPNE:
-					frame.numberOfStackItems -= 2;
+				case Opcodes.OPC_goto:
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.IF_ICMPLT:
-					frame.numberOfStackItems -= 2;
-					pc += 3;
-					break;
-				case IOpcodeMnemonics.IF_ICMPGE:
-					frame.numberOfStackItems -= 2;
-					pc += 3;
-					break;
-				case IOpcodeMnemonics.IF_ICMPGT:
-					frame.numberOfStackItems -= 2;
-					pc += 3;
-					break;
-				case IOpcodeMnemonics.IF_ICMPLE:
-					frame.numberOfStackItems -= 2;
-					pc += 3;
-					break;
-				case IOpcodeMnemonics.IF_ACMPEQ:
-					frame.numberOfStackItems -= 2;
-					pc += 3;
-					break;
-				case IOpcodeMnemonics.IF_ACMPNE:
-					frame.numberOfStackItems -= 2;
-					pc += 3;
-					break;
-				case IOpcodeMnemonics.GOTO:
-					pc += 3;
-					break;
-				case IOpcodeMnemonics.TABLESWITCH:
+				case Opcodes.OPC_tableswitch:
 					pc++;
 					while (((pc - codeOffset) & 0x03) != 0) {
 						pc++;
@@ -6999,7 +6698,7 @@ public class ClassFile
 					pc += (length * 4);
 					frame.numberOfStackItems--;
 					break;
-				case IOpcodeMnemonics.LOOKUPSWITCH:
+				case Opcodes.OPC_lookupswitch:
 					pc++;
 					while (((pc - codeOffset) & 0x03) != 0) {
 						pc++;
@@ -7009,30 +6708,18 @@ public class ClassFile
 					pc += (4 + npairs * 8);
 					frame.numberOfStackItems--;
 					break;
-				case IOpcodeMnemonics.IRETURN:
+				case Opcodes.OPC_ireturn:
+				case Opcodes.OPC_lreturn:
+				case Opcodes.OPC_freturn:
+				case Opcodes.OPC_dreturn:
+				case Opcodes.OPC_areturn:
 					frame.numberOfStackItems--;
 					pc++;
 					break;
-				case IOpcodeMnemonics.LRETURN:
-					frame.numberOfStackItems--;
+				case Opcodes.OPC_return:
 					pc++;
 					break;
-				case IOpcodeMnemonics.FRETURN:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.DRETURN:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.ARETURN:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.RETURN:
-					pc++;
-					break;
-				case IOpcodeMnemonics.GETSTATIC:
+				case Opcodes.OPC_getstatic:
 					index = u2At(bytecodes, 1, pc);
 					int nameAndTypeIndex = u2At(poolContents, 3,
 							constantPoolOffsets[index]);
@@ -7077,11 +6764,11 @@ public class ClassFile
 					}
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.PUTSTATIC:
+				case Opcodes.OPC_putstatic:
 					frame.numberOfStackItems--;
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.GETFIELD:
+				case Opcodes.OPC_getfield:
 					index = u2At(bytecodes, 1, pc);
 					nameAndTypeIndex = u2At(poolContents, 3,
 							constantPoolOffsets[index]);
@@ -7127,11 +6814,11 @@ public class ClassFile
 					}
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.PUTFIELD:
+				case Opcodes.OPC_putfield:
 					frame.numberOfStackItems -= 2;
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.INVOKEVIRTUAL:
+				case Opcodes.OPC_invokevirtual:
 					index = u2At(bytecodes, 1, pc);
 					nameAndTypeIndex = u2At(poolContents, 3,
 							constantPoolOffsets[index]);
@@ -7186,7 +6873,7 @@ public class ClassFile
 					}
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.INVOKESPECIAL:
+				case Opcodes.OPC_invokespecial:
 					index = u2At(bytecodes, 1, pc);
 					nameAndTypeIndex = u2At(poolContents, 3,
 							constantPoolOffsets[index]);
@@ -7246,7 +6933,7 @@ public class ClassFile
 					}
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.INVOKESTATIC:
+				case Opcodes.OPC_invokestatic:
 					index = u2At(bytecodes, 1, pc);
 					nameAndTypeIndex = u2At(poolContents, 3,
 							constantPoolOffsets[index]);
@@ -7301,7 +6988,7 @@ public class ClassFile
 					}
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.INVOKEINTERFACE:
+				case Opcodes.OPC_invokeinterface:
 					index = u2At(bytecodes, 1, pc);
 					nameAndTypeIndex = u2At(poolContents, 3,
 							constantPoolOffsets[index]);
@@ -7359,7 +7046,7 @@ public class ClassFile
 					}
 					pc += 5;
 					break;
-				case IOpcodeMnemonics.NEW:
+				case Opcodes.OPC_new:
 					index = u2At(bytecodes, 1, pc);
 					utf8index = u2At(poolContents, 1,
 							constantPoolOffsets[index]);
@@ -7372,7 +7059,7 @@ public class ClassFile
 					frame.addStackItem(verificationTypeInfo);
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.NEWARRAY:
+				case Opcodes.OPC_newarray:
 					char[] constantPoolName = null;
 					switch (u1At(bytecodes, 1, pc)) {
 						case ClassFileConstants.INT_ARRAY :
@@ -7403,7 +7090,7 @@ public class ClassFile
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeIds.T_JavaLangObject, constantPoolName);
 					pc += 2;
 					break;
-				case IOpcodeMnemonics.ANEWARRAY:
+				case Opcodes.OPC_anewarray:
 					index = u2At(bytecodes, 1, pc);
 					utf8index = u2At(poolContents, 1,
 							constantPoolOffsets[index]);
@@ -7419,15 +7106,15 @@ public class ClassFile
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(0, constantPoolName);
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.ARRAYLENGTH:
+				case Opcodes.OPC_arraylength:
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.INT);
 					pc++;
 					break;
-				case IOpcodeMnemonics.ATHROW:
+				case Opcodes.OPC_athrow:
 					frame.numberOfStackItems--;
 					pc++;
 					break;
-				case IOpcodeMnemonics.CHECKCAST:
+				case Opcodes.OPC_checkcast:
 					index = u2At(bytecodes, 1, pc);
 					utf8index = u2At(poolContents, 1,
 							constantPoolOffsets[index]);
@@ -7438,22 +7125,19 @@ public class ClassFile
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(0, className);
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.INSTANCEOF:
+				case Opcodes.OPC_instanceof:
 					// no need to know the class index = u2At(bytecodes, 1, pc);
 					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeBinding.INT);
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.MONITORENTER:
+				case Opcodes.OPC_monitorenter:
+				case Opcodes.OPC_monitorexit:
 					frame.numberOfStackItems--;
 					pc++;
 					break;
-				case IOpcodeMnemonics.MONITOREXIT:
-					frame.numberOfStackItems--;
-					pc++;
-					break;
-				case IOpcodeMnemonics.WIDE:
-					opcode = u1At(bytecodes, 1, pc);
-					if (opcode == IOpcodeMnemonics.IINC) {
+				case Opcodes.OPC_wide:
+					opcode = (byte) u1At(bytecodes, 1, pc);
+					if (opcode == Opcodes.OPC_iinc) {
 						// index = u2At(bytecodes, 2, pc);
 						// i2At(bytecodes, 4, pc); // const
 						// we don't need the index and the const value
@@ -7462,46 +7146,46 @@ public class ClassFile
 						index = u2At(bytecodes, 2, pc);
 						// need to handle iload, fload, aload, lload, dload, istore, fstore, astore, lstore or dstore
 						switch(opcode) {
-							case IOpcodeMnemonics.ILOAD :
+							case Opcodes.OPC_iload :
 								frame.addStackItem(TypeBinding.INT);
 								break;
-							case IOpcodeMnemonics.FLOAD :
+							case Opcodes.OPC_fload :
 								frame.addStackItem(TypeBinding.FLOAT);
 								break;
-							case IOpcodeMnemonics.ALOAD :
+							case Opcodes.OPC_aload :
 								localsN = frame.locals[index];
 								if (localsN == null) {
 									localsN = retrieveLocal(currentPC, index);
 								}
 								frame.addStackItem(localsN);
 								break;
-							case IOpcodeMnemonics.LLOAD :
+							case Opcodes.OPC_lload :
 								frame.addStackItem(TypeBinding.LONG);
 								break;
-							case IOpcodeMnemonics.DLOAD :
+							case Opcodes.OPC_dload :
 								frame.addStackItem(TypeBinding.DOUBLE);
 								break;
-							case IOpcodeMnemonics.ISTORE :
+							case Opcodes.OPC_istore :
 								frame.numberOfStackItems--;
 								break;
-							case IOpcodeMnemonics.FSTORE :
+							case Opcodes.OPC_fstore :
 								frame.numberOfStackItems--;
 								break;
-							case IOpcodeMnemonics.ASTORE :
+							case Opcodes.OPC_astore :
 								frame.locals[index] = frame.stackItems[frame.numberOfStackItems - 1];
 								frame.numberOfStackItems--;
 								break;
-							case IOpcodeMnemonics.LSTORE :
+							case Opcodes.OPC_lstore :
 								frame.numberOfStackItems--;
 								break;
-							case IOpcodeMnemonics.DSTORE :
+							case Opcodes.OPC_dstore :
 								frame.numberOfStackItems--;
 								break;
 						}
 						pc += 4;
 					}
 					break;
-				case IOpcodeMnemonics.MULTIANEWARRAY:
+				case Opcodes.OPC_multianewarray:
 					index = u2At(bytecodes, 1, pc);
 					utf8index = u2At(poolContents, 1,
 							constantPoolOffsets[index]);
@@ -7520,16 +7204,25 @@ public class ClassFile
 					frame.addStackItem(new VerificationTypeInfo(0, constantPoolName));
 					pc += 4;
 					break;
-				case IOpcodeMnemonics.IFNULL:
+				case Opcodes.OPC_ifnull:
+				case Opcodes.OPC_ifnonnull:
 					frame.numberOfStackItems--;
 					pc += 3;
 					break;
-				case IOpcodeMnemonics.IFNONNULL:
-					frame.numberOfStackItems--;
-					pc += 3;
-					break;
-				case IOpcodeMnemonics.GOTO_W:
+				case Opcodes.OPC_goto_w:
 					pc += 5;
+					break;
+				default: // should not occur
+					codeStream.methodDeclaration.scope.problemReporter().abortDueToInternalError(
+							Messages.bind(
+									Messages.abort_invalidOpcode, 
+									new Object[] {
+										new Byte(opcode),
+										new Integer(pc),
+										new String(methodBinding.shortReadableName()),
+									}),
+							codeStream.methodDeclaration);
+				break;
 			}
 			if (pc >= (codeLength + codeOffset)) {
 				break;
