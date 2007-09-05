@@ -5297,6 +5297,54 @@ public void test144(){
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 }
+// reporting unnecessary declaration of thrown checked exceptions
+// default is off
+public void test145_declared_thrown_checked_exceptions(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" + 
+			"public class X {\n" + 
+			"  public void foo() throws IOException {\n" + 
+			"  }\n" + 
+			"}\n"},
+  "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+  + " -1.5 -g -preserveAllLocals"
+  + " -bootclasspath " + getLibraryClasses()
+  + " -cp " + getJCEJar()
+  + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+  "",
+  "",
+  true);
+}
+// reporting unnecessary declaration of thrown checked exceptions
+public void test146_declared_thrown_checked_exceptions(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" + 
+			"public class X {\n" + 
+			"  public void foo() throws IOException {\n" + 
+			"  }\n" + 
+			"}\n"},
+  "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+  + " -1.5 -g -preserveAllLocals"
+  + " -bootclasspath " + getLibraryClasses()
+  + " -cp " + getJCEJar()
+  + " -warn:+unusedThrown"
+  + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+  "",
+  "----------\n" + 
+  "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+  "	public void foo() throws IOException {\n" + 
+  "	                         ^^^^^^^^^^^\n" + 
+  "The declared exception IOException is not actually thrown by the method foo() from type X\n" + 
+  "----------\n" + 
+  "1 problem (1 warning)",
+  true);
+}
+
+
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
