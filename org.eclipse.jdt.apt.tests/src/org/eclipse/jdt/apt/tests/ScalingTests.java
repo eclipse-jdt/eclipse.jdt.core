@@ -98,11 +98,12 @@ public class ScalingTests extends APTTestBase {
 		IJavaProject jproj = env.getJavaProject( projName );
 		AptConfig.setEnabled(jproj, true);
 		
+		long start = System.currentTimeMillis();
 		fullBuild( project.getFullPath() );
-		expectingNoProblems();
-		
 		if (VERBOSE)
-			System.out.println("Done with build");
+			System.out.println("Done with build after " + ((System.currentTimeMillis() - start)/1000L) + " sec");
+		
+		expectingNoProblems();
 
 		IPath projPath = jproj.getProject().getLocation();
 		for (int i = 1; i <= FILES_TO_GENERATE; ++i) {
