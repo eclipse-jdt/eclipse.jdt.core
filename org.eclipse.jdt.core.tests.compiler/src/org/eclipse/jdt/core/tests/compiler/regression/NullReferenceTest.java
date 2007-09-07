@@ -4006,18 +4006,18 @@ public void test0462_while_explicit_label() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184298
 // variant
-public void _test0463_while_infinite() {
+public void test0463_while_infinite() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
 			"  public void test(String[] a) {\n" + 
 			"    String key = null;\n" + 
-			"    for( int i = 0; ; i++ )\n" + 
+			"    while(true)\n" + 
 			"    {\n" + 
-			"      if (a[i] == null)\n" + 
+			"      if (a[0] == null)\n" + 
 			"        break;\n" + 
-			"      key = a[i];\n" + 
+			"      key = a[0];\n" + 
 			"    }\n" + 
 			"    if (key != null) {\n" + 
 			"      // empty\n" + 
@@ -4037,11 +4037,35 @@ public void test0464_while_infinite() {
 			"public class X {\n" + 
 			"  public void test(String[] a) {\n" + 
 			"    String key = null;\n" + 
-			"    loop: for( int i = 0; ; i++ )\n" + 
+			"    loop: while(true)\n" + 
 			"    {\n" + 
-			"      if (a[i] == null)\n" + 
+			"      if (a[0] == null)\n" + 
 			"        break loop;\n" + 
-			"      key = a[i];\n" + 
+			"      key = a[0];\n" + 
+			"    }\n" + 
+			"    if (key != null) {\n" + 
+			"      // empty\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"},
+		"");
+}
+
+// null analysis - while
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184298
+// variant
+public void test0465_while_infinite() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public void test(String[] a) {\n" + 
+			"    String key = null;\n" + 
+			"    while(true)\n" + 
+			"    {\n" + 
+			"      if (a[0] == null)\n" + 
+			"        break;\n" + 
+			"      key = \"non null\";\n" + 
 			"    }\n" + 
 			"    if (key != null) {\n" + 
 			"      // empty\n" + 
@@ -5909,19 +5933,18 @@ public void test0617_do_while_explicit_label() {
 // null analysis - do while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184298
 // variant
-public void _test0618_do_while_infinite() {
+public void test0618_do_while_infinite() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
 			"  public void test(String[] a) {\n" + 
 			"    String key = null;\n" + 
-			"    for( int i = 0; ; i++ )\n" + 
-			"    {\n" + 
-			"      if (a[i] == null)\n" + 
+			"    do {\n" + 
+			"      if (a[0] == null)\n" + 
 			"        break;\n" + 
-			"      key = a[i];\n" + 
-			"    }\n" + 
+			"      key = a[0];\n" + 
+			"    } while (true);\n" + 
 			"    if (key != null) {\n" + 
 			"      // empty\n" + 
 			"    }\n" + 
@@ -5940,12 +5963,11 @@ public void test0619_do_while_infinite() {
 			"public class X {\n" + 
 			"  public void test(String[] a) {\n" + 
 			"    String key = null;\n" + 
-			"    loop: for( int i = 0; ; i++ )\n" + 
-			"    {\n" + 
-			"      if (a[i] == null)\n" + 
+			"    loop: do {\n" + 
+			"      if (a[0] == null)\n" + 
 			"        break loop;\n" + 
-			"      key = a[i];\n" + 
-			"    }\n" + 
+			"      key = a[0];\n" + 
+			"    } while (true);\n" + 
 			"    if (key != null) {\n" + 
 			"      // empty\n" + 
 			"    }\n" + 
@@ -6879,7 +6901,7 @@ public void test0742_for_explicit_label() {
 
 // null analysis - for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184298
-public void _test0743_for_infinite() {
+public void test0743_for_infinite() {
 	this.runConformTest(
 		new String[] {
 			"X.java",

@@ -249,6 +249,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 		}
 	}
 	// propagate breaks
+	this.initsOnBreak.addPotentialNullInfoFrom(flowInfo);
 	for (int i = 0; i < this.breakTargetsCount; i++) {
 		this.breakTargetContexts[i].initsOnBreak.addPotentialNullInfoFrom(flowInfo);
 	}
