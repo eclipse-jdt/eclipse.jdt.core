@@ -33,6 +33,7 @@ NameEnvironment nameEnvironment;
 SimpleLookupTable binaryLocationsPerProject; // maps a project to its binary resources (output folders, class folders, zip/jar files)
 public State lastState;
 BuildNotifier notifier;
+boolean runningBatchBuild;
 char[][] extraResourceFileFilters;
 String[] extraResourceFolderFilters;
 public static final String SOURCE_ID = "JDT"; //$NON-NLS-1$
@@ -158,7 +159,8 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	if (DEBUG)
 		System.out.println("\nStarting build of " + currentProject.getName() //$NON-NLS-1$
 			+ " @ " + new Date(System.currentTimeMillis())); //$NON-NLS-1$
-	this.notifier = new BuildNotifier(monitor, currentProject);
+	this.runningBatchBuild = false;
+	this.notifier = new BuildNotifier(monitor, this);
 	notifier.begin();
 	boolean ok = false;
 	try {
@@ -242,6 +244,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 }
 
 private void buildAll() {
+	this.runningBatchBuild = true;
 	notifier.checkCancel();
 	notifier.subTask(Messages.bind(Messages.build_preparingBuild, this.currentProject.getName()));
 	if (DEBUG && lastState != null)
@@ -268,6 +271,16 @@ private void buildDeltas(SimpleLookupTable deltas) {
 	}
 }
 
+protected boolean checkInterrupted() {
+	if (this.runningBatchBuild && isInterrupted()) {
+		if (DEBUG)
+			System.out.println("Interrupted - forgetting last state"); //$NON-NLS-1$
+		forgetLastBuiltState();
+		return true;
+	}
+	return false;
+}
+
 protected void clean(IProgressMonitor monitor) throws CoreException {
 	this.currentProject = getProject();
 	if (currentProject == null || !currentProject.isAccessible()) return;
@@ -275,7 +288,8 @@ protected void clean(IProgressMonitor monitor) throws CoreException {
 	if (DEBUG)
 		System.out.println("\nCleaning " + currentProject.getName() //$NON-NLS-1$
 			+ " @ " + new Date(System.currentTimeMillis())); //$NON-NLS-1$
-	this.notifier = new BuildNotifier(monitor, currentProject);
+	this.runningBatchBuild = true;
+	this.notifier = new BuildNotifier(monitor, this);
 	notifier.begin();
 	try {
 		notifier.checkCancel();
