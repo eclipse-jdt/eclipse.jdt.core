@@ -120,7 +120,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 676 };
+//		TESTS_NUMBERS =  new int[] { 684, 685 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -9402,5 +9402,54 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Not an array type", ASTNode.ARRAY_TYPE, node.getNodeType());
 		arrayType = (ArrayType)node;
 		checkSourceRange(arrayType, "String[0]", sourceUnit.getSource());
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=201929
+	 */
+	public void test0684() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0684", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runConversion(AST.JLS3, sourceUnit, true, true);
+		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+		ReturnStatement returnStatement = (ReturnStatement) node;
+		Expression expression = returnStatement.getExpression();
+		assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		final AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+		final List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, ((BodyDeclaration) bodyDeclarations.get(0)).getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) bodyDeclarations.get(0);
+		final ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		final String qualifiedName = typeBinding.getQualifiedName();
+		assertEquals("wrong qualified name", "", qualifiedName);
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=201929
+	 */
+	public void test0685() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0685", "C.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runConversion(AST.JLS3, sourceUnit, true, true);
+		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		Expression expression = ((ExpressionStatement) node).getExpression();
+		assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		final AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+		final List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, ((BodyDeclaration) bodyDeclarations.get(0)).getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) bodyDeclarations.get(0);
+		final ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		final String qualifiedName = typeBinding.getQualifiedName();
+		assertEquals("wrong qualified name", "", qualifiedName);
 	}
 }
