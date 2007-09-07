@@ -71,6 +71,9 @@ public class FilerTests extends TestBase
 		incrementalBuild();
 		expectingNoProblems();
 		
+		final String[] expectedClasses2 = { "targets.filer.Parent01" };
+		expectingUniqueCompiledClasses(expectedClasses2);
+
 		expectingNoFile(proj, ".apt_generated/gen6/Generated01.java");
 		expectingNoFile( proj, ".apt_generated/summary.txt" );
 	}

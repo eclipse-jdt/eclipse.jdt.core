@@ -17,6 +17,10 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
+import javax.annotation.processing.SupportedSourceVersion;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
@@ -26,6 +30,9 @@ import org.eclipse.jdt.apt.pluggable.tests.annotations.Message6;
 /**
  * A processor that reads the Message6 annotation and sends output via the Messager API
  */
+@SupportedAnnotationTypes({"org.eclipse.jdt.apt.pluggable.tests.annotations.Message6"})
+@SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedOptions({})
 public class Message6Proc extends AbstractProcessor {
 
 	private ProcessingEnvironment _processingEnv;
