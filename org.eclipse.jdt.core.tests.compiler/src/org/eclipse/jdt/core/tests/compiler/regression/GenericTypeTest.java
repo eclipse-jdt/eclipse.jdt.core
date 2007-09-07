@@ -38653,4 +38653,31 @@ public void test1156() {
 		null
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=202624
+public void test1157() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        public <A, B> void func(Class<? extends XX<A,B>> cls) {}\n" + 
+			"        public void func() {\n" + 
+			"                func(XX.class);\n" + 
+			"                \n" + 
+			"                Class<? extends XX<String,String>> c = XX.class;\n" + 
+			"        }\n" + 
+			"        class XX<A, B> {}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	func(XX.class);\n" + 
+		"	^^^^\n" + 
+		"The method func(Class<? extends X.XX<A,B>>) in the type X is not applicable for the arguments (Class<X.XX>)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	Class<? extends XX<String,String>> c = XX.class;\n" + 
+		"	                                       ^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<X.XX> to Class<? extends X.XX<String,String>>\n" + 
+		"----------\n");
+}
 }
