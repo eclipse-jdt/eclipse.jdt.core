@@ -792,11 +792,11 @@ class TypeBinding implements ITypeBinding {
 				final ITypeBinding bound = getBound();
 				if (bound != null) {
 					switch(wildcardBinding.boundKind) {
-				        case Wildcard.SUPER :
-				        	buffer.append(TypeConstants.WILDCARD_SUPER);
-				            break;
-				        case Wildcard.EXTENDS :
-				        	buffer.append(TypeConstants.WILDCARD_EXTENDS);
+						case Wildcard.SUPER :
+							buffer.append(TypeConstants.WILDCARD_SUPER);
+							break;
+						case Wildcard.EXTENDS :
+							buffer.append(TypeConstants.WILDCARD_EXTENDS);
 					}
 					buffer.append(bound.getQualifiedName());
 				}
@@ -808,7 +808,7 @@ class TypeBinding implements ITypeBinding {
 			case Binding.ARRAY_TYPE :
 				ITypeBinding elementType = getElementType();
 				if (elementType.isLocal() || elementType.isAnonymous() || elementType.isCapture()) {
-					return NO_NAME;
+					return elementType.getQualifiedName();
 				}
 				final int dimensions = getDimensions();
 				char[] brackets = new char[dimensions * 2];
@@ -865,7 +865,7 @@ class TypeBinding implements ITypeBinding {
 				return String.valueOf(buffer);
 
 			default :
-				if (isAnonymous() || isLocal()) {
+				if (isAnonymous() || this.binding.isLocalType()) {
 					return NO_NAME;
 				}
 				if (isPrimitive() || isNullType()) {
