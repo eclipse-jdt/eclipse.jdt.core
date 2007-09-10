@@ -5060,6 +5060,42 @@ public void test0533_try_finally_field() {
 		""); 
 }
 
+// null analysis - try finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=198970
+public void _test0534_try_finally() {
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    String foo = null;\n" + 
+			"    boolean a = true;\n" + 
+			"    try {\n" + 
+			"    }\n" + 
+			"    catch(Exception e) {\n" + 
+			"    }\n" + 
+			"    finally {\n" + 
+			"      if (a) {\n" + 
+			"        foo = new String();\n" + 
+			"      }\n" + 
+			"      if (foo != null) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+			},
+		false /* expectingCompilerErrors */,
+		"" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
+		null /* clientRequestor */,
+		false /* skipJavac */);
+}
+
 // null analysis -- try/catch
 public void test0550_try_catch() {
 	this.runConformTest(
