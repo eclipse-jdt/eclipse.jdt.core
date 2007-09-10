@@ -6974,22 +6974,79 @@ public void test0744_for_infinite() {
 }
 
 // null analysis - for
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=190737
-public void _test0745_for() {
-	this.runNegativeTest(
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195638
+public void _test0746_for_try_catch() {
+	runTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
-			"  void foo(Object o) {\n" + 
-			"    if (o != null) {\n" + 
-			"      for (int i = 0; i < Integer.MAX_VALUE; i++) {\n" + 
-			"        if (o == null) {\n" +  // should complain here
-			"        }\n" + 
+			"  void foo() {\n" + 
+			"    String str = null;\n" + 
+			"    for (int i = 0; i < 2; i++) {\n" + 
+			"      try {\n" + 
+			"        str = new String(\"Test\");\n" + 
+			"      } catch (Exception ex) {\n" + 
+			"        ex.printStackTrace();\n" + 
 			"      }\n" + 
+			"      str.charAt(i);\n" + 
+			"      str = null;\n" + 
 			"    }\n" + 
 			"  }\n" + 
-			"}\n"},
-		"ERR");
+			"}\n"
+			},
+		true /* expectingCompilerErrors */,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	str.charAt(i);\n" + 
+		"	^^^\n" + 
+		"Potential null pointer access: The variable str may be null at this location\n" + 
+		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
+		null /* clientRequestor */,
+		false /* skipJavac */);
+}
+
+// null analysis - for
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195638
+// variant: do not reset to null
+public void test0747_for_try_catch() {
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    String str = null;\n" + 
+			"    for (int i = 0; i < 2; i++) {\n" + 
+			"      try {\n" + 
+			"        str = new String(\"Test\");\n" + 
+			"      } catch (Exception ex) {\n" + 
+			"        ex.printStackTrace();\n" + 
+			"      }\n" + 
+			"      str.charAt(i);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+			},
+		true /* expectingCompilerErrors */,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	str.charAt(i);\n" + 
+		"	^^^\n" + 
+		"Potential null pointer access: The variable str may be null at this location\n" + 
+		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
+		null /* clientRequestor */,
+		false /* skipJavac */);
 }
 
 // null analysis -- switch
