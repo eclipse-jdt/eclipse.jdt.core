@@ -4075,6 +4075,33 @@ public void test0465_while_infinite() {
 		"");
 }
 
+// null analysis - while
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=198955
+// dupe of bug 184298 in fact
+public void test0466_while_infinite() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    Object o = null;\n" + 
+			"    while (true) {\n" + 
+			"      if (bar()) {\n" + 
+			"        break;\n" + 
+			"      }\n" + 
+			"      if (o == null) {\n" + 
+			"        o = new Object();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    if (o == null) {}\n" + 
+			"  }\n" + 
+			"  boolean bar() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+}
+
 // null analysis -- try/finally
 public void test0500_try_finally() {
 	this.runConformTest(
