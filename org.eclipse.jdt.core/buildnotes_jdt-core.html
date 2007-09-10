@@ -47,9 +47,30 @@ Eclipse SDK 3.4M2 - %date% - 3.4 MILESTONE 2
 <br>Project org.eclipse.jdt.core v_811
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_811">cvs</a>).
 <h2>What's new in this drop</h2>
-
+<ul>
+<li>Added an option that allows @throws javadoc entries to defuse the unused
+    declared thrown exception check. 
+<pre>
+COMPILER / Consider Reference in Doc Comment for Unused Declared Thrown Exception Check
+   When enabled, the compiler will consider doc comment references to exceptions 
+   (i.e. @throws clauses) for the unused declared thrown exception check. Thus, 
+   documented exceptions will be considered as mandated as per doc contract.
+   The severity of the unused declared thrown exception problem is controlled 
+   with option "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException".
+   Note: this option has no effect until the doc comment support is enabled 
+   according to the option "org.eclipse.jdt.core.compiler.doc.comment.support".
+    - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeDocReference"
+    - possible values:   { "enabled", "disabled" }
+    - default:           "enabled"
+</pre>
+See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73244">73244</a>
+for details.
+</li>
+</ul>
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=89301">89301</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73244">73244</a>
+[options] Improve &quot;Unnecessary declaration of thrown checked exceptions&quot;
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=89301">89301</a>
 Any user operation that would trigger an autobuild should cancel a running autobuild
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=184298">184298</a>
 [compiler][null] Spurious &quot;Variable can only be null&quot; warning in case of an infinite loop

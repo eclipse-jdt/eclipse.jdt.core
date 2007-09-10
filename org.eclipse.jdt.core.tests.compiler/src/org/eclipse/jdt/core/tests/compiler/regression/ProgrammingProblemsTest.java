@@ -349,7 +349,7 @@ public void test0008_declared_thrown_checked_exceptions() {
 // exceptions using the Javadoc
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=73244
 // @throws disables by default
-public void _test0009_declared_thrown_checked_exceptions() {
+public void test0009_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
 			CompilerOptions.ENABLED);
@@ -384,12 +384,12 @@ public void _test0009_declared_thrown_checked_exceptions() {
 // exceptions using the Javadoc
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=73244
 // @throws disabling can be disabled
-public void _test0010_declared_thrown_checked_exceptions() {
+public void test0010_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
 			CompilerOptions.ENABLED);
-/*	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference, 
-			CompilerOptions.DISABLED); */
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference, 
+			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
@@ -406,7 +406,12 @@ public void _test0010_declared_thrown_checked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"ERR" /* expectedCompilerLog */,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	public void foo() throws IOException {\n" + 
+		"	                         ^^^^^^^^^^^\n" + 
+		"The declared exception IOException is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -478,6 +483,47 @@ public void test0012_declared_thrown_checked_exceptions() {
 		true /* shouldFlushOutputDirectory */, 
 		null /* vmArguments */, 
 		null /* customOptions */,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
+
+// disabling the reporting of unnecessary declaration of thrown checked 
+// exceptions using the Javadoc
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=73244
+// @throws disables by default, but only exact matches work
+public void test0013_declared_thrown_checked_exceptions() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
+			CompilerOptions.ENABLED);
+	runTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" + 
+			"import java.io.EOFException;\n" + 
+			"public class X {\n" + 
+			"/** @throws EOFException does not mute warning for IOException **/\n" + 
+			"  public void foo() throws IOException {\n" + 
+			"  }\n" + 
+			"}\n"
+			},
+		null /* errorOptions */,
+		new String[] {
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
+			} /* warningOptions */,
+		null /* ignoreOptions */,
+		false /* expectingCompilerErrors */,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	public void foo() throws IOException {\n" + 
+		"	                         ^^^^^^^^^^^\n" + 
+		"The declared exception IOException is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		customOptions,
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }

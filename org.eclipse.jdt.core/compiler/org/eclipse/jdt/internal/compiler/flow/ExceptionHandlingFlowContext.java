@@ -81,11 +81,28 @@ public void complainIfUnusedExceptionHandlers(AbstractMethodDeclaration method) 
 	}
 	    
 	// report errors for unreachable exception handlers
-	for (int i = 0, count = this.handledExceptions.length; i < count; i++) {
+	TypeBinding[] docCommentReferences = null;
+	int docCommentReferencesLength = 0;
+	if (scope.compilerOptions().
+				reportUnusedDeclaredThrownExceptionIncludeDocCommentReference &&
+			method.javadoc != null &&
+			method.javadoc.exceptionReferences != null &&
+			(docCommentReferencesLength = method.javadoc.exceptionReferences.length) > 0) {
+		docCommentReferences = new TypeBinding[docCommentReferencesLength];
+		for (int i = 0; i < docCommentReferencesLength; i++) {
+			docCommentReferences[i] = method.javadoc.exceptionReferences[i].resolvedType;
+		}
+	}
+	nextHandledException: for (int i = 0, count = this.handledExceptions.length; i < count; i++) {
 		int index = this.indexes.get(this.handledExceptions[i]);
 		int cacheIndex = index / ExceptionHandlingFlowContext.BitCacheSize;
 		int bitMask = 1 << (index % ExceptionHandlingFlowContext.BitCacheSize);
 		if ((this.isReached[cacheIndex] & bitMask) == 0) {
+			for (int j = 0; j < docCommentReferencesLength; j++) {
+				if (docCommentReferences[j] == this.handledExceptions[i]) {
+					continue nextHandledException;
+				}
+			}
 			scope.problemReporter().unusedDeclaredThrownException(
 				this.handledExceptions[index],
 				method,

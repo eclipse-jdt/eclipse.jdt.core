@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 
@@ -309,8 +310,8 @@ public class Javadoc extends ASTNode {
 		}
 
 		// @param tags
-		boolean considerParamRefAsUsage = methScope.compilerOptions().reportUnusedParameterIncludeDocCommentReference;
-		resolveParamTags(methScope, reportMissing, considerParamRefAsUsage);
+		CompilerOptions compilerOptions = methScope.compilerOptions();
+		resolveParamTags(methScope, reportMissing, compilerOptions.reportUnusedParameterIncludeDocCommentReference /* considerParamRefAsUsage*/);
 		resolveTypeParameterTags(methScope, reportMissing);
 
 		// @return tags
@@ -332,7 +333,7 @@ public class Javadoc extends ASTNode {
 		resolveThrowsTags(methScope, reportMissing);
 
 		// @value tag
-		boolean source15 = methScope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
+		boolean source15 = compilerOptions.sourceLevel >= ClassFileConstants.JDK1_5;
 		if (!source15 && methDecl != null && this.valuePositions != -1) {
 			methScope.problemReporter().javadocUnexpectedTag((int)(this.valuePositions>>>32), (int) this.valuePositions);
 		}

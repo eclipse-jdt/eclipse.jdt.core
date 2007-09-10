@@ -68,6 +68,8 @@
  *                                 COMPILER_PB_REDUNDANT_NULL_CHECK
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_UNUSED_PARAMETER_INCLUDE_DOC_COMMENT_REFERENCE
+ *     IBM Corporation - added the following constants:
+ *                                 COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -435,6 +437,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionWhenOverriding"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.4
+	 */
+	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionIncludeDocCommentReference"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -2213,7 +2221,7 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *
-	 * COMPILER / Reporting Unused Declared Thrown Exception in Overridind Method
+	 * COMPILER / Reporting Unused Declared Thrown Exception in Overriding Method
 	 *    When disabled, the compiler will not include overriding methods in its diagnosis for unused declared
 	 *    thrown exceptions.
 	 *    <br>
@@ -2221,6 +2229,16 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
+	 *
+	 * COMPILER / Consider Reference in Doc Comment for Unused Declared Thrown Exception Check
+	 *    When enabled, the compiler will consider doc comment references to exceptions (i.e. @throws clauses) for the unused
+	 *    declared thrown exception check. Thus, documented exceptions will be considered as mandated as per doc contract.
+	 *    The severity of the unused declared thrown exception problem is controlled with option "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException".
+	 *    Note: this option has no effect until the doc comment support is enabled according to the 
+	 *    option "org.eclipse.jdt.core.compiler.doc.comment.support".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeDocReference"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
 	 *
 	 * COMPILER / Reporting Unqualified Access to Field
 	 *    When enabled, the compiler will issue an error or a warning when a field is access without any qualification.
