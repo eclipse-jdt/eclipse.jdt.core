@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.core.util.Messages;
 public class BuildNotifier {
 
 protected IProgressMonitor monitor;
-protected JavaBuilder builder;
 protected boolean cancelling;
 protected float percentComplete;
 protected float progressPerCompilationUnit;
@@ -45,9 +44,8 @@ public static void resetProblemCounters() {
 	FixedWarningCount = 0;
 }
 
-public BuildNotifier(IProgressMonitor monitor, JavaBuilder builder) {
+public BuildNotifier(IProgressMonitor monitor, IProject project) {
 	this.monitor = monitor;
-	this.builder = builder;
 	this.cancelling = false;
 	this.newErrorCount = NewErrorCount;
 	this.fixedErrorCount = FixedErrorCount;
@@ -75,7 +73,7 @@ public void begin() {
  * Check whether the build has been canceled.
  */
 public void checkCancel() {
-	if ((monitor != null && monitor.isCanceled()) || (builder != null && builder.checkInterrupted()))
+	if (monitor != null && monitor.isCanceled())
 		throw new OperationCanceledException();
 }
 
@@ -84,12 +82,11 @@ public void checkCancel() {
  * Must use this call instead of checkCancel() when within the compiler.
  */
 public void checkCancelWithinCompiler() {
-	if (cancelling) return;
-	if ((monitor != null && monitor.isCanceled()) || (builder != null && builder.checkInterrupted())) {
+	if (monitor != null && monitor.isCanceled() && !cancelling) {
 		// Once the compiler has been canceled, don't check again.
 		setCancelling(true);
 		// Only AbortCompilation can stop the compiler cleanly.
-		// We check cancellation again following the call to compile.
+		// We check cancelation again following the call to compile.
 		throw new AbortCompilation(true, null); 
 	}
 }
