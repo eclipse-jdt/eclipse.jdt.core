@@ -5597,6 +5597,99 @@ public void test0566_try_catch_unchecked_exception() {
 		"");
 }
 
+// null analysis - throw
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=201182
+public void test0595_throw() {
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static void main(String[] args) throws Throwable {\n" + 
+			"    Throwable t = null;\n" + 
+			"    throw t;\n" + 
+			"  }\n" + 
+			"}\n"
+			},
+		true /* expectingCompilerErrors */,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	throw t;\n" + 
+		"	      ^\n" + 
+		"Null pointer access: The variable t can only be null at this location\n" + 
+		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
+
+// null analysis - throw
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=201182
+// variant - potential NPE
+public void test0596_throw() {
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static void main(String[] args) throws Throwable {\n" + 
+			"    Throwable t = null;\n" +
+			"    if (args.length > 0) {\n" +
+			"      t = new Throwable();\n" +
+			"    }\n" + 
+			"    throw t;\n" + 
+			"  }\n" + 
+			"}\n"
+			},
+		true /* expectingCompilerErrors */,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	throw t;\n" + 
+		"	      ^\n" + 
+		"Potential null pointer access: The variable t may be null at this location\n" + 
+		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
+
+
+// null analysis - throw
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=201182
+// variant - unknown
+public void test0597_throw() {
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() throws Throwable {\n" + 
+			"    throw t();\n" + 
+			"  }\n" +
+			"  Throwable t() {\n" +
+			"    return new Throwable();\n" +
+			"  }\n" + 
+			"}\n"
+			},
+		false /* expectingCompilerErrors */,
+		"" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
+
 // null analysis -- do while
 public void test0601_do_while() {
 	this.runNegativeTest(
