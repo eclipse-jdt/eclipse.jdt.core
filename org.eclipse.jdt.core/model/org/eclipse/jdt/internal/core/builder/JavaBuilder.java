@@ -244,7 +244,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 }
 
 private void buildAll() {
-	this.runningBatchBuild = true;
+	//this.runningBatchBuild = true; until https://bugs.eclipse.org/bugs/show_bug.cgi?id=203058 is resolved
 	notifier.checkCancel();
 	notifier.subTask(Messages.bind(Messages.build_preparingBuild, this.currentProject.getName()));
 	if (DEBUG && lastState != null)
@@ -288,7 +288,7 @@ protected void clean(IProgressMonitor monitor) throws CoreException {
 	if (DEBUG)
 		System.out.println("\nCleaning " + currentProject.getName() //$NON-NLS-1$
 			+ " @ " + new Date(System.currentTimeMillis())); //$NON-NLS-1$
-	this.runningBatchBuild = true;
+	//this.runningBatchBuild = true; until https://bugs.eclipse.org/bugs/show_bug.cgi?id=203058 is resolved
 	this.notifier = new BuildNotifier(monitor, this);
 	notifier.begin();
 	try {
