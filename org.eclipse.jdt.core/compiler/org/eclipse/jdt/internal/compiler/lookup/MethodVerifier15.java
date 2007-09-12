@@ -270,7 +270,10 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 void checkInheritedMethods(MethodBinding inheritedMethod, MethodBinding otherInheritedMethod) {
 	// sent from checkMethods() to compare 2 inherited methods that are not 'equal'
 	if (inheritedMethod.declaringClass.erasure() == otherInheritedMethod.declaringClass.erasure()) {
-		if (inheritedMethod.areParameterErasuresEqual(otherInheritedMethod)) {
+		boolean areDuplicates = inheritedMethod.hasSubstitutedParameters() && otherInheritedMethod.hasSubstitutedParameters()
+			? inheritedMethod.areParametersEqual(otherInheritedMethod)
+			: inheritedMethod.areParameterErasuresEqual(otherInheritedMethod);
+		if (areDuplicates) {
 			problemReporter().duplicateInheritedMethods(this.type, inheritedMethod, otherInheritedMethod);
 			return;
 		}

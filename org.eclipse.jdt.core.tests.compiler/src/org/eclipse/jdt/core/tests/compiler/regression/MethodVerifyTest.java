@@ -7228,6 +7228,20 @@ public void test120() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=202830
+public void test120a() {
+	this.runConformTest(
+		new String[] {
+			"Bar.java",
+			"class Foo<V, E> {\n" + 
+			"	int getThing(V v) { return 1; }\n" + 
+			"	boolean getThing(E e) { return true; }\n" +
+			"}\n" +
+			"public class Bar<V,E> extends Foo<V,E> {}"
+		},
+		""
+	);
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=173477
 public void test121() {
 	this.runConformTest(
