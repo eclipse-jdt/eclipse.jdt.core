@@ -5248,19 +5248,35 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					case OperatorIds.PLUS:
 						if (prefixExpression.operator == OperatorIds.PLUS) {
 							this.scribe.space();
-						}						
+						}
 						break;
 					case OperatorIds.MINUS:
 						if (prefixExpression.operator == OperatorIds.MINUS) {
 							this.scribe.space();
-						}						
+						}
 						break;
 				}
 			}
-			expression.traverse(this, scope);
-		} else {
-			expression.traverse(this, scope);
+		} else if (expression instanceof UnaryExpression) {
+			UnaryExpression unaryExpression2 = (UnaryExpression) expression;
+			final int numberOfParensForExpression = (unaryExpression2.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+			if (numberOfParensForExpression == 0) {
+				int operatorValue2 = (unaryExpression2.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT;
+				switch(operatorValue) {
+					case OperatorIds.PLUS:
+						if (operatorValue2 == OperatorIds.PLUS) {
+							this.scribe.space();
+						}
+						break;
+					case OperatorIds.MINUS:
+						if (operatorValue2 == OperatorIds.MINUS) {
+							this.scribe.space();
+						}
+						break;
+				}
+			}
 		}
+		expression.traverse(this, scope);
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(unaryExpression, numberOfParens);

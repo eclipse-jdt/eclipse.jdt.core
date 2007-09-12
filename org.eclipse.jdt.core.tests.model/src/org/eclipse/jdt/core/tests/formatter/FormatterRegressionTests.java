@@ -54,7 +54,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 	
 	static {
-//		TESTS_NUMBERS = new int[] { 668 };
+//		TESTS_NUMBERS = new int[] { 669 };
 //		TESTS_RANGE = new int[] { 658, -1 };
 	}
 	public static Test suite() {
@@ -9368,5 +9368,21 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test668", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203020
+	public void test669() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test669", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203020
+	public void test670() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test670", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
