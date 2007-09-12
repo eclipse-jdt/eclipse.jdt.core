@@ -257,6 +257,9 @@ protected void assumeEquals(String msg, String expected, String actual) {
 		System.out.println("Actual output is:");
 		System.out.println(Util.displayString(cf.getActual(), 2));
 		System.out.println();
+		System.out.println("Expected output is:");
+		System.out.println(Util.displayString(cf.getExpected(), 2));
+		System.out.println();
 		if (abortOnFailure) {
 			throw cf;
 		}
