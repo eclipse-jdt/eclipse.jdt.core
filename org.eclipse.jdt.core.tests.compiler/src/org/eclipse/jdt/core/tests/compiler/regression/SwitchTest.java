@@ -240,7 +240,7 @@ public void test010() {
 	"1. ERROR in X.java (at line 4)\n" + 
 	"	switch(this){\n" + 
 	"	       ^^^^\n" + 
-	"Cannot switch on a value of type X. Only int values or enum constants are permitted\n" + 
+	"Cannot switch on a value of type X. Only convertible int values or enum constants are permitted\n" + 
 	"----------\n" + 
 	"2. ERROR in X.java (at line 6)\n" + 
 	"	Zork z;\n" + 
