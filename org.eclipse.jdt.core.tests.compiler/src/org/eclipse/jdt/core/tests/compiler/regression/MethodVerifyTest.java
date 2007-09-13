@@ -7628,7 +7628,9 @@ public void test134() {
 			"interface J extends I {\n" + 
 			"  A foo(Number n);\n" +  // warning: overrides <T>foo(java.lang.Number) in I; return type requires unchecked conversion
 			"}\n" + 
-			"abstract class A extends Exception implements Cloneable {}"
+			"abstract class A extends Exception implements Cloneable {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
 		},
 		"----------\n" + 
 		"1. WARNING in X.java (at line 5)\n" + 
@@ -7655,7 +7657,9 @@ public void test135() {
 			"interface J extends I {\n" + 
 			"  A foo(Number n);\n" +  // warning: overrides <T>foo(java.lang.Number) in I; return type requires unchecked conversion
 			"}\n" + 
-			"abstract class A extends Exception implements Cloneable {}"
+			"abstract class A extends Exception implements Cloneable {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
 		},
 		"----------\n" + 
 		"1. WARNING in X.java (at line 10)\n" + 
@@ -7682,7 +7686,9 @@ public void test136() {
 			"abstract class E extends D {\n" + 
 			"  @Override abstract A foo(Number n);\n" +  // warning: overrides <T>foo(java.lang.Number) in I; return type requires unchecked conversion
 			"}\n" + 
-			"abstract class A extends Exception implements Cloneable {}"
+			"abstract class A extends Exception implements Cloneable {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
 		},
 		"----------\n" + 
 		"1. WARNING in X.java (at line 10)\n" + 
@@ -7732,7 +7738,9 @@ public void test138() {
 			"  A<XX> foo(Number n);\n" +
 			"}\n" + 
 			"class A<T> { }" +			
-			"abstract class XX extends Exception implements Cloneable {}"
+			"abstract class XX extends Exception implements Cloneable {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
 		},
 		"----------\n" + 
 		"1. WARNING in X.java (at line 6)\n" + 
@@ -7758,7 +7766,9 @@ public void test139() {
 			"interface J extends I {\n" + 
 			"  XX foo(Number n);\n" + 
 			"}\n" + 
-			"abstract class XX extends Exception implements Cloneable {}"
+			"abstract class XX extends Exception implements Cloneable {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
 		},
 		"----------\n" + 
 		"1. WARNING in X.java (at line 9)\n" + 
@@ -7784,7 +7794,9 @@ public void test140() {
 			"interface K {\n" + 
 			"  NullPointerException foo(Number n);\n" + 
 			"}\n" + 
-			"abstract class XX extends Exception implements Cloneable {}"
+			"abstract class XX extends Exception implements Cloneable {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
 		},
 		"----------\n" + 
 		"1. ERROR in X.java (at line 1)\n" + 

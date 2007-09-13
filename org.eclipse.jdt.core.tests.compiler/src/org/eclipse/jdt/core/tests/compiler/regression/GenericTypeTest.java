@@ -5441,15 +5441,18 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"		Object a4 = (Hashtable<String,Integer>) o;\n" + 
 				"		\n" + 
 				"		abstract class Z1 extends Hashtable<String,Integer> {\n" + 
+				"			private static final long serialVersionUID = 1L;\n" +
 				"		}\n" + 
 				"		Z1 z1;\n" + 
 				"		Object a5 = (Hashtable<String,Integer>) z1;\n" + 
 				"\n" + 
 				"		abstract class Z2 extends Z1 {\n" + 
+				"			private static final long serialVersionUID = 1L;\n" +
 				"		}\n" + 
 				"		Object a6 = (Z2) z1;\n" + 
 				"\n" + 
 				"		abstract class Z3 extends Hashtable {\n" + 
+				"			private static final long serialVersionUID = 1L;\n" +
 				"		}\n" + 
 				"		Z3 z3;\n" + 
 				"		Object a7 = (Hashtable<String,Integer>) z3;\n" + 
@@ -5492,27 +5495,27 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from Object to Hashtable<String,Integer>\n" + 
 			"----------\n" + 
-			"8. WARNING in X.java (at line 18)\n" + 
+			"8. WARNING in X.java (at line 19)\n" + 
 			"	Object a5 = (Hashtable<String,Integer>) z1;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from Z1 to Hashtable<String,Integer>\n" + 
 			"----------\n" + 
-			"9. WARNING in X.java (at line 22)\n" + 
+			"9. WARNING in X.java (at line 24)\n" + 
 			"	Object a6 = (Z2) z1;\n" + 
 			"	            ^^^^^^^\n" + 
 			"Unnecessary cast from Z1 to Z2\n" + 
 			"----------\n" + 
-			"10. WARNING in X.java (at line 24)\n" + 
+			"10. WARNING in X.java (at line 26)\n" + 
 			"	abstract class Z3 extends Hashtable {\n" + 
 			"	                          ^^^^^^^^^\n" + 
 			"Hashtable is a raw type. References to generic type Hashtable<K,V> should be parameterized\n" + 
 			"----------\n" + 
-			"11. WARNING in X.java (at line 27)\n" + 
+			"11. WARNING in X.java (at line 30)\n" + 
 			"	Object a7 = (Hashtable<String,Integer>) z3;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked cast from Z3 to Hashtable<String,Integer>\n" + 
 			"----------\n" + 
-			"12. WARNING in X.java (at line 27)\n" + 
+			"12. WARNING in X.java (at line 30)\n" + 
 			"	Object a7 = (Hashtable<String,Integer>) z3;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from Z3 to Hashtable<String,Integer>\n" + 
@@ -37139,7 +37142,9 @@ public void test1119() {
 			"abstract class OnlyRunnable implements Runnable {}\n" + 
 			"abstract class OnlyComparable implements Comparable<OnlyComparable> {}\n" + 
 			"abstract class ComparableRunnable implements Comparable<ComparableRunnable>, Runnable {}\n" + 
-			"abstract class ComparableRunnableThrowable extends Throwable implements Comparable<ComparableRunnable>, Runnable {}", // =================		
+			"abstract class ComparableRunnableThrowable extends Throwable implements Comparable<ComparableRunnable>, Runnable {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}", // =================		
 		},
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
@@ -37597,8 +37602,12 @@ public void test1129() {
 			"X.java",
 			"import java.io.Serializable;\n" + 
 			"\n" + 
-			"abstract class Arg1 implements Comparable<Arg1>, Serializable {}\n" + 
-			"abstract class Arg2 implements Serializable, Comparable<Arg2>  {}\n" + 
+			"abstract class Arg1 implements Comparable<Arg1>, Serializable {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}\n" + 
+			"abstract class Arg2 implements Serializable, Comparable<Arg2> {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}\n" + 
 			"\n" + 
 			"interface IX<T> {}\n" + 
 			"\n" + 
@@ -37616,12 +37625,12 @@ public void test1129() {
 			"}  ", // =================
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 14)\n" + 
+		"1. ERROR in X.java (at line 18)\n" + 
 		"	String s = b ? arg1 : arg2;\n" + 
 		"	           ^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from IX<capture#2-of ? extends Object> to String\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 17)\n" + 
+		"2. ERROR in X.java (at line 21)\n" + 
 		"	String s = b ? arg1 : arg2;\n" + 
 		"	           ^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Object&Comparable<?>&Serializable to String\n" + 
@@ -37889,7 +37898,9 @@ public void test1137() {
 			"import java.util.Collection;\n" + 
 			"\n" + 
 			"abstract class Kollection<T extends Container> implements Collection<T> {}\n" + 
-			"abstract class Kontainer extends Container {}\n" + 
+			"abstract class Kontainer extends Container {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}\n" + 
 			"\n" + 
 			"public class X {\n" + 
 			"	private <T extends Container> Collection<T> foo() {\n" + 
@@ -37913,17 +37924,17 @@ public void test1137() {
 			"}\n", // =================
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 19)\n" + 
+		"1. WARNING in X.java (at line 21)\n" + 
 		"	Collection<?> result2 = (Collection<Container>)foo();\n" + 
 		"	                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from Collection<Container> to Collection<Container>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 20)\n" + 
+		"2. ERROR in X.java (at line 22)\n" + 
 		"	String result3 = foo();\n" + 
 		"	                 ^^^^^\n" + 
 		"Type mismatch: cannot convert from Collection<Container> to String\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 21)\n" + 
+		"3. ERROR in X.java (at line 23)\n" + 
 		"	String result4 = (String) foo();		\n" + 
 		"	                 ^^^^^^^^^^^^^^\n" + 
 		"Cannot cast from Collection<Container> to String\n" + 

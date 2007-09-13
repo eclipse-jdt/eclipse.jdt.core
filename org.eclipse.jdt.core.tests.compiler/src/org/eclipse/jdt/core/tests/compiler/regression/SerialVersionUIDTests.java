@@ -136,6 +136,8 @@ public void test006() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=203241
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=116733
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94352
 public void test007() {
 	this.runNegativeTest(
 		new String[] {
@@ -144,7 +146,12 @@ public void test007() {
 			"public class X extends A {}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	abstract class A implements java.io.Serializable {}\n" + 
+		"	               ^\n" + 
+		"The serializable class A does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
 		"	public class X extends A {}\n" + 
 		"	             ^\n" + 
 		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
