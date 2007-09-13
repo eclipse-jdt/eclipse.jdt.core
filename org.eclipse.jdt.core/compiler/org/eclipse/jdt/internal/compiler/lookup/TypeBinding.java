@@ -162,8 +162,15 @@ public ReferenceBinding findSuperTypeErasingTo(int wellKnownErasureID, boolean e
     // iterate superclass to avoid recording interfaces if searched supertype is class
     if (erasureIsClass) {
 		while ((currentType = currentType.superclass()) != null) { 
-			if (currentType.id == wellKnownErasureID || (!currentType.isTypeVariable() && !currentType.isIntersectionType() && currentType.erasure().id == wellKnownErasureID))
+			if (currentType.id == wellKnownErasureID)
 				return currentType;
+			switch(currentType.kind()) {
+				case Binding.PARAMETERIZED_TYPE :
+				case Binding.RAW_TYPE :
+				case Binding.ARRAY_TYPE :
+					if (currentType.erasure().id == wellKnownErasureID) 
+						return currentType;
+			}
 		}    
 		return null;
     }
@@ -191,9 +198,15 @@ public ReferenceBinding findSuperTypeErasingTo(int wellKnownErasureID, boolean e
 			
 	for (int i = 0; i < nextPosition; i++) {
 		currentType = interfacesToVisit[i];
-		if (currentType.id == wellKnownErasureID || (!currentType.isTypeVariable() && !currentType.isIntersectionType() && currentType.erasure().id == wellKnownErasureID))
+		if (currentType.id == wellKnownErasureID)
 			return currentType;
-
+		switch(currentType.kind()) {
+			case Binding.PARAMETERIZED_TYPE :
+			case Binding.RAW_TYPE :
+			case Binding.ARRAY_TYPE : 
+				if (currentType.erasure().id == wellKnownErasureID) 
+					return currentType;
+		}
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 		if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 			int itsLength = itsInterfaces.length;
@@ -216,7 +229,8 @@ public ReferenceBinding findSuperTypeErasingTo(int wellKnownErasureID, boolean e
 public TypeBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
 	if (this == otherType) return this;
 	if (otherType == null) return null;
-	switch(kind()) {
+	int kind;
+	switch(kind = kind()) {
 		case Binding.ARRAY_TYPE :
 			ArrayBinding arrayType = (ArrayBinding) this;
 			int otherDim = otherType.dimensions();
@@ -253,13 +267,34 @@ public TypeBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
 		case Binding.RAW_TYPE :
 		case Binding.WILDCARD_TYPE :
 		    // do not allow type variables/intersection types to match with erasures for free
-		    if (!otherType.isTypeVariable() && !otherType.isIntersectionType()) otherType = otherType.erasure();
-		    if (this == otherType || (!isTypeVariable() && !isIntersectionType() && erasure() == otherType)) return this;
+			switch(otherType.kind()) {
+				case Binding.PARAMETERIZED_TYPE :
+				case Binding.RAW_TYPE :
+				case Binding.ARRAY_TYPE : 
+					otherType = otherType.erasure();
+			}
+		    if (this == otherType)
+		    	return this;
+			switch(kind) {
+				case Binding.PARAMETERIZED_TYPE :
+				case Binding.RAW_TYPE :
+				case Binding.ARRAY_TYPE : 
+					if (erasure() == otherType)
+						return this;
+			}
 		    
 		    ReferenceBinding currentType = (ReferenceBinding)this;
 		    if (!otherType.isInterface()) {
 				while ((currentType = currentType.superclass()) != null) {
-					if (currentType == otherType || (!currentType.isTypeVariable() && !currentType.isIntersectionType() && currentType.erasure() == otherType)) return currentType;
+					if (currentType == otherType)
+						return currentType;
+					switch(currentType.kind()) {
+						case Binding.PARAMETERIZED_TYPE :
+						case Binding.RAW_TYPE :
+						case Binding.ARRAY_TYPE : 
+							if (currentType.erasure() == otherType)
+								return currentType;
+					}					
 				}
 				return null;
 		    }
@@ -287,9 +322,15 @@ public TypeBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
 					
 			for (int i = 0; i < nextPosition; i++) {
 				currentType = interfacesToVisit[i];
-				if (currentType == otherType || (!currentType.isTypeVariable() && !currentType.isIntersectionType() && currentType.erasure() == otherType))
+				if (currentType == otherType)
 					return currentType;
-
+				switch(currentType.kind()) {
+					case Binding.PARAMETERIZED_TYPE :
+					case Binding.RAW_TYPE :
+					case Binding.ARRAY_TYPE : 
+						if (currentType.erasure() == otherType)
+							return currentType;
+				}					
 				ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 				if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
 					int itsLength = itsInterfaces.length;

@@ -75,13 +75,22 @@ public class TypeVariableBinding extends ReferenceBinding {
 								if (!wildcardBound.isCompatibleWith(superclassBound))
 									return TypeConstants.MISMATCH;
 							} else {
-								TypeBinding match = ((ReferenceBinding)wildcardBound).findSuperTypeWithSameErasure(superclassBound);
+								TypeBinding match = wildcardBound.findSuperTypeWithSameErasure(superclassBound);
 								if (match != null) {
 									if (!match.isIntersectingWith(superclassBound)) {
 										return TypeConstants.MISMATCH;
 									}
 								} else {
-									return TypeConstants.MISMATCH;
+									match =  superclassBound.findSuperTypeWithSameErasure(wildcardBound);
+									if (match != null) {
+										if (!match.isIntersectingWith(wildcardBound)) {
+											return TypeConstants.MISMATCH;
+										}
+									} else {
+										if (!wildcardBound.isTypeVariable() && !superclassBound.isTypeVariable()) {
+											return TypeConstants.MISMATCH;
+										}
+									}
 								}
 							}
 						}

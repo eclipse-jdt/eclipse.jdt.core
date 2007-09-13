@@ -21182,11 +21182,6 @@ public void test0675() {
 		"	Store<? extends Key<T>> store1;\n" + 
 		"	                    ^\n" + 
 		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	Store<? extends Key<? extends T>> store2;\n" + 
-		"	                    ^^^^^^^^^^^\n" + 
-		"Bound mismatch: The type ? extends T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
 		"----------\n");
 }	
 //check fault tolerance, in spite of bound mismatch, still pass param type for further resolving message send
@@ -33911,23 +33906,18 @@ public void test1043() {
 		"Type mismatch: cannot convert from capture#4-of ? extends S to capture#1-of ? extends Long\n" + 
 		"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214 - variation
 public void test1044() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"class X<T extends Number> {\n" + 
 			"    X<? extends Object> x;\n" + 
 			"}", // =================
 		}, 
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	X<? extends Object> x;\n" + 
-		"	  ^^^^^^^^^^^^^^^^\n" + 
-		"Bound mismatch: The type ? extends Object is not a valid substitute for the bounded parameter <T extends Number> of the type X<T>\n" + 
-		"----------\n");
+		"");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214 - variation
 public void test1045() {
 	this.runConformTest(
 		new String[] {
@@ -38712,23 +38702,11 @@ public void test1158() {
 			"}\n", // =================
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 10)\n" + 
-		"	D<?, ? extends A> d2 = null;\n" + 
-		"	     ^^^^^^^^^^^\n" + 
-		"Bound mismatch: The type ? extends A is not a valid substitute for the bounded parameter <V extends U> of the type D<U,V>\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
 		"	D<B, C> d3 = null;\n" + 
 		"	     ^\n" + 
 		"Bound mismatch: The type C is not a valid substitute for the bounded parameter <V extends U> of the type D<U,V>\n" + 
-		"----------\n"		
-//		TODO should be:
-//		"----------\n" + 
-//		"1. ERROR in X.java (at line 11)\n" + 
-//		"	D<B, C> d3 = null;\n" + 
-//		"	     ^\n" + 
-//		"Bound mismatch: The type C is not a valid substitute for the bounded parameter <V extends U> of the type D<U,V>\n" + 
-//		"----------\n"
+		"----------\n"
 		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=202404 - variation
@@ -38939,5 +38917,47 @@ public void test1164() {
 		"	^^^^\n" + 
 		"The final field X<T>.mObj cannot be assigned\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=202404 - variation
+public void test1165() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			" interface A {}\n" + 
+			" class B implements A {}\n" + 
+			" class C implements A{}\n" + 
+			" \n" + 
+			" class D<U extends A, V extends U> {}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		D<?, ? super A> d1 = null;\n" + 
+			"		D<?, ? extends A> d2 = null;\n" + 
+			"		D<B, C> d3 = null;\n" + 
+			"		D<?, ?> d4 = null;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	D<B, C> d3 = null;\n" + 
+		"	     ^\n" + 
+		"Bound mismatch: The type C is not a valid substitute for the bounded parameter <V extends U> of the type D<U,V>\n" + 
+		"----------\n"
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203318
+public void test1166() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Number> {\n" + 
+			"	T get() {	return null; };\n" + 
+			"    void foo(X<? extends Object> x) {\n" + 
+			"		x.get().intValue();    	\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"");
 }
 }
