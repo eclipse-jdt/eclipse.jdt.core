@@ -2197,7 +2197,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		Map options = new HashMap();
 		options.put(CompilerOptions.OPTION_Compliance, version);
 		options.put(CompilerOptions.OPTION_Source, version);	
-		options.put(CompilerOptions.OPTION_TargetPlatform, version);	
+		options.put(CompilerOptions.OPTION_TargetPlatform, version);
 		javaProject.setOptions(options);
 		
 		// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
