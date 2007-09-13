@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 283 };
+//		TESTS_NUMBERS = new int[] { 284 };
 //		TESTS_RANGE = new int[] { 277, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -9358,9 +9358,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"		}\n" + 
 			"	}\n" + 
 			"}";
-		workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-		workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS3, this.workingCopy, true, true, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -9412,9 +9412,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"		}\n" + 
 			"	}\n" + 
 			"}";
-		workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-		workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS3, this.workingCopy, true, true, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 1, "Bar2 cannot be resolved to a type");
@@ -9448,5 +9448,32 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No java element", javaElement);
 		assertEquals("Not a compilation unit", IJavaElement.COMPILATION_UNIT, javaElement.getElementType());
 		assertNotNull("No parent", javaElement.getParent());
+	}
+	
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=203342
+	 */
+	public void _test0284() throws JavaModelException {
+		String contents =
+			"public class X {\n" + 
+			"	public static final double VAR = 0x0.0000000000001P-1022;\n" + 
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			contents,
+			this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		final List fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		final Expression initializer = fragment.getInitializer();
+		assertEquals("Not a number literal", ASTNode.NUMBER_LITERAL, initializer.getNodeType());
+		checkSourceRange(initializer, "0x0.0000000000001P-1022", contents);
 	}
 }
