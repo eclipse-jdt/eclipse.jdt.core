@@ -38680,4 +38680,105 @@ public void test1157() {
 		"Type mismatch: cannot convert from Class<X.XX> to Class<? extends X.XX<String,String>>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=202404
+public void test1158() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			" class A {}\n" + 
+			" class B extends A {}\n" + 
+			" class C extends A{}\n" + 
+			" \n" + 
+			" class D<U extends A, V extends U> {}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		D<?, ? super A> d1 = null;\n" + 
+			"		D<?, ? extends A> d2 = null;\n" + 
+			"		D<B, C> d3 = null;\n" + 
+			"		D<?, ?> d4 = null;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	D<?, ? extends A> d2 = null;\n" + 
+		"	     ^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends A is not a valid substitute for the bounded parameter <V extends U> of the type D<U,V>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	D<B, C> d3 = null;\n" + 
+		"	     ^\n" + 
+		"Bound mismatch: The type C is not a valid substitute for the bounded parameter <V extends U> of the type D<U,V>\n" + 
+		"----------\n"		
+//		TODO should be:
+//		"----------\n" + 
+//		"1. ERROR in X.java (at line 11)\n" + 
+//		"	D<B, C> d3 = null;\n" + 
+//		"	     ^\n" + 
+//		"Bound mismatch: The type C is not a valid substitute for the bounded parameter <V extends U> of the type D<U,V>\n" + 
+//		"----------\n"
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=202404 - variation
+public void test1159() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Y<U extends Y<U>> {}\n" + 
+			"public class X<V extends X<V>> extends Y<V>{\n" + 
+			"	void foo(X<? extends V> x) {}\n" + 
+			"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=202404 - variation
+public void test1160() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y<T extends Y<T>> {}\n" + 
+			"class Z<U extends Y<U>> {}\n" + 
+			"public class X<V extends Z<V>> extends Z<V>{\n" + 
+			"	void foo(X<? extends V> x) {}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\r\n" + 
+		"	public class X<V extends Z<V>> extends Z<V>{\r\n" + 
+		"	                           ^\n" + 
+		"Bound mismatch: The type V is not a valid substitute for the bounded parameter <U extends Y<U>> of the type Z<U>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\r\n" + 
+		"	public class X<V extends Z<V>> extends Z<V>{\r\n" + 
+		"	                                         ^\n" + 
+		"Bound mismatch: The type V is not a valid substitute for the bounded parameter <U extends Y<U>> of the type Z<U>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=202404 - variation
+public void test1161() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y<T extends Y<T>> {}\n" + 
+			"class Z<U extends Y<U>> extends Y<U> {}\n" + 
+			"public class X<V extends Z<V>> extends Z<V> {\n" + 
+			"	void foo(X<? extends V> x) {}\n" + 
+			"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=202404 - variation
+public void test1162() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y<T extends Y<T>> {}\n" + 
+			"class Z<U extends Z<U>> extends Y<U> {}\n" + 
+			"public class X<V extends X<V>> extends Z<V>{\n" + 
+			"	void foo(Y<? extends V> y) {}\n" + 
+			"}\n", // =================
+		},
+		"");
+}
 }
