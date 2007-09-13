@@ -1261,25 +1261,17 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		writeNewLine(buffer, lineSeparator, tabNumber + 3);
 		int numberOfEntries = attribute.getNumberOfEntries();
 		final IStackMapFrame[] stackMapFrames = attribute.getStackMapFrame();
-		int absolutePC = -1;
 		for (int j = 0; j < numberOfEntries; j++) {
 			if (j > 0) {
 				writeNewLine(buffer, lineSeparator, tabNumber + 3);
 			}
 			final IStackMapFrame frame = stackMapFrames[j];
 			// disassemble each frame
-			int offsetDelta = frame.getOffsetDelta();
-			if (absolutePC == -1) {
-				absolutePC = offsetDelta;
-			} else {
-				absolutePC += (offsetDelta + 1);
-			}
-			// FULL_FRAME
 			buffer.append(
 					Messages.bind(
 						Messages.disassembler_frame_full_frame,
 						new String[] {
-							Integer.toString(absolutePC),
+							Integer.toString(frame.getOffsetDelta()),
 							Integer.toString(frame.getNumberOfLocals()),
 							disassemble(frame.getLocals(), mode),
 							Integer.toString(frame.getNumberOfStackItems()),

@@ -2636,7 +2636,7 @@ public void configure(String[] argv) throws InvalidInputException {
 					this.options.put(
 							CompilerOptions.OPTION_InlineJsr,
 							CompilerOptions.ENABLED);
-				    continue;
+					continue;
 				}
 				if (currentArg.startsWith("-g")) { //$NON-NLS-1$
 					mode = DEFAULT;
@@ -2848,7 +2848,10 @@ public void configure(String[] argv) throws InvalidInputException {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 				} else if (currentArg.equals("jsr14")) { //$NON-NLS-1$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_JSR14);
-				} else {
+				} else if (currentArg.equals("cldc1.1")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_CLDC1_1);
+					this.options.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.ENABLED);
+				}else {
 					throw new InvalidInputException(this.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
 				}
 				mode = DEFAULT;
@@ -3975,6 +3978,13 @@ protected void validateOptions(boolean didSpecifyCompliance) throws InvalidInput
 			// expecting source >= 1.5
 			if (CompilerOptions.versionToJdkLevel(sourceVersion) < ClassFileConstants.JDK1_5) {
 				throw new InvalidInputException(this.bind("configure.incompatibleTargetForGenericSource", (String) targetVersion, (String) sourceVersion)); //$NON-NLS-1$
+			}
+		} else if (CompilerOptions.VERSION_CLDC1_1.equals(targetVersion)) {
+			if (this.didSpecifySource && CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_4) {
+				throw new InvalidInputException(this.bind("configure.incompatibleSourceForCldcTarget", (String) targetVersion, (String) sourceVersion)); //$NON-NLS-1$
+			}
+			if (CompilerOptions.versionToJdkLevel(compliance) >= ClassFileConstants.JDK1_5) {
+				throw new InvalidInputException(this.bind("configure.incompatibleComplianceForCldcTarget", (String) targetVersion, (String) sourceVersion)); //$NON-NLS-1$
 			}
 		} else {
 			// target must be 1.7 if source is 1.7

@@ -274,7 +274,7 @@ public class ClassScope extends Scope {
 		int count = isEnum ? 2 : 0; // reserve 2 slots for special enum methods: #values() and #valueOf(String)
 		MethodBinding[] methodBindings = new MethodBinding[(clinitIndex == -1 ? size : size - 1) + count];
 		// create special methods for enums
-	    SourceTypeBinding sourceType = referenceContext.binding;
+		SourceTypeBinding sourceType = referenceContext.binding;
 		if (isEnum) {
 			methodBindings[0] = sourceType.addSyntheticEnumMethod(TypeConstants.VALUES); // add <EnumType>[] values() 
 			methodBindings[1] = sourceType.addSyntheticEnumMethod(TypeConstants.VALUEOF); // add <EnumType> valueOf() 

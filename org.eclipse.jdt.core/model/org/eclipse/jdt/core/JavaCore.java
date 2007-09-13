@@ -1045,6 +1045,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option value.
 	 * @see #getDefaultOptions()
+	 * @since 3.4
+	 */
+	public static final String VERSION_CLDC_1_1 = "cldc1.1"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String ABORT = "abort"; //$NON-NLS-1$
@@ -1921,8 +1927,9 @@ public final class JavaCore extends Plugin {
 	 *    Note that "1.4" target requires to toggle compliance mode to "1.4", "1.5" target requires
 	 *    to toggle compliance mode to "1.5", "1.6" target requires to toggle compliance mode to "1.6" and
 	 *    "1.7" target requires to toggle compliance mode to "1.7".
+	 *    "cldc1.1" requires the source version to be "1.3" and the compliance version to be "1.4" or lower.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.targetPlatform"
-	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7" }
+	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "cldc1.1" }
 	 *     - default:           "1.2"
 	 *
 	 * COMPILER / Generating Local Variable Debug Attribute

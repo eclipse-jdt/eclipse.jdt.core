@@ -206,7 +206,9 @@ public void aconst_null() {
 }
 public void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP)) == 0)
+	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
+			| ClassFileConstants.ATTR_STACK_MAP_TABLE
+			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
 		return;
 	for (int i = 0; i < visibleLocalsCount; i++) {
 		LocalVariableBinding localBinding = visibleLocals[i];
@@ -235,7 +237,9 @@ public void addLabel(BranchLabel aLabel) {
 	labels[countLabels++] = aLabel;
 }
 public void addVisibleLocalVariable(LocalVariableBinding localBinding) {
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP)) == 0)
+	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
+			| ClassFileConstants.ATTR_STACK_MAP_TABLE
+			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
 		return;
 
 	if (visibleLocalsCount >= visibleLocals.length)
@@ -1025,7 +1029,9 @@ public void dup2_x2() {
 public void exitUserScope(BlockScope currentScope) {
 	// mark all the scope's locals as losing their definite assignment
 
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP)) == 0)
+	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
+			| ClassFileConstants.ATTR_STACK_MAP_TABLE
+			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
 		return;
 	int index = this.visibleLocalsCount - 1;
 	while (index >= 0) {
@@ -1045,7 +1051,9 @@ public void exitUserScope(BlockScope currentScope) {
 }
 public void exitUserScope(BlockScope currentScope, LocalVariableBinding binding) {
 	// mark all the scope's locals as losing their definite assignment
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP)) == 0)
+	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
+			| ClassFileConstants.ATTR_STACK_MAP_TABLE
+			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
 		return;
 	int index = this.visibleLocalsCount - 1;
 	while (index >= 0) {
@@ -5740,7 +5748,9 @@ public void putstatic(FieldBinding fieldBinding) {
 			fieldBinding.type);
 }
 public void record(LocalVariableBinding local) {
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP)) == 0)
+	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
+			| ClassFileConstants.ATTR_STACK_MAP_TABLE
+			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
 		return;
 	if (allLocalsCounter == locals.length) {
 		// resize the collection
@@ -6105,7 +6115,9 @@ public void registerExceptionHandler(ExceptionLabel anExceptionLabel) {
 public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// given some flow info, make sure we did not loose some variables initialization
 	// if this happens, then we must update their pc entries to reflect it in debug attributes
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP)) == 0)
+	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
+			| ClassFileConstants.ATTR_STACK_MAP_TABLE
+			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
 		return;
 	for (int i = 0; i < visibleLocalsCount; i++) {
 		LocalVariableBinding localBinding = visibleLocals[i];
@@ -6585,7 +6597,9 @@ public void updateLastRecordedEndPC(Scope scope, int pos) {
 		this.lastEntryPC = pos;
 	}
 	// need to update the initialization endPC in case of generation of local variable attributes.
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP)) != 0) {
+	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
+			| ClassFileConstants.ATTR_STACK_MAP_TABLE
+			| ClassFileConstants.ATTR_STACK_MAP)) != 0) {
 		for (int i = 0, max = this.locals.length; i < max; i++) {
 			LocalVariableBinding local = this.locals[i];
 			if (local != null && local.declaringScope == scope && local.initializationCount > 0) {

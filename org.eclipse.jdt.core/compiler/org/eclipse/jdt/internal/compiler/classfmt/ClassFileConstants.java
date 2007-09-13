@@ -81,9 +81,10 @@ public interface ClassFileConstants {
 	
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
-	int MINOR_VERSION_2 = 2;	
-	int MINOR_VERSION_3 = 3;	
-	
+	int MINOR_VERSION_2 = 2;
+	int MINOR_VERSION_3 = 3;
+	int MINOR_VERSION_4 = 4;
+
 	// JDK 1.1 -> 1.7, comparable value allowing to check both major/minor version at once 1.4.1 > 1.4.0
 	// 16 unsigned bits for major, then 16 bits for minor
 	long JDK1_1 = ((long)ClassFileConstants.MAJOR_VERSION_1_1 << 16) + ClassFileConstants.MINOR_VERSION_3; // 1.1. is 45.3
@@ -93,11 +94,17 @@ public interface ClassFileConstants {
 	long JDK1_5 = ((long)ClassFileConstants.MAJOR_VERSION_1_5 << 16) + ClassFileConstants.MINOR_VERSION_0;	
 	long JDK1_6 = ((long)ClassFileConstants.MAJOR_VERSION_1_6 << 16) + ClassFileConstants.MINOR_VERSION_0;	
 	long JDK1_7 = ((long)ClassFileConstants.MAJOR_VERSION_1_7 << 16) + ClassFileConstants.MINOR_VERSION_0;	
-	
+
+	/*
+	 * cldc1.1 is 45.3, but we modify it to be different from JDK1_1.
+	 * In the code gen, we will generate the same target value as JDK1_1
+	 */ 
+	long CLDC_1_1 = ((long)ClassFileConstants.MAJOR_VERSION_1_1 << 16) + ClassFileConstants.MINOR_VERSION_4;
+
 	// jdk level used to denote future releases: optional behavior is not enabled for now, but may become so. In order to enable these,
 	// search for references to this constant, and change it to one of the official JDT constants above.
 	long JDK_DEFERRED = Long.MAX_VALUE;
-	
+
 	int INT_ARRAY = 10;
 	int BYTE_ARRAY = 8;
 	int BOOLEAN_ARRAY = 4;
@@ -106,10 +113,11 @@ public interface ClassFileConstants {
 	int LONG_ARRAY = 11;
 	int FLOAT_ARRAY = 6;
 	int DOUBLE_ARRAY = 7;
-	
+
 	// Debug attributes
-	int ATTR_SOURCE = 1; // SourceFileAttribute
-	int ATTR_LINES = 2; // LineNumberAttribute
-	int ATTR_VARS = 4; // LocalVariableTableAttribute
-	int ATTR_STACK_MAP = 8; // Stack map table attribute
+	int ATTR_SOURCE = 0x1; // SourceFileAttribute
+	int ATTR_LINES = 0x2; // LineNumberAttribute
+	int ATTR_VARS = 0x4; // LocalVariableTableAttribute
+	int ATTR_STACK_MAP_TABLE = 0x8; // Stack map table attribute
+	int ATTR_STACK_MAP = 0x10; // Stack map attribute: cldc
 }

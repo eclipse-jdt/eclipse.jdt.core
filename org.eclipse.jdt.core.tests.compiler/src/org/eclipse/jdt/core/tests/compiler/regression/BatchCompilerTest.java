@@ -985,6 +985,8 @@ public void test012(){
         "    -1.7 -7 -7.0       use 1.7 compliance (-source 1.7 -target 1.7)\n" +
         "    -source <version>  set source level: 1.3 to 1.7 (or 5, 5.0, etc)\n" +
         "    -target <version>  set classfile target: 1.1 to 1.7 (or 5, 5.0, etc)\n" +
+        "                       cldc1.1 can also be used to generate the StackMap\n" + 
+        "                       attribute\n" + 
         " \n" +
         " Warning options:\n" +
         "    -deprecation     + deprecation outside deprecated code (equivalent to\n" +

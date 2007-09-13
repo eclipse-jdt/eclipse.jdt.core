@@ -132,6 +132,7 @@ public class CompilerOptions {
 	public static final String VERSION_1_3 = "1.3"; //$NON-NLS-1$
 	public static final String VERSION_1_4 = "1.4"; //$NON-NLS-1$
 	public static final String VERSION_JSR14 = "jsr14"; //$NON-NLS-1$
+	public static final String VERSION_CLDC1_1 = "cldc1.1"; //$NON-NLS-1$
 	public static final String VERSION_1_5 = "1.5"; //$NON-NLS-1$
 	public static final String VERSION_1_6 = "1.6"; //$NON-NLS-1$
 	public static final String VERSION_1_7 = "1.7"; //$NON-NLS-1$
@@ -1062,6 +1063,9 @@ public class CompilerOptions {
 			}
 			if (VERSION_JSR14.equals(versionID)) {
 				return ClassFileConstants.JDK1_4;
+			}
+			if (VERSION_CLDC1_1.equals(versionID)) {
+				return ClassFileConstants.CLDC_1_1;
 			}
 		}
 		return 0; // unknown

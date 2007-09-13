@@ -31,4 +31,5 @@ public interface AttributeNamesConstants {
 	final char[] StackMapTableName = "StackMapTable".toCharArray(); //$NON-NLS-1$
 	final char[] InconsistentHierarchy = "InconsistentHierarchy".toCharArray(); //$NON-NLS-1$
 	final char[] VarargsName = "Varargs".toCharArray(); //$NON-NLS-1$
+	final char[] StackMapName = "StackMap".toCharArray(); //$NON-NLS-1$
 }

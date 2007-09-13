@@ -113,7 +113,11 @@ public CodeSnippetClassFile(
 	this.creatingProblemType = creatingProblemType;
 	if (this.targetJDK >= ClassFileConstants.JDK1_6) {
 		this.codeStream = new StackMapFrameCodeStream(this);
+		this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
+	} else if (this.targetJDK == ClassFileConstants.CLDC_1_1) {
+		this.targetJDK = ClassFileConstants.JDK1_1; // put back 45.3
 		this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP;
+		this.codeStream = new StackMapFrameCodeStream(this);
 	} else {
 		this.codeStream = new CodeStream(this);
 	}
