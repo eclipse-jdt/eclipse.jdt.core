@@ -38757,7 +38757,7 @@ public void test1160() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=202404 - variation
 public void test1161() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"class Y<T extends Y<T>> {}\n" + 
@@ -38770,7 +38770,7 @@ public void test1161() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=202404 - variation
 public void test1162() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"class Y<T extends Y<T>> {}\n" + 
@@ -38780,5 +38780,153 @@ public void test1162() {
 			"}\n", // =================
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203061 - variation
+public void test1163() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public final class X<T> {\n" + 
+			"	private final Object mObj;\n" + 
+			"	private final Object mDependent = new Object() {\n" + 
+			"		{\n" + 
+			"			Object o1 = mObj;\n" + 
+			"		}\n" + 
+			"		Object o2 = mObj;\n" + 
+			"		void foo() {\n" + 
+			"			Object o3 = mObj;\n" + 
+			"		}\n" + 
+			"	};\n" + 
+			"	public X() {\n" + 
+			"		mObj = \"\";\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	private final Object mDependent = new Object() {\n" + 
+		"	                     ^^^^^^^^^^\n" + 
+		"The field X<T>.mDependent is never read locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	Object o1 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Object o1 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"The blank final field mObj may not have been initialized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 7)\n" + 
+		"	Object o2 = mObj;\n" + 
+		"	       ^^\n" + 
+		"The field new Object(){}.o2 is never read locally\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 7)\n" + 
+		"	Object o2 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 7)\n" + 
+		"	Object o2 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"The blank final field mObj may not have been initialized\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 8)\n" + 
+		"	void foo() {\n" + 
+		"	     ^^^^^\n" + 
+		"The method foo() from the type new Object(){} is never used locally\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 9)\n" + 
+		"	Object o3 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203061 - variation
+public void test1164() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public final class X<T> {\n" + 
+			"	private final Object mObj;\n" + 
+			"	private final Object mDependent = new Object() {\n" + 
+			"		{\n" + 
+			"			Object o1 = mObj;\n" + 
+			"			mObj = \"1\";\n" + 
+			"		}\n" + 
+			"		Object o2 = mObj = \"2\";\n" + 
+			"		void foo() {\n" + 
+			"			Object o3 = mObj;\n" + 
+			"			mObj = \"3\";\n" + 
+			"		}\n" + 
+			"	};\n" + 
+			"	public X() {\n" + 
+			"		mObj = \"\";\n" + 
+			"	}\n" + 
+			"}\n"
+		}, 
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	private final Object mDependent = new Object() {\n" + 
+		"	                     ^^^^^^^^^^\n" + 
+		"The field X<T>.mDependent is never read locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	Object o1 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Object o1 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"The blank final field mObj may not have been initialized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 6)\n" + 
+		"	mObj = \"1\";\n" + 
+		"	^^^^\n" + 
+		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 6)\n" + 
+		"	mObj = \"1\";\n" + 
+		"	^^^^\n" + 
+		"The final field X<T>.mObj cannot be assigned\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 8)\n" + 
+		"	Object o2 = mObj = \"2\";\n" + 
+		"	       ^^\n" + 
+		"The field new Object(){}.o2 is never read locally\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 8)\n" + 
+		"	Object o2 = mObj = \"2\";\n" + 
+		"	            ^^^^\n" + 
+		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 8)\n" + 
+		"	Object o2 = mObj = \"2\";\n" + 
+		"	            ^^^^\n" + 
+		"The final field X<T>.mObj cannot be assigned\n" + 
+		"----------\n" + 
+		"9. WARNING in X.java (at line 9)\n" + 
+		"	void foo() {\n" + 
+		"	     ^^^^^\n" + 
+		"The method foo() from the type new Object(){} is never used locally\n" + 
+		"----------\n" + 
+		"10. WARNING in X.java (at line 10)\n" + 
+		"	Object o3 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"11. WARNING in X.java (at line 11)\n" + 
+		"	mObj = \"3\";\n" + 
+		"	^^^^\n" + 
+		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"12. ERROR in X.java (at line 11)\n" + 
+		"	mObj = \"3\";\n" + 
+		"	^^^^\n" + 
+		"The final field X<T>.mObj cannot be assigned\n" + 
+		"----------\n");
 }
 }

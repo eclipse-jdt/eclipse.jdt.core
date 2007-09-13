@@ -46,7 +46,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, 	FlowContext flowCont
 	if (isCompound) { // check the variable part is initialized if blank final
 		if (binding.isBlankFinal()
 			&& receiver.isThis()
-			&& currentScope.allowBlankFinalFieldAssignment(binding)
+			&& currentScope.needBlankFinalFieldInitializationCheck(binding)
 			&& (!flowInfo.isDefinitelyAssigned(binding))) {
 			currentScope.problemReporter().uninitializedBlankFinalField(binding, this);
 			// we could improve error msg here telling "cannot use compound assignment on final blank field"

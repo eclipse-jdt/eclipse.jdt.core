@@ -111,8 +111,8 @@ public void addSubscope(Scope childScope) {
 	this.subscopes[this.subscopeCount++] = childScope;
 }
 
-/* Answer true if the receiver is suitable for assigning final blank fields.
- *
+/**
+ * Answer true if the receiver is suitable for assigning final blank fields.
  * in other words, it is inside an initializer, a constructor or a clinit 
  */
 public final boolean allowBlankFinalFieldAssignment(FieldBinding binding) {
@@ -125,6 +125,7 @@ public final boolean allowBlankFinalFieldAssignment(FieldBinding binding) {
 	return methodScope.isInsideInitializer() // inside initializer
 			|| ((AbstractMethodDeclaration) methodScope.referenceContext).isInitializationMethod(); // inside constructor or clinit
 }
+
 String basicToString(int tab) {
 	String newLine = "\n"; //$NON-NLS-1$
 	for (int i = tab; --i >= 0;)
@@ -820,6 +821,30 @@ public int maxShiftedOffset() {
 		}
 	}
 	return max;
+}
+
+/**
+ * Returns true if the context requires to check initialization of final blank fields.
+ * in other words, it is inside an initializer, a constructor or a clinit 
+ */
+public final boolean needBlankFinalFieldInitializationCheck(FieldBinding binding) {
+	boolean isStatic = binding.isStatic();
+	ReferenceBinding fieldDeclaringClass = binding.declaringClass;
+	// loop in enclosing context, until reaching the field declaring context
+	MethodScope methodScope = methodScope();
+	while (methodScope != null) {
+		if (methodScope.isStatic != isStatic)
+			return false;
+		if (!methodScope.isInsideInitializer() // inside initializer
+				&& !((AbstractMethodDeclaration) methodScope.referenceContext).isInitializationMethod()) { // inside constructor or clinit
+			return false; // found some non-initializer context
+		}
+		if (fieldDeclaringClass == methodScope.enclosingReceiverType()) {
+			return true; // found the field context, no need to check any further
+		}
+		methodScope = methodScope.enclosingMethodScope();
+	}
+	return false;
 }
 
 /* Answer the problem reporter to use for raising new problems.
