@@ -38960,4 +38960,17 @@ public void test1166() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179902
+public void test1167() {
+	this.runConformTest(
+		new String[] {
+			"Foo.java",
+			"public class Foo<F extends Enum<F>> {\n" + 
+			"  class Bar<B> {\n" + 
+			"    Bar(Foo<? extends B> bar) {}\n" + 
+			"  }\n" + 
+			"}\n", // =================
+		},
+		"");
+}
 }
