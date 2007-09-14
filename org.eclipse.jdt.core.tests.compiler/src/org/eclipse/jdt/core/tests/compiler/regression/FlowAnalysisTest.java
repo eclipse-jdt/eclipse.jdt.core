@@ -1361,6 +1361,77 @@ public void test047() {
 		},
 		"");
 }
+// labeled loop
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=200158
+// contrast this with test049
+public void _test048() {
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  private static final boolean b = false;\n" + 
+			"  public Object foo() {\n" + 
+			"    if (b) {\n" + 
+			"      label: while (bar()) {\n" + 
+			"      }\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  boolean bar() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}\n"
+			},
+		false /* expectingCompilerErrors */,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	label: while (bar()) {\n" + 
+		"	^^^^^\n" + 
+		"The label label is never explicitly referenced\n" + 
+		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
+// labeled loop
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=200158
+// variant: this one passes
+public void test049() {
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  private static final boolean b = false;\n" + 
+			"  public Object foo() {\n" + 
+			"    if (b) {\n" + 
+			"      while (bar()) {\n" + 
+			"      }\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  boolean bar() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}\n"
+			},
+		false /* expectingCompilerErrors */,
+		"" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }
