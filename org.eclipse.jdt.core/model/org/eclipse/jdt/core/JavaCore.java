@@ -2062,7 +2062,7 @@ public final class JavaCore extends Plugin {
 	 *    The severity of the unused parameter problem is controlled with option "org.eclipse.jdt.core.compiler.problem.unusedParameter".
 	 *    Note: this option has no effect until the doc comment support is enabled according to the 
 	 *    option "org.eclipse.jdt.core.compiler.doc.comment.support".
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedParameterIncludeDocReference"
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedParameterIncludeDocCommentReference"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 *
@@ -2243,7 +2243,7 @@ public final class JavaCore extends Plugin {
 	 *    The severity of the unused declared thrown exception problem is controlled with option "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException".
 	 *    Note: this option has no effect until the doc comment support is enabled according to the 
 	 *    option "org.eclipse.jdt.core.compiler.doc.comment.support".
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeDocReference"
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeDocCommentReference"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 *
