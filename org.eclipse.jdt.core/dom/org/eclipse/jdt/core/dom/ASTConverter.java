@@ -44,6 +44,7 @@ import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -73,13 +74,11 @@ class ASTConverter {
 	public ASTConverter(Map options, boolean resolveBindings, IProgressMonitor monitor) {
 		this.resolveBindings = resolveBindings;
 		Object sourceModeSetting = options.get(JavaCore.COMPILER_SOURCE);
-		long sourceLevel = ClassFileConstants.JDK1_3;
-		if (JavaCore.VERSION_1_4.equals(sourceModeSetting)) {
-			sourceLevel = ClassFileConstants.JDK1_4;
-		} else if (JavaCore.VERSION_1_5.equals(sourceModeSetting)) {
-			sourceLevel = ClassFileConstants.JDK1_5;
+		long sourceLevel = CompilerOptions.versionToJdkLevel(sourceModeSetting);
+		if (sourceLevel == 0) {
+			// unknown sourceModeSetting
+			sourceLevel = ClassFileConstants.JDK1_3;
 		}
-
 		this.scanner = new Scanner(
 			true /*comment*/,
 			false /*whitespace*/,

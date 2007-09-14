@@ -65,7 +65,9 @@ import org.eclipse.jdt.internal.core.util.Util;
  * for locating a raw source string in the Java model (when
  * resolving bindings)</li>
  * <li>Which {@linkplain #setCompilerOptions(Map) compiler options}
- * to use.</li>
+ * to use. This is especially important to use if the parsing/scanning of the source code requires a
+ * different version than the default of the workspace. For example, the workspace defaults are 1.4 and
+ * you want to create an AST for a source code that is using 1.5 constructs.</li>
  * <li>Whether to parse just {@linkplain #setKind(int) an expression, statements,
  * or body declarations} rather than an entire compilation unit.</li>
  * <li>Whether to return a {@linkplain #setFocalPosition(int) abridged AST}

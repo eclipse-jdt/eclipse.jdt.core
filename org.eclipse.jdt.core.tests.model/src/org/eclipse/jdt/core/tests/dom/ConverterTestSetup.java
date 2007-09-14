@@ -66,11 +66,13 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		if (TEST_SUITES == null) {
 			this.deleteProject("Converter"); //$NON-NLS-1$
 			this.deleteProject("Converter15"); //$NON-NLS-1$
+			this.deleteProject("Converter16"); //$NON-NLS-1$
 		} else {
 			TEST_SUITES.remove(getClass());
 			if (TEST_SUITES.size() == 0) {
 				this.deleteProject("Converter"); //$NON-NLS-1$
 				this.deleteProject("Converter15"); //$NON-NLS-1$
+				this.deleteProject("Converter16"); //$NON-NLS-1$
 			}
 		}
 
@@ -78,7 +80,8 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
-		if ("1.5".equals(compliance)) {
+		if ("1.5".equals(compliance)
+				|| "1.6".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("CONVERTER_JCL15_LIB") == null) {
 				setupExternalJCL("converterJclMin1.5");
 				JavaCore.setClasspathVariables(
@@ -106,6 +109,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		if (!PROJECT_SETUP) {
 			setUpJavaProject("Converter"); //$NON-NLS-1$
 			setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+			setUpJavaProject("Converter16", "1.6"); //$NON-NLS-1$ //$NON-NLS-2$
 			waitUntilIndexesReady(); // needed to find secondary types
 			PROJECT_SETUP = true;
 		}

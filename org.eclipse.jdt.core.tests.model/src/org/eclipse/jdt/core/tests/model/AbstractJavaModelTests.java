@@ -2169,6 +2169,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		String newJclLibString = null;
 		String newJclSrcString = null;
 		switch (compliance.charAt(2)) {
+			case '6':
+				version = CompilerOptions.VERSION_1_6;
+				if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
+					return;
+				}
+				jclLibString = "JCL_LIB";
+				newJclLibString = "JCL15_LIB";
+				newJclSrcString = "JCL15_SRC";
+				break;
 			case '5':
 				version = CompilerOptions.VERSION_1_5;
 				if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
