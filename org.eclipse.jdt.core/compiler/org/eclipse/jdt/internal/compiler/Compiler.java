@@ -670,7 +670,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				// we reset the compiler in order to restart with the new units
 				internalBeginToCompile(newUnits, newUnitSize);
 				bottom = top;
-				top = this.unitsToProcess.length;
+				top = this.totalUnits; // last unit added
 			} else {
 				bottom = top;
 			}
