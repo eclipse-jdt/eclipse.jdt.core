@@ -167,8 +167,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * 	Case matching.
 	 * 
 	 * @since 3.2
-	 * @deprecated Use <code>{@link #R_CAMEL_CASE_MATCH} | 
-	 * 	{@link #R_PREFIX_MATCH}</code> instead.
 	 */
 	public static final int R_CAMELCASE_MATCH = 0x0080;
 
@@ -207,6 +205,10 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * explanation of Camel Case matching.
 	 *<p>
 	 * @since 3.4
+	 * <p><b>WARNING: work is still in progress on this new constant due to
+	 * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=201426.<br>
+	 * So, there's high chance that this constant will be renamed and its behavior
+	 * slightly changed in next milestone...</b>
 	 */
 	public static final int R_CAMEL_CASE_MATCH = 0x0100;
 
