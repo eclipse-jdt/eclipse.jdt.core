@@ -229,9 +229,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		}
 	}
 
-	/*######################################
-	 * Specific method to let tests Sun javac compilation available...
-	 #######################################*/
 	protected void compileAndDeploy(String source, String directoryName, String className) {
 		File directory = new File(SOURCE_DIRECTORY);
 		if (!directory.exists()) {
@@ -266,8 +263,12 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			.append(EVAL_DIRECTORY);
 		if (this.complianceLevel.compareTo(COMPLIANCE_1_5) < 0) {
 			buffer.append("\" -1.4 -source 1.3 -target 1.2");
-		} else {
+		} else if (this.complianceLevel.compareTo(COMPLIANCE_1_5) == 0) {
 			buffer.append("\" -1.5");
+		} else if (this.complianceLevel.compareTo(COMPLIANCE_1_6) == 0) {
+			buffer.append("\" -1.6");
+		} else if (this.complianceLevel.compareTo(COMPLIANCE_1_7) == 0) {
+			buffer.append("\" -1.7");
 		}
 		buffer
 			.append(" -preserveAllLocals -nowarn -g -classpath \"")
