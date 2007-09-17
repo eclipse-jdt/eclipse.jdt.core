@@ -119,8 +119,8 @@ public class AnnotationComponentValue extends ClassFileStruct implements IAnnota
 			case '[' :
 				final int numberOfValues = this.u2At(classFileBytes, this.readOffset, offset);
 				this.valuesNumber = numberOfValues;
+				this.readOffset += 2;
 				if (numberOfValues != 0) {
-					this.readOffset += 2;
 					this.annotationComponentValues = new IAnnotationComponentValue[numberOfValues];
 					for (int i = 0; i < numberOfValues; i++) {
 						AnnotationComponentValue value = new AnnotationComponentValue(classFileBytes, constantPool, offset + readOffset);
