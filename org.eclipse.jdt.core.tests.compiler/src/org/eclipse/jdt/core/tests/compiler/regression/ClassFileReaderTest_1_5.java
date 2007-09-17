@@ -382,7 +382,6 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"@Retention(value=RetentionPolicy.RUNTIME)\n" + 
 			"public @interface X {}";
 		String expectedOutput =
-			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
 			"public abstract @interface X extends java.lang.annotation.Annotation {\n" + 
 			"  Constant pool:\n" + 
 			"    constant #1 class: #2 X\n" + 
@@ -409,36 +408,6 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"      #11 value=java.lang.annotation.RetentionPolicy.RUNTIME(enum type #13.#14)\n" + 
 			"    )\n" + 
 			"}";
-		if (this.complianceLevel.equals(COMPLIANCE_1_6)) {
-			expectedOutput =
-				"// Compiled from X.java (version 1.6 : 50.0, no super bit)\n" + 
-				"public abstract @interface X extends java.lang.annotation.Annotation {\n" + 
-				"  Constant pool:\n" + 
-				"    constant #1 class: #2 X\n" + 
-				"    constant #2 utf8: \"X\"\n" + 
-				"    constant #3 class: #4 java/lang/Object\n" + 
-				"    constant #4 utf8: \"java/lang/Object\"\n" + 
-				"    constant #5 class: #6 java/lang/annotation/Annotation\n" + 
-				"    constant #6 utf8: \"java/lang/annotation/Annotation\"\n" + 
-				"    constant #7 utf8: \"SourceFile\"\n" + 
-				"    constant #8 utf8: \"X.java\"\n" + 
-				"    constant #9 utf8: \"RuntimeVisibleAnnotations\"\n" + 
-				"    constant #10 utf8: \"Ljava/lang/annotation/Target;\"\n" + 
-				"    constant #11 utf8: \"value\"\n" + 
-				"    constant #12 utf8: \"Ljava/lang/annotation/Retention;\"\n" + 
-				"    constant #13 utf8: \"Ljava/lang/annotation/RetentionPolicy;\"\n" + 
-				"    constant #14 utf8: \"RUNTIME\"\n" + 
-				"\n" + 
-				"  RuntimeVisibleAnnotations: \n" + 
-				"    #10 @java.lang.annotation.Target(\n" + 
-				"      #11 value=[\n" + 
-				"        ]\n" + 
-				"    )\n" + 
-				"    #12 @java.lang.annotation.Retention(\n" + 
-				"      #11 value=java.lang.annotation.RetentionPolicy.RUNTIME(enum type #13.#14)\n" + 
-				"    )\n" + 
-				"}";
-		}
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 }
