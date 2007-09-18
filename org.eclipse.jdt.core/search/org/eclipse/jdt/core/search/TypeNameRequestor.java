@@ -34,7 +34,7 @@ public abstract class TypeNameRequestor {
 	 *		although obviously public, will be returned false by <code>Flags.isPublic(modifiers)</code>
 	 *		due to the fact that its declaration does not explicitely define public flag.
 	 *		@see org.eclipse.jdt.core.Flags
-	 * @param packageName the name of the package declaration of the type (ie. a dot-separated name)
+	 * @param packageName the package name as specified in the package declaration (ie. a dot-separated name)
 	 * @param simpleTypeName the simple name of the type
 	 * @param enclosingTypeNames if the type is a member type, 
 	 *          the simple names of the enclosing types from the outer-most to the
