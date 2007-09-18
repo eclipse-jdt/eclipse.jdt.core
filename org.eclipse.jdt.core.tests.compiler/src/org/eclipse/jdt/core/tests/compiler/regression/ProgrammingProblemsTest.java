@@ -527,4 +527,85 @@ public void test0013_declared_thrown_checked_exceptions() {
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
+// interaction between errors and warnings 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203721
+// the error about exceptions 'absorbs' the warning about the parameters
+// because the latter is only detected at code generation, which does not happen
+// for the method if it has errors - must decide if we accept this or not
+public void _test0014_declared_thrown_checked_exceptions_unread_parameters() {
+	runTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" + 
+			"public class X {\n" + 
+			"  void foo(int unused) throws IOException {}\n" + 
+			"}\n"
+			},
+		new String[] {
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException				
+			} /* errorOptions */,
+		new String[] {
+			CompilerOptions.OPTION_ReportUnusedParameter
+			} /* warningOptions */,
+		null /* ignoreOptions */,
+		true /* expectingCompilerErrors */,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	void foo(int unused) throws IOException {}\n" + 
+		"	             ^^^^^^\n" + 
+		"The parameter unused is never read\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	void foo(int unused) throws IOException {}\n" + 
+		"	                            ^^^^^^^^^^^\n" + 
+		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" + 
+		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
+// interaction between errors and warnings 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203721
+// variant: both warnings show up
+public void test0015_declared_thrown_checked_exceptions_unread_parameters() {
+	runTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" + 
+			"public class X {\n" + 
+			"  void foo(int unused) throws IOException {}\n" + 
+			"}\n"
+			},
+		null /* errorOptions */,
+		new String[] {
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
+			CompilerOptions.OPTION_ReportUnusedParameter
+			} /* warningOptions */,
+		null /* ignoreOptions */,
+		false /* expectingCompilerErrors */,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	void foo(int unused) throws IOException {}\n" + 
+		"	             ^^^^^^\n" + 
+		"The parameter unused is never read\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	void foo(int unused) throws IOException {}\n" + 
+		"	                            ^^^^^^^^^^^\n" + 
+		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" + 
+		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
 }
