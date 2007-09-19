@@ -101,6 +101,7 @@ public static Test suite() {
 		ArrayList tests_1_3 = (ArrayList)standardTests.clone();
 		tests_1_3.add(Compliance_1_3.class);
 		tests_1_3.add(JavadocTest_1_3.class);
+		tests_1_3.add(Compliance_CLDC.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;

@@ -1632,9 +1632,6 @@ public void generateBoxingConversion(int unboxedTypeID) {
  * Macro for building a class descriptor object
  */
 public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBinding syntheticFieldBinding) {
-	BranchLabel endLabel;
-	ExceptionLabel anyExceptionHandler;
-	int saveStackSize;
 	if (accessedType.isBaseType() && accessedType != TypeBinding.NULL) {
 		this.getTYPE(accessedType.id);
 		return;
@@ -1644,7 +1641,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 		// generation using the new ldc_w bytecode
 		this.ldc(accessedType);
 	} else {
-		endLabel = new BranchLabel(this);
+		BranchLabel endLabel = new BranchLabel(this);
 		if (syntheticFieldBinding != null) { // non interface case
 			this.getstatic(syntheticFieldBinding);
 			this.dup();
@@ -1663,8 +1660,8 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 	
 		// Wrap the code in an exception handler to convert a ClassNotFoundException into a NoClassDefError
 	
-		anyExceptionHandler = new ExceptionLabel(this, TypeBinding.NULL /*represents ClassNotFoundException*/);
-		anyExceptionHandler.placeStart();
+		ExceptionLabel classNotFoundExceptionHandler = new ExceptionLabel(this, TypeBinding.NULL /*represents ClassNotFoundException*/);
+		classNotFoundExceptionHandler.placeStart();
 		this.ldc(accessedType == TypeBinding.NULL ? "java.lang.Object" : String.valueOf(accessedType.constantPoolName()).replace('/', '.')); //$NON-NLS-1$
 		this.invokeClassForName();
 	
@@ -1685,24 +1682,22 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 		/* We need to protect the runtime code from binary inconsistencies
 		in case the accessedType is missing, the ClassNotFoundException has to be converted
 		into a NoClassDefError(old ex message), we thus need to build an exception handler for this one. */
-		anyExceptionHandler.placeEnd();
+		classNotFoundExceptionHandler.placeEnd();
 	
 		if (syntheticFieldBinding != null) { // non interface case
 			this.dup();
 			this.putstatic(syntheticFieldBinding);
 		}
 		this.goto_(endLabel);
-	
-	
+
 		// Generate the body of the exception handler
-		saveStackSize = stackDepth;
-		stackDepth = 1;
 		/* ClassNotFoundException on stack -- the class literal could be doing more things
 		on the stack, which means that the stack may not be empty at this point in the
 		above code gen. So we save its state and restart it from 1. */
 	
-		anyExceptionHandler.place();
-	
+		this.pushExceptionOnStack(TypeBinding.NULL);/*represents ClassNotFoundException*/
+		classNotFoundExceptionHandler.place();
+
 		// Transform the current exception, and repush and throw a 
 		// NoClassDefFoundError(ClassNotFound.getMessage())
 	
@@ -1716,7 +1711,6 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 		// Send the constructor taking a message string as an argument
 		this.invokeNoClassDefFoundErrorStringConstructor();
 		this.athrow();
-		stackDepth = saveStackSize;
 		endLabel.place();
 	}
 }
