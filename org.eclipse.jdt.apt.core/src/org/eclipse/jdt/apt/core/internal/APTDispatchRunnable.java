@@ -273,6 +273,10 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 					_aptProject.getJavaProject(),
 					buildCallback);
 		}
+		
+		// We need to save the file dependency state regardless of whether any Java 5 processing
+		// was performed, because it may also contain Java 6 information.
+		_aptProject.getGeneratedFileManager().writeState();
 	}
 	
 	/**
@@ -667,7 +671,6 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		}
 		finally {
 			processorEnv.close();
-			_aptProject.getGeneratedFileManager().writeState();
 		}
 		
 		return Collections.emptySet();

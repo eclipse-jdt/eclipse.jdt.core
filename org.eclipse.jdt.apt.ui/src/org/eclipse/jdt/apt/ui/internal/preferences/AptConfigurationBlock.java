@@ -370,9 +370,10 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENSRCDIR);
 				}
 				if (fOriginalAptEnabled != AptConfig.isEnabled(null)) {
-					fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
 					// make JDT "processingEnabled" setting track APT "enabled" setting.
 					setJDTProcessAnnotationsSetting(fAptEnabledField.isSelected());
+					
+					fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
 				}
 				if (fOriginalReconcileEnabled != AptConfig.shouldProcessDuringReconcile(null)) {
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_RECONCILEENABLED);
@@ -383,9 +384,10 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENSRCDIR);
 				boolean isAptEnabled = fAptEnabledField.isSelected();
 				if (fOriginalAptEnabled != isAptEnabled) {
-					fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
 					// make JDT "processingEnabled" setting track APT "enabled" setting.
 					setJDTProcessAnnotationsSetting(isAptEnabled);
+					
+					fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
 				}
 				if (fOriginalReconcileEnabled != fReconcileEnabledField.isSelected())
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_RECONCILEENABLED);
