@@ -410,4 +410,20 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"}";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=203609
+	 */
+	public void test012() throws ClassFormatException, IOException {
+		String source =
+			"@Deprecated\n" +
+			"package p;";
+		String expectedOutput =
+			"abstract interface p.package-info {\n" + 
+			"}";
+		if (this.complianceLevel.compareTo(COMPLIANCE_1_5) > 0) {
+			expectedOutput = "abstract synthetic interface p.package-info {\n" + 
+			"}";
+		}
+		checkClassFile("p", "package-info", source, expectedOutput, ClassFileBytesDisassembler.DEFAULT);
+	}
 }

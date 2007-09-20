@@ -451,6 +451,12 @@ public class ClassScope extends Scope {
 						problemReporter().illegalModifierForInterface(sourceType);
 				}
 			}
+			/*
+			 * AccSynthetic must be set if the target is greater than 1.5. 1.5 VM don't support AccSynthetics flag.
+			 */
+			if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME && this.compilerOptions().targetJDK > ClassFileConstants.JDK1_5) {
+				modifiers |= ClassFileConstants.AccSynthetic;
+			}
 			modifiers |= ClassFileConstants.AccAbstract;
 		} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
 			// detect abnormal cases for enums
@@ -473,7 +479,7 @@ public class ClassScope extends Scope {
 					if ((referenceContext.bits & ASTNode.HasAbstractMethods) != 0) {
 						modifiers |= ClassFileConstants.AccAbstract;
 						break checkAbstractEnum;
-					} 					
+					}
 					// body of enum constant must implement any inherited abstract methods
 					// enum type needs to implement abstract methods if one of its constants does not supply a body
 					TypeDeclaration typeDeclaration = this.referenceContext;
@@ -519,7 +525,7 @@ public class ClassScope extends Scope {
 						}
 					}
 					modifiers |= ClassFileConstants.AccFinal;
-				}			
+				}
 			}
 		} else {
 			// detect abnormal cases for classes
