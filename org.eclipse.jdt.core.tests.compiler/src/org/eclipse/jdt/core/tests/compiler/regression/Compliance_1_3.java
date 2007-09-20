@@ -3321,7 +3321,7 @@ public void test103() {
 		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
 		"  \n" + 
 		"  // Method descriptor #18 ([Ljava/lang/String;)V\n" + 
-		"  // Stack: 5, Locals: 1\n" + 
+		"  // Stack: 3, Locals: 1\n" + 
 		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  getstatic java.lang.System.out : java.io.PrintStream [19]\n" + 
 		"     3  getstatic X.class$0 : java.lang.Class [25]\n" + 
