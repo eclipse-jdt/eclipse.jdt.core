@@ -106,6 +106,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			}
 			// check unreachable catch blocks
 			methodContext.complainIfUnusedExceptionHandlers(this);
+			// check unused parameters
+			scope.checkUnusedParameters(binding);
 		} catch (AbortMethod e) {
 			this.ignoreFurtherInvestigation = true;
 		}

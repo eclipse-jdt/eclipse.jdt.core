@@ -218,6 +218,27 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 	methodBinding.modifiers = modifiers;
 }
 
+public void checkUnusedParameters(MethodBinding method) {
+	if (method.isAbstract()
+			|| (method.isImplementing() && !compilerOptions().reportUnusedParameterWhenImplementingAbstract) 
+			|| (method.isOverriding() && !method.isImplementing() && !compilerOptions().reportUnusedParameterWhenOverridingConcrete)
+			|| method.isMain()) {
+		// do not want to check
+		return;
+	}
+	for (int i = 0, maxLocals = this.localIndex; i < maxLocals; i++) {
+		LocalVariableBinding local = locals[i];
+		if (local == null || ((local.tagBits & TagBits.IsArgument) == 0)) {
+			break; // done with arguments
+		}
+		if (local.useFlag == LocalVariableBinding.UNUSED && 
+				// do not report fake used variable
+				((local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0)) { // declaration is reachable
+			this.problemReporter().unusedArgument(local.declaration);
+		}
+	}
+}
+
 /**
  * Compute variable positions in scopes given an initial position offset
  * ignoring unused local variables.
@@ -225,19 +246,6 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
  * Deal with arguments here, locals and subscopes are processed in BlockScope method
  */
 public void computeLocalVariablePositions(int initOffset, CodeStream codeStream) {
-
-	boolean isReportingUnusedArgument = false;
-
-	if (referenceContext instanceof AbstractMethodDeclaration) {
-		AbstractMethodDeclaration methodDecl = (AbstractMethodDeclaration)referenceContext;
-		MethodBinding method = methodDecl.binding;
-		if (!(method.isAbstract()
-				|| (method.isImplementing() && !compilerOptions().reportUnusedParameterWhenImplementingAbstract) 
-				|| (method.isOverriding() && !method.isImplementing() && !compilerOptions().reportUnusedParameterWhenOverridingConcrete)
-				|| method.isMain())) {
-			isReportingUnusedArgument = true;
-		}
-	}
 	this.offset = initOffset;
 	this.maxOffset = initOffset;
 
@@ -246,13 +254,6 @@ public void computeLocalVariablePositions(int initOffset, CodeStream codeStream)
 	while (ilocal < maxLocals) {
 		LocalVariableBinding local = locals[ilocal];
 		if (local == null || ((local.tagBits & TagBits.IsArgument) == 0)) break; // done with arguments
-
-		// do not report fake used variable
-		if (isReportingUnusedArgument
-				&& local.useFlag == LocalVariableBinding.UNUSED
-				&& ((local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0)) { // declaration is reachable
-			this.problemReporter().unusedArgument(local.declaration);
-		}
 
 		// record user-defined argument for attribute generation
 		codeStream.record(local); 

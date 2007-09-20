@@ -529,10 +529,7 @@ public void test0013_declared_thrown_checked_exceptions() {
 }
 // interaction between errors and warnings 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=203721
-// the error about exceptions 'absorbs' the warning about the parameters
-// because the latter is only detected at code generation, which does not happen
-// for the method if it has errors - must decide if we accept this or not
-public void _test0014_declared_thrown_checked_exceptions_unread_parameters() {
+public void test0014_declared_thrown_checked_exceptions_unread_parameters() {
 	runTest(
 		new String[] {
 			"X.java",
@@ -598,6 +595,38 @@ public void test0015_declared_thrown_checked_exceptions_unread_parameters() {
 		"	void foo(int unused) throws IOException {}\n" + 
 		"	                            ^^^^^^^^^^^\n" + 
 		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" + 
+		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
+
+// reporting unread paramaters as error on a constructor
+public void test0016_unread_parameters_constructor() {
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public X(boolean b) {\n" + 
+			"  }\n" + 
+			"}\n"
+			},
+		new String[] {
+			CompilerOptions.OPTION_ReportUnusedParameter
+			} /* errorOptions */,
+		null /* warningOptions */,
+		null /* ignoreOptions */,
+		true /* expectingCompilerErrors */,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public X(boolean b) {\n" + 
+		"	                 ^\n" + 
+		"The parameter b is never read\n" + 
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,

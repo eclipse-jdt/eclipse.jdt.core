@@ -160,6 +160,8 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		}
 		// check unreachable catch blocks
 		constructorContext.complainIfUnusedExceptionHandlers(this);
+		// check unused parameters
+		scope.checkUnusedParameters(binding);
 	} catch (AbortMethod e) {
 		this.ignoreFurtherInvestigation = true;
 	}
