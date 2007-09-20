@@ -20,6 +20,7 @@ import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -58,18 +59,18 @@ public class StackMapFrameCodeStream extends CodeStream {
 		}
 	}
 
-	public static class StackMarker {
+	public static class StackDepthMarker {
 		public int pc;
 		public int delta;
 		public TypeBinding typeBinding;
 
-		public StackMarker(int pc, int delta, TypeBinding typeBinding) {
+		public StackDepthMarker(int pc, int delta, TypeBinding typeBinding) {
 			this.pc = pc;
 			this.typeBinding = typeBinding;
 			this.delta = delta;
 		}
 
-		public StackMarker(int pc, int delta) {
+		public StackDepthMarker(int pc, int delta) {
 			this.pc = pc;
 			this.delta = delta;
 		}
@@ -88,6 +89,38 @@ public class StackMapFrameCodeStream extends CodeStream {
 		}
 	}
 
+	public static class StackMarker {
+		public int pc;
+		public int destinationPC;
+		public VerificationTypeInfo[] infos;
+
+		public StackMarker(int pc, int destinationPC) {
+			this.pc = pc;
+			this.destinationPC = destinationPC;
+		}
+
+		public void setInfos(VerificationTypeInfo[] infos) {
+			this.infos = infos;
+		}
+
+		public String toString() {
+			StringBuffer buffer = new StringBuffer();
+			buffer
+				.append("[copy stack items from ") //$NON-NLS-1$
+				.append(this.pc)
+				.append(" to ") //$NON-NLS-1$
+				.append(this.destinationPC);
+			if (this.infos!= null) {
+				for (int i = 0, max = this.infos.length; i < max; i++) {
+					if (i > 0) buffer.append(',');
+					buffer.append(this.infos[i]);
+				}
+			}
+			buffer.append(']');
+			return String.valueOf(buffer);
+		}
+	}
+	
 	static class FramePosition {
 		int counter;
 	}
@@ -96,6 +129,7 @@ public class StackMapFrameCodeStream extends CodeStream {
 	public int stateIndexesCounter;
 	private HashMap framePositions;
 	public Set exceptionMarkers;
+	public ArrayList stackDepthMarkers;
 	public ArrayList stackMarkers;
 
 public StackMapFrameCodeStream(ClassFile givenClassFile) {
@@ -194,27 +228,123 @@ public void addVariable(LocalVariableBinding localBinding) {
 	}
 	localBinding.recordInitializationStartPC(position);
 }
-public void decrStackSize(int offset) {
-	super.decrStackSize(offset);
+private void addStackMarker(int pc, int destinationPC) {
 	if (this.stackMarkers == null) {
 		this.stackMarkers = new ArrayList();
-		this.stackMarkers.add(new StackMarker(this.position, -1));
+		this.stackMarkers.add(new StackMarker(pc, destinationPC));
 	} else {
 		int size = this.stackMarkers.size();
 		if (size == 0 || ((StackMarker) this.stackMarkers.get(size - 1)).pc != this.position) {
-			this.stackMarkers.add(new StackMarker(this.position, -1));
+			this.stackMarkers.add(new StackMarker(pc, destinationPC));
 		}
 	}
 }
-public void recordExpressionType(TypeBinding typeBinding) {
-	if (this.stackMarkers == null) {
-		this.stackMarkers = new ArrayList();
-		this.stackMarkers.add(new StackMarker(this.position, 0, typeBinding));
+private void addStackDepthMarker(int pc, int delta, TypeBinding typeBinding) {
+	if (this.stackDepthMarkers == null) {
+		this.stackDepthMarkers = new ArrayList();
+		this.stackDepthMarkers.add(new StackDepthMarker(pc, delta, typeBinding));
 	} else {
-		int size = this.stackMarkers.size();
-		if (size == 0 || ((StackMarker) this.stackMarkers.get(size - 1)).pc != this.position) {
-			this.stackMarkers.add(new StackMarker(this.position, 0, typeBinding));
+		int size = this.stackDepthMarkers.size();
+		if (size == 0 || ((StackDepthMarker) this.stackDepthMarkers.get(size - 1)).pc != this.position) {
+			this.stackDepthMarkers.add(new StackDepthMarker(pc, delta, typeBinding));
 		}
+	}
+}
+public void decrStackSize(int offset) {
+	super.decrStackSize(offset);
+	this.addStackDepthMarker(this.position, -1, null);
+}
+public void recordExpressionType(TypeBinding typeBinding) {
+	this.addStackDepthMarker(this.position, 0, typeBinding);
+}
+/**
+ * Macro for building a class descriptor object
+ */
+public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBinding syntheticFieldBinding) {
+	if (accessedType.isBaseType() && accessedType != TypeBinding.NULL) {
+		this.getTYPE(accessedType.id);
+		return;
+	}
+
+	if (this.targetLevel >= ClassFileConstants.JDK1_5) {
+		// generation using the new ldc_w bytecode
+		this.ldc(accessedType);
+	} else {
+		// use in CLDC mode
+		BranchLabel endLabel = new BranchLabel(this);
+		if (syntheticFieldBinding != null) { // non interface case
+			this.getstatic(syntheticFieldBinding);
+			this.dup();
+			this.ifnonnull(endLabel);
+			this.pop();
+		}
+
+		/* Macro for building a class descriptor object... using or not a field cache to store it into...
+		this sequence is responsible for building the actual class descriptor.
+		
+		If the fieldCache is set, then it is supposed to be the body of a synthetic access method
+		factoring the actual descriptor creation out of the invocation site (saving space).
+		If the fieldCache is nil, then we are dumping the bytecode on the invocation site, since
+		we have no way to get a hand on the field cache to do better. */
+	
+	
+		// Wrap the code in an exception handler to convert a ClassNotFoundException into a NoClassDefError
+	
+		ExceptionLabel classNotFoundExceptionHandler = new ExceptionLabel(this, TypeBinding.NULL /*represents ClassNotFoundException*/);
+		classNotFoundExceptionHandler.placeStart();
+		this.ldc(accessedType == TypeBinding.NULL ? "java.lang.Object" : String.valueOf(accessedType.constantPoolName()).replace('/', '.')); //$NON-NLS-1$
+		this.invokeClassForName();
+	
+		/* See https://bugs.eclipse.org/bugs/show_bug.cgi?id=37565
+		if (accessedType == BaseTypes.NullBinding) {
+			this.ldc("java.lang.Object"); //$NON-NLS-1$
+		} else if (accessedType.isArrayType()) {
+			this.ldc(String.valueOf(accessedType.constantPoolName()).replace('/', '.'));
+		} else {
+			// we make it an array type (to avoid class initialization)
+			this.ldc("[L" + String.valueOf(accessedType.constantPoolName()).replace('/', '.') + ";"); //$NON-NLS-1$//$NON-NLS-2$
+		}
+		this.invokeClassForName();
+		if (!accessedType.isArrayType()) { // extract the component type, which doesn't initialize the class
+			this.invokeJavaLangClassGetComponentType();
+		}	
+		*/
+		/* We need to protect the runtime code from binary inconsistencies
+		in case the accessedType is missing, the ClassNotFoundException has to be converted
+		into a NoClassDefError(old ex message), we thus need to build an exception handler for this one. */
+		classNotFoundExceptionHandler.placeEnd();
+	
+		if (syntheticFieldBinding != null) { // non interface case
+			this.dup();
+			this.putstatic(syntheticFieldBinding);
+		}
+		int fromPC = this.position;
+		this.goto_(endLabel);
+		int savedStackDepth = this.stackDepth;
+		// Generate the body of the exception handler
+		/* ClassNotFoundException on stack -- the class literal could be doing more things
+		on the stack, which means that the stack may not be empty at this point in the
+		above code gen. So we save its state and restart it from 1. */
+	
+		this.pushExceptionOnStack(TypeBinding.NULL);/*represents ClassNotFoundException*/
+		classNotFoundExceptionHandler.place();
+
+		// Transform the current exception, and repush and throw a 
+		// NoClassDefFoundError(ClassNotFound.getMessage())
+	
+		this.newNoClassDefFoundError();
+		this.dup_x1();
+		this.swap();
+	
+		// Retrieve the message from the old exception
+		this.invokeThrowableGetMessage();
+	
+		// Send the constructor taking a message string as an argument
+		this.invokeNoClassDefFoundErrorStringConstructor();
+		this.athrow();
+		endLabel.place();
+		this.addStackMarker(fromPC, this.position);
+		this.stackDepth = savedStackDepth;
 	}
 }
 public ExceptionMarker[] getExceptionMarkers() {
@@ -252,6 +382,22 @@ public int[] getFramePositions() {
 //  System.out.println(']');
 	return positions;
 }
+public StackDepthMarker[] getStackDepthMarkers() {
+	if (this.stackDepthMarkers == null) return null;
+	int length = this.stackDepthMarkers.size();
+	if (length == 0) return null;
+	StackDepthMarker[] result = new StackDepthMarker[length];
+	this.stackDepthMarkers.toArray(result);
+	return result;
+}
+public StackMarker[] getStackMarkers() {
+	if (this.stackMarkers == null) return null;
+	int length = this.stackMarkers.size();
+	if (length == 0) return null;
+	StackMarker[] result = new StackMarker[length];
+	this.stackMarkers.toArray(result);
+	return result;
+}
 public boolean hasFramePositions() {
 	return this.framePositions.size() != 0;
 }
@@ -264,8 +410,8 @@ public void init(ClassFile targetClassFile) {
 	if (this.exceptionMarkers != null) {
 		this.exceptionMarkers.clear();
 	}
-	if (this.stackMarkers != null) {
-		this.stackMarkers.clear();
+	if (this.stackDepthMarkers != null) {
+		this.stackDepthMarkers.clear();
 	}
 }
 
@@ -319,8 +465,8 @@ public void reset(ClassFile givenClassFile) {
 	if (this.exceptionMarkers != null) {
 		this.exceptionMarkers.clear();
 	}
-	if (this.stackMarkers != null) {
-		this.stackMarkers.clear();
+	if (this.stackDepthMarkers != null) {
+		this.stackDepthMarkers.clear();
 	}
 }
 protected void writePosition(BranchLabel label) {
@@ -369,15 +515,7 @@ public void athrow() {
 }
 public void pushOnStack(TypeBinding binding) {
 	super.pushOnStack(binding);
-	if (this.stackMarkers == null) {
-		this.stackMarkers = new ArrayList();
-		this.stackMarkers.add(new StackMarker(this.position, 1, binding));
-	} else {
-		int size = this.stackMarkers.size();
-		if (size == 0 || ((StackMarker) this.stackMarkers.get(size - 1)).pc != this.position) {
-			this.stackMarkers.add(new StackMarker(this.position, 1, binding));
-		}
-	}
+	this.addStackDepthMarker(this.position, 1, binding);
 }
 public void pushExceptionOnStack(TypeBinding binding) {
 	super.pushExceptionOnStack(binding);

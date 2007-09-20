@@ -158,7 +158,7 @@ public class CodeStream {
 	public int startingClassFileOffset; // I need to keep the starting point inside the byte array
 	
 	// target level to manage different code generation between different target levels
-	private long targetLevel;
+	protected long targetLevel;
 	
 public LocalVariableBinding[] visibleLocals = new LocalVariableBinding[LOCALS_INCREMENT];
 int visibleLocalsCount;
@@ -1690,6 +1690,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 		}
 		this.goto_(endLabel);
 
+		int savedStackDepth = this.stackDepth;
 		// Generate the body of the exception handler
 		/* ClassNotFoundException on stack -- the class literal could be doing more things
 		on the stack, which means that the stack may not be empty at this point in the
@@ -1712,6 +1713,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 		this.invokeNoClassDefFoundErrorStringConstructor();
 		this.athrow();
 		endLabel.place();
+		this.stackDepth = savedStackDepth;
 	}
 }
 /**
@@ -5712,7 +5714,8 @@ public void pushOnStack(TypeBinding binding) {
 		stackMax = stackDepth;
 }
 public void pushExceptionOnStack(TypeBinding binding) {
-	if (++stackDepth > stackMax)
+	this.stackDepth = 1;
+	if (stackDepth > stackMax)
 		stackMax = stackDepth;
 }
 public void putfield(FieldBinding fieldBinding) {

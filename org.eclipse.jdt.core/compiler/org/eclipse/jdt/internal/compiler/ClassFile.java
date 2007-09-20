@@ -50,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.codegen.StackMapFrame;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.VerificationTypeInfo;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.ExceptionMarker;
+import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.StackDepthMarker;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.StackMarker;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -7042,27 +7043,33 @@ public class ClassFile
 		int framePositionsLength = framePositions.length;
 		int currentFramePosition = framePositions[0];
 
-		// set initial values for stack markers
+		// set initial values for stack depth markers
+		int indexInStackDepthMarkers = 0;
+		StackDepthMarker[] stackDepthMarkers = stackMapFrameCodeStream.getStackDepthMarkers();
+		int stackDepthMarkersLength = stackDepthMarkers == null ? 0 : stackDepthMarkers.length;
+		boolean hasStackDepthMarkers = stackDepthMarkersLength != 0;
+		StackDepthMarker stackDepthMarker = null;
+		if (hasStackDepthMarkers) {
+			stackDepthMarker = stackDepthMarkers[0];
+		}
+
+		// set initial values for stack markers (used only in cldc mode)
 		int indexInStackMarkers = 0;
-		ArrayList stackMarkers = stackMapFrameCodeStream.stackMarkers;
-		boolean hasStackMarkers = stackMarkers != null && stackMarkers.size() != 0;
-		StackMarker[] markers = null;
-		int markersLength = 0;
-		StackMarker marker = null;
+		StackMarker[] stackMarkers = stackMapFrameCodeStream.getStackMarkers();
+		int stackMarkersLength = stackMarkers == null ? 0 : stackMarkers.length;
+		boolean hasStackMarkers = stackMarkersLength != 0;
+		StackMarker stackMarker = null;
 		if (hasStackMarkers) {
-			markersLength = stackMarkers.size();
-			stackMarkers.toArray(markers = new StackMarker[markersLength]);
-			marker = markers[0];
+			stackMarker = stackMarkers[0];
 		}
 
 		// set initial values for exception markers
 		int indexInExceptionMarkers = 0;
 		ExceptionMarker[] exceptionMarkers= stackMapFrameCodeStream.getExceptionMarkers();
-		boolean hasExceptionMarkers = exceptionMarkers != null && exceptionMarkers.length != 0;
-		int exceptionsMarkersLength = 0;
+		int exceptionsMarkersLength = exceptionMarkers == null ? 0 : exceptionMarkers.length;
+		boolean hasExceptionMarkers = exceptionsMarkersLength != 0;
 		ExceptionMarker exceptionMarker = null;
 		if (hasExceptionMarkers) {
-			exceptionsMarkersLength = exceptionMarkers.length;
 			exceptionMarker = exceptionMarkers[0];
 		}
 
@@ -7074,10 +7081,26 @@ public class ClassFile
 		frames.add(frame.duplicate());
 		while (true) {
 			int currentPC = pc - codeOffset;
-			if (hasStackMarkers && marker.pc == currentPC) {
-				TypeBinding typeBinding = marker.typeBinding;
+			if (hasStackMarkers && stackMarker.pc == currentPC) {
+				VerificationTypeInfo[] infos = frame.stackItems;
+				VerificationTypeInfo[] tempInfos = new VerificationTypeInfo[frame.numberOfStackItems];
+				System.arraycopy(infos, 0, tempInfos, 0, frame.numberOfStackItems);
+				stackMarker.setInfos(tempInfos);
+			} else if (hasStackMarkers && stackMarker.destinationPC == currentPC) {
+				VerificationTypeInfo[] infos = stackMarker.infos;
+				frame.stackItems = infos;
+				frame.numberOfStackItems = infos.length;
+				indexInStackMarkers++;
+				if (indexInStackMarkers < stackMarkersLength) {
+					stackMarker = stackMarkers[indexInStackMarkers];
+				} else {
+					hasStackMarkers = false;
+				}
+			}
+			if (hasStackDepthMarkers && stackDepthMarker.pc == currentPC) {
+				TypeBinding typeBinding = stackDepthMarker.typeBinding;
 				if (typeBinding != null) {
-					if (marker.delta > 0) {
+					if (stackDepthMarker.delta > 0) {
 						frame.addStackItem(new VerificationTypeInfo(typeBinding));
 					} else {
 						frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(typeBinding);
@@ -7085,14 +7108,15 @@ public class ClassFile
 				} else {
 					frame.numberOfStackItems--;
 				}
-				indexInStackMarkers++;
-				if (indexInStackMarkers < markersLength) {
-					marker = markers[indexInStackMarkers];
+				indexInStackDepthMarkers++;
+				if (indexInStackDepthMarkers < stackDepthMarkersLength) {
+					stackDepthMarker = stackDepthMarkers[indexInStackDepthMarkers];
 				} else {
-					hasStackMarkers = false;
+					hasStackDepthMarkers = false;
 				}
 			}
 			if (hasExceptionMarkers && exceptionMarker.pc == currentPC) {
+				frame.numberOfStackItems = 0;
 				frame.addStackItem(new VerificationTypeInfo(0, VerificationTypeInfo.ITEM_OBJECT, exceptionMarker.constantPoolName));
 				indexInExceptionMarkers++;
 				if (indexInExceptionMarkers < exceptionsMarkersLength) {

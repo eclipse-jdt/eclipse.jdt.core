@@ -44,9 +44,9 @@ public class DefaultStackMapFrame extends ClassFileStruct implements IStackMapFr
 		this.offsetDelta = u2At(classFileBytes, 0, offset);
 		int tempLocals = u2At(classFileBytes, 2, offset);
 		this.numberOfLocals = tempLocals;
+		this.readOffset = 4;
 		if (tempLocals != 0) {
 			this.locals = new IVerificationTypeInfo[tempLocals];
-			this.readOffset = 4;
 			for (int i = 0; i < tempLocals; i++) {
 				VerificationInfo verificationInfo = new VerificationInfo(classFileBytes, constantPool, offset + this.readOffset);
 				this.locals[i] = verificationInfo;
