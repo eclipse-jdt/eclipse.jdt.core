@@ -35,15 +35,19 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private FieldBinding[] fields;
 	private MethodBinding[] methods;
 	public ReferenceBinding[] memberTypes;
-    public TypeVariableBinding[] typeVariables;
+	public TypeVariableBinding[] typeVariables;
 
 	public ClassScope scope;
 
 	// Synthetics are separated into 5 categories: methods, super methods, fields, class literals, changed declaring type bindings and bridge methods
-	public final static int METHOD_EMUL = 0;
-	public final static int FIELD_EMUL = 1;
-	public final static int CLASS_LITERAL_EMUL = 2;
-	public final static int RECEIVER_TYPE_EMUL = 3;
+	// if a new category is added, also increment EMUL_MAX_VALUE
+	private final static int METHOD_EMUL = 0;
+	private final static int FIELD_EMUL = 1;
+	private final static int CLASS_LITERAL_EMUL = 2;
+	private final static int RECEIVER_TYPE_EMUL = 3;
+	
+	private final static int EMUL_MAX_VALUE = 4;
+
 	HashMap[] synthetics;
 	char[] genericReferenceTypeSignature;
 
@@ -140,7 +144,7 @@ private void addDefaultAbstractMethods() {
 */
 public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOuterLocalVariable) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[4];
+		this.synthetics = new HashMap[EMUL_MAX_VALUE];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
 	
@@ -184,7 +188,7 @@ public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOu
 */
 public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingType) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[4];
+		this.synthetics = new HashMap[EMUL_MAX_VALUE];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
 
@@ -231,7 +235,7 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 */
 public FieldBinding addSyntheticFieldForClassLiteral(TypeBinding targetType, BlockScope blockScope) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[4];
+		this.synthetics = new HashMap[EMUL_MAX_VALUE];
 	if (this.synthetics[SourceTypeBinding.CLASS_LITERAL_EMUL] == null)
 		this.synthetics[SourceTypeBinding.CLASS_LITERAL_EMUL] = new HashMap(5);
 
@@ -268,7 +272,7 @@ public FieldBinding addSyntheticFieldForClassLiteral(TypeBinding targetType, Blo
 */
 public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[4];
+		this.synthetics = new HashMap[EMUL_MAX_VALUE];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
 
@@ -311,7 +315,7 @@ public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
 */
 public FieldBinding addSyntheticFieldForEnumValues() {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[4];
+		this.synthetics = new HashMap[EMUL_MAX_VALUE];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
 
@@ -354,7 +358,7 @@ public FieldBinding addSyntheticFieldForEnumValues() {
 */
 public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boolean isReadAccess) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[4];
+		this.synthetics = new HashMap[EMUL_MAX_VALUE];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
 
@@ -377,7 +381,7 @@ public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boole
 */
 public SyntheticMethodBinding addSyntheticEnumMethod(char[] selector) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[4];
+		this.synthetics = new HashMap[EMUL_MAX_VALUE];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
 
@@ -400,7 +404,7 @@ public SyntheticMethodBinding addSyntheticEnumMethod(char[] selector) {
  */
 public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, String key) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[4];
+		this.synthetics = new HashMap[EMUL_MAX_VALUE];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
 
@@ -442,7 +446,7 @@ public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, St
 */
 public SyntheticMethodBinding addSyntheticMethodForSwitchEnum(TypeBinding enumBinding) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[4];
+		this.synthetics = new HashMap[EMUL_MAX_VALUE];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
 
@@ -473,7 +477,7 @@ public SyntheticMethodBinding addSyntheticMethodForSwitchEnum(TypeBinding enumBi
 */
 public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boolean isSuperAccess) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[4];
+		this.synthetics = new HashMap[EMUL_MAX_VALUE];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
 
@@ -502,7 +506,7 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 			return null; // do not need bridge method
 	}
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[4];
+		this.synthetics = new HashMap[EMUL_MAX_VALUE];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null) {
 		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
 	} else {
@@ -1042,7 +1046,7 @@ public ReferenceBinding[] memberTypes() {
 }
 public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBinding newDeclaringClass) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[4];
+		this.synthetics = new HashMap[EMUL_MAX_VALUE];
 	if (this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL] == null)
 		this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL] = new HashMap(5);
 
@@ -1060,7 +1064,7 @@ public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBi
 }
 public MethodBinding getUpdatedMethodBinding(MethodBinding targetMethod, ReferenceBinding newDeclaringClass) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[4];
+		this.synthetics = new HashMap[EMUL_MAX_VALUE];
 	if (this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL] == null)
 		this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL] = new HashMap(5);
 
