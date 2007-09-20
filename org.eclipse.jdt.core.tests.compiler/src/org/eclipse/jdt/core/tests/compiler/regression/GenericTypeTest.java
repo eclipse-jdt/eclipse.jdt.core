@@ -22769,7 +22769,25 @@ public void test0730() {
 		"	private SuperInterface< ? extends SuperInterface> x = null;\n" + 
 		"	                                  ^^^^^^^^^^^^^^\n" + 
 		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<A> should be parameterized\n" + 
-		"----------\n");
+		"----------\n"
+		//TODO should be
+//		"----------\n" + 
+//		"1. ERROR in X.java (at line 3)\n" + 
+//		"	Zork z;\n" + 
+//		"	^^^^\n" + 
+//		"Zork cannot be resolved to a type\n" + 
+//		"----------\n" + 
+//		"2. WARNING in X.java (at line 11)\n" + 
+//		"	private SuperInterface< ? extends SuperInterface> x = null;\n" + 
+//		"	                                  ^^^^^^^^^^^^^^\n" + 
+//		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<A> should be parameterized\n" + 
+//		"----------\n" + 
+//		"3. ERROR in X.java (at line 14)\n" + 
+//		"	((SubInterface) this.x).getString();\n" + 
+//		"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+//		"Cannot cast from X.SuperInterface<capture#1-of ? extends X.SuperInterface> to X.SubInterface\n" + 
+//		"----------\n"
+		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97440
 public void test0731() {
@@ -27782,7 +27800,7 @@ public void test0880() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
-public void _test0881() {
+public void test0881() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -27802,7 +27820,12 @@ public void _test0881() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	String s = (String) Foo.foo();\n" + 
 		"	           ^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot cast from List<Object> to String\n" + 
+		"Cannot cast from List<List<U>> to String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	String s = (String) Foo.foo();\n" + 
+		"	                        ^^^\n" + 
+		"Bound mismatch: The generic method foo() of type Foo is not applicable for the arguments (). The inferred type List<List<U>> is not a valid substitute for the bounded parameter <U extends List<U>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
@@ -27835,17 +27858,37 @@ public void test0883() {
 			"\n" + 
 			"public class X {\n" + 
 			"	static <U extends List<U>> U foo(U u) {\n" + 
-			"		List<U> v = null;\n" + 
-			"		String s = (String) foo(v);\n" + 
+			"		List<U> listu = null;\n" + 
+			"		String s = (String)foo(listu);\n" + 
 			"		return u;\n" + 
+			"	}\n" + 
+			"	static <V extends List<V>> V bar(V v) {\n" + 
+			"		List<V> listv = null;\n" + 
+			"		String s = (String)foo(listv);\n" + 
+			"		return v;\n" + 
 			"	}\n" + 
 			"}\n",
 		},
 		"----------\n" + 
 		"1. ERROR in X.java (at line 6)\n" + 
-		"	String s = (String) foo(v);\n" + 
-		"	           ^^^^^^^^^^^^^^^\n" + 
-		"Cannot cast from List<U> to String\n" + // shouldn't it infer: List<List<U>> ?
+		"	String s = (String)foo(listu);\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from List<U> to String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	String s = (String)foo(listu);\n" + 
+		"	                   ^^^\n" + 
+		"Bound mismatch: The generic method foo(U) of type X is not applicable for the arguments (List<U>). The inferred type List<U> is not a valid substitute for the bounded parameter <U extends List<U>>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	String s = (String)foo(listv);\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from List<V> to String\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	String s = (String)foo(listv);\n" + 
+		"	                   ^^^\n" + 
+		"Bound mismatch: The generic method foo(U) of type X is not applicable for the arguments (List<V>). The inferred type List<V> is not a valid substitute for the bounded parameter <U extends List<U>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=123078
@@ -30571,7 +30614,7 @@ public void _test0959() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	Soft soft= (Soft) remove;\n" + 
 		"	           ^^^^^^^^^^^^^\n" + 
-		"Cannot cast from Reference<capture-of ? extends Number> to Soft\n" + 
+		"Cannot cast from Reference<capture#1-of ? extends Number> to Soft\n" + 
 		"----------\n");
 }
 
@@ -30735,10 +30778,10 @@ public void test0965() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
 		"	protected static final Class<X<?>> theClass = (Class<X<?>>) X.class;\n" + 
 		"	                                              ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot cast from Class<X> to Class<X<?>>\n" + 
+		"Type safety: Unchecked cast from Class<X> to Class<X<?>>\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 3)\n" + 
 		"	void foo(Class<X> cx) {\n" + 
@@ -30750,10 +30793,10 @@ public void test0965() {
 		"	                  ^^\n" + 
 		"Type mismatch: cannot convert from Class<X> to Class<X<?>>\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 5)\n" + 
+		"4. WARNING in X.java (at line 5)\n" + 
 		"	Class<X<?>> cx2 = (Class<X<?>>) cx;\n" + 
 		"	                  ^^^^^^^^^^^^^^^^\n" + 
-		"Cannot cast from Class<X> to Class<X<?>>\n" + 
+		"Type safety: Unchecked cast from Class<X> to Class<X<?>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=115918
@@ -38969,6 +39012,193 @@ public void test1167() {
 			"  class Bar<B> {\n" + 
 			"    Bar(Foo<? extends B> bar) {}\n" + 
 			"  }\n" + 
+			"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=169049
+public void test1168() {
+	this.runNegativeTest(
+		new String[] {
+			"example/Container.java",
+			"package example;\n" +
+			"class A<E> {}\n" + 
+			"class B<E> extends A<E> {}\n" + 
+			"\n" + 
+			"public interface Container<T, U extends T, V extends A<T>> {\n" + 
+			"	<T1, U1 extends T1, V1 extends A<T1>> void f(\n" + 
+			"			Container<?, ?, ?> a, \n" + 
+			"			Container<?, ? extends T1, ?> b, \n" + 
+			"			Container<T1, U1, V1> c, \n" + 
+			"			Container<? extends T1, ? extends U1, ? extends V1> d, \n" + 
+			"			Container<T1, ? extends U1, ? extends V1> e, \n" + 
+			"			Container<T1, ? extends U1, A<T>> f, \n" + 
+			"			Container<T1, U1, A<U1>> g,\n" + 
+			"			Container<T1, U1, A<T1>> h);\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in example\\Container.java (at line 12)\n" + 
+		"	Container<T1, ? extends U1, A<T>> f, \n" + 
+		"	                            ^\n" + 
+		"Bound mismatch: The type A<T> is not a valid substitute for the bounded parameter <V extends A<T>> of the type Container<T,U,V>\n" + 
+		"----------\n" + 
+		"2. ERROR in example\\Container.java (at line 13)\n" + 
+		"	Container<T1, U1, A<U1>> g,\n" + 
+		"	                  ^\n" + 
+		"Bound mismatch: The type A<U1> is not a valid substitute for the bounded parameter <V extends A<T>> of the type Container<T,U,V>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=169049 - variation
+public void test1169() {
+	this.runNegativeTest(
+		new String[] {
+			"example/Container2.java",
+			"package example;\n" +
+			"class A<E> {}\n" + 
+			"class B<E> extends A<E> {}\n" + 
+			"\n" + 
+			"public interface Container2<T, U extends T, V extends A<? extends T>> {\n" + 
+			"	<T1, U1 extends T1, V1 extends A<? extends T1>> void g(\n" + 
+			"			Container2<?, ?, ?> a, \n" + 
+			"			Container2<?, ? extends T1, ?> b, \n" + 
+			"			Container2<T1, U1, V1> c, \n" + 
+			"			Container2<? extends T1, ? extends U1, ? extends V1> d, \n" + 
+			"			Container2<T1, ? extends U1, ? extends V1> e, \n" + 
+			"			Container2<T1, ? extends U1, A<T>> f, \n" + 
+			"			Container2<T1, U1, A<U1>> g, \n" + 
+			"			Container2<? extends T1, U1, ? extends V1> h);\n" + 
+			"\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in example\\Container2.java (at line 12)\n" + 
+		"	Container2<T1, ? extends U1, A<T>> f, \n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type A<T> is not a valid substitute for the bounded parameter <V extends A<? extends T>> of the type Container2<T,U,V>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=169049 - variation
+public void test1170() {
+	this.runNegativeTest(
+		new String[] {
+			"example/Container3.java",
+			"package example;\n" +
+			"class A<E> {}\n" + 
+			"class B<E> extends A<E> {}\n" + 
+			"class A<E> {}\n" + 
+			"class B<E> extends A<E> {}\n" + 
+			"\n" + 
+			"public interface Container3<T, U extends T, V extends A<? super T>> {\n" + 
+			"	<T1, U1 extends T1, V1 extends A<? super T1>> void g(\n" + 
+			"			Container3<?, ?, ?> a, \n" + 
+			"			Container3<?, ? extends T1, ?> b, \n" + 
+			"			Container3<T1, U1, V1> c, \n" + 
+			"			Container3<? extends T1, ? extends U1, ? extends V1> d, \n" + 
+			"			Container3<T1, ? extends U1, ? extends V1> e, \n" + 
+			"			Container3<T1, ? extends U1, A<T>> f, \n" + 
+			"			Container3<T1, U1, A<U1>> g, \n" + 
+			"			Container3<? extends T1, U1, ? extends V1> h, \n" + 
+			"			Container3<T1, ? extends U1, A<? super T>> i, \n" + 
+			"			Container3<T1, ? extends U1, A> j);\n" + 
+			"\n" + 
+			"	<T1, U1 extends T1, V1 extends B<? super T1>> void h(\n" + 
+			"			Container3<?, ?, ?> a, \n" + 
+			"			Container3<?, ? extends T1, ?> b, \n" + 
+			"			Container3<T1, U1, V1> c, \n" + 
+			"			Container3<? extends T1, ? extends U1, ? extends V1> d, \n" + 
+			"			Container3<T1, ? extends U1, ? extends V1> e, \n" + 
+			"			Container3<T1, ? extends U1, B<T>> f, \n" + 
+			"			Container3<T1, U1, B<U1>> g, \n" + 
+			"			Container3<? extends T1, U1, ? extends V1> h, \n" + 
+			"			Container3<T1, ? extends U1, B<? super T>> i, \n" + 
+			"			Container3<T1, ? extends U1, B> j);\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in example\\Container3.java (at line 4)\n" + 
+		"	class A<E> {}\n" + 
+		"	      ^\n" + 
+		"The type A is already defined\n" + 
+		"----------\n" + 
+		"2. ERROR in example\\Container3.java (at line 5)\n" + 
+		"	class B<E> extends A<E> {}\n" + 
+		"	      ^\n" + 
+		"The type B is already defined\n" + 
+		"----------\n" + 
+		"3. ERROR in example\\Container3.java (at line 14)\n" + 
+		"	Container3<T1, ? extends U1, A<T>> f, \n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type A<T> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"4. ERROR in example\\Container3.java (at line 15)\n" + 
+		"	Container3<T1, U1, A<U1>> g, \n" + 
+		"	                   ^\n" + 
+		"Bound mismatch: The type A<U1> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"5. ERROR in example\\Container3.java (at line 17)\n" + 
+		"	Container3<T1, ? extends U1, A<? super T>> i, \n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type A<? super T> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"6. WARNING in example\\Container3.java (at line 18)\n" + 
+		"	Container3<T1, ? extends U1, A> j);\n" + 
+		"	                             ^\n" + 
+		"A is a raw type. References to generic type A<E> should be parameterized\n" + 
+		"----------\n" + 
+		"7. ERROR in example\\Container3.java (at line 18)\n" + 
+		"	Container3<T1, ? extends U1, A> j);\n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type A is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"8. ERROR in example\\Container3.java (at line 26)\n" + 
+		"	Container3<T1, ? extends U1, B<T>> f, \n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type B<T> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"9. ERROR in example\\Container3.java (at line 27)\n" + 
+		"	Container3<T1, U1, B<U1>> g, \n" + 
+		"	                   ^\n" + 
+		"Bound mismatch: The type B<U1> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"10. ERROR in example\\Container3.java (at line 29)\n" + 
+		"	Container3<T1, ? extends U1, B<? super T>> i, \n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type B<? super T> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"11. WARNING in example\\Container3.java (at line 30)\n" + 
+		"	Container3<T1, ? extends U1, B> j);\n" + 
+		"	                             ^\n" + 
+		"B is a raw type. References to generic type B<E> should be parameterized\n" + 
+		"----------\n" + 
+		"12. ERROR in example\\Container3.java (at line 30)\n" + 
+		"	Container3<T1, ? extends U1, B> j);\n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type B is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203905
+public void test1171() {
+	this.runConformTest(
+		new String[] {
+			"Function.java",
+			"public abstract class Function<A, B> {\n" + 
+			"        public abstract B apply(A a);\n" + 
+			"\n" + 
+			"        /** (f andThen g)(x) = g(f(x)) */\n" + 
+			"        public <C1> Function<A, C1> andThen(final Function<B, C1> g) {\n" + 
+			"                return new Function<A, C1>() {\n" + 
+			"                		@Override\n" + 
+			"                        public C1 apply(A a) {\n" + 
+			"                                return g.apply(Function.this.apply(a));\n" + 
+			"                        }\n" + 
+			"                };\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        /** (f compose g)(x) = f(g(x)) */\n" + 
+			"        public <C2> Function<C2, B> compose(final Function<C2, A> g) {\n" + 
+			"                return g.andThen(this);\n" + 
+			"        }\n" + 
 			"}\n", // =================
 		},
 		"");

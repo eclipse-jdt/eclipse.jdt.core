@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /*
@@ -513,61 +514,6 @@ public boolean isParameterizedWithOwnVariables() {
 		return false;
 	}
 	return true;
-}
-
-/**
- * Returns true if the two types are statically known to be different at compile-time,
- * e.g. a type variable is not provably known to be distinct from another type
- */
-public boolean isProvablyDistinctFrom(TypeBinding otherType, int depth) {
-	if (this == otherType)
-		return false;
-	if (depth > 1)
-		return true;
-	switch (otherType.kind()) {
-		case Binding.TYPE_PARAMETER:
-		case Binding.WILDCARD_TYPE:
-			return false;
-	}
-	switch (kind()) {
-	case Binding.TYPE_PARAMETER:
-	case Binding.WILDCARD_TYPE:
-		return false;
-
-	case Binding.PARAMETERIZED_TYPE:
-		ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) this;
-		if (parameterizedType.genericType().isProvablyDistinctFrom(otherType.erasure(), depth))
-			return true;
-		switch (otherType.kind()) {
-		case Binding.GENERIC_TYPE:
-		case Binding.RAW_TYPE:
-			return false;
-		case Binding.PARAMETERIZED_TYPE:
-			TypeBinding[] arguments = parameterizedType.arguments;
-			if (arguments == null)
-				return false;
-			ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherType;
-			TypeBinding[] otherArguments = otherParameterizedType.arguments;
-			if (otherArguments == null)
-				return false;
-			for (int i = 0, length = arguments.length; i < length; i++) {
-				if (arguments[i].isProvablyDistinctFrom(otherArguments[i], depth + 1))
-					return true;
-			}
-			return false;
-
-		}
-		break;
-
-	case Binding.RAW_TYPE:
-		if (depth > 0) return true;
-		return this.erasure().isProvablyDistinctFrom(otherType.erasure(), 0);
-
-	case Binding.GENERIC_TYPE:
-		if (depth > 0) return true;
-		return this != otherType.erasure();
-	}
-	return this != otherType;
 }
 
 public boolean isRawType() {

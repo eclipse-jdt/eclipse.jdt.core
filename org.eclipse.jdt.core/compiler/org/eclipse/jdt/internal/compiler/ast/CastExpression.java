@@ -278,8 +278,12 @@ public class CastExpression extends Expression {
 			}
 			return true;
 		}
-		if (match != null && match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType, 0)) {
-			return false; 
+		if (match != null) {
+			if (isNarrowing
+					? checkProvablyDistinctTypes(scope, match, expressionType, 0)
+					: checkProvablyDistinctTypes(scope, castType, match, 0)) {
+				return false;
+			}
 		}
 		switch (castType.kind()) {
 			case Binding.PARAMETERIZED_TYPE :

@@ -127,9 +127,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 		}
 		boolean unchecked = false;
 		if (this.superclass.id != TypeIds.T_JavaLangObject) {
-			TypeBinding superType = this.superclass;
-			if (superType != argumentType) { // check identity before substituting (104649)
-				TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, superType) : superType;
+			TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superclass) : this.superclass;
+	    	if (substitutedSuperType != argumentType) {
 				if (!argumentType.isCompatibleWith(substitutedSuperType)) {
 				    return TypeConstants.MISMATCH;
 				}
@@ -139,12 +138,11 @@ public class TypeVariableBinding extends ReferenceBinding {
 					if (match.isRawType() && substitutedSuperType.isBoundParameterizedType())
 						unchecked = true;
 				}
-			}
+	    	}
 		}
 	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-	    	TypeBinding superType = this.superInterfaces[i];
-	    	if (superType != argumentType) { // check identity before substituting (104649)
-				TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, superType) : superType;
+			TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superInterfaces[i]) : this.superInterfaces[i];
+	    	if (substitutedSuperType != argumentType) {
 				if (!argumentType.isCompatibleWith(substitutedSuperType)) {
 				    return TypeConstants.MISMATCH;
 				}
