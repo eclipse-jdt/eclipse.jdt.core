@@ -451,9 +451,6 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
         if (originalVariable.rank < length && variables[originalVariable.rank] == originalVariable) {
 			return this.typeArguments[originalVariable.rank];
         }
-        if (!this.isStatic() && this.declaringClass instanceof Substitution) {
-        	return ((Substitution)this.declaringClass).substitute(originalVariable);
-        }
 	    return originalVariable;
 	}
 	/**
