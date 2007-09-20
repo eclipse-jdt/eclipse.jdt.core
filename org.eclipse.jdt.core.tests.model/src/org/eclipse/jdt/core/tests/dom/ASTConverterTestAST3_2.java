@@ -120,7 +120,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 684, 685 };
+//		TESTS_NUMBERS =  new int[] { 631 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -9451,5 +9451,63 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		final ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		final String qualifiedName = typeBinding.getQualifiedName();
 		assertEquals("wrong qualified name", "", qualifiedName);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=203579
+	 */
+	public void test0686() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		int   a  ,   b  ;\n" + 
+				"		for (int  i  ,  j  ;;) {}\n" + 
+				"	}\n" + 
+				"	int   n  ,   m  ;\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a variable statement declaration", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+			VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+			List fragments = statement.fragments();
+			assertEquals("Wrong size", 2, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			checkSourceRange(fragment, "a", contents);
+			fragment = (VariableDeclarationFragment) fragments.get(1);
+			checkSourceRange(fragment, "b", contents);
+			node = getASTNode(unit, 0, 0, 1);
+			assertEquals("Not a for statement", ASTNode.FOR_STATEMENT, node.getNodeType());
+			ForStatement forStatement = (ForStatement) node;
+			final List initializers = forStatement.initializers();
+			assertEquals("Wrong size", 1, initializers.size());
+			VariableDeclarationExpression expression = (VariableDeclarationExpression) initializers.get(0);
+			fragments = expression.fragments();
+			assertEquals("Wrong size", 2, fragments.size());
+			fragment = (VariableDeclarationFragment) fragments.get(0);
+			checkSourceRange(fragment, "i", contents);
+			fragment = (VariableDeclarationFragment) fragments.get(1);
+			checkSourceRange(fragment, "j", contents);
+
+			node = getASTNode(unit, 0, 1);
+			assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+			fragments = fieldDeclaration.fragments();
+			assertEquals("Wrong size", 2, fragments.size());
+			fragment = (VariableDeclarationFragment) fragments.get(0);
+			checkSourceRange(fragment, "n", contents);
+			fragment = (VariableDeclarationFragment) fragments.get(1);
+			checkSourceRange(fragment, "m", contents);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
 	}
 }

@@ -378,20 +378,20 @@ class ASTConverter {
 
 	protected void checkAndAddMultipleLocalDeclaration(org.eclipse.jdt.internal.compiler.ast.Statement[] stmts, int index, List blockStatements) {
 		if (index > 0
-		    && stmts[index - 1] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
-		    	org.eclipse.jdt.internal.compiler.ast.LocalDeclaration local1 = (org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) stmts[index - 1];
-		    	org.eclipse.jdt.internal.compiler.ast.LocalDeclaration local2 = (org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) stmts[index];
-		    	if (local2.name == RecoveryScanner.FAKE_IDENTIFIER) // workaround for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=199668
-		    		return;
-			   if (local1.declarationSourceStart == local2.declarationSourceStart) {
+			&& stmts[index - 1] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
+				org.eclipse.jdt.internal.compiler.ast.LocalDeclaration local1 = (org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) stmts[index - 1];
+				org.eclipse.jdt.internal.compiler.ast.LocalDeclaration local2 = (org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) stmts[index];
+				if (local2.name == RecoveryScanner.FAKE_IDENTIFIER) // workaround for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=199668
+					return;
+				if (local1.declarationSourceStart == local2.declarationSourceStart) {
 					// we have a multiple local declarations
 					// We retrieve the existing VariableDeclarationStatement to add the new VariableDeclarationFragment
 					VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) blockStatements.get(blockStatements.size() - 1);
 					variableDeclarationStatement.fragments().add(convertToVariableDeclarationFragment((org.eclipse.jdt.internal.compiler.ast.LocalDeclaration)stmts[index]));
-			   } else {
+				} else {
 					// we can create a new FieldDeclaration
 					blockStatements.add(convertToVariableDeclarationStatement((org.eclipse.jdt.internal.compiler.ast.LocalDeclaration)stmts[index]));
-			   }
+				}
 		} else {
 			// we can create a new FieldDeclaration
 			blockStatements.add(convertToVariableDeclarationStatement((org.eclipse.jdt.internal.compiler.ast.LocalDeclaration)stmts[index]));
@@ -2974,20 +2974,25 @@ class ASTConverter {
 		name.internalSetIdentifier(new String(fieldDeclaration.name));
 		name.setSourceRange(fieldDeclaration.sourceStart, fieldDeclaration.sourceEnd - fieldDeclaration.sourceStart + 1);
 		variableDeclarationFragment.setName(name);
-		int start = fieldDeclaration.sourceEnd;
+		int start = fieldDeclaration.sourceEnd; // need the exclusive range for retrieveEndOfPotentialExtendedDimensions
+		int end = start;
+		int extraDimensions = retrieveExtraDimension(fieldDeclaration.sourceEnd + 1, fieldDeclaration.declarationSourceEnd );
+		variableDeclarationFragment.setExtraDimensions(extraDimensions);
 		if (fieldDeclaration.initialization != null) {
 			final Expression expression = convert(fieldDeclaration.initialization);
 			variableDeclarationFragment.setInitializer(expression);
 			start = expression.getStartPosition() + expression.getLength();
-		}
-		int end = retrievePositionBeforeNextCommaOrSemiColon(start, fieldDeclaration.declarationSourceEnd);
-		if (end == -1) {
-			variableDeclarationFragment.setSourceRange(fieldDeclaration.sourceStart, fieldDeclaration.declarationSourceEnd - fieldDeclaration.sourceStart + 1);
-			variableDeclarationFragment.setFlags(variableDeclarationFragment.getFlags() | ASTNode.MALFORMED);
+			end = start - 1;
 		} else {
-			variableDeclarationFragment.setSourceRange(fieldDeclaration.sourceStart, end - fieldDeclaration.sourceStart + 1);
+			// we need to do it even if extendedDimension is null in case of syntax error in an array initializer
+			// need the exclusive range for retrieveEndOfPotentialExtendedDimensions
+			end = retrieveEndOfPotentialExtendedDimensions(start + 1, fieldDeclaration.sourceEnd, fieldDeclaration.declarationSourceEnd);
+			if (end == -1) {
+				end = fieldDeclaration.declarationSourceEnd;
+				variableDeclarationFragment.setFlags(variableDeclarationFragment.getFlags() | ASTNode.MALFORMED);
+			}
 		}
-		variableDeclarationFragment.setExtraDimensions(retrieveExtraDimension(fieldDeclaration.sourceEnd + 1, fieldDeclaration.declarationSourceEnd ));
+		variableDeclarationFragment.setSourceRange(fieldDeclaration.sourceStart, end - fieldDeclaration.sourceStart + 1);
 		if (this.resolveBindings) {
 			recordNodes(name, fieldDeclaration);
 			recordNodes(variableDeclarationFragment, fieldDeclaration);
@@ -3002,26 +3007,28 @@ class ASTConverter {
 		name.internalSetIdentifier(new String(localDeclaration.name));
 		name.setSourceRange(localDeclaration.sourceStart, localDeclaration.sourceEnd - localDeclaration.sourceStart + 1);
 		variableDeclarationFragment.setName(name);
-		int start = localDeclaration.sourceEnd;
+		int start = localDeclaration.sourceEnd; 
 		org.eclipse.jdt.internal.compiler.ast.Expression initialization = localDeclaration.initialization;
+		int extraDimension = retrieveExtraDimension(localDeclaration.sourceEnd + 1, this.compilationUnitSourceLength);
+		variableDeclarationFragment.setExtraDimensions(extraDimension);
 		boolean hasInitialization = initialization != null;
+		int end = start;
 		if (hasInitialization) {
 			final Expression expression = convert(initialization);
 			variableDeclarationFragment.setInitializer(expression);
 			start = expression.getStartPosition() + expression.getLength();
-		}
-		int end = retrievePositionBeforeNextCommaOrSemiColon(start, localDeclaration.declarationSourceEnd);
-		if (end == -1) {
-			if (hasInitialization) {
-				// the initiazation sourceEnd is modified during convert(initialization)
-				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=128961
-				end = start - 1;
+			end = start - 1;
+		} else {
+			// we need to do it even if extendedDimension is null in case of syntax error in an array initializer
+			// start + 1 because we need the exclusive range for retrieveEndOfPotentialExtendedDimensions
+			int possibleEnd = retrieveEndOfPotentialExtendedDimensions(start + 1, localDeclaration.sourceEnd, localDeclaration.declarationSourceEnd);
+			if (possibleEnd != -1) {
+				end = possibleEnd;
 			} else {
-				end = localDeclaration.sourceEnd;
+				variableDeclarationFragment.setFlags(variableDeclarationFragment.getFlags() | ASTNode.MALFORMED);
 			}
 		}
 		variableDeclarationFragment.setSourceRange(localDeclaration.sourceStart, end - localDeclaration.sourceStart + 1);
-		variableDeclarationFragment.setExtraDimensions(retrieveExtraDimension(localDeclaration.sourceEnd + 1, this.compilationUnitSourceLength));
 		if (this.resolveBindings) {
 			recordNodes(variableDeclarationFragment, localDeclaration);
 			recordNodes(name, localDeclaration);
@@ -4155,26 +4162,33 @@ class ASTConverter {
 
 	/**
 	 * This method is used to retrieve position before the next comma or semi-colon.
+	 * @param initializerEnd the given initializer end exclusive
 	 * @return int the position found.
 	 */
-	protected int retrievePositionBeforeNextCommaOrSemiColon(int start, int end) {
-		this.scanner.resetTo(start, end);
+	protected int retrieveEndOfPotentialExtendedDimensions(int initializerEnd, int nameEnd, int end) {
+		this.scanner.resetTo(initializerEnd, end);
 		try {
 			int token;
 			int balance = 0;
+			int pos = initializerEnd > nameEnd ? initializerEnd - 1 : nameEnd;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameLBRACE :
+					case TerminalTokens.TokenNameLBRACKET :
 						balance++;
 						break;
+					case TerminalTokens.TokenNameRBRACKET :
 					case TerminalTokens.TokenNameRBRACE :
 						balance --;
+						pos = this.scanner.currentPosition - 1;
 						break;
 					case TerminalTokens.TokenNameCOMMA :
-						if (balance == 0) return this.scanner.startPosition - 1;
+						if (balance == 0) return pos;
+						// case where a missing closing brace doesn't close an array initializer
+						pos = this.scanner.currentPosition - 1;
 						break;
 					case TerminalTokens.TokenNameSEMICOLON :
-						return this.scanner.startPosition - 1;
+						return pos;
 				}
 			}
 		} catch(InvalidInputException e) {
