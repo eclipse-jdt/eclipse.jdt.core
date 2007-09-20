@@ -1364,7 +1364,7 @@ public void test047() {
 // labeled loop
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200158
 // contrast this with test049
-public void _test048() {
+public void test048() {
 	runTest(
 		new String[] {
 			"X.java",
