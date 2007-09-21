@@ -120,7 +120,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 631 };
+//		TESTS_NUMBERS =  new int[] { 631, 686 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -7239,6 +7239,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, fragments.size());
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		checkSourceRange(fragment, "s =  {\"\",,,", source);
+		assertTrue("Not initializer", fragment.getInitializer() == null);
+		assertTrue("Not a malformed node", isMalformed(fragment));
 	}
 
 	/**
@@ -9492,9 +9494,11 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			fragments = expression.fragments();
 			assertEquals("Wrong size", 2, fragments.size());
 			fragment = (VariableDeclarationFragment) fragments.get(0);
+			assertFalse("Not a malformed node", isMalformed(fragment));
 			checkSourceRange(fragment, "i", contents);
 			fragment = (VariableDeclarationFragment) fragments.get(1);
 			checkSourceRange(fragment, "j", contents);
+			assertFalse("Not a malformed node", isMalformed(fragment));
 
 			node = getASTNode(unit, 0, 1);
 			assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
@@ -9503,8 +9507,10 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertEquals("Wrong size", 2, fragments.size());
 			fragment = (VariableDeclarationFragment) fragments.get(0);
 			checkSourceRange(fragment, "n", contents);
+			assertFalse("Not a malformed node", isMalformed(fragment));
 			fragment = (VariableDeclarationFragment) fragments.get(1);
 			checkSourceRange(fragment, "m", contents);
+			assertFalse("Not a malformed node", isMalformed(fragment));
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();

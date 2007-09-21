@@ -2974,7 +2974,7 @@ class ASTConverter {
 		name.internalSetIdentifier(new String(fieldDeclaration.name));
 		name.setSourceRange(fieldDeclaration.sourceStart, fieldDeclaration.sourceEnd - fieldDeclaration.sourceStart + 1);
 		variableDeclarationFragment.setName(name);
-		int start = fieldDeclaration.sourceEnd; // need the exclusive range for retrieveEndOfPotentialExtendedDimensions
+		int start = fieldDeclaration.sourceEnd;
 		int end = start;
 		int extraDimensions = retrieveExtraDimension(fieldDeclaration.sourceEnd + 1, fieldDeclaration.declarationSourceEnd );
 		variableDeclarationFragment.setExtraDimensions(extraDimensions);
@@ -2986,10 +2986,15 @@ class ASTConverter {
 		} else {
 			// we need to do it even if extendedDimension is null in case of syntax error in an array initializer
 			// need the exclusive range for retrieveEndOfPotentialExtendedDimensions
-			end = retrieveEndOfPotentialExtendedDimensions(start + 1, fieldDeclaration.sourceEnd, fieldDeclaration.declarationSourceEnd);
-			if (end == -1) {
+			int possibleEnd = retrieveEndOfPotentialExtendedDimensions(start + 1, fieldDeclaration.sourceEnd, fieldDeclaration.declarationSourceEnd);
+			if (possibleEnd == Integer.MIN_VALUE) {
 				end = fieldDeclaration.declarationSourceEnd;
 				variableDeclarationFragment.setFlags(variableDeclarationFragment.getFlags() | ASTNode.MALFORMED);
+			} if (possibleEnd < 0) {
+				end = -possibleEnd;
+				variableDeclarationFragment.setFlags(variableDeclarationFragment.getFlags() | ASTNode.MALFORMED);
+			} else {
+				end = possibleEnd;
 			}
 		}
 		variableDeclarationFragment.setSourceRange(fieldDeclaration.sourceStart, end - fieldDeclaration.sourceStart + 1);
@@ -3012,7 +3017,7 @@ class ASTConverter {
 		int extraDimension = retrieveExtraDimension(localDeclaration.sourceEnd + 1, this.compilationUnitSourceLength);
 		variableDeclarationFragment.setExtraDimensions(extraDimension);
 		boolean hasInitialization = initialization != null;
-		int end = start;
+		int end;
 		if (hasInitialization) {
 			final Expression expression = convert(initialization);
 			variableDeclarationFragment.setInitializer(expression);
@@ -3022,10 +3027,14 @@ class ASTConverter {
 			// we need to do it even if extendedDimension is null in case of syntax error in an array initializer
 			// start + 1 because we need the exclusive range for retrieveEndOfPotentialExtendedDimensions
 			int possibleEnd = retrieveEndOfPotentialExtendedDimensions(start + 1, localDeclaration.sourceEnd, localDeclaration.declarationSourceEnd);
-			if (possibleEnd != -1) {
-				end = possibleEnd;
-			} else {
+			if (possibleEnd == Integer.MIN_VALUE) {
+				end = start;
 				variableDeclarationFragment.setFlags(variableDeclarationFragment.getFlags() | ASTNode.MALFORMED);
+			} else if (possibleEnd < 0) {
+				end = -possibleEnd;
+				variableDeclarationFragment.setFlags(variableDeclarationFragment.getFlags() | ASTNode.MALFORMED);
+			} else {
+				end = possibleEnd;
 			}
 		}
 		variableDeclarationFragment.setSourceRange(localDeclaration.sourceStart, end - localDeclaration.sourceStart + 1);
@@ -4167,11 +4176,13 @@ class ASTConverter {
 	 */
 	protected int retrieveEndOfPotentialExtendedDimensions(int initializerEnd, int nameEnd, int end) {
 		this.scanner.resetTo(initializerEnd, end);
+		boolean hasTokens = false;
+		int balance = 0;
+		int pos = initializerEnd > nameEnd ? initializerEnd - 1 : nameEnd;
 		try {
 			int token;
-			int balance = 0;
-			int pos = initializerEnd > nameEnd ? initializerEnd - 1 : nameEnd;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				hasTokens = true;
 				switch(token) {
 					case TerminalTokens.TokenNameLBRACE :
 					case TerminalTokens.TokenNameLBRACKET :
@@ -4188,13 +4199,15 @@ class ASTConverter {
 						pos = this.scanner.currentPosition - 1;
 						break;
 					case TerminalTokens.TokenNameSEMICOLON :
-						return pos;
+						if (balance == 0) return pos;
+						return -pos;
 				}
 			}
 		} catch(InvalidInputException e) {
 			// ignore
 		}
-		return -1;
+		// no token, we simply return pos as the right position
+		return hasTokens ? Integer.MIN_VALUE : pos;
 	}
 
 	protected int retrieveProperRightBracketPosition(int bracketNumber, int start) {
