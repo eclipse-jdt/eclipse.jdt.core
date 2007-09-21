@@ -39,7 +39,7 @@ public class ClassLiteralAccess extends Expression {
 		SourceTypeBinding sourceType = currentScope.outerMostClassScope().enclosingSourceType();
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=22334
 		if (!sourceType.isInterface()
-				&& !sourceType.isBaseType()
+				&& !targetType.isBaseType()
 				&& currentScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) {
 			syntheticField = sourceType.addSyntheticFieldForClassLiteral(targetType, currentScope);
 		}

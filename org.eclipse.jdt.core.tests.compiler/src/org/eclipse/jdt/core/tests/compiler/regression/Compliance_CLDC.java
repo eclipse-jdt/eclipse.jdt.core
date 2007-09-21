@@ -211,4 +211,54 @@ public void test002() {
 		"        [pc: 181, full, stack: {java.io.PrintStream, int}, locals: {java.lang.String[]}]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+public void test003() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"			System.out.print(int.class != null);\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"true");
+	
+	String expectedOutput =
+		"// Compiled from X.java (version 1.1 : 45.3, super bit)\n" + 
+		"public class X {\n" + 
+		"  \n" + 
+		"  // Method descriptor #6 ()V\n" + 
+		"  // Stack: 1, Locals: 1\n" + 
+		"  public X();\n" + 
+		"    0  aload_0 [this]\n" + 
+		"    1  invokespecial java.lang.Object() [8]\n" + 
+		"    4  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 1]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+		"  \n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 1\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"     3  getstatic java.lang.Integer.TYPE : java.lang.Class [22]\n" + 
+		"     6  ifnull 13\n" + 
+		"     9  iconst_1\n" + 
+		"    10  goto 14\n" + 
+		"    13  iconst_0\n" + 
+		"    14  invokevirtual java.io.PrintStream.print(boolean) : void [28]\n" + 
+		"    17  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 4]\n" + 
+		"        [pc: 17, line: 5]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 18] local: args index: 0 type: java.lang.String[]\n" + 
+		"      Stack map : number of frames 2\n" + 
+		"        [pc: 13, full, stack: {java.io.PrintStream}, locals: {java.lang.String[]}]\n" + 
+		"        [pc: 14, full, stack: {java.io.PrintStream, int}, locals: {java.lang.String[]}]\n" + 
+		"}";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
 }
