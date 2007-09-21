@@ -245,7 +245,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		try {
 			if (!root.isOpen()) {
 				PackageFragmentRootInfo info = root.isArchive() ? new JarPackageFragmentRootInfo() : new PackageFragmentRootInfo();
-				((PackageFragmentRoot) root).computeChildren(info, new HashMap());
+				((PackageFragmentRoot) root).computeChildren(info);
 				frags = info.children;
 			} else 
 				frags = root.getChildren();
@@ -253,7 +253,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 			// root doesn't exist: ignore
 			return;
 		}
-		for (int j = 0, length2 = frags.length; j < length2; j++) {
+		for (int j = 0, length = frags.length; j < length; j++) {
 			fragmentsCache.add(((PackageFragment) frags[j]).names);
 		}
 	}

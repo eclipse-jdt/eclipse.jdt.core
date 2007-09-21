@@ -152,14 +152,8 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
  * @see Openable
  */
 protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
-	
-	// check whether this pkg fragment root can be opened
-	IStatus status = validateOnClasspath();
-	if (!status.isOK()) throw newJavaModelException(status);
-	if (!resourceExists()) throw newNotPresentException();
-
 	((PackageFragmentRootInfo) info).setRootKind(determineKind(underlyingResource));
-	return computeChildren(info, newElements);
+	return computeChildren(info);
 }
 
 SourceMapper createSourceMapper(IPath sourcePath, IPath rootPath) {
@@ -187,7 +181,7 @@ public void delete(
  * 
  * @exception JavaModelException  The resource associated with this package fragment root does not exist
  */
-protected boolean computeChildren(OpenableElementInfo info, Map newElements) throws JavaModelException {
+protected boolean computeChildren(OpenableElementInfo info) throws JavaModelException {
 	// Note the children are not opened (so not added to newElements) for a regular package fragment root
 	// Howver they are opened for a Jar package fragment root (see JarPackageFragmentRoot#computeChildren)
 	try {
@@ -332,13 +326,6 @@ public boolean equals(Object o) {
 	PackageFragmentRoot other = (PackageFragmentRoot) o;
 	return this.resource.equals(other.resource) && 
 			this.parent.equals(other.parent);
-}
-
-/**
- * @see IJavaElement
- */
-public boolean exists() {
-	return super.exists() && validateOnClasspath().isOK();
 }
 
 private IClasspathEntry findSourceAttachmentRecommendation() {
@@ -790,6 +777,16 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 	if (info == null) {
 		buffer.append(" (not open)"); //$NON-NLS-1$
 	}
+}
+
+protected IStatus validateExistence(IResource underlyingResource) {
+	// check whether this pkg fragment root can be opened
+	IStatus status = validateOnClasspath();
+	if (!status.isOK()) 
+		return status;
+	if (!resourceExists(underlyingResource)) 
+		return newDoesNotExistStatus();
+	return JavaModelStatus.VERIFIED_OK;
 }
 
 /**

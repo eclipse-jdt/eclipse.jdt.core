@@ -385,12 +385,6 @@ public class JavaProject
 	 * @see Openable
 	 */
 	protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
-	
-		// check whether the java project can be opened
-		if (!hasJavaNature((IProject) underlyingResource)) {
-			throw newNotPresentException();
-		}
-		
 		// cannot refresh cp markers on opening (emulate cp check on startup) since can create deadlocks (see bug 37274)
 		IClasspathEntry[] resolvedClasspath = getResolvedClasspath();
 
@@ -1006,15 +1000,6 @@ public class JavaProject
 	
 		JavaProject other = (JavaProject) o;
 		return this.project.equals(other.getProject());
-	}
-
-	public boolean exists() {
-		try {
-			return this.project.hasNature(JavaCore.NATURE_ID);
-		} catch (CoreException e) {
-			// project does not exist or is not open
-		}
-		return false;
 	}
 
 	/**
@@ -2967,4 +2952,15 @@ public class JavaProject
 			}
 		}
 	 }
+	 
+	protected IStatus validateExistence(IResource underlyingResource) {
+		// check whether the java project can be opened
+		try {
+			if (!((IProject) underlyingResource).hasNature(JavaCore.NATURE_ID))
+				return newDoesNotExistStatus();
+		} catch (CoreException e) {
+			return newDoesNotExistStatus();
+		}
+		return JavaModelStatus.VERIFIED_OK;
+	}
 }

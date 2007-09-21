@@ -2942,39 +2942,28 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/*
 	 * Puts the infos in the given map (keys are IJavaElements and values are JavaElementInfos)
 	 * in the Java model cache in an atomic way.
-	 * First checks that the info for the opened element (or one of its ancestors) has not been 
-	 * added to the cache. If it is the case, another thread has opened the element (or one of
-	 * its ancestors). So returns without updating the cache.
 	 */
 	protected synchronized void putInfos(IJavaElement openedElement, Map newElements) {
-		// remove children
+		// remove existing children as the are replaced with the new children contained in newElements
 		Object existingInfo = this.cache.peekAtInfo(openedElement);
-		if (openedElement instanceof IParent && existingInfo instanceof JavaElementInfo) {
-			IJavaElement[] children = ((JavaElementInfo)existingInfo).getChildren();
-			for (int i = 0, size = children.length; i < size; ++i) {
-				JavaElement child = (JavaElement) children[i];
-				try {
-					child.close();
-				} catch (JavaModelException e) {
-					// ignore
-				}
-			}
+		if (openedElement instanceof IParent) {
+			closeChildren(existingInfo);
 		}
 		
 		// Need to put any JarPackageFragmentRoot in first.
 		// This is due to the way the LRU cache flushes entries.
-		// When a JarPackageFragment is flused from the LRU cache, the entire
+		// When a JarPackageFragment is flushed from the LRU cache, the entire
 		// jar is flushed by removing the JarPackageFragmentRoot and all of its
 		// children (see ElementCache.close()). If we flush the JarPackageFragment 
 		// when its JarPackageFragmentRoot is not in the cache and the root is about to be 
-		// added (during the 'while' loop), we will end up in an inconsist state. 
+		// added (during the 'while' loop), we will end up in an inconsistent state. 
 		// Subsequent resolution against package in the jar would fail as a result.
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102422
 		// (theodora)
 		for(Iterator it = newElements.entrySet().iterator(); it.hasNext(); ) {
 			Map.Entry entry = (Map.Entry)it.next();
 			IJavaElement element = (IJavaElement)entry.getKey();
-			if( element instanceof JarPackageFragmentRoot ){
+			if (element instanceof JarPackageFragmentRoot) {
 				Object info = entry.getValue();
 				it.remove();
 				this.cache.putInfo(element, info);
@@ -2985,6 +2974,20 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		while (iterator.hasNext()) {
 			Map.Entry entry = (Map.Entry) iterator.next();
 			this.cache.putInfo((IJavaElement) entry.getKey(), entry.getValue());
+		}
+	}
+
+	private void closeChildren(Object info) {
+		if (info instanceof JavaElementInfo) {
+			IJavaElement[] children = ((JavaElementInfo)info).getChildren();
+			for (int i = 0, size = children.length; i < size; ++i) {
+				JavaElement child = (JavaElement) children[i];
+				try {
+					child.close();
+				} catch (JavaModelException e) {
+					// ignore
+				}
+			}
 		}
 	}
 	
@@ -3132,12 +3135,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					JavaModelCache.VERBOSE = false;
 				}
 				element.closing(info);
-				if (element instanceof IParent && info instanceof JavaElementInfo) {
-					IJavaElement[] children = ((JavaElementInfo)info).getChildren();
-					for (int i = 0, size = children.length; i < size; ++i) {
-						JavaElement child = (JavaElement) children[i];
-						child.close();
-					}
+				if (element instanceof IParent) {
+					closeChildren(info);
 				}
 				this.cache.removeInfo(element);
 				if (wasVerbose) {

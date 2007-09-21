@@ -79,11 +79,6 @@ public ICompilationUnit becomeWorkingCopy(IProblemRequestor problemRequestor, Wo
  * @see Signature
  */
 protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
-	// check whether the class file can be opened
-	IStatus status = validateClassFile();
-	if (!status.isOK()) throw newJavaModelException(status);
-	if (underlyingResource != null && !underlyingResource.isAccessible()) throw newNotPresentException();
-
 	IBinaryType typeInfo = getBinaryTypeInfo((IFile) underlyingResource);
 	if (typeInfo == null) {
 		// The structure of a class file is unknown if a class file format errors occurred
@@ -175,9 +170,6 @@ public boolean equals(Object o) {
 	if (!(o instanceof ClassFile)) return false;
 	ClassFile other = (ClassFile) o;
 	return this.name.equals(other.name) && this.parent.equals(other.parent);
-}
-public boolean exists() {
-	return super.exists() && validateClassFile().isOK();
 }
 public boolean existsUsingJarTypeCache() {
 	if (getPackageFragmentRoot().isArchive()) {
@@ -792,5 +784,15 @@ public void codeComplete(int offset, final org.eclipse.jdt.core.ICodeCompletionR
 				// ignore
 			}
 		});
+}
+
+protected IStatus validateExistence(IResource underlyingResource) {
+	// check whether the class file can be opened
+	IStatus status = validateClassFile();
+	if (!status.isOK()) 
+		return status;
+	if (underlyingResource != null && !underlyingResource.isAccessible()) 
+		return newDoesNotExistStatus();
+	return JavaModelStatus.VERIFIED_OK;
 }
 }

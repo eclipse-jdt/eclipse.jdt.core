@@ -116,7 +116,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 
 	// test javadoc for a package fragment
 	public void test001() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		String javadoc = packageFragment.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
@@ -124,7 +124,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 
 	// for a class file
 	public void test002() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -134,7 +134,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 
 	// for a field
 	public void test003() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -147,7 +147,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 
 	// for a method
 	public void test004() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -166,7 +166,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 
 	// for a constructor
 	public void test005() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -183,7 +183,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// for a member type
 	public void test006() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("X$A.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -193,7 +193,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// for a constructor
 	public void test007() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("X$A.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -210,7 +210,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// for a method foo2
 	public void test008() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -226,7 +226,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// for a field f2
 	public void test009() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -267,7 +267,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 				}
 			}
 			this.project.setRawClasspath(entries, null);
-			IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+			IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 			assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 			IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
 			assertNotNull(classFile);
@@ -286,7 +286,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120597
 	public void test011() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("Z.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -299,7 +299,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120637
 	public void test012() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("Z.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -310,7 +310,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559
 	public void test013() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("W.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -320,7 +320,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120637
 	public void test014() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("E.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -331,7 +331,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120637
 	public void test015() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("Annot.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -356,7 +356,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 				}
 			}
 			this.project.setRawClasspath(entries, null);
-			IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+			IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 			assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 			IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
 			assertNotNull(classFile);
@@ -378,7 +378,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=120875
 	public void test017() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("Annot2.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -389,7 +389,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=138167
 	public void test018() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2/p3"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2.p3"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("C.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -407,7 +407,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=138167
 	public void test019() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2/p3"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2.p3"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("C.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -426,7 +426,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=139160
 	public void test020() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("Z.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
@@ -484,7 +484,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149154
 	public void test022() throws JavaModelException {
-		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
 		assertNotNull(classFile);

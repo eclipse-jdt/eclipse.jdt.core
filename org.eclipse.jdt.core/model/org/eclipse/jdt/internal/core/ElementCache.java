@@ -46,14 +46,7 @@ protected boolean close(LRUCacheEntry entry) {
 		if (!element.canBeRemovedFromCache()) {
 			return false;
 		} else {
-			// We must close an entire JarPackageFragmentRoot at once.
-			if (element instanceof JarPackageFragment) {
-				JarPackageFragment packageFragment= (JarPackageFragment) element;
-				JarPackageFragmentRoot root = (JarPackageFragmentRoot) packageFragment.getParent();
-				root.close();
-			} else {
-				element.close();
-			}
+			element.close();
 			return true;
 		}
 	} catch (JavaModelException npe) {
@@ -62,11 +55,12 @@ protected boolean close(LRUCacheEntry entry) {
 }
 
 /*
- * Ensures that there is enough room for adding the given number of children.
+ * Ensures that there is enough room for adding the children of the given info.
  * If the space limit must be increased, record the parent that needed this space limit.
  */
-protected void ensureSpaceLimit(int childrenSize, IJavaElement parent) {
+protected void ensureSpaceLimit(Object info, IJavaElement parent) {
 	// ensure the children can be put without closing other elements
+	int childrenSize = ((JavaElementInfo) info).children.length;
 	int spaceNeeded = 1 + (int)((1 + fLoadFactor) * (childrenSize + fOverflow));
 	if (fSpaceLimit < spaceNeeded) {
 		// parent is being opened with more children than the space limit

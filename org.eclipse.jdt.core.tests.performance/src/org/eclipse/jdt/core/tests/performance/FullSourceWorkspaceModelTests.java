@@ -21,6 +21,7 @@ import junit.framework.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -83,6 +84,7 @@ private static Class testClass() {
 protected void setUp() throws Exception {
 	super.setUp();
 	setUpBigProject();
+	setUpBigJars();
 }
 private void setUpBigProject() throws CoreException, IOException {
 	try {
@@ -170,6 +172,36 @@ private void setUpBigProject() throws CoreException, IOException {
 		// do not delete project
 	}
 	
+}
+private void setUpBigJars() throws Exception {
+	String bigProjectLocation = BIG_PROJECT.getResource().getLocation().toOSString();
+	int size = PACKAGES_COUNT * 10;
+	File bigJar1 = new File(bigProjectLocation, BIG_JAR1_NAME);
+	if (!bigJar1.exists()) {
+		String[] pathAndContents = new String[size * 2];
+		for (int i = 0; i < size; i++) {
+			pathAndContents[i*2] = "/p" + i + "/X" + i + ".java";
+			pathAndContents[i*2 + 1] = 
+				"package p" + i + ";\n" +
+				"public class X" + i + "{\n" +
+				"}";
+		}
+		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, bigJar1.getPath(), "1.3");
+		BIG_PROJECT.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+	}
+	File bigJar2 = new File(bigProjectLocation, BIG_JAR2_NAME);
+	if (!bigJar2.exists()) {
+		String[] pathAndContents = new String[size * 2];
+		for (int i = 0; i < size; i++) {
+			pathAndContents[i*2] = "/q" + i + "/Y" + i + ".java";
+			pathAndContents[i*2 + 1] = 
+				"package q" + i + ";\n" +
+				"public class Y" + i + "{\n" +
+				"}";
+		}
+		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, bigJar2.getPath(), "1.3");
+		BIG_PROJECT.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+	}
 }
 /* (non-Javadoc)
  * @see junit.framework.TestCase#tearDown()
@@ -739,6 +771,58 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 	commitMeasurements();
 	assertPerformance();
 
+}
+
+/*
+ * Performance test for the opening of class files in 2 big jars (that each would fill the Java model cache if all pkgs were opened).
+ * (see bug 190094 Java Outline Causes Eclipse Lock-up.)
+ */
+public void testPopulateTwoBigJars() throws CoreException {
+	
+	IJavaProject project = null;
+	try {
+		project = createJavaProject("HugeJarProject");
+		IFile bigJar1 = BIG_PROJECT.getProject().getFile(BIG_JAR1_NAME);
+		IFile bigJar2 = BIG_PROJECT.getProject().getFile(BIG_JAR2_NAME);
+		project.setRawClasspath(
+			new IClasspathEntry[] {
+				JavaCore.newLibraryEntry(bigJar1.getFullPath(), null, null),
+				JavaCore.newLibraryEntry(bigJar2.getFullPath(), null, null),
+			}, null);
+		AbstractJavaModelTests.waitUntilIndexesReady();
+		AbstractJavaModelTests.waitForAutoBuild();
+		IPackageFragmentRoot root1 = project.getPackageFragmentRoot(bigJar1);
+		IPackageFragmentRoot root2 = project.getPackageFragmentRoot(bigJar2);
+		
+		// warm up
+		int max = 20;
+		int warmup = WARMUP_COUNT / 10;
+		for (int i = 0; i < warmup; i++) {
+			project.close();
+			for (int j = 0; j < max; j++) {
+				root1.getPackageFragment("p" + j).open(null);
+				root2.getPackageFragment("q" + j).open(null);
+			}
+		}
+			
+		// measure performance
+		for (int i = 0; i < MEASURES_COUNT; i++) {
+			project.close();
+			runGc();
+			startMeasuring();
+			for (int j = 0; j < max; j++) {
+				root1.getPackageFragment("p" + j).open(null);
+				root2.getPackageFragment("q" + j).open(null);
+			}
+			stopMeasuring();
+		}
+	
+		commitMeasurements();
+		assertPerformance();
+	} finally {
+		if (project != null)
+			project.getProject().delete(false, null);
+	}
 }
 
 /*

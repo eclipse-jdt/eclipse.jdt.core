@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	
-	public final static ArrayList EMPTY_LIST = new ArrayList();
+	private final static ArrayList EMPTY_LIST = new ArrayList();
 	
 	/**
 	 * The path to the jar file
@@ -66,47 +66,32 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 * Compute the package fragment children of this package fragment root.
 	 * These are all of the directory zip entries, and any directories implied
 	 * by the path of class files contained in the jar of this package fragment root.
-	 * Has the side effect of opening the package fragment children.
 	 */
-	protected boolean computeChildren(OpenableElementInfo info, Map newElements) throws JavaModelException {
-		
-		ArrayList vChildren= new ArrayList();
-		final int JAVA = 0;
-		final int NON_JAVA = 1;
-		ZipFile jar= null;
+	protected boolean computeChildren(OpenableElementInfo info) throws JavaModelException {
+		HashtableOfArrayToObject rawPackageInfo = new HashtableOfArrayToObject();
+		IJavaElement[] children;
+		ZipFile jar = null;
 		try {
-			jar= getJar();
-	
-			HashtableOfArrayToObject packageFragToTypes= new HashtableOfArrayToObject();
-	
 			// always create the default package
-			packageFragToTypes.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
+			rawPackageInfo.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
 	
+			IJavaProject project = getJavaProject();
+			String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
+			String compliance = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+			jar = getJar();
 			for (Enumeration e= jar.entries(); e.hasMoreElements();) {
 				ZipEntry member= (ZipEntry) e.nextElement();
-				initPackageFragToTypes(packageFragToTypes, member.getName(), member.isDirectory());
+				initRawPackageInfo(rawPackageInfo, member.getName(), member.isDirectory(), sourceLevel, compliance);
 			}
 			
-			//loop through all of referenced packages, creating package fragments if necessary
-			// and cache the entry names in the infos created for those package fragments
-			for (int i = 0, length = packageFragToTypes.keyTable.length; i < length; i++) {
-				String[] pkgName = (String[]) packageFragToTypes.keyTable[i];
+			//l oop through all of referenced packages, creating package fragments if necessary
+			// and cache the entry names in the rawPackageInfo table
+			children = new IJavaElement[rawPackageInfo.size()];
+			int index = 0;
+			for (int i = 0, length = rawPackageInfo.keyTable.length; i < length; i++) {
+				String[] pkgName = (String[]) rawPackageInfo.keyTable[i];
 				if (pkgName == null) continue;
-				
-				ArrayList[] entries= (ArrayList[]) packageFragToTypes.get(pkgName);
-				JarPackageFragment packFrag= (JarPackageFragment) getPackageFragment(pkgName);
-				JarPackageFragmentInfo fragInfo= new JarPackageFragmentInfo();
-				int resLength= entries[NON_JAVA].size();
-				if (resLength == 0) {
-					packFrag.computeNonJavaResources(CharOperation.NO_STRINGS, packFrag, fragInfo, jar.getName());
-				} else {
-					String[] resNames= new String[resLength];
-					entries[NON_JAVA].toArray(resNames);
-					packFrag.computeNonJavaResources(resNames, packFrag, fragInfo, jar.getName());
-				}
-				packFrag.computeChildren(fragInfo, entries[JAVA]);
-				newElements.put(packFrag, fragInfo);
-				vChildren.add(packFrag);
+				children[index++] = getPackageFragment(pkgName);
 			}
 		} catch (CoreException e) {
 			if (e instanceof JavaModelException) throw (JavaModelException)e;
@@ -114,11 +99,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		} finally {
 			JavaModelManager.getJavaModelManager().closeZipFile(jar);
 		}
-
-
-		IJavaElement[] children= new IJavaElement[vChildren.size()];
-		vChildren.toArray(children);
+		
 		info.setChildren(children);
+		((JarPackageFragmentRootInfo) info).rawPackageInfo = rawPackageInfo;
 		return true;
 	}
 	/**
@@ -222,28 +205,27 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	public int hashCode() {
 		return this.jarPath.hashCode();
 	}
-	private void initPackageFragToTypes(HashtableOfArrayToObject packageFragToTypes, String entryName, boolean isDirectory) {
+	private void initRawPackageInfo(HashtableOfArrayToObject rawPackageInfo, String entryName, boolean isDirectory, String sourceLevel, String compliance) {
 		int lastSeparator = isDirectory ? entryName.length()-1 : entryName.lastIndexOf('/');
 		String[] pkgName = Util.splitOn('/', entryName, 0, lastSeparator);
 		String[] existing = null;
 		int length = pkgName.length;
 		int existingLength = length;
 		while (existingLength >= 0) {
-			existing = (String[]) packageFragToTypes.getKey(pkgName, existingLength);
+			existing = (String[]) rawPackageInfo.getKey(pkgName, existingLength);
 			if (existing != null) break;
 			existingLength--;
 		}
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		IJavaProject project = getJavaProject();
 		for (int i = existingLength; i < length; i++) {
-			if (Util.isValidFolderNameForPackage(pkgName[i], project.getOption(JavaCore.COMPILER_SOURCE, true), project.getOption(JavaCore.COMPILER_COMPLIANCE, true))) {
+			if (Util.isValidFolderNameForPackage(pkgName[i], sourceLevel, compliance)) {
 				System.arraycopy(existing, 0, existing = new String[i+1], 0, i);
 				existing[i] = manager.intern(pkgName[i]);
-				packageFragToTypes.put(existing, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
+				rawPackageInfo.put(existing, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
 			} else {
 				// non-Java resource folder
 				if (!isDirectory) {
-					ArrayList[] children = (ArrayList[]) packageFragToTypes.get(existing);
+					ArrayList[] children = (ArrayList[]) rawPackageInfo.get(existing);
 					if (children[1/*NON_JAVA*/] == EMPTY_LIST) children[1/*NON_JAVA*/] = new ArrayList();
 					children[1/*NON_JAVA*/].add(entryName);
 				}
@@ -254,11 +236,11 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			return;
 		
 		// add classfile info amongst children
-		ArrayList[] children = (ArrayList[]) packageFragToTypes.get(pkgName);
+		ArrayList[] children = (ArrayList[]) rawPackageInfo.get(pkgName);
 		if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
 			if (children[0/*JAVA*/] == EMPTY_LIST) children[0/*JAVA*/] = new ArrayList();
-			String fileName = entryName.substring(lastSeparator + 1);
-			children[0/*JAVA*/].add(fileName);
+			String nameWithoutExtension = entryName.substring(lastSeparator + 1, entryName.length() - 6);
+			children[0/*JAVA*/].add(nameWithoutExtension);
 		} else {
 			if (children[1/*NON_JAVA*/] == EMPTY_LIST) children[1/*NON_JAVA*/] = new ArrayList();
 			children[1/*NON_JAVA*/].add(entryName);
@@ -287,15 +269,15 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	/**
  * Returns whether the corresponding resource or associated file exists
  */
-protected boolean resourceExists() {
-	if (this.isExternal()) {
+protected boolean resourceExists(IResource underlyingResource) {
+	if (underlyingResource == null) {
 		return 
 			JavaModel.getTarget(
 				ResourcesPlugin.getWorkspace().getRoot(), 
-				this.getPath(), // don't make the path relative as this is an external archive
+				getPath(), // don't make the path relative as this is an external archive
 				true) != null;
 	} else {
-		return super.resourceExists();
+		return super.resourceExists(underlyingResource);
 	}
 }
 protected void toStringAncestors(StringBuffer buffer) {

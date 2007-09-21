@@ -37,7 +37,7 @@ public class JavaModelCache {
 	/**
 	 * Active Java Model Info
 	 */
-	protected JavaModelInfo modelInfo;
+	protected Object modelInfo;
 	
 	/**
 	 * Cache of open projects.
@@ -157,19 +157,19 @@ protected Object peekAtInfo(IJavaElement element) {
 protected void putInfo(IJavaElement element, Object info) {
 	switch (element.getElementType()) {
 		case IJavaElement.JAVA_MODEL:
-			this.modelInfo = (JavaModelInfo) info;
+			this.modelInfo = info;
 			break;
 		case IJavaElement.JAVA_PROJECT:
 			this.projectCache.put(element, info);
-			this.rootCache.ensureSpaceLimit(((JavaElementInfo) info).children.length, element);
+			this.rootCache.ensureSpaceLimit(info, element);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			this.rootCache.put(element, info);
-			this.pkgCache.ensureSpaceLimit(((JavaElementInfo) info).children.length, element);
+			this.pkgCache.ensureSpaceLimit(info, element);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT:
 			this.pkgCache.put(element, info);
-			this.openableCache.ensureSpaceLimit(((JavaElementInfo) info).children.length, element);
+			this.openableCache.ensureSpaceLimit(info, element);
 			break;
 		case IJavaElement.COMPILATION_UNIT:
 		case IJavaElement.CLASS_FILE:

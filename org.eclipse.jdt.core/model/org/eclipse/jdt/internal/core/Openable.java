@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.PerformanceStats;
 import org.eclipse.jdt.core.*;
@@ -173,15 +174,30 @@ protected Object createElementInfo() {
  * @see IJavaElement
  */
 public boolean exists() {
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	if (manager.getInfo(this) != null) return true;
-	if (!parentExists()) return false;
-	PackageFragmentRoot root = getPackageFragmentRoot();
-	if (root != null
-			&& (root == this || !root.isArchive())) {
-		return resourceExists();
+	if (JavaModelManager.getJavaModelManager().getInfo(this) != null) 
+		return true;
+	switch (getElementType()) {
+		case IJavaElement.PACKAGE_FRAGMENT:
+			PackageFragmentRoot root = getPackageFragmentRoot();
+			if (root.isArchive()) {
+				// pkg in a jar -> need to open root to know if this pkg exists
+				JarPackageFragmentRootInfo rootInfo;
+				try {
+					rootInfo = (JarPackageFragmentRootInfo) root.getElementInfo();
+				} catch (JavaModelException e) {
+					return false;
+				}
+				return rootInfo.rawPackageInfo.containsKey(((PackageFragment) this).names);
+			}
+			break;
+		case IJavaElement.CLASS_FILE:
+			if (getPackageFragmentRoot().isArchive()) {
+				// class file in a jar -> need to open this class file to know if it exists
+				return super.exists();
+			}
+			break;
 	}
-	return super.exists();
+	return validateExistence(getResource()).isOK();
 }
 public String findRecommendedLineSeparator() throws JavaModelException {
 	IBuffer buffer = getBuffer();
@@ -214,8 +230,15 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 		System.out.println(Thread.currentThread() +" OPENING " + element + " " + this.toStringWithAncestors()); //$NON-NLS-1$//$NON-NLS-2$
 	}
 	
-	// open the parent if necessary
-	openParent(info, newElements, monitor);
+	// open its ancestors if needed
+	openAncestors(newElements, monitor);
+	
+	// validate existence
+	IResource underlResource = getResource();
+	IStatus status = validateExistence(underlResource);
+	if (!status.isOK())
+		throw newJavaModelException(status);
+	
 	if (monitor != null && monitor.isCanceled()) 
 		throw new OperationCanceledException();
 
@@ -226,7 +249,7 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	// build the structure of the openable (this will open the buffer if needed)
 	try {
 		OpenableElementInfo openableElementInfo = (OpenableElementInfo)info;
-		boolean isStructureKnown = buildStructure(openableElementInfo, monitor, newElements, getResource());
+		boolean isStructureKnown = buildStructure(openableElementInfo, monitor, newElements, underlResource);
 		openableElementInfo.setIsStructureKnown(isStructureKnown);
 	} catch (JavaModelException e) {
 		newElements.remove(this);
@@ -414,38 +437,10 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 }
 
 /**
- * Open the parent element if necessary.
- */
-protected void openParent(Object childInfo, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-
-	Openable openableParent = (Openable)getOpenableParent();
-	if (openableParent != null && !openableParent.isOpen()){
-		openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
-	}
-}
-
-/**
- *  Answers true if the parent exists (null parent is answering true)
- * 
- */
-protected boolean parentExists(){
-	
-	IJavaElement parentElement = getParent();
-	if (parentElement == null) return true;
-	return parentElement.exists();
-}
-
-/**
  * Returns whether the corresponding resource or associated file exists
  */
-protected boolean resourceExists() {
-	IWorkspace workspace = ResourcesPlugin.getWorkspace();
-	if (workspace == null) return false; // workaround for http://bugs.eclipse.org/bugs/show_bug.cgi?id=34069
-	return 
-		JavaModel.getTarget(
-			workspace.getRoot(), 
-			this.getPath().makeRelative(), // ensure path is relative (see http://dev.eclipse.org/bugs/show_bug.cgi?id=22517)
-			true) != null;
+protected boolean resourceExists(IResource underlyingResource) {
+	return underlyingResource.isAccessible();
 }
 
 /**
@@ -467,6 +462,21 @@ public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
  */
 public PackageFragmentRoot getPackageFragmentRoot() {
 	return (PackageFragmentRoot) getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+}
+
+/*
+ * Validates the existence of this openable. Returns a non ok status if it doesn't exist.
+ */
+abstract protected IStatus validateExistence(IResource underlyingResource);
+
+/*
+ * Opens the ancestors of this openable that are not yet opened, validating their existence.
+ */
+protected void openAncestors(HashMap newElements, IProgressMonitor monitor) throws JavaModelException {
+	Openable openableParent = (Openable)getOpenableParent();
+	if (openableParent != null && !openableParent.isOpen()) {
+		openableParent.generateInfos(openableParent.createElementInfo(), newElements, monitor);
+	}
 }
 
 }

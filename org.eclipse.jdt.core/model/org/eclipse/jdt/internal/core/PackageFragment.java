@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
@@ -64,21 +65,9 @@ protected PackageFragment(PackageFragmentRoot root, String[] names) {
  * @see Openable
  */
 protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
-
-	// check whether this pkg can be opened
-	if (!underlyingResource.isAccessible()) throw newNotPresentException();
-	
-	// check that it is not excluded (https://bugs.eclipse.org/bugs/show_bug.cgi?id=138577)
-	int kind = getKind();
-	if (kind == IPackageFragmentRoot.K_SOURCE && Util.isExcluded(this)) 
-		throw newNotPresentException();
-
-	// check that the name of the package is valid (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=108456)
-	if (!isValidPackageName())
-		throw newNotPresentException();
-
 	// add compilation units/class files from resources
 	HashSet vChildren = new HashSet();
+	int kind = getKind();
 	try {
 	    PackageFragmentRoot root = getPackageFragmentRoot();
 		char[][] inclusionPatterns = root.fullInclusionPatternChars();
@@ -505,5 +494,27 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
 		projectInfo.javadocCache.put(this, contents);
 	}
 	return contents;
+}
+
+protected IStatus validateExistence(IResource underlyingResource) {
+	// check that the name of the package is valid (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=108456)
+	if (!isValidPackageName())
+		return newDoesNotExistStatus();
+
+	// check whether this pkg can be opened
+	if (underlyingResource != null && !resourceExists(underlyingResource)) 
+		return newDoesNotExistStatus();
+	
+	// check that it is not excluded (https://bugs.eclipse.org/bugs/show_bug.cgi?id=138577)
+	int kind;
+	try {
+		kind = getKind();
+	} catch (JavaModelException e) {
+		return e.getStatus();
+	}
+	if (kind == IPackageFragmentRoot.K_SOURCE && Util.isExcluded(this)) 
+		return newDoesNotExistStatus();
+	
+	return JavaModelStatus.VERIFIED_OK;
 }
 }

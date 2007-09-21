@@ -41,95 +41,103 @@ protected JarPackageFragment(PackageFragmentRoot root, String[] names) {
 	super(root, names);
 }
 /**
- * Compute the children of this package fragment. Children of jar package fragments
- * can only be IClassFile (representing .class files).
+ * @see Openable
  */
-protected boolean computeChildren(OpenableElementInfo info, ArrayList entryNames) {
-	if (entryNames != null && entryNames.size() > 0) {
-		ArrayList vChildren = new ArrayList();
-		for (Iterator iter = entryNames.iterator(); iter.hasNext();) {
-			String child = (String) iter.next();
-			IClassFile classFile = getClassFile(child);
-			vChildren.add(classFile);
-		}
-		IJavaElement[] children= new IJavaElement[vChildren.size()];
-		vChildren.toArray(children);
-		info.setChildren(children);
-	} else {
-		info.setChildren(NO_ELEMENTS);
-	}
+protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+	JarPackageFragmentRoot root = (JarPackageFragmentRoot) getParent();
+	JarPackageFragmentRootInfo parentInfo = (JarPackageFragmentRootInfo) root.getElementInfo();
+	ArrayList[] entries = (ArrayList[]) parentInfo.rawPackageInfo.get(this.names);
+	if (entries == null)
+		throw newNotPresentException();
+	JarPackageFragmentInfo fragInfo = (JarPackageFragmentInfo) info;
+	
+	// compute children
+	fragInfo.setChildren(computeChildren(entries[0/*class files*/]));
+
+	// compute non-Java resources
+	fragInfo.setNonJavaResources(computeNonJavaResources(entries[1/*non Java resources*/]));
+	
+	newElements.put(this, fragInfo);
 	return true;
 }
 /**
- * Compute all the non-java resources according to the entry name found in the jar file.
+ * Compute the children of this package fragment. Children of jar package fragments
+ * can only be IClassFile (representing .class files).
  */
-/* package */ void computeNonJavaResources(String[] resNames, JarPackageFragment pkg, JarPackageFragmentInfo info, String zipName) {
-	if (resNames == null) {
-		info.setNonJavaResources(null);
-		return;
+private IJavaElement[] computeChildren(ArrayList namesWithoutExtension) {
+	int size = namesWithoutExtension.size();
+	if (size == 0)
+		return NO_ELEMENTS;
+	IJavaElement[] children = new IJavaElement[size];
+	for (int i = 0; i < size; i++) {
+		String nameWithoutExtension = (String) namesWithoutExtension.get(i);
+		children[i] = new ClassFile(this, nameWithoutExtension);
 	}
-	int max = resNames.length;
-	if (max == 0) {
-	    info.setNonJavaResources(JavaElementInfo.NO_NON_JAVA_RESOURCES);
-	} else {
-		HashMap jarEntries = new HashMap(); // map from IPath to IJarEntryResource
-		HashMap childrenMap = new HashMap(); // map from IPath to ArrayList<IJarEntryResource>
-		ArrayList topJarEntries = new ArrayList();
-		for (int i = 0; i < max; i++) {
-			String resName = resNames[i];
-			// consider that a .java file is not a non-java resource (see bug 12246 Packages view shows .class and .java files when JAR has source)
-			if (!Util.isJavaLikeFileName(resName)) {
-				IPath filePath = new Path(resName);
-				IPath childPath = filePath.removeFirstSegments(this.names.length);
-				JarEntryFile file = new JarEntryFile(filePath.lastSegment());
-				jarEntries.put(childPath, file);
-				if (childPath.segmentCount() == 1) {
-					file.setParent(pkg);
-					topJarEntries.add(file);
-				} else {
-					IPath parentPath = childPath.removeLastSegments(1);
-					while (parentPath.segmentCount() > 0) {
-						ArrayList parentChildren = (ArrayList) childrenMap.get(parentPath);
-						if (parentChildren == null) {
-							Object dir = new JarEntryDirectory(parentPath.lastSegment());
-							jarEntries.put(parentPath, dir);
-							childrenMap.put(parentPath, parentChildren = new ArrayList());
-							parentChildren.add(childPath);
-							if (parentPath.segmentCount() == 1) {
-								topJarEntries.add(dir);
-								break;
-							}
-							childPath = parentPath;
-							parentPath = childPath.removeLastSegments(1);
-						} else {
-							parentChildren.add(childPath);
-							break; // all parents are already registered
+	return children;
+}
+/**
+ * Compute all the non-java resources according to the given entry names.
+ */
+private Object[] computeNonJavaResources(ArrayList entryNames) {
+	int length = entryNames.size();
+	if (length == 0)
+		return JavaElementInfo.NO_NON_JAVA_RESOURCES;
+	HashMap jarEntries = new HashMap(); // map from IPath to IJarEntryResource
+	HashMap childrenMap = new HashMap(); // map from IPath to ArrayList<IJarEntryResource>
+	ArrayList topJarEntries = new ArrayList();
+	for (int i = 0; i < length; i++) {
+		String resName = (String) entryNames.get(i);
+		// consider that a .java file is not a non-java resource (see bug 12246 Packages view shows .class and .java files when JAR has source)
+		if (!Util.isJavaLikeFileName(resName)) {
+			IPath filePath = new Path(resName);
+			IPath childPath = filePath.removeFirstSegments(this.names.length);
+			JarEntryFile file = new JarEntryFile(filePath.lastSegment());
+			jarEntries.put(childPath, file);
+			if (childPath.segmentCount() == 1) {
+				file.setParent(this);
+				topJarEntries.add(file);
+			} else {
+				IPath parentPath = childPath.removeLastSegments(1);
+				while (parentPath.segmentCount() > 0) {
+					ArrayList parentChildren = (ArrayList) childrenMap.get(parentPath);
+					if (parentChildren == null) {
+						Object dir = new JarEntryDirectory(parentPath.lastSegment());
+						jarEntries.put(parentPath, dir);
+						childrenMap.put(parentPath, parentChildren = new ArrayList());
+						parentChildren.add(childPath);
+						if (parentPath.segmentCount() == 1) {
+							topJarEntries.add(dir);
+							break;
 						}
+						childPath = parentPath;
+						parentPath = childPath.removeLastSegments(1);
+					} else {
+						parentChildren.add(childPath);
+						break; // all parents are already registered
 					}
 				}
 			}
 		}
-		Iterator entries = childrenMap.entrySet().iterator();
-		while (entries.hasNext()) {
-			Map.Entry entry = (Map.Entry) entries.next();
-			IPath entryPath = (IPath) entry.getKey();
-			ArrayList entryValue =  (ArrayList) entry.getValue();
-			JarEntryDirectory jarEntryDirectory = (JarEntryDirectory) jarEntries.get(entryPath);
-			int size = entryValue.size();
-			IJarEntryResource[] children = new IJarEntryResource[size];
-			for (int i = 0; i < size; i++) {
-				JarEntryResource child = (JarEntryResource) jarEntries.get(entryValue.get(i));
-				child.setParent(jarEntryDirectory);
-				children[i] = child;
-			}
-			jarEntryDirectory.setChildren(children);
-			if (entryPath.segmentCount() == 1) {
-				jarEntryDirectory.setParent(pkg);
-			}
-		}
-		Object[] res = topJarEntries.toArray(new Object[topJarEntries.size()]);
-		info.setNonJavaResources(res);
 	}
+	Iterator entries = childrenMap.entrySet().iterator();
+	while (entries.hasNext()) {
+		Map.Entry entry = (Map.Entry) entries.next();
+		IPath entryPath = (IPath) entry.getKey();
+		ArrayList entryValue =  (ArrayList) entry.getValue();
+		JarEntryDirectory jarEntryDirectory = (JarEntryDirectory) jarEntries.get(entryPath);
+		int size = entryValue.size();
+		IJarEntryResource[] children = new IJarEntryResource[size];
+		for (int i = 0; i < size; i++) {
+			JarEntryResource child = (JarEntryResource) jarEntries.get(entryValue.get(i));
+			child.setParent(jarEntryDirectory);
+			children[i] = child;
+		}
+		jarEntryDirectory.setChildren(children);
+		if (entryPath.segmentCount() == 1) {
+			jarEntryDirectory.setParent(this);
+		}
+	}
+	return topJarEntries.toArray(new Object[topJarEntries.size()]);
 }
 /**
  * Returns true if this fragment contains at least one java resource.
@@ -148,17 +156,7 @@ public ICompilationUnit createCompilationUnit(String cuName, String contents, bo
  * @see JavaElement
  */
 protected Object createElementInfo() {
-	return null; // not used for JarPackageFragments: info is created when jar is opened
-}
-/*
- * @see JavaElement#generateInfos
- */
-protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-	// Open my jar: this creates all the pkg infos
-	Openable openableParent = (Openable)this.parent;
-	if (!openableParent.isOpen()) {
-		openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
-	}
+	return new JarPackageFragmentInfo();
 }
 /**
  * @see org.eclipse.jdt.core.IPackageFragment

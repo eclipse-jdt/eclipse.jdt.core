@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
@@ -59,4 +60,8 @@ public class ExternalJavaProject extends JavaProject {
 		return false;
 	}
 
+	protected IStatus validateExistence(IResource underlyingResource) {
+		// allow opening of external project
+		return JavaModelStatus.VERIFIED_OK;
+	}
 }

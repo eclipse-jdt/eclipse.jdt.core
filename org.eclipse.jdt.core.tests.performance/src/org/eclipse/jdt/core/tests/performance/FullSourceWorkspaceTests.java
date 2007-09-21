@@ -99,6 +99,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected static ICompilationUnit PARSER_WORKING_COPY;
 	protected final static String BIG_PROJECT_NAME = "BigProject";
 	protected static JavaProject BIG_PROJECT;
+	protected static final String BIG_JAR1_NAME = "big1.jar";
+	protected static final String BIG_JAR2_NAME = "big2.jar";
 //	protected final static String JUNIT_PROJECT_NAME = "junit";
 //	protected static IJavaProject JUNIT_PROJECT;
 	

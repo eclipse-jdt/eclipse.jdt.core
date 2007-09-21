@@ -10,10 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
+
 /**
  * The element info for <code>JarPackageFragmentRoot</code>s.
  */
 class JarPackageFragmentRootInfo extends PackageFragmentRootInfo {
+	// a map from package name (String[]) to a size-2 array of Array<String>, the first element being the .class file names, and the second element being the non-Java resource names
+	HashtableOfArrayToObject rawPackageInfo; 
 /**
  * Returns an array of non-java resources contained in the receiver.
  */

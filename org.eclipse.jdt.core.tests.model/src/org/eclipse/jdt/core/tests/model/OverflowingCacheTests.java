@@ -18,15 +18,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IBufferChangedListener;
-import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.BufferCache;
-import org.eclipse.jdt.internal.core.Openable;
-import org.eclipse.jdt.internal.core.OverflowingLRUCache;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 
 import junit.framework.Test;
@@ -264,6 +259,10 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 
 		public void save(IProgressMonitor pm, boolean force) {
 			this.buffer.hasUnsavedChanges = false;
+		}
+		
+		protected IStatus validateExistence(IResource underlyingResource) {
+			return null;
 		}
 	}
 

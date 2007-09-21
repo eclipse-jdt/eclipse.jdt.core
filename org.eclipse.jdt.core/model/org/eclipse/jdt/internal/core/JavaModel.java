@@ -25,6 +25,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -376,5 +377,10 @@ public static synchronized File getFile(Object target) {
 	}
 	
 	return null;
+}
+
+protected IStatus validateExistence(IResource underlyingResource) {
+	// Java model always exists
+	return JavaModelStatus.VERIFIED_OK;
 }
 }

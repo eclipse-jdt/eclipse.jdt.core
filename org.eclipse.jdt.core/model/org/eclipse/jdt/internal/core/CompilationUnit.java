@@ -76,18 +76,6 @@ public void becomeWorkingCopy(IProgressMonitor monitor) throws JavaModelExceptio
 	becomeWorkingCopy(requestor, monitor);
 }
 protected boolean buildStructure(OpenableElementInfo info, final IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
-
-	// check if this compilation unit can be opened
-	if (!isWorkingCopy()) { // no check is done on root kind or exclusion pattern for working copies
-		IStatus status = validateCompilationUnit(underlyingResource);
-		if (!status.isOK()) throw newJavaModelException(status);
-	}
-	
-	// prevents reopening of non-primary working copies (they are closed when they are discarded and should not be reopened)
-	if (!isPrimary() && getPerWorkingCopyInfo() == null) {
-		throw newNotPresentException();
-	}
-
 	CompilationUnitElementInfo unitInfo = (CompilationUnitElementInfo) info;
 
 	// get buffer contents
@@ -463,13 +451,6 @@ public boolean equals(Object obj) {
 	if (!(obj instanceof CompilationUnit)) return false;
 	CompilationUnit other = (CompilationUnit)obj;
 	return this.owner.equals(other.owner) && super.equals(obj);
-}
-public boolean exists() {
-	// working copy always exists in the model until it is gotten rid of (even if not on classpath)
-	if (getPerWorkingCopyInfo() != null) return true;	
-	
-	// if not a working copy, it exists only if it is a primary compilation unit
-	return isPrimary() && validateCompilationUnit(getResource()).isOK();
 }
 /**
  * @see ICompilationUnit#findElements(IJavaElement)
@@ -1097,10 +1078,11 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 	}	
 	return buffer;
 }
-protected void openParent(Object childInfo, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-	if (!isWorkingCopy())
-		super.openParent(childInfo, newElements, pm);
-	// don't open parent for a working copy to speed up the first becomeWorkingCopy
+protected void openAncestors(HashMap newElements, IProgressMonitor monitor) throws JavaModelException {
+	if (!isWorkingCopy()) {
+		super.openAncestors(newElements, monitor);
+	} 
+	// else don't open ancestors for a working copy to speed up the first becomeWorkingCopy
 	// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89411)
 }
 /**
@@ -1247,6 +1229,22 @@ protected void updateTimeStamp(CompilationUnit original) throws JavaModelExcepti
 			new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE));
 	}
 	((CompilationUnitElementInfo) getElementInfo()).timestamp = timeStamp;
+}
+
+protected IStatus validateExistence(IResource underlyingResource) {
+	// check if this compilation unit can be opened
+	if (!isWorkingCopy()) { // no check is done on root kind or exclusion pattern for working copies
+		IStatus status = validateCompilationUnit(underlyingResource);
+		if (!status.isOK()) 
+			return status;
+	}
+	
+	// prevents reopening of non-primary working copies (they are closed when they are discarded and should not be reopened)
+	if (!isPrimary() && getPerWorkingCopyInfo() == null) {
+		return newDoesNotExistStatus();
+	}
+	
+	return JavaModelStatus.VERIFIED_OK;
 }
 
 }
