@@ -121,7 +121,7 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 		}
 		// check whether bridge method is already defined above for interface methods
 		if (originalInherited.declaringClass.isInterface()
-				&& this.type.superclass.erasure().findSuperTypeWithSameErasure(originalInherited.declaringClass) == null) {
+				&& this.type.superclass.erasure().findSuperTypeOriginatingFrom(originalInherited.declaringClass) == null) {
 			this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod.original());
 		}
 	}
@@ -155,7 +155,7 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 			if (inheritedMethod.areParametersEqual(otherInheritedMethod)) continue;
 			// skip it if otherInheritedMethod is defined by a subtype of inheritedMethod's declaringClass
 			if (otherInheritedMethod.declaringClass.erasure() != inheritedMethod.declaringClass.erasure())
-				if (otherInheritedMethod.declaringClass.findSuperTypeWithSameErasure(inheritedMethod.declaringClass) != null)
+				if (otherInheritedMethod.declaringClass.findSuperTypeOriginatingFrom(inheritedMethod.declaringClass) != null)
 					continue;
 			if (detectInheritedNameClash(originalInherited, otherOriginal))
 				return;
@@ -277,7 +277,7 @@ void checkInheritedMethods(MethodBinding inheritedMethod, MethodBinding otherInh
 			problemReporter().duplicateInheritedMethods(this.type, inheritedMethod, otherInheritedMethod);
 			return;
 		}
-	} else if (inheritedMethod.declaringClass.findSuperTypeWithSameErasure(otherInheritedMethod.declaringClass) != null) {
+	} else if (inheritedMethod.declaringClass.findSuperTypeOriginatingFrom(otherInheritedMethod.declaringClass) != null) {
 		// skip it if inheritedMethod is defined by a subtype of otherInheritedMethod declaringClass
 		return;
 	}
@@ -716,7 +716,7 @@ boolean isUnsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding in
 	}
 	if (currentMethod.typeVariables == Binding.NO_TYPE_VARIABLES
 		&& inheritedMethod.original().typeVariables != Binding.NO_TYPE_VARIABLES
-		&& currentMethod.returnType.erasure().findSuperTypeWithSameErasure(inheritedMethod.returnType.erasure()) != null) {
+		&& currentMethod.returnType.erasure().findSuperTypeOriginatingFrom(inheritedMethod.returnType.erasure()) != null) {
 			return true;
 	}
 	return false;

@@ -775,7 +775,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 				TypeBinding fieldReceiverType = type;
 				TypeBinding receiverErasure = type.erasure();
 				if (receiverErasure instanceof ReferenceBinding) {
-					if (receiverErasure.findSuperTypeWithSameErasure(field.declaringClass) == null) {
+					if (receiverErasure.findSuperTypeOriginatingFrom(field.declaringClass) == null) {
 						fieldReceiverType = field.declaringClass; // handle indirect inheritance thru variable secondary bound
 					}
 				}				

@@ -262,7 +262,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		if (!_env.getLookupEnvironment().methodVerifier().doesMethodOverride(hiderBinding, hiddenBinding)) {
 			return false;
 		}
-		return null != hiderBinding.declaringClass.findSuperTypeWithSameErasure(hiddenBinding.declaringClass); 
+		return null != hiderBinding.declaringClass.findSuperTypeOriginatingFrom(hiddenBinding.declaringClass); 
 	}
 
 	@Override
@@ -305,8 +305,8 @@ public class ExecutableElementImpl extends ElementImpl implements
 		// Construct a binding to the equivalent of this (the overrider) as it would be inherited by 'type'.
 		// Can only do this if 'type' is descended from the overrider.
 		// Second clause of the AND is required to match a peculiar javac behavior.
-		if (null == overriderContext.findSuperTypeWithSameErasure(((MethodBinding)_binding).declaringClass) &&
-				null == ((MethodBinding)_binding).declaringClass.findSuperTypeWithSameErasure(overriderContext)) {
+		if (null == overriderContext.findSuperTypeOriginatingFrom(((MethodBinding)_binding).declaringClass) &&
+				null == ((MethodBinding)_binding).declaringClass.findSuperTypeOriginatingFrom(overriderContext)) {
 			return false;
 		}
 		MethodBinding overriderBinding = new MethodBinding((MethodBinding)_binding, overriderContext);
@@ -317,7 +317,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 			return false;
 		}
 		
-		TypeBinding match = overriderBinding.declaringClass.findSuperTypeWithSameErasure(overriddenBinding.declaringClass);
+		TypeBinding match = overriderBinding.declaringClass.findSuperTypeOriginatingFrom(overriddenBinding.declaringClass);
 		if (!(match instanceof ReferenceBinding)) return false;
 
 		org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] superMethods = ((ReferenceBinding)match).getMethods(selector);

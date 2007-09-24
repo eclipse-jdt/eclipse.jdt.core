@@ -327,7 +327,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			// compute generic cast if necessary
 			TypeBinding receiverErasure = this.actualReceiverType.erasure();
 			if (receiverErasure instanceof ReferenceBinding) {
-				if (receiverErasure.findSuperTypeWithSameErasure(this.binding.declaringClass) == null) {
+				if (receiverErasure.findSuperTypeOriginatingFrom(this.binding.declaringClass) == null) {
 					this.actualReceiverType = this.binding.declaringClass; // handle indirect inheritance thru variable secondary bound
 				}
 			}

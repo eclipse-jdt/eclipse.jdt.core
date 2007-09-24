@@ -230,7 +230,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 		ReferenceBinding declaringErasure = (ReferenceBinding) declaringClass.erasure();
 		int depth = 0;
 		do {
-			if (currentType.findSuperTypeWithSameErasure(declaringErasure) != null) {
+			if (currentType.findSuperTypeOriginatingFrom(declaringErasure) != null) {
 				if (invocationSite.isSuperAccess())
 					return true;
 				// receiverType can be an array binding in one case... see if you can change it
@@ -240,7 +240,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 					if (depth > 0) invocationSite.setDepth(depth);
 					return true; // see 1FMEPDL - return invocationSite.isTypeAccess();
 				}
-				if (currentType == receiverErasure || receiverErasure.findSuperTypeWithSameErasure(currentType) != null) {
+				if (currentType == receiverErasure || receiverErasure.findSuperTypeOriginatingFrom(currentType) != null) {
 					if (depth > 0) invocationSite.setDepth(depth);
 					return true;
 				}

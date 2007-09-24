@@ -39,6 +39,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 //			e.printStackTrace();
 //			throw e;
 //		}
+//		if (!(type instanceof UnresolvedReferenceBinding) && type.typeVariables() == Binding.NO_TYPE_VARIABLES) {
+//			System.out.println();
+//		}
 		initialize(type, arguments);
 		if (type instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) type).addWrapper(this, environment);
@@ -100,7 +103,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		
 		for (int i = 0; i < length; i++) {
 			TypeBinding argument = originalArguments[i];
-			if (argument.kind() == Binding.WILDCARD_TYPE && ((WildcardBinding)argument).otherBounds == null) { // no capture for intersection types
+			if (argument.kind() == Binding.WILDCARD_TYPE) { // no capture for intersection types
 				capturedArguments[i] = new CaptureBinding((WildcardBinding) argument, contextType, position, scope.compilationUnitScope().nextCaptureID());
 			} else {
 				capturedArguments[i] = argument;
@@ -134,12 +137,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			case TypeConstants.CONSTRAINT_EQUAL :
 			case TypeConstants.CONSTRAINT_EXTENDS :
 				formalEquivalent = this;
-		        actualEquivalent = actualType.findSuperTypeWithSameErasure(this.type);
+		        actualEquivalent = actualType.findSuperTypeOriginatingFrom(this.type);
 		        if (actualEquivalent == null) return;
 		        break;
 			case TypeConstants.CONSTRAINT_SUPER :
 	        default:
-		        formalEquivalent = this.findSuperTypeWithSameErasure(actualType);
+		        formalEquivalent = this.findSuperTypeOriginatingFrom(actualType);
 		        if (formalEquivalent == null) return;
 		        actualEquivalent = actualType;
 		        break;
@@ -615,12 +618,19 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			this.arguments = someArguments;
 			for (int i = 0, length = someArguments.length; i < length; i++) {
 				TypeBinding someArgument = someArguments[i];
-				boolean isWildcardArgument = someArgument.isWildcard();
-				if (isWildcardArgument) {
-					this.tagBits |= TagBits.HasDirectWildcard;
-				}
-				if (!isWildcardArgument || ((WildcardBinding) someArgument).boundKind != Wildcard.UNBOUND) {
-					this.tagBits |= TagBits.IsBoundParameterizedType;
+				switch (someArgument.kind()) {
+					case Binding.WILDCARD_TYPE :
+						this.tagBits |= TagBits.HasDirectWildcard;
+						if (((WildcardBinding) someArgument).boundKind != Wildcard.UNBOUND) {
+							this.tagBits |= TagBits.IsBoundParameterizedType;
+						}
+						break;
+					case Binding.INTERSECTION_TYPE :
+						this.tagBits |= TagBits.HasDirectWildcard;
+						break;
+					default :
+						this.tagBits |= TagBits.IsBoundParameterizedType;
+						break;
 				}
 			    this.tagBits |= someArgument.tagBits & TagBits.HasTypeVariable;
 			}
@@ -641,6 +651,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	    switch(otherType.kind()) {
 	
 	    	case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE:
 	        	return ((WildcardBinding) otherType).boundCheck(this);
 	    		
 	    	case Binding.PARAMETERIZED_TYPE :
@@ -859,7 +870,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (this.arguments != null) {
 			int argLength = this.arguments.length;
 			for (int i = 0; i < argLength; i++)
-				BinaryTypeBinding.resolveType(this.arguments[i], this.environment, this, i);
+				this.arguments[i] = BinaryTypeBinding.resolveType(this.arguments[i], this.environment, this, i);
 			// arity check
 			TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
 			if (refTypeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
@@ -1014,72 +1025,76 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public String toString() {
 	    StringBuffer buffer = new StringBuffer(30);
-		if (isDeprecated()) buffer.append("deprecated "); //$NON-NLS-1$
-		if (isPublic()) buffer.append("public "); //$NON-NLS-1$
-		if (isProtected()) buffer.append("protected "); //$NON-NLS-1$
-		if (isPrivate()) buffer.append("private "); //$NON-NLS-1$
-		if (isAbstract() && isClass()) buffer.append("abstract "); //$NON-NLS-1$
-		if (isStatic() && isNestedType()) buffer.append("static "); //$NON-NLS-1$
-		if (isFinal()) buffer.append("final "); //$NON-NLS-1$
-	
-		if (isEnum()) buffer.append("enum "); //$NON-NLS-1$
-		else if (isAnnotationType()) buffer.append("@interface "); //$NON-NLS-1$
-		else if (isClass()) buffer.append("class "); //$NON-NLS-1$
-		else buffer.append("interface "); //$NON-NLS-1$
-		buffer.append(this.debugName());
-	
-		buffer.append("\n\textends "); //$NON-NLS-1$
-		buffer.append((superclass != null) ? superclass.debugName() : "NULL TYPE"); //$NON-NLS-1$
-	
-		if (superInterfaces != null) {
-			if (superInterfaces != Binding.NO_SUPERINTERFACES) {
-				buffer.append("\n\timplements : "); //$NON-NLS-1$
-				for (int i = 0, length = superInterfaces.length; i < length; i++) {
-					if (i  > 0)
-						buffer.append(", "); //$NON-NLS-1$
-					buffer.append((superInterfaces[i] != null) ? superInterfaces[i].debugName() : "NULL TYPE"); //$NON-NLS-1$
+	    if (this.type instanceof UnresolvedReferenceBinding) {
+	    	buffer.append(this.type);
+	    } else {
+			if (isDeprecated()) buffer.append("deprecated "); //$NON-NLS-1$
+			if (isPublic()) buffer.append("public "); //$NON-NLS-1$
+			if (isProtected()) buffer.append("protected "); //$NON-NLS-1$
+			if (isPrivate()) buffer.append("private "); //$NON-NLS-1$
+			if (isAbstract() && isClass()) buffer.append("abstract "); //$NON-NLS-1$
+			if (isStatic() && isNestedType()) buffer.append("static "); //$NON-NLS-1$
+			if (isFinal()) buffer.append("final "); //$NON-NLS-1$
+		
+			if (isEnum()) buffer.append("enum "); //$NON-NLS-1$
+			else if (isAnnotationType()) buffer.append("@interface "); //$NON-NLS-1$
+			else if (isClass()) buffer.append("class "); //$NON-NLS-1$
+			else buffer.append("interface "); //$NON-NLS-1$
+			buffer.append(this.debugName());
+		
+			buffer.append("\n\textends "); //$NON-NLS-1$
+			buffer.append((superclass != null) ? superclass.debugName() : "NULL TYPE"); //$NON-NLS-1$
+		
+			if (superInterfaces != null) {
+				if (superInterfaces != Binding.NO_SUPERINTERFACES) {
+					buffer.append("\n\timplements : "); //$NON-NLS-1$
+					for (int i = 0, length = superInterfaces.length; i < length; i++) {
+						if (i  > 0)
+							buffer.append(", "); //$NON-NLS-1$
+						buffer.append((superInterfaces[i] != null) ? superInterfaces[i].debugName() : "NULL TYPE"); //$NON-NLS-1$
+					}
 				}
+			} else {
+				buffer.append("NULL SUPERINTERFACES"); //$NON-NLS-1$
 			}
-		} else {
-			buffer.append("NULL SUPERINTERFACES"); //$NON-NLS-1$
-		}
-	
-		if (enclosingType() != null) {
-			buffer.append("\n\tenclosing type : "); //$NON-NLS-1$
-			buffer.append(enclosingType().debugName());
-		}
-	
-		if (fields != null) {
-			if (fields != Binding.NO_FIELDS) {
-				buffer.append("\n/*   fields   */"); //$NON-NLS-1$
-				for (int i = 0, length = fields.length; i < length; i++)
-				    buffer.append('\n').append((fields[i] != null) ? fields[i].toString() : "NULL FIELD"); //$NON-NLS-1$ 
+		
+			if (enclosingType() != null) {
+				buffer.append("\n\tenclosing type : "); //$NON-NLS-1$
+				buffer.append(enclosingType().debugName());
 			}
-		} else {
-			buffer.append("NULL FIELDS"); //$NON-NLS-1$
-		}
-	
-		if (methods != null) {
-			if (methods != Binding.NO_METHODS) {
-				buffer.append("\n/*   methods   */"); //$NON-NLS-1$
-				for (int i = 0, length = methods.length; i < length; i++)
-					buffer.append('\n').append((methods[i] != null) ? methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$
+		
+			if (fields != null) {
+				if (fields != Binding.NO_FIELDS) {
+					buffer.append("\n/*   fields   */"); //$NON-NLS-1$
+					for (int i = 0, length = fields.length; i < length; i++)
+					    buffer.append('\n').append((fields[i] != null) ? fields[i].toString() : "NULL FIELD"); //$NON-NLS-1$ 
+				}
+			} else {
+				buffer.append("NULL FIELDS"); //$NON-NLS-1$
 			}
-		} else {
-			buffer.append("NULL METHODS"); //$NON-NLS-1$
-		}
-	
-//		if (memberTypes != null) {
-//			if (memberTypes != NoMemberTypes) {
-//				buffer.append("\n/*   members   */");
-//				for (int i = 0, length = memberTypes.length; i < length; i++)
-//					buffer.append('\n').append((memberTypes[i] != null) ? memberTypes[i].toString() : "NULL TYPE");
-//			}
-//		} else {
-//			buffer.append("NULL MEMBER TYPES");
-//		}
-	
-		buffer.append("\n\n"); //$NON-NLS-1$
+		
+			if (methods != null) {
+				if (methods != Binding.NO_METHODS) {
+					buffer.append("\n/*   methods   */"); //$NON-NLS-1$
+					for (int i = 0, length = methods.length; i < length; i++)
+						buffer.append('\n').append((methods[i] != null) ? methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$
+				}
+			} else {
+				buffer.append("NULL METHODS"); //$NON-NLS-1$
+			}
+		
+	//		if (memberTypes != null) {
+	//			if (memberTypes != NoMemberTypes) {
+	//				buffer.append("\n/*   members   */");
+	//				for (int i = 0, length = memberTypes.length; i < length; i++)
+	//					buffer.append('\n').append((memberTypes[i] != null) ? memberTypes[i].toString() : "NULL TYPE");
+	//			}
+	//		} else {
+	//			buffer.append("NULL MEMBER TYPES");
+	//		}
+		
+			buffer.append("\n\n"); //$NON-NLS-1$
+	    }
 		return buffer.toString();
 		
 	}

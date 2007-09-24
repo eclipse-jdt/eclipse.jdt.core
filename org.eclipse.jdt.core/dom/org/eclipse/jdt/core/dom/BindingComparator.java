@@ -204,13 +204,22 @@ class BindingComparator {
 					&& isEqual(parameterizedTypeBinding.enclosingType(), parameterizedTypeBinding2.enclosingType(), visitedTypes);
 							
 			case Binding.WILDCARD_TYPE :
-				if (!typeBinding2.isWildcard()) {
+				if (typeBinding2.kind() != Binding.WILDCARD_TYPE) {
 					return false;
 				}
 				WildcardBinding wildcardBinding = (WildcardBinding) typeBinding;
 				WildcardBinding wildcardBinding2 = (WildcardBinding) typeBinding2;
 				return isEqual(wildcardBinding.bound, wildcardBinding2.bound, visitedTypes)
 					&& wildcardBinding.boundKind == wildcardBinding2.boundKind;
+				
+			case Binding.INTERSECTION_TYPE:
+				if (typeBinding2.kind() != Binding.INTERSECTION_TYPE) {
+					return false;
+				}
+				WildcardBinding intersectionBinding = (WildcardBinding) typeBinding;
+				WildcardBinding intersectionBinding2 = (WildcardBinding) typeBinding2;
+				return isEqual(intersectionBinding.bound, intersectionBinding2.bound, visitedTypes)
+					&& isEqual(intersectionBinding.otherBounds, intersectionBinding2.otherBounds, visitedTypes);
 				
 			case Binding.TYPE_PARAMETER :
 				if (!(typeBinding2.isTypeVariable())) {

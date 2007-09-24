@@ -210,7 +210,7 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 		if (declaringClass == null) return false; // could be null if incorrect top-level protected type
 		//int depth = 0;
 		do {
-			if (currentType.findSuperTypeWithSameErasure(declaringClass) != null) return true;
+			if (currentType.findSuperTypeOriginatingFrom(declaringClass) != null) return true;
 			//depth++;
 			currentType = currentType.enclosingType();
 		} while (currentType != null);
@@ -681,7 +681,7 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
     ReferenceBinding currentType = this;
 	TypeBinding match;
 	do {
-		match = otherType.findSuperTypeWithSameErasure(currentType);
+		match = otherType.findSuperTypeOriginatingFrom(currentType);
 		if (match != null && !match.isIntersectingWith(currentType))
 			return true;
 
@@ -707,7 +707,7 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 	for (int i = 0; i < nextPosition; i++) {
 		currentType = interfacesToVisit[i];
 		if (currentType == otherType) return false;
-		match = otherType.findSuperTypeWithSameErasure(currentType);
+		match = otherType.findSuperTypeOriginatingFrom(currentType);
 		if (match != null && !match.isIntersectingWith(currentType))
 			return true;
 
@@ -866,6 +866,7 @@ private boolean isCompatibleWith0(TypeBinding otherType) {
 		return true;
 	switch (otherType.kind()) {
 		case Binding.WILDCARD_TYPE :
+		case Binding.INTERSECTION_TYPE:
 			return false; // should have passed equivalence check above if
 							// wildcard
 		case Binding.TYPE_PARAMETER :

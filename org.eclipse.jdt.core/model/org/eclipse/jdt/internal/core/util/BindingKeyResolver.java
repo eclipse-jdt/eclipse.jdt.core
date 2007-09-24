@@ -126,6 +126,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 						}
 						break;
 					case Binding.WILDCARD_TYPE:
+					case Binding.INTERSECTION_TYPE:
 						return checkType(((WildcardBinding) binding).bound);
 					case Binding.ARRAY_TYPE:
 						return checkType(((ArrayBinding) binding).leafComponentType);

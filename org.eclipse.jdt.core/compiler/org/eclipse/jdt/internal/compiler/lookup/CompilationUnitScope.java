@@ -760,6 +760,7 @@ private ReferenceBinding typeToRecord(TypeBinding type) {
 		case Binding.BASE_TYPE :
 		case Binding.TYPE_PARAMETER :
 		case Binding.WILDCARD_TYPE :
+		case Binding.INTERSECTION_TYPE :
 			return null;
 		case Binding.PARAMETERIZED_TYPE :
 		case Binding.RAW_TYPE :

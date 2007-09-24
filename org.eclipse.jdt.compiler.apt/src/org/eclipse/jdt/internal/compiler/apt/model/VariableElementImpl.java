@@ -166,7 +166,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 			if (!CharOperation.equals(hider.name, hidden.name)) {
 				return false;
 			}
-			return null != hider.declaringClass.findSuperTypeWithSameErasure(hidden.declaringClass);
+			return null != hider.declaringClass.findSuperTypeOriginatingFrom(hidden.declaringClass);
 		}
 		// TODO: should we implement hides() for method parameters?
 		return false;

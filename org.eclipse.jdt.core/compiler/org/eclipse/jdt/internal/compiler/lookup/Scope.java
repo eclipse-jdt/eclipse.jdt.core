@@ -273,6 +273,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				break;
 
 			case Binding.WILDCARD_TYPE:
+			case Binding.INTERSECTION_TYPE:
 		        WildcardBinding wildcard = (WildcardBinding) originalType;
 		        if (wildcard.boundKind != Wildcard.UNBOUND) {
 			        TypeBinding originalBound = wildcard.bound;
@@ -699,7 +700,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding()) {
-						if (concreteMatch != null && concreteMatch.declaringClass.findSuperTypeWithSameErasure(compatibleMethod.declaringClass) != null)
+						if (concreteMatch != null && concreteMatch.declaringClass.findSuperTypeOriginatingFrom(compatibleMethod.declaringClass) != null)
 							if (environment().methodVerifier().doesMethodOverride(concreteMatch, compatibleMethod))
 								continue; // can skip this method since concreteMatch overrides it
 						if (candidatesCount == 0) {
@@ -803,6 +804,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				case Binding.BASE_TYPE :
 					return null;
 				case Binding.WILDCARD_TYPE :
+				case Binding.INTERSECTION_TYPE:
 				case Binding.TYPE_PARAMETER : // capture
 					TypeBinding receiverErasure = receiverType.erasure();
 					if (!receiverErasure.isArrayType())
@@ -2995,7 +2997,18 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		
 		int dim = firstType.dimensions();
 		TypeBinding leafType = firstType.leafComponentType();
-		TypeBinding firstErasure = (leafType.isTypeVariable() || leafType.isWildcard()/*&& !leafType.isCapture()*/) ? firstType : firstType.erasure();
+	    // do not allow type variables/intersection types to match with erasures for free
+		TypeBinding firstErasure;
+		switch(leafType.kind()) {
+			case Binding.PARAMETERIZED_TYPE :
+			case Binding.RAW_TYPE :
+			case Binding.ARRAY_TYPE : 
+				firstErasure = firstType.erasure();
+				break;
+			default :
+				firstErasure = firstType;
+				break;
+		}
 		if (firstErasure != firstType) {
 			allInvocations.put(firstErasure, firstType);
 		}						
@@ -3110,7 +3123,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					TypeBinding erasedSuperType = erasedSuperTypes[j];
 					if (erasedSuperType == null || erasedSuperType == otherType) continue nextSuperType;
 					TypeBinding match;
-					if ((match = otherType.findSuperTypeWithSameErasure(erasedSuperType)) == null) {
+					if ((match = otherType.findSuperTypeOriginatingFrom(erasedSuperType)) == null) {
 						erasedSuperTypes[j] = null;
 						if (--remaining == 0) return null;
 						continue nextSuperType;
@@ -3150,7 +3163,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					if (erasedSuperType.isArrayType()) {
 						match = null;
 					} else {
-						match = otherType.findSuperTypeWithSameErasure(erasedSuperType);
+						match = otherType.findSuperTypeOriginatingFrom(erasedSuperType);
 					}
 					if (match == null) { // incompatible super type
 						erasedSuperTypes[j] = null;
@@ -3193,7 +3206,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					if (otherType == null) continue nextOtherType;
 					if (erasedSuperType instanceof ReferenceBinding) {
 						if (otherType.id == T_JavaLangObject && erasedSuperType.isInterface()) continue nextOtherType; // keep Object for an interface
-						if (erasedSuperType.findSuperTypeWithSameErasure(otherType) != null) {
+						if (erasedSuperType.findSuperTypeOriginatingFrom(otherType) != null) {
 							erasedSuperTypes[j] = null; // discard non minimal supertype
 							remaining--;
 						}
@@ -3202,7 +3215,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							&& otherType.leafComponentType().id == T_JavaLangObject
 							&& otherType.dimensions() == erasedSuperType.dimensions()
 							&& erasedSuperType.leafComponentType().isInterface()) continue nextOtherType;
-						if (erasedSuperType.findSuperTypeWithSameErasure(otherType) != null) {
+						if (erasedSuperType.findSuperTypeOriginatingFrom(otherType) != null) {
 							erasedSuperTypes[j] = null; // discard non minimal supertype
 							remaining--;
 						}
@@ -3372,7 +3385,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					if (!original.isAbstract()) {
 						if (original2.isAbstract())
 							continue; // only compare current against other concrete methods
-						TypeBinding superType = original.declaringClass.findSuperTypeWithSameErasure(original2.declaringClass.erasure());
+						TypeBinding superType = original.declaringClass.findSuperTypeOriginatingFrom(original2.declaringClass.erasure());
 						if (superType == null)
 							continue nextSpecific; // current's declaringClass is not a subtype of next's declaringClass
 						if (current.hasSubstitutedParameters() || original.typeVariables != Binding.NO_TYPE_VARIABLES) {
@@ -3390,7 +3403,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 								continue nextSpecific; // current does not override next
 						}
 					} else if (receiverType != null) { // should not be null if original isAbstract, but be safe
-						TypeBinding superType = receiverType.findSuperTypeWithSameErasure(original.declaringClass.erasure());
+						TypeBinding superType = receiverType.findSuperTypeOriginatingFrom(original.declaringClass.erasure());
 						if (original.declaringClass == superType || !(superType instanceof ReferenceBinding)) {
 							// keep original
 						} else {
@@ -3403,7 +3416,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 								}
 							}
 						}
-						superType = receiverType.findSuperTypeWithSameErasure(original2.declaringClass.erasure());
+						superType = receiverType.findSuperTypeOriginatingFrom(original2.declaringClass.erasure());
 						if (original2.declaringClass == superType || !(superType instanceof ReferenceBinding)) {
 							// keep original2
 						} else {

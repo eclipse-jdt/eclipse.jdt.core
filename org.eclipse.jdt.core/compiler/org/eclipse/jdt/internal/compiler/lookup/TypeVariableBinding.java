@@ -60,7 +60,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		if (this.superclass == null)
 			return TypeConstants.OK;
 
-		if (argumentType.isWildcard() && !argumentType.isIntersectionType()) {
+		if (argumentType.kind() == Binding.WILDCARD_TYPE) {
 			WildcardBinding wildcard = (WildcardBinding) argumentType;
 			switch(wildcard.boundKind) {
 				case Wildcard.EXTENDS :
@@ -75,13 +75,13 @@ public class TypeVariableBinding extends ReferenceBinding {
 								if (!wildcardBound.isCompatibleWith(superclassBound))
 									return TypeConstants.MISMATCH;
 							} else {
-								TypeBinding match = wildcardBound.findSuperTypeWithSameErasure(superclassBound);
+								TypeBinding match = wildcardBound.findSuperTypeOriginatingFrom(superclassBound);
 								if (match != null) {
 									if (!match.isIntersectingWith(superclassBound)) {
 										return TypeConstants.MISMATCH;
 									}
 								} else {
-									match =  superclassBound.findSuperTypeWithSameErasure(wildcardBound);
+									match =  superclassBound.findSuperTypeOriginatingFrom(wildcardBound);
 									if (match != null) {
 										if (!match.isIntersectingWith(wildcardBound)) {
 											return TypeConstants.MISMATCH;
@@ -104,7 +104,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 							if (!wildcardBound.isCompatibleWith(superInterfaceBound))
 									return TypeConstants.MISMATCH;
 						} else {
-							TypeBinding match = wildcardBound.findSuperTypeWithSameErasure(superInterfaceBound);
+							TypeBinding match = wildcardBound.findSuperTypeOriginatingFrom(superInterfaceBound);
 							if (match != null) {
 								if (!match.isIntersectingWith(superInterfaceBound)) {
 									return TypeConstants.MISMATCH;
@@ -132,7 +132,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 				if (!argumentType.isCompatibleWith(substitutedSuperType)) {
 				    return TypeConstants.MISMATCH;
 				}
-				TypeBinding match = argumentType.findSuperTypeWithSameErasure(substitutedSuperType);
+				TypeBinding match = argumentType.findSuperTypeOriginatingFrom(substitutedSuperType);
 				if (match != null){
 					// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
 					if (match.isRawType() && substitutedSuperType.isBoundParameterizedType())
@@ -146,7 +146,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 				if (!argumentType.isCompatibleWith(substitutedSuperType)) {
 				    return TypeConstants.MISMATCH;
 				}
-				TypeBinding match = argumentType.findSuperTypeWithSameErasure(substitutedSuperType);
+				TypeBinding match = argumentType.findSuperTypeOriginatingFrom(substitutedSuperType);
 				if (match != null){
 					// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
 					if (match.isRawType() && substitutedSuperType.isBoundParameterizedType())
@@ -185,8 +185,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 				actualType = boxedType;
 				break;
 			case Binding.WILDCARD_TYPE :
-				WildcardBinding actualWildcard = (WildcardBinding) actualType;
-				if (actualWildcard.otherBounds != null) break; // intersection type
 				return; // wildcards are not true type expressions (JLS 15.12.2.7, p.453 2nd discussion)
 		}
 	
@@ -331,26 +329,26 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    return true;
 	}
 
-	/** 
-	 * Returns the original type variable for a given variable.
-	 * Only different from receiver for type variables of generic methods of parameterized types
-	 * e.g. X<U> {   <V1 extends U> U foo(V1)   } --> X<String> { <V2 extends String> String foo(V2)  }  
-	 *         and V2.original() --> V1
-	 */
-	public TypeVariableBinding original() {
-		if (this.declaringElement.kind() == Binding.METHOD) {
-			MethodBinding originalMethod = ((MethodBinding)this.declaringElement).original();
-			if (originalMethod != this.declaringElement) {
-				return originalMethod.typeVariables[this.rank];
-			}
-		} else {
-			ReferenceBinding originalType = (ReferenceBinding)((ReferenceBinding)this.declaringElement).erasure();
-			if (originalType != this.declaringElement) {
-				return originalType.typeVariables()[this.rank];
-			}
-		}
-		return this;
-	}
+//	/** 
+//	 * Returns the original type variable for a given variable.
+//	 * Only different from receiver for type variables of generic methods of parameterized types
+//	 * e.g. X<U> {   <V1 extends U> U foo(V1)   } --> X<String> { <V2 extends String> String foo(V2)  }  
+//	 *         and V2.original() --> V1
+//	 */
+//	public TypeVariableBinding original() {
+//		if (this.declaringElement.kind() == Binding.METHOD) {
+//			MethodBinding originalMethod = ((MethodBinding)this.declaringElement).original();
+//			if (originalMethod != this.declaringElement) {
+//				return originalMethod.typeVariables[this.rank];
+//			}
+//		} else {
+//			ReferenceBinding originalType = (ReferenceBinding)((ReferenceBinding)this.declaringElement).erasure();
+//			if (originalType != this.declaringElement) {
+//				return originalType.typeVariables()[this.rank];
+//			}
+//		}
+//		return this;
+//	}
 	
 	/**
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#readableName()

@@ -158,6 +158,7 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 		case Binding.BASE_TYPE :
 			return false;
 		case Binding.WILDCARD_TYPE :
+		case Binding.INTERSECTION_TYPE :
 		    return ((WildcardBinding) otherType).boundCheck(this);
 		    
 		case Binding.TYPE_PARAMETER :

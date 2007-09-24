@@ -164,11 +164,14 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getBound()
 	 */
 	public ITypeBinding getBound() {
-		if (this.binding.isWildcard()) {
-			WildcardBinding wildcardBinding = (WildcardBinding) this.binding;
-			if (wildcardBinding.bound != null) {
-				return this.resolver.getTypeBinding(wildcardBinding.bound);
-			}
+		switch (this.binding.kind()) {
+			case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE :
+				WildcardBinding wildcardBinding = (WildcardBinding) this.binding;
+				if (wildcardBinding.bound != null) {
+					return this.resolver.getTypeBinding(wildcardBinding.bound);
+				}
+				break;
 		}
 		return null;
 	}
@@ -516,6 +519,7 @@ class TypeBinding implements ITypeBinding {
 				return getUnresolvedJavaElement(typeBinding);
 			case Binding.BASE_TYPE :
 			case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE:
 				return null;
 			default :
 				if (typeBinding.isCapture())
@@ -656,6 +660,7 @@ class TypeBinding implements ITypeBinding {
 		switch (this.binding.kind()) {
 
 			case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE:
 				WildcardBinding wildcardBinding = (WildcardBinding) this.binding;
 				buffer = new StringBuffer();
 				buffer.append(TypeConstants.WILDCARD_NAME);
@@ -735,6 +740,7 @@ class TypeBinding implements ITypeBinding {
 			case Binding.ARRAY_TYPE :
 			case Binding.TYPE_PARAMETER : // includes capture scenario
 			case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE:
 				return null;
 		}
 		ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
@@ -786,6 +792,7 @@ class TypeBinding implements ITypeBinding {
 		switch (this.binding.kind()) {
 
 			case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE:
 				WildcardBinding wildcardBinding = (WildcardBinding) this.binding;
 				buffer = new StringBuffer();
 				buffer.append(TypeConstants.WILDCARD_NAME);
@@ -1132,7 +1139,13 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isClass()
 	 */
 	public boolean isClass() {
-		return this.binding.isClass() && !this.binding.isTypeVariable() && !this.binding.isWildcard();
+		switch (this.binding.kind()) {
+			case Binding.TYPE_PARAMETER :
+			case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE :
+				return false;
+		}
+		return this.binding.isClass();
 	}
 
 	/*
@@ -1222,7 +1235,13 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isInterface()
 	 */
 	public boolean isInterface() {
-		return this.binding.isInterface() && !this.binding.isTypeVariable() && !this.binding.isWildcard();
+		switch (this.binding.kind()) {
+			case Binding.TYPE_PARAMETER :
+			case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE :
+				return false;
+		}
+		return this.binding.isInterface();
 	}
 
 	/*
@@ -1340,7 +1359,13 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isUpperbound()
 	 */
 	public boolean isUpperbound() {
-		return this.binding.isWildcard() && ((WildcardBinding) this.binding).boundKind == Wildcard.EXTENDS;
+		switch (this.binding.kind()) {
+			case Binding.WILDCARD_TYPE :
+				return ((WildcardBinding) this.binding).boundKind == Wildcard.EXTENDS;
+			case Binding.INTERSECTION_TYPE :
+				return true;
+		}
+		return false;
 	}
 
 	/* (non-Javadoc)

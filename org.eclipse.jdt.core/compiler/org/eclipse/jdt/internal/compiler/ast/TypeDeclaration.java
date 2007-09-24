@@ -939,8 +939,8 @@ public void resolve() {
 		boolean needSerialVersion = 
 						this.scope.compilerOptions().getSeverity(CompilerOptions.MissingSerialVersion) != ProblemSeverities.Ignore
 						&& sourceType.isClass()
-						&& sourceType.findSuperTypeErasingTo(TypeIds.T_JavaIoExternalizable, false /*Serializable is not a class*/) == null
-						&& sourceType.findSuperTypeErasingTo(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null;
+						&& sourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoExternalizable, false /*Serializable is not a class*/) == null
+						&& sourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null;
 
 		if (needSerialVersion) {
 			// if Object writeReplace() throws java.io.ObjectStreamException is present, then no serialVersionUID is needed
@@ -984,7 +984,7 @@ public void resolve() {
 			}
 		}
 		// generics (and non static generic members) cannot extend Throwable
-		if (sourceType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) != null) {
+		if (sourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangThrowable, true) != null) {
 			ReferenceBinding current = sourceType;
 			checkEnclosedInGeneric : do {
 				if (current.isGenericType()) {

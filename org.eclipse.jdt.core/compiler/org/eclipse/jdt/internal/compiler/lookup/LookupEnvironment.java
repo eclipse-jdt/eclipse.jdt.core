@@ -349,6 +349,7 @@ public TypeBinding computeBoxingType(TypeBinding type) {
 	// allow indirect unboxing conversion for wildcards and type parameters
 	switch (type.kind()) {
 		case Binding.WILDCARD_TYPE :
+		case Binding.INTERSECTION_TYPE :
 		case Binding.TYPE_PARAMETER :
 			switch (type.erasure().id) {
 				case TypeIds.T_JavaLangBoolean :
@@ -421,6 +422,7 @@ public TypeBinding convertToRawType(TypeBinding type) {
 		case Binding.BASE_TYPE :
 		case Binding.TYPE_PARAMETER:
 		case Binding.WILDCARD_TYPE:
+		case Binding.INTERSECTION_TYPE:
 		case Binding.RAW_TYPE:
 			return type;
 		case Binding.ARRAY_TYPE:
@@ -484,6 +486,7 @@ public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
 		case Binding.BASE_TYPE :
 		case Binding.TYPE_PARAMETER:
 		case Binding.WILDCARD_TYPE:
+		case Binding.INTERSECTION_TYPE:
 		case Binding.RAW_TYPE:
 			return type;
 		case Binding.ARRAY_TYPE:

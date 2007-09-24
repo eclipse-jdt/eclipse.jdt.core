@@ -242,7 +242,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		if (!CharOperation.equals(hiddenBinding.sourceName, hiderBinding.sourceName)) {
 			return false;
 		}
-		return null != hiderBinding.enclosingType().findSuperTypeWithSameErasure(hiddenBinding.enclosingType()); 
+		return null != hiderBinding.enclosingType().findSuperTypeOriginatingFrom(hiddenBinding.enclosingType()); 
 	}
 
 	@Override

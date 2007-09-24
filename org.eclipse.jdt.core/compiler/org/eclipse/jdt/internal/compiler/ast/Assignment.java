@@ -77,7 +77,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 void checkAssignment(BlockScope scope, TypeBinding lhsType, TypeBinding rhsType) {
 	FieldBinding leftField = getLastField(this.lhs);
-	if (leftField != null &&  rhsType != TypeBinding.NULL && lhsType.isWildcard() && ((WildcardBinding)lhsType).boundKind != Wildcard.SUPER) {
+	if (leftField != null &&  rhsType != TypeBinding.NULL && (lhsType.kind() == Binding.WILDCARD_TYPE) && ((WildcardBinding)lhsType).boundKind != Wildcard.SUPER) {
 	    scope.problemReporter().wildcardAssignment(lhsType, rhsType, this.expression);
 	} else if (leftField != null && !leftField.isStatic() && leftField.declaringClass != null /*length pseudo field*/&& leftField.declaringClass.isRawType()) {
 	    scope.problemReporter().unsafeRawFieldAssignment(leftField, rhsType, this.lhs);

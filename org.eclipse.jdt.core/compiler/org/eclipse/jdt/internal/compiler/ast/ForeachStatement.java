@@ -422,12 +422,12 @@ public class ForeachStatement extends Statement {
 					}
 				}
 			} else if (collectionType instanceof ReferenceBinding) {
-			    ReferenceBinding iterableType = ((ReferenceBinding)collectionType).findSuperTypeErasingTo(T_JavaLangIterable, false /*Iterable is not a class*/);
+			    ReferenceBinding iterableType = ((ReferenceBinding)collectionType).findSuperTypeOriginatingFrom(T_JavaLangIterable, false /*Iterable is not a class*/);
 			    checkIterable: {
 			    	if (iterableType == null) break checkIterable;
 			    	
 					this.iteratorReceiverType = collectionType.erasure();
-					if (((ReferenceBinding)iteratorReceiverType).findSuperTypeErasingTo(T_JavaLangIterable, false) == null) {
+					if (((ReferenceBinding)iteratorReceiverType).findSuperTypeOriginatingFrom(T_JavaLangIterable, false) == null) {
 						this.iteratorReceiverType = iterableType; // handle indirect inheritance thru variable secondary bound
 	   					this.collection.computeConversion(scope, iterableType, collectionType);
 					} else {

@@ -112,6 +112,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	    switch(otherType.kind()) {
 	
 	    	case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE:
 	        	return ((WildcardBinding) otherType).boundCheck(this);
 	    		
 	    	case Binding.GENERIC_TYPE :

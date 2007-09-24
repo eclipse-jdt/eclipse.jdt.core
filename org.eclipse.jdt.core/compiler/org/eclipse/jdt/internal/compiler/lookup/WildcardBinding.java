@@ -36,7 +36,6 @@ public class WildcardBinding extends ReferenceBinding {
 	 * When unbound, the bound denotes the corresponding type variable (so as to retrieve its bound lazily)
 	 */
 	public WildcardBinding(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind, LookupEnvironment environment) {
-		this.genericType = genericType;
 		this.rank = rank;
 	    this.boundKind = boundKind;
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat wildcard as public
@@ -51,7 +50,7 @@ public class WildcardBinding extends ReferenceBinding {
 	}
 
 	public int kind() {
-		return WILDCARD_TYPE;
+		return this.otherBounds == null ? Binding.WILDCARD_TYPE : Binding.INTERSECTION_TYPE;
 	}	
 		
 	/**
@@ -103,9 +102,10 @@ public class WildcardBinding extends ReferenceBinding {
 			case TypeConstants.CONSTRAINT_EXTENDS : // A << F
 				switch (this.boundKind) {
 					case Wildcard.UNBOUND: // F={?}
-//						if (otherType.isWildcard()) {
-//							WildcardBinding otherWildcard = (WildcardBinding) otherType;
-//							switch(otherWildcard.kind) {
+//						switch (actualType.kind()) {
+//						case Binding.WILDCARD_TYPE :
+//							WildcardBinding actualWildcard = (WildcardBinding) actualType;
+//							switch(actualWildcard.kind) {
 //								case Wildcard.UNBOUND: // A={?} << F={?}  --> 0
 //									break;
 //								case Wildcard.EXTENDS: // A={? extends V} << F={?} ---> 0
@@ -113,55 +113,72 @@ public class WildcardBinding extends ReferenceBinding {
 //								case Wildcard.SUPER: // A={? super V} << F={?} ---> 0
 //									break;
 //							}
-//						} else { // A=V << F={?} ---> 0
-//						}
+//							break;
+//						case Binding.INTERSECTION_TYPE :// A={? extends V1&...&Vn} << F={?} ---> 0
+//							break;
+//						default :// A=V << F={?} ---> 0
+//							break;
+//						}						
 						break;
 					case Wildcard.EXTENDS: // F={? extends U}
-						if (actualType.isWildcard()) {
-							WildcardBinding actualWildcard = (WildcardBinding) actualType;
-							switch(actualWildcard.boundKind) {
-								case Wildcard.UNBOUND: // A={?} << F={? extends U}  --> 0
-									break;
-								case Wildcard.EXTENDS: // A={? extends V} << F={? extends U} ---> V << U
-									this.bound.collectSubstitutes(scope, actualWildcard.bound, inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
-						        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
-										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
-						        	}									
-									break;
-								case Wildcard.SUPER: // A={? super V} << F={? extends U} ---> 0
-									break;
-							}
-						} else { // A=V << F={? extends U} ---> V << U
-							this.bound.collectSubstitutes(scope, actualType, inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
+						switch(actualType.kind()) {
+							case Binding.WILDCARD_TYPE :
+								WildcardBinding actualWildcard = (WildcardBinding) actualType;
+								switch(actualWildcard.boundKind) {
+									case Wildcard.UNBOUND: // A={?} << F={? extends U}  --> 0
+										break;
+									case Wildcard.EXTENDS: // A={? extends V} << F={? extends U} ---> V << U
+										this.bound.collectSubstitutes(scope, actualWildcard.bound, inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
+										break;
+									case Wildcard.SUPER: // A={? super V} << F={? extends U} ---> 0
+										break;
+								}
+								break;
+							case Binding.INTERSECTION_TYPE : // A={? extends V1&...&Vn} << F={? extends U} ---> V1 << U, ..., Vn << U
+								WildcardBinding actualIntersection = (WildcardBinding) actualType;
+								this.bound.collectSubstitutes(scope, actualIntersection.bound, inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
+					        	for (int i = 0, length = actualIntersection.otherBounds.length; i < length; i++) {
+									this.bound.collectSubstitutes(scope, actualIntersection.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
+					        	}									
+								break;
+							default : // A=V << F={? extends U} ---> V << U
+								this.bound.collectSubstitutes(scope, actualType, inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
+								break;
 						}
 						break;
 					case Wildcard.SUPER: // F={? super U}
-						if (actualType.isWildcard()) {
-							WildcardBinding actualWildcard = (WildcardBinding) actualType;
-							switch(actualWildcard.boundKind) {
-								case Wildcard.UNBOUND: // A={?} << F={? super U}  --> 0
-									break;
-								case Wildcard.EXTENDS: // A={? extends V} << F={? super U} ---> 0
-									break;
-								case Wildcard.SUPER: // A={? super V} << F={? super U} ---> 0
-									this.bound.collectSubstitutes(scope, actualWildcard.bound, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
-						        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
-										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_SUPER);
-						        	}									
-									break;
-							}
-						} else { // A=V << F={? super U} ---> V >> U
-							this.bound.collectSubstitutes(scope, actualType, inferenceContext, TypeConstants.CONSTRAINT_SUPER);							
-						}						
+						switch (actualType.kind()) {
+							case Binding.WILDCARD_TYPE :
+								WildcardBinding actualWildcard = (WildcardBinding) actualType;
+								switch(actualWildcard.boundKind) {
+									case Wildcard.UNBOUND: // A={?} << F={? super U}  --> 0
+										break;
+									case Wildcard.EXTENDS: // A={? extends V} << F={? super U} ---> 0
+										break;
+									case Wildcard.SUPER: // A={? super V} << F={? super U} ---> 0
+										this.bound.collectSubstitutes(scope, actualWildcard.bound, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
+							        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
+											this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_SUPER);
+							        	}									
+										break;
+								}
+								break;
+							case Binding.INTERSECTION_TYPE : // A={? extends V1&...&Vn} << F={? super U} ---> 0
+								break;
+							default :// A=V << F={? super U} ---> V >> U
+								this.bound.collectSubstitutes(scope, actualType, inferenceContext, TypeConstants.CONSTRAINT_SUPER);							
+								break;
+						}
 						break;
 				}
 				break;
 			case TypeConstants.CONSTRAINT_EQUAL : // A == F
 				switch (this.boundKind) {
 					case Wildcard.UNBOUND: // F={?}
-//						if (otherType.isWildcard()) {
-//							WildcardBinding otherWildcard = (WildcardBinding) otherType;
-//							switch(otherWildcard.kind) {
+//						switch (actualType.kind()) {
+//						case Binding.WILDCARD_TYPE :
+//							WildcardBinding actualWildcard = (WildcardBinding) actualType;
+//							switch(actualWildcard.kind) {
 //								case Wildcard.UNBOUND: // A={?} == F={?}  --> 0
 //									break;
 //								case Wildcard.EXTENDS: // A={? extends V} == F={?} ---> 0
@@ -169,53 +186,73 @@ public class WildcardBinding extends ReferenceBinding {
 //								case Wildcard.SUPER: // A={? super V} == F={?} ---> 0
 //									break;
 //							}
-//						} else { // A=V == F={?} ---> 0
-//						}
+//							break;
+//						case Binding.INTERSECTION_TYPE :// A={? extends V1&...&Vn} == F={?} ---> 0
+//							break;
+//						default :// A=V == F={?} ---> 0
+//							break;
+//						}		
 						break;
 					case Wildcard.EXTENDS: // F={? extends U}
-						if (actualType.isWildcard()) {
-							WildcardBinding actualWildcard = (WildcardBinding) actualType;
-							switch(actualWildcard.boundKind) {
-								case Wildcard.UNBOUND: // A={?} == F={? extends U}  --> 0
-									break;
-								case Wildcard.EXTENDS: // A={? extends V} == F={? extends U} ---> V == U
-									this.bound.collectSubstitutes(scope, actualWildcard.bound, inferenceContext, TypeConstants.CONSTRAINT_EQUAL);
-						        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
-										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_EQUAL);
-						        	}											
-									break;
-								case Wildcard.SUPER: // A={? super V} == F={? extends U} ---> 0
-									break;
-							}
-						} else { // A=V == F={? extends U} ---> 0
-						}
+						switch (actualType.kind()) {
+							case Binding.WILDCARD_TYPE :
+								WildcardBinding actualWildcard = (WildcardBinding) actualType;
+								switch(actualWildcard.boundKind) {
+									case Wildcard.UNBOUND: // A={?} == F={? extends U}  --> 0
+										break;
+									case Wildcard.EXTENDS: // A={? extends V} == F={? extends U} ---> V == U
+										this.bound.collectSubstitutes(scope, actualWildcard.bound, inferenceContext, TypeConstants.CONSTRAINT_EQUAL);
+							        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
+											this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_EQUAL);
+							        	}											
+										break;
+									case Wildcard.SUPER: // A={? super V} == F={? extends U} ---> 0
+										break;
+								}
+								break;
+							case Binding.INTERSECTION_TYPE : // A={? extends V1&...&Vn} == F={? extends U} ---> V1 == U, ..., Vn == U
+								WildcardBinding actuaIntersection = (WildcardBinding) actualType;
+								this.bound.collectSubstitutes(scope, actuaIntersection.bound, inferenceContext, TypeConstants.CONSTRAINT_EQUAL);
+					        	for (int i = 0, length = actuaIntersection.otherBounds == null ? 0 : actuaIntersection.otherBounds.length; i < length; i++) {
+									this.bound.collectSubstitutes(scope, actuaIntersection.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_EQUAL);
+					        	}
+								break;
+							default : // A=V == F={? extends U} ---> 0
+								break;
+						}						
 						break;
 					case Wildcard.SUPER: // F={? super U}
-						if (actualType.isWildcard()) {
-							WildcardBinding actualWildcard = (WildcardBinding) actualType;
-							switch(actualWildcard.boundKind) {
-								case Wildcard.UNBOUND: // A={?} == F={? super U}  --> 0
-									break;
-								case Wildcard.EXTENDS: // A={? extends V} == F={? super U} ---> 0
-									break;
-								case Wildcard.SUPER: // A={? super V} == F={? super U} ---> 0
-									this.bound.collectSubstitutes(scope, actualWildcard.bound, inferenceContext, TypeConstants.CONSTRAINT_EQUAL);
-						        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
-										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_EQUAL);
-						        	}	
-						        	break;
-							}
-						} else { // A=V == F={? super U} ---> 0
-						}						
+						switch (actualType.kind()) {
+							case Binding.WILDCARD_TYPE :
+								WildcardBinding actualWildcard = (WildcardBinding) actualType;
+								switch(actualWildcard.boundKind) {
+									case Wildcard.UNBOUND: // A={?} == F={? super U}  --> 0
+										break;
+									case Wildcard.EXTENDS: // A={? extends V} == F={? super U} ---> 0
+										break;
+									case Wildcard.SUPER: // A={? super V} == F={? super U} ---> 0
+										this.bound.collectSubstitutes(scope, actualWildcard.bound, inferenceContext, TypeConstants.CONSTRAINT_EQUAL);
+							        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
+											this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_EQUAL);
+							        	}	
+							        	break;
+								}
+								break;
+							case Binding.INTERSECTION_TYPE :  // A={? extends V1&...&Vn} == F={? super U} ---> 0
+								break;
+							default : // A=V == F={? super U} ---> 0
+								break;
+						}								
 						break;
 				}
 				break;
 			case TypeConstants.CONSTRAINT_SUPER : // A >> F
 				switch (this.boundKind) {
 					case Wildcard.UNBOUND: // F={?}
-//						if (otherType.isWildcard()) {
-//							WildcardBinding otherWildcard = (WildcardBinding) otherType;
-//							switch(otherWildcard.kind) {
+//						switch (actualType.kind()) {
+//						case Binding.WILDCARD_TYPE :
+//							WildcardBinding actualWildcard = (WildcardBinding) actualType;
+//							switch(actualWildcard.kind) {
 //								case Wildcard.UNBOUND: // A={?} >> F={?}  --> 0
 //									break;
 //								case Wildcard.EXTENDS: // A={? extends V} >> F={?} ---> 0
@@ -223,44 +260,63 @@ public class WildcardBinding extends ReferenceBinding {
 //								case Wildcard.SUPER: // A={? super V} >> F={?} ---> 0
 //									break;
 //							}
-//						} else { // A=V >> F={?} ---> 0
-//						}
+//							break;
+//						case Binding.INTERSECTION_TYPE :// A={? extends V1&...&Vn} >> F={?} ---> 0
+//							break;
+//						default :// A=V >> F={?} ---> 0
+//							break;
+//						}		
 						break;
 					case Wildcard.EXTENDS: // F={? extends U}
-						if (actualType.isWildcard()) {
-							WildcardBinding actualWildcard = (WildcardBinding) actualType;
-							switch(actualWildcard.boundKind) {
-								case Wildcard.UNBOUND: // A={?} >> F={? extends U}  --> 0
-									break;
-								case Wildcard.EXTENDS: // A={? extends V} >> F={? extends U} ---> V >> U
-									this.bound.collectSubstitutes(scope, actualWildcard.bound, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
-						        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
-										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_SUPER);
-						        	}										
-									break;
-								case Wildcard.SUPER: // A={? super V} >> F={? extends U} ---> 0
-									break;
-							}
-						} else { // A=V == F={? extends U} ---> 0
+						switch (actualType.kind()) {
+							case Binding.WILDCARD_TYPE :
+								WildcardBinding actualWildcard = (WildcardBinding) actualType;
+								switch(actualWildcard.boundKind) {
+									case Wildcard.UNBOUND: // A={?} >> F={? extends U}  --> 0
+										break;
+									case Wildcard.EXTENDS: // A={? extends V} >> F={? extends U} ---> V >> U
+										this.bound.collectSubstitutes(scope, actualWildcard.bound, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
+							        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
+											this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_SUPER);
+							        	}										
+										break;
+									case Wildcard.SUPER: // A={? super V} >> F={? extends U} ---> 0
+										break;
+								}
+								break;
+							case Binding.INTERSECTION_TYPE : // A={? extends V1&...&Vn} >> F={? extends U} ---> V1 >> U, ..., Vn >> U
+								WildcardBinding actualIntersection = (WildcardBinding) actualType;
+								this.bound.collectSubstitutes(scope, actualIntersection.bound, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
+					        	for (int i = 0, length = actualIntersection.otherBounds == null ? 0 : actualIntersection.otherBounds.length; i < length; i++) {
+									this.bound.collectSubstitutes(scope, actualIntersection.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_SUPER);
+					        	}										
+								break;
+							default : // A=V == F={? extends U} ---> 0
+								break;
 						}
 						break;
 					case Wildcard.SUPER: // F={? super U}
-						if (actualType.isWildcard()) {
-							WildcardBinding actualWildcard = (WildcardBinding) actualType;
-							switch(actualWildcard.boundKind) {
-								case Wildcard.UNBOUND: // A={?} >> F={? super U}  --> 0
-									break;
-								case Wildcard.EXTENDS: // A={? extends V} >> F={? super U} ---> 0
-									break;
-								case Wildcard.SUPER: // A={? super V} >> F={? super U} ---> V >> U
-									this.bound.collectSubstitutes(scope, actualWildcard.bound, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
-						        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
-										this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_SUPER);
-						        	}	
-						        	break;
-							}
-						} else { // A=V >> F={? super U} ---> 0
-						}						
+						switch (actualType.kind()) {
+							case Binding.WILDCARD_TYPE :
+								WildcardBinding actualWildcard = (WildcardBinding) actualType;
+								switch(actualWildcard.boundKind) {
+									case Wildcard.UNBOUND: // A={?} >> F={? super U}  --> 0
+										break;
+									case Wildcard.EXTENDS: // A={? extends V} >> F={? super U} ---> 0
+										break;
+									case Wildcard.SUPER: // A={? super V} >> F={? super U} ---> V >> U
+										this.bound.collectSubstitutes(scope, actualWildcard.bound, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
+							        	for (int i = 0, length = actualWildcard.otherBounds == null ? 0 : actualWildcard.otherBounds.length; i < length; i++) {
+											this.bound.collectSubstitutes(scope, actualWildcard.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_SUPER);
+							        	}	
+							        	break;
+								}
+								break;
+							case Binding.INTERSECTION_TYPE :  // A={? extends V1&...&Vn} >> F={? super U} ---> 0
+								break;
+							default : // A=V >> F={? super U} ---> 0
+								break;
+						}											
 						break;
 				}
 				break;
@@ -416,11 +472,16 @@ public class WildcardBinding extends ReferenceBinding {
 			return this;
 
 		this.tagBits &= ~TagBits.HasUnresolvedTypeVariables;
-		BinaryTypeBinding.resolveType(this.genericType, this.environment, null, 0);
+		BinaryTypeBinding.resolveType(this.genericType, this.environment, null, 0); // do not assign to genericType field, since will return a raw type
 	    switch(this.boundKind) {
 	        case Wildcard.EXTENDS :
+				this.bound = BinaryTypeBinding.resolveType(this.bound, this.environment, null, 0);
+	        	for (int i = 0, length = this.otherBounds == null ? 0 : this.otherBounds.length; i < length; i++) {
+					this.otherBounds[i]= BinaryTypeBinding.resolveType(this.bound, this.environment, null, 0);
+	        	}
+				break;
 	        case Wildcard.SUPER :
-				BinaryTypeBinding.resolveType(this.bound, this.environment, null, 0);
+				this.bound = BinaryTypeBinding.resolveType(this.bound, this.environment, null, 0);
 				break;
 			case Wildcard.UNBOUND :
 	    }
@@ -586,9 +647,18 @@ public class WildcardBinding extends ReferenceBinding {
 		if (this.genericType == unresolvedType) {
 			this.genericType = resolvedType; // no raw conversion
 			affected = true;
-		} else if (this.bound == unresolvedType) {
+		} 
+		if (this.bound == unresolvedType) {
 			this.bound = env.convertUnresolvedBinaryToRawType(resolvedType);
 			affected = true;
+		} 
+		if (this.otherBounds != null) {
+			for (int i = 0, length = this.otherBounds.length; i < length; i++) {
+				if (this.otherBounds[i] == unresolvedType) {
+					this.otherBounds[i] = env.convertUnresolvedBinaryToRawType(resolvedType);
+					affected = true;
+				}
+			}
 		}
 		if (affected) 
 			initialize(this.genericType, this.bound, this.otherBounds);

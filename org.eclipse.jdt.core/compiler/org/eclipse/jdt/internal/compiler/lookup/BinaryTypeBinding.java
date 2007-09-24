@@ -95,11 +95,13 @@ public static AnnotationBinding[] createAnnotations(IBinaryAnnotation[] annotati
 public static ReferenceBinding resolveType(ReferenceBinding type, LookupEnvironment environment, boolean convertGenericToRawType) {
 	if (type instanceof UnresolvedReferenceBinding)
 		return ((UnresolvedReferenceBinding) type).resolve(environment, convertGenericToRawType);
-	if (type.isParameterizedType())
-		return ((ParameterizedTypeBinding) type).resolve();
-	if (type.isWildcard())
-		return ((WildcardBinding) type).resolve();
-
+	switch (type.kind()) {
+		case Binding.PARAMETERIZED_TYPE :
+			return ((ParameterizedTypeBinding) type).resolve();
+		case Binding.WILDCARD_TYPE :
+		case Binding.INTERSECTION_TYPE :
+			return ((WildcardBinding) type).resolve();
+	}
 	if (convertGenericToRawType) // raw reference to generic ?
 		return (ReferenceBinding) environment.convertUnresolvedBinaryToRawType(type);
 	return type;
@@ -111,6 +113,7 @@ public static TypeBinding resolveType(TypeBinding type, LookupEnvironment enviro
 			return ((ParameterizedTypeBinding) type).resolve();
 			
 		case Binding.WILDCARD_TYPE :
+		case Binding.INTERSECTION_TYPE :
 			return ((WildcardBinding) type).resolve();
 			
 		case Binding.ARRAY_TYPE :
@@ -844,6 +847,7 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 	if (otherType == null) return false;
 	switch(otherType.kind()) {
 		case Binding.WILDCARD_TYPE :
+		case Binding.INTERSECTION_TYPE :
 			return ((WildcardBinding) otherType).boundCheck(this);
 		case Binding.RAW_TYPE :
 			return otherType.erasure() == this;

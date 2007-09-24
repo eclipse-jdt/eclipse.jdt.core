@@ -229,10 +229,11 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	private static int checkInvocationArgument(BlockScope scope, Expression argument, TypeBinding parameterType, TypeBinding argumentType, TypeBinding originalParameterType) {
 		argument.computeConversion(scope, parameterType, argumentType);
 
-		if (argumentType != TypeBinding.NULL && parameterType.isWildcard()) {
+		if (argumentType != TypeBinding.NULL && parameterType.kind() == Binding.WILDCARD_TYPE) { // intersection types are tolerated
 			WildcardBinding wildcard = (WildcardBinding) parameterType;
-			if (wildcard.boundKind != Wildcard.SUPER && wildcard.otherBounds == null) // lub wildcards are tolerated
+			if (wildcard.boundKind != Wildcard.SUPER) {
 		    	return INVOCATION_ARGUMENT_WILDCARD;
+			}
 		}
 		TypeBinding checkedParameterType = originalParameterType == null ? parameterType : originalParameterType;
 		if (argumentType != checkedParameterType && argumentType.needsUncheckedConversion(checkedParameterType)) {

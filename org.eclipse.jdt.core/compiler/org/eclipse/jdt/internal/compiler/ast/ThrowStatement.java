@@ -67,7 +67,7 @@ public void resolve(BlockScope scope) {
 				// if compliant with 1.4, this problem will not be reported
 				scope.problemReporter().cannotThrowNull(this.exception);
 			}
-	 	} else if (exceptionType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) == null) {
+	 	} else if (exceptionType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangThrowable, true) == null) {
 			scope.problemReporter().cannotThrowType(this.exception, this.exceptionType);
 		}
 		this.exception.computeConversion(scope, this.exceptionType, this.exceptionType);

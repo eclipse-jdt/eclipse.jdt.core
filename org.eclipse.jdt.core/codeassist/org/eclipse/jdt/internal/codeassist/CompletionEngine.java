@@ -4901,7 +4901,7 @@ public final class CompletionEngine
 
 			newMethodsFound.add(new Object[]{method, receiverType});
 			
-			ReferenceBinding superTypeWithSameErasure = (ReferenceBinding)receiverType.findSuperTypeWithSameErasure(method.declaringClass);
+			ReferenceBinding superTypeWithSameErasure = (ReferenceBinding)receiverType.findSuperTypeOriginatingFrom(method.declaringClass);
 			if (method.declaringClass != superTypeWithSameErasure) {
 				MethodBinding[] otherMethods = superTypeWithSameErasure.getMethods(method.selector);
 				for (int i = 0; i < otherMethods.length; i++) {
@@ -5161,7 +5161,7 @@ public final class CompletionEngine
 				
 				methodsFound.add(new Object[]{method, receiverType});
 				
-				ReferenceBinding superTypeWithSameErasure = (ReferenceBinding)receiverType.findSuperTypeWithSameErasure(method.declaringClass);
+				ReferenceBinding superTypeWithSameErasure = (ReferenceBinding)receiverType.findSuperTypeOriginatingFrom(method.declaringClass);
 				if (method.declaringClass != superTypeWithSameErasure) {
 					MethodBinding[] otherMethods = superTypeWithSameErasure.getMethods(method.selector);
 					for (int i = 0; i < otherMethods.length; i++) {
@@ -5843,63 +5843,67 @@ public final class CompletionEngine
 	}
 	
 	private void createType(TypeBinding type, Scope scope, StringBuffer completion) {
-		if (type.isBaseType()) {
-			completion.append(type.sourceName());
-		} else if (type.isTypeVariable()) {
-			completion.append(type.sourceName());
-		} else if (type.isWildcard()) {
-			WildcardBinding wildcardBinding = (WildcardBinding) type;
-			completion.append('?');
-			switch (wildcardBinding.boundKind) {
-				case Wildcard.EXTENDS:
-					completion.append(' ');
-					completion.append(EXTENDS);
-					completion.append(' ');
-					createType(wildcardBinding.bound, scope, completion);
-					if(wildcardBinding.otherBounds != null) {
-						
-						int length = wildcardBinding.otherBounds.length;
-						for (int i = 0; i < length; i++) {
-							completion.append(' ');
-							completion.append('&');
-							completion.append(' ');
-							createType(wildcardBinding.otherBounds[i], scope, completion);
+		switch (type.kind()) {
+			case Binding.BASE_TYPE :
+				completion.append(type.sourceName());
+				break;
+			case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE : // TODO (david) need to handle intersection type specifically
+				WildcardBinding wildcardBinding = (WildcardBinding) type;
+				completion.append('?');
+				switch (wildcardBinding.boundKind) {
+					case Wildcard.EXTENDS:
+						completion.append(' ');
+						completion.append(EXTENDS);
+						completion.append(' ');
+						createType(wildcardBinding.bound, scope, completion);
+						if(wildcardBinding.otherBounds != null) {
+							
+							int length = wildcardBinding.otherBounds.length;
+							for (int i = 0; i < length; i++) {
+								completion.append(' ');
+								completion.append('&');
+								completion.append(' ');
+								createType(wildcardBinding.otherBounds[i], scope, completion);
+							}
 						}
-					}
-					break;
-				case Wildcard.SUPER:
-					completion.append(' ');
-					completion.append(SUPER);
-					completion.append(' ');
-					createType(wildcardBinding.bound, scope, completion);
-					break;
-			}
-		} else if (type.isArrayType()) {
-			createType(type.leafComponentType(), scope, completion);
-			int dim = type.dimensions();
-			for (int i = 0; i < dim; i++) {
-				completion.append('[');
-				completion.append(']');
-			}
-		} else if (type.isParameterizedType()) {
-			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) type;
-			if (type.isMemberType()) {
-				createType(parameterizedType.enclosingType(), scope, completion);
-				completion.append('.');
-				completion.append(parameterizedType.sourceName);
-			} else {
-				completion.append(CharOperation.concatWith(parameterizedType.genericType().compoundName, '.'));
-			}	    
-			if (parameterizedType.arguments != null) {
-				completion.append('<');
-			    for (int i = 0, length = parameterizedType.arguments.length; i < length; i++) {
-			        if (i != 0) completion.append(',');
-			        createType(parameterizedType.arguments[i], scope, completion);
-			    }
-			    completion.append('>');
-			}
-		} else {
-			char[] packageName = type.qualifiedPackageName();
+						break;
+					case Wildcard.SUPER:
+						completion.append(' ');
+						completion.append(SUPER);
+						completion.append(' ');
+						createType(wildcardBinding.bound, scope, completion);
+						break;
+				}
+				break;
+			case Binding.ARRAY_TYPE :
+				createType(type.leafComponentType(), scope, completion);
+				int dim = type.dimensions();
+				for (int i = 0; i < dim; i++) {
+					completion.append('[');
+					completion.append(']');
+				}
+				break;
+			case Binding.PARAMETERIZED_TYPE :
+				ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) type;
+				if (type.isMemberType()) {
+					createType(parameterizedType.enclosingType(), scope, completion);
+					completion.append('.');
+					completion.append(parameterizedType.sourceName);
+				} else {
+					completion.append(CharOperation.concatWith(parameterizedType.genericType().compoundName, '.'));
+				}	    
+				if (parameterizedType.arguments != null) {
+					completion.append('<');
+				    for (int i = 0, length = parameterizedType.arguments.length; i < length; i++) {
+				        if (i != 0) completion.append(',');
+				        createType(parameterizedType.arguments[i], scope, completion);
+				    }
+				    completion.append('>');
+				}
+				break;
+			default :
+				char[] packageName = type.qualifiedPackageName();
 			char[] typeName = type.qualifiedSourceName();
 			if(mustQualifyType(
 					(ReferenceBinding)type,
@@ -5909,6 +5913,7 @@ public final class CompletionEngine
 			} else {
 				completion.append(type.sourceName());
 			}
+			break;
 		}
 	}
 	
@@ -6569,7 +6574,7 @@ public final class CompletionEngine
 				} else if (this.assistNodeIsAnnotation) {
 					if(!sourceType.isAnnotationType()) continue next;
 				} else if (isEmptyPrefix && this.assistNodeIsException) {
-					if (sourceType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) == null) {
+					if (sourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangThrowable, true) == null) {
 						continue next;
 					}
 				}

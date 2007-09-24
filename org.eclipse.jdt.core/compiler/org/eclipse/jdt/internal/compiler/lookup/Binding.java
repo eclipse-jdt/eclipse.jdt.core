@@ -29,6 +29,7 @@ public abstract class Binding {
 	public static final int RAW_TYPE = TYPE | ASTNode.Bit11;
 	public static final int GENERIC_TYPE = TYPE | ASTNode.Bit12;
 	public static final int TYPE_PARAMETER = TYPE | ASTNode.Bit13;
+	public static final int INTERSECTION_TYPE = TYPE | ASTNode.Bit14;
 	
 	// Shared binding collections
 	public static final TypeBinding[] NO_TYPES = new TypeBinding[0];

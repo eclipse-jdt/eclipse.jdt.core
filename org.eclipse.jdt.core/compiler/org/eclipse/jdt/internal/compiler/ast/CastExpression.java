@@ -302,7 +302,7 @@ public class CastExpression extends Expression {
 								}
 								// [JLS 5.5] S has no subtype X != T, such that |X| == |T|
 								TypeBinding genericCastType = castType.erasure(); // jump to generic type
-								TypeBinding genericMatch = genericCastType.findSuperTypeWithSameErasure(expressionType);
+								TypeBinding genericMatch = genericCastType.findSuperTypeOriginatingFrom(expressionType);
 								if (genericMatch == match) {
 									this.bits |= UnsafeCast;
 								}

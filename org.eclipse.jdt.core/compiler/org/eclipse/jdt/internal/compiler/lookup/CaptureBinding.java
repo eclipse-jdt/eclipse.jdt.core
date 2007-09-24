@@ -166,8 +166,11 @@ public class CaptureBinding extends TypeVariableBinding {
 			if (this.firstBound.isCompatibleWith(otherType))
 				return true;
 		}
-	    if (otherType.isWildcard()) // wildcard
-			return ((WildcardBinding) otherType).boundCheck(this);
+		switch (otherType.kind()) {
+			case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE :
+				return ((WildcardBinding) otherType).boundCheck(this);
+		}
 		return false;
 	}
 

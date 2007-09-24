@@ -955,7 +955,7 @@ public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, bool
 		while (accessFields.hasNext()) {
 			field = (FieldBinding) accessFields.next();
 			if (CharOperation.prefixEquals(TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX, field.name)
-				&& field.type.findSuperTypeWithSameErasure(targetEnclosingType) != null)
+				&& field.type.findSuperTypeOriginatingFrom(targetEnclosingType) != null)
 					return field;
 		}
 	}
@@ -1003,6 +1003,7 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 	switch(otherType.kind()) {
 
 		case Binding.WILDCARD_TYPE :
+		case Binding.INTERSECTION_TYPE:
 			return ((WildcardBinding) otherType).boundCheck(this);
 
 		case Binding.PARAMETERIZED_TYPE :
@@ -1339,7 +1340,7 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 				methodDecl.scope.problemReporter().invalidParameterizedExceptionType(resolvedExceptionType, exceptionTypes[i]);
 				continue;
 			}
-			if (resolvedExceptionType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) == null) {
+			if (resolvedExceptionType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangThrowable, true) == null) {
 				methodDecl.scope.problemReporter().cannotThrowType(exceptionTypes[i], resolvedExceptionType);
 				continue;
 			}

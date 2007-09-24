@@ -309,7 +309,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 					
 				case Binding.TYPE_PARAMETER : 
 					// ( TYPE_PARAMETER ) ARRAY
-					TypeBinding match = expressionType.findSuperTypeWithSameErasure(castType);
+					TypeBinding match = expressionType.findSuperTypeOriginatingFrom(castType);
 					if (match == null) {
 						checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
 					}
@@ -332,15 +332,16 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 			}
 					
 		case Binding.TYPE_PARAMETER :
-			TypeBinding match = expressionType.findSuperTypeWithSameErasure(castType);
+			TypeBinding match = expressionType.findSuperTypeOriginatingFrom(castType);
 			if (match != null) {
 				return checkUnsafeCast(scope, castType, expressionType, match, false);
 			}
 			// recursively on the type variable upper bound
 			return checkCastTypesCompatibility(scope, castType, ((TypeVariableBinding)expressionType).upperBound(), expression);
 			
-		case Binding.WILDCARD_TYPE : // intersection type
-			match = expressionType.findSuperTypeWithSameErasure(castType);
+		case Binding.WILDCARD_TYPE :
+		case Binding.INTERSECTION_TYPE :
+			match = expressionType.findSuperTypeOriginatingFrom(castType);
 			if (match != null) {
 				return checkUnsafeCast(scope, castType, expressionType, match, false);
 			}
@@ -363,7 +364,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 
 					case Binding.TYPE_PARAMETER :
 						// ( INTERFACE ) TYPE_PARAMETER
-						match = expressionType.findSuperTypeWithSameErasure(castType);
+						match = expressionType.findSuperTypeOriginatingFrom(castType);
 						if (match == null) {
 							checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
 						}
@@ -374,12 +375,12 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 						if (castType.isInterface()) {
 							// ( INTERFACE ) INTERFACE
 							ReferenceBinding interfaceType = (ReferenceBinding) expressionType;
-							match = interfaceType.findSuperTypeWithSameErasure(castType);
+							match = interfaceType.findSuperTypeOriginatingFrom(castType);
 							if (match != null) {
 								return checkUnsafeCast(scope, castType, interfaceType, match, false);
 							}
 							tagAsNeedCheckCast();
-							match = castType.findSuperTypeWithSameErasure(interfaceType);
+							match = castType.findSuperTypeOriginatingFrom(interfaceType);
 							if (match != null) {
 								return checkUnsafeCast(scope, castType, interfaceType, match, true);
 							}
@@ -413,7 +414,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							}
 							// can only be a downcast
 							tagAsNeedCheckCast();
-							match = castType.findSuperTypeWithSameErasure(expressionType);
+							match = castType.findSuperTypeOriginatingFrom(expressionType);
 							if (match != null) {
 								return checkUnsafeCast(scope, castType, expressionType, match, true);
 							}
@@ -444,7 +445,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 						
 					case Binding.TYPE_PARAMETER :
 						// ( TYPE_PARAMETER ) CLASS
-						match = expressionType.findSuperTypeWithSameErasure(castType);
+						match = expressionType.findSuperTypeOriginatingFrom(castType);
 						if (match == null) {
 							checkUnsafeCast(scope, castType, expressionType, match, true);
 						}
@@ -455,7 +456,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 						if (castType.isInterface()) {
 							// ( INTERFACE ) CLASS
 							ReferenceBinding refExprType = (ReferenceBinding) expressionType;
-							match = refExprType.findSuperTypeWithSameErasure(castType);
+							match = refExprType.findSuperTypeOriginatingFrom(castType);
 							if (match != null) {
 								return checkUnsafeCast(scope, castType, expressionType, match, false);
 							}
@@ -464,7 +465,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 								return false;
 							}
 							tagAsNeedCheckCast();
-							match = castType.findSuperTypeWithSameErasure(expressionType);
+							match = castType.findSuperTypeOriginatingFrom(expressionType);
 							if (match != null) {
 								return checkUnsafeCast(scope, castType, expressionType, match, true);
 							}
@@ -477,12 +478,12 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							return true;
 						} else {
 							// ( CLASS ) CLASS
-							match = expressionType.findSuperTypeWithSameErasure(castType);
+							match = expressionType.findSuperTypeOriginatingFrom(castType);
 							if (match != null) {
 								if (expression != null && castType.id == TypeIds.T_JavaLangString) this.constant = expression.constant; // (String) cst is still a constant
 								return checkUnsafeCast(scope, castType, expressionType, match, false);
 							}
-							match = castType.findSuperTypeWithSameErasure(expressionType);
+							match = castType.findSuperTypeOriginatingFrom(expressionType);
 							if (match != null) {
 								tagAsNeedCheckCast();
 								return checkUnsafeCast(scope, castType, expressionType, match, true);
@@ -531,11 +532,13 @@ public final boolean checkProvablyDistinctTypes(Scope scope, TypeBinding castTyp
 	switch (expressionType.kind()) {
 		case Binding.TYPE_PARAMETER:
 		case Binding.WILDCARD_TYPE:
+		case Binding.INTERSECTION_TYPE:
 			return false;
 	}
 	switch (castType.kind()) {
 	case Binding.TYPE_PARAMETER:
 	case Binding.WILDCARD_TYPE:
+	case Binding.INTERSECTION_TYPE:
 		return false;
 
 	case Binding.PARAMETERIZED_TYPE:

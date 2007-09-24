@@ -273,15 +273,20 @@ public class Factory {
 		case Binding.ARRAY_TYPE:
 		case Binding.BASE_TYPE:
 		case Binding.WILDCARD_TYPE:
+		case Binding.INTERSECTION_TYPE:
 			throw new UnsupportedOperationException("NYI: binding type " + binding.kind()); //$NON-NLS-1$
 		}
 		return null;
 	}
 	
 	public DeclaredType newDeclaredType(ReferenceBinding binding) {
-		if (binding.kind() == Binding.WILDCARD_TYPE) {
-			// JDT wildcard binding is a subclass of reference binding, but in JSR269 they're siblings
-			throw new IllegalArgumentException("A wildcard binding can't be turned into a DeclaredType"); //$NON-NLS-1$
+		switch (binding.kind()) {
+			case Binding.WILDCARD_TYPE :
+				// JDT wildcard binding is a subclass of reference binding, but in JSR269 they're siblings
+				throw new IllegalArgumentException("A wildcard binding can't be turned into a DeclaredType"); //$NON-NLS-1$
+			case Binding.INTERSECTION_TYPE :
+				// JDT intersection binding is a subclass of reference binding, but in JSR269 they're siblings
+				throw new IllegalArgumentException("An intersection binding can't be turned into a DeclaredType"); //$NON-NLS-1$
 		}
 		return new DeclaredTypeImpl(_env, binding);
 	}
@@ -388,6 +393,7 @@ public class Factory {
 			}
 
 		case Binding.WILDCARD_TYPE:
+		case Binding.INTERSECTION_TYPE: // TODO compatible, but shouldn't it really be an intersection type?
 			return new WildcardTypeImpl(_env, (WildcardBinding) binding);
 
 		case Binding.TYPE_PARAMETER:
