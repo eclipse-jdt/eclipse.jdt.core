@@ -359,6 +359,26 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 		}
 	}
 	
+	public void endVisit(ForStatement node) {
+		endVisitNode(node);
+		List initializers = node.initializers();
+		if (initializers.size() == 1) {
+			Expression expression = (Expression) initializers.get(0);
+			if (expression.getNodeType() == ASTNode.VARIABLE_DECLARATION_EXPRESSION) {
+				VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) expression;
+				List fragments = variableDeclarationExpression.fragments();
+				for (int i = 0, max = fragments.size(); i <max; i++) {
+					VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(i);
+					SimpleName simpleName = fragment.getName();
+					if (CharOperation.equals(RecoveryScanner.FAKE_IDENTIFIER, simpleName.getIdentifier().toCharArray())) {
+						fragments.remove(fragment);
+						variableDeclarationExpression.setFlags(variableDeclarationExpression.getFlags() | ASTNode.RECOVERED);
+					}
+				}
+			}
+		}
+	}
+
 	public void endVisit(VariableDeclarationStatement node) {
 		endVisitNode(node);
 		List fragments = node.fragments();
@@ -371,8 +391,8 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 				SimpleName simpleName = (SimpleName) expression;
 				if (CharOperation.equals(RecoveryScanner.FAKE_IDENTIFIER, simpleName.getIdentifier().toCharArray())) {
 					fragment.setInitializer(null);
-					fragment.setFlags(node.getFlags() | ASTNode.RECOVERED);
-				}			
+					fragment.setFlags(fragment.getFlags() | ASTNode.RECOVERED);
+				}
 			}
 		}
 	}

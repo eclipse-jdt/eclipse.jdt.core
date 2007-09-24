@@ -378,20 +378,18 @@ class ASTConverter {
 
 	protected void checkAndAddMultipleLocalDeclaration(org.eclipse.jdt.internal.compiler.ast.Statement[] stmts, int index, List blockStatements) {
 		if (index > 0
-			&& stmts[index - 1] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
-				org.eclipse.jdt.internal.compiler.ast.LocalDeclaration local1 = (org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) stmts[index - 1];
-				org.eclipse.jdt.internal.compiler.ast.LocalDeclaration local2 = (org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) stmts[index];
-				if (local2.name == RecoveryScanner.FAKE_IDENTIFIER) // workaround for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=199668
-					return;
-				if (local1.declarationSourceStart == local2.declarationSourceStart) {
-					// we have a multiple local declarations
-					// We retrieve the existing VariableDeclarationStatement to add the new VariableDeclarationFragment
-					VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) blockStatements.get(blockStatements.size() - 1);
-					variableDeclarationStatement.fragments().add(convertToVariableDeclarationFragment((org.eclipse.jdt.internal.compiler.ast.LocalDeclaration)stmts[index]));
-				} else {
-					// we can create a new FieldDeclaration
-					blockStatements.add(convertToVariableDeclarationStatement((org.eclipse.jdt.internal.compiler.ast.LocalDeclaration)stmts[index]));
-				}
+				&& stmts[index - 1] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
+			org.eclipse.jdt.internal.compiler.ast.LocalDeclaration local1 = (org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) stmts[index - 1];
+			org.eclipse.jdt.internal.compiler.ast.LocalDeclaration local2 = (org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) stmts[index];
+			if (local1.declarationSourceStart == local2.declarationSourceStart) {
+				// we have a multiple local declarations
+				// We retrieve the existing VariableDeclarationStatement to add the new VariableDeclarationFragment
+				VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) blockStatements.get(blockStatements.size() - 1);
+				variableDeclarationStatement.fragments().add(convertToVariableDeclarationFragment((org.eclipse.jdt.internal.compiler.ast.LocalDeclaration)stmts[index]));
+			} else {
+				// we can create a new FieldDeclaration
+				blockStatements.add(convertToVariableDeclarationStatement((org.eclipse.jdt.internal.compiler.ast.LocalDeclaration)stmts[index]));
+			}
 		} else {
 			// we can create a new FieldDeclaration
 			blockStatements.add(convertToVariableDeclarationStatement((org.eclipse.jdt.internal.compiler.ast.LocalDeclaration)stmts[index]));
@@ -1739,16 +1737,11 @@ class ASTConverter {
 			// we know that we have at least one initialization
 			if (initializations[0] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
 				org.eclipse.jdt.internal.compiler.ast.LocalDeclaration initialization = (org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) initializations[0];
-				if (initialization.name == RecoveryScanner.FAKE_IDENTIFIER) { // workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=199668) 
-					return null;
-				}
 				VariableDeclarationExpression variableDeclarationExpression = convertToVariableDeclarationExpression(initialization);
 				int initializationsLength = initializations.length;
 				for (int i = 1; i < initializationsLength; i++) {
 					initialization = (org.eclipse.jdt.internal.compiler.ast.LocalDeclaration)initializations[i];
-					if (initialization.name != RecoveryScanner.FAKE_IDENTIFIER) { // workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=199668) 
-						variableDeclarationExpression.fragments().add(convertToVariableDeclarationFragment(initialization));
-					}
+					variableDeclarationExpression.fragments().add(convertToVariableDeclarationFragment(initialization));
 				}
 				if (initializationsLength != 1) {
 					int start = variableDeclarationExpression.getStartPosition();
@@ -2380,8 +2373,6 @@ class ASTConverter {
 		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
 			org.eclipse.jdt.internal.compiler.ast.LocalDeclaration localDeclaration = (org.eclipse.jdt.internal.compiler.ast.LocalDeclaration)statement;
-			if (localDeclaration.name == RecoveryScanner.FAKE_IDENTIFIER) // workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=199668
-				return null;
 			return convertToVariableDeclarationStatement(localDeclaration);
 		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.AssertStatement) {

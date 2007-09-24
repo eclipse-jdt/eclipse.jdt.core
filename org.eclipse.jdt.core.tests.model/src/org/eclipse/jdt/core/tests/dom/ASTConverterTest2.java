@@ -43,7 +43,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0578"};
-//		TESTS_NUMBERS =  new int[] { 606 };
+//		TESTS_NUMBERS =  new int[] { 608 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTest2.class);
@@ -5501,8 +5501,20 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"  }\n" +
 				"}"
 			);
-			ASTNode cu = buildAST(null, workingCopy, false, true);
-			assertNotNull("Should get an AST", cu);
+			ASTNode node = buildAST(null, workingCopy, false, true);
+			assertNotNull("Should get an AST", node);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			node = getASTNode((CompilationUnit) node, 0, 0, 0);
+			assertEquals("Not a for statement", ASTNode.FOR_STATEMENT, node.getNodeType());
+			ForStatement forStatement = (ForStatement) node;
+			List initializers = forStatement.initializers();
+			assertEquals("Wrong size", 1, initializers.size());
+			VariableDeclarationExpression expression = (VariableDeclarationExpression) initializers.get(0);
+			List fragments = expression.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			assertEquals("Wrong name", "i", fragment.getName().getIdentifier());
+			assertTrue("Should be a recovered fragment", isRecovered(expression));
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
