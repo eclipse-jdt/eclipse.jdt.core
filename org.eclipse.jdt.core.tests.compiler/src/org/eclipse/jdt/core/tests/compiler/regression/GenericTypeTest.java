@@ -39203,4 +39203,79 @@ public void test1171() {
 		},
 		"");
 }
+public void test1172() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	T field;\n" + 
+			"	void foo(X<String> xs, X<Number> xn, boolean b) {\n" + 
+			"		(b ? xs : xn).field = xs.field;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	(b ? xs : xn).field = xs.field;\n" + 
+		"	                      ^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from String to capture#1-of ? extends Serializable\n" + 
+		"----------\n");
+}
+public void test1173() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	T field;\n" + 
+			"	void foo(X<Integer> x1, X<Long> x2, boolean b) {\n" + 
+			"		(b ? x1 : x2).field = x1.field;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	(b ? x1 : x2).field = x1.field;\n" + 
+		"	                      ^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Integer to capture#1-of ? extends Number&Comparable<?>\n" + 
+		"----------\n");
+}
+public void test1174() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	T field;\n" + 
+			"	void foo(X<Integer> x1, X<Long> x2, boolean b) {\n" + 
+			"		(b ? x1 : x2).field = (b ? x1 : x2).field;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	(b ? x1 : x2).field = (b ? x1 : x2).field;\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from capture#2-of ? extends Number&Comparable<?> to capture#1-of ? extends Number&Comparable<?>\n" + 
+		"----------\n");
+}
+public void test1175() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends A & B> {\n" + 
+			"	T field;\n" + 
+			"	void foo(X<? extends C> x1, X<? extends C> x2, boolean b) {\n" + 
+			"		(b ? x1 : x2).field = new C();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class A {}\n" + 
+			"interface B {}\n" + 
+			"class C extends A implements B {}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	(b ? x1 : x2).field = new C();\n" + 
+		"	                      ^^^^^^^\n" + 
+		"Type mismatch: cannot convert from C to capture#3-of ? extends C\n" + 
+		"----------\n");
+}
 }
