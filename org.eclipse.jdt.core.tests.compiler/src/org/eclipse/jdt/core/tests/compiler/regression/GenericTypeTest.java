@@ -39278,4 +39278,72 @@ public void test1175() {
 		"Type mismatch: cannot convert from C to capture#3-of ? extends C\n" + 
 		"----------\n");
 }
+public void test1176() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Foo & Bar> {\n" + 
+			"	T get() { return null; }\n" + 
+			"	void method(X<? extends C> x1, X<? extends C> x2, boolean b) {\n" + 
+			"		(b ? x1 : x2).get().foo();\n" + 
+			"		(b ? x1 : x2).get().bar();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Foo {\n" + 
+			"	void foo() {/**/}\n" + 
+			"}\n" + 
+			"interface Bar {\n" + 
+			"	void bar();\n" + 
+			"}\n" + 
+			"abstract class C extends Foo implements Bar {/**/}\n" + 
+			"\n", // =================
+		},
+		"");
+}
+public void test1177() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Foo & Bar> {\n" + 
+			"	T get() { return null; }\n" + 
+			"	void method(X<? extends Runnable> x1, X<? extends java.io.Serializable> x2, boolean b) {\n" + 
+			"		(b ? x1 : x2).get().foo();\n" + 
+			"		(b ? x1 : x2).get().bar();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Foo {\n" + 
+			"	void foo() {/**/}\n" + 
+			"}\n" + 
+			"interface Bar {\n" + 
+			"	void bar();\n" + 
+			"}\n" + 
+			"\n", // =================
+		},
+		"");
+}
+public void test1178() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Foo & Bar> {\n" + 
+			"	T get() { return null; }\n" + 
+			"	void method(X<? extends C> x1, X<? extends D> x2, boolean b) {\n" + 
+			"		(b ? x1 : x2).get().baz();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Foo {\n" + 
+			"	void foo() {/**/}\n" + 
+			"}\n" + 
+			"interface Bar {\n" + 
+			"	void bar();\n" + 
+			"}\n" + 
+			"abstract class C extends Foo implements Bar {\n" +
+			"	void baz() {/**/}\n" +
+			"}\n" + 
+			"abstract class D extends C {/**/}\n" + 
+			"abstract class E extends C {/**/}\n" + 
+			"\n", // =================
+		},
+		"");
+}
 }
