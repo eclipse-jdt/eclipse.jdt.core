@@ -241,7 +241,7 @@ public class ClasspathChange {
 					
 			// if no changes to resolved classpath, nothing more to do
 			if (this.oldResolvedClasspath != null && JavaProject.areClasspathsEqual(this.oldResolvedClasspath, newResolvedClasspath, this.oldOutputLocation, newOutputLocation))
-				return NO_DELTA;
+				return result;
 			
 			// close cached info
 			this.project.close();
@@ -250,11 +250,14 @@ public class ClasspathChange {
 				e.printStackTrace();
 			}
 			// project no longer exist
-			return NO_DELTA;
+			return result;
 		}
 		
 		if (this.oldResolvedClasspath == null)
-			return NO_DELTA;
+			return result;
+		
+		delta.changed(this.project, IJavaElementDelta.F_RESOLVED_CLASSPATH_CHANGED);
+		result |= HAS_DELTA;
 		
 		Map removedRoots = null;
 		IPackageFragmentRoot[] roots = null;
@@ -308,7 +311,6 @@ public class ClasspathChange {
 					}
 				}
 				addClasspathDeltas(delta, pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH);
-				result |= HAS_DELTA;
 			} else {
 				// remote project changes
 				if (this.oldResolvedClasspath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT) {
@@ -317,7 +319,6 @@ public class ClasspathChange {
 				}				
 				if (index != i) { //reordering of the classpath
 					addClasspathDeltas(delta, this.project.computePackageFragmentRoots(this.oldResolvedClasspath[i]),	IJavaElementDelta.F_REORDER);
-					result |= HAS_DELTA;
 				}
 				
 				// check source attachment
@@ -329,7 +330,6 @@ public class ClasspathChange {
 				int flags = sourceAttachmentFlags | sourceAttachmentRootFlags;
 				if (flags != 0) {
 					addClasspathDeltas(delta, this.project.computePackageFragmentRoots(this.oldResolvedClasspath[i]), flags);
-					result |= HAS_DELTA;
 				} else {
 					if (oldRootPath == null && newRootPath == null) {
 						// if source path is specified and no root path, it needs to be recomputed dynamically
@@ -358,7 +358,6 @@ public class ClasspathChange {
 					continue; 
 				}
 				addClasspathDeltas(delta, this.project.computePackageFragmentRoots(newResolvedClasspath[i]), IJavaElementDelta.F_ADDED_TO_CLASSPATH);
-				result |= HAS_DELTA;
 			} // classpath reordering has already been generated in previous loop
 		}
 
@@ -372,7 +371,6 @@ public class ClasspathChange {
 					IPackageFragment frag= (IPackageFragment)iter.next();
 					((IPackageFragmentRoot)frag.getParent()).close();
 					delta.added(frag);
-					result |= HAS_DELTA;
 				}
 			
 				// see if this will cause any package fragments to be removed
@@ -382,7 +380,6 @@ public class ClasspathChange {
 					IPackageFragment frag= (IPackageFragment)iter.next();
 					((IPackageFragmentRoot)frag.getParent()).close(); 
 					delta.removed(frag);
-					result |= HAS_DELTA;
 				}
 			} catch (JavaModelException e) {
 				if (DeltaProcessor.VERBOSE)

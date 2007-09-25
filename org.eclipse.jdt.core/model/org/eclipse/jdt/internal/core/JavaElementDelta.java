@@ -687,7 +687,13 @@ protected boolean toDebugString(StringBuffer buffer, int flags) {
 	if ((flags & IJavaElementDelta.F_CLASSPATH_CHANGED) != 0) {
 		if (prev)
 			buffer.append(" | "); //$NON-NLS-1$
-		buffer.append("CLASSPATH CHANGED"); //$NON-NLS-1$
+		buffer.append("RAW CLASSPATH CHANGED"); //$NON-NLS-1$
+		prev = true;
+	}
+	if ((flags & IJavaElementDelta.F_RESOLVED_CLASSPATH_CHANGED) != 0) {
+		if (prev)
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("RESOLVED CLASSPATH CHANGED"); //$NON-NLS-1$
 		prev = true;
 	}
 	if ((flags & IJavaElementDelta.F_PRIMARY_RESOURCE) != 0) {

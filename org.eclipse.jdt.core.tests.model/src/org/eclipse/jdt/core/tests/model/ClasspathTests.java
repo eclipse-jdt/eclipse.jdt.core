@@ -157,6 +157,36 @@ protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreExceptio
 	return result;
 }
 
+/*
+ * Ensures that adding a project to a container triggers a classpath delta
+ * (regression test for 154071 No notification of change if a project is added or removed from a container)
+ */
+public void testAddProjectToContainer() throws CoreException {
+	try {
+		createJavaProject("P1");
+		TestContainer container = new TestContainer(
+			new Path("org.eclipse.jdt.core.tests.model.container/default"), 
+			new IClasspathEntry[] {});
+		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {container.getPath().toString()}, "");
+		JavaCore.setClasspathContainer(container.getPath(), new IJavaProject[] {p2}, new IClasspathContainer[] {container}, null);
+		
+		container = new TestContainer(
+			new Path("org.eclipse.jdt.core.tests.model.container/default"), 
+			new IClasspathEntry[] {JavaCore.newProjectEntry(new Path("/P1"))});
+		
+		startDeltas();
+		JavaCore.setClasspathContainer(container.getPath(), new IJavaProject[] {p2}, new IClasspathContainer[] {container}, null);
+		assertDeltas(
+			"Unexpected delta", 
+			"P2[*]: {RESOLVED CLASSPATH CHANGED}"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
 /**
  * Add an entry to the classpath for a non-existent root. Then create
  * the root and ensure that it comes alive.
@@ -205,6 +235,50 @@ public void testAddRoot2() throws CoreException {
 	}
 }
 
+/*
+ * Ensures that changing the raw classpath and the containers so that the resolved classpath doesn't change
+ * generates the correct delta.
+ */
+public void testChangeRawButNotResolvedClasspath() throws CoreException {
+	try {
+		final String containerPath1 = "org.eclipse.jdt.core.tests.model.container/con1";
+		final TestContainer container1 = new TestContainer(
+			new Path(containerPath1), 
+			new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P/lib1.jar"), null, null)});
+		final String containerPath2 = "org.eclipse.jdt.core.tests.model.container/con2";
+		final TestContainer container2 = new TestContainer(
+			new Path(containerPath2), 
+			new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P/lib2.jar"), null, null)});
+		final IJavaProject p = createJavaProject("P", new String[] {}, new String[] {containerPath1, containerPath2}, "");
+		createFile("/P/lib1.jar", "");
+		createFile("/P/lib2.jar", "");
+		JavaCore.setClasspathContainer(container1.getPath(), new IJavaProject[] {p}, new IClasspathContainer[] {container1}, null);
+		JavaCore.setClasspathContainer(container2.getPath(), new IJavaProject[] {p}, new IClasspathContainer[] {container2}, null);
+		
+		startDeltas();
+		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				IClasspathEntry[] newRawClasspath = new IClasspathEntry[] {
+					JavaCore.newContainerEntry(new Path(containerPath2)),
+					JavaCore.newContainerEntry(new Path(containerPath1))
+				};
+				p.setRawClasspath(newRawClasspath, monitor);
+				JavaCore.setClasspathContainer(container1.getPath(), new IJavaProject[] {p}, new IClasspathContainer[] {container2}, null);
+				JavaCore.setClasspathContainer(container2.getPath(), new IJavaProject[] {p}, new IClasspathContainer[] {container1}, null);
+			}
+		};
+		JavaCore.run(runnable, null);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CONTENT | RAW CLASSPATH CHANGED}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+
 /**
  * Ensures that the reordering external resources in the classpath
  * generates the correct deltas.
@@ -224,7 +298,7 @@ public void testClasspathChangeExternalResources() throws CoreException {
 		setClasspath(proj, swappedEntries);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	"+  getExternalJCLPathString() +"[*]: {REORDERED}\n" + 
 			"	"+  getExternalJCLSourcePathString() +"[*]: {REORDERED}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
@@ -1964,7 +2038,7 @@ public void testEmptyClasspath() throws CoreException {
 		// ensure the deltas are correct
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -2106,7 +2180,7 @@ public void testEmptyContainer() throws CoreException {
 
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CONTENT | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 	} finally {
@@ -3333,7 +3407,7 @@ public void testNoResourceChange04() throws CoreException {
 		project.setRawClasspath(newClasspath, false/*cannot modify resources*/, null/*no progress*/);
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	src2[*]: {ADDED TO CLASSPATH}"
 		);

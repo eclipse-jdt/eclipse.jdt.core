@@ -251,6 +251,8 @@ public interface IJavaElementDelta {
 	/**
 	 * Change flag indicating that the raw classpath (or the output folder) of a project has changed. 
 	 * This flag is only valid if the element is an {@link IJavaProject}.
+	 * Note this is independent from {@link #F_RESOLVED_CLASSPATH_CHANGED} which indicates
+	 * that the resolved classpath has changed.
 	 *
 	 * @since 3.0
 	 */
@@ -281,6 +283,17 @@ public interface IJavaElementDelta {
 	 */
 	public int F_CATEGORIES = 0x100000;
 	
+	/**
+	 * Change flag indicating that the resolved classpath of a project has changed. 
+	 * This flag is only valid if the element is an {@link IJavaProject}.
+	 * Note this is independent from {@link #F_CLASSPATH_CHANGED} which indicates
+	 * that the raw classpath has changed.
+	 *
+	 * @see IJavaProject#getResolvedClasspath(boolean)
+	 * @since 3.4
+	 */
+	public int F_RESOLVED_CLASSPATH_CHANGED = 0x200000;
+
 	/**
 	 * Returns deltas for the children that have been added.
 	 * @return deltas for the children that have been added

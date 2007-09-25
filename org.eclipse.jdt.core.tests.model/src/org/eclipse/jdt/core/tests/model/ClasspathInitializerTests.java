@@ -156,7 +156,7 @@ public void testContainerInitializer03() throws CoreException {
 		
 		assertDeltas(
 			"Unexpected delta on startup", 
-			"P2[*]: {CHILDREN}\n" + 
+			"P2[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	/P1/lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	/P1/lib2.jar[*]: {ADDED TO CLASSPATH}"
 		);
@@ -245,7 +245,7 @@ public void testContainerInitializer05() throws CoreException {
 		getJavaProject("P1").getResolvedClasspath(true);
 		assertDeltas(
 			"Unexpected delta after setting container", 
-			"P1[*]: {CHILDREN}\n" + 
+			"P1[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	lib.jar[*]: {ADDED TO CLASSPATH}"
 		);
 
@@ -1060,7 +1060,7 @@ public void testVariableInitializer07() throws CoreException {
 		
 		assertDeltas(
 			"Unexpected delta on startup", 
-			"P2[*]: {CHILDREN}\n" + 
+			"P2[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	/P1/lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	/P1/lib2.jar[*]: {ADDED TO CLASSPATH}"
 		);

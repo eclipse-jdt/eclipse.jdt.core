@@ -153,7 +153,7 @@ public void testChangeOutputLocation() throws JavaModelException, CoreException 
 		project.setOutputLocation(folder.getFullPath(), null);
 		assertDeltas(
 			"Unexpected delta 1",
-			"JavaProjectTests[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"JavaProjectTests[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
 			"		bin[+]: {}\n" + 
 			"	ResourceDelta(/JavaProjectTests/.classpath)[*]"
@@ -166,7 +166,7 @@ public void testChangeOutputLocation() throws JavaModelException, CoreException 
 			project.setOutputLocation(folder.getFullPath(), null);
 			assertDeltas(
 				"Unexpected delta 2",
-				"JavaProjectTests[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+				"JavaProjectTests[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 				"	<project root>[*]: {CHILDREN}\n" + 
 				"		bin[-]: {}\n" + 
 				"	ResourceDelta(/JavaProjectTests/.classpath)[*]"

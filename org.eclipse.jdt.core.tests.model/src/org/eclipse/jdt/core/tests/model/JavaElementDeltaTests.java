@@ -265,7 +265,7 @@ public void testAddDotClasspathFile() throws CoreException {
 		);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	src[*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[+]"
@@ -635,7 +635,7 @@ public void testChangeCustomOutput() throws CoreException {
 			});
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -662,7 +662,7 @@ public void testChangeExportFlag() throws CoreException {
 			});
 		assertDeltas(
 			"Unexpected delta", 
-			"P2[*]: {CONTENT | CLASSPATH CHANGED}\n" + 
+			"P2[*]: {CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 	} finally {
@@ -687,7 +687,7 @@ public void testChangeRootKind() throws CoreException {
 			});
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -1018,7 +1018,7 @@ public void testDeleteProjectSetCPAnotherProject() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected deltas",
-			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"P1[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	<project root>[*]: {ADDED TO CLASSPATH}\n" + 
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
@@ -1753,7 +1753,7 @@ public void testOverwriteClasspath() throws CoreException {
 		getWorkspace().run(run, null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" +
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
 			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" +
 			"	src[*]: {ADDED TO CLASSPATH}\n" +
 			"	ResourceDelta(/P/.classpath)[*]\n" +
@@ -1871,7 +1871,7 @@ public void testRemoveAddBinaryProject() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	<project root>[*]: {ADDED TO CLASSPATH}\n" + 
 			"	lib.jar[-]: {}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]\n" + 
@@ -1936,7 +1936,7 @@ public void testRemoveCPEntryAndRoot1() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	src[-]: {}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -1968,7 +1968,7 @@ public void testRemoveCPEntryAndRoot2() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	src[-]: {}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -2000,7 +2000,7 @@ public void testRemoveCPEntryAndRoot3() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	src[-]: {}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
@@ -2334,7 +2334,7 @@ public void testSetClasspathOnFreshProject() throws CoreException {
 		p1.setRawClasspath(classpath, null);
 		assertDeltas(
 			"Should notice src2 and myLib additions to the classpath", 
-			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"P1[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
 			"	/LibProj/mylib.jar[*]: {ADDED TO CLASSPATH}\n" + 
 			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	src2[*]: {ADDED TO CLASSPATH}\n" + 
@@ -2361,7 +2361,7 @@ public void testSetClasspathVariable1() throws CoreException {
 		JavaCore.setClasspathVariables(new String[] {"LIB"}, new IPath[] {new Path("/LibProj/otherlib.jar")}, null);
 		assertDeltas(
 			"Unexpected delta after setting classpath variable", 
-			"P[*]: {CHILDREN}\n" +
+			"P[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" +
 			"	/LibProj/mylib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
 			"	/LibProj/otherlib.jar[*]: {ADDED TO CLASSPATH}"
 		);
@@ -2387,10 +2387,10 @@ public void testSetClasspathVariable2() throws CoreException {
 		JavaCore.setClasspathVariables(new String[] {"LIB"}, new IPath[] {new Path("/LibProj/otherlib.jar")}, null);
 		assertEquals(
 			"Unexpected delta after setting classpath variable", 
-			"P1[*]: {CHILDREN}\n" +
+			"P1[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" +
 			"	/LibProj/mylib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
 			"	/LibProj/otherlib.jar[*]: {ADDED TO CLASSPATH}\n" + 
-			"P2[*]: {CHILDREN}\n" +
+			"P2[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" +
 			"	/LibProj/mylib.jar[*]: {REMOVED FROM CLASSPATH}\n" +
 			"	/LibProj/otherlib.jar[*]: {ADDED TO CLASSPATH}", 
 			getSortedByProjectDeltas());
