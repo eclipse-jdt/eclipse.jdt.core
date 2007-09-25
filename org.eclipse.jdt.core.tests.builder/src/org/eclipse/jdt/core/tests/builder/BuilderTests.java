@@ -424,7 +424,7 @@ public class BuilderTests extends TestCase {
 
 			/* get the leaf problems for this type */
 			Problem[] problems = env.getProblemsFor(path);
-			System.out.println(problems);
+			System.out.println(problemsToString(problems));
 		}
 	}
 
