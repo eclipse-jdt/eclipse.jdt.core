@@ -447,11 +447,16 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		return null; // incompatible
 	}
 	
+	/**
+	 * Connect type variable supertypes, and returns true if no problem was detected
+	 * @param typeParameters
+	 * @param checkForErasedCandidateCollisions
+	 */
 	protected boolean connectTypeVariables(TypeParameter[] typeParameters, boolean checkForErasedCandidateCollisions) {
 		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) return true;
-		boolean noProblems = true;
 		Map invocations = new HashMap(2);
-		nextVariable : for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
+		boolean noProblems = true;
+		nextVariable: for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
 			TypeParameter typeParameter = typeParameters[i];
 			TypeVariableBinding typeVariable = typeParameter.binding;
 			if (typeVariable == null) return false;
@@ -464,93 +469,105 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			TypeReference typeRef = typeParameter.type;
 			if (typeRef == null)
 				continue nextVariable;
+			boolean isFirstBoundTypeVariable = false;
 			TypeBinding superType = this.kind == METHOD_SCOPE
 				? typeRef.resolveType((BlockScope)this, false/*no bound check*/)
 				: typeRef.resolveType((ClassScope)this);
 			if (superType == null) {
 				typeVariable.tagBits |= TagBits.HierarchyHasProblems;
-				noProblems = false;
-				continue nextVariable;
-			}
-			typeRef.resolvedType = superType; // hold onto the problem type
-			if (superType.isArrayType()) {
-				problemReporter().boundCannotBeArray(typeRef, superType);
-				continue nextVariable;
-			}
-			boolean isTypeVariableFirstBound =  superType.isTypeVariable();
-			if (isTypeVariableFirstBound) {
-				TypeVariableBinding varSuperType = (TypeVariableBinding) superType;
-				if (varSuperType.rank >= typeVariable.rank && varSuperType.declaringElement == typeVariable.declaringElement) {
-					problemReporter().forwardTypeVariableReference(typeParameter, varSuperType);
-					typeVariable.tagBits |= TagBits.HierarchyHasProblems;
-					noProblems = false;
-					continue nextVariable;
+			} else {
+				typeRef.resolvedType = superType; // hold onto the problem type
+				firstBound: {
+					switch (superType.kind()) {
+						case Binding.ARRAY_TYPE :
+							problemReporter().boundCannotBeArray(typeRef, superType);
+							typeVariable.tagBits |= TagBits.HierarchyHasProblems;
+							break firstBound; // do not keep first bound
+						case Binding.TYPE_PARAMETER :
+							isFirstBoundTypeVariable = true;
+							TypeVariableBinding varSuperType = (TypeVariableBinding) superType;
+							if (varSuperType.rank >= typeVariable.rank && varSuperType.declaringElement == typeVariable.declaringElement) {
+								problemReporter().forwardTypeVariableReference(typeParameter, varSuperType);
+								typeVariable.tagBits |= TagBits.HierarchyHasProblems;
+								break firstBound; // do not keep first bound
+							}
+							break;
+						default :
+							if (((ReferenceBinding) superType).isFinal()) {
+								problemReporter().finalVariableBound(typeVariable, typeRef);
+							}
+							break;
+					}
+					ReferenceBinding superRefType = (ReferenceBinding) superType;
+					if (!superType.isInterface()) {
+						typeVariable.superclass = superRefType;
+					} else {
+						typeVariable.superInterfaces = new ReferenceBinding[] {superRefType};
+					}
+					typeVariable.firstBound = superRefType; // first bound used to compute erasure
 				}
 			}
-			ReferenceBinding superRefType = (ReferenceBinding) superType;
-			if (superRefType.isFinal())
-				problemReporter().finalVariableBound(typeVariable, typeRef);
-			if (!superType.isInterface()) {
-				typeVariable.superclass = superRefType;
-			} else {
-				typeVariable.superInterfaces = new ReferenceBinding[] {superRefType};
-			}
-			typeVariable.firstBound = superRefType; // first bound used to compute erasure
 			TypeReference[] boundRefs = typeParameter.bounds;
 			if (boundRefs != null) {
-				for (int j = 0, boundLength = boundRefs.length; j < boundLength; j++) {
+				nextBound: for (int j = 0, boundLength = boundRefs.length; j < boundLength; j++) {
 					typeRef = boundRefs[j];
 					superType = this.kind == METHOD_SCOPE
 						? typeRef.resolveType((BlockScope)this, false)
 						: typeRef.resolveType((ClassScope)this);
 					if (superType == null) {
 						typeVariable.tagBits |= TagBits.HierarchyHasProblems;
-						noProblems = false;
-						continue nextVariable;
-					}
-					typeRef.resolvedType = superType; // hold onto the problem type
-					if (isTypeVariableFirstBound && j == 0) {
-						problemReporter().noAdditionalBoundAfterTypeVariable(typeRef);
-					}
-					if (superType.isArrayType()) {
-						problemReporter().boundCannotBeArray(typeRef, superType);
-						continue nextVariable;
-					}
-					superRefType = (ReferenceBinding) superType;
-					if (!superType.isInterface()) {
-						problemReporter().boundMustBeAnInterface(typeRef, superType);
-						typeVariable.tagBits |= TagBits.HierarchyHasProblems;
-						noProblems = false;
-						continue nextVariable;
-					}
-					// check against superclass
-					if (checkForErasedCandidateCollisions && typeVariable.firstBound == typeVariable.superclass) {
-						if (hasErasedCandidatesCollisions(superType, typeVariable.superclass, invocations, typeVariable, typeRef)) {
-							noProblems = false;
-							continue nextVariable;
-						}
-					}
-					// check against superinterfaces
-					for (int index = typeVariable.superInterfaces.length; --index >= 0;) {
-						ReferenceBinding previousInterface = typeVariable.superInterfaces[index];
-						if (previousInterface == superRefType) {
-							problemReporter().duplicateBounds(typeRef, superType);
+						continue nextBound;
+					} else {
+						typeRef.resolvedType = superType; // hold onto the problem type
+						boolean didAlreadyComplain = false;
+						if (isFirstBoundTypeVariable && j == 0) {
+							problemReporter().noAdditionalBoundAfterTypeVariable(typeRef);
 							typeVariable.tagBits |= TagBits.HierarchyHasProblems;
-							noProblems = false;
-							continue nextVariable;
-						}
-						if (checkForErasedCandidateCollisions) {
-							if (hasErasedCandidatesCollisions(superType, previousInterface, invocations, typeVariable, typeRef)) {
-								noProblems = false;
-								continue nextVariable;
+							didAlreadyComplain = true;
+							//continue nextBound; - keep these bounds to minimize secondary errors
+						} else if (superType.isArrayType()) {
+							if (!didAlreadyComplain) {
+								problemReporter().boundCannotBeArray(typeRef, superType);
+								typeVariable.tagBits |= TagBits.HierarchyHasProblems;
+							}
+							continue nextBound;
+						} else {
+							if (!superType.isInterface()) {
+								if (!didAlreadyComplain) {
+									problemReporter().boundMustBeAnInterface(typeRef, superType);
+									typeVariable.tagBits |= TagBits.HierarchyHasProblems;
+								}
+								continue nextBound;
 							}
 						}
+						// check against superclass
+						if (checkForErasedCandidateCollisions && typeVariable.firstBound == typeVariable.superclass) {
+							if (hasErasedCandidatesCollisions(superType, typeVariable.superclass, invocations, typeVariable, typeRef)) {
+								continue nextBound;
+							}
+						}
+						// check against superinterfaces
+						ReferenceBinding superRefType = (ReferenceBinding) superType;
+						for (int index = typeVariable.superInterfaces.length; --index >= 0;) {
+							ReferenceBinding previousInterface = typeVariable.superInterfaces[index];
+							if (previousInterface == superRefType) {
+								problemReporter().duplicateBounds(typeRef, superType);
+								typeVariable.tagBits |= TagBits.HierarchyHasProblems;
+								continue nextBound;
+							}
+							if (checkForErasedCandidateCollisions) {
+								if (hasErasedCandidatesCollisions(superType, previousInterface, invocations, typeVariable, typeRef)) {
+									continue nextBound;
+								}
+							}
+						}
+						int size = typeVariable.superInterfaces.length;
+						System.arraycopy(typeVariable.superInterfaces, 0, typeVariable.superInterfaces = new ReferenceBinding[size + 1], 0, size);
+						typeVariable.superInterfaces[size] = superRefType;
 					}
-					int size = typeVariable.superInterfaces.length;
-					System.arraycopy(typeVariable.superInterfaces, 0, typeVariable.superInterfaces = new ReferenceBinding[size + 1], 0, size);
-					typeVariable.superInterfaces[size] = superRefType;
 				}
 			}
+			noProblems &= (typeVariable.tagBits & TagBits.HierarchyHasProblems) == 0;
 		}
 		return noProblems;
 	}

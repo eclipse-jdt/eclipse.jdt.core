@@ -39346,4 +39346,165 @@ public void test1178() {
 		},
 		"");
 }
+public void test1179() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Object&V, V> {}\n" + 
+			"\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends Object&V, V> {}\n" + 
+		"	                                ^\n" + 
+		"The type V is not an interface; it cannot be specified as a bounded parameter\n" + 
+		"----------\n");
+}
+public void test1180() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static <S, T extends Comparable<S>, R extends S & T> R max1(T arg1, S arg2) {\n" + 
+			"		return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <T extends Comparable<S>, S, R extends S & Comparable<S>> R max2(T arg1, S arg2) {\n" + 
+			"		return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <T extends Comparable<S>, S, R extends Comparable<S>> R max3(T arg1, S arg2) {\n" + 
+			"		return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public static <S, T extends Comparable<S>, R extends S & T> R max1(T arg1, S arg2) {\n" + 
+		"	                                                         ^\n" + 
+		"Cannot specify any additional bound T when first bound is a type parameter\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to R\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	public static <T extends Comparable<S>, S, R extends S & Comparable<S>> R max2(T arg1, S arg2) {\n" + 
+		"	                                                         ^^^^^^^^^^\n" + 
+		"Cannot specify any additional bound Comparable<S> when first bound is a type parameter\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 7)\n" + 
+		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to R\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 11)\n" + 
+		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to R\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204534
+public void _test1181() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static <S, T extends Comparable<S>, R extends S & T> R max(T arg1, S arg2) {\n" + 
+			"		return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <T extends Comparable<S>, S, R extends S & Comparable<S>> R max(T arg1, S arg2) {\n" + 
+			"		return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <T extends Comparable<S>, S, R extends Comparable<S>> R max(T arg1, S arg2) {\n" + 
+			"		return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"should not see errors like: R cannot be resolved to a type");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204536
+public void test1182() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Zork & Zork & Object> {\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends Zork & Zork & Object> {\n" + 
+		"	                         ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends Zork & Zork & Object> {\n" + 
+		"	                                ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends Zork & Zork & Object> {\n" + 
+		"	                                       ^^^^^^\n" + 
+		"The type Object is not an interface; it cannot be specified as a bounded parameter\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204536 - variation
+public void test1183() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Zork & Runnable> {\n" + 
+			"	void foo(T t) {\n" + 
+			"		t.run();\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends Zork & Runnable> {\n" + 
+		"	                         ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204536 - variation
+public void test1184() {
+	// check that unresolved first bound got erased into Object (and not Runnable)
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Zork & Runnable> {\n" + 
+			"	T get() { return null; }\n" +
+			"	void foo(X x) {\n" + 
+			"		Runnable r = x.get();\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends Zork & Runnable> {\n" + 
+		"	                         ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	void foo(X x) {\n" + 
+		"	         ^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	Runnable r = x.get();\n" + 
+		"	             ^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to Runnable\n" + 
+		"----------\n");
+}
 }
