@@ -249,10 +249,15 @@ public interface IJavaElementDelta {
 	public int F_PRIMARY_WORKING_COPY = 0x010000;
 
 	/**
-	 * Change flag indicating that the raw classpath (or the output folder) of a project has changed. 
-	 * This flag is only valid if the element is an {@link IJavaProject}.
-	 * Note this is independent from {@link #F_RESOLVED_CLASSPATH_CHANGED} which indicates
-	 * that the resolved classpath has changed.
+	 * Change flag indicating that the {@link IJavaProject#getRawClasspath() raw classpath} 
+	 * (or the {@link IJavaProject#getOutputLocation() output folder}) of a project has changed. 
+	 * This flag is only valid if the element is an {@link IJavaProject}. 
+	 * Also see {@link #F_RESOLVED_CLASSPATH_CHANGED}, which indicates that there is a
+	 * change to the {@link IJavaProject#getResolvedClasspath(boolean) resolved class path}. 
+	 * The resolved classpath can change without the raw classpath changing (e.g. 
+	 * if a container resolves to a different set of classpath entries).
+	 * And conversely, it is possible to construct a case where the raw classpath 
+	 * can change without the resolved classpath changing.
 	 *
 	 * @since 3.0
 	 */
@@ -284,12 +289,16 @@ public interface IJavaElementDelta {
 	public int F_CATEGORIES = 0x100000;
 	
 	/**
-	 * Change flag indicating that the resolved classpath of a project has changed. 
+	 * Change flag indicating that the {@link IJavaProject#getResolvedClasspath(boolean) 
+	 * resolved classpath} of a project has changed. 
 	 * This flag is only valid if the element is an {@link IJavaProject}.
-	 * Note this is independent from {@link #F_CLASSPATH_CHANGED} which indicates
-	 * that the raw classpath has changed.
-	 *
-	 * @see IJavaProject#getResolvedClasspath(boolean)
+	 * Also see {@link #F_CLASSPATH_CHANGED}, which indicates that there is a
+	 * change to the {@link IJavaProject#getRawClasspath() raw class path}. 
+	 * The resolved classpath can change without the raw classpath changing (e.g. 
+	 * if a container resolves to a different set of classpath entries).
+	 * And conversely, it is possible to construct a case where the raw classpath 
+	 * can change without the resolved classpath changing.
+	 * 
 	 * @since 3.4
 	 */
 	public int F_RESOLVED_CLASSPATH_CHANGED = 0x200000;
