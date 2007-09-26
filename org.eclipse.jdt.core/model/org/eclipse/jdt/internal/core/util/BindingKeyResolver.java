@@ -131,7 +131,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 						if (checkType(((WildcardBinding) binding).bound))
 							return true;
 						TypeBinding[] otherBounds = ((WildcardBinding) binding).otherBounds;
-						if (otherBounds == null) return false;
+						// per construction, otherBounds is never null
 						for (int i = 0, length = otherBounds.length; i < length; i++) {
 							if (checkType(otherBounds[i]))
 								return true;
