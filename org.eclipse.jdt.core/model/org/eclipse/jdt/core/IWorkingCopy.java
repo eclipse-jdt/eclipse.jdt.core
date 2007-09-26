@@ -138,7 +138,7 @@ public interface IWorkingCopy {
 	 * @return the original element this working copy was created from,
 	 * or <code>null</code> if this is not a working copy
 	 * 
-	 * @deprecated Use {@link ICompilationUnit#findPrimaryType()} instead.
+	 * @deprecated Use {@link ICompilationUnit#getPrimaryElement()} instead.
 	 */
 	IJavaElement getOriginalElement();
 	
