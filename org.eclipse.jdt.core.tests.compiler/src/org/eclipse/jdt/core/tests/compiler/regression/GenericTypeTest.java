@@ -39409,7 +39409,7 @@ public void test1180() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=204534
-public void _test1181() {
+public void test1181() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -39430,7 +39430,42 @@ public void _test1181() {
 			"	}\n" + 
 			"}\n", // =================
 		},
-		"should not see errors like: R cannot be resolved to a type");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public static <S, T extends Comparable<S>, R extends S & T> R max(T arg1, S arg2) {\n" + 
+		"	                                                         ^\n" + 
+		"Cannot specify any additional bound T when first bound is a type parameter\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	public static <S, T extends Comparable<S>, R extends S & T> R max(T arg1, S arg2) {\n" + 
+		"	                                                              ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Method max(T, S) has the same erasure max(Comparable<T>, Object) as another method in type X\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 3)\n" + 
+		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to R\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	public static <T extends Comparable<S>, S, R extends S & Comparable<S>> R max(T arg1, S arg2) {\n" + 
+		"	                                                         ^^^^^^^^^^\n" + 
+		"Cannot specify any additional bound Comparable<S> when first bound is a type parameter\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 6)\n" + 
+		"	public static <T extends Comparable<S>, S, R extends S & Comparable<S>> R max(T arg1, S arg2) {\n" + 
+		"	                                                                          ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Method max(T, S) has the same erasure max(Comparable<T>, Object) as another method in type X\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 7)\n" + 
+		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to R\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 11)\n" + 
+		"	return (R) ((arg1.compareTo(arg2) > 0) ? arg1 : arg2);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to R\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=204536
 public void test1182() {

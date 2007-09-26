@@ -2271,9 +2271,19 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					case METHOD_SCOPE :
 						MethodScope methodScope = (MethodScope) scope;
 						AbstractMethodDeclaration methodDecl = methodScope.referenceMethod();
-						if (methodDecl != null && methodDecl.binding != null) {
-							TypeVariableBinding typeVariable = methodDecl.binding.getTypeVariable(name);
-							if (typeVariable != null)	return typeVariable;
+						if (methodDecl != null) {
+							if (methodDecl.binding != null) {
+								TypeVariableBinding typeVariable = methodDecl.binding.getTypeVariable(name);
+								if (typeVariable != null)
+									return typeVariable;
+							} else {
+								// use the methodDecl's typeParameters to handle problem cases when the method binding doesn't exist
+								TypeParameter[] params = methodDecl.typeParameters();
+								for (int i = params == null ? 0 : params.length; --i >= 0;)
+									if (CharOperation.equals(params[i].name, name))
+										if (params[i].binding != null && params[i].binding.isValidBinding())
+											return params[i].binding;
+							}
 						}
 						insideStaticContext |= methodScope.isStatic;
 						insideTypeAnnotation = methodScope.insideTypeAnnotation;
