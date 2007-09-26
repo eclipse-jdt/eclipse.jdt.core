@@ -285,6 +285,53 @@ public void testConstructor2() throws JavaModelException {
 		elements
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=204417
+ */
+public void testConstructor3() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/p/Type.java",
+		"package test.p;\n" + 
+		"public class Type {\n" +
+		"  void foo() {\n" +
+		"    new AClass(unknown) {};\n" +
+		"  }\n" + 
+		"}\n" +
+		"class AClass {\n" +
+		"}\n"
+	);
+	IJavaElement[] elements = codeSelect(this.workingCopies[0], "AClass(unknown)", "AClass");
+	assertElementsEqual(
+		"Unexpected elements",
+		"AClass [in [Working copy] Type.java [in test.p [in src [in Resolve]]]]",
+		elements
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=204417
+ */
+public void testConstructor4() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/p/Type.java",
+		"package test.p;\n" + 
+		"public class Type {\n" +
+		"  void foo() {\n" +
+		"    new AClass(unknown) {};\n" +
+		"  }\n" + 
+		"}\n" +
+		"class AClass {\n" +
+		"  public AClass(Object o) {}\n" +
+		"}\n"
+	);
+	IJavaElement[] elements = codeSelect(this.workingCopies[0], "AClass(unknown)", "AClass");
+	assertElementsEqual(
+		"Unexpected elements",
+		"AClass(Object) [in AClass [in [Working copy] Type.java [in test.p [in src [in Resolve]]]]]",
+		elements
+	);
+}
 /**
  * Resolve constructor call
  */
