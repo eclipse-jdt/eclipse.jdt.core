@@ -3886,7 +3886,7 @@ public final class JavaCore extends Plugin {
 			boolean isExported) {
 
 		if (path == null) Assert.isTrue(false, "Library path cannot be null"); //$NON-NLS-1$
-		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute"); //$NON-NLS-1$
+		if (!path.isAbsolute()) Assert.isTrue(false, "Path for IClasspathEntry must be absolute: " + path); //$NON-NLS-1$
 		if (sourceAttachmentPath != null) {
 			if (sourceAttachmentPath.isEmpty()) {
 				sourceAttachmentPath = null; // treat empty path as none
