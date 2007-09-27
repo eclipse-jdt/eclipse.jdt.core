@@ -570,19 +570,19 @@ public void testCancel() throws JavaModelException {
  * Ensures that contains(...) returns true for a type that is part of the
  * hierarchy and false otherwise.
  */
-public void testContains() throws JavaModelException {
+public void testContains1() throws JavaModelException {
 	// regular class
-	IClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "X.class");
-	IType type = cf.getType();
+	IType type = getClassFile("TypeHierarchy", "lib.jar", "binary", "X.class").getType();
 	assertTrue("X must be included", this.typeHierarchy.contains(type));
-
+}
+public void testContains2() throws JavaModelException {
 	// root class
-	cf = getClassFile("TypeHierarchy", getExternalJCLPathString(), "java.lang", "Object.class");
-	type = cf.getType();
+	IType type = getClassFile("TypeHierarchy", getExternalJCLPathString(), "java.lang", "Object.class").getType();
 	assertTrue("Object must be included", this.typeHierarchy.contains(type));
-
+}
+public void testContains3() throws JavaModelException {
 	// interface
-	cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "I.class");
+	IType type = getClassFile("TypeHierarchy", "lib.jar", "binary", "I.class").getType();
 	assertTrue("I must be included", this.typeHierarchy.contains(type));
 }
 public void testCycle() throws JavaModelException {
