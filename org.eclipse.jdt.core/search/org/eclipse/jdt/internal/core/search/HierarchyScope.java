@@ -334,9 +334,9 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	/*
 	 * @see AbstractSearchScope#processDelta(IJavaElementDelta)
 	 */
-	public void processDelta(IJavaElementDelta delta) {
+	public void processDelta(IJavaElementDelta delta, int eventType) {
 		if (this.needsRefresh) return;
-		this.needsRefresh = this.hierarchy == null ? false : ((TypeHierarchy)this.hierarchy).isAffected(delta);
+		this.needsRefresh = this.hierarchy == null ? false : ((TypeHierarchy)this.hierarchy).isAffected(delta, eventType);
 	}
 	protected void refresh() throws JavaModelException {
 		if (this.hierarchy != null) {

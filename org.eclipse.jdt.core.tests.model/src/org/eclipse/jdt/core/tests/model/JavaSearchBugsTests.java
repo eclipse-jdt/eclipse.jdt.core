@@ -8300,7 +8300,7 @@ public void testBug166348_Qualified() throws CoreException {
 public void testBug167190() throws CoreException, JavaModelException {
 	IJavaSearchScope scope = new AbstractSearchScope() {
 		IJavaSearchScope jsScope = getJavaSearchScope();
-		public void processDelta(IJavaElementDelta delta) {
+		public void processDelta(IJavaElementDelta delta, int eventType) {
 			// we should have no delta on this test case
 		}
 		public boolean encloses(String resourcePath) {

@@ -88,7 +88,7 @@ public void initialize(int size) {
 	}
 	this.needsInitialize = false;
 }
-public void processDelta(IJavaElementDelta delta) {
+public void processDelta(IJavaElementDelta delta, int eventType) {
 	if (this.needsInitialize) return;
 	IJavaElement element = delta.getElement();
 	switch (element.getElementType()) {
@@ -96,7 +96,7 @@ public void processDelta(IJavaElementDelta delta) {
 			IJavaElementDelta[] children = delta.getAffectedChildren();
 			for (int i = 0, length = children.length; i < length; i++) {
 				IJavaElementDelta child = children[i];
-				this.processDelta(child);
+				this.processDelta(child, eventType);
 			}
 			break;
 		case IJavaElement.JAVA_PROJECT:
@@ -115,7 +115,7 @@ public void processDelta(IJavaElementDelta delta) {
 						children = delta.getAffectedChildren();
 						for (int i = 0, length = children.length; i < length; i++) {
 							IJavaElementDelta child = children[i];
-							this.processDelta(child);
+							this.processDelta(child, eventType);
 						}
 					}
 					break;

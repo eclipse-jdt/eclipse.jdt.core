@@ -325,7 +325,7 @@ public void elementChanged(ElementChangedEvent event) {
 	// type hierarchy change has already been fired
 	if (this.needsRefresh) return;
 	
-	if (isAffected(event.getDelta())) {
+	if (isAffected(event.getDelta(), event.getType())) {
 		this.needsRefresh = true;
 		fireChange();
 	}
@@ -792,21 +792,22 @@ protected void initialize(int size) {
 }
 /**
  * Returns true if the given delta could change this type hierarchy
+ * @param eventType TODO
  */
-public synchronized boolean isAffected(IJavaElementDelta delta) {
+public synchronized boolean isAffected(IJavaElementDelta delta, int eventType) {
 	IJavaElement element= delta.getElement();
 	switch (element.getElementType()) {
 		case IJavaElement.JAVA_MODEL:
-			return isAffectedByJavaModel(delta, element);
+			return isAffectedByJavaModel(delta, element, eventType);
 		case IJavaElement.JAVA_PROJECT:
-			return isAffectedByJavaProject(delta, element);
+			return isAffectedByJavaProject(delta, element, eventType);
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-			return isAffectedByPackageFragmentRoot(delta, element);
+			return isAffectedByPackageFragmentRoot(delta, element, eventType);
 		case IJavaElement.PACKAGE_FRAGMENT:
-			return isAffectedByPackageFragment(delta, (PackageFragment) element);
+			return isAffectedByPackageFragment(delta, (PackageFragment) element, eventType);
 		case IJavaElement.CLASS_FILE:
 		case IJavaElement.COMPILATION_UNIT:
-			return isAffectedByOpenable(delta, element);
+			return isAffectedByOpenable(delta, element, eventType);
 	}
 	return false;
 }
@@ -814,12 +815,13 @@ public synchronized boolean isAffected(IJavaElementDelta delta) {
  * Returns true if any of the children of a project, package
  * fragment root, or package fragment have changed in a way that
  * effects this type hierarchy.
+ * @param eventType TODO
  */
-private boolean isAffectedByChildren(IJavaElementDelta delta) {
+private boolean isAffectedByChildren(IJavaElementDelta delta, int eventType) {
 	if ((delta.getFlags() & IJavaElementDelta.F_CHILDREN) > 0) {
 		IJavaElementDelta[] children= delta.getAffectedChildren();
 		for (int i= 0; i < children.length; i++) {
-			if (isAffected(children[i])) {
+			if (isAffected(children[i], eventType)) {
 				return true;
 			}
 		}
@@ -828,21 +830,23 @@ private boolean isAffectedByChildren(IJavaElementDelta delta) {
 }
 /**
  * Returns true if the given java model delta could affect this type hierarchy
+ * @param eventType TODO
  */
-private boolean isAffectedByJavaModel(IJavaElementDelta delta, IJavaElement element) {
+private boolean isAffectedByJavaModel(IJavaElementDelta delta, IJavaElement element, int eventType) {
 	switch (delta.getKind()) {
 		case IJavaElementDelta.ADDED :
 		case IJavaElementDelta.REMOVED :
 			return element.equals(this.javaProject().getJavaModel());
 		case IJavaElementDelta.CHANGED :
-			return isAffectedByChildren(delta);
+			return isAffectedByChildren(delta, eventType);
 	}
 	return false;
 }
 /**
  * Returns true if the given java project delta could affect this type hierarchy
+ * @param eventType TODO
  */
-private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement element) {
+private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement element, int eventType) {
     int kind = delta.getKind();
     int flags = delta.getFlags();
     if ((flags & IJavaElementDelta.F_OPENED) != 0) {
@@ -889,14 +893,15 @@ private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement el
 			}
 			return false;
 		case IJavaElementDelta.CHANGED :
-			return isAffectedByChildren(delta);
+			return isAffectedByChildren(delta, eventType);
 	}
 	return false;
 }
 /**
  * Returns true if the given package fragment delta could affect this type hierarchy
+ * @param eventType TODO
  */
-private boolean isAffectedByPackageFragment(IJavaElementDelta delta, PackageFragment element) {
+private boolean isAffectedByPackageFragment(IJavaElementDelta delta, PackageFragment element, int eventType) {
 	switch (delta.getKind()) {
 		case IJavaElementDelta.ADDED :
 			// if the package fragment is in the projects being considered, this could
@@ -907,14 +912,15 @@ private boolean isAffectedByPackageFragment(IJavaElementDelta delta, PackageFrag
 			return packageRegionContainsSamePackageFragment(element);
 		case IJavaElementDelta.CHANGED :
 			// look at the files in the package fragment
-			return isAffectedByChildren(delta);
+			return isAffectedByChildren(delta, eventType);
 	}
 	return false;
 }
 /**
  * Returns true if the given package fragment root delta could affect this type hierarchy
+ * @param eventType TODO
  */
-private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaElement element) {
+private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaElement element, int eventType) {
 	switch (delta.getKind()) {
 		case IJavaElementDelta.ADDED :
 			return this.projectRegion.contains(element);
@@ -954,13 +960,14 @@ private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaEl
 				return false;
 			}
 	}
-	return isAffectedByChildren(delta);
+	return isAffectedByChildren(delta, eventType);
 }
 /**
  * Returns true if the given type delta (a compilation unit delta or a class file delta)
  * could affect this type hierarchy.
+ * @param eventType TODO
  */
-protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement element) {
+protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement element, int eventType) {
 	if (element instanceof CompilationUnit) {
 		CompilationUnit cu = (CompilationUnit)element;
 		ChangeCollector collector = this.changeCollector;
@@ -973,7 +980,7 @@ protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement ele
 			if (DEBUG)
 				e.printStackTrace();
 		}
-		if (cu.isWorkingCopy()) {
+		if (cu.isWorkingCopy() && eventType == ElementChangedEvent.POST_RECONCILE) {
 			// changes to working copies are batched
 			this.changeCollector = collector;
 			return false;

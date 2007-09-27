@@ -96,17 +96,17 @@ protected void compute() throws JavaModelException, CoreException {
 	HierarchyBuilder builder = new RegionBasedHierarchyBuilder(this);
 	builder.build(this.computeSubtypes);
 }
-protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement element) {
+protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement element, int eventType) {
 	// change to working copy
 	if (element instanceof CompilationUnit && ((CompilationUnit)element).isWorkingCopy()) {
-		return super.isAffectedByOpenable(delta, element);
+		return super.isAffectedByOpenable(delta, element, eventType);
 	}
 
 	// if no focus, hierarchy is affected if the element is part of the region
 	if (this.focusType == null) {
 		return this.region.contains(element);
 	} else {
-		return super.isAffectedByOpenable(delta, element);
+		return super.isAffectedByOpenable(delta, element, eventType);
 	}
 }
 /**

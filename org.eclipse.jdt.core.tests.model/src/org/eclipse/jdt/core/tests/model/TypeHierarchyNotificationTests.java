@@ -639,6 +639,43 @@ public void testCloseProject() throws Exception {
 		h.removeTypeHierarchyChangedListener(this);
 	}
 }
+/*
+ * Ensures that editing a working copy's buffer and committing (without a reconcile) triggers a type hierarchy notification
+ * (regression test for bug 204805 ICompilationUnit.commitWorkingCopy doesn't send typeHierarchyChanged)
+ */
+public void testEditBuffer() throws CoreException {
+	ITypeHierarchy h = null;
+	ICompilationUnit workingCopy = null;
+	try {
+		createJavaProject("P");
+		createFolder("/P/p");
+		createFile(
+			"/P/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		workingCopy = getCompilationUnit("/P/p/X.java");
+		workingCopy.becomeWorkingCopy(null/*no progress*/);
+		h = workingCopy.getType("X").newTypeHierarchy(null);
+		h.addTypeHierarchyChangedListener(this);
+		
+		workingCopy.getBuffer().setContents(
+			"package p;\n" +
+			"public class X extends Throwable {\n" +
+			"}"
+		);
+		workingCopy.commitWorkingCopy(false/*don't force*/, null/*no progress*/);
+		
+		assertOneChange(h);
+	} finally {
+		if (h != null)
+			h.removeTypeHierarchyChangedListener(this);
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+		deleteProject("P");
+	}
+}
 /**
  * When editing the extends clause of a source type in a hierarchy, we should be notified of change.
  */

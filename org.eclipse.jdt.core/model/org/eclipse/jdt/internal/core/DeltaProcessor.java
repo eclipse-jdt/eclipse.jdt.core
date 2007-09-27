@@ -1305,11 +1305,11 @@ public class DeltaProcessor {
 			Iterator scopes = this.manager.searchScopes.keySet().iterator();
 			while (scopes.hasNext()) {
 				AbstractSearchScope scope = (AbstractSearchScope)scopes.next();
-				scope.processDelta(deltaToNotify);
+				scope.processDelta(deltaToNotify, eventType);
 			}
 			JavaWorkspaceScope workspaceScope = this.manager.workspaceScope;
 			if (workspaceScope != null)
-				workspaceScope.processDelta(deltaToNotify);
+				workspaceScope.processDelta(deltaToNotify, eventType);
 		}
 			
 		// Notification
