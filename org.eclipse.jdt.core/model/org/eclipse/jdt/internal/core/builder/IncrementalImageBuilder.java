@@ -501,10 +501,15 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 				    if (!isExcluded) {
 						IPath addedPackagePath = resource.getFullPath().removeFirstSegments(segmentCount);
 						createFolder(addedPackagePath, md.binaryFolder); // ensure package exists in the output folder
-						// add dependents even when the package thinks it exists to be on the safe side
-						if (JavaBuilder.DEBUG)
-							System.out.println("Found added package " + addedPackagePath); //$NON-NLS-1$
-						addDependentsOf(addedPackagePath, true);
+						// see if any known source file is from the same package... classpath already includes new package
+						if (sourceLocations.length > 1 && newState.isKnownPackage(addedPackagePath.toString())) {
+							if (JavaBuilder.DEBUG)
+								System.out.println("Skipped dependents of added package " + addedPackagePath); //$NON-NLS-1$
+						} else {
+							if (JavaBuilder.DEBUG)
+								System.out.println("Found added package " + addedPackagePath); //$NON-NLS-1$
+							addDependentsOf(addedPackagePath, true);
+						}
 				    }
 					// fall thru & collect all the source files
 				case IResourceDelta.CHANGED :
