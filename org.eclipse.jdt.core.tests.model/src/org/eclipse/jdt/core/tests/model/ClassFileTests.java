@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -448,6 +449,38 @@ public void testGetSuperInterfaceTypeSignatures() throws JavaModelException {
 		"Unexpected signatures",
 		"Lgeneric.I<Ljava.lang.String;>;\n",
 		type.getSuperInterfaceTypeSignatures());
+}
+
+/*
+ * Ensures that if a root folder (that has a jar like name) is opened, and then a Jar package fragment root created on this root folder,
+ * then attempting to open a class file in this folder doesn't throw a ClassCastException
+ * (regression test for bug 204652 "Open Type": ClassCastException in conjunction with a class folder)
+ */
+public void testJarLikeRootFolder() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P1", new String[0], new String[] {"/P1/classFolder.jar"}, "");
+		IFolder folder = createFolder("/P1/classFolder.jar/p");
+		createFile("/P1/classFolder.jar/X.class", "p");
+		
+		// populate cache with a valid package fragment root and a valid package fragment
+		IPackageFragment validPkg = p.getPackageFragmentRoot(folder.getParent()).getPackageFragment("p");
+		validPkg.open(null);
+
+		// create an invalid package fragment root and an invalid package fragment
+		IPackageFragment invalidPkg = p.getPackageFragmentRoot("/P1/classFolder.jar").getPackageFragment("p");
+		
+		// ensure that the class fille cannot be opened with a valid excepption
+		IClassFile openable = invalidPkg.getClassFile("X.class");
+		JavaModelException expected = null;
+		try {
+			openable.open(null);
+		} catch (JavaModelException e) {
+			expected = e;
+		}
+		assertExceptionEquals("Unexpected exception", "classFolder.jar [in P1] does not exist", expected);
+	} finally {
+		deleteProject("P1");
+	}
 }
 
 /*

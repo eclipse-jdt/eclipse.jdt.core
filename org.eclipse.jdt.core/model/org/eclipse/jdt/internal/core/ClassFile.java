@@ -18,6 +18,7 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -791,8 +792,14 @@ protected IStatus validateExistence(IResource underlyingResource) {
 	IStatus status = validateClassFile();
 	if (!status.isOK()) 
 		return status;
-	if (underlyingResource != null && !underlyingResource.isAccessible()) 
-		return newDoesNotExistStatus();
+	if (underlyingResource != null) {
+		if (!underlyingResource.isAccessible()) 
+			return newDoesNotExistStatus();
+		PackageFragmentRoot root;
+		if ((underlyingResource instanceof IFolder) && (root = getPackageFragmentRoot()).isArchive()) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=204652
+			return root.newDoesNotExistStatus();
+		}
+	}
 	return JavaModelStatus.VERIFIED_OK;
 }
 }
