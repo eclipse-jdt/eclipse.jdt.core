@@ -3375,7 +3375,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"3. ERROR in X.java (at line 7)\n" + 
 			"	@Override A id(A x) { return x; }\n" + 
 			"	            ^^^^^^^\n" + 
-			"Duplicate method id(A) in type Y<T>\n" + 
+			"Method id(A) has the same erasure id(A) as another method in type Y<T>\n" + 
 			"----------\n"
 			// id(T) is already defined in Y
 			// id(java.lang.String) in Y overrides id(T) in X; return type requires unchecked conversion
@@ -3538,15 +3538,15 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class Z {}"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\r\n" + 
-			"	A<Y> foo(A<Y> o) {  return null; } // duplicate\r\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	A<Y> foo(A<Y> o) {  return null; } // duplicate\n" + 
 			"	     ^^^^^^^^^^^\n" + 
-			"Duplicate method foo(A<Y>) in type X.C5\n" + 
+			"Method foo(A<Y>) has the same erasure foo(A<T>) as another method in type X.C5\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\r\n" + 
-			"	A<Z> foo(A<Z> o) {  return null; } // duplicate\r\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	A<Z> foo(A<Z> o) {  return null; } // duplicate\n" + 
 			"	     ^^^^^^^^^^^\n" + 
-			"Duplicate method foo(A<Z>) in type X.C5\n" + 
+			"Method foo(A<Z>) has the same erasure foo(A<T>) as another method in type X.C5\n" + 
 			"----------\n"
 			// name clash: foo(A<Y>) and foo(A<Z>) have the same erasure
 		);
@@ -3605,12 +3605,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	<N extends B> N a(A<String> s) { return null; }\n" + 
 			"	                ^^^^^^^^^^^^^^\n" + 
-			"Duplicate method a(A<String>) in type X\n" + 
+			"Method a(A<String>) has the same erasure a(A<T>) as another method in type X\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	<N> B a(A<Number> n) { return null; }\n" + 
 			"	      ^^^^^^^^^^^^^^\n" + 
-			"Duplicate method a(A<Number>) in type X\n" + 
+			"Method a(A<Number>) has the same erasure a(A<T>) as another method in type X\n" + 
 			"----------\n"
 			// name clash: <N>a(A<java.lang.String>) and <N>a(A<java.lang.Number>) have the same erasure
 		);
@@ -3628,15 +3628,15 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class B {}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\r\n" + 
-			"	<N extends B> N b(A<String> s) { return null; }\r\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	<N extends B> N b(A<String> s) { return null; }\n" + 
 			"	                ^^^^^^^^^^^^^^\n" + 
-			"Duplicate method b(A<String>) in type X\n" + 
+			"Method b(A<String>) has the same erasure b(A<T>) as another method in type X\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\r\n" + 
-			"	<N extends B> B b(A<Number> n) { return null; }\r\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	<N extends B> B b(A<Number> n) { return null; }\n" + 
 			"	                ^^^^^^^^^^^^^^\n" + 
-			"Duplicate method b(A<Number>) in type X\n" + 
+			"Method b(A<Number>) has the same erasure b(A<T>) as another method in type X\n" + 
 			"----------\n"
 			// name clash: <N>b(A<java.lang.String>) and <N>b(A<java.lang.Number>) have the same erasure
 		);
@@ -3654,15 +3654,15 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class B {}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\r\n" + 
-			"	B c(A<String> s) { return null; }\r\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	B c(A<String> s) { return null; }\n" + 
 			"	  ^^^^^^^^^^^^^^\n" + 
-			"Duplicate method c(A<String>) in type X\n" + 
+			"Method c(A<String>) has the same erasure c(A<T>) as another method in type X\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\r\n" + 
-			"	B c(A<Number> n) { return null; }\r\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	B c(A<Number> n) { return null; }\n" + 
 			"	  ^^^^^^^^^^^^^^\n" + 
-			"Duplicate method c(A<Number>) in type X\n" + 
+			"Method c(A<Number>) has the same erasure c(A<T>) as another method in type X\n" + 
 			"----------\n"
 			// name clash: c(A<java.lang.String>) and c(A<java.lang.Number>) have the same erasure
 		);
@@ -3700,25 +3700,25 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class B {}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\r\n" + 
-			"	<N extends B> N a(A<Number> s) { return null; }\r\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	<N extends B> N a(A<Number> s) { return null; }\n" + 
 			"	                ^^^^^^^^^^^^^^\n" + 
 			"Duplicate method a(A<Number>) in type X\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\r\n" + 
-			"	<N> B a(A<Number> n) { return null; }\r\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	<N> B a(A<Number> n) { return null; }\n" + 
 			"	      ^^^^^^^^^^^^^^\n" + 
 			"Duplicate method a(A<Number>) in type X\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 4)\r\n" + 
-			"	<N extends B> N b(A<Number> s) { return null; }\r\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	<N extends B> N b(A<Number> s) { return null; }\n" + 
 			"	                ^^^^^^^^^^^^^^\n" + 
-			"Duplicate method b(A<Number>) in type X\n" + 
+			"Method b(A<Number>) has the same erasure b(A<T>) as another method in type X\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 5)\r\n" + 
-			"	<N> B b(A<String> n) { return null; }\r\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
+			"	<N> B b(A<String> n) { return null; }\n" + 
 			"	      ^^^^^^^^^^^^^^\n" + 
-			"Duplicate method b(A<String>) in type X\n" + 
+			"Method b(A<String>) has the same erasure b(A<T>) as another method in type X\n" + 
 			"----------\n"
 			// name clash: <N>a(A<java.lang.Number>) and <N>a(A<java.lang.Number>) have the same erasure
 			// name clash: <N>b(A<java.lang.Number>) and <N>b(A<java.lang.String>) have the same erasure
@@ -3816,8 +3816,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\r\n" + 
-			"	public class X implements I {\r\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X implements I {\n" + 
 			"	             ^\n" + 
 			"The type X must implement the inherited abstract method I.foo(T)\n" + 
 			"----------\n"
@@ -3836,15 +3836,15 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class A<T> {}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\r\n" + 
-			"	void foo(A<String> a) {}\r\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	void foo(A<String> a) {}\n" + 
 			"	     ^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate method foo(A<String>) in type X\n" + 
+			"Method foo(A<String>) has the same erasure foo(A<T>) as another method in type X\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\r\n" + 
-			"	void foo(A<Integer> a) {}\r\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	void foo(A<Integer> a) {}\n" + 
 			"	     ^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate method foo(A<Integer>) in type X\n" + 
+			"Method foo(A<Integer>) has the same erasure foo(A<T>) as another method in type X\n" + 
 			"----------\n"
 			// name clash: foo(A<java.lang.String>) and foo(A<java.lang.Integer>) have the same erasure
 		);
@@ -3989,7 +3989,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	void a(Object x) {}\n" + 
 			"	     ^^^^^^^^^^^\n" + 
-			"Duplicate method a(Object) in type X\n" + 
+			"Method a(Object) has the same erasure a(Object) as another method in type X\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	<T> T a(T x) {  return null; }\n" + 
@@ -4017,13 +4017,13 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\r\n" + 
-			"	String a(X x) {  return null; }\r\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	String a(X x) {  return null; }\n" + 
 			"	       ^^^^^^\n" + 
-			"Duplicate method a(X) in type X\n" + 
+			"Method a(X) has the same erasure a(X) as another method in type X\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\r\n" + 
-			"	<T extends X> T a(T x) {  return null; }\r\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	<T extends X> T a(T x) {  return null; }\n" + 
 			"	                ^^^^^^\n" + 
 			"Method a(T) has the same erasure a(X) as another method in type X\n" + 
 			"----------\n"
@@ -5968,7 +5968,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"6. ERROR in DataSet.java (at line 9)\n" + 
 			"	public Object[] toArray(Object[] o) {\n" + 
 			"	                ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate method toArray(Object[]) in type DataSet<T>\n" + 
+			"Method toArray(Object[]) has the same erasure toArray(Object[]) as another method in type DataSet<T>\n" + 
 			"----------\n" + 
 			"7. WARNING in DataSet.java (at line 14)\n" + 
 			"	public boolean addAll(Collection c) {	return false; }\n" + 

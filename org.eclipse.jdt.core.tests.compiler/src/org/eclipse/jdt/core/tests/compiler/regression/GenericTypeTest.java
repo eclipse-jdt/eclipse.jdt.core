@@ -1003,7 +1003,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. ERROR in X.java (at line 4)\n" + 
 			"	void foo(L l){}\n" + 
 			"	     ^^^^^^^^\n" + 
-			"Duplicate method foo(L) in type X<E,T>\n" + 
+			"Method foo(L) has the same erasure foo(L<E>) as another method in type X<E,T>\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 4)\n" + 
 			"	void foo(L l){}\n" + 
@@ -39540,6 +39540,45 @@ public void test1184() {
 		"	Runnable r = x.get();\n" + 
 		"	             ^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Object to Runnable\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203587
+public void test1185() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<U, V> {\n" + 
+			"	<T> void foo(Class<X> c) {};\n" +
+			"	<A, B> void foo(Class<X<A, B>> c) {}\n" + 
+			"	void foo2(Class<X<U, V>> c) {};\n" +
+			"	<A, B> void foo2(Class<X<U, V>> c) {}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	<T> void foo(Class<X> c) {};\n" + 
+		"	         ^^^^^^^^^^^^^^^\n" + 
+		"Method foo(Class<X>) has the same erasure foo(Class<T>) as another method in type X<U,V>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 2)\n" + 
+		"	<T> void foo(Class<X> c) {};\n" + 
+		"	                   ^\n" + 
+		"X is a raw type. References to generic type X<U,V> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	<A, B> void foo(Class<X<A, B>> c) {}\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Method foo(Class<X<A,B>>) has the same erasure foo(Class<T>) as another method in type X<U,V>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	void foo2(Class<X<U, V>> c) {};\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method foo2(Class<X<U,V>>) in type X<U,V>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 5)\n" + 
+		"	<A, B> void foo2(Class<X<U, V>> c) {}\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method foo2(Class<X<U,V>>) in type X<U,V>\n" + 
 		"----------\n");
 }
 }

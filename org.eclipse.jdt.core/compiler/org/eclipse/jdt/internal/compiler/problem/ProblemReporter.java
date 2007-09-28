@@ -1336,19 +1336,22 @@ public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTN
 		nodeSourceEnd(local, location));
 }
 
-public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclaration methodDecl) {
+public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclaration methodDecl, boolean equalParameters) {
     MethodBinding method = methodDecl.binding;
-    boolean duplicateErasure = false;
-    if ((method.modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
-        // chech it occurs in parameters (the bit is set for return type | params | thrown exceptions
-        for (int i = 0, length = method.parameters.length; i < length; i++) {
-            if ((method.parameters[i].tagBits & TagBits.HasTypeVariable) != 0) {
-                duplicateErasure = true;
-                break;
-            }
-        }
-    }
-    if (duplicateErasure) {
+    if (equalParameters) {
+		this.handle(
+			IProblem.DuplicateMethod,
+			new String[] {
+		        new String(methodDecl.selector),
+				new String(method.declaringClass.readableName()),
+				typesAsString(method.isVarargs(), method.parameters, false)},
+			new String[] {
+				new String(methodDecl.selector),
+				new String(method.declaringClass.shortReadableName()),
+				typesAsString(method.isVarargs(), method.parameters, true)},
+			methodDecl.sourceStart,
+			methodDecl.sourceEnd);
+    } else {
         int length = method.parameters.length;
         TypeBinding[] erasures = new TypeBinding[length];
         for (int i = 0; i < length; i++)  {
@@ -1366,19 +1369,6 @@ public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclarat
 				new String(method.declaringClass.shortReadableName()),
 				typesAsString(method.isVarargs(), method.parameters, true),
 				typesAsString(method.isVarargs(), erasures, true) },
-			methodDecl.sourceStart,
-			methodDecl.sourceEnd);
-    } else {
-		this.handle(
-			IProblem.DuplicateMethod,
-			new String[] {
-		        new String(methodDecl.selector),
-				new String(method.declaringClass.readableName()),
-				typesAsString(method.isVarargs(), method.parameters, false)},
-			new String[] {
-				new String(methodDecl.selector),
-				new String(method.declaringClass.shortReadableName()),
-				typesAsString(method.isVarargs(), method.parameters, true)},
 			methodDecl.sourceStart,
 			methodDecl.sourceEnd);
     }
