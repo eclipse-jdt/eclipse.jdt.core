@@ -8229,7 +8229,11 @@ protected CompilationUnitDeclaration endParse(int act) {
 
 	if(this.statementRecoveryActivated) {
 		RecoveredElement recoveredElement = this.buildInitialRecoveryState();
-		recoveredElement.topElement().updateParseTree();
+		
+		if (recoveredElement != null) {
+			recoveredElement.topElement().updateParseTree();
+		}
+		
 		if(this.hasError) this.resetStacks();
 	} else if (this.currentElement != null){
 		if (VERBOSE_RECOVERY){
@@ -8849,8 +8853,10 @@ private void jumpOverType(){
 		TypeDeclaration typeDeclaration = this.recoveredTypes[this.recoveredTypePtr];
 		boolean isAnonymous = typeDeclaration.allocation != null;
 		
-		int end = this.scanner.eofPosition;
-		this.scanner.resetTo(typeDeclaration.declarationSourceEnd + 1, end  - 1);
+		this.scanner.startPosition = typeDeclaration.declarationSourceEnd + 1;
+		this.scanner.currentPosition = typeDeclaration.declarationSourceEnd + 1;
+		this.scanner.diet = false; // quit jumping over method bodies
+	
 		if(!isAnonymous) {
 			((RecoveryScanner)this.scanner).setPendingTokens(new int[]{TokenNameSEMICOLON, TokenNamebreak});
 		} else {

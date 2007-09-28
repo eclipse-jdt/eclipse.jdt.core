@@ -293,6 +293,11 @@ public AbstractMethodDeclaration updatedMethodDeclaration(){
 		Block block = methodBody.updatedBlock();
 		if (block != null){
 			methodDeclaration.statements = block.statements;
+			
+			if (methodDeclaration.declarationSourceEnd == 0) {
+				methodDeclaration.declarationSourceEnd = block.sourceEnd;
+				methodDeclaration.bodyEnd = block.sourceEnd;
+			}
 
 			/* first statement might be an explict constructor call destinated to a special slot */
 			if (methodDeclaration.isConstructor()) {

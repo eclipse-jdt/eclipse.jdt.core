@@ -3649,4 +3649,229 @@ public void test0044() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204662
+public void test0045() {
+
+	String s = 
+		"public class BadClass {\n" + 
+		"\n" + 
+		"   public void method(Object obj) {\n" + 
+		"\n" + 
+		"	  /*//this version compiles\n" + 
+		"	  People oPeople;\n" + 
+		"	  {oPeople= (People) obj;}//*/\n" + 
+		"\n" + 
+		"	  /*//this version fails, but the compiler errors are fine\n" + 
+		"      class People oPeople;\n" + 
+		"	  oPeople= (class People) obj;//*/\n" + 
+		"\n" + 
+		"	  //this version fails with internal compiler error\n" + 
+		"	  class People oPeople;\n" + 
+		"	  {oPeople= (class People) obj;}\n" + 
+		"   }\n" + 
+		"\n" + 
+		"}\n";
+
+	String expectedDietUnitToString = 
+		"public class BadClass {\n" + 
+		"  public BadClass() {\n" + 
+		"  }\n" + 
+		"  public void method(Object obj) {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedDietPlusBodyUnitToString = 
+		"public class BadClass {\n" + 
+		"  public BadClass() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void method(Object obj) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString = 
+		"public class BadClass {\n" + 
+		"  public BadClass() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void method(Object obj) {\n" + 
+		"    class People {\n" + 
+		"      {\n" + 
+		"        class People {\n" + 
+		"          People() {\n" + 
+		"            super();\n" + 
+		"          }\n" + 
+		"        }\n" + 
+		"      }\n" + 
+		"      People() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204662
+public void test0046() {
+
+	String s = 
+		"public class X {\n" + 
+		"	public void foo() { \n" + 
+		"		class Y ;\n" + 
+		"		\n" + 
+		"			{\n" + 
+		"				class Z ;\n" + 
+		"				}\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String expectedDietUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    class Y {\n" + 
+		"      {\n" + 
+		"        class Z {\n" + 
+		"          Z() {\n" + 
+		"            super();\n" + 
+		"          }\n" + 
+		"        }\n" + 
+		"      }\n" + 
+		"      Y() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204662
+public void test0047() {
+
+	String s = 
+		"public class X {\n" + 
+		"	public void foo() { \n" + 
+		"		class Y ;\n" + 
+		"		\n" + 
+		"			void bar() {\n" + 
+		"				class Z ;\n" + 
+		"				}\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String expectedDietUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    class Y {\n" + 
+		"      Y() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"      void bar() {\n" + 
+		"        class Z {\n" + 
+		"          Z() {\n" + 
+		"            super();\n" + 
+		"          }\n" + 
+		"        }\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
 }
