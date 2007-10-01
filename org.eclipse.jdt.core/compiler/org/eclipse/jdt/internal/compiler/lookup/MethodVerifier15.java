@@ -43,6 +43,9 @@ boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 			if (!areTypesEqual(oneArgs[i], twoArgs[i])) {
 				if (oneArgs[i].leafComponentType().isRawType()) {
 					if (oneArgs[i].dimensions() == twoArgs[i].dimensions() && oneArgs[i].leafComponentType().isEquivalentTo(twoArgs[i].leafComponentType())) {
+						// raw mode does not apply if the method defines its own type variables
+						if (one.typeVariables != Binding.NO_TYPE_VARIABLES)
+							return false;
 						// one parameter type is raw, hence all parameters types must be raw or non generic
 						// otherwise we have a mismatch check backwards
 						for (int j = 0; j < i; j++)

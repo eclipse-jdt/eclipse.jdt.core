@@ -7987,4 +7987,38 @@ public void test147() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204624
+public void test148() {
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"abstract class X { abstract <T extends Object> T go(A<T> a); }\n" +
+			"class Y extends X {\n" +
+			"	@Override <T extends Object> T go(A a) { return null; }\n" +
+			"}\n" + 
+			"class A<T> {}"
+		},
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 2)\n" + 
+		"	class Y extends X {\n" + 
+		"	      ^\n" + 
+		"The type Y must implement the inherited abstract method X.go(A<T>)\n" + 
+		"----------\n" + 
+		"2. ERROR in Y.java (at line 3)\n" + 
+		"	@Override <T extends Object> T go(A a) { return null; }\n" + 
+		"	                               ^^^^^^^\n" + 
+		"Name clash: The method go(A) of type Y has the same erasure as go(A<T>) of type X but does not override it\n" + 
+		"----------\n" + 
+		"3. ERROR in Y.java (at line 3)\n" + 
+		"	@Override <T extends Object> T go(A a) { return null; }\n" + 
+		"	                               ^^^^^^^\n" + 
+		"The method go(A) of type Y must override a superclass method\n" + 
+		"----------\n" + 
+		"4. WARNING in Y.java (at line 3)\n" + 
+		"	@Override <T extends Object> T go(A a) { return null; }\n" + 
+		"	                                  ^\n" + 
+		"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+		"----------\n"
+	);
+}
 }
