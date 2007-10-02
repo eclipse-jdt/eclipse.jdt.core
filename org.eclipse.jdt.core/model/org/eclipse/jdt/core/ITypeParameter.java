@@ -12,7 +12,7 @@ package org.eclipse.jdt.core;
 
 
 /**
- * Represents a type parameter defined by a type of a method
+ * Represents a type parameter defined by a type or a method
  * in a compilation unit or a class file.
  * <p>
  * Type parameters are obtained using {@link IType#getTypeParameter(String)} and
