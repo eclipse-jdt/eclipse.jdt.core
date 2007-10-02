@@ -13,9 +13,8 @@
 package org.eclipse.jdt.internal.apt.pluggable.core.filer;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.util.Collection;
@@ -33,7 +32,7 @@ import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeProcessingEnvImpl
  * 
  * @since 3.3
  */
-public class IdeOutputJavaFileObject implements JavaFileObject {
+public class IdeOutputJavaFileObject extends IdeOutputFileObject implements JavaFileObject {
 	
 	private final IdeProcessingEnvImpl _env;
 	private final CharSequence _name;
@@ -45,9 +44,6 @@ public class IdeOutputJavaFileObject implements JavaFileObject {
 		_name = name;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.tools.JavaFileObject#getAccessLevel()
-	 */
 	@Override
 	public Modifier getAccessLevel() {
 		//TODO
@@ -64,50 +60,6 @@ public class IdeOutputJavaFileObject implements JavaFileObject {
 	}
 
 	/* (non-Javadoc)
-	 * @see javax.tools.JavaFileObject#getNestingKind()
-	 */
-	@Override
-	public NestingKind getNestingKind() {
-		//TODO
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.tools.JavaFileObject#isNameCompatible(java.lang.String, javax.tools.JavaFileObject.Kind)
-	 */
-	@Override
-	public boolean isNameCompatible(String simpleName, Kind kind) {
-		//TODO
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.tools.FileObject#delete()
-	 */
-	@Override
-	public boolean delete() {
-		throw new UnsupportedOperationException("Deleting a file is not permitted from within an annotation processor");
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.tools.FileObject#getCharContent(boolean)
-	 */
-	@Override
-	public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-		//TODO
-		throw new IllegalStateException("Generated files are write-only");
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.tools.FileObject#getLastModified()
-	 */
-	@Override
-	public long getLastModified() {
-		//TODO
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-
-	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#getName()
 	 */
 	@Override
@@ -115,12 +67,16 @@ public class IdeOutputJavaFileObject implements JavaFileObject {
 		return _name.toString();
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.tools.FileObject#openInputStream()
-	 */
 	@Override
-	public InputStream openInputStream() throws IOException {
-		throw new IllegalStateException("Opening an input stream on a generated file is not permitted");
+	public NestingKind getNestingKind() {
+		//TODO
+		throw new UnsupportedOperationException("Not yet implemented");
+	}
+
+	@Override
+	public boolean isNameCompatible(String simpleName, Kind kind) {
+		//TODO
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	/* (non-Javadoc)
@@ -128,16 +84,7 @@ public class IdeOutputJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public OutputStream openOutputStream() throws IOException {
-		//TODO
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.tools.FileObject#openReader(boolean)
-	 */
-	@Override
-	public Reader openReader(boolean ignoreEncodingErrors) throws IOException {
-		throw new IllegalStateException("Opening a reader on a generated file is not permitted");
+		return new IdeJavaSourceOutputStream(_env, _name, _parentFiles);
 	}
 
 	/* (non-Javadoc)
@@ -145,7 +92,7 @@ public class IdeOutputJavaFileObject implements JavaFileObject {
 	 */
 	@Override
 	public Writer openWriter() throws IOException {
-		return new IdeJavaSourceFileWriter(_env, _name, _parentFiles);
+		return new PrintWriter(openOutputStream());
 	}
 
 	/* (non-Javadoc)

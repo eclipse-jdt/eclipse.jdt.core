@@ -98,7 +98,7 @@ public class IdeFilerImpl implements Filer {
 				parentFiles.add(enclosing);
 			}
 		}
-		return new IdeOutputFileObject(_env, file, parentFiles);
+		return new IdeOutputNonSourceFileObject(_env, file, parentFiles);
 	}
 
 	/**

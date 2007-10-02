@@ -12,8 +12,8 @@
 
 package org.eclipse.jdt.internal.apt.pluggable.core.filer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Collection;
 
 import org.eclipse.core.resources.IFile;
@@ -25,25 +25,26 @@ import org.eclipse.jdt.internal.apt.pluggable.core.Apt6Plugin;
 import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeProcessingEnvImpl;
 
 /**
- * 
+ * OutputStream used by the IdeFilerImpl to generate Java source files.
  * @since 3.3
  */
-public class IdeJavaSourceFileWriter extends StringWriter {
-	
+public class IdeJavaSourceOutputStream extends ByteArrayOutputStream {
+
 	private final IdeProcessingEnvImpl _env;
 	private final CharSequence _name;
 	private final Collection<IFile> _parentFiles;
 	private boolean _closed = false;
-
-	public IdeJavaSourceFileWriter(IdeProcessingEnvImpl env, CharSequence name, Collection<IFile> parentFiles) {
+	
+	public IdeJavaSourceOutputStream(IdeProcessingEnvImpl env, CharSequence name,
+			Collection<IFile> parentFiles) 
+	{
 		_env = env;
-		_parentFiles = parentFiles;
 		_name = name;
-		_env.getAptProject().getGeneratedSourceFolderManager().getFolder();
+		_parentFiles = parentFiles;
 	}
 
-	/**
-	 * 
+	/* (non-Javadoc)
+	 * @see java.io.ByteArrayOutputStream#close()
 	 */
 	@Override
 	public void close() throws IOException {
@@ -63,7 +64,6 @@ public class IdeJavaSourceFileWriter extends StringWriter {
 				//TODO - implement reconcile
 			}
 			else if ( phase == Phase.BUILD)	{
-				// TODO: Remember empty-parent situation.
 				result = gfm.generateFileDuringBuild( 
 						_parentFiles,  _name.toString(), this.toString(), 
 						_env.currentProcessorSupportsRTTG(), null /* progress monitor */ );
@@ -73,7 +73,8 @@ public class IdeJavaSourceFileWriter extends StringWriter {
 			}
 		}
 		catch (CoreException ce) {
-			Apt6Plugin.log(ce, "Unable to generate type when JavaSourceFilePrintWriter was closed"); //$NON-NLS-1$
+			Apt6Plugin.log(ce, "Unable to generate type when IdeJavaSourceOutputStream was closed"); //$NON-NLS-1$
 		}
 	}
+
 }
