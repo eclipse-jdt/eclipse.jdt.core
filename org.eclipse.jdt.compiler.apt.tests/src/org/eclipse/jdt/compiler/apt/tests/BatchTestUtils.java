@@ -12,10 +12,13 @@
 
 package org.eclipse.jdt.compiler.apt.tests;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -432,6 +435,44 @@ public class BatchTestUtils {
 		}
 		// At this point f is either a normal file or an empty directory
 		f.delete();
+	}
+
+	/**
+	 * Check the contents of a file.
+	 * @return true if the contents of <code>genTextFile</code> exactly match <code>string</code>
+	 */
+	public static boolean fileContentsEqualText(File genTextFile, String input) {
+		long length = genTextFile.length();
+		if (length != input.length()) {
+			return false;
+		}
+		char[] contents = new char[512];
+		
+		Reader r = null;
+		try {
+			r = new BufferedReader(new FileReader(genTextFile));
+			int ofs = 0;
+			while (length > 0) {
+				int read = r.read(contents);
+				String match = input.substring(ofs, ofs + read);
+				if (!match.contentEquals(new String(contents, 0, read))) {
+					return false;
+				}
+				ofs += read;
+				length -= read;
+			}
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		} finally {
+			if (r != null)
+				try {
+					r.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
 	}
 
 }
