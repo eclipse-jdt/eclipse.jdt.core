@@ -7989,15 +7989,7 @@ public void test147() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=204624
 public void test148() {
-	this.runNegativeTest(
-		new String[] {
-			"Y.java",
-			"abstract class X { abstract <T extends Object> T go(A<T> a); }\n" +
-			"class Y extends X {\n" +
-			"	@Override <T extends Object> T go(A a) { return null; }\n" +
-			"}\n" + 
-			"class A<T> {}"
-		},
+	String baseLogPart1 = 
 		"----------\n" + 
 		"1. ERROR in Y.java (at line 2)\n" + 
 		"	class Y extends X {\n" + 
@@ -8011,14 +8003,28 @@ public void test148() {
 		"----------\n" + 
 		"3. ERROR in Y.java (at line 3)\n" + 
 		"	@Override <T extends Object> T go(A a) { return null; }\n" + 
-		"	                               ^^^^^^^\n" + 
-		"The method go(A) of type Y must override a superclass method\n" + 
+		"	                               ^^^^^^^\n";
+	String baseLogPart2 = 
 		"----------\n" + 
 		"4. WARNING in Y.java (at line 3)\n" + 
 		"	@Override <T extends Object> T go(A a) { return null; }\n" + 
 		"	                                  ^\n" + 
 		"A is a raw type. References to generic type A<T> should be parameterized\n" + 
-		"----------\n"
+		"----------\n";
+	String overrideLog= "The method go(A) of type Y must override a superclass method\n";
+	// warning message differs at 1.6 level
+	if (COMPLIANCE_1_6.compareTo(this.complianceLevel) <= 0) {
+		overrideLog = "The method go(A) of type Y must override or implement a supertype method\n";
+	}
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"abstract class X { abstract <T extends Object> T go(A<T> a); }\n" +
+			"class Y extends X {\n" +
+			"	@Override <T extends Object> T go(A a) { return null; }\n" +
+			"}\n" + 
+			"class A<T> {}"
+		}, baseLogPart1 + overrideLog + baseLogPart2
 	);
 }
 }
