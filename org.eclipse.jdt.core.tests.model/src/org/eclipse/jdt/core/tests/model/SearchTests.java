@@ -1022,16 +1022,15 @@ public void testSearchPatternValidMatchRule04() {
 		SearchPattern.R_PATTERN_MATCH | SearchPattern.R_PREFIX_MATCH,
 		SearchPattern.R_PREFIX_MATCH);
 }
-/** @deprecated As using a depreciated constant */
 public void testSearchPatternValidMatchRule05() {
 	assertValidMatchRule("foo",
 		SearchPattern.R_CAMELCASE_MATCH,
-		SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
+		SearchPattern.R_PREFIX_MATCH);
 }
 public void testSearchPatternValidMatchRule06() {
 	assertValidMatchRule("foo",
-		SearchPattern.R_CAMEL_CASE_MATCH,
-		SearchPattern.R_PREFIX_MATCH);
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH,
+		SearchPattern.R_EXACT_MATCH);
 }
 public void testSearchPatternValidMatchRule10() {
 	assertValidMatchRule("CP*P",
@@ -1053,7 +1052,6 @@ public void testSearchPatternValidMatchRule13() {
 		SearchPattern.R_PATTERN_MATCH | SearchPattern.R_PREFIX_MATCH,
 		SearchPattern.R_PATTERN_MATCH);
 }
-/** @deprecated As using a depreciated constant */
 public void testSearchPatternValidMatchRule14() {
 	assertValidMatchRule("CP*P",
 		SearchPattern.R_CAMELCASE_MATCH,
@@ -1061,102 +1059,97 @@ public void testSearchPatternValidMatchRule14() {
 }
 public void testSearchPatternValidMatchRule15() {
 	assertValidMatchRule("CP*P",
-		SearchPattern.R_CAMEL_CASE_MATCH,
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH,
 		SearchPattern.R_PATTERN_MATCH);
 }
-/** @deprecated As using a depreciated constant */
 public void testSearchPatternValidMatchRule20() {
 	assertValidMatchRule("NPE", 
 		SearchPattern.R_CAMELCASE_MATCH);
 }
-/** @deprecated As using a depreciated constant */
 public void testSearchPatternValidMatchRule21() {
 	assertValidMatchRule("NPE",
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
-		SearchPattern.R_CAMELCASE_MATCH);
+		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
 }
-/** @deprecated As using a depreciated constant */
 public void testSearchPatternValidMatchRule22() {
 	assertValidMatchRule("nPE",
 		SearchPattern.R_CAMELCASE_MATCH);
 }
-/** @deprecated As using a depreciated constant */
 public void testSearchPatternValidMatchRule23() {
 	assertValidMatchRule("NuPoEx", 
 		SearchPattern.R_CAMELCASE_MATCH);
 }
-/** @deprecated As using a depreciated constant */
 public void testSearchPatternValidMatchRule24() {
 	assertValidMatchRule("oF",
 		SearchPattern.R_CAMELCASE_MATCH);
 }
 public void testSearchPatternValidMatchRule30() {
 	assertValidMatchRule("NPE",
-		SearchPattern.R_CAMEL_CASE_MATCH);
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 }
 public void testSearchPatternValidMatchRule31() {
 	assertValidMatchRule("NPE",
-		SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH);
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_PREFIX_MATCH,
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 }
 public void testSearchPatternValidMatchRule32() {
 	assertValidMatchRule("NPE",
-		SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 }
 public void testSearchPatternValidMatchRule33() {
 	assertValidMatchRule("NPE",
-		SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 }
 public void testSearchPatternValidMatchRule34() {
 	assertValidMatchRule("nPE",
-		SearchPattern.R_CAMEL_CASE_MATCH);
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 }
 public void testSearchPatternValidMatchRule35() {
 	assertValidMatchRule("NuPoEx", 
-		SearchPattern.R_CAMEL_CASE_MATCH);
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 }
 public void testSearchPatternValidMatchRule36() {
 	assertValidMatchRule("oF",
-		SearchPattern.R_CAMEL_CASE_MATCH);
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 }
-/** @deprecated As using a depreciated constant */
 public void testSearchPatternValidMatchRule40() {
 	assertValidMatchRule("Nu/Po/Ex",
 		SearchPattern.R_CAMELCASE_MATCH,
-		SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
+		SearchPattern.R_PREFIX_MATCH);
 }
-/** @deprecated As using a depreciated constant */
 public void testSearchPatternValidMatchRule41() {
 	assertValidMatchRule("Nu.Po.Ex",
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH,
 		SearchPattern.R_PREFIX_MATCH);
 }
-/** @deprecated As using a depreciated constant */
 public void testSearchPatternValidMatchRule42() {
 	assertValidMatchRule("hashMap",
 		SearchPattern.R_CAMELCASE_MATCH);
 }
-/** @deprecated As using a depreciated constant */
 public void testSearchPatternValidMatchRule43() {
 	assertValidMatchRule("Hashmap",
-		SearchPattern.R_CAMELCASE_MATCH);
+		SearchPattern.R_CAMELCASE_MATCH,
+		SearchPattern.R_PREFIX_MATCH);
 }
 public void testSearchPatternValidMatchRule44() {
 	assertValidMatchRule("Nu/Po/Ex",
-		SearchPattern.R_CAMEL_CASE_MATCH,
-		SearchPattern.R_PREFIX_MATCH);
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH,
+		SearchPattern.R_EXACT_MATCH);
 }
 public void testSearchPatternValidMatchRule45() {
 	assertValidMatchRule("Nu.Po.Ex",
-		SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH,
-		SearchPattern.R_PREFIX_MATCH);
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_PREFIX_MATCH,
+		SearchPattern.R_EXACT_MATCH);
 }
 public void testSearchPatternValidMatchRule46() {
 	assertValidMatchRule("hashMap",
-		SearchPattern.R_CAMEL_CASE_MATCH);
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 }
 public void testSearchPatternValidMatchRule47() {
 	assertValidMatchRule("Hashmap",
-		SearchPattern.R_CAMEL_CASE_MATCH);
+		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH,
+		SearchPattern.R_EXACT_MATCH);
 }
 
 /**

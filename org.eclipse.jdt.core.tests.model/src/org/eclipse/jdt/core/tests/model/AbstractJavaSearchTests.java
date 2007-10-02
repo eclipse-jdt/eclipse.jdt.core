@@ -659,10 +659,13 @@ protected JavaSearchResultCollector resultCollector;
 		);
 	}
 	protected void searchAllTypeNames(String pattern, int matchRule, TypeNameMatchCollector collector) throws JavaModelException {
+		searchAllTypeNames(null, pattern, matchRule, collector);
+	}
+	protected void searchAllTypeNames(String packagePattern, String typePattern, int matchRule, TypeNameMatchCollector collector) throws JavaModelException {
 		new SearchEngine(this.workingCopies).searchAllTypeNames(
-			null,
+			packagePattern==null ? null : packagePattern.toCharArray(),
 			SearchPattern.R_EXACT_MATCH,
-			pattern.toCharArray(),
+			typePattern==null ? null : typePattern.toCharArray(),
 			matchRule,
 			TYPE,
 			getJavaSearchScope(),

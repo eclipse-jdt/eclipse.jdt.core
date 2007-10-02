@@ -29,7 +29,6 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	 * Whether this pattern is case sensitive.
 	 */
 	boolean isCaseSensitive;
-
 	/*
 	 * Whether this pattern is camel case.
 	 */
@@ -42,7 +41,8 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	 *		<li>{@link #R_PREFIX_MATCH}</li>
 	 *		<li>{@link #R_PATTERN_MATCH}</li>
 	 *		<li>{@link #R_REGEXP_MATCH}</li>
-	 *		<li>{@link #R_CAMEL_CASE_MATCH}</li>
+	 *		<li>{@link #R_CAMELCASE_MATCH}</li>
+	 *		<li>{@link #R_CAMELCASE_SAME_PART_COUNT_MATCH}</li>
 	 * </ul>
 	 */
 	int matchMode;
@@ -55,7 +55,12 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	/**
 	 * Mask used on match rule for match mode.
 	 */
-	public static final int MATCH_MODE_MASK = R_EXACT_MATCH | R_PREFIX_MATCH | R_PATTERN_MATCH | R_REGEXP_MATCH;
+	public static final int MATCH_MODE_MASK = R_EXACT_MATCH
+		| R_PREFIX_MATCH 
+		| R_PATTERN_MATCH 
+		| R_REGEXP_MATCH 
+		| R_CAMELCASE_MATCH
+		| R_CAMELCASE_SAME_PART_COUNT_MATCH;
 
 	/**
 	 * Mask used on match rule for generic relevance.
@@ -75,7 +80,7 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=81377
 		int rule = getMatchRule();
 		this.isCaseSensitive = (rule & R_CASE_SENSITIVE) != 0;
-		this.isCamelCase = (rule & R_CAMEL_CASE_MATCH) != 0;
+		this.isCamelCase = (rule & (R_CAMELCASE_MATCH | R_CAMELCASE_SAME_PART_COUNT_MATCH)) != 0;
 		this.matchCompatibility = rule & MATCH_COMPATIBILITY_MASK;
 		this.matchMode = rule & MATCH_MODE_MASK;
 	}
@@ -252,9 +257,6 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 			output.append(this.typeSignatures[0]);
 			output.append("\", "); //$NON-NLS-1$
 		}
-		if (this.isCamelCase) {
-			output.append("camel case + "); //$NON-NLS-1$
-		}
 		switch(getMatchMode()) {
 			case R_EXACT_MATCH : 
 				output.append("exact match,"); //$NON-NLS-1$
@@ -267,6 +269,12 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 				break;
 			case R_REGEXP_MATCH :
 				output.append("regexp match, "); //$NON-NLS-1$
+				break;
+			case R_CAMELCASE_MATCH :
+				output.append("camel case match, "); //$NON-NLS-1$
+				break;
+			case R_CAMELCASE_SAME_PART_COUNT_MATCH:
+				output.append("camel case same part count match, "); //$NON-NLS-1$
 				break;
 		}
 		if (isCaseSensitive())

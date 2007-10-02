@@ -38,7 +38,7 @@ public MultiTypeDeclarationPattern(
 
 	this(matchRule);
 
-	if (isCaseSensitive() || qualifications == null) {
+	if (this.isCaseSensitive || qualifications == null) {
 		this.qualifications = qualifications;
 	} else {
 		int length = qualifications.length;
@@ -122,12 +122,10 @@ EntryResult[] queryIn(Index index) throws IOException {
 				// do a prefix query with the simpleName
 				break;
 			case R_EXACT_MATCH :
-				if (!this.isCamelCase) {
-					// do a prefix query with the simpleName
-					matchRule &= ~R_EXACT_MATCH;
-					matchRule |= R_PREFIX_MATCH;
-					key = CharOperation.append(key, SEPARATOR);
-				}
+				// do a prefix query with the simpleName
+				matchRule &= ~R_EXACT_MATCH;
+				matchRule |= R_PREFIX_MATCH;
+				key = CharOperation.append(key, SEPARATOR);
 				break;
 			case R_PATTERN_MATCH :
 				if (key[key.length - 1] != '*')
@@ -135,6 +133,10 @@ EntryResult[] queryIn(Index index) throws IOException {
 				break;
 			case R_REGEXP_MATCH :
 				// TODO (frederic) implement regular expression match
+				break;
+			case R_CAMELCASE_MATCH:
+			case R_CAMELCASE_SAME_PART_COUNT_MATCH:
+				// do a prefix query with the simpleName
 				break;
 		}
 

@@ -565,12 +565,17 @@ public class SearchEngine {
 	 *					May be <code>null</code>, then any type name is accepted.
 	 * @param matchRule type name match rule one of
 	 * <ul>
-	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type name are the full names
-	 *			of the searched types.</li>
-	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
-	 *			of the searched types.</li>
-	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
-	 *		<li>{@link SearchPattern#R_CAMEL_CASE_MATCH} if type name are camel case of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type
+	 *			name are the full names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type
+	 *			name are prefixes of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and
+	 *			type name contain wild-cards.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if the type name is a
+	 *			camel case of the searched types name.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_SAME_PART_COUNT_MATCH}
+	 *			if the type name is a camel case with same part count of the searched
+	 *			types name.</li>
 	 * </ul>
 	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
 	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
@@ -632,24 +637,34 @@ public class SearchEngine {
 	 *					May be <code>null</code>, then any type name is accepted.
 	 * @param packageMatchRule one of
 	 * <ul>
-	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type name are the full names
-	 *			of the searched types.</li>
-	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
-	 *			of the searched types.</li>
-	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
-	 *		<li>{@link SearchPattern#R_CAMEL_CASE_MATCH} if type name are camel case of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type
+	 *			name are the full names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type
+	 *			name are prefixes of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and
+	 *			type name contain wild-cards.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if the package name is a
+	 *			camel case of the searched types package name.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_SAME_PART_COUNT_MATCH}
+	 *			if the package name is a camel case with same part count of the searched
+	 *			types package name.</li>
 	 * </ul>
 	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
 	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
 	 *   or {@link SearchPattern#R_PREFIX_MATCH} if a prefix non case sensitive match is requested.
 	 * @param typeMatchRule one of
 	 * <ul>
-	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type name are the full names
-	 *			of the searched types.</li>
-	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
-	 *			of the searched types.</li>
-	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
-	 *		<li>{@link SearchPattern#R_CAMEL_CASE_MATCH} if type name are camel case of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type
+	 *			name are the full names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type
+	 *			name are prefixes of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and
+	 *			type name contain wild-cards.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if the type name is a
+	 *			camel case of the searched types name.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_SAME_PART_COUNT_MATCH}
+	 *			if the type name is a camel case with same part count of the searched
+	 *			types name.</li>
 	 * </ul>
 	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
 	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
@@ -697,7 +712,7 @@ public class SearchEngine {
 		this.basicEngine.searchAllTypeNames(packageName,
 			packageMatchRule,
 			typeName,
-			SearchPattern.updateMatchRule(typeMatchRule), 
+			typeMatchRule, 
 			searchFor,
 			scope,
 			requestorWrapper,
@@ -719,12 +734,17 @@ public class SearchEngine {
 	 *						May be <code>null</code>, then any package name is accepted.
 	 * @param packageMatchRule one of
 	 * <ul>
-	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type name are the full names
-	 *			of the searched types.</li>
-	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
-	 *			of the searched types.</li>
-	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
-	 *		<li>{@link SearchPattern#R_CAMEL_CASE_MATCH} if type name are camel case of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type
+	 *			name are the full names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type
+	 *			name are prefixes of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and
+	 *			type name contain wild-cards.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if the package name is a
+	 *			camel case of the searched types package name.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_SAME_PART_COUNT_MATCH}
+	 *			if the package name is a camel case with same part count of the searched
+	 *			types package name.</li>
 	 * </ul>
 	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
 	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
@@ -735,12 +755,17 @@ public class SearchEngine {
 	 *					May be <code>null</code>, then any type name is accepted.
 	 * @param typeMatchRule one of
 	 * <ul>
-	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type name are the full names
-	 *			of the searched types.</li>
-	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
-	 *			of the searched types.</li>
-	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
-	 *		<li>{@link SearchPattern#R_CAMEL_CASE_MATCH} if type name are camel case of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type
+	 *			name are the full names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type
+	 *			name are prefixes of the names of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and
+	 *			type name contain wild-cards.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if the type name is a
+	 *			camel case of the searched types name.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_SAME_PART_COUNT_MATCH}
+	 *			if the type name is a camel case with same part count of the searched
+	 *			types name.</li>
 	 * </ul>
 	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
 	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
@@ -789,7 +814,7 @@ public class SearchEngine {
 		this.basicEngine.searchAllTypeNames(packageName, 
 			packageMatchRule, 
 			typeName, 
-			SearchPattern.updateMatchRule(typeMatchRule), 
+			typeMatchRule, 
 			searchFor, 
 			scope, 
 			requestorWrapper, 

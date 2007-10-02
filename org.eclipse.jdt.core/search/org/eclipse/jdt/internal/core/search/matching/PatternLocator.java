@@ -23,7 +23,6 @@ public abstract class PatternLocator implements IIndexConstants {
 // store pattern info
 protected int matchMode;
 protected boolean isCaseSensitive;
-protected boolean isCamelCase;
 protected boolean isEquivalentMatch;
 protected boolean isErasureMatch;
 protected boolean mustResolve;
@@ -118,7 +117,6 @@ public static char[] qualifiedSourceName(TypeBinding binding) {
 public PatternLocator(SearchPattern pattern) {
 	int matchRule = pattern.getMatchRule();
 	this.isCaseSensitive = (matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
-	this.isCamelCase = (matchRule & SearchPattern.R_CAMEL_CASE_MATCH) != 0;
 	this.isErasureMatch = (matchRule & SearchPattern.R_ERASURE_MATCH) != 0;
 	this.isEquivalentMatch = (matchRule & SearchPattern.R_EQUIVALENT_MATCH) != 0;
 	this.matchMode = matchRule & JavaSearchPattern.MATCH_MODE_MASK;
@@ -282,23 +280,19 @@ protected int matchNameValue(char[] pattern, char[] name) {
 	boolean matchFirstChar = !this.isCaseSensitive || pattern[0] == name[0];
 	boolean sameLength = pattern.length == name.length;
 	boolean canBePrefix = name.length >= pattern.length;
-	if (this.isCamelCase) {
-		if (matchFirstChar && CharOperation.camelCaseMatch(pattern, name, (this.matchMode & SearchPattern.R_PREFIX_MATCH) != 0)) {
-			return POSSIBLE_MATCH;
-		}
-		if (this.isCaseSensitive) return IMPOSSIBLE_MATCH;
-	}
 	switch (this.matchMode) {
 		case SearchPattern.R_EXACT_MATCH:
 			if (sameLength && matchFirstChar && CharOperation.equals(pattern, name, this.isCaseSensitive)) {
 				return POSSIBLE_MATCH | EXACT_FLAVOR;
 			}
 			break;
+
 		case SearchPattern.R_PREFIX_MATCH:
 			if (canBePrefix && matchFirstChar && CharOperation.prefixEquals(pattern, name, this.isCaseSensitive)) {
 				return POSSIBLE_MATCH;
 			}
 			break;
+
 		case SearchPattern.R_PATTERN_MATCH:
 			// TODO_PERFS (frederic) Not sure this lowercase is necessary
 			if (!this.isCaseSensitive) {
@@ -308,8 +302,25 @@ protected int matchNameValue(char[] pattern, char[] name) {
 				return POSSIBLE_MATCH;
 			}
 			break;
+
 		case SearchPattern.R_REGEXP_MATCH :
 			// TODO (frederic) implement regular expression match
+			break;
+
+		case SearchPattern.R_CAMELCASE_MATCH:
+			if (CharOperation.camelCaseMatch(pattern, name, false)) {
+				return POSSIBLE_MATCH;
+			}
+			// only test case insensitive as CamelCase same part count already verified prefix case sensitive
+			if (!this.isCaseSensitive && CharOperation.prefixEquals(pattern, name, false)) {
+				return POSSIBLE_MATCH;
+			}
+			break;
+
+		case SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH:
+			if (CharOperation.camelCaseMatch(pattern, name, true)) {
+				return POSSIBLE_MATCH;
+			}
 			break;
 	}
 	return IMPOSSIBLE_MATCH;
@@ -712,25 +723,35 @@ protected int resolveLevelForType(char[] simpleNamePattern, char[] qualification
 		sourceName =  getQualifiedSourceName(binding);
 	}
 	if (sourceName == null) return IMPOSSIBLE_MATCH;
-	if ((this.matchMode & SearchPattern.R_PREFIX_MATCH) != 0) {
-		if (CharOperation.prefixEquals(qualifiedPattern, sourceName, this.isCaseSensitive)) {
-			return ACCURATE_MATCH;
-		}
-	}
-	if (this.isCamelCase) {
-		if ((qualifiedPattern.length>0 && sourceName.length>0 && qualifiedPattern[0] == sourceName[0])) {
-			if (CharOperation.camelCaseMatch(qualifiedPattern, sourceName, (this.matchMode & SearchPattern.R_PREFIX_MATCH) != 0)) {
+	switch (this.matchMode) {
+		case SearchPattern.R_PREFIX_MATCH:
+			if (CharOperation.prefixEquals(qualifiedPattern, sourceName, this.isCaseSensitive)) {
 				return ACCURATE_MATCH;
 			}
-		}
-		if (!this.isCaseSensitive && this.matchMode == SearchPattern.R_EXACT_MATCH) {
-			boolean matchPattern = CharOperation.equals(qualifiedPattern, sourceName, false);
-			return matchPattern ? ACCURATE_MATCH : IMPOSSIBLE_MATCH;
-		}
+			break;
+		case SearchPattern.R_CAMELCASE_MATCH:
+			if ((qualifiedPattern.length>0 && sourceName.length>0 && qualifiedPattern[0] == sourceName[0])) {
+				if (CharOperation.camelCaseMatch(qualifiedPattern, sourceName, false)) {
+					return ACCURATE_MATCH;
+				}
+				if (!this.isCaseSensitive && CharOperation.prefixEquals(qualifiedPattern, sourceName, false)) {
+					return ACCURATE_MATCH;
+				}
+			}
+			break;
+		case SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH:
+			if ((qualifiedPattern.length>0 && sourceName.length>0 && qualifiedPattern[0] == sourceName[0])) {
+				if (CharOperation.camelCaseMatch(qualifiedPattern, sourceName, true)) {
+					return ACCURATE_MATCH;
+				}
+			}
+			break;
+		default:
+			if (CharOperation.match(qualifiedPattern, sourceName, this.isCaseSensitive)) {
+				return ACCURATE_MATCH;
+			}
 	}
-	boolean matchPattern = CharOperation.match(qualifiedPattern, sourceName, this.isCaseSensitive);
-	return matchPattern ? ACCURATE_MATCH : IMPOSSIBLE_MATCH;
-
+	return IMPOSSIBLE_MATCH;
 }
 
 /**

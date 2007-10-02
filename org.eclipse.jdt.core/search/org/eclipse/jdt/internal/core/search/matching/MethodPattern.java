@@ -308,7 +308,6 @@ EntryResult[] queryIn(Index index) throws IOException {
 
 	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
-			if (this.isCamelCase) break;
 			if (this.selector != null && this.parameterCount >= 0 && !this.varargs)
 				key = createIndexKey(this.selector, this.parameterCount);
 			else { // do a prefix query with the selector
@@ -328,6 +327,10 @@ EntryResult[] queryIn(Index index) throws IOException {
 			break;
 		case R_REGEXP_MATCH :
 			// TODO (frederic) implement regular expression match
+			break;
+		case R_CAMELCASE_MATCH:
+		case R_CAMELCASE_SAME_PART_COUNT_MATCH:
+			// do a prefix query with the selector
 			break;
 	}
 

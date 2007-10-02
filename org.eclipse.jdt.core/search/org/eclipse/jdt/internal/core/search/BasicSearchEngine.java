@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * Search basic engine. Public search engine (see {@link org.eclipse.jdt.core.search.SearchEngine}
  * for detailed comment), now uses basic engine functionalities.
- * Note that serch basic engine does not implement deprecated functionalities...
+ * Note that search basic engine does not implement deprecated functionalities...
  */
 public class BasicSearchEngine {
 
@@ -271,11 +271,11 @@ public class BasicSearchEngine {
 				case SearchPattern.R_REGEXP_MATCH:
 					buffer.append("R_REGEXP_MATCH"); //$NON-NLS-1$
 					break;
-				case 0x0080: // SearchPattern.R_CAMELCASE_MATCH:
+				case SearchPattern.R_CAMELCASE_MATCH:
 					buffer.append("R_CAMELCASE_MATCH"); //$NON-NLS-1$
 					break;
-				case SearchPattern.R_CAMEL_CASE_MATCH:
-					buffer.append("R_CAMEL_CASE_MATCH"); //$NON-NLS-1$
+				case SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH:
+					buffer.append("R_CAMELCASE_SAME_PART_COUNT_MATCH"); //$NON-NLS-1$
 					break;
 			}
 		}
@@ -457,18 +457,12 @@ public class BasicSearchEngine {
 				return false;
 		
 		if (patternTypeName != null) {
-			boolean isCamelCase = (matchRule & SearchPattern.R_CAMEL_CASE_MATCH) != 0;
+			boolean isCamelCase = (matchRule & (SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH)) != 0;
 			int matchMode = matchRule & JavaSearchPattern.MATCH_MODE_MASK;
 			if (!isCaseSensitive && !isCamelCase) {
 				patternTypeName = CharOperation.toLowerCase(patternTypeName);
 			}
 			boolean matchFirstChar = !isCaseSensitive || patternTypeName[0] == typeName[0];
-			if (isCamelCase) {
-				if (matchFirstChar && CharOperation.camelCaseMatch(patternTypeName, typeName, (matchRule & SearchPattern.R_PREFIX_MATCH) != 0)) {
-					return true;
-				}
-				if (isCaseSensitive) return false;
-			}
 			switch(matchMode) {
 				case SearchPattern.R_EXACT_MATCH :
 					return matchFirstChar && CharOperation.equals(patternTypeName, typeName, isCaseSensitive);
@@ -479,6 +473,13 @@ public class BasicSearchEngine {
 				case SearchPattern.R_REGEXP_MATCH :
 					// TODO (frederic) implement regular expression match
 					break;
+				case SearchPattern.R_CAMELCASE_MATCH:
+					if (matchFirstChar && CharOperation.camelCaseMatch(patternTypeName, typeName, false)) {
+						return true;
+					}
+					return !isCaseSensitive && matchFirstChar && CharOperation.prefixEquals(patternTypeName, typeName, false);
+				case SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH:
+					return matchFirstChar && CharOperation.camelCaseMatch(patternTypeName, typeName, true);
 			}
 		}
 		return true;
@@ -645,15 +646,23 @@ public class BasicSearchEngine {
 		int waitingPolicy,
 		IProgressMonitor progressMonitor)  throws JavaModelException {
 
+		// Validate match rule first
+		final int validatedTypeMatchRule = SearchPattern.validateMatchRule(typeName == null ? null : new String (typeName), typeMatchRule);
+		
+		// Debug
 		if (VERBOSE) {
 			Util.verbose("BasicSearchEngine.searchAllTypeNames(char[], char[], int, int, IJavaSearchScope, IRestrictedAccessTypeRequestor, int, IProgressMonitor)"); //$NON-NLS-1$
 			Util.verbose("	- package name: "+(packageName==null?"null":new String(packageName))); //$NON-NLS-1$ //$NON-NLS-2$
-			Util.verbose("	- match rule: "+getMatchRuleString(packageMatchRule)); //$NON-NLS-1$
+			Util.verbose("	- package match rule: "+getMatchRuleString(packageMatchRule)); //$NON-NLS-1$
 			Util.verbose("	- type name: "+(typeName==null?"null":new String(typeName))); //$NON-NLS-1$ //$NON-NLS-2$
-			Util.verbose("	- match rule: "+getMatchRuleString(typeMatchRule)); //$NON-NLS-1$
+			Util.verbose("	- type match rule: "+getMatchRuleString(typeMatchRule)); //$NON-NLS-1$
+			if (validatedTypeMatchRule != typeMatchRule) {
+				Util.verbose("	- validated type match rule: "+getMatchRuleString(validatedTypeMatchRule)); //$NON-NLS-1$
+			}
 			Util.verbose("	- search for: "+searchFor); //$NON-NLS-1$
 			Util.verbose("	- scope: "+scope); //$NON-NLS-1$
 		}
+		if (validatedTypeMatchRule == -1) return; // invalid match rule => return no results
 
 		// Create pattern
 		IndexManager indexManager = JavaModelManager.getIndexManager();
@@ -690,13 +699,13 @@ public class BasicSearchEngine {
 				null,
 				typeName,
 				typeSuffix,
-				typeMatchRule)
+				validatedTypeMatchRule)
 			: new QualifiedTypeDeclarationPattern(
 				packageName,
 				packageMatchRule,
 				typeName,
 				typeSuffix,
-				typeMatchRule);
+				validatedTypeMatchRule);
 
 		// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
 		final HashSet workingCopyPaths = new HashSet();
@@ -728,7 +737,7 @@ public class BasicSearchEngine {
 						break;
 					case 1:
 						if (singleWkcpPath.equals(documentPath)) {
-							return true; // fliter out *the* working copy
+							return true; // filter out *the* working copy
 						}
 						break;
 					default:
@@ -813,7 +822,7 @@ public class BasicSearchEngine {
 							} else /*if (type.isInterface())*/ {
 								kind = TypeDeclaration.INTERFACE_DECL;
 							}
-							if (match(typeSuffix, packageName, typeName, typeMatchRule, kind, packageDeclaration, simpleName)) {
+							if (match(typeSuffix, packageName, typeName, validatedTypeMatchRule, kind, packageDeclaration, simpleName)) {
 								if (nameRequestor instanceof TypeNameMatchRequestorWrapper) {
 									((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, type.getFlags()));
 								} else {
@@ -833,7 +842,7 @@ public class BasicSearchEngine {
 									return false; // no local/anonymous type
 								}
 								public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
-									if (match(typeSuffix, packageName, typeName, typeMatchRule, TypeDeclaration.kind(typeDeclaration.modifiers), packageDeclaration, typeDeclaration.name)) {
+									if (match(typeSuffix, packageName, typeName, validatedTypeMatchRule, TypeDeclaration.kind(typeDeclaration.modifiers), packageDeclaration, typeDeclaration.name)) {
 										if (nameRequestor instanceof TypeNameMatchRequestorWrapper) {
 											IType type = workingCopy.getType(new String(typeName));
 											((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, typeDeclaration.modifiers));
@@ -844,7 +853,7 @@ public class BasicSearchEngine {
 									return true;
 								}
 								public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope classScope) {
-									if (match(typeSuffix, packageName, typeName, typeMatchRule, TypeDeclaration.kind(memberTypeDeclaration.modifiers), packageDeclaration, memberTypeDeclaration.name)) {
+									if (match(typeSuffix, packageName, typeName, validatedTypeMatchRule, TypeDeclaration.kind(memberTypeDeclaration.modifiers), packageDeclaration, memberTypeDeclaration.name)) {
 										// compute enclosing type names
 										TypeDeclaration enclosing = memberTypeDeclaration.enclosingType;
 										char[][] enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
@@ -892,23 +901,35 @@ public class BasicSearchEngine {
 	public void searchAllTypeNames(
 		final char[][] qualifications, 
 		final char[][] typeNames,
-		final int matchRule, 
+		int matchRule, 
 		int searchFor, 
 		IJavaSearchScope scope, 
 		final IRestrictedAccessTypeRequestor nameRequestor,
 		int waitingPolicy,
 		IProgressMonitor progressMonitor)  throws JavaModelException {
 
+		// Validate match rule first
+		int namesLength = typeNames == null ? 0 : typeNames.length;
+		for (int i=0; i<namesLength; i++) {
+			matchRule &= SearchPattern.validateMatchRule(new String(typeNames[i]), matchRule);
+		}
+		final int validatedMatchRule = matchRule;
+		
+		// Debug
 		if (VERBOSE) {
 			Util.verbose("BasicSearchEngine.searchAllTypeNames(char[][], char[][], int, int, IJavaSearchScope, IRestrictedAccessTypeRequestor, int, IProgressMonitor)"); //$NON-NLS-1$
 			Util.verbose("	- package name: "+(qualifications==null?"null":new String(CharOperation.concatWith(qualifications, ',')))); //$NON-NLS-1$ //$NON-NLS-2$
 			Util.verbose("	- type name: "+(typeNames==null?"null":new String(CharOperation.concatWith(typeNames, ',')))); //$NON-NLS-1$ //$NON-NLS-2$
 			Util.verbose("	- match rule: "+matchRule); //$NON-NLS-1$
+			if (validatedMatchRule != matchRule) {
+				Util.verbose("	- validated match rule: "+getMatchRuleString(validatedMatchRule)); //$NON-NLS-1$
+			}
 			Util.verbose("	- search for: "+searchFor); //$NON-NLS-1$
 			Util.verbose("	- scope: "+scope); //$NON-NLS-1$
 		}
 		IndexManager indexManager = JavaModelManager.getIndexManager();
 
+		// Create pattern
 		final char typeSuffix;
 		switch(searchFor){
 			case IJavaSearchConstants.CLASS :
@@ -936,7 +957,7 @@ public class BasicSearchEngine {
 				typeSuffix = IIndexConstants.TYPE_SUFFIX;
 				break;
 		}
-		final MultiTypeDeclarationPattern pattern = new MultiTypeDeclarationPattern(qualifications, typeNames, typeSuffix, matchRule);
+		final MultiTypeDeclarationPattern pattern = new MultiTypeDeclarationPattern(qualifications, typeNames, typeSuffix, validatedMatchRule);
 
 		// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
 		final HashSet workingCopyPaths = new HashSet();
@@ -968,7 +989,7 @@ public class BasicSearchEngine {
 						break;
 					case 1:
 						if (singleWkcpPath.equals(documentPath)) {
-							return true; // fliter out *the* working copy
+							return true; // filter out *the* working copy
 						}
 						break;
 					default:
@@ -1071,14 +1092,14 @@ public class BasicSearchEngine {
 								}
 								public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
 									SearchPattern decodedPattern =
-										new QualifiedTypeDeclarationPattern(packageDeclaration, typeDeclaration.name, convertTypeKind(TypeDeclaration.kind(typeDeclaration.modifiers)), matchRule);
+										new QualifiedTypeDeclarationPattern(packageDeclaration, typeDeclaration.name, convertTypeKind(TypeDeclaration.kind(typeDeclaration.modifiers)), validatedMatchRule);
 									if (pattern.matchesDecodedKey(decodedPattern)) {
 										nameRequestor.acceptType(typeDeclaration.modifiers, packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
 									}
 									return true;
 								}
 								public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope classScope) {
-									// compute encloising type names
+									// compute enclosing type names
 									char[] qualification = packageDeclaration;
 									TypeDeclaration enclosing = memberTypeDeclaration.enclosingType;
 									char[][] enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
@@ -1092,7 +1113,7 @@ public class BasicSearchEngine {
 										}
 									}
 									SearchPattern decodedPattern =
-										new QualifiedTypeDeclarationPattern(qualification, memberTypeDeclaration.name, convertTypeKind(TypeDeclaration.kind(memberTypeDeclaration.modifiers)), matchRule);
+										new QualifiedTypeDeclarationPattern(qualification, memberTypeDeclaration.name, convertTypeKind(TypeDeclaration.kind(memberTypeDeclaration.modifiers)), validatedMatchRule);
 									if (pattern.matchesDecodedKey(decodedPattern)) {
 										nameRequestor.acceptType(memberTypeDeclaration.modifiers, packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
 									}

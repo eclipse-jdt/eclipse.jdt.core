@@ -95,33 +95,43 @@ protected int matchLevel(ImportReference importRef) {
 protected int matchLevelForTokens(char[][] tokens) {
 	if (this.pattern.pkgName == null) return ACCURATE_MATCH;
 
-	char[] packageName = null;
-	if (this.isCamelCase) {
-		packageName = CharOperation.concatWith(tokens, '.');
-		if (CharOperation.camelCaseMatch(this.pattern.pkgName, packageName, (this.matchMode & SearchPattern.R_PREFIX_MATCH) != 0)) {
-			return POSSIBLE_MATCH;
-		}
-		if (this.isCaseSensitive) return IMPOSSIBLE_MATCH;
-	}
 	switch (this.matchMode) {
 		case SearchPattern.R_EXACT_MATCH:
 		case SearchPattern.R_PREFIX_MATCH:
-			if (packageName==null) packageName = CharOperation.concatWith(tokens, '.');
-			if (CharOperation.prefixEquals(this.pattern.pkgName, packageName, this.isCaseSensitive)) {
+			if (CharOperation.prefixEquals(this.pattern.pkgName, CharOperation.concatWith(tokens, '.'), this.isCaseSensitive)) {
 				return POSSIBLE_MATCH;
 			}
 			break;
+
 		case SearchPattern.R_PATTERN_MATCH:
 			char[] patternName = this.pattern.pkgName[this.pattern.pkgName.length - 1] == '*'
 				? this.pattern.pkgName
 				: CharOperation.concat(this.pattern.pkgName, ".*".toCharArray()); //$NON-NLS-1$
-			if (packageName==null) packageName = CharOperation.concatWith(tokens, '.');
-			if (CharOperation.match(patternName, packageName, this.isCaseSensitive)) {
+			if (CharOperation.match(patternName, CharOperation.concatWith(tokens, '.'), this.isCaseSensitive)) {
 				return POSSIBLE_MATCH;
 			}
 			break;
+
 		case SearchPattern.R_REGEXP_MATCH :
 			// TODO (frederic) implement regular expression match
+			break;
+
+		case SearchPattern.R_CAMELCASE_MATCH:
+			char[] packageName = CharOperation.concatWith(tokens, '.');
+			if (CharOperation.camelCaseMatch(this.pattern.pkgName, packageName, false)) {
+				return POSSIBLE_MATCH;
+			}
+			// only test case insensitive as CamelCase already verified prefix case sensitive
+			if (!this.isCaseSensitive && CharOperation.prefixEquals(this.pattern.pkgName, packageName, false)) {
+				return POSSIBLE_MATCH;
+			}
+			break;
+
+		case SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH:
+			packageName = CharOperation.concatWith(tokens, '.');
+			if (CharOperation.camelCaseMatch(this.pattern.pkgName, CharOperation.concatWith(tokens, '.'), true)) {
+				return POSSIBLE_MATCH;
+			}
 			break;
 	}
 	return IMPOSSIBLE_MATCH;

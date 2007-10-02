@@ -47,7 +47,8 @@ static final int MATCH_RULE_INDEX_MASK =
 	SearchPattern.R_PATTERN_MATCH |
 	SearchPattern.R_REGEXP_MATCH |
 	SearchPattern.R_CASE_SENSITIVE |
-	SearchPattern.R_CAMEL_CASE_MATCH;
+	SearchPattern.R_CAMELCASE_MATCH |
+	SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
 
 public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 	if (pattern == null) return true;
@@ -56,19 +57,7 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 	if (patternLength == 0) return matchRule != SearchPattern.R_EXACT_MATCH;
 	if (wordLength == 0) return (matchRule & SearchPattern.R_PATTERN_MATCH) != 0 && patternLength == 1 && pattern[0] == '*';
 
-	// First test camel case if necessary
-	boolean isCamelCase = (matchRule & SearchPattern.R_CAMEL_CASE_MATCH) != 0;
-	if (isCamelCase) {
-		// prefix is always needed as index key got characters after type simple name
-		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=201064
-		if (pattern[0] == word[0] && CharOperation.camelCaseMatch(pattern, word, true/*prefix match*/)) {
-			return true;
-		}
-		if ((matchRule & SearchPattern.R_CASE_SENSITIVE) != 0) return false;
-	}
-
 	// need to mask some bits of pattern rule (bug 79790)
-	matchRule &= ~SearchPattern.R_CAMEL_CASE_MATCH;
 	switch(matchRule & MATCH_RULE_INDEX_MASK) {
 		case SearchPattern.R_EXACT_MATCH :
 			return patternLength == wordLength && CharOperation.equals(pattern, word, false);
@@ -76,12 +65,23 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 			return patternLength <= wordLength && CharOperation.prefixEquals(pattern, word, false);
 		case SearchPattern.R_PATTERN_MATCH :
 			return CharOperation.match(pattern, word, false);
+		case SearchPattern.R_CAMELCASE_MATCH:
+		// same part count is not activated because index key may have uppercase letters after the type name
+		case SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH:
+			if (CharOperation.camelCaseMatch(pattern, word, false)) {
+				return true;
+			}
+			return patternLength <= wordLength && CharOperation.prefixEquals(pattern, word, false);
 		case SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE :
 			return pattern[0] == word[0] && patternLength == wordLength && CharOperation.equals(pattern, word);
 		case SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE :
 			return pattern[0] == word[0] && patternLength <= wordLength && CharOperation.prefixEquals(pattern, word);
 		case SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE :
 			return CharOperation.match(pattern, word, true);
+		case SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE :
+		// same part count is not activated because index key may have uppercase letters after the type name
+		case SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_CASE_SENSITIVE :
+			return (pattern[0] == word[0] && CharOperation.camelCaseMatch(pattern, word, false));
 	}
 	return false;
 }

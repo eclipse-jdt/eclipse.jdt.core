@@ -112,12 +112,6 @@ protected int matchLevel(ImportReference importRef) {
 			return IMPOSSIBLE_MATCH;
 		}
 		boolean matchFirstChar = !this.isCaseSensitive || (qualifiedPattern[0] == qualifiedTypeName[0]);
-		if (this.isCamelCase) {
-			if (matchFirstChar && CharOperation.camelCaseMatch(qualifiedPattern, qualifiedTypeName, (this.matchMode & SearchPattern.R_PREFIX_MATCH) != 0)) {
-				return POSSIBLE_MATCH;
-			}
-			if (this.isCaseSensitive) return IMPOSSIBLE_MATCH;
-		}
 		switch (this.matchMode) {
 			case SearchPattern.R_EXACT_MATCH:
 			case SearchPattern.R_PREFIX_MATCH:
@@ -134,6 +128,20 @@ protected int matchLevel(ImportReference importRef) {
 
 			case SearchPattern.R_REGEXP_MATCH :
 				// TODO (frederic) implement regular expression match
+				break;
+			case SearchPattern.R_CAMELCASE_MATCH:
+				if (matchFirstChar && CharOperation.camelCaseMatch(qualifiedPattern, qualifiedTypeName, false)) {
+					return POSSIBLE_MATCH;
+				}
+				// only test case insensitive as CamelCase already verified prefix case sensitive
+				if (!this.isCaseSensitive && CharOperation.prefixEquals(qualifiedPattern, qualifiedTypeName, false)) {
+					return POSSIBLE_MATCH;
+				}
+				break;
+			case SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH:
+				if (matchFirstChar && CharOperation.camelCaseMatch(qualifiedPattern, qualifiedTypeName, true)) {
+					return POSSIBLE_MATCH;
+				}
 				break;
 		}
 	}

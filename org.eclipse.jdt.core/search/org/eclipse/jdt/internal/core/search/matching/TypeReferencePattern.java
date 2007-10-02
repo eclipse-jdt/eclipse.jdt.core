@@ -51,7 +51,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 		((InternalSearchPattern)this).mustResolve = true; // always resolve (in case of a simple name reference being a potential match)
 	}
 	/*
-	 * Instanciate a type reference pattern with additional information for generics search
+	 * Instantiate a type reference pattern with additional information for generics search
 	 */
 	public TypeReferencePattern(char[] qualification, char[] simpleName, String typeSignature, int matchRule) {
 		this(qualification, simpleName,matchRule);
@@ -65,7 +65,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 		}
 	}
 	/*
-	 * Instanciate a type reference pattern with additional information for generics search
+	 * Instantiate a type reference pattern with additional information for generics search
 	 */
 	public TypeReferencePattern(char[] qualification, char[] simpleName, IType type, int matchRule) {
 		this(qualification, simpleName,matchRule);
@@ -84,7 +84,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 		if (this.simpleName != null)
 			return this.simpleName;
 	
-		// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
+		// Optimization, e.g. type reference is 'org.eclipse.jdt.core.*'
 		if (this.currentSegment >= 0) 
 			return this.segments[this.currentSegment];
 		return null;
@@ -95,9 +95,9 @@ import org.eclipse.jdt.internal.core.util.Util;
 	protected boolean hasNextQuery() {
 		if (this.segments == null) return false;
 	
-		// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
+		// Optimization, e.g. type reference is 'org.eclipse.jdt.core.*'
 		// if package has at least 4 segments, don't look at the first 2 since they are mostly
-		// redundant (eg. in 'org.eclipse.jdt.core.*' 'org.eclipse' is used all the time)
+		// redundant (e.g. in 'org.eclipse.jdt.core.*' 'org.eclipse' is used all the time)
 		return --this.currentSegment >= (this.segments.length >= 4 ? 2 : 0);
 	}
 

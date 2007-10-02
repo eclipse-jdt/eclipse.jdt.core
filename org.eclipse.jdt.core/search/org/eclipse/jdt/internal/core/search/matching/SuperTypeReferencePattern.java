@@ -248,7 +248,6 @@ EntryResult[] queryIn(Index index) throws IOException {
 	// cannot include the superQualification since it may not exist in the index
 	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
-			if (this.isCamelCase) break;
 			// do a prefix query with the superSimpleName
 			matchRule &= ~R_EXACT_MATCH;
 			matchRule |= R_PREFIX_MATCH;
@@ -263,6 +262,10 @@ EntryResult[] queryIn(Index index) throws IOException {
 			break;
 		case R_REGEXP_MATCH :
 			// TODO (frederic) implement regular expression match
+			break;
+		case R_CAMELCASE_MATCH:
+		case R_CAMELCASE_SAME_PART_COUNT_MATCH:
+			// do a prefix query with the superSimpleName
 			break;
 	}
 

@@ -264,7 +264,6 @@ EntryResult[] queryIn(Index index) throws IOException {
 			// do a prefix query with the simpleName
 			break;
 		case R_EXACT_MATCH :
-			if (this.isCamelCase) break;
 			matchRule &= ~R_EXACT_MATCH;
 			if (this.simpleName != null) {
 				matchRule |= R_PREFIX_MATCH;
@@ -301,6 +300,10 @@ EntryResult[] queryIn(Index index) throws IOException {
 			break;
 		case R_REGEXP_MATCH :
 			// TODO (frederic) implement regular expression match
+			break;
+		case R_CAMELCASE_MATCH:
+		case R_CAMELCASE_SAME_PART_COUNT_MATCH:
+			// do a prefix query with the simpleName
 			break;
 	}
 

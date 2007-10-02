@@ -202,34 +202,33 @@ public static final char[][] arrayConcat(char[][] first, char[][] second) {
  * but are not always considered as leading character. For instance, both
  * 'UTF16DSS' and 'UTFDSS' patterns will match 'UTF16DocumentScannerSupport'.
  * <p>
- * This method allows prefix match in Camel Case (see
- * {@link #camelCaseMatch(char[], char[], boolean)}).
+ * Using this method allows matching names to have more parts than the specified
+ * pattern (see {@link #camelCaseMatch(char[], char[], boolean)}).<br>
+ * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap',
+ * 'HatMapper' <b>and also</b> 'HashMapEntry'.
  * <p>
  * <pre>
  * Examples:<ol>
- * <li> pattern = { 'N', 'P', 'E' }
- * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * <li> pattern = "NPE".toCharArray()
+ * name = "NullPointerException".toCharArray()
  * result => true</li>
- * <li> pattern = { 'N', 'P', 'E' }
- * name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * <li> pattern = "NPE".toCharArray()
+ * name = "NoPermissionException".toCharArray()
  * result => true</li>
- * <li> pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
- * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * <li> pattern = "NuPoEx".toCharArray()
+ * name = "NullPointerException".toCharArray()
  * result => true</li>
- * <li> pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
- * name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * <li> pattern = "NuPoEx".toCharArray()
+ * name = "NoPermissionException".toCharArray()
  * result => false</li>
- * <li> pattern = { 'n', p', 'e' }
- * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * <li> pattern = "npe".toCharArray()
+ * name = "NullPointerException".toCharArray()
  * result => false</li>
- * <li> pattern = { 'I', 'P', 'L', '3' }
- * name = { 'I', 'P', 'e', 'r', 's', 'p', 'e', 'c', 't', 'i', 'v', 'e', 'L', 'i', 's', 't', 'e', 'n', 'e', 'r', '3' }
+ * <li> pattern = "IPL3".toCharArray()
+ * name = "IPerspectiveListener3".toCharArray()
  * result => true</li>
- * <li> pattern = { 'H', M' }
- * name = { 'H', 'a', 's', 'h', 'M', 'a', 'p', 'E', 'n', 't', 'r', 'y' }
- * result => true</li>
- * <li>pattern = { 'H', M', 'a', 'p' }
- * name = { 'H', 'a', 't', 'M', 'a', 'p', 'p', 'e', 'r' }
+ * <li> pattern = "HM".toCharArray()
+ * name = "HashMapEntry".toCharArray()
  * result => true</li>
  * </ol></pre>
  * 
@@ -244,7 +243,7 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
 	if (name == null)
 		return false; // null name cannot match
 
-	return camelCaseMatch(pattern, 0, pattern.length, name, 0, name.length, true/*prefix match*/);
+	return camelCaseMatch(pattern, 0, pattern.length, name, 0, name.length, false/*not the same count of parts*/);
 }
 
 /**
@@ -272,74 +271,58 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
  * but are not always considered as leading character. For instance, both
  * 'UTF16DSS' and 'UTFDSS' patterns will match 'UTF16DocumentScannerSupport'.
  * <p>
- * CamelCase may or may not match prefixes depending on the given parameter.
- * When the prefix match parameter is <code>true</code>, the given pattern can
- * match only a prefix of the given name. For instance, 'HM' , 'HaMa' and  'HMap'
- * patterns will all match 'HashMap', 'HatMapper' <b>and</b> 'HashMapEntry'.
- * <br>
- * Reversely, if the prefix match parameter is <code>false</code>, then pattern
- * and name must have <b>exactly</b> the same number of parts, and their last
- * parts must be identical if they contain lowercase characters.
- * For instance, 'HMap' and 'HaMap' patterns will match 'HashMap' but neither
- * 'HashMapEntry' nor 'HatMapper'. Note that when the last part does not contain
- * lowercase characters, then the name may end with lowercase characters.
- * So, 'HM' pattern will match both 'HashMap' <b>and</b> 'HatMapper' but will not
- * match 'HashMapEntry'.
+ * CamelCase can be restricted to match only the same count of parts. When this
+ * restriction is specified the given pattern and the given name must have <b>exactly</b>
+ * the same number of parts (i.e. the same number of uppercase characters).<br>
+ * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap' and
+ * 'HatMapper' <b>but not</b> 'HashMapEntry'.
  * <p>
  * <pre>
  * Examples:<ol>
- * <li> pattern = { 'N', 'P', 'E' }
- * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * <li> pattern = "NPE".toCharArray()
+ * name = "NullPointerException".toCharArray()
  * result => true</li>
- * <li> pattern = { 'N', 'P', 'E' }
- * name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * <li> pattern = "NPE".toCharArray()
+ * name = "NoPermissionException".toCharArray()
  * result => true</li>
- * <li> pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
- * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * <li> pattern = "NuPoEx".toCharArray()
+ * name = "NullPointerException".toCharArray()
  * result => true</li>
- * <li> pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
- * name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * <li> pattern = "NuPoEx".toCharArray()
+ * name = "NoPermissionException".toCharArray()
  * result => false</li>
- * <li> pattern = { 'n', p', 'e' }
- * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * <li> pattern = "npe".toCharArray()
+ * name = "NullPointerException".toCharArray()
  * result => false</li>
- * <li> pattern = { 'I', 'P', 'L', '3' }
- * name = { 'I', 'P', 'e', 'r', 's', 'p', 'e', 'c', 't', 'i', 'v', 'e', 'L', 'i', 's', 't', 'e', 'n', 'e', 'r', '3' }
+ * <li> pattern = "IPL3".toCharArray()
+ * name = "IPerspectiveListener3".toCharArray()
  * result => true</li>
- * <li> pattern = { 'H', M' }
- * name = { 'H', 'a', 's', 'h', 'M', 'a', 'p', 'E', 'n', 't', 'r', 'y' }
- * result => (prefixMatch == true)</li>
- * <li> pattern = { 'H', M', 'a', 'p' }
- * name = { 'H', 'a', 't', 'M', 'a', 'p', 'p', 'e', 'r' }
- * result => (prefixMatch == true)</li>
+ * <li> pattern = "HM".toCharArray()
+ * name = "HashMapEntry".toCharArray()
+ * result => (samePartCount == false)</li>
  * </ol></pre>
  * 
  * @param pattern the given pattern
  * @param name the given name
- * @param prefixMatch flag telling whether the pattern can match name prefix or not.
+ * @param samePartCount flag telling whether the pattern and the name should
+ * 	have the same count of parts or not.<br>
+ * 	&nbsp;&nbsp;For example:
  * 	<ul>
- * 		<li>For example, when it's <code>true</code>:<br>
- * 			- 'HM' type string pattern will match  'HashMap' and 'HtmlMapper' types,
- * 			  but not 'HashMapEntry'<br>
- * 			- 'HMap' type string pattern will match  'HashMap' type but not 'HtmlMapper'.
- * 		</li>
- * 		<li>and, when it's <code>false</code>:<br>
- * 			- 'HM' type string pattern will match both   'HashMap' and 'HtmlMapper'
- * 			  and 'HashMapEntry'<br>
- * 			- 'HMap' type string pattern will match both 'HashMap' and 'HtmlMapper'
- * 			  types.
- * 		</li>
+ * 		<li>'HM' type string pattern will match 'HashMap' and 'HtmlMapper' types,
+ * 				but not 'HashMapEntry'</li>
+ * 		<li>'HMap' type string pattern will still match previous 'HashMap' and
+ * 				'HtmlMapper' types, but not 'HighMagnitude'</li>
  * 	</ul>
  * @return true if the pattern matches the given name, false otherwise
  * @since 3.4
  */
-public static final boolean camelCaseMatch(char[] pattern, char[] name, boolean prefixMatch) {
+public static final boolean camelCaseMatch(char[] pattern, char[] name, boolean samePartCount) {
 	if (pattern == null)
 		return true; // null pattern is equivalent to '*'
 	if (name == null)
 		return false; // null name cannot match
 
-	return camelCaseMatch(pattern, 0, pattern.length, name, 0, name.length, prefixMatch);
+	return camelCaseMatch(pattern, 0, pattern.length, name, 0, name.length, samePartCount);
 }
 
 /**
@@ -373,71 +356,62 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name, boolean 
  * but are not always considered as leading character. For instance, both
  * 'UTF16DSS' and 'UTFDSS' patterns will match 'UTF16DocumentScannerSupport'.
  * <p>
- * This method allows prefix match in Camel Case (see
- * {@link #camelCaseMatch(char[], int, int, char[], int, int, boolean)}).
+ * Using this method allows matching names to have more parts than the specified
+ * pattern (see {@link #camelCaseMatch(char[], int, int, char[], int, int, boolean)}).<br>
+ * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap',
+ * 'HatMapper' <b>and also</b> 'HashMapEntry'.
  * <p>
  * Examples:
  * <ol>
- * <li><pre>
- *    pattern = { 'N', 'P', 'E' }
- *    patternStart = 0
- *    patternEnd = 3
- *    name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *    nameStart = 0
- *    nameEnd = 20
- *    result => true
- * </pre>
- * </li>
- * <li><pre>
- *    pattern = { 'N', 'P', 'E' }
- *    patternStart = 0
- *    patternEnd = 3
- *    name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *    nameStart = 0
- *    nameEnd = 21
- *    result => true
- * </pre>
- * </li>
- * <li><pre>
- *    pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
- *    patternStart = 0
- *    patternEnd = 6
- *    name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *    nameStart = 0
- *    nameEnd = 20
- *    result => true
- * </pre>
- * </li>
- * <li><pre>
- *    pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
- *    patternStart = 0
- *    patternEnd = 6
- *    name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *    nameStart = 0
- *    nameEnd = 21
- *    result => false
- * </pre>
- * </li>
- * <li><pre>
- *    pattern = { 'n', p', 'e' }
- *    patternStart = 0
- *    patternEnd = 3
- *    name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *    nameStart = 0
- *    nameEnd = 20
- *    result => false
- * </pre>
- * </li>
- * <li><pre>
- *    pattern = { 'I', 'P', 'L', '3' }
- *    patternStart = 0
- *    patternEnd = 4
- *    name = { 'I', 'P', 'e', 'r', 's', 'p', 'e', 'c', 't', 'i', 'v', 'e', 'L', 'i', 's', 't', 'e', 'n', 'e', 'r', '3' }
- *    nameStart = 0
- *    nameEnd = 21
- *    result => true
- * </pre>
- * </li>
+ * <li> pattern = "NPE".toCharArray()
+ * patternStart = 0
+ * patternEnd = 3
+ * name = "NullPointerException".toCharArray()
+ * nameStart = 0
+ * nameEnd = 20
+ * result => true</li>
+ * <li> pattern = "NPE".toCharArray()
+ * patternStart = 0
+ * patternEnd = 3
+ * name = "NoPermissionException".toCharArray()
+ * nameStart = 0
+ * nameEnd = 21
+ * result => true</li>
+ * <li> pattern = "NuPoEx".toCharArray()
+ * patternStart = 0
+ * patternEnd = 6
+ * name = "NullPointerException".toCharArray()
+ * nameStart = 0
+ * nameEnd = 20
+ * result => true</li>
+ * <li> pattern = "NuPoEx".toCharArray()
+ * patternStart = 0
+ * patternEnd = 6
+ * name = "NoPermissionException".toCharArray()
+ * nameStart = 0
+ * nameEnd = 21
+ * result => false</li>
+ * <li> pattern = "npe".toCharArray()
+ * patternStart = 0
+ * patternEnd = 3
+ * name = "NullPointerException".toCharArray()
+ * nameStart = 0
+ * nameEnd = 20
+ * result => false</li>
+ * <li> pattern = "IPL3".toCharArray()
+ * patternStart = 0
+ * patternEnd = 4
+ * name = "IPerspectiveListener3".toCharArray()
+ * nameStart = 0
+ * nameEnd = 21
+ * result => true</li>
+ * <li> pattern = "HM".toCharArray()
+ * patternStart = 0
+ * patternEnd = 2
+ * name = "HashMapEntry".toCharArray()
+ * nameStart = 0
+ * nameEnd = 12
+ * result => true</li>
  * </ol>
  * 
  * @param pattern the given pattern
@@ -450,7 +424,7 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name, boolean 
  * @since 3.2
  */
 public static final boolean camelCaseMatch(char[] pattern, int patternStart, int patternEnd, char[] name, int nameStart, int nameEnd) {
-	return camelCaseMatch(pattern, patternStart, patternEnd, name, nameStart, nameEnd, true/*prefix match*/);
+	return camelCaseMatch(pattern, patternStart, patternEnd, name, nameStart, nameEnd, false/*not the same count of parts*/);
 }
 
 /**
@@ -481,79 +455,64 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
  * but are not always considered as leading character. For instance, both
  * 'UTF16DSS' and 'UTFDSS' patterns will match 'UTF16DocumentScannerSupport'.
  * <p>
- * CamelCase may or may not match prefixes depending on the given parameter.
- * When the prefix match parameter is <code>true</code>, the given pattern can
- * match only a prefix of the given name. For instance, 'HM' , 'HaMa' and  'HMap'
- * patterns will all match 'HashMap', 'HatMapper' <b>and</b> 'HashMapEntry'.
- * <br>
- * Reversely, if the prefix match parameter is <code>false</code>, then pattern
- * and name must have <b>exactly</b> the same number of parts, and their last
- * parts must be identical if they contain lowercase characters.
- * For instance, 'HMap' and 'HaMap' patterns will match 'HashMap' but neither
- * 'HashMapEntry' nor 'HatMapper'. Note that when the last part does not contain
- * lowercase characters, then the name may end with lowercase characters.
- * So, 'HM' pattern will match both 'HashMap' <b>and</b> 'HatMapper' but will not
- * match 'HashMapEntry'.
+ * CamelCase can be restricted to match only the same count of parts. When this
+ * restriction is specified the given pattern and the given name must have <b>exactly</b>
+ * the same number of parts (i.e. the same number of uppercase characters).<br>
+ * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap' and
+ * 'HatMapper' <b>but not</b> 'HashMapEntry'.
  * <p>
  * <pre>
  * Examples:
  * <ol>
- * <li> pattern = { 'N', 'P', 'E' }
+ * <li> pattern = "NPE".toCharArray()
  * patternStart = 0
  * patternEnd = 3
- * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * name = "NullPointerException".toCharArray()
  * nameStart = 0
  * nameEnd = 20
  * result => true</li>
- * <li> pattern = { 'N', 'P', 'E' }
+ * <li> pattern = "NPE".toCharArray()
  * patternStart = 0
  * patternEnd = 3
- * name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * name = "NoPermissionException".toCharArray()
  * nameStart = 0
  * nameEnd = 21
  * result => true</li>
- * <li> pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ * <li> pattern = "NuPoEx".toCharArray()
  * patternStart = 0
  * patternEnd = 6
- * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * name = "NullPointerException".toCharArray()
  * nameStart = 0
  * nameEnd = 20
  * result => true</li>
- * <li> pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
+ * <li> pattern = "NuPoEx".toCharArray()
  * patternStart = 0
  * patternEnd = 6
- * name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * name = "NoPermissionException".toCharArray()
  * nameStart = 0
  * nameEnd = 21
  * result => false</li>
- * <li> pattern = { 'n', p', 'e' }
+ * <li> pattern = "npe".toCharArray()
  * patternStart = 0
  * patternEnd = 3
- * name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
+ * name = "NullPointerException".toCharArray()
  * nameStart = 0
  * nameEnd = 20
  * result => false</li>
- * <li> pattern = { 'I', 'P', 'L', '3' }
+ * <li> pattern = "IPL3".toCharArray()
  * patternStart = 0
  * patternEnd = 4
- * name = { 'I', 'P', 'e', 'r', 's', 'p', 'e', 'c', 't', 'i', 'v', 'e', 'L', 'i', 's', 't', 'e', 'n', 'e', 'r', '3' }
+ * name = "IPerspectiveListener3".toCharArray()
  * nameStart = 0
  * nameEnd = 21
  * result => true</li>
- * <li> pattern = { 'H', M' }
+ * <li> pattern = "HM".toCharArray()
  * patternStart = 0
  * patternEnd = 2
- * name = { 'H', 'a', 's', 'h', 'M', 'a', 'p', 'E', 'n', 't', 'r', 'y' }
+ * name = "HashMapEntry".toCharArray()
  * nameStart = 0
  * nameEnd = 12
- * result => (exactMode == false)</li>
- * <li> pattern = { 'H', M', 'a', 'p' }
- * patternStart = 0
- * patternEnd = 4
- * name = { 'H', 'a', 't', 'M', 'a', 'p', 'p', 'e', 'r' }
- * nameStart = 0
- * nameEnd = 9
- * result => (exactMode == false)</li>
+ * result => (samePartCount == false)</li>
  * </ol>
  * </pre>
  * 
@@ -563,24 +522,28 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
  * @param name the given name
  * @param nameStart the start index of the name, inclusive
  * @param nameEnd the end index of the name, exclusive
- * @param prefixMatch flag telling whether the pattern can match name prefix or not.
+ * @param samePartCount flag telling whether the pattern and the name should
+ * 	have the same count of parts or not.<br>
+ * 	&nbsp;&nbsp;For example:
  * 	<ul>
- * 		<li>For example, when it's <code>true</code>:<br>
- * 			- 'HM' type string pattern will match  'HashMap' and 'HtmlMapper' types,
- * 			  but not 'HashMapEntry'<br>
- * 			- 'HMap' type string pattern will match  'HashMap' type but not 'HtmlMapper'.
- * 		</li>
- * 		<li>and, when it's <code>false</code>:<br>
- * 			- 'HM' type string pattern will match both   'HashMap' and 'HtmlMapper'
- * 			  and 'HashMapEntry'<br>
- * 			- 'HMap' type string pattern will match both 'HashMap' and 'HtmlMapper'
- * 			  types.
- * 		</li>
+ * 		<li>'HM' type string pattern will match 'HashMap' and 'HtmlMapper' types,
+ * 				but not 'HashMapEntry'</li>
+ * 		<li>'HMap' type string pattern will still match previous 'HashMap' and
+ * 				'HtmlMapper' types, but not 'HighMagnitude'</li>
  * 	</ul>
  * @return true if a sub-pattern matches the sub-part of the given name, false otherwise
  * @since 3.4
  */
-public static final boolean camelCaseMatch(char[] pattern, int patternStart, int patternEnd, char[] name, int nameStart, int nameEnd, boolean prefixMatch) {
+public static final boolean camelCaseMatch(char[] pattern, int patternStart, int patternEnd, char[] name, int nameStart, int nameEnd, boolean samePartCount) {
+
+	/* !!!!!!!!!! WARNING !!!!!!!!!!
+	 * The content of this method has been fully copied to
+	 * SearchPattern#camelCaseMatch(String, int, int, String, int, int, boolean).
+	 * 
+	 * So, if current method is modified, do NOT forget to copy again its content
+	 * to SearchPattern corresponding method!
+	 */
+
 	if (name == null)
 		return false; // null name cannot match
 	if (pattern == null)
@@ -607,29 +570,19 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 		iName++;
 
 		if (iPattern == patternEnd) { // we have exhausted pattern...
-			// it's a match if not exact mode or name is also exhausted
-			if (prefixMatch || iName == nameEnd) return true;
+			// it's a match if the name can have additional parts (i.e. uppercase characters) or is also exhausted
+			if (!samePartCount || iName == nameEnd) return true;
 
-			// it's not a match if last pattern character is a lowercase
-			if ((patternChar = pattern[iPattern-1]) < ScannerHelper.MAX_OBVIOUS) {
-				if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] & (ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_DIGIT)) == 0) {
-					return false;
-				}
-			}
-			else if (Character.isJavaIdentifierPart(patternChar) && !Character.isUpperCase(patternChar) && !Character.isDigit(patternChar)) {
-				return false;
-			}
-
-			// it's a match only if name has no more uppercase characters (exact mode)
+			// otherwise it's a match only if the name has no more uppercase characters
 			while (true) {
 				if (iName == nameEnd) {
-					// we have exhausted name, so it's a match
+					// we have exhausted the name, so it's a match
 					return true;
 				}
 				nameChar = name[iName];
+				// test if the name character is uppercase
 				if (nameChar < ScannerHelper.MAX_OBVIOUS) {
 					if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar] & ScannerHelper.C_UPPER_LETTER) != 0) {
-						// nameChar is uppercase, so it's not a match
 						return false;
 					}
 				}
@@ -641,7 +594,7 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 		}
 
 		if (iName == nameEnd){
-			// We have exhausted name (and not pattern), so it's not a match 
+			// We have exhausted the name (and not the pattern), so it's not a match 
 			return false;
 		}
 

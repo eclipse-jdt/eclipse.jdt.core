@@ -923,7 +923,6 @@ public void testBug167743() throws CoreException {
  * @bug 199392: [search] Type Dialog Error 'Items filtering ... Reason: Class file name must end with .class'
  * @test Ensure that types are found even in project which name ends either with ".jar" or ".zip"
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=199392"
- * @deprecated As using a depreciated constant
  */
 public void testBug199392_Jar() throws CoreException {
 	try {
@@ -961,7 +960,7 @@ public void testBug199392_Jar() throws CoreException {
 		deleteProject("Test.jar");
 	}
 }
-public void testBug199392_Jar_new() throws CoreException {
+public void testBug199392_Jar_SamePartCount() throws CoreException {
 	try {
 		IJavaProject project = createJavaProject("Test.jar");
 		createFolder("/Test.jar/test");
@@ -983,21 +982,20 @@ public void testBug199392_Jar_new() throws CoreException {
 			null,
 			SearchPattern.R_EXACT_MATCH,
 			new char[] { 'M', 'y' },
-			SearchPattern.R_CAMEL_CASE_MATCH,
+			SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH,
 			IJavaSearchConstants.TYPE,
 			scope,
 			collector,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null);
 		assertEquals("Found types sounds not to be correct", 
-			"", // no result as prefix match is not set
+			"",
 			collector.toString()
 		);
 	} finally {
 		deleteProject("Test.jar");
 	}
 }
-/** @deprecated As using a depreciated constant */
 public void testBug199392_Zip() throws CoreException {
 	try {
 		IJavaProject project = createJavaProject("Test.zip");
@@ -1034,7 +1032,7 @@ public void testBug199392_Zip() throws CoreException {
 		deleteProject("Test.zip");
 	}
 }
-public void testBug199392_Zip_new() throws CoreException {
+public void testBug199392_Zip_SamePartCount() throws CoreException {
 	try {
 		IJavaProject project = createJavaProject("Test.zip");
 		createFolder("/Test.zip/test");
@@ -1056,14 +1054,14 @@ public void testBug199392_Zip_new() throws CoreException {
 			null,
 			SearchPattern.R_EXACT_MATCH,
 			new char[] { 'M', 'y' },
-			SearchPattern.R_CAMEL_CASE_MATCH,
+			SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH,
 			IJavaSearchConstants.TYPE,
 			scope,
 			collector,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null);
 		assertEquals("Found types sounds not to be correct", 
-			"", // no result as prefix match is not set
+			"",
 			collector.toString()
 		);
 	} finally {

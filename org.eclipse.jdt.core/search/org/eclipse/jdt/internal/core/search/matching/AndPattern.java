@@ -31,7 +31,7 @@ private static int combinedMatchRule(int matchRule, int matchRule2) {
 	return (combined & (R_EXACT_MATCH | R_PREFIX_MATCH | R_PATTERN_MATCH | R_REGEXP_MATCH))
 		| (combined & R_CASE_SENSITIVE)
 		| compatibility
-		| (combined & R_CAMEL_CASE_MATCH);
+		| (combined & (R_CAMELCASE_MATCH | R_CAMELCASE_SAME_PART_COUNT_MATCH));
 }
 
 public AndPattern(SearchPattern leftPattern, SearchPattern rightPattern) {

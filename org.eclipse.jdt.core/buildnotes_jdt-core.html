@@ -38,11 +38,180 @@
 	</td>
   </tr>
 </table>
+<a name="v_817"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.4M3 - %date% - 3.4 MILESTONE 3 
+<br>Project org.eclipse.jdt.core v_817
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_817">cvs</a>).
+<h2>What's new in this drop</h2>
+<ul>
+<li>Added API <code>SearchPattern#R_CAMELCASE_SAME_PART_COUNT_MATCH</code>.<br>
+This constant tells Search Engine to report matches which have <b>exactly</b>
+the same count of parts (i.e. uppercase characters) than the Camel Case pattern 
+(see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=201426">bug 201426</a>):
+<pre>
+/**
+ * Match rule: The search pattern contains a Camel Case expression with
+ * a strict expected number of parts.
+ *
+ * Examples:
+ * 	. 'HM' type string pattern will match 'HashMap' and 'HtmlMapper' types,
+ * 	  but not 'HashMapEntry'
+ * 	. 'HMap' type string pattern will still match previous 'HashMap' and
+ * 	  'HtmlMapper' types, but not 'HighMagnitude'
+ *
+ * This rule is not intended to be combined with any other match rule. In case
+ * of other match rule flags are combined with this one, then match rule validation
+ * will return a modified rule in order to perform a better appropriate search request
+ * (see {@link #validateMatchRule(String, int)} for more details).
+ *
+ * @see CharOperation#camelCaseMatch(char[], char[], boolean) for a detailed
+ * explanation of Camel Case matching.
+ *
+ * @since 3.4
+ */
+public static final int R_CAMELCASE_SAME_PART_COUNT_MATCH = 0x0100;
+</pre>
+Note that this constant replace previous one <code>R_CAMEL_CASE_MATCH</code>
+added while fixing <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124624">bug 124624</a>.<br>
+Also note that <code>R_CAMELCASE_MATCH</code> is no longer deprecated as, finally,
+Camel Case match rule flags are not supposed to be combined with other ones (e.g.
+<code>R_PREFIX_MATCH</code> or <code>R_PATTERN_MATCH</code>).
+</li>
+<li>Existing API method <code>SearchPattern#validateMatchRule(String, int)</code>
+has been modified to include the new <code>#R_CAMELCASE_SAME_PART_COUNT_MATCH</code> constant:
+<pre>
+/**
+ * Validate compatibility between given string pattern and match rule.
+ *
+ * In certain circumstances described in the table below, the returned match rule is
+ * modified in order to provide a more efficient search pattern:
+ * 	1.	when the {@link #R_REGEXP_MATCH} flag is set, then <b>the pattern is
+ * 		rejected</b> as this kind of match is not supported yet and <code>-1</code>
+ * 		s returned).
+ * 	2.	when the string pattern has <u>no</u> pattern characters (e.g. '*' or '?')
+ * 		and the pattern match flag is set (i.e. the match rule has the {@link #R_PATTERN_MATCH}
+ * 		flag), then <b>the pattern match flag is reset</b>.
+ * 		Reversely, when the string pattern has pattern characters and the pattern
+ * 		match flag is <u>not</u> set, then <b>the pattern match flag is set</b>.
+ * 	3.	>when the {@link #R_PATTERN_MATCH} flag is set then, <b>other
+ * 		{@link #R_PREFIX_MATCH}, {@link #R_CAMELCASE_MATCH} or
+ * 		{@link #R_CAMELCASE_SAME_PART_COUNT_MATCH} flags are reset</b>
+ * 		if they are tentatively combined.
+ * 	4.	when the {@link #R_CAMELCASE_MATCH} flag is set, then <b>other 
+ * 		{@link #R_PREFIX_MATCH} or {@link #R_CAMELCASE_SAME_PART_COUNT_MATCH}
+ * 		flags are reset</b> if they are tentatively combined.
+ * 		Reversely, if the string pattern cannot be a camel case pattern (i.e. contains
+ * 		invalid Java identifier characters or does not have at least two uppercase
+ * 		characters - one for method camel case patterns), then <b>the CamelCase
+ * 		match flag is replaced with a prefix match flag</b>.
+ * 	5.	when the {@link #R_CAMELCASE_SAME_PART_COUNT_MATCH} flag is set,
+ * 		then <b>({@link #R_PREFIX_MATCH} flag is reset</b> if it's tentatively
+ * 		combined.
+ * 		Reversely, if the string pattern cannot be a camel case pattern (i.e. contains
+ * 		invalid Java identifier characters or does not have at least two uppercase
+ * 		characters - one for method camel case patterns), then <b>the CamelCase
+ * 		part count match flag is reset</b>.
+ * <i>Note: the rules are validated in the documented order. For example, it means
+ * 	that as soon as the string pattern contains one pattern character, the pattern
+ * 	match flag will be set and all other match flags reset: validation of rule 2)
+ * 	followed by rule 3)...</i>
+ *
+ * @param stringPattern The string pattern
+ * @param matchRule The match rule
+ * @return Optimized valid match rule or -1 if an incompatibility was detected.
+ * @since 3.2
+ */
+public static int validateMatchRule(String stringPattern, int matchRule) {
+...
+}
+</pre>
+</li>
+<li><code>CharOperation</code> and <code>SearchPattern</code> Camel Case API methods
+added while fixing <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124624">bug 124624</a>)
+have been modified to clarify the behavior of the additional boolean parameter.<br>
+This parameter now indicates whether the pattern and the name should have the same
+count of parts (i.e. uppercase characters) or not:
+<pre>
+/**
+ *...
+ * CamelCase can be restricted to match only the same count of parts. When this
+ * restriction is specified the given pattern and the given name must have <b>exactly</b>
+ * the same number of parts (i.e. the same number of uppercase characters).
+ * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap' and
+ * 'HatMapper' <b>but not</b> 'HashMapEntry'.
+ *...
+ * . pattern = "HM".toCharArray()
+ * name = "HashMapEntry".toCharArray()
+ * result => (samePartCount == false)
+ *...
+ * @param samePartCount flag telling whether the pattern and the name should
+ * 	have the same count of parts or not.
+ * 	&nbsp;&nbsp;For example:
+ * 		. 'HM' type string pattern will match 'HashMap' and 'HtmlMapper' types,
+ * 				but not 'HashMapEntry'
+ * 		. 'HMap' type string pattern will still match previous 'HashMap' and
+ * 				'HtmlMapper' types, but not 'HighMagnitude'
+ * @return true if the pattern matches the given name, false otherwise
+ * @since 3.4
+ */
+public static final boolean camelCaseMatch(char[] pattern, char[] name, boolean samePartCount) {
+...
+}
+
+/**
+ *...
+ * CamelCase can be restricted to match only the same count of parts. When this
+ * restriction is specified the given pattern and the given name must have <b>exactly</b>
+ * the same number of parts (i.e. the same number of uppercase characters).
+ * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap' and
+ * 'HatMapper' <b>but not</b> 'HashMapEntry'.
+ *...
+ * . pattern = "HM".toCharArray()
+ * patternStart = 0
+ * patternEnd = 2
+ * name = "HashMapEntry".toCharArray()
+ * nameStart = 0
+ * nameEnd = 12
+ * result => (samePartCount == false)
+ *...
+ * @param samePartCount flag telling whether the pattern and the name should
+ * 	have the same count of parts or not.
+ * 	&nbsp;&nbsp;For example:
+ * 		. 'HM' type string pattern will match 'HashMap' and 'HtmlMapper' types,
+ * 				but not 'HashMapEntry'
+ * 		. 'HMap' type string pattern will still match previous 'HashMap' and
+ * 				'HtmlMapper' types, but not 'HighMagnitude'
+ * @return true if a sub-pattern matches the sub-part of the given name, false otherwise
+ * @since 3.4
+ */
+public static final boolean camelCaseMatch(char[] pattern, int patternStart, int patternEnd, char[] name, int nameStart, int nameEnd, boolean prefixMatch) {
+...
+}
+</pre>
+Note that similar modifications have been done on <code>SearchPattern</code>
+corresponding methods:
+<pre>
+public static final boolean camelCaseMatch(String pattern, String name, boolean samePartCount) {
+...
+}
+public static final boolean camelCaseMatch(String pattern, int patternStart, int patternEnd, String name, int nameStart, int nameEnd, boolean samePartCount) {
+...
+}
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=201426">201426</a>
+[search] New SearchPattern constant R_CAMEL_CASE_MATCH name may be misleading for users
+
 <a name="v_816"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.4M3 - October 2, 2007 - 3.4 MILESTONE 3 
+Eclipse SDK 3.4M3 - October 2, 2007
 <br>Project org.eclipse.jdt.core v_816
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_816">cvs</a>).
 <h2>What's new in this drop</h2>

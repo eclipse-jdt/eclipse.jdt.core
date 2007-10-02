@@ -4719,7 +4719,7 @@ public void testBug109695() throws CoreException {
 		"interface IDocumentExtension315 {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	int validatedRule = SearchPattern.validateMatchRule("IDE3", SearchPattern.R_CAMEL_CASE_MATCH);
+	int validatedRule = SearchPattern.validateMatchRule("IDE3", SearchPattern.R_CAMELCASE_MATCH);
 	searchAllTypeNames("IDE3", validatedRule, requestor);
 	assertSearchResults(
 		"IDocumentExtension135\n" + 
@@ -4740,7 +4740,7 @@ public void testBug109695b() throws CoreException {
 		"interface IDocumentProviderExtension54321 {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	int validatedRule = SearchPattern.validateMatchRule("IDPE3", SearchPattern.R_CAMEL_CASE_MATCH);
+	int validatedRule = SearchPattern.validateMatchRule("IDPE3", SearchPattern.R_CAMELCASE_MATCH);
 	searchAllTypeNames("IDPE3", validatedRule, requestor);
 	assertSearchResults(
 		"IDocumentProviderExtension12345\n" + 
@@ -4757,7 +4757,7 @@ public void testBug109695c() throws CoreException {
 		"interface IPerspectiveListener3 {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	int validatedRule = SearchPattern.validateMatchRule("IPL3", SearchPattern.R_CAMEL_CASE_MATCH);
+	int validatedRule = SearchPattern.validateMatchRule("IPL3", SearchPattern.R_CAMELCASE_MATCH);
 	searchAllTypeNames("IPL3", validatedRule, requestor);
 	assertSearchResults(
 		"IPerspectiveListener3",
@@ -4771,7 +4771,7 @@ public void testBug109695d() throws CoreException {
 		"interface IPropertySource2 {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	int validatedRule = SearchPattern.validateMatchRule("IPS2", SearchPattern.R_CAMEL_CASE_MATCH);
+	int validatedRule = SearchPattern.validateMatchRule("IPS2", SearchPattern.R_CAMELCASE_MATCH);
 	searchAllTypeNames("IPS2", validatedRule, requestor);
 	assertSearchResults(
 		"IPropertySource2",
@@ -4788,7 +4788,7 @@ public void testBug109695e() throws CoreException {
 		"interface IWorkbenchWindowPulldownDelegate4 {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	int validatedRule = SearchPattern.validateMatchRule("IWWPD2", SearchPattern.R_CAMEL_CASE_MATCH);
+	int validatedRule = SearchPattern.validateMatchRule("IWWPD2", SearchPattern.R_CAMELCASE_MATCH);
 	searchAllTypeNames("IWWPD2", validatedRule, requestor);
 	assertSearchResults(
 		"IWorkbenchWindowPulldownDelegate2",
@@ -4804,7 +4804,7 @@ public void testBug109695f() throws CoreException {
 		"class UTFDocScannerSupport {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	int validatedRule = SearchPattern.validateMatchRule("UTF16DSS", SearchPattern.R_CAMEL_CASE_MATCH);
+	int validatedRule = SearchPattern.validateMatchRule("UTF16DSS", SearchPattern.R_CAMELCASE_MATCH);
 	searchAllTypeNames("UTF16DSS", validatedRule, requestor);
 	assertSearchResults(
 		"UTF16DocumentScannerSupport",
@@ -4820,7 +4820,7 @@ public void testBug109695g() throws CoreException {
 		"class UTFDocScannerSupport {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	int validatedRule = SearchPattern.validateMatchRule("UTF1DSS", SearchPattern.R_CAMEL_CASE_MATCH);
+	int validatedRule = SearchPattern.validateMatchRule("UTF1DSS", SearchPattern.R_CAMELCASE_MATCH);
 	searchAllTypeNames("UTF1DSS", validatedRule, requestor);
 	assertSearchResults(
 		"UTF16DocumentScannerSupport\n" + 
@@ -4837,7 +4837,7 @@ public void testBug109695h() throws CoreException {
 		"class UTFDocScannerSupport {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	int validatedRule = SearchPattern.validateMatchRule("UTF6DSS", SearchPattern.R_CAMEL_CASE_MATCH);
+	int validatedRule = SearchPattern.validateMatchRule("UTF6DSS", SearchPattern.R_CAMELCASE_MATCH);
 	searchAllTypeNames("UTF6DSS", validatedRule, requestor);
 	assertSearchResults(
 		"UTF16DocumentScannerSupport\n" + 
@@ -4854,7 +4854,7 @@ public void testBug109695i() throws CoreException {
 		"class UTFDocScannerSupport {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	int validatedRule = SearchPattern.validateMatchRule("UTFDSS", SearchPattern.R_CAMEL_CASE_MATCH);
+	int validatedRule = SearchPattern.validateMatchRule("UTFDSS", SearchPattern.R_CAMELCASE_MATCH);
 	searchAllTypeNames("UTFDSS", validatedRule, requestor);
 	assertSearchResults(
 		"UTF16DocumentScannerSupport\n" + 
@@ -4893,7 +4893,6 @@ private void setUpBug110060_TypePattern() throws CoreException {
 		"class AxxAyy {}\n"
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_TypePattern01() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("AA", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -4906,9 +4905,9 @@ public void testBug110060_TypePattern01() throws CoreException {
 		"src/b110060/Test.java b110060.Test.a6 [AxxAyy] EXACT_MATCH"
 	);
 }
-public void testBug110060_TypePattern01new() throws CoreException {
+public void testBug110060_TypePattern01_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
-	search("AA", TYPE, REFERENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("AA", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.a2 [AAa] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.a4 [AAxx] EXACT_MATCH\n" + 
@@ -4916,7 +4915,6 @@ public void testBug110060_TypePattern01new() throws CoreException {
 		"src/b110060/Test.java b110060.Test.a6 [AxxAyy] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_TypePattern02() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("AA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -4935,9 +4933,9 @@ public void testBug110060_TypePattern02() throws CoreException {
 		"src/b110060/Test.java b110060.AxxAyy [AxxAyy] EXACT_MATCH"
 	);
 }
-public void testBug110060_TypePattern02new() throws CoreException {
+public void testBug110060_TypePattern02_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
-	search("AA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("AA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.a2 [AAa] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.a4 [AAxx] EXACT_MATCH\n" + 
@@ -4949,7 +4947,6 @@ public void testBug110060_TypePattern02new() throws CoreException {
 		"src/b110060/Test.java b110060.AxxAyy [AxxAyy] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_TypePattern03() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("AAx", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -4957,14 +4954,13 @@ public void testBug110060_TypePattern03() throws CoreException {
 		"src/b110060/Test.java b110060.Test.a4 [AAxx] EXACT_MATCH"
 	);
 }
-public void testBug110060_TypePattern03new() throws CoreException {
+public void testBug110060_TypePattern03_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
-	search("AAx", TYPE, REFERENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("AAx", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
-		"" // no result as camel case does not allow prefix match
+		"src/b110060/Test.java b110060.Test.a4 [AAxx] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_TypePattern04() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("Axx", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -4972,14 +4968,11 @@ public void testBug110060_TypePattern04() throws CoreException {
 		"src/b110060/Test.java b110060.Test.a6 [AxxAyy] EXACT_MATCH"
 	);
 }
-public void testBug110060_TypePattern04new() throws CoreException {
+public void testBug110060_TypePattern04_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
-	search("Axx", TYPE, REFERENCES, SearchPattern.R_CAMEL_CASE_MATCH);
-	assertSearchResults(
-		"" // no result as camel case does not allow prefix match
-	);
+	search("Axx", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	assertSearchResults("");
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_TypePattern05() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("Ax", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -4988,17 +4981,15 @@ public void testBug110060_TypePattern05() throws CoreException {
 		"src/b110060/Test.java b110060.Test.a6 [AxxAyy] EXACT_MATCH"
 	);
 }
-public void testBug110060_TypePattern05new() throws CoreException {
+public void testBug110060_TypePattern05_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
-	search("Ax", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
-	assertSearchResults(
-		"" // no result as camel case does not allow prefix match
-	);
+	search("Ax", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	assertSearchResults("");
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_TypePattern06() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("A*A*", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
+	// Invalid camel case pattern => replace the camel case flag with pattern match one (case insensitive)
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.a1 [Aaa] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.a2 [AAa] EXACT_MATCH\n" + 
@@ -5008,9 +4999,10 @@ public void testBug110060_TypePattern06() throws CoreException {
 		"src/b110060/Test.java b110060.Test.a6 [AxxAyy] EXACT_MATCH"
 	);
 }
-public void testBug110060_TypePattern06new() throws CoreException {
+public void testBug110060_TypePattern06_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
-	search("A*A*", TYPE, REFERENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("A*A*", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	// Invalid camel case pattern => replace the camel case flag with pattern match one (case insensitive)
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.a1 [Aaa] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.a2 [AAa] EXACT_MATCH\n" + 
@@ -5020,58 +5012,70 @@ public void testBug110060_TypePattern06new() throws CoreException {
 		"src/b110060/Test.java b110060.Test.a6 [AxxAyy] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_TypePattern07() throws CoreException {
 	setUpBug110060_TypePattern();
-	search("aa", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
-	assertSearchResults(
-		"" // no result because it's an invalid camel case pattern which is replaced with 
-			// prefix case sensitive match bu SearchPatter.validateMatchRule(...) (old behavior)
-	);
-}
-public void testBug110060_TypePattern07new() throws CoreException {
-	setUpBug110060_TypePattern();
-	search("aa", TYPE, REFERENCES, SearchPattern.R_CAMEL_CASE_MATCH);
-	// Not a valid camel case pattern => changed to prefix
+	search("aaa", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
+	// Invalid camel case pattern => replace the camel case flag by prefix match one (case insensitive)
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.a1 [Aaa] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.a2 [AAa] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.a3 [AaAaAa] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.a4 [AAxx] EXACT_MATCH"
+		"src/b110060/Test.java b110060.Test.a3 [AaAaAa] EXACT_MATCH"
+	);
+}
+public void testBug110060_TypePattern07_SamePartCount() throws CoreException {
+	setUpBug110060_TypePattern();
+	search("aaa", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	// Invalid camel case pattern => replace the camel case flag by exact match one (case insensitive)
+	assertSearchResults(
+		"src/b110060/Test.java b110060.Test.a1 [Aaa] EXACT_MATCH\n" + 
+		"src/b110060/Test.java b110060.Test.a2 [AAa] EXACT_MATCH"
 	);
 }
 public void testBug110060_TypePattern08() throws CoreException {
 	setUpBug110060_TypePattern();
-	search("aa", TYPE, REFERENCES, SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH);
+	search("Aaa", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
+	// Invalid camel case pattern => replace the camel case flag by prefix  match one (case insensitive)
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.a1 [Aaa] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.a2 [AAa] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.a3 [AaAaAa] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.a4 [AAxx] EXACT_MATCH"
+		"src/b110060/Test.java b110060.Test.a3 [AaAaAa] EXACT_MATCH"
+	);
+}
+public void testBug110060_TypePattern08_SamePartCount() throws CoreException {
+	setUpBug110060_TypePattern();
+	search("Aaa", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	// Invalid camel case pattern => replace the camel case flag by exact match one (case insensitive)
+	assertSearchResults(
+		"src/b110060/Test.java b110060.Test.a1 [Aaa] EXACT_MATCH\n" + 
+		"src/b110060/Test.java b110060.Test.a2 [AAa] EXACT_MATCH"
 	);
 }
 public void testBug110060_TypePattern09() throws CoreException {
 	setUpBug110060_TypePattern();
-	search("AA", TYPE, REFERENCES, SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	search("Aaa", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	// Invalid camel case pattern => replace the camel case flag by prefix  match one keeping case sensitive
 	assertSearchResults(
-		"src/b110060/Test.java b110060.Test.a2 [AAa] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.a4 [AAxx] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.a5 [AxA] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.a6 [AxxAyy] EXACT_MATCH"
+		"src/b110060/Test.java b110060.Test.a1 [Aaa] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
+public void testBug110060_TypePattern09_SamePartCount() throws CoreException {
+	setUpBug110060_TypePattern();
+	search("Aaa", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	// Invalid camel case pattern => replace the camel case flag by exact match one keeping case sensitive
+	assertSearchResults(
+		"src/b110060/Test.java b110060.Test.a1 [Aaa] EXACT_MATCH"
+	);
+}
 public void testBug110060_TypePattern10() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("AxAx", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults("");
 }
-public void testBug110060_TypePattern10new() throws CoreException {
+public void testBug110060_TypePattern10_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
-	search("AxAx", TYPE, REFERENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("AxAx", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults("");
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_TypePattern11() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("AxxA", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -5079,14 +5083,13 @@ public void testBug110060_TypePattern11() throws CoreException {
 		"src/b110060/Test.java b110060.Test.a6 [AxxAyy] EXACT_MATCH"
 	);
 }
-public void testBug110060_TypePattern11new() throws CoreException {
+public void testBug110060_TypePattern11_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
-	search("AxxA", TYPE, REFERENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("AxxA", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.a6 [AxxAyy] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_TypePattern12() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("AxXA", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -5094,20 +5097,18 @@ public void testBug110060_TypePattern12() throws CoreException {
 		"src/b110060/Test.java b110060.Test.a6 [AxxAyy] EXACT_MATCH"
 	);
 }
-public void testBug110060_TypePattern12new() throws CoreException {
+public void testBug110060_TypePattern12_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
-	search("AxXA", TYPE, REFERENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("AxXA", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults("");
 }
 
 // Search all type names requests
-/** @deprecated As using a depreciated constant */
 public void testBug110060_AllTypeNames01() throws CoreException {
 	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	searchAllTypeNames("AA", SearchPattern.R_CAMELCASE_MATCH, requestor);
-	assertSearchResults(
-		"Unexpected all type names",
+	assertSearchResults("Unexpected all type names",
 		"b110060.AAa\n" + 
 		"b110060.AAxx\n" + 
 		"b110060.AaAaAa\n" + 
@@ -5116,12 +5117,11 @@ public void testBug110060_AllTypeNames01() throws CoreException {
 		"b110060.AxxAyy",
 		requestor);
 }
-public void testBug110060_AllTypeNames01new() throws CoreException {
+public void testBug110060_AllTypeNames01_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("AA", SearchPattern.R_CAMEL_CASE_MATCH, requestor);
-	assertSearchResults(
-		"Unexpected all type names",
+	searchAllTypeNames("AA", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH, requestor);
+	assertSearchResults("Unexpected all type names",
 		"b110060.AAa\n" + 
 		"b110060.AAxx\n" + 
 		"b110060.AxA\n" + 
@@ -5131,40 +5131,42 @@ public void testBug110060_AllTypeNames01new() throws CoreException {
 public void testBug110060_AllTypeNames02() throws CoreException {
 	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("AA", SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH, requestor);
-	assertSearchResults(
-		"Unexpected all type names",
+	searchAllTypeNames("aaa", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	// Invalid camel case pattern => replace the camel case flag with prefix match one (case insensitive)
+	assertSearchResults("Unexpected all type names",
 		"b110060.AAa\n" + 
-		"b110060.AAxx\n" + 
 		"b110060.AaAaAa\n" + 
-		"b110060.Aaa\n" + 
-		"b110060.AxA\n" + 
-		"b110060.AxxAyy",
+		"b110060.Aaa",
+		requestor);
+}
+public void testBug110060_AllTypeNames02_SamePartCount() throws CoreException {
+	setUpBug110060_TypePattern();
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	searchAllTypeNames("aaa", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH, requestor);
+	// Invalid camel case pattern => replace the camel case flag with exact match one (case insensitive)
+	assertSearchResults("Unexpected all type names",
+		"b110060.AAa\n" + 
+		"b110060.Aaa",
 		requestor);
 }
 public void testBug110060_AllTypeNames03() throws CoreException {
 	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("AAA", SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_CASE_SENSITIVE, requestor);
-	assertSearchResults(
-		"Unexpected all type names",
+	searchAllTypeNames("AAa", SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE, requestor);
+	assertSearchResults("Unexpected all type names",
+		"b110060.AAa\n" + 
 		"b110060.AaAaAa",
 		requestor);
 }
-public void testBug110060_AllTypeNames04() throws CoreException {
+public void testBug110060_AllTypeNames03_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("AA", SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE, requestor);
-	assertSearchResults(
-		"Unexpected all type names",
-		"b110060.AAa\n" + 
-		"b110060.AAxx\n" + 
-		"b110060.AaAaAa\n" + 
-		"b110060.AxA\n" + 
-		"b110060.AxxAyy",
+	searchAllTypeNames("AAa", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_CASE_SENSITIVE, requestor);
+	assertSearchResults("Unexpected all type names",
+		"b110060.AAa",
 		requestor);
 }
-public void testBug110060_AllTypeNames05() throws CoreException {
+public void testBug110060_AllTypeNames04() throws CoreException {
 	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	searchAllTypeNames("AA", SearchPattern.R_PREFIX_MATCH, requestor);
@@ -5176,7 +5178,7 @@ public void testBug110060_AllTypeNames05() throws CoreException {
 		"b110060.Aaa",
 		requestor);
 }
-public void testBug110060_AllTypeNames06() throws CoreException {
+public void testBug110060_AllTypeNames05() throws CoreException {
 	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	searchAllTypeNames("AAA", SearchPattern.R_CASE_SENSITIVE, requestor);
@@ -5185,7 +5187,7 @@ public void testBug110060_AllTypeNames06() throws CoreException {
 		"",
 		requestor);
 }
-public void testBug110060_AllTypeNames07() throws CoreException {
+public void testBug110060_AllTypeNames06() throws CoreException {
 	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	searchAllTypeNames("AA", SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE, requestor);
@@ -5195,53 +5197,64 @@ public void testBug110060_AllTypeNames07() throws CoreException {
 		"b110060.AAxx",
 		requestor);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug110060_AllTypeNames08() throws CoreException {
+public void testBug110060_AllTypeNames07() throws CoreException {
 	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("aa", SearchPattern.R_CAMELCASE_MATCH, requestor);
+	searchAllTypeNames("aaa", SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH, requestor);
+	// Invalid camel case pattern => replace the camel case flag with prefix match one (case insensitive)
 	assertSearchResults(
 		"Unexpected all type names",
 		"b110060.AAa\n" + 
-		"b110060.AAxx\n" + 
 		"b110060.AaAaAa\n" + 
 		"b110060.Aaa",
 		requestor);
 }
-public void testBug110060_AllTypeNames08new() throws CoreException {
+public void testBug110060_AllTypeNames07_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("aa", SearchPattern.R_CAMEL_CASE_MATCH, requestor);
+	searchAllTypeNames("aaa", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_PREFIX_MATCH, requestor);
+	// Invalid camel case pattern => replace the camel case flag with exact match one (case insensitive)
 	assertSearchResults(
 		"Unexpected all type names",
-		"", // no match as pattern is not a valid camel case
+		"b110060.AAa\n" + 
+		"b110060.Aaa",
+		requestor);
+}
+public void testBug110060_AllTypeNames08() throws CoreException {
+	setUpBug110060_TypePattern();
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	searchAllTypeNames("aaa", SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE, requestor);
+	// Invalid camel case pattern => replace the camel case flag with prefix match one keeping case sensitive
+	assertSearchResults(
+		"Unexpected all type names",
+		"",
+		requestor);
+}
+public void testBug110060_AllTypeNames08_SamePartCount() throws CoreException {
+	setUpBug110060_TypePattern();
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	searchAllTypeNames("aaa", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_CASE_SENSITIVE, requestor);
+	// Invalid camel case pattern => replace the camel case flag with exact match one keeping case sensitive
+	assertSearchResults(
+		"Unexpected all type names",
+		"",
 		requestor);
 }
 public void testBug110060_AllTypeNames09() throws CoreException {
 	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("aa", SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH, requestor);
+	searchAllTypeNames("aaa", SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE, requestor);
+	// Invalid camel case pattern => reset the camel case flag keeping prefix match and case sensitive ones
 	assertSearchResults(
 		"Unexpected all type names",
-		"b110060.AAa\n" + 
-		"b110060.AAxx\n" + 
-		"b110060.AaAaAa\n" + 
-		"b110060.Aaa",
+		"",
 		requestor);
 }
-public void testBug110060_AllTypeNames10() throws CoreException {
+public void testBug110060_AllTypeNames09_SamePartCount() throws CoreException {
 	setUpBug110060_TypePattern();
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("aa", SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_CASE_SENSITIVE, requestor);
-	assertSearchResults(
-		"Unexpected all type names",
-		"", // no match as pattern is not a valid camel case
-		requestor);
-}
-public void testBug110060_AllTypeNames11() throws CoreException {
-	setUpBug110060_TypePattern();
-	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	searchAllTypeNames("aa", SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE, requestor);
+	searchAllTypeNames("aaa", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE, requestor);
+	// Invalid camel case pattern => reset the camel case flag exact match keeping case sensitive
 	assertSearchResults(
 		"Unexpected all type names",
 		"",
@@ -5281,10 +5294,10 @@ public void testBug110060_AllTypeNames14() throws CoreException {
 // Constructor search
 private void setUpBug110060_ConstructorPattern() throws CoreException {
 	workingCopies = new ICompilationUnit[5];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/AA.java",
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/AAAA.java",
 		"package b110060;\n" +
-		"public class AA {\n" +
-		"	AA() {}\n" +
+		"public class AAAA {\n" +
+		"	AAAA() {}\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b110060/AAxx.java",
@@ -5299,78 +5312,125 @@ private void setUpBug110060_ConstructorPattern() throws CoreException {
 		"	AxxAyy() {}\n" +
 		"}\n"
 	);
-	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b110060/AxA.java",
+	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b110060/AxAyAz.java",
 		"package b110060;\n" +
-		"public class AxA {\n" +
-		"	AxA() {}\n" +
+		"public class AxAyAz {\n" +
+		"	AxAyAz() {}\n" +
 		"}\n"
 	);
 	workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/b110060/Test.java",
 		"package b110060;\n" +
 		"public class Test {\n" +
-		"	AA aa = new AA();\n" +
+		"	AAAA aaaa = new AAAA();\n" +
 		"	AAxx aaxx = new AAxx();\n" +
-		"	AxA axa = new AxA();\n" +
+		"	AxAyAz axayaz = new AxAyAz();\n" +
 		"	AxxAyy axxayy = new AxxAyy();\n" +
 		"}\n"
 	);
 }
 public void testBug110060_ConstructorPattern01() throws CoreException {
 	setUpBug110060_ConstructorPattern();
-	search("AA", CONSTRUCTOR, REFERENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("AA", CONSTRUCTOR, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/Test.java b110060.Test.aa [new AA()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaaa [new AAAA()] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" +
-		"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axayaz [new AxAyAz()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
+	);
+}
+public void testBug110060_ConstructorPattern01_SamePartCount() throws CoreException {
+	setUpBug110060_ConstructorPattern();
+	search("AA", CONSTRUCTOR, REFERENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	assertSearchResults(
+		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
 	);
 }
 public void testBug110060_ConstructorPattern02() throws CoreException {
 	setUpBug110060_ConstructorPattern();
-	search("AA", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("AA", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/AA.java b110060.AA() [AA] EXACT_MATCH\n" +
+		"src/b110060/AAAA.java b110060.AAAA() [AAAA] EXACT_MATCH\n" +
 		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" +
-		"src/b110060/AxA.java b110060.AxA() [AxA] EXACT_MATCH\n" +
+		"src/b110060/AxAyAz.java b110060.AxAyAz() [AxAyAz] EXACT_MATCH\n" +
 		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" +
-		"src/b110060/Test.java b110060.Test.aa [new AA()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaaa [new AAAA()] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" +
-		"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axayaz [new AxAyAz()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
+	);
+}
+public void testBug110060_ConstructorPattern02_SamePartCount() throws CoreException {
+	setUpBug110060_ConstructorPattern();
+	search("AA", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	assertSearchResults(
+		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" + 
+		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" + 
+		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" + 
 		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
 	);
 }
 public void testBug110060_ConstructorPattern03() throws CoreException {
 	setUpBug110060_ConstructorPattern();
-	search("AAx", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("AAx", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"" // no match as prefix is not set
+		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH"
+	);
+}
+public void testBug110060_ConstructorPattern03_SamePartCount() throws CoreException {
+	setUpBug110060_ConstructorPattern();
+	search("AAx", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	assertSearchResults(
+		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH"
 	);
 }
 public void testBug110060_ConstructorPattern04() throws CoreException {
 	setUpBug110060_ConstructorPattern();
-	search("Axx", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("AxA", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"" // no match as prefix is not set
+		"src/b110060/AxAyAz.java b110060.AxAyAz() [AxAyAz] EXACT_MATCH\n" +
+		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axayaz [new AxAyAz()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
+	);
+}
+public void testBug110060_ConstructorPattern04_SamePartCount() throws CoreException {
+	setUpBug110060_ConstructorPattern();
+	search("AxA", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	assertSearchResults(
+		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" + 
+		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
 	);
 }
 public void testBug110060_ConstructorPattern05() throws CoreException {
 	setUpBug110060_ConstructorPattern();
-	search("Ax", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("A*A*", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+	// Invalid camel case pattern => replace the camel case flag with pattern match one (case insensitive)
 	assertSearchResults(
-		"" // no match as prefix is not set
+		"src/b110060/AAAA.java b110060.AAAA() [AAAA] EXACT_MATCH\n" +
+		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" +
+		"src/b110060/AxAyAz.java b110060.AxAyAz() [AxAyAz] EXACT_MATCH\n" +
+		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaaa [new AAAA()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axayaz [new AxAyAz()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
 	);
 }
-public void testBug110060_ConstructorPattern06() throws CoreException {
+public void testBug110060_ConstructorPattern05_SamePartCount() throws CoreException {
 	setUpBug110060_ConstructorPattern();
-	search("A*A*", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("A*A*", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	// Invalid camel case pattern => replace the camel case flag with pattern match one (case insensitive)
 	assertSearchResults(
-		"src/b110060/AA.java b110060.AA() [AA] EXACT_MATCH\n" +
+		"src/b110060/AAAA.java b110060.AAAA() [AAAA] EXACT_MATCH\n" +
 		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" +
-		"src/b110060/AxA.java b110060.AxA() [AxA] EXACT_MATCH\n" +
+		"src/b110060/AxAyAz.java b110060.AxAyAz() [AxAyAz] EXACT_MATCH\n" +
 		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" +
-		"src/b110060/Test.java b110060.Test.aa [new AA()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaaa [new AAAA()] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" +
-		"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axayaz [new AxAyAz()] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
 	);
 }
@@ -5396,29 +5456,26 @@ private void setUpBug110060_MethodPattern() throws CoreException {
 		"}\n"
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_MethodPattern01() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("MWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults("");
 }
-public void testBug110060_MethodPattern01new() throws CoreException {
+public void testBug110060_MethodPattern01_SamePartCount() throws CoreException {
 	setUpBug110060_MethodPattern();
-	search("MWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("MWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults("");
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_MethodPattern02() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("AMWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults("");
 }
-public void testBug110060_MethodPattern02new() throws CoreException {
+public void testBug110060_MethodPattern02_SamePartCount() throws CoreException {
 	setUpBug110060_MethodPattern();
-	search("AMWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("AMWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults("");
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_MethodPattern03() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("aMWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -5429,15 +5486,14 @@ public void testBug110060_MethodPattern03() throws CoreException {
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH"
 	);
 }
-public void testBug110060_MethodPattern03new() throws CoreException {
+public void testBug110060_MethodPattern03_SamePartCount() throws CoreException {
 	setUpBug110060_MethodPattern();
-	search("aMWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("aMWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_MethodPattern04() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("aMW", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -5452,14 +5508,13 @@ public void testBug110060_MethodPattern04() throws CoreException {
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWithNothingSpecial()] EXACT_MATCH"
 	);
 }
-public void testBug110060_MethodPattern04new() throws CoreException {
+public void testBug110060_MethodPattern04_SamePartCount() throws CoreException {
 	setUpBug110060_MethodPattern();
-	search("aMW", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("aMW", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
-		"" // no result as prefix match is not set
+		""
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_MethodPattern05() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("aMethod", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -5474,14 +5529,11 @@ public void testBug110060_MethodPattern05() throws CoreException {
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWithNothingSpecial()] EXACT_MATCH"
 	);
 }
-public void testBug110060_MethodPattern05new() throws CoreException {
+public void testBug110060_MethodPattern05_SamePartCount() throws CoreException {
 	setUpBug110060_MethodPattern();
-	search("aMethod", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
-	assertSearchResults(
-		"" // no result as prefix match is not set
-	);
+	search("aMethod", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	assertSearchResults("");
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_MethodPattern06() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("aMethodWith1", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -5494,17 +5546,15 @@ public void testBug110060_MethodPattern06() throws CoreException {
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH"
 	);
 }
-public void testBug110060_MethodPattern06new() throws CoreException {
+public void testBug110060_MethodPattern06_SamePartCount() throws CoreException {
 	setUpBug110060_MethodPattern();
-	search("aMethodWith1", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
-	assertSearchResults(
-		"" // no result as prefix match is not set
-	);
+	search("aMethodWith1", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	assertSearchResults("");
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_MethodPattern07() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("*Method*With*A*", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+	// Invalid camel case pattern => replace the camel case flag with pattern match one (case insensitive)
 	assertSearchResults(
 		"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" +
 		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" +
@@ -5516,9 +5566,10 @@ public void testBug110060_MethodPattern07() throws CoreException {
 		"src/b110060/Test.java void b110060.Test.testReferences() [otherMethodWhichStartsWithAnotherLetter()] EXACT_MATCH"
 	);
 }
-public void testBug110060_MethodPattern07new() throws CoreException {
+public void testBug110060_MethodPattern07_SamePartCount() throws CoreException {
 	setUpBug110060_MethodPattern();
-	search("*Method*With*A*", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("*Method*With*A*", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	// Invalid camel case pattern => replace the camel case flag with pattern match one (case insensitive)
 	assertSearchResults(
 		"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" +
 		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" +
@@ -5530,7 +5581,6 @@ public void testBug110060_MethodPattern07new() throws CoreException {
 		"src/b110060/Test.java void b110060.Test.testReferences() [otherMethodWhichStartsWithAnotherLetter()] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_MethodPattern08() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("aMW1D", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -5541,15 +5591,14 @@ public void testBug110060_MethodPattern08() throws CoreException {
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH"
 	);
 }
-public void testBug110060_MethodPattern08new() throws CoreException {
+public void testBug110060_MethodPattern08_SamePartCount() throws CoreException {
 	setUpBug110060_MethodPattern();
-	search("aMW1D", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("aMW1D", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_MethodPattern09() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("aMWOOODASU", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -5558,9 +5607,9 @@ public void testBug110060_MethodPattern09() throws CoreException {
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH"
 	);
 }
-public void testBug110060_MethodPattern09new() throws CoreException {
+public void testBug110060_MethodPattern09_SamePartCount() throws CoreException {
 	setUpBug110060_MethodPattern();
-	search("aMWOOODASU", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("aMWOOODASU", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" +
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH"
@@ -5588,7 +5637,6 @@ private void setUpBug110060_FieldPattern() throws CoreException {
 		"}\n"
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_FieldPattern01() throws CoreException {
 	setUpBug110060_FieldPattern();
 	search("aFWSD", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -5599,26 +5647,24 @@ public void testBug110060_FieldPattern01() throws CoreException {
 		"src/b110060/Test.java void b110060.Test.testReferences() [aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore] EXACT_MATCH"
 	);
 }
-public void testBug110060_FieldPattern01new() throws CoreException {
+public void testBug110060_FieldPattern01_SamePartCount() throws CoreException {
 	setUpBug110060_FieldPattern();
-	search("aFWSD", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("aFWSD", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.aFieldWithS$Dollar [aFieldWithS$Dollar] EXACT_MATCH\n" + 
 		"src/b110060/Test.java void b110060.Test.testReferences() [aFieldWithS$Dollar] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_FieldPattern02() throws CoreException {
 	setUpBug110060_FieldPattern();
 	search("afwsd", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults("");
 }
-public void testBug110060_FieldPattern02new() throws CoreException {
+public void testBug110060_FieldPattern02_SamePartCount() throws CoreException {
 	setUpBug110060_FieldPattern();
-	search("afwsd", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("afwsd", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults("");
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_FieldPattern03() throws CoreException {
 	setUpBug110060_FieldPattern();
 	search("aFWS$", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -5627,14 +5673,11 @@ public void testBug110060_FieldPattern03() throws CoreException {
 		"src/b110060/Test.java void b110060.Test.testReferences() [aFieldWithS$Dollar] EXACT_MATCH"
 	);
 }
-public void testBug110060_FieldPattern03new() throws CoreException {
+public void testBug110060_FieldPattern03_SamePartCount() throws CoreException {
 	setUpBug110060_FieldPattern();
-	search("aFWS$", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
-	assertSearchResults(
-		"" // no result as prefix match is not set
-	);
+	search("aFWS$", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	assertSearchResults("");
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_FieldPattern04() throws CoreException {
 	setUpBug110060_FieldPattern();
 	search("aSFWSCD", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -5643,15 +5686,14 @@ public void testBug110060_FieldPattern04() throws CoreException {
 		"src/b110060/Test.java void b110060.Test.testReferences() [aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars] EXACT_MATCH"
 	);
 }
-public void testBug110060_FieldPattern04new() throws CoreException {
+public void testBug110060_FieldPattern04_SamePartCount() throws CoreException {
 	setUpBug110060_FieldPattern();
-	search("aSFWSCD", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("aSFWSCD", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars [aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars] EXACT_MATCH\n" +
 		"src/b110060/Test.java void b110060.Test.testReferences() [aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
 public void testBug110060_FieldPattern05() throws CoreException {
 	setUpBug110060_FieldPattern();
 	search("oF", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
@@ -5663,7 +5705,7 @@ public void testBug110060_FieldPattern05() throws CoreException {
 }
 public void testBug110060_FieldPattern05new() throws CoreException {
 	setUpBug110060_FieldPattern();
-	search("oF", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("oF", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/b110060/Test.java b110060.Test.oF [oF] EXACT_MATCH"
 	);
@@ -5688,7 +5730,7 @@ public void testBug110291() throws CoreException {
 }
 
 /**
- * @test Bug 110336: [plan][search] Should optionaly return the local variable for type reference
+ * @test Bug 110336: [plan][search] Should optionally return the local variable for type reference
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110336"
  */
 public void testBug110336a() throws CoreException {
@@ -6455,261 +6497,166 @@ public void testBug124489() throws CoreException {
  *	@test Ensure that camel case pattern may use end character
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=124624"
  */
-public void testBug124624_HM_new() throws CoreException {
+private void setupBug124624() throws JavaModelException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
 		"class HashMap {}\n" + 
 		"class HtmlMapper {}\n" + 
 		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
-	search("HM", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH);
-	assertSearchResults(
-		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
-		"src/Test.java HtmlMapper [HtmlMapper] EXACT_MATCH\n" + 
-		"src/Test.java HatMappage [HatMappage] EXACT_MATCH"
+		"class HaxMapxxxx {}\n"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug124624_HM_old() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
+public void testBug124624_HM_CamelCase() throws CoreException {
+	setupBug124624();
 	search("HM", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
 		"src/Test.java HtmlMapper [HtmlMapper] EXACT_MATCH\n" + 
 		"src/Test.java HashMapEntry [HashMapEntry] EXACT_MATCH\n" + 
-		"src/Test.java HatMappage [HatMappage] EXACT_MATCH"
+		"src/Test.java HaxMapxxxx [HaxMapxxxx] EXACT_MATCH"
 	);
 }
-public void testBug124624_HaM_new() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
-	search("HaM", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH);
+public void testBug124624_HM_CamelCaseSamePartCount() throws CoreException {
+	setupBug124624();
+	search("HM", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
-		"src/Test.java HatMappage [HatMappage] EXACT_MATCH"
+		"src/Test.java HtmlMapper [HtmlMapper] EXACT_MATCH\n" + 
+		"src/Test.java HaxMapxxxx [HaxMapxxxx] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug124624_HaM_old() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
+public void testBug124624_HaM_CamelCase() throws CoreException {
+	setupBug124624();
 	search("HaM", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
 		"src/Test.java HashMapEntry [HashMapEntry] EXACT_MATCH\n" + 
-		"src/Test.java HatMappage [HatMappage] EXACT_MATCH"
+		"src/Test.java HaxMapxxxx [HaxMapxxxx] EXACT_MATCH"
 	);
 }
-public void testBug124624_HashM_new() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
-	search("HashM", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH);
+public void testBug124624_HaM_CamelCaseSamePartCount() throws CoreException {
+	setupBug124624();
+	search("HaM", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
-		"src/Test.java HashMap [HashMap] EXACT_MATCH"
+		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
+		"src/Test.java HaxMapxxxx [HaxMapxxxx] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug124624_HashM_old() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
+public void testBug124624_HashM_CamelCase() throws CoreException {
+	setupBug124624();
 	search("HashM", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
 		"src/Test.java HashMapEntry [HashMapEntry] EXACT_MATCH"
 	);
 }
-public void testBug124624_HMa_new() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
+public void testBug124624_HashM_CamelCaseSamePartCount() throws CoreException {
+	setupBug124624();
+	search("HashM", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	assertSearchResults(
+		"src/Test.java HashMap [HashMap] EXACT_MATCH"
 	);
-	search("HMa", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH);
-	assertSearchResults("");
 }
-/** @deprecated As using a depreciated constant */
-public void testBug124624_HMa_old() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
+public void testBug124624_HMa_CamelCase() throws CoreException {
+	setupBug124624();
 	search("HMa", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
 		"src/Test.java HtmlMapper [HtmlMapper] EXACT_MATCH\n" + 
 		"src/Test.java HashMapEntry [HashMapEntry] EXACT_MATCH\n" + 
-		"src/Test.java HatMappage [HatMappage] EXACT_MATCH"
+		"src/Test.java HaxMapxxxx [HaxMapxxxx] EXACT_MATCH"
 	);
 }
-public void testBug124624_HaMa_new() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
+public void testBug124624_HMa_CamelCaseSamePartCount() throws CoreException {
+	setupBug124624();
+	search("HMa", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	assertSearchResults(
+		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
+		"src/Test.java HtmlMapper [HtmlMapper] EXACT_MATCH\n" + 
+		"src/Test.java HaxMapxxxx [HaxMapxxxx] EXACT_MATCH"
 	);
-	search("HaMa", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH);
-	assertSearchResults("");
 }
-/** @deprecated As using a depreciated constant */
-public void testBug124624_HaMa_old() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
+public void testBug124624_HaMa_CamelCase() throws CoreException {
+	setupBug124624();
+	search("HaMa", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
+	assertSearchResults(
+		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
+		"src/Test.java HashMapEntry [HashMapEntry] EXACT_MATCH\n" + 
+		"src/Test.java HaxMapxxxx [HaxMapxxxx] EXACT_MATCH"
 	);
+}
+public void testBug124624_HaMa_CamelCaseSamePartCount() throws CoreException {
+	setupBug124624();
+	search("HaMa", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	assertSearchResults(
+		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
+		"src/Test.java HaxMapxxxx [HaxMapxxxx] EXACT_MATCH"
+	);
+}
+public void testBug124624_HashMa_CamelCase() throws CoreException {
+	setupBug124624();
 	search("HashMa", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
 		"src/Test.java HashMapEntry [HashMapEntry] EXACT_MATCH"
 	);
 }
-public void testBug124624_HashMa_new() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
-	search("HashMa", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH);
-	assertSearchResults("");
-}
-/** @deprecated As using a depreciated constant */
-public void testBug124624_HashMa_old() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
-	search("HashM", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
-	assertSearchResults(
-		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
-		"src/Test.java HashMapEntry [HashMapEntry] EXACT_MATCH"
-	);
-}
-public void testBug124624_HMap_new() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
-	search("HMap", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH);
+public void testBug124624_HashMa_CamelCaseSamePartCount() throws CoreException {
+	setupBug124624();
+	search("HashMa", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/Test.java HashMap [HashMap] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug124624_HMap_old() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
+public void testBug124624_HMap_CamelCase() throws CoreException {
+	setupBug124624();
 	search("HMap", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
 		"src/Test.java HtmlMapper [HtmlMapper] EXACT_MATCH\n" + 
 		"src/Test.java HashMapEntry [HashMapEntry] EXACT_MATCH\n" + 
-		"src/Test.java HatMappage [HatMappage] EXACT_MATCH"
+		"src/Test.java HaxMapxxxx [HaxMapxxxx] EXACT_MATCH"
 	);
 }
-public void testBug124624_HaMap_new() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
-	search("HaMap", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH);
+public void testBug124624_HMap_CamelCaseSamePartCount() throws CoreException {
+	setupBug124624();
+	search("HMap", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
-		"src/Test.java HashMap [HashMap] EXACT_MATCH"
+		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
+		"src/Test.java HtmlMapper [HtmlMapper] EXACT_MATCH\n" + 
+		"src/Test.java HaxMapxxxx [HaxMapxxxx] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug124624_HaMap_old() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
+public void testBug124624_HaMap_CamelCase() throws CoreException {
+	setupBug124624();
 	search("HaMap", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
 		"src/Test.java HashMapEntry [HashMapEntry] EXACT_MATCH\n" + 
-		"src/Test.java HatMappage [HatMappage] EXACT_MATCH"
+		"src/Test.java HaxMapxxxx [HaxMapxxxx] EXACT_MATCH"
 	);
 }
-public void testBug124624_HashMap_new() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
-	search("HashMap", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH);
+public void testBug124624_HaMap_CamelCaseSamePartCount() throws CoreException {
+	setupBug124624();
+	search("HaMap", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
-		"src/Test.java HashMap [HashMap] EXACT_MATCH"
+		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
+		"src/Test.java HaxMapxxxx [HaxMapxxxx] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug124624_HashMap_old() throws CoreException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"class HashMap {}\n" + 
-		"class HtmlMapper {}\n" + 
-		"class HashMapEntry {}\n" + 
-		"class HatMappage {}\n"
-	);
+public void testBug124624_HashMap_CamelCase() throws CoreException {
+	setupBug124624();
 	search("HashMap", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/Test.java HashMap [HashMap] EXACT_MATCH\n" + 
 		"src/Test.java HashMapEntry [HashMapEntry] EXACT_MATCH"
+	);
+}
+public void testBug124624_HashMap_CamelCaseSamePartCount() throws CoreException {
+	setupBug124624();
+	search("HashMap", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
+	assertSearchResults(
+		"src/Test.java HashMap [HashMap] EXACT_MATCH"
 	);
 }
 
@@ -6906,23 +6853,21 @@ private void setUpBug130390() throws CoreException {
 		"}\n"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug130390() throws CoreException {
+public void testBug130390_CamelCase() throws CoreException {
 	setUpBug130390();
 	search("NuPoEx", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
-public void testBug130390_new() throws CoreException {
+public void testBug130390_CamelCaseSamePartCount() throws CoreException {
 	setUpBug130390();
-	search("NuPoEx", TYPE, DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("NuPoEx", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
-		"" // no result as prefix match is not set
+		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug130390b() throws CoreException {
+public void testBug130390b_CamelCase() throws CoreException {
 	setUpBug130390();
 	search("NPE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
@@ -6930,76 +6875,70 @@ public void testBug130390b() throws CoreException {
 		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
-public void testBug130390b_new() throws CoreException {
+public void testBug130390b_CamelCaseSamePartCount() throws CoreException {
 	setUpBug130390();
-	search("NPE", TYPE, DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("NPE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
-		"src/b130390/Npe.java b130390.Npe [Npe] EXACT_MATCH\n" +
 		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug130390c() throws CoreException {
+public void testBug130390c_CamelCase() throws CoreException {
 	setUpBug130390();
 	search("NPE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	assertSearchResults(
 		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
-public void testBug130390c_new() throws CoreException {
+public void testBug130390c_CamelCaseSamePartCount() throws CoreException {
 	setUpBug130390();
-	search("NPE", TYPE, DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	search("NPE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	assertSearchResults(
 		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug130390d() throws CoreException {
+public void testBug130390d_CamelCase() throws CoreException {
 	setUpBug130390();
 	search("Npe", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/b130390/Npe.java b130390.Npe [Npe] EXACT_MATCH"
 	);
 }
-public void testBug130390d_new() throws CoreException {
+public void testBug130390d_CamelCaseSamePartCount() throws CoreException {
 	setUpBug130390();
-	search("Npe", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("Npe", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/b130390/Npe.java b130390.Npe [Npe] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug130390e() throws CoreException {
+public void testBug130390e_CamelCase() throws CoreException {
 	setUpBug130390();
 	search("Npe", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	assertSearchResults(
 		"src/b130390/Npe.java b130390.Npe [Npe] EXACT_MATCH"
 	);
 }
-public void testBug130390e_new() throws CoreException {
+public void testBug130390e_CamelCaseSamePartCount() throws CoreException {
 	setUpBug130390();
-	search("Npe", TYPE, DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	search("Npe", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	assertSearchResults(
 		"src/b130390/Npe.java b130390.Npe [Npe] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug130390f() throws CoreException {
+public void testBug130390f_CamelCase() throws CoreException {
 	setUpBug130390();
 	search("NullPE", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
-public void testBug130390f_new() throws CoreException {
+public void testBug130390f_CamelCaseSamePartCount() throws CoreException {
 	setUpBug130390();
-	search("NullPE", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMEL_CASE_MATCH);
+	search("NullPE", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug130390g() throws CoreException {
+public void testBug130390g_CamelCase() throws CoreException {
 	setUpBug130390();
 	search("TZ", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	assertSearchResults(
@@ -7007,19 +6946,26 @@ public void testBug130390g() throws CoreException {
 		"src/b130390/TimeZone.java b130390.TimeZone [TimeZone] EXACT_MATCH"
 	);
 }
-public void testBug130390g_new() throws CoreException {
+public void testBug130390g_CamelCaseSamePartCount() throws CoreException {
 	setUpBug130390();
-	search("TZ", TYPE, DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	search("TZ", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	assertSearchResults(
 		"src/b130390/TZ.java b130390.TZ [TZ] EXACT_MATCH\n" +
 		"src/b130390/TimeZone.java b130390.TimeZone [TimeZone] EXACT_MATCH"
 	);
 }
-public void testBug130390h() throws CoreException {
+public void testBug130390h_CamelCase() throws CoreException {
 	setUpBug130390();
-	search("TiZo", TYPE, DECLARATIONS, SearchPattern.R_CAMEL_CASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	search("TiZo", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	assertSearchResults(
-		"" // no result as prefix match is not set
+		"src/b130390/TimeZone.java b130390.TimeZone [TimeZone] EXACT_MATCH"
+	);
+}
+public void testBug130390h_CamelCaseSamePartCount() throws CoreException {
+	setUpBug130390();
+	search("TiZo", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	assertSearchResults(
+		"src/b130390/TimeZone.java b130390.TimeZone [TimeZone] EXACT_MATCH"
 	);
 }
 
@@ -7029,9 +6975,8 @@ public void testBug130390h() throws CoreException {
  *
  * @bug 137087: Open Type - missing matches when using mixed case pattern
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=137087"
- * @deprecated As using a depreciated constant
  */
-public void testBug137087() throws CoreException {
+public void testBug137087_CamelCase() throws CoreException {
 	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
 	String pattern = "runtimeEx";
 	search(pattern, TYPE, DECLARATIONS, matchRule);
@@ -7039,8 +6984,7 @@ public void testBug137087() throws CoreException {
 		""+ getExternalJCLPathString("1.5") + " java.lang.RuntimeException EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug137087b() throws CoreException {
+public void testBug137087b_CamelCase() throws CoreException {
 	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
 	String pattern = "Runtimeex";
 	search(pattern, TYPE, DECLARATIONS, matchRule);
@@ -7048,18 +6992,15 @@ public void testBug137087b() throws CoreException {
 		""+ getExternalJCLPathString("1.5") + " java.lang.RuntimeException EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug137087c() throws CoreException {
+public void testBug137087c_CamelCase() throws CoreException {
 	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
 	String pattern = "runtimeexception";
 	search(pattern, TYPE, DECLARATIONS, matchRule);
 	assertSearchResults(
-		"" // no result because it's an invalid camel case pattern which is replaced with 
-			// prefix case sensitive match bu SearchPatter.validateMatchRule(...) (old behavior)
+		""+ getExternalJCLPathString("1.5") + " java.lang.RuntimeException EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug137087d() throws CoreException {
+public void testBug137087d_CamelCase() throws CoreException {
 	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
 	String pattern = "Runtimexception";
 	search(pattern, TYPE, DECLARATIONS, matchRule);
@@ -7067,8 +7008,7 @@ public void testBug137087d() throws CoreException {
 		"" // no match expected as pattern is missing a 'e'
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug137087e() throws CoreException {
+public void testBug137087e_CamelCase() throws CoreException {
 	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
 	String pattern = "IllegalMSException";
 	search(pattern, TYPE, DECLARATIONS, matchRule);
@@ -7076,8 +7016,7 @@ public void testBug137087e() throws CoreException {
 		""+ getExternalJCLPathString("1.5") + " java.lang.IllegalMonitorStateException EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug137087f() throws CoreException {
+public void testBug137087f_CamelCase() throws CoreException {
 	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
 	String pattern = "illegalMsExceptionSException";
 	search(pattern, TYPE, DECLARATIONS, matchRule);
@@ -7085,18 +7024,15 @@ public void testBug137087f() throws CoreException {
 		"" // expected no result as uppercase characters in pattern do not match any camelcase ones in existing types
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug137087g() throws CoreException {
+public void testBug137087g_CamelCase() throws CoreException {
 	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
 	String pattern = "clonenotsupportedex";
 	search(pattern, TYPE, DECLARATIONS, matchRule);
 	assertSearchResults(
-		"" // no result because it's an invalid camel case pattern which is replaced with 
-			// prefix case sensitive match bu SearchPatter.validateMatchRule(...) (old behavior)
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug137087h() throws CoreException {
+public void testBug137087h_CamelCase() throws CoreException {
 	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
 	String pattern = "CloneNotSupportedEx";
 	search(pattern, TYPE, DECLARATIONS, matchRule);
@@ -7104,8 +7040,7 @@ public void testBug137087h() throws CoreException {
 		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug137087i() throws CoreException {
+public void testBug137087i_CamelCase() throws CoreException {
 	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
 	String pattern = "cloneNotsupportedEx";
 	search(pattern, TYPE, DECLARATIONS, matchRule);
@@ -7113,8 +7048,7 @@ public void testBug137087i() throws CoreException {
 		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug137087j() throws CoreException {
+public void testBug137087j_CamelCase() throws CoreException {
 	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
 	String pattern = "ClonenotSupportedexc";
 	search(pattern, TYPE, DECLARATIONS, matchRule);
@@ -7122,8 +7056,7 @@ public void testBug137087j() throws CoreException {
 		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug137087k() throws CoreException {
+public void testBug137087k_CamelCase() throws CoreException {
 	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
 	String pattern = "cloneNotSupportedExcep";
 	search(pattern, TYPE, DECLARATIONS, matchRule);
@@ -7131,8 +7064,7 @@ public void testBug137087k() throws CoreException {
 		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug137087l() throws CoreException {
+public void testBug137087l_CamelCase() throws CoreException {
 	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
 	String pattern = "Clonenotsupportedexception";
 	search(pattern, TYPE, DECLARATIONS, matchRule);
@@ -7140,9 +7072,103 @@ public void testBug137087l() throws CoreException {
 		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
 	);
 }
-/** @deprecated As using a depreciated constant */
-public void testBug137087m() throws CoreException {
+public void testBug137087m_CamelCase() throws CoreException {
 	int matchRule = SearchPattern.R_CAMELCASE_MATCH;
+	String pattern = "CloneNotSupportedException";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+}
+// Same tests using SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH
+public void testBug137087_CamelCaseSamePartCount() throws CoreException {
+	int matchRule = SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	String pattern = "runtimeEx";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults("");
+}
+public void testBug137087b_CamelCaseSamePartCount() throws CoreException {
+	int matchRule = SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	String pattern = "Runtimeex";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults("");
+}
+public void testBug137087c_CamelCaseSamePartCount() throws CoreException {
+	int matchRule = SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	String pattern = "runtimeexception";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.RuntimeException EXACT_MATCH"
+	);
+}
+public void testBug137087d_CamelCaseSamePartCount() throws CoreException {
+	int matchRule = SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	String pattern = "Runtimexception";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		"" // no match expected as pattern is missing a 'e'
+	);
+}
+public void testBug137087e_CamelCaseSamePartCount() throws CoreException {
+	int matchRule = SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	String pattern = "IllegalMSException";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.IllegalMonitorStateException EXACT_MATCH"
+	);
+}
+public void testBug137087f_CamelCaseSamePartCount() throws CoreException {
+	int matchRule = SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	String pattern = "illegalMsExceptionSException";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		"" // expected no result as uppercase characters in pattern do not match any camel case ones in existing types
+	);
+}
+public void testBug137087g_CamelCaseSamePartCount() throws CoreException {
+	int matchRule = SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	String pattern = "clonenotsupportedex";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	// Invalid camel case match pattern => replaced with exact match one (case insensitive)
+	assertSearchResults("");
+}
+public void testBug137087h_CamelCaseSamePartCount() throws CoreException {
+	int matchRule = SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	String pattern = "CloneNotSupportedEx";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+}
+public void testBug137087i_CamelCaseSamePartCount() throws CoreException {
+	int matchRule = SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	String pattern = "cloneNotsupportedEx";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults("");
+}
+public void testBug137087j_CamelCaseSamePartCount() throws CoreException {
+	int matchRule = SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	String pattern = "ClonenotSupportedexc";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults("");
+}
+public void testBug137087k_CamelCaseSamePartCount() throws CoreException {
+	int matchRule = SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	String pattern = "cloneNotSupportedExcep";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	assertSearchResults("");
+}
+public void testBug137087l_CamelCaseSamePartCount() throws CoreException {
+	int matchRule = SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	String pattern = "Clonenotsupportedexception";
+	search(pattern, TYPE, DECLARATIONS, matchRule);
+	// Invalid camel case match pattern => replaced with exact match one (case insensitive)
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java.lang.CloneNotSupportedException EXACT_MATCH"
+	);
+}
+public void testBug137087m_CamelCaseSamePartCount() throws CoreException {
+	int matchRule = SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
 	String pattern = "CloneNotSupportedException";
 	search(pattern, TYPE, DECLARATIONS, matchRule);
 	assertSearchResults(
@@ -8844,48 +8870,130 @@ public void testBug200064() throws CoreException {
  * @test Ensure that indexing still works properly after close/restart
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=201064"
  */
-public void testBug201064() throws CoreException {
+public void testBug201064a_CamelCase() throws CoreException {
 	TypeNameMatchCollector collector = new TypeNameMatchCollector();
-	searchAllTypeNames("CCase", SearchPattern.R_CAMEL_CASE_MATCH, collector);
+	searchAllTypeNames("CCase", SearchPattern.R_CAMELCASE_MATCH, collector);
 	assertSearchResults(
 		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
-		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
-		"CxxCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
-		collector
-	);
-}
-public void testBug201064b() throws CoreException {
-	TypeNameMatchCollector collector = new TypeNameMatchCollector();
-	searchAllTypeNames("CaCase", SearchPattern.R_CAMEL_CASE_MATCH, collector);
-	assertSearchResults(
-		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
-		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
-		collector
-	);
-}
-public void testBug201064c() throws CoreException {
-	TypeNameMatchCollector collector = new TypeNameMatchCollector();
-	searchAllTypeNames("CamelCase", SearchPattern.R_CAMEL_CASE_MATCH, collector);
-	assertSearchResults(
-		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
-		collector
-	);
-}
-public void testBug201064d() throws CoreException {
-	TypeNameMatchCollector collector = new TypeNameMatchCollector();
-	searchAllTypeNames("CC", SearchPattern.R_CAMEL_CASE_MATCH, collector);
-	assertSearchResults(
-		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CamelCaseEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CamelCasexxEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
 		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
 		"CatCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
-		"CxxCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CxxCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
 		"CxxxxCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
 		collector
 	);
 }
-public void testBug201064e() throws CoreException {
+public void testBug201064b_CamelCase() throws CoreException {
 	TypeNameMatchCollector collector = new TypeNameMatchCollector();
-	searchAllTypeNames("CaC", SearchPattern.R_CAMEL_CASE_MATCH, collector);
+	searchAllTypeNames("CaCase", SearchPattern.R_CAMELCASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CamelCaseEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CamelCasexxEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064c_CamelCase() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CamelCase", SearchPattern.R_CAMELCASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CamelCaseEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CamelCasexxEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064d_CamelCase() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CC", SearchPattern.R_CAMELCASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CamelCaseEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CamelCasexxEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CxxCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CxxxxCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064e_CamelCase() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CaC", SearchPattern.R_CAMELCASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CamelCaseEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CamelCasexxEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064f_CamelCase() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CamelC", SearchPattern.R_CAMELCASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CamelCaseEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CamelCasexxEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064g_CamelCase() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CCa", SearchPattern.R_CAMELCASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CamelCaseEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CamelCasexxEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CxxCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CxxxxCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064h_CamelCase() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CaCa", SearchPattern.R_CAMELCASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CamelCaseEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CamelCasexxEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064i_CamelCase() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CamelCa", SearchPattern.R_CAMELCASE_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CamelCaseEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CamelCasexxEntry (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+// Same tests using SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH
+public void testBug201064a_CamelCaseSamePartCount() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CCase", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CxxCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CxxxxCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064b_CamelCaseSamePartCount() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CaCase", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH, collector);
 	assertSearchResults(
 		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
 		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
@@ -8893,28 +9001,73 @@ public void testBug201064e() throws CoreException {
 		collector
 	);
 }
-public void testBug201064f() throws CoreException {
+public void testBug201064c_CamelCaseSamePartCount() throws CoreException {
 	TypeNameMatchCollector collector = new TypeNameMatchCollector();
-	searchAllTypeNames("CamelC", SearchPattern.R_CAMEL_CASE_MATCH, collector);
+	searchAllTypeNames("CamelCase", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH, collector);
 	assertSearchResults(
 		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
 		collector
 	);
 }
-public void testBug201064g() throws CoreException {
+public void testBug201064d_CamelCaseSamePartCount() throws CoreException {
 	TypeNameMatchCollector collector = new TypeNameMatchCollector();
-	searchAllTypeNames("CCa", SearchPattern.R_CAMEL_CASE_MATCH, collector);
-	assertSearchResults("", collector);
+	searchAllTypeNames("CC", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CxxCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CxxxxCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
 }
-public void testBug201064h() throws CoreException {
+public void testBug201064e_CamelCaseSamePartCount() throws CoreException {
 	TypeNameMatchCollector collector = new TypeNameMatchCollector();
-	searchAllTypeNames("CaCa", SearchPattern.R_CAMEL_CASE_MATCH, collector);
-	assertSearchResults("", collector);
+	searchAllTypeNames("CaC", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
 }
-public void testBug201064i() throws CoreException {
+public void testBug201064f_CamelCaseSamePartCount() throws CoreException {
 	TypeNameMatchCollector collector = new TypeNameMatchCollector();
-	searchAllTypeNames("CamelCa", SearchPattern.R_CAMEL_CASE_MATCH, collector);
-	assertSearchResults("", collector);
+	searchAllTypeNames("CamelC", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064g_CamelCaseSamePartCount() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CCa", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CxxCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" +
+		"CxxxxCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064h_CamelCaseSamePartCount() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CaCa", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]\n" + 
+		"CatCasexx (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
+}
+public void testBug201064i_CamelCaseSamePartCount() throws CoreException {
+	TypeNameMatchCollector collector = new TypeNameMatchCollector();
+	searchAllTypeNames("CamelCa", SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH, collector);
+	assertSearchResults(
+		"CamelCase (not open) [in CamelCase.java [in b201064 [in src [in JavaSearchBugs]]]]",
+		collector
+	);
 }
 
 /**
@@ -8928,16 +9081,7 @@ public void testBug204652() throws CoreException {
 	try {
 		addLibraryEntry(javaProject, new Path("/JavaSearchBugs/b204652.jar"), false/*not exported*/);
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
-		new SearchEngine().searchAllTypeNames(
-			"b204652".toCharArray(),
-			SearchPattern.R_EXACT_MATCH,
-			null,
-			SearchPattern.R_PREFIX_MATCH,
-			IJavaSearchConstants.TYPE,
-			getJavaSearchScope(),
-			collector,
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null);
+		searchAllTypeNames("b204652", null, SearchPattern.R_PREFIX_MATCH, collector);
 		IPackageFragment pkg = getPackage("/JavaSearchBugs/b204652.jar/b204652");
 		pkg.open(null);
 		IType result = (IType) collector.matches.get(0);
@@ -8946,5 +9090,4 @@ public void testBug204652() throws CoreException {
 		javaProject.setRawClasspath(originalRawClasspath, null);
 	}
 }
-
 }
