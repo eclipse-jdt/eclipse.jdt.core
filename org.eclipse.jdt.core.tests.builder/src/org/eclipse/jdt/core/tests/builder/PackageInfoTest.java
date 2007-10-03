@@ -16,8 +16,10 @@ import java.util.Arrays;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class PackageInfoTest extends BuilderTests {
@@ -27,11 +29,11 @@ public PackageInfoTest(String name) {
 }
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which does not belong to the class are skipped...
-//static {
+static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 31 };
+//	TESTS_NUMBERS = new int[] { 3 };
 //	TESTS_RANGE = new int[] { 21, 50 };
-//}
+}
 public static Test suite() {
     return buildTestSuite(PackageInfoTest.class);
 }
@@ -125,6 +127,26 @@ public void test002() throws JavaModelException {
     incrementalBuild(projectPath);
 	expectingNoProblems();
 	executeClass(projectPath, "testcase.Main", "@testcase.TestAnnotation()@testcase.TestAnnotation()", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+}
+public void test003() throws JavaModelException {
+    IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
+    env.addExternalJars(projectPath, Util.getJavaClassLibs());
+    fullBuild(projectPath);
+    
+    // remove old package fragment root so that names don't collide
+    env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+    
+    IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+    env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+    env.addPackage(root, "testcase");
+    IPath packageInfoPath = env.addFile(root, "testcase/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
+        "" //$NON-NLS-1$
+    );
+        
+    incrementalBuild(projectPath);
+//    expectingOnlyProblemsFor(packageInfoPath);
+	expectingOnlySpecificProblemFor(packageInfoPath, new Problem("testcase/package-info.java", "The declared package \"\" does not match the expected package \"testcase\"", packageInfoPath, 0, 0, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 }
 protected void assertSourceEquals(String message, String expected, String actual) {
     if (actual == null) {
