@@ -368,6 +368,7 @@ public class TypesImpl implements Types {
     @Override
     public boolean isSameType(TypeMirror t1, TypeMirror t2) {
     	if (t1.getKind() == TypeKind.WILDCARD || t2.getKind() == TypeKind.WILDCARD) {
+            // Wildcard types are never equal, according to the spec of this method
     		return false;
     	}
         if (t1 == t2) {
@@ -378,8 +379,7 @@ public class TypesImpl implements Types {
         }
         Binding b1 = ((TypeMirrorImpl)t1).binding();
         Binding b2 = ((TypeMirrorImpl)t2).binding();
-        // Wildcard types are never equal, according to the spec of this method
-        return (b1 == b2 && b1.kind() != Binding.WILDCARD_TYPE);
+        return b1 == b2;
     }
 
     /* (non-Javadoc)
