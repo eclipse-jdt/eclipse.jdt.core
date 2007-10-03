@@ -133,6 +133,8 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 									if (exclusionPatterns != null || inclusionPatterns != null)
 										if (Util.isExcluded(resource.getFullPath(), inclusionPatterns, exclusionPatterns, false))
 											return false;
+									if (!resource.isDerived())
+										resource.setDerived(true);
 									resource.delete(IResource.FORCE, null);
 								}
 								return false;
