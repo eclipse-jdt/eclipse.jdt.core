@@ -80,7 +80,9 @@ public interface JavadocTagConstants {
 	 */
 	public final static int BLOCK_IDX = 0;
 	public final static int INLINE_IDX = 1;
-
+	
+	// href tag
+	public final static char[] HREF_TAG = {'h', 'r', 'e', 'f'};
 	/*
 	 * Tags versions
 	 */
