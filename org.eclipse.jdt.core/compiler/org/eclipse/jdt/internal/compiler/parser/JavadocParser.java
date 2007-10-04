@@ -34,7 +34,11 @@ public class JavadocParser extends AbstractCommentParser {
 	// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=153399
 	// Store value tag positions
 	private long validValuePositions, invalidValuePositions;
-
+	
+	// returns whether this JavadocParser should report errors or not (overrides reportProblems)
+	// see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=192449"
+	public boolean shouldReportProblems = true;
+	
 	public JavadocParser(Parser sourceParser) {
 		super(sourceParser);
 		this.kind = COMPIL_PARSER | TEXT_VERIF;
@@ -331,6 +335,21 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	/*
+	 * Parse @throws tag declaration and flag missing description if corresponding option is enabled
+	 */
+	protected boolean parseThrows() {
+		boolean valid = super.parseThrows();
+		if (valid && this.reportProblems && verifyEndLine(this.scanner.currentPosition)) {
+			// retrieve last identifier position (valid as, in the super method, we already parsed an identifier)			
+			int start = (int) (this.identifierPositionStack[0] >>> 32);
+			int end = (int) this.identifierPositionStack[this.identifierPtr];
+			this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
+			return false;
+		}
+		return valid;
+	}
+
+	/*
 	 * Parse @return tag declaration
 	 */
 	protected boolean parseReturn() {
@@ -465,6 +484,7 @@ public class JavadocParser extends AbstractCommentParser {
 	
 		// Decide which parse to perform depending on tag name
 		this.tagValue = NO_TAG_VALUE;
+		boolean alreadyParsedTag = false;
 		switch (token) {
 			case TerminalTokens.TokenNameIdentifier :
 				switch (tagName[0]) {
@@ -485,6 +505,7 @@ public class JavadocParser extends AbstractCommentParser {
 						if (length == TAG_EXCEPTION_LENGTH && CharOperation.equals(TAG_EXCEPTION, tagName)) {
 							this.tagValue = TAG_EXCEPTION_VALUE;
 							valid = parseThrows();
+							alreadyParsedTag = true;
 						}
 						break;
 					case 'i':
@@ -514,6 +535,7 @@ public class JavadocParser extends AbstractCommentParser {
 									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 								}
 							}
+							alreadyParsedTag = true;
 						} else if (length == TAG_LINKPLAIN_LENGTH && CharOperation.equals(TAG_LINKPLAIN, tagName)) {
 							this.tagValue = TAG_LINKPLAIN_VALUE;
 							if (this.inlineTagStarted) {
@@ -524,12 +546,14 @@ public class JavadocParser extends AbstractCommentParser {
 									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 								}
 							}
+							alreadyParsedTag = true;
 						}
 						break;
 					case 'p':
 						if (length == TAG_PARAM_LENGTH && CharOperation.equals(TAG_PARAM, tagName)) {
 							this.tagValue = TAG_PARAM_VALUE;
 							valid = parseParam();
+							alreadyParsedTag = true;
 						}
 						break;
 					case 's':
@@ -545,6 +569,7 @@ public class JavadocParser extends AbstractCommentParser {
 								this.tagValue = TAG_SEE_VALUE;
 								valid = parseReference();
 							}
+							alreadyParsedTag = true;
 						}
 						break;
 					case 'v':
@@ -572,6 +597,7 @@ public class JavadocParser extends AbstractCommentParser {
 									if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 								}
 							}
+							alreadyParsedTag = true;
 						} else {
 							createTag();
 						}
@@ -584,6 +610,7 @@ public class JavadocParser extends AbstractCommentParser {
 			case TerminalTokens.TokenNamereturn :
 				this.tagValue = TAG_RETURN_VALUE;
 				valid = parseReturn();
+				alreadyParsedTag = true;
 				/* verify characters after return tag (we're expecting text description)
 				if(!verifyCharsAfterReturnTag(this.index)) {
 					if (this.sourceParser != null) {
@@ -596,9 +623,29 @@ public class JavadocParser extends AbstractCommentParser {
 			case TerminalTokens.TokenNamethrows :
 				this.tagValue = TAG_THROWS_VALUE;
 				valid = parseThrows();
+				alreadyParsedTag = true;
 				break;
 		}
 		this.textStart = this.index;
+		if (! alreadyParsedTag && this.reportProblems && verifyEndLine(this.scanner.currentPosition)) {
+			this.sourceParser.problemReporter().javadocMissingTagDescription(tagName, this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
+			return false;
+		}
+		return valid;
+	}
+	
+	/*
+	 * Parse @param tag declaration and flag missing description if corresponding option is enabled
+	 */
+	protected boolean parseParam() throws InvalidInputException {
+		boolean valid = super.parseParam();
+		if (valid && this.reportProblems && verifyEndLine(this.scanner.currentPosition)) {
+			// retrieve last identifier position (valid as, in the super method, we already parsed an identifier)
+			int start = (int) (this.identifierPositionStack[0] >>> 32);
+			int end = (int) this.identifierPositionStack[this.identifierPtr];
+			this.sourceParser.problemReporter().javadocMissingTagDescriptionAfterReference(start, end, this.sourceParser.modifiers);
+			return false;
+		}	
 		return valid;
 	}
 
