@@ -275,6 +275,8 @@ public static long getIrritant(int problemID) {
 		case IProblem.JavadocUsingDeprecatedMethod:
 		case IProblem.JavadocUsingDeprecatedType:
 		case IProblem.JavadocHiddenReference:
+		case IProblem.JavadocMissingTagDescription:
+		case IProblem.JavadocInvalidSeeUrlReference:
 			return CompilerOptions.InvalidJavadoc;
 
 		case IProblem.JavadocMissingParamTag:
@@ -1021,7 +1023,6 @@ public int computeSeverity(int problemID){
 		case IProblem.JavadocInvalidParamName:
 		case IProblem.JavadocDuplicateParamName:
 		case IProblem.JavadocMissingParamName:
-		case IProblem.JavadocMissingIdentifier:
 		case IProblem.JavadocInvalidMemberTypeQualification:
 		case IProblem.JavadocInvalidThrowsClassName:
 		case IProblem.JavadocDuplicateThrowsClassName:
@@ -1055,7 +1056,6 @@ public int computeSeverity(int problemID){
 		case IProblem.JavadocIncorrectArityForParameterizedConstructor:
 		case IProblem.JavadocParameterizedConstructorArgumentTypeMismatch:
 		case IProblem.JavadocTypeArgumentsForRawGenericConstructor:
-		case IProblem.JavadocEmptyReturnTag:
 			if (!this.options.reportInvalidJavadocTags) {
 				return ProblemSeverities.Ignore;		
 			}
@@ -1081,6 +1081,19 @@ public int computeSeverity(int problemID){
 		case IProblem.JavadocHiddenReference:
 			if (!(this.options.reportInvalidJavadocTags && this.options.reportInvalidJavadocTagsNotVisibleRef)) {
 				return ProblemSeverities.Ignore;			
+			}
+			break;
+		/*
+		 * Javadoc missing tag descriptions
+		 */
+		case IProblem.JavadocEmptyReturnTag:
+			if (CompilerOptions.NO_TAG.equals(this.options.reportMissingJavadocTagDescription)) {
+				return ProblemSeverities.Ignore;
+			}
+			break;
+		case IProblem.JavadocMissingTagDescription:
+			if (! CompilerOptions.ALL_TAGS.equals(this.options.reportMissingJavadocTagDescription)) {
+				return ProblemSeverities.Ignore;
 			}
 			break;
 	}
@@ -3737,7 +3750,8 @@ public void javadocEmptyReturnTag(int sourceStart, int sourceEnd, int modifiers)
 	int severity = computeSeverity(IProblem.JavadocEmptyReturnTag);
 	if (severity == ProblemSeverities.Ignore) return;
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
-		this.handle(IProblem.JavadocEmptyReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
+		String[] arguments = new String[] { new String(JavadocTagConstants.TAG_RETURN) };
+		this.handle(IProblem.JavadocEmptyReturnTag, arguments, arguments, sourceStart, sourceEnd);
 	}
 }
 public void javadocErrorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeBinding[] params, int modifiers) {
@@ -4182,11 +4196,22 @@ public void javadocInvalidParamTypeParameter(int sourceStart, int sourceEnd) {
 public void javadocInvalidReference(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
+/** 
+ * Report an invalid reference that does not conform to the href syntax.
+ * Valid syntax example: @see IProblem.JavadocInvalidSeeHref
+ */
+public void javadocInvalidSeeHref(int sourceStart, int sourceEnd) {
+this.handle(IProblem.JavadocInvalidSeeHref, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
 public void javadocInvalidSeeReferenceArgs(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidSeeArgs, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
+/** 
+ * Report a problem on an invalid URL reference.
+ * Valid syntax example: @see IProblem.JavadocInvalidSeeUrlReference
+ */
 public void javadocInvalidSeeUrlReference(int sourceStart, int sourceEnd) {
-	this.handle(IProblem.JavadocInvalidSeeHref, NoArgument, NoArgument, sourceStart, sourceEnd);
+	this.handle(IProblem.JavadocInvalidSeeUrlReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocInvalidTag(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidTag, NoArgument, NoArgument, sourceStart, sourceEnd);
@@ -4255,6 +4280,9 @@ public void javadocMalformedSeeReference(int sourceStart, int sourceEnd) {
 }
 public void javadocMissing(int sourceStart, int sourceEnd, int modifiers){
 	int severity = computeSeverity(IProblem.JavadocMissing);
+	this.javadocMissing(sourceStart, sourceEnd, severity, modifiers);
+}
+public void javadocMissing(int sourceStart, int sourceEnd, int severity, int modifiers){
 	if (severity == ProblemSeverities.Ignore) return;
 	boolean overriding = (modifiers & (ExtraCompilerModifiers.AccImplementing|ExtraCompilerModifiers.AccOverriding)) != 0;
 	boolean report = (this.options.getSeverity(CompilerOptions.MissingJavadocComments) != ProblemSeverities.Ignore)
@@ -4322,9 +4350,26 @@ public void javadocMissingReturnTag(int sourceStart, int sourceEnd, int modifier
 		this.handle(IProblem.JavadocMissingReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 	}
 }
+public void javadocMissingTagDescription(char[] tokenName, int sourceStart, int sourceEnd, int modifiers) {
+	int severity = computeSeverity(IProblem.JavadocMissingTagDescription);
+	if (severity == ProblemSeverities.Ignore) return;
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
+		String[] arguments = new String[] { new String(tokenName) };
+		// use IProblem.JavadocEmptyReturnTag for all identified tags
+		this.handle(IProblem.JavadocEmptyReturnTag, arguments, arguments, sourceStart, sourceEnd);
+	}
+}
+public void javadocMissingTagDescriptionAfterReference(int sourceStart, int sourceEnd, int modifiers){
+	int severity = computeSeverity(IProblem.JavadocMissingTagDescription);
+	if (severity == ProblemSeverities.Ignore) return;
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
+		this.handle(IProblem.JavadocMissingTagDescription, NoArgument, NoArgument, severity, sourceStart, sourceEnd);
+	}
+}
 public void javadocMissingThrowsClassName(int sourceStart, int sourceEnd, int modifiers){
-	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		this.handle(IProblem.JavadocMissingThrowsClassName, NoArgument, NoArgument, sourceStart, sourceEnd);
+	}
 }
 public void javadocMissingThrowsTag(TypeReference typeRef, int modifiers){
 	int severity = computeSeverity(IProblem.JavadocMissingThrowsTag);
