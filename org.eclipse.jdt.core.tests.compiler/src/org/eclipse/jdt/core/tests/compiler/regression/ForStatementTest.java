@@ -233,7 +233,7 @@ public void test004() {
 		assertTrue(false);
 	}
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=180471 - variation
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=195317
 public void test005() { 
 	this.runConformTest(
 		new String[] {
