@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
+import java.util.Map;
 
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.select.SelectionJavadoc;
@@ -42,8 +43,8 @@ import junit.framework.Test;
 public class SelectionJavadocTest extends AbstractSelectionTest {
 	
 	String source;
-	StringBuffer result;
 	ICompilationUnit unit;
+	StringBuffer result;
 
 	public SelectionJavadocTest(String testName) {
 		super(testName);
@@ -58,7 +59,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		return buildAllCompliancesTestSuite(SelectionJavadocTest.class);
 	}
 
-	class SelectionVisitor extends ASTVisitor {
+	class JavadocSelectionVisitor extends ASTVisitor {
 
 		public boolean visit(ConstructorDeclaration constructor, ClassScope scope) {
 			if (constructor.javadoc != null) {
@@ -108,7 +109,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 			return super.visit(type, scope);
 		}
 	}
-
+	
 	protected void assertValid(String expected) {
 		String actual = this.result.toString();
 		if (!actual.equals(expected)) {
@@ -134,11 +135,11 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 	/*
 	 * Parse a method with selectionNode check
 	 */
-	protected void findJavadoc(String selection) {
-		findJavadoc(selection, 1);
+	protected CompilationResult  findJavadoc(String selection) {
+		return findJavadoc(selection, 1);
 	}
 
-	protected void findJavadoc(String selection, int occurences) {
+	protected CompilationResult findJavadoc(String selection, int occurences) {
 
 		// Verify unit
 		assertNotNull("Missing compilation unit!", this.unit);
@@ -161,8 +162,20 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 		parser.getMethodBodies(unitDecl);
 
 		// Visit compilation unit declaration to find javadoc
-		unitDecl.traverse(new SelectionVisitor(), unitDecl.scope);
+		unitDecl.traverse(new JavadocSelectionVisitor(), unitDecl.scope);
+
+		// Return the unit declaration result
+		return unitDecl.compilationResult();
 	}
+
+	protected Map getCompilerOptions() {
+	    Map optionsMap = super.getCompilerOptions();
+		optionsMap.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
+		optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.WARNING);
+		optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, CompilerOptions.ENABLED);
+		optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadoc, CompilerOptions.WARNING);
+	    return optionsMap;
+    }
 
 	public void test01() {
 		setUnit("Test.java",
@@ -860,5 +873,32 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 			"/**<SelectOnType:Test>*/\n" +
 			"/**<SelectOnType:Other>*/\n"
 		);
+	}
+	
+	/**
+	 * @bug 192449: [javadoc][assist] SelectionJavadocParser should not report problems
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=192449"
+	 */
+	public void test26() {
+		setUnit("Test.java",
+			"/**\n" + 
+			" * @see \n" +
+			" * @throws noException\n" +
+			" * @see Test\n" +
+			" * @see Other\n" + 
+			" */\n" + 
+			"public class Test {\n" + 
+			"	/**\n" + 
+			"	 * @see\n" + 
+			"	 * @param noParam\n" + 
+			"	 * @throws noException\n" + 
+			"	 */\n" + 
+			"	void bar() {}\n" + 
+			"}"
+		);
+
+		// parse and check results
+		CompilationResult compilationResult = findJavadoc("Other");
+		assertEquals("SelectionJavadocParser should not report errors", "", Util.getProblemLog(compilationResult, false, false));
 	}
 }

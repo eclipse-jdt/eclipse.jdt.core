@@ -63,11 +63,15 @@ public class CommentRecorderParser extends Parser {
 			}
 			checkDeprecated = true;
 			int commentSourceEnd = this.scanner.commentStops[lastCommentIndex] - 1; //stop is one over
-			
 			// do not report problem before last parsed comment while recovering code...
-			this.javadocParser.reportProblems = this.currentElement == null || commentSourceEnd > this.lastJavadocEnd;
+			if (this.javadocParser.shouldReportProblems) {
+				this.javadocParser.reportProblems = this.currentElement == null || commentSourceEnd > this.lastJavadocEnd;
+			} else {
+				this.javadocParser.reportProblems = false;
+			}
 			deprecated = this.javadocParser.checkDeprecation(lastCommentIndex);
 			this.javadoc = this.javadocParser.docComment;
+			if (currentElement == null) this.lastJavadocEnd = commentSourceEnd;
 			break nextComment;
 		}
 		if (deprecated) {

@@ -1113,7 +1113,11 @@ public void checkComment() {
 		if (lastComment >= 0 && this.javadocParser != null) {
 			int commentEnd = this.scanner.commentStops[lastComment] - 1; //stop is one over,
 			// do not report problem before last parsed comment while recovering code...
-			this.javadocParser.reportProblems = this.currentElement == null || commentEnd > this.lastJavadocEnd;
+			if (this.javadocParser.shouldReportProblems) {
+				this.javadocParser.reportProblems = this.currentElement == null || commentEnd > this.lastJavadocEnd;
+			} else {
+				this.javadocParser.reportProblems = false;
+			}
 			if (this.javadocParser.checkDeprecation(lastComment)) {
 				checkAndSetModifiers(ClassFileConstants.AccDeprecated);
 			}

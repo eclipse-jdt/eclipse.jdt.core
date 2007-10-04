@@ -20,8 +20,10 @@ import java.util.zip.*;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.compiler.regression.Requestor;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
@@ -31,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 public class Util {
     // Trace for delete operation
     /*
@@ -1229,5 +1232,56 @@ private static void zip(File dir, ZipOutputStream zip, int rootPathLength) throw
             }
         }
     }
+}
+/**
+ * Returns the compilation errors / warnings for the given CompilationResult.
+ *
+ * @param compilationResult the compilation result
+ * @param showCategory
+ * @param showWarningToken
+ * @return String the problem log
+ */
+public static String getProblemLog(CompilationResult compilationResult, boolean showCategory, boolean showWarningToken) {
+	StringBuffer buffer = new StringBuffer(100);
+	if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
+		CategorizedProblem[] problems = compilationResult.getAllProblems();
+		int count = problems.length;
+		int problemCount = 0;
+		char[] unitSource = compilationResult.compilationUnit.getContents();
+		for (int i = 0; i < count; i++) { 
+			DefaultProblem problem = (DefaultProblem) problems[i];
+			if (problem != null) {
+				if (problemCount == 0)
+					buffer.append("----------\n");
+				problemCount++;
+				buffer.append(problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
+				buffer.append(" in " + new String(problem.getOriginatingFileName()).replace('/', '\\'));
+				try {
+					buffer.append(problem.errorReportSource(unitSource));
+					buffer.append("\n");
+					if (showCategory) {
+						String category = problem.getInternalCategoryMessage();
+						if (category != null) {
+							buffer.append("[@cat:").append(category).append("] ");
+						}
+					}
+					if (showWarningToken) {
+						long irritant = ProblemReporter.getIrritant(problem.getID());
+						if (irritant != 0) {
+							String warningToken = CompilerOptions.warningTokenFromIrritant(irritant);
+							if (warningToken != null) {
+								buffer.append("[@sup:").append(warningToken).append("] ");
+							}
+						}
+					}
+					buffer.append(problem.getMessage());
+					buffer.append("\n");
+				} catch (Exception e) {
+				}
+				buffer.append("----------\n");
+			}
+		}
+	}
+	return buffer.toString();
 }
 }

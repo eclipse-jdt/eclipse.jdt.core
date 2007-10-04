@@ -57,7 +57,6 @@ public class CompletionJavadocParser extends JavadocParser {
 		super(sourceParser);
 		this.scanner = new CompletionScanner(ClassFileConstants.JDK1_3);
 		this.kind = COMPLETION_PARSER | TEXT_PARSE;
-		this.reportProblems = false;
 		initLevelTags();
 	}
 
