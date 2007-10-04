@@ -1240,47 +1240,47 @@ public void test041() {
 				"	public String val(Object x) { return x.toString(); }\n" +
 				"}\n"
 		},
-		"----------\n" +
-			"1. ERROR in E.java (at line 3)\n" + 
-			"	* @see e\n" + 
-			"	       ^\n" + 
-			"Javadoc: e cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"2. ERROR in E.java (at line 4)\n" + 
-			"	* @see #VALIDE\n" + 
-			"	        ^^^^^^\n" + 
-			"Javadoc: VALIDE cannot be resolved or is not a field\n" + 
-			"----------\n" + 
-			"3. ERROR in E.java (at line 8)\n" + 
-			"	* @see E#test\n" + 
-			"	         ^^^^\n" + 
-			"Javadoc: test cannot be resolved or is not a field\n" + 
-			"----------\n" + 
-			"4. ERROR in E.java (at line 9)\n" + 
-			"	* @see EUX\n" + 
-			"	       ^^^\n" + 
-			"Javadoc: EUX cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"5. ERROR in E.java (at line 13)\n" + 
-			"	* @param obj the object\n" + 
-			"	         ^^^\n" + 
-			"Javadoc: Parameter obj is not declared\n" + 
-			"----------\n" + 
-			"6. ERROR in E.java (at line 14)\n" + 
-			"	* @return\n" + 
-			"	   ^^^^^^\n" + 
-			"Javadoc: Missing return type description\n" + 
-			"----------\n" + 
-			"7. ERROR in E.java (at line 15)\n" + 
-			"	* @see Objet\n" + 
-			"	       ^^^^^\n" + 
-			"Javadoc: Objet cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"8. ERROR in E.java (at line 17)\n" + 
-			"	public String val(Object x) { return x.toString(); }\n" + 
-			"	                         ^\n" + 
-			"Javadoc: Missing tag for parameter x\n" + 
-			"----------\n"
+		"----------\n" + 
+		"1. ERROR in E.java (at line 3)\n" + 
+		"	* @see e\n" + 
+		"	       ^\n" + 
+		"Javadoc: e cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in E.java (at line 4)\n" + 
+		"	* @see #VALIDE\n" + 
+		"	        ^^^^^^\n" + 
+		"Javadoc: VALIDE cannot be resolved or is not a field\n" + 
+		"----------\n" + 
+		"3. ERROR in E.java (at line 8)\n" + 
+		"	* @see E#test\n" + 
+		"	         ^^^^\n" + 
+		"Javadoc: test cannot be resolved or is not a field\n" + 
+		"----------\n" + 
+		"4. ERROR in E.java (at line 9)\n" + 
+		"	* @see EUX\n" + 
+		"	       ^^^\n" + 
+		"Javadoc: EUX cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"5. ERROR in E.java (at line 13)\n" + 
+		"	* @param obj the object\n" + 
+		"	         ^^^\n" + 
+		"Javadoc: Parameter obj is not declared\n" + 
+		"----------\n" + 
+		"6. ERROR in E.java (at line 14)\n" + 
+		"	* @return\n" + 
+		"	   ^^^^^^\n" + 
+		"Javadoc: Description expected after @return\n" + 
+		"----------\n" + 
+		"7. ERROR in E.java (at line 15)\n" + 
+		"	* @see Objet\n" + 
+		"	       ^^^^^\n" + 
+		"Javadoc: Objet cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"8. ERROR in E.java (at line 17)\n" + 
+		"	public String val(Object x) { return x.toString(); }\n" + 
+		"	                         ^\n" + 
+		"Javadoc: Missing tag for parameter x\n" + 
+		"----------\n"
 	);
 }
 public void test042() {

@@ -74,6 +74,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportMissingJavadocTagsVisibility = "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingJavadocTagsOverriding = "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingJavadocComments = "org.eclipse.jdt.core.compiler.problem.missingJavadocComments"; //$NON-NLS-1$
+	public static final String OPTION_ReportMissingJavadocTagDescription = "org.eclipse.jdt.core.compiler.problem.missingJavadocTagDescription"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingJavadocCommentsVisibility = "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingJavadocCommentsOverriding = "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding"; //$NON-NLS-1$
 	public static final String OPTION_ReportFinallyBlockNotCompletingNormally = "org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally"; //$NON-NLS-1$
@@ -145,6 +146,9 @@ public class CompilerOptions {
 	public static final String PROTECTED = "protected";	//$NON-NLS-1$
 	public static final String DEFAULT = "default";	//$NON-NLS-1$
 	public static final String PRIVATE = "private";	//$NON-NLS-1$
+	public static final String RETURN_TAG = "return_tag";	//$NON-NLS-1$
+	public static final String NO_TAG = "no_tag";	//$NON-NLS-1$
+	public static final String ALL_TAGS = "all_tags";	//$NON-NLS-1$
 
 	/**
 	 * Bit mask for configurable problems (error/warning threshold)
@@ -201,6 +205,7 @@ public class CompilerOptions {
 	public static final long OverridingMethodWithoutSuperInvocation = ASTNode.Bit50L;
 	public static final long PotentialNullReference = ASTNode.Bit51L;
 	public static final long RedundantNullCheck = ASTNode.Bit52L;
+	public static final long MissingJavadocTagDescription = ASTNode.Bit53L;
 
 	// Map: String optionKey --> Long irritant>
 	private static Map OptionToIrritants;
@@ -287,6 +292,7 @@ public class CompilerOptions {
 	public boolean reportInvalidJavadocTags = false;
 	public boolean reportInvalidJavadocTagsDeprecatedRef = false;
 	public boolean reportInvalidJavadocTagsNotVisibleRef = false;
+	public String reportMissingJavadocTagDescription = RETURN_TAG;
 
 	// check missing javadoc tags
 	public int reportMissingJavadocTagsVisibility = ClassFileConstants.AccPublic;
@@ -394,6 +400,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportMissingJavadocTagsVisibility, getVisibilityString(this.reportMissingJavadocTagsVisibility));
 		optionsMap.put(OPTION_ReportMissingJavadocTagsOverriding, this.reportMissingJavadocTagsOverriding ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportMissingJavadocComments, getSeverityString(MissingJavadocComments));
+		optionsMap.put(OPTION_ReportMissingJavadocTagDescription, this.reportMissingJavadocTagDescription);
 		optionsMap.put(OPTION_ReportMissingJavadocCommentsVisibility, getVisibilityString(this.reportMissingJavadocCommentsVisibility));
 		optionsMap.put(OPTION_ReportMissingJavadocCommentsOverriding, this.reportMissingJavadocCommentsOverriding ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportFinallyBlockNotCompletingNormally, getSeverityString(FinallyBlockNotCompleting));
@@ -560,6 +567,8 @@ public class CompilerOptions {
 					return OPTION_ReportFallthroughCase;
 				case (int)(OverridingMethodWithoutSuperInvocation >>> 32) :
 					return OPTION_ReportOverridingMethodWithoutSuperInvocation;
+				case (int) MissingJavadocTagDescription :
+					return OPTION_ReportMissingJavadocTagDescription;
 			}
 		}
 		return null;
@@ -901,7 +910,10 @@ public class CompilerOptions {
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocComments)) != null) {
 			updateSeverity(MissingJavadocComments, optionValue);
-		}
+		}		
+		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocTagDescription)) != null) {
+			this.reportMissingJavadocTagDescription = (String) optionValue;
+		}		
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocCommentsVisibility)) != null) {
 			if (PUBLIC.equals(optionValue)) {
 				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPublic;
@@ -977,6 +989,7 @@ public class CompilerOptions {
 		buf.append("\n\t\t+ visibility level to report missing javadoc tags: ").append(getVisibilityString(this.reportMissingJavadocTagsVisibility)); //$NON-NLS-1$
 		buf.append("\n\t\t+ report missing javadoc tags in overriding methods: ").append(this.reportMissingJavadocTagsOverriding ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t\t+ missing javadoc comments: ").append(getSeverityString(MissingJavadocComments)); //$NON-NLS-1$
+		buf.append("\n\t\t+ report missing tag description option: ").append(this.reportMissingJavadocTagDescription); //$NON-NLS-1$
 		buf.append("\n\t\t+ visibility level to report missing javadoc comments: ").append(getVisibilityString(this.reportMissingJavadocCommentsVisibility)); //$NON-NLS-1$
 		buf.append("\n\t\t+ report missing javadoc comments in overriding methods: ").append(this.reportMissingJavadocCommentsOverriding ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- finally block not completing normally: ").append(getSeverityString(FinallyBlockNotCompleting)); //$NON-NLS-1$
@@ -1133,6 +1146,7 @@ public class CompilerOptions {
 			OPTION_ReportMethodWithConstructorName,
 			OPTION_ReportMissingDeprecatedAnnotation,
 			OPTION_ReportMissingJavadocComments,
+			OPTION_ReportMissingJavadocTagDescription,
 			OPTION_ReportMissingJavadocTags,
 			OPTION_ReportMissingOverrideAnnotation,
 			OPTION_ReportMissingSerialVersion,

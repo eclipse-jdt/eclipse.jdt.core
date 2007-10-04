@@ -70,6 +70,11 @@
  *                                 COMPILER_PB_UNUSED_PARAMETER_INCLUDE_DOC_COMMENT_REFERENCE
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE
+ *     IBM Corporation - added the following constants:
+ *                                 COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION
+ *								   COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_NO_TAG
+ *								   COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_RETURN_TAG
+ *								   COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_ALL_TAGS
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -558,6 +563,30 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_INVALID_JAVADOC_TAGS_VISIBILITY = PLUGIN_ID + ".compiler.problem.invalidJavadocTagsVisibility"; //$NON-NLS-1$
+	/**
+	 * Possible configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.4
+	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION = PLUGIN_ID + ".compiler.problem.missingJavadocTagDescription"; //$NON-NLS-1$
+	/**
+	 * Possible configurable option value.
+	 * @see #getDefaultOptions()
+	 * @since 3.4
+	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_NO_TAG = CompilerOptions.NO_TAG;
+	/**
+	 * Possible configurable option value.
+	 * @see #getDefaultOptions()
+	 * @since 3.4
+	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_RETURN_TAG = CompilerOptions.RETURN_TAG;
+	/**
+	 * Possible configurable option value.
+	 * @see #getDefaultOptions()
+	 * @since 3.4
+	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_ALL_TAGS = CompilerOptions.ALL_TAGS;
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -2378,6 +2407,14 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.invalidJavadocTags"
 	 *     - possible values:   { "disabled", "enabled" }
 	 *     - default:           "disabled"
+	 *
+	 * COMPILER / Reporting missing tag description
+	 *    When enabled, the compiler will report a warning or an error for any Javadoc missing a required description.
+	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.invalidJavadoc".
+	 *    This option is NOT dependent from the Report errors in tags option.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocTagDescription"
+	 *     - possible values:   { "return_tag", "all_tags", "no_tag" }
+	 *     - default:           "return_tag"
 	 *
 	 * COMPILER / Reporting Invalid Javadoc Tags with Deprecated References
 	 *    Specify whether the compiler will report deprecated references used in Javadoc tags.
