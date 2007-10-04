@@ -41,6 +41,14 @@ public class JavadocArgumentExpression extends Expression {
 			if (typeRef != null) {
 				this.resolvedType = typeRef.getTypeBinding(scope);
 				typeRef.resolvedType = this.resolvedType;
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=195374
+				// reproduce javadoc 1.3.1 / 1.4.2 behavior
+				if (typeRef instanceof SingleTypeReference && 
+						this.resolvedType.leafComponentType().enclosingType() != null &&
+						scope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_4) {
+					scope.problemReporter().javadocInvalidMemberTypeQualification(this.sourceStart, this.sourceEnd, scope.getDeclarationModifiers());
+					return null;
+				}
 				if (!this.resolvedType.isValidBinding()) {
 					scope.problemReporter().javadocInvalidType(typeRef, this.resolvedType, scope.getDeclarationModifiers());
 					return null;
