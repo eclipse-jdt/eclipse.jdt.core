@@ -815,6 +815,17 @@ void setSourceStart(int sourceStart);
 	 * Javadoc comments
 	 */
 	/** 
+	 * Problem signaled on an invalid URL reference.
+	 * Valid syntax example: @see "http://www.eclipse.org/"
+	 * @since 3.4 
+	 */
+	int JavadocInvalidSeeUrlReference = Javadoc + Internal + 462;
+	/** 
+	 * Problem warned on missing tag description.
+	 * @since 3.4
+	 */
+	int JavadocMissingTagDescription = Javadoc + Internal + 463;
+	/** 
 	 * Problem warned on duplicated tag.
 	 * @since 3.3
 	 */
@@ -863,7 +874,11 @@ void setSourceStart(int sourceStart);
 	int JavadocMissingSeeReference = Javadoc + Internal + 482;
 	/** @since 3.0 */
 	int JavadocInvalidSeeReference = Javadoc + Internal + 483;
-	/** @since 3.0 */
+	/**
+	 * Problem signaled on an invalid URL reference that does not conform to the href syntax.
+	 * Valid syntax example: @see <a href="http://www.eclipse.org/">Eclipse Home Page</a>
+	 * @since 3.0
+	 */
 	int JavadocInvalidSeeHref = Javadoc + Internal + 484;
 	/** @since 3.0 */
 	int JavadocInvalidSeeArgs = Javadoc + Internal + 485;
