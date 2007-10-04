@@ -3013,9 +3013,8 @@ public void configure(String[] argv) throws InvalidInputException {
 					currentArg.length() - 3);
 				mode = INSIDE_SOURCE_DIRECTORY_DESTINATION_PATH;
 				continue;
-			} else {
-				currentSourceDirectory = currentArg;
 			}
+			currentSourceDirectory = currentArg;
 		}
 		File dir = new File(currentSourceDirectory);
 		if (!dir.isDirectory()) {

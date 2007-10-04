@@ -86,9 +86,8 @@ class BinaryExpressionFragmentBuilder
 		if (((expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
 			addRealFragment(expression);
 			return false;
-		} else {
-			return true;
 		}
+		return true;
 	}
 
 	public ASTNode[] fragments() {
@@ -367,7 +366,6 @@ class BinaryExpressionFragmentBuilder
 	public boolean visit(StringLiteralConcatenation stringLiteral, BlockScope scope) {
 		if (((stringLiteral.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
 			addRealFragment(stringLiteral);
-			return false;
 		} else {
 			for (int i = 0, max = stringLiteral.counter; i < max; i++) {
 				this.addRealFragment(stringLiteral.literals[i]);
@@ -375,8 +373,8 @@ class BinaryExpressionFragmentBuilder
 					this.operatorsList.add(new Integer(TerminalTokens.TokenNamePLUS));
 				}
 			}
-			return false;
 		}
+		return false;
 	}
 	
 	public boolean visit(NullLiteral nullLiteral, BlockScope scope) {
