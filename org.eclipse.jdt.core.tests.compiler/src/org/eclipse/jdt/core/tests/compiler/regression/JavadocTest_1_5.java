@@ -1687,6 +1687,100 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 
 	/**
+	 * Bug 86769: [javadoc] Warn/Error for 'Missing javadoc comments' doesn't recognize private inner classes
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=86769"
+	 */
+	public void testBug86769() {
+		reportMissingJavadocComments = CompilerOptions.ERROR;
+		runNegativeTest(
+			new String[] {
+				"E.java",
+				"public enum E {\n" + 
+				"	A,\n" + 
+				"	DC{\n" + 
+				"		public void foo() {}\n" + 
+				"	};\n" + 
+				"	E() {}\n" + 
+				"	public void foo() {}\n" + 
+				"	private enum Epriv {\n" + 
+				"		Apriv,\n" + 
+				"		Cpriv {\n" + 
+				"			public void foo() {}\n" + 
+				"		};\n" + 
+				"		Epriv() {}\n" + 
+				"		public void foo() {}\n" + 
+				"	}\n" + 
+				"	enum Edef {\n" + 
+				"		Adef,\n" + 
+				"		Cdef {\n" + 
+				"			public void foo() {}\n" + 
+				"		};\n" + 
+				"		Edef() {}\n" + 
+				"		public void foo() {}\n" + 
+				"	}\n" + 
+				"	protected enum Epro {\n" + 
+				"		Apro,\n" + 
+				"		Cpro {\n" + 
+				"			public void foo() {}\n" + 
+				"		};\n" + 
+				"		Epro() {}\n" + 
+				"		public void foo() {}\n" + 
+				"	}\n" + 
+				"	public enum Epub {\n" + 
+				"		Apub,\n" + 
+				"		Cpub {\n" + 
+				"			public void foo() {}\n" + 
+				"		};\n" + 
+				"		Epub() {}\n" + 
+				"		public void foo() {}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in E.java (at line 1)\n" + 
+			"	public enum E {\n" + 
+			"	            ^\n" + 
+			"Javadoc: Missing comment for public declaration\n" + 
+			"----------\n" + 
+			"2. ERROR in E.java (at line 2)\n" + 
+			"	A,\n" + 
+			"	^\n" + 
+			"Javadoc: Missing comment for public declaration\n" + 
+			"----------\n" + 
+			"3. ERROR in E.java (at line 3)\n" + 
+			"	DC{\n" + 
+			"	^^\n" + 
+			"Javadoc: Missing comment for public declaration\n" + 
+			"----------\n" + 
+			"4. ERROR in E.java (at line 7)\n" + 
+			"	public void foo() {}\n" + 
+			"	            ^^^^^\n" + 
+			"Javadoc: Missing comment for public declaration\n" + 
+			"----------\n" + 
+			"5. ERROR in E.java (at line 32)\n" + 
+			"	public enum Epub {\n" + 
+			"	            ^^^^\n" + 
+			"Javadoc: Missing comment for public declaration\n" + 
+			"----------\n" + 
+			"6. ERROR in E.java (at line 33)\n" + 
+			"	Apub,\n" + 
+			"	^^^^\n" + 
+			"Javadoc: Missing comment for public declaration\n" + 
+			"----------\n" + 
+			"7. ERROR in E.java (at line 34)\n" + 
+			"	Cpub {\n" + 
+			"	^^^^\n" + 
+			"Javadoc: Missing comment for public declaration\n" + 
+			"----------\n" + 
+			"8. ERROR in E.java (at line 38)\n" + 
+			"	public void foo() {}\n" + 
+			"	            ^^^^^\n" + 
+			"Javadoc: Missing comment for public declaration\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
 	 * Bug 95286: [1.5][javadoc] package-info.java incorrectly flags "Missing comment for public declaration"
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=95286"
 	 */
@@ -2937,5 +3031,66 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"}"
 			}
 		);
+	}
+	
+	
+	/**
+	 * Bug 87500: [1.5][javadoc][options] Add a 'Consider enum values' option to warn/error on 'Missing javadoc comments'.
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=87500"
+	 */
+	public void testBug87500a() {
+		reportMissingJavadocComments = CompilerOptions.ERROR;
+		reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
+		runNegativeTest(
+			new String[] {
+				"A.java",
+				"enum A {\n" + 
+				"	clubs,\n" + 
+				"	diamonds,\n" + 
+				"	hearts,\n" + 
+				"	spades\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 1)\n" + 
+			"	enum A {\n" + 
+			"	     ^\n" + 
+			"Javadoc: Missing comment for default declaration\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 2)\n" + 
+			"	clubs,\n" + 
+			"	^^^^^\n" + 
+			"Javadoc: Missing comment for default declaration\n" + 
+			"----------\n" + 
+			"3. ERROR in A.java (at line 3)\n" + 
+			"	diamonds,\n" + 
+			"	^^^^^^^^\n" + 
+			"Javadoc: Missing comment for default declaration\n" + 
+			"----------\n" + 
+			"4. ERROR in A.java (at line 4)\n" + 
+			"	hearts,\n" + 
+			"	^^^^^^\n" + 
+			"Javadoc: Missing comment for default declaration\n" + 
+			"----------\n" + 
+			"5. ERROR in A.java (at line 5)\n" + 
+			"	spades\n" + 
+			"	^^^^^^\n" + 
+			"Javadoc: Missing comment for default declaration\n" + 
+			"----------\n"
+		);
+	}
+	
+	public void testBug87500b() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"A.java",
+				"enum A {\n" + 
+				"	clubs,\n" + 
+				"	diamonds,\n" + 
+				"	hearts,\n" + 
+				"	spades\n" +
+				"}\n"
+			});
 	}
 }

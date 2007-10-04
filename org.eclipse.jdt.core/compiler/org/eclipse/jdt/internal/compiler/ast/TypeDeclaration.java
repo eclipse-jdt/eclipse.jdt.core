@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class TypeDeclaration extends Statement implements ProblemSeverities, ReferenceContext {
 	// Type decl kinds
@@ -1090,10 +1091,19 @@ public void resolve() {
 				// if the type is package-info, the javadoc was resolved as part of the compilation unit javadoc
 				this.javadoc.resolve(this.scope);
 			}
-		} else if (sourceType != null && !sourceType.isLocalType()) {
-			this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd, sourceType.modifiers);
+		} else if (!sourceType.isLocalType()) {
+			// Set javadoc visibility
+			int visibility = sourceType.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
+			ProblemReporter reporter = this.scope.problemReporter();
+			int severity = reporter.computeSeverity(IProblem.JavadocMissing);
+			if (severity != ProblemSeverities.Ignore) {
+				if (this.enclosingType != null) {
+					visibility = Util.computeOuterMostVisibility(enclosingType, visibility);
+				}
+				int javadocModifiers = (this.binding.modifiers & ~ExtraCompilerModifiers.AccVisibilityMASK) | visibility;
+				reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);
+			}
 		}
-		
 	} catch (AbortType e) {
 		this.ignoreFurtherInvestigation = true;
 		return;

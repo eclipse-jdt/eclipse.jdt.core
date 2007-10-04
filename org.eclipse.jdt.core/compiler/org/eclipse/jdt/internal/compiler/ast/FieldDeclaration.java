@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class FieldDeclaration extends AbstractVariableDeclaration {
 	
@@ -251,14 +255,19 @@ public void resolve(MethodScope initializationScope) {
 		}
 		// Resolve Javadoc comment if one is present
 		if (this.javadoc != null) {
-			/*
-			if (classScope != null) {
-				this.javadoc.resolve(classScope);
-			}
-			*/
 			this.javadoc.resolve(initializationScope);
-		} else if (this.binding.declaringClass != null && !this.binding.declaringClass.isLocalType()) {
-			initializationScope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd, this.binding.modifiers);
+		} else if (this.binding != null && this.binding.declaringClass != null && !this.binding.declaringClass.isLocalType()) {
+			// Set javadoc visibility
+			int javadocVisibility = this.binding.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
+			ProblemReporter reporter = initializationScope.problemReporter();
+			int severity = reporter.computeSeverity(IProblem.JavadocMissing);
+			if (severity != ProblemSeverities.Ignore) {
+				if (classScope != null) {
+					javadocVisibility = Util.computeOuterMostVisibility(classScope.referenceType(), javadocVisibility);
+				}
+				int javadocModifiers = (this.binding.modifiers & ~ExtraCompilerModifiers.AccVisibilityMASK) | javadocVisibility;
+				reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);
+			}			
 		}
 	} finally {
 		initializationScope.initializedField = previousField;

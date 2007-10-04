@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
@@ -414,7 +415,20 @@ public void resolveJavadoc() {
 	if (this.binding == null || this.javadoc != null) {
 		super.resolveJavadoc();
 	} else if ((this.bits & ASTNode.IsDefaultConstructor) == 0) {
-		this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd, this.binding.modifiers);
+		if (this.binding.declaringClass != null && !this.binding.declaringClass.isLocalType()) {
+			// Set javadoc visibility
+			int javadocVisibility = this.binding.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
+			ClassScope classScope = scope.classScope();
+			ProblemReporter reporter = this.scope.problemReporter();
+			int severity = reporter.computeSeverity(IProblem.JavadocMissing);
+			if (severity != ProblemSeverities.Ignore) {
+				if (classScope != null) {			
+					javadocVisibility = Util.computeOuterMostVisibility(classScope.referenceType(), javadocVisibility);
+				}
+				int javadocModifiers = (this.binding.modifiers & ~ExtraCompilerModifiers.AccVisibilityMASK) | javadocVisibility;
+				reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);				
+			}			
+		}
 	}
 }
 
