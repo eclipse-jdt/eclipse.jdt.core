@@ -89,6 +89,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected Object[] astStack;
 	protected int astLengthPtr;
 	protected int[] astLengthStack;
+	
 
 	protected AbstractCommentParser(Parser sourceParser) {
 		this.sourceParser = sourceParser;
@@ -529,39 +530,39 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			if (readToken() == TerminalTokens.TokenNameIdentifier) {
 				consumeToken();
 				try {
-					if (CharOperation.equals(this.scanner.getCurrentIdentifierSource(), new char[]{'h', 'r', 'e', 'f'}, false) &&
+					if (CharOperation.equals(this.scanner.getCurrentIdentifierSource(), HREF_TAG, false) &&
 						readToken() == TerminalTokens.TokenNameEQUAL) {
 						consumeToken();
 						if (readToken() == TerminalTokens.TokenNameStringLiteral) {
 							consumeToken();
-							// Skip all characters after string literal until closing '>' (see bug 68726)
-							while (readToken() != TerminalTokens.TokenNameGREATER) {
-								if (this.scanner.currentPosition >= this.scanner.eofPosition || this.scanner.currentCharacter == '@' ||
-									(this.inlineTagStarted && this.scanner.currentCharacter == '}')) {
-									// Reset position: we want to rescan last token
-									this.index = this.tokenPreviousPosition;
-									this.scanner.currentPosition = this.tokenPreviousPosition;
-									this.currentTokenType = -1;
-									// Signal syntax error
-									if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
-										if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(start, this.lineEnd);
-									}
-									return false;
-								}
-								this.currentTokenType = -1; // do not update line end
-							}
-							if (this.currentTokenType == TerminalTokens.TokenNameGREATER) {
-								consumeToken(); // update line end as new lines are allowed in URL description
-								while (readToken() != TerminalTokens.TokenNameLESS) {
+							while (this.index < this.javadocEnd) { // main loop to search for the </a> pattern
+								// Skip all characters after string literal until closing '>' (see bug 68726)
+								while (readToken() != TerminalTokens.TokenNameGREATER) {
 									if (this.scanner.currentPosition >= this.scanner.eofPosition || this.scanner.currentCharacter == '@' ||
-										(this.inlineTagStarted && this.scanner.currentCharacter == '}')) {
+											(this.inlineTagStarted && this.scanner.currentCharacter == '}')) {
 										// Reset position: we want to rescan last token
 										this.index = this.tokenPreviousPosition;
 										this.scanner.currentPosition = this.tokenPreviousPosition;
 										this.currentTokenType = -1;
 										// Signal syntax error
 										if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
-											if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(start, this.lineEnd);
+											if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeHref(start, this.lineEnd);
+										}
+										return false;
+									}
+									this.currentTokenType = -1; // consume token without updating line end
+								}
+								consumeToken(); // update line end as new lines are allowed in URL description
+								while (readToken() != TerminalTokens.TokenNameLESS) {
+									if (this.scanner.currentPosition >= this.scanner.eofPosition || this.scanner.currentCharacter == '@' ||
+											(this.inlineTagStarted && this.scanner.currentCharacter == '}')) {
+										// Reset position: we want to rescan last token
+										this.index = this.tokenPreviousPosition;
+										this.scanner.currentPosition = this.tokenPreviousPosition;
+										this.currentTokenType = -1;
+										// Signal syntax error
+										if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
+											if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeHref(start, this.lineEnd);
 										}
 										return false;
 									}
@@ -569,14 +570,20 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								}
 								consumeToken();
 								start = this.scanner.getCurrentTokenStartPosition();
-								if (readChar() == '/') {
+								currentChar = readChar();
+								// search for the </a> pattern and store last char read
+								if (currentChar == '/') {
 									currentChar = readChar();
-									if (currentChar == 'a' || currentChar == 'A') {
-										if (readChar() == '>') {
-											// Valid href
-											return true;
+									if (currentChar == 'a' || currentChar =='A') {
+										currentChar = readChar();
+										if (currentChar == '>') {
+											return true; // valid href
 										}
 									}
+								}
+								// search for invalid char in tags
+								if (currentChar == '\r' || currentChar == '\n' || currentChar == '\t' || currentChar == ' ') {
+									break;
 								}
 							}
 						}
@@ -592,7 +599,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		this.currentTokenType = -1;
 		// Signal syntax error
 		if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
-			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(start, this.lineEnd);
+			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeHref(start, this.lineEnd);
 		}
 		return false;
 	}
@@ -1081,15 +1088,29 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidReference(typeRefStartPosition, this.lineEnd);
 				return false;
 			}
-
-			// Verify that line end does not start with an open parenthese (which could be a constructor reference wrongly written...)
-			// See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=47215
-			char ch = peekChar();
-			if (ch == '(') {
-				if (this.reportProblems) this.sourceParser.problemReporter().javadocMissingHashCharacter(typeRefStartPosition, this.lineEnd, String.valueOf(this.source, typeRefStartPosition, this.lineEnd-typeRefStartPosition+1));
-				return false;
+			
+			int currentIndex = this.index; // store current index
+			char ch = readChar();
+			switch (ch) {
+				// Verify that line end does not start with an open parenthese (which could be a constructor reference wrongly written...)
+				// See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=47215	
+				case '(' :
+					if (this.reportProblems) this.sourceParser.problemReporter().javadocMissingHashCharacter(typeRefStartPosition, this.lineEnd, String.valueOf(this.source, typeRefStartPosition, this.lineEnd-typeRefStartPosition+1));
+					return false;
+				// Search for the :// URL pattern
+				// See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=168849
+				case ':' :
+					ch = readChar();					
+					if (ch == '/' && ch == readChar()) {
+						if (this.reportProblems) {
+							this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(typeRefStartPosition, this.lineEnd);
+							return false;
+						}
+					}
 			}
-
+			// revert to last stored index
+			this.index = currentIndex;
+			
 			// Verify that we get white space after reference
 			if (!verifySpaceOrEndComment()) {
 				this.index = this.tokenPreviousPosition;
