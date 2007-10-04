@@ -82,4 +82,69 @@ public void test001() {
 		assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=205046
+public void test002() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.print(\"line 1\");\n" + 
+			"		myBlock: {\n" + 
+			"			System.out.print(\"line 2\");\n" + 
+			"			if (false) {\n" +
+			"				break myBlock;\n" + 
+			"			}\n" + 
+			"			System.out.print(\"line 3\");\n" + 
+			"		}\n" + 
+			"		System.out.print(\"line 4\");\n" + 
+			"	}" + 
+			"}",
+		},
+		"line 1line 2line 3line 4");
+
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 1\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"     3  ldc <String \"line 1\"> [22]\n" + 
+		"     5  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+		"     8  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    11  ldc <String \"line 2\"> [30]\n" + 
+		"    13  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+		"    16  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    19  ldc <String \"line 3\"> [32]\n" + 
+		"    21  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+		"    24  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    27  ldc <String \"line 4\"> [34]\n" + 
+		"    29  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+		"    32  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 8, line: 5]\n" + 
+		"        [pc: 16, line: 9]\n" + 
+		"        [pc: 24, line: 11]\n" + 
+		"        [pc: 32, line: 12]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 33] local: args index: 0 type: java.lang.String[]\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
+}
 }
