@@ -229,9 +229,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		}
 	}
 
-	/*######################################
-	 * Specific method to let tests Sun javac compilation available...
-	 #######################################*/
 	protected void compileAndDeploy(String source, String directoryName, String className) {
 		File directory = new File(SOURCE_DIRECTORY);
 		if (!directory.exists()) {
@@ -266,8 +263,12 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			.append(EVAL_DIRECTORY);
 		if (this.complianceLevel.compareTo(COMPLIANCE_1_5) < 0) {
 			buffer.append("\" -1.4 -source 1.3 -target 1.2");
-		} else {
+		} else if (this.complianceLevel.compareTo(COMPLIANCE_1_5) == 0) {
 			buffer.append("\" -1.5");
+		} else if (this.complianceLevel.compareTo(COMPLIANCE_1_6) == 0) {
+			buffer.append("\" -1.6");
+		} else if (this.complianceLevel.compareTo(COMPLIANCE_1_7) == 0) {
+			buffer.append("\" -1.7");
 		}
 		buffer
 			.append(" -preserveAllLocals -nowarn -g -classpath \"")
@@ -1240,6 +1241,133 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			}
 			this.verifier = new TestVerifier(false);
 			this.createdVerifier = true;
+		}
+	}
+
+	protected void runTest(
+			String[] testFiles,
+			boolean expectingCompilerErrors,
+			String expectedCompilerLog,
+			String expectedOutputString,
+			boolean forceExecution,
+			String[] classLib,
+			boolean shouldFlushOutputDirectory, 
+			String[] vmArguments, 
+			Map customOptions,
+			ICompilerRequestor clientRequestor,
+			boolean skipJavac) {
+		// Non-javac part
+		try {
+			if (shouldFlushOutputDirectory)
+				Util.flushDirectoryContent(new File(OUTPUT_DIR));
+	
+			IProblemFactory problemFactory = getProblemFactory();
+			Requestor requestor = 
+				new Requestor(
+					problemFactory, 
+					OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, 
+					forceExecution,
+					clientRequestor,
+					false, /* show category */
+					false /* show warning token*/);
+	
+			Map options = getCompilerOptions();
+			if (customOptions != null) {
+				options.putAll(customOptions);
+			}
+			CompilerOptions compilerOptions = new CompilerOptions(options);
+			compilerOptions.performMethodsFullRecovery = false;
+			compilerOptions.performStatementsRecovery = false;
+			Compiler batchCompiler = 
+				new Compiler(
+					getNameEnvironment(new String[]{}, classLib), 
+					getErrorHandlingPolicy(), 
+					compilerOptions,
+					requestor, 
+					problemFactory);
+			compilerOptions.produceReferenceInfo = true;
+			Throwable exception = null;
+			try {
+				batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
+			} catch(RuntimeException e){
+				exception = e;
+				throw e;
+			} catch(Error e) {
+				exception = e;
+				throw e;
+			} finally {
+				String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
+				String platformIndependantExpectedLog = Util.convertToIndependantLineDelimiter(expectedCompilerLog);
+				if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
+					System.out.println(getClass().getName() + '#' + getName());
+					System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
+					for (int i = 0; i < testFiles.length; i += 2) {
+						System.out.print(testFiles[i]);
+						System.out.println(" ["); //$NON-NLS-1$
+						System.out.println(testFiles[i + 1]);
+						System.out.println("]"); //$NON-NLS-1$
+					}
+				}
+				if (exception == null) {
+					if (expectingCompilerErrors) {
+						assertTrue("Unexpected success", requestor.hasErrors);
+					} else {
+						assertFalse("Unexpected failure", requestor.hasErrors);
+					}
+					assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
+				}
+			}
+			if (!requestor.hasErrors || forceExecution) {
+				String sourceFile = testFiles[0];
+	
+				// Compute class name by removing ".java" and replacing slashes with dots
+				String className = sourceFile.substring(0, sourceFile.length() - 5).replace('/', '.').replace('\\', '.');
+				if (className.endsWith(PACKAGE_INFO_NAME)) return;
+	
+				if (vmArguments != null) {
+					if (this.verifier != null) {
+						this.verifier.shutDown();
+					}
+					this.verifier = new TestVerifier(false);
+					this.createdVerifier = true;
+				}
+				boolean passed = 
+					this.verifier.verifyClassFiles(
+						sourceFile, 
+						className, 
+						expectedOutputString,
+						this.classpaths, 
+						null, 
+						vmArguments);
+				if (!passed) {
+					System.out.println(getClass().getName() + '#' + getName());
+					for (int i = 0; i < testFiles.length; i += 2) {
+						System.out.print(testFiles[i]);
+						System.out.println(" ["); //$NON-NLS-1$
+						System.out.println(testFiles[i + 1]);
+						System.out.println("]"); //$NON-NLS-1$
+					}
+				}
+				assertTrue(this.verifier.failureReason, // computed by verifyClassFiles(...) action
+						passed);
+				if (vmArguments != null) {
+					if (this.verifier != null) {
+						this.verifier.shutDown();
+					}
+					this.verifier = new TestVerifier(false);
+					this.createdVerifier = true;
+				}
+			}
+		// javac part
+		} catch (AssertionFailedError e) {
+			throw e;
+		} finally {
+			if (RUN_JAVAC && !skipJavac)
+				runJavac(testFiles, null, expectedOutputString, shouldFlushOutputDirectory);
+			  // PREMATURE for now, skipping javac implies skipping the compile
+			  //                and execution steps; yet, only cases for which the
+			  //                execution step was a problem have been discovered so
+			  //                far; may consider skipping the execution step only
 		}
 	}
 

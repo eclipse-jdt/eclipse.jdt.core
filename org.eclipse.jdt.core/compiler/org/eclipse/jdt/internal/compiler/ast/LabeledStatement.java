@@ -51,26 +51,23 @@ public class LabeledStatement extends Statement {
 		} else {
 			LabelFlowContext labelContext;
 			FlowInfo statementInfo, mergedInfo;
-			if (((statementInfo = statement
-					.analyseCode(
-						currentScope,
-						(labelContext =
-							new LabelFlowContext(
-								flowContext,
-								this,
-								label,
-								(targetLabel = new BranchLabel()),
-								currentScope)),
-						flowInfo)).tagBits & FlowInfo.UNREACHABLE) != 0) {
-				if ((labelContext.initsOnBreak.tagBits & FlowInfo.UNREACHABLE) == 0) {
-					// an embedded loop has had no chance to reinject forgotten null info
-					mergedInfo = flowInfo.unconditionalCopy().
-						addInitializationsFrom(labelContext.initsOnBreak);
-				} else {
-					mergedInfo = labelContext.initsOnBreak;
-				}
-			} else {
-				mergedInfo = statementInfo.mergedWith(labelContext.initsOnBreak);
+			statementInfo = statement.analyseCode(
+				currentScope,
+				(labelContext =
+					new LabelFlowContext(
+						flowContext,
+						this,
+						label,
+						(targetLabel = new BranchLabel()),
+						currentScope)),
+				flowInfo);
+			boolean reinjectNullInfo = (statementInfo.tagBits & FlowInfo.UNREACHABLE) != 0 &&
+				(labelContext.initsOnBreak.tagBits & FlowInfo.UNREACHABLE) == 0;
+			mergedInfo = statementInfo.mergedWith(labelContext.initsOnBreak);
+			if (reinjectNullInfo) {
+				// an embedded loop has had no chance to reinject forgotten null info
+				((UnconditionalFlowInfo)mergedInfo).addInitializationsFrom(flowInfo.unconditionalFieldLessCopy()).
+					addInitializationsFrom(labelContext.initsOnBreak.unconditionalFieldLessCopy());
 			}
 			mergedInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(mergedInfo);
