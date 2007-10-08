@@ -330,7 +330,7 @@ public boolean equals(Object o) {
 	if (!(o instanceof PackageFragmentRoot))
 		return false;
 	PackageFragmentRoot other = (PackageFragmentRoot) o;
-	return this.resource.equals(other.resource) && 
+	return getResource().equals(other.getResource()) && 
 			this.parent.equals(other.parent);
 }
 
@@ -454,8 +454,9 @@ public char[][] fullInclusionPatternChars() {
 	}
 }		
 public String getElementName() {
-	if (this.resource instanceof IFolder)
-		return ((IFolder) this.resource).getName();
+	IResource res = getResource();
+	if (res instanceof IFolder)
+		return ((IFolder) res).getName();
 	return ""; //$NON-NLS-1$
 }
 /**
@@ -716,7 +717,7 @@ public boolean hasChildren() throws JavaModelException {
 }
 
 public int hashCode() {
-	return this.resource.hashCode();
+	return getResource().hashCode();
 }
 
 /**

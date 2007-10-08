@@ -8014,4 +8014,34 @@ public void testBug194185() throws CoreException {
 		packageCollector);
 }
 
+/**
+ * @bug 204652 "Open Type": ClassCastException in conjunction with a class folder
+ * @test Ensure that no ClassCastException is thrown for a library folder with a jar like name 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=204652"
+ */
+public void testBug204652() throws CoreException {
+	IJavaProject javaProject = getJavaProject("JavaSearchBugs");
+	IClasspathEntry[] originalRawClasspath = javaProject.getRawClasspath();
+	try {
+		addLibraryEntry(javaProject, new Path("/JavaSearchBugs/b204652.jar"), false/*not exported*/);
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+			"b204652".toCharArray(),
+			SearchPattern.R_EXACT_MATCH,
+			null,
+			SearchPattern.R_PREFIX_MATCH,
+			IJavaSearchConstants.TYPE,
+			getJavaSearchScopeBugs(),
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		IPackageFragment pkg = getPackage("/JavaSearchBugs/b204652.jar/b204652");
+		pkg.open(null);
+		IType result = (IType) collector.matches.get(0);
+		assertTrue("Resulting type should exist", result.exists());
+	} finally {
+		javaProject.setRawClasspath(originalRawClasspath, null);
+	}
+}
+
 }

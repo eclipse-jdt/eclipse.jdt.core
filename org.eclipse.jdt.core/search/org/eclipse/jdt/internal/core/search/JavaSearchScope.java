@@ -580,9 +580,6 @@ public IPackageFragmentRoot packageFragmentRoot(String resourcePathString) {
 		String projectPath = idx == -1 ? null : (String) this.projectPaths.get(idx);
 		if (projectPath != null) {
 			IJavaProject project =JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject(projectPath));
-			if (isJarFile) {
-				return project.getPackageFragmentRoot(this.containerPaths[index]);
-			}
 			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(this.containerPaths[index]+'/'+this.relativePaths[index]), false);
 			if (target instanceof IProject) {
 				return project.getPackageFragmentRoot((IProject) target);
@@ -590,6 +587,9 @@ public IPackageFragmentRoot packageFragmentRoot(String resourcePathString) {
 			if (target instanceof IResource) {
 				IJavaElement element = JavaCore.create((IResource)target);
 				return (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+			}
+			if (isJarFile) {
+				return project.getPackageFragmentRoot(this.containerPaths[index]);
 			}
 		}
 	}
