@@ -1767,6 +1767,12 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 *    <li><code>METHOD_IMPORT</code></li>
 	 *   </ul>
 	 *  </li>
+	 * </li>
+	 * 	<li><code>TYPE_REF</code> - The allowed required proposals for this kind are:
+	 *   <ul>
+	 *    <li><code>TYPE_REF</code></li>
+	 *   </ul>
+	 *  </li>
 	 * </ul>
 	 * </p>
 	 * <p>

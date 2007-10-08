@@ -201,10 +201,26 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
 ...
 }
 </li>
+<li>Modified API <code>CompletionProposal#getRequiredProposals()</code>.<br>
+<code>TYPE_REF</code> proposals can now have a TYPE_REF proposal as required proposal 
+</li>
+<li>CodeAssist: Member types and static members are proposed when the receiver is a not yet imported type.
+<pre>
+class X {
+   public static void bar() {}
+   void foo() {
+      X.bar
+   }
+}
+</pre>
+When the completion occurs after <i>X.bar</i> the method <code>X#bar()</code> is proposed with a required proposal the complete the not imported type.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=125518">125518</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=44627">44627</a>
+[assist] improve content assist for static members when import missing
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=125518">125518</a>
 [javadoc] Embedding html in a link placed in a @see JavaDoc tag causes a warning
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86769">86769</a>
 [javadoc] Warn/Error for 'Missing javadoc comments' doesn't recognize private inner classes
