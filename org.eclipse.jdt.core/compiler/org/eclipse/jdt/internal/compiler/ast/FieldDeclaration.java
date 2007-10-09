@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class FieldDeclaration extends AbstractVariableDeclaration {
 	

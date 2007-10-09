@@ -40,12 +40,9 @@ import org.eclipse.jdt.core.util.IFieldInfo;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -3053,29 +3050,4 @@ public class Util {
 		return start;
 	}
 	
-	/**
-	 * Returns the outer most enclosing type's visibility for the given TypeDeclaration
-	 * and visibility based on compiler options.  
-	 */
-	public static int computeOuterMostVisibility(TypeDeclaration typeDeclaration, int visibility) {
-		while (typeDeclaration != null) {
-			switch (typeDeclaration.modifiers & ExtraCompilerModifiers.AccVisibilityMASK) {
-				case ClassFileConstants.AccPrivate:
-					visibility = ClassFileConstants.AccPrivate;
-					break;
-				case ClassFileConstants.AccDefault:
-					if (visibility != ClassFileConstants.AccPrivate) {
-						visibility = ClassFileConstants.AccDefault;
-					}
-					break;
-				case ClassFileConstants.AccProtected:
-					if (visibility == ClassFileConstants.AccPublic) {
-						visibility = ClassFileConstants.AccProtected;
-					}
-					break;
-			}
-			typeDeclaration = typeDeclaration.enclosingType;
-		}	
-		return visibility;
-	}
 }
