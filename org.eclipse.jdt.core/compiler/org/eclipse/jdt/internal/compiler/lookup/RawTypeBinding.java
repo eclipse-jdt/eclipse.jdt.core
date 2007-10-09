@@ -123,19 +123,19 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
         return false;
 	}
     
-    public boolean isIntersectingWith(TypeBinding otherType) {
+    public boolean isProvablyDistinct(TypeBinding otherType) {
 		if (this == otherType) 
-		    return true;
+		    return false;
 	    if (otherType == null) 
-	        return false;
+	        return true;
 	    switch(otherType.kind()) {
 	
 	    	case Binding.GENERIC_TYPE :
 	    	case Binding.PARAMETERIZED_TYPE :
 	    	case Binding.RAW_TYPE :
-	            return erasure() == otherType.erasure();
+	            return erasure() != otherType.erasure();
 	    }
-        return false;
+        return true;
 	}
     
 	/**

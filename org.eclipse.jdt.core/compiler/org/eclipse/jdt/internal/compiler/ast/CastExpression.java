@@ -280,8 +280,8 @@ public class CastExpression extends Expression {
 		}
 		if (match != null) {
 			if (isNarrowing
-					? checkProvablyDistinctTypes(scope, match, expressionType, 0)
-					: checkProvablyDistinctTypes(scope, castType, match, 0)) {
+					? match.isProvablyDistinct(expressionType)
+					: castType.isProvablyDistinct(match)) {
 				return false;
 			}
 		}

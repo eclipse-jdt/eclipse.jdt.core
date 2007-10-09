@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -520,63 +519,6 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 	}
 }
 
-/**
- * Returns true if the two types are statically known to be different at compile-time,
- * e.g. a type variable is not provably known to be distinct from another type
- */
-public final boolean checkProvablyDistinctTypes(Scope scope, TypeBinding castType, TypeBinding expressionType, int depth) {
-	if (castType == expressionType)
-		return false;
-	if (depth > 1)
-		return true;
-	switch (expressionType.kind()) {
-		case Binding.TYPE_PARAMETER:
-		case Binding.WILDCARD_TYPE:
-		case Binding.INTERSECTION_TYPE:
-			return false;
-	}
-	switch (castType.kind()) {
-	case Binding.TYPE_PARAMETER:
-	case Binding.WILDCARD_TYPE:
-	case Binding.INTERSECTION_TYPE:
-		return false;
-
-	case Binding.PARAMETERIZED_TYPE:
-		ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) castType;
-		if (checkProvablyDistinctTypes(scope, parameterizedType.genericType(), expressionType.erasure(), depth))
-			return true;
-		switch (expressionType.kind()) {
-		case Binding.GENERIC_TYPE:
-		case Binding.RAW_TYPE:
-			return false;
-		case Binding.PARAMETERIZED_TYPE:
-			TypeBinding[] arguments = parameterizedType.arguments;
-			if (arguments == null)
-				return false;
-			ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) expressionType;
-			TypeBinding[] otherArguments = otherParameterizedType.arguments;
-			if (otherArguments == null)
-				return false;
-			for (int i = 0, length = arguments.length; i < length; i++) {
-				if (checkProvablyDistinctTypes(scope, arguments[i], otherArguments[i], depth + 1))
-					return true;
-			}
-			return false;
-
-		}
-		break;
-
-	case Binding.RAW_TYPE:
-		if (depth > 0) return true;
-		return checkProvablyDistinctTypes(scope, castType.erasure(), expressionType.erasure(), 0);
-
-	case Binding.GENERIC_TYPE:
-		if (depth > 0) return true;
-		return castType != expressionType.erasure();
-	}
-	return castType != expressionType;
-}
-
 public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
 		if (match == castType) {
 			if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
@@ -587,8 +529,8 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 				|| 	expressionType.isBoundParameterizedType())) {
 			
 			if(isNarrowing
-					? checkProvablyDistinctTypes(scope, match, expressionType, 0)
-					: checkProvablyDistinctTypes(scope, castType, match, 0)) {
+					? match.isProvablyDistinct(expressionType)
+					: castType.isProvablyDistinct(match)) {					
 				return false; 
 			}
 		}

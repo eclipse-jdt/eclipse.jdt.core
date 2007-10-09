@@ -682,7 +682,7 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 	TypeBinding match;
 	do {
 		match = otherType.findSuperTypeOriginatingFrom(currentType);
-		if (match != null && !match.isIntersectingWith(currentType))
+		if (match != null && match.isProvablyDistinct(currentType))
 			return true;
 
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
@@ -708,7 +708,7 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 		currentType = interfacesToVisit[i];
 		if (currentType == otherType) return false;
 		match = otherType.findSuperTypeOriginatingFrom(currentType);
-		if (match != null && !match.isIntersectingWith(currentType))
+		if (match != null && match.isProvablyDistinct(currentType))
 			return true;
 
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();

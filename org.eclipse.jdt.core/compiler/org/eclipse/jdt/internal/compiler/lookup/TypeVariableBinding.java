@@ -77,13 +77,13 @@ public class TypeVariableBinding extends ReferenceBinding {
 							} else {
 								TypeBinding match = wildcardBound.findSuperTypeOriginatingFrom(superclassBound);
 								if (match != null) {
-									if (!match.isIntersectingWith(superclassBound)) {
+									if (superclassBound.isProvablyDistinct(match)) {
 										return TypeConstants.MISMATCH;
 									}
 								} else {
 									match =  superclassBound.findSuperTypeOriginatingFrom(wildcardBound);
 									if (match != null) {
-										if (!match.isIntersectingWith(wildcardBound)) {
+										if (match.isProvablyDistinct(wildcardBound)) {
 											return TypeConstants.MISMATCH;
 										}
 									} else {
@@ -106,7 +106,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 						} else {
 							TypeBinding match = wildcardBound.findSuperTypeOriginatingFrom(superInterfaceBound);
 							if (match != null) {
-								if (!match.isIntersectingWith(superInterfaceBound)) {
+								if (superInterfaceBound.isProvablyDistinct(match)) {
 									return TypeConstants.MISMATCH;
 								}
 							} else if (mustImplement) {

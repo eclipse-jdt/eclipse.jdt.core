@@ -17953,14 +17953,14 @@ public void test0500(){
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
-				"public class X<S extends Comparable<S>> {\n" + 
-				"    public void f() {\n" + 
-				"        Class<S> currentClass = null;\n" + 
-				"        boolean b = currentClass == Long.class;\n" + // not provably distinct types
-				"		\n" + 
-				"		boolean c = X.class == Long.class;\n" + // provably distinct types
-				"    }\n" + 
-				"}\n",
+    			"public class X<S extends Comparable<S>> {\n" + 
+    			"	public void f() {\n" + 
+    			"		Class<? extends Comparable<?>> cc = Long.class;\n" + 
+    			"		Class<S> currentClass = null;\n" + 
+    			"		boolean b = currentClass == Long.class;\n" + 
+    			"		boolean c = X.class == Long.class;\n" + 
+    			"    }\n" + 
+    			"}\n",
             },
     		"----------\n" + 
     		"1. ERROR in X.java (at line 6)\n" + 
@@ -18581,7 +18581,7 @@ public void test0500(){
 			"");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89940
-	public void _test0610() {
+	public void test0610() {
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18601,27 +18601,32 @@ public void test0500(){
 				"	}\n" + 
 				"}\n",
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
-			"	numbers= (List<Number>) objects; // correct - cast error\n" + 
-			"	         ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Cannot cast from List<Object> to List<Number>\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 10)\n" + 
-			"	ext= (List<? extends Number>) objects; // wrong, should fail\n" + 
-			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Cannot cast from List<Object> to List<? extends Number>\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 12)\n" + 
-			"	ext= raw; // correct - raw conversion warning issued\n" + 
-			"	     ^^^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<? extends Number>\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 13)\n" + 
-			"	numbers= raw; // correct - raw conversion warning issued\n" + 
-			"	         ^^^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<Number>\n" + 
-			"----------\n");
+    		"----------\n" + 
+    		"1. WARNING in X.java (at line 4)\n" + 
+    		"	void foo(List<Object> objects, List raw) {\n" + 
+    		"	                               ^^^^\n" + 
+    		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+    		"----------\n" + 
+    		"2. ERROR in X.java (at line 9)\n" + 
+    		"	numbers= (List<Number>) objects; // correct - cast error\n" + 
+    		"	         ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		"Cannot cast from List<Object> to List<Number>\n" + 
+    		"----------\n" + 
+    		"3. ERROR in X.java (at line 10)\n" + 
+    		"	ext= (List<? extends Number>) objects; // wrong, should fail\n" + 
+    		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		"Cannot cast from List<Object> to List<? extends Number>\n" + 
+    		"----------\n" + 
+    		"4. WARNING in X.java (at line 12)\n" + 
+    		"	ext= raw; // correct - raw conversion warning issued\n" + 
+    		"	     ^^^\n" + 
+    		"Type safety: The expression of type List needs unchecked conversion to conform to List<? extends Number>\n" + 
+    		"----------\n" + 
+    		"5. WARNING in X.java (at line 13)\n" + 
+    		"	numbers= raw; // correct - raw conversion warning issued\n" + 
+    		"	         ^^^\n" + 
+    		"Type safety: The expression of type List needs unchecked conversion to conform to List<Number>\n" + 
+    		"----------\n");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=91696
 	public void test0611() {
@@ -20482,10 +20487,10 @@ public void test0666() {
 		"	         ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot cast from List<Object> to List<Number>\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 10)\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
 		"	ext= (List<? extends Number>) objects; // wrong, should fail\n" + 
 		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: Unchecked cast from List<Object> to List<? extends Number>\n" + 
+		"Cannot cast from List<Object> to List<? extends Number>\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 12)\n" + 
 		"	ext= raw; // correct - raw conversion warning issued\n" + 
@@ -22769,25 +22774,12 @@ public void test0730() {
 		"	private SuperInterface< ? extends SuperInterface> x = null;\n" + 
 		"	                                  ^^^^^^^^^^^^^^\n" + 
 		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<A> should be parameterized\n" + 
-		"----------\n"
-		//TODO should be
-//		"----------\n" + 
-//		"1. ERROR in X.java (at line 3)\n" + 
-//		"	Zork z;\n" + 
-//		"	^^^^\n" + 
-//		"Zork cannot be resolved to a type\n" + 
-//		"----------\n" + 
-//		"2. WARNING in X.java (at line 11)\n" + 
-//		"	private SuperInterface< ? extends SuperInterface> x = null;\n" + 
-//		"	                                  ^^^^^^^^^^^^^^\n" + 
-//		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<A> should be parameterized\n" + 
-//		"----------\n" + 
-//		"3. ERROR in X.java (at line 14)\n" + 
-//		"	((SubInterface) this.x).getString();\n" + 
-//		"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-//		"Cannot cast from X.SuperInterface<capture#1-of ? extends X.SuperInterface> to X.SubInterface\n" + 
-//		"----------\n"
-		);
+		"----------\n" + 
+		"3. ERROR in X.java (at line 14)\n" + 
+		"	((SubInterface) this.x).getString();\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from X.SuperInterface<capture#1-of ? extends X.SuperInterface> to X.SubInterface\n" + 
+		"----------\n"	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97440
 public void test0731() {
@@ -26540,10 +26532,10 @@ public void test0843() {
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from List<Object&Serializable&CharSequence> to List<? extends CharSequence>\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 12)\n" + 
+		"2. ERROR in X.java (at line 12)\n" + 
 		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: Unchecked cast from List<Object&Serializable&CharSequence> to List<? extends String>\n" + 
+		"Cannot cast from List<Object&Serializable&CharSequence> to List<? extends String>\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 12)\n" + 
 		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
@@ -30778,10 +30770,10 @@ public void test0965() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
 		"	protected static final Class<X<?>> theClass = (Class<X<?>>) X.class;\n" + 
 		"	                                              ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: Unchecked cast from Class<X> to Class<X<?>>\n" + 
+		"Cannot cast from Class<X> to Class<X<?>>\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 3)\n" + 
 		"	void foo(Class<X> cx) {\n" + 
@@ -30793,10 +30785,10 @@ public void test0965() {
 		"	                  ^^\n" + 
 		"Type mismatch: cannot convert from Class<X> to Class<X<?>>\n" + 
 		"----------\n" + 
-		"4. WARNING in X.java (at line 5)\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
 		"	Class<X<?>> cx2 = (Class<X<?>>) cx;\n" + 
 		"	                  ^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: Unchecked cast from Class<X> to Class<X<?>>\n" + 
+		"Cannot cast from Class<X> to Class<X<?>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=115918
@@ -35890,7 +35882,7 @@ public void test1083() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158870
-public void _test1084() {
+public void test1084() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -35906,7 +35898,22 @@ public void _test1084() {
 			"  }\n" + 
 			"}",
 		},
-		"ERR");
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	Z<Y> l2 = (Z<Y>) l1;\n" + 
+		"	  ^\n" + 
+		"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	Z<Y> l2 = (Z<Y>) l1;\n" + 
+		"	          ^^^^^^^^^\n" + 
+		"Cannot cast from Z<Y<?>> to Z<Y>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 8)\n" + 
+		"	Z<Y> l2 = (Z<Y>) l1;\n" + 
+		"	             ^\n" + 
+		"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
+		"----------\n");
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165291
@@ -39579,6 +39586,171 @@ public void test1185() {
 		"	<A, B> void foo2(Class<X<U, V>> c) {}\n" + 
 		"	            ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Duplicate method foo2(Class<X<U,V>>) in type X<U,V>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158870 - variation
+public void test1186() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"public class X<T> {\n" + 
+			"	void foo1(X<? extends String> x1, X<? extends Number> x2) {\n" + 
+			"		x1 = (X<? extends String>) x2;\n" + 
+			"	}\n" + 
+			"	void foo2(X<? extends String> x1, X<? extends Runnable> x2) {\n" + 
+			"		x1 = (X<? extends String>) x2;\n" + 
+			"	}	\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	x1 = (X<? extends String>) x2;\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from X<capture#2-of ? extends Number> to X<? extends String>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	x1 = (X<? extends String>) x2;\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from X<capture#5-of ? extends Runnable> to X<? extends String>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158870 - variation
+public void test1187() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" +
+			"public class X<T> {\n" + 
+			"	void foo3(X<? extends Serializable> x1, X<? extends Runnable> x2) {\n" + 
+			"		x1 = (X<? extends Serializable>) x2;\n" + 
+			"	}	\n" + 
+			"	void foo4(X<? extends Runnable> x1, X<? extends String> x2) {\n" + 
+			"		x1 = (X<? extends Runnable>) x2;\n" + 
+			"	}	\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	x1 = (X<? extends Serializable>) x2;\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from X<capture#2-of ? extends Runnable> to X<? extends Serializable>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	x1 = (X<? extends Runnable>) x2;\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from X<capture#5-of ? extends String> to X<? extends Runnable>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158870 - variation
+public void test1188() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	<T extends String, S extends Comparable<T>> void foo(Integer i) {\n" + 
+			"        S a = (S) i; // error?\n" + 
+			"	}\n" + 
+			"	<U extends Comparable<U>> void bar(Integer i) {\n" + 
+			"        U a = (U) i; // unchecked?\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	<T extends String, S extends Comparable<T>> void foo(Integer i) {\n" + 
+		"	           ^^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	S a = (S) i; // error?\n" + 
+		"	      ^^^^^\n" + 
+		"Cannot cast from Integer to S\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 6)\n" + 
+		"	U a = (U) i; // unchecked?\n" + 
+		"	      ^^^^^\n" + 
+		"Type safety: Unchecked cast from Integer to U\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158870 - variation
+public void test1189() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	<T extends String, S extends Comparable<T>> void foo(Number n) {\n" + 
+			"        S a = (S) n; // unchecked?\n" + 
+			"	}\n" + 
+			"	<U extends Comparable<U>> void bar(Number n) {\n" + 
+			"        U a = (U) n; // unchecked?\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	<T extends String, S extends Comparable<T>> void foo(Number n) {\n" + 
+		"	           ^^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	S a = (S) n; // unchecked?\n" + 
+		"	      ^^^^^\n" + 
+		"Type safety: Unchecked cast from Number to S\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 6)\n" + 
+		"	U a = (U) n; // unchecked?\n" + 
+		"	      ^^^^^\n" + 
+		"Type safety: Unchecked cast from Number to U\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158870 - variation
+public void test1190() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	<U extends Integer, T extends U, S extends Comparable<T>> void foo2(Integer i) {\n" + 
+			"        S a = (S) i; // unchecked1?\n" + 
+			"        Comparable<T> b = (Comparable<T>) i; // unchecked2?\n" + 
+			"	}		\n" + 
+			"	<U extends String, T extends U, S extends Comparable<T>> void foo3(Integer i) {\n" + 
+			"        S a = (S) i; // error?\n" + 
+			"        Comparable<T> b = (Comparable<T>) i; // error3?\n" + 
+			"	}	\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	<U extends Integer, T extends U, S extends Comparable<T>> void foo2(Integer i) {\n" + 
+		"	           ^^^^^^^\n" + 
+		"The type parameter U should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	S a = (S) i; // unchecked1?\n" + 
+		"	      ^^^^^\n" + 
+		"Type safety: Unchecked cast from Integer to S\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
+		"	Comparable<T> b = (Comparable<T>) i; // unchecked2?\n" + 
+		"	                  ^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Integer to Comparable<T>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 6)\n" + 
+		"	<U extends String, T extends U, S extends Comparable<T>> void foo3(Integer i) {\n" + 
+		"	           ^^^^^^\n" + 
+		"The type parameter U should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 7)\n" + 
+		"	S a = (S) i; // error?\n" + 
+		"	      ^^^^^\n" + 
+		"Cannot cast from Integer to S\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 8)\n" + 
+		"	Comparable<T> b = (Comparable<T>) i; // error3?\n" + 
+		"	                  ^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Integer to Comparable<T>\n" + 
 		"----------\n");
 }
 }

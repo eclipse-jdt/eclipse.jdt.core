@@ -58,6 +58,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			return Scope.MORE_GENERIC;
 		return Scope.NOT_RELATED;
 	}
+	
 	public static TypeBinding getBaseType(char[] name) {
 		// list should be optimized (with most often used first)
 		int length = name.length;
@@ -246,18 +247,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					substitutedArguments = substitute(substitution, originalArguments);
 				}
 				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
-//					identicalVariables: { // if substituted with original variables, then answer the generic type itself
-//						if (substitutedEnclosing != null) {
-//							//if (!(substitutedEnclosing instanceof SourceTypeBinding)) break identicalVariables;
-//							if (substitutedEnclosing != originalEnclosing) break identicalVariables;						
-//						}
-//						if (originalParameterizedType.type.isBinaryBinding()) break identicalVariables; // generic binary is never used as is, see 85262
-//						TypeVariableBinding[] originalVariables = originalParameterizedType.type.typeVariables();
-//						for (int i = 0, length = originalVariables.length; i < length; i++) {
-//							if (substitutedArguments[i] != originalVariables[i]) break identicalVariables;
-//						}
-//						return originalParameterizedType.type;
-//					}
 					return originalParameterizedType.environment.createParameterizedType(
 							originalParameterizedType.genericType(), substitutedArguments, substitutedEnclosing);
 				}
@@ -316,10 +305,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
 				originalArguments = originalReferenceType.typeVariables();
 				substitutedArguments = substitute(substitution, originalArguments);
-//				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
 				return substitution.environment().createParameterizedType(originalReferenceType, substitutedArguments, substitutedEnclosing);
-//				}
-//				break;
 		}
 		return originalType;
 	}	

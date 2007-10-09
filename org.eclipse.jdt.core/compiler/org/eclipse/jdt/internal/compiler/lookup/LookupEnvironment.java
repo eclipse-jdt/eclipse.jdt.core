@@ -415,6 +415,118 @@ public ReferenceBinding convertToParameterizedType(ReferenceBinding originalType
 	return originalType;
 }
 
+public TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, ReferenceBinding genericType, int rank, TypeVariableBinding eliminatedVariable) {
+	if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
+		switch (originalType.kind()) {
+			case Binding.ARRAY_TYPE :
+				ArrayBinding originalArrayType = (ArrayBinding) originalType;
+				TypeBinding originalLeafComponentType = originalArrayType.leafComponentType;
+				TypeBinding substitute = convertEliminatingTypeVariables(originalLeafComponentType, genericType, rank, eliminatedVariable); // substitute could itself be array type
+				if (substitute != originalLeafComponentType) {
+					return createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalArrayType.dimensions());
+				}
+				break;				
+			case Binding.PARAMETERIZED_TYPE :
+				ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) originalType;
+				ReferenceBinding originalEnclosing = paramType.enclosingType();
+				ReferenceBinding substitutedEnclosing = originalEnclosing;
+				if (originalEnclosing != null) {
+					substitutedEnclosing = (ReferenceBinding) convertEliminatingTypeVariables(originalEnclosing, genericType, rank, eliminatedVariable);
+				}
+				TypeBinding[] originalArguments = paramType.arguments;
+				TypeBinding[] substitutedArguments = originalArguments;
+				for (int i = 0, length = originalArguments == null ? 0 : originalArguments.length; i < length; i++) {
+					TypeBinding originalArgument = originalArguments[i];
+					TypeBinding substitutedArgument = convertEliminatingTypeVariables(originalArgument, paramType.genericType(), i, eliminatedVariable);
+					if (substitutedArgument != originalArgument) {
+						if (substitutedArguments == originalArguments) {
+							System.arraycopy(originalArguments, 0, substitutedArguments = new TypeBinding[length], 0, i);
+						}
+						substitutedArguments[i] = substitutedArgument;
+					} else 	if (substitutedArguments != originalArguments) {
+						substitutedArguments[i] = originalArgument;
+					}
+				}
+				if (originalEnclosing != substitutedEnclosing || originalArguments != substitutedArguments) {
+					return createParameterizedType(paramType.genericType(), substitutedArguments, substitutedEnclosing);
+				}
+				break;
+			case Binding.TYPE_PARAMETER :
+				if (eliminatedVariable == originalType) {
+					return createWildcard(genericType, rank, null, null, Wildcard.UNBOUND);
+				}
+				TypeVariableBinding variable = (TypeVariableBinding) originalType;
+				TypeBinding originalUpperBound = variable.upperBound();
+				TypeBinding substitutedUpperBound = convertEliminatingTypeVariables(originalUpperBound, genericType, rank, variable);
+				return createWildcard(genericType, rank, substitutedUpperBound, null, Wildcard.EXTENDS);
+			case Binding.RAW_TYPE :
+				break;
+			case Binding.GENERIC_TYPE :
+				ReferenceBinding currentType = (ReferenceBinding) originalType;
+				originalEnclosing = currentType.enclosingType();
+				substitutedEnclosing = originalEnclosing;
+				if (originalEnclosing != null) {
+					substitutedEnclosing = (ReferenceBinding) convertEliminatingTypeVariables(originalEnclosing, genericType, rank, eliminatedVariable);
+				}
+				originalArguments = currentType.typeVariables();
+				substitutedArguments = originalArguments;
+				for (int i = 0, length = originalArguments == null ? 0 : originalArguments.length; i < length; i++) {
+					TypeBinding originalArgument = originalArguments[i];
+					TypeBinding substitutedArgument = convertEliminatingTypeVariables(originalArgument, currentType, i, eliminatedVariable);
+					if (substitutedArgument != originalArgument) {
+						if (substitutedArguments == originalArguments) {
+							System.arraycopy(originalArguments, 0, substitutedArguments = new TypeBinding[length], 0, i);
+						}
+						substitutedArguments[i] = substitutedArgument;
+					} else 	if (substitutedArguments != originalArguments) {
+						substitutedArguments[i] = originalArgument;
+					}
+				}
+				if (originalEnclosing != substitutedEnclosing || originalArguments != substitutedArguments) {
+					return createParameterizedType(genericType, substitutedArguments, substitutedEnclosing);
+				}
+				break;
+			case Binding.WILDCARD_TYPE :
+				WildcardBinding wildcard = (WildcardBinding) originalType;
+				TypeBinding originalBound = wildcard.bound;
+				TypeBinding substitutedBound = originalBound;
+				if (originalBound != null) {
+					substitutedBound = convertEliminatingTypeVariables(originalBound, genericType, rank, eliminatedVariable);
+					if (substitutedBound != originalBound) {
+						return createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, null, wildcard.boundKind);
+					}
+				}
+				break;
+			case Binding.INTERSECTION_TYPE :
+				WildcardBinding intersection = (WildcardBinding) originalType;
+				originalBound = intersection.bound;
+				substitutedBound = originalBound;
+				if (originalBound != null) {
+					substitutedBound = convertEliminatingTypeVariables(originalBound, genericType, rank, eliminatedVariable);
+				}
+				TypeBinding[] originalOtherBounds = intersection.otherBounds;
+				TypeBinding[] substitutedOtherBounds = originalOtherBounds;
+				for (int i = 0, length = originalOtherBounds == null ? 0 : originalOtherBounds.length; i < length; i++) {
+					TypeBinding originalOtherBound = originalOtherBounds[i];
+					TypeBinding substitutedOtherBound = convertEliminatingTypeVariables(originalOtherBound, genericType, rank, eliminatedVariable);
+					if (substitutedOtherBound != originalOtherBound) {
+						if (substitutedOtherBounds == originalOtherBounds) {
+							System.arraycopy(originalOtherBounds, 0, substitutedOtherBounds = new TypeBinding[length], 0, i);
+						}
+						substitutedOtherBounds[i] = substitutedOtherBound;
+					} else 	if (substitutedOtherBounds != originalOtherBounds) {
+						substitutedOtherBounds[i] = originalOtherBound;
+					}
+				}				
+				if (substitutedBound != originalBound || substitutedOtherBounds != originalOtherBounds) {
+					return createWildcard(intersection.genericType, intersection.rank, substitutedBound, substitutedOtherBounds, intersection.boundKind);
+				}
+				break;
+			}
+	}
+	return originalType;
+}
+
 public TypeBinding convertToRawType(TypeBinding type) {
 	int dimension;
 	TypeBinding originalType;
