@@ -35894,7 +35894,6 @@ public void test1084() {
 			"  void foo() {\n" + 
 			"    Z<Y<?>> l1 = null;\n" + 
 			"    Z<Y> l2 = (Z<Y>) l1;\n" + 
-			// javac raises an error but we only raise a warning here
 			"  }\n" + 
 			"}",
 		},
@@ -39751,6 +39750,31 @@ public void test1190() {
 		"	Comparable<T> b = (Comparable<T>) i; // error3?\n" + 
 		"	                  ^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot cast from Integer to Comparable<T>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158870 - variation
+public void test1191() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(SomeEnum en) {\n" + 
+			"		Enum<?> myvar = en;\n" + 
+			"		SomeEnum en2 = (SomeEnum) myvar;\n" + 
+			"		if (myvar instanceof SomeEnum) {\n" + 
+			"			return;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	Zork z;\n" +
+			"}\n" + 
+			"enum SomeEnum {\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
 }
