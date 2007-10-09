@@ -39777,4 +39777,41 @@ public void test1191() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165352
+public void test1192() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"        void foo(ArrayList<Object> a) {\n" + 
+			"                Object o = (List<? extends String>) a; // ko\n" + 
+			"        }\n" + 
+			"        void bar(List<Object> a) {\n" + 
+			"                Object o = (ArrayList<? extends String>) a; // ko\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	Object o = (List<? extends String>) a; // ko\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from ArrayList<Object> to List<? extends String>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	Object o = (List<? extends String>) a; // ko\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from ArrayList<Object> to List<? extends String>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	Object o = (ArrayList<? extends String>) a; // ko\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from List<Object> to ArrayList<? extends String>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 7)\n" + 
+		"	Object o = (ArrayList<? extends String>) a; // ko\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from List<Object> to ArrayList<? extends String>\n" + 
+		"----------\n");
+}
 }
