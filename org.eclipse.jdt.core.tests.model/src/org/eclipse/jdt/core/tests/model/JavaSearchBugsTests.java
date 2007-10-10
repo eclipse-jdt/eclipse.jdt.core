@@ -8470,6 +8470,8 @@ public void testBug185452() throws CoreException {
 		""+ getExternalJCLPathString("1.5") + " java.io\n" +
 		""+ getExternalJCLPathString("1.5") + " java.lang\n" +
 		""+ getExternalJCLPathString("1.5") + " java.lang.annotation\n" +
+		""+ getExternalJCLPathString("1.5") + " javax\n" + 
+		""+ getExternalJCLPathString("1.5") + " javax.swing\n" + 
 		"lib \n" +
 		"lib/JavaSearch15.jar  [No source]\n" +
 		"lib/JavaSearch15.jar g1 [No source]\n" +
