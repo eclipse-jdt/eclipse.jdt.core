@@ -626,12 +626,18 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 			break;
 		case Binding.TYPE_PARAMETER :
 			final TypeVariableBinding variable = (TypeVariableBinding) this;
-			if (variable.firstBound == null) // unbound variable
-				return false;
 			if (variable.isCapture()) {
-				upperBound1 = variable.upperBound();
+				CaptureBinding capture = (CaptureBinding) variable;
+				lowerBound1 = capture.lowerBound;
+				if (lowerBound1 == null) {
+					if (capture.firstBound == null)
+						return false;
+					upperBound1 = capture.firstBound;
+				}
 				break;
 			}
+			if (variable.firstBound == null) // unbound variable
+				return false;
 			TypeBinding eliminatedType = (paramType.environment.convertEliminatingTypeVariables(variable, paramType.genericType(), rank, null));
 			switch (eliminatedType.kind()) {
 				case Binding.WILDCARD_TYPE :
@@ -671,12 +677,18 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 			break;
 		case Binding.TYPE_PARAMETER :
 			TypeVariableBinding otherVariable = (TypeVariableBinding) otherArgument;
+			if (otherVariable.isCapture()) {
+				CaptureBinding otherCapture = (CaptureBinding) otherVariable;
+				lowerBound2 = otherCapture.lowerBound;
+				if (lowerBound2 == null) {
+					if (otherCapture.firstBound == null)
+						return false;
+					upperBound2 = otherCapture.firstBound;
+				}
+				break;
+			}
 			if (otherVariable.firstBound == null) // unbound variable
 				return false;
-			if (otherVariable.isCapture()) {
-				upperBound2 = otherVariable.upperBound(); // TODO need to improve for otherBounds
-				break;
-			} 
 			TypeBinding otherEliminatedType = (paramType.environment.convertEliminatingTypeVariables(otherVariable, paramType.genericType(), rank, null));
 			switch (otherEliminatedType.kind()) {
 				case Binding.WILDCARD_TYPE :
@@ -701,15 +713,12 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 
 		} else if (upperBound2 != null) {
 			return !lowerBound1.isCompatibleWith(upperBound2);
-//			return lowerBound1.isProvableDistinctSubType(upperBound2);
 		} else {
 			return !lowerBound1.isCompatibleWith(otherArgument);
-//			return lowerBound1.isProvableDistinctSubType(otherArgument);
 		}
 	} else if (upperBound1 != null) {
 		if (lowerBound2 != null) {
 			return !lowerBound2.isCompatibleWith(upperBound1);
-			//return lowerBound2.isProvableDistinctSubType(upperBound1);
 		} else if (upperBound2 != null) {
 			return upperBound1.isProvableDistinctSubType(upperBound2) 
 							&& upperBound2.isProvableDistinctSubType(upperBound1);
@@ -719,7 +728,6 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 	} else {
 		if (lowerBound2 != null) {
 			return !lowerBound2.isCompatibleWith(this);
-//			return lowerBound2.isProvableDistinctSubType(this);
 		} else if (upperBound2 != null) {
 			return this.isProvableDistinctSubType(upperBound2);
 		} else {

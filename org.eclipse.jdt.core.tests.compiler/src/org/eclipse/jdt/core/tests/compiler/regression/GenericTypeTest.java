@@ -16878,9 +16878,7 @@ public void test0500(){
 			},
 			"");
 	}	
-// results may change depending on 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=148046
-// **
 	public void test0550() {
 		this.runNegativeTest(
 			new String[] {
@@ -16896,10 +16894,10 @@ public void test0500(){
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
 			"	X<U> foo = (X<U>)param;\n" + 
 			"	           ^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked cast from X<capture#1-of ? super A> to X<U>\n" + 
+			"Cannot cast from X<capture#1-of ? super A> to X<U>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	Zork z;\n" + 
@@ -39812,6 +39810,26 @@ public void test1192() {
 		"	Object o = (ArrayList<? extends String>) a; // ko\n" + 
 		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from List<Object> to ArrayList<? extends String>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148046 - variation
+public void test1193() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A {}\n" + 
+			"class B extends A {}\n" + 
+			"public class X<T> {\n" + 
+			"        public void foo(X<? super A> param) {\n" + 
+			"                X<B> bar = (X<B>) param; // unchecked warning vs error\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	X<B> bar = (X<B>) param; // unchecked warning vs error\n" + 
+		"	           ^^^^^^^^^^^^\n" + 
+		"Cannot cast from X<capture#1-of ? super A> to X<B>\n" + 
 		"----------\n");
 }
 }
