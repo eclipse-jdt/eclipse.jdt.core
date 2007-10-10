@@ -39832,4 +39832,56 @@ public void test1193() {
 		"Cannot cast from X<capture#1-of ? super A> to X<B>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=120088
+public void test1194() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X t = new X();\n" + 
+			"		if (t.getClass() == Object.class)\n" + 
+			"			System.out.println(\"OK\");\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (t.getClass() == Object.class)\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Incompatible operand types Class<capture#1-of ? extends X> and Class<Object>\n" + 
+		"----------\n");
+}
+public void test1195() {
+	this.runConformTest(
+		new String[] {
+			"java/lang/Class.java",
+			"package java.lang;\n" +
+			"public class Class<T> {\n" + 
+			"	Class<? super T> getSuperclass() { return null; }\n" + 
+			"	void foo() {\n" + 
+			"		boolean foo = getSuperclass() == Enum.class;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");
+}
+public void test1196() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	Class<? super T> getSuperclass() { return null; }\n" + 
+			"	void foo() {\n" + 
+			"		boolean foo = getSuperclass() == Enum.class;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"	void bar() {\n" + 
+			"		boolean bar = this.getClass().getSuperclass() == Enum.class;\n" + 
+			"	}		\n" + 
+			"}\n", // =================
+		},
+		"");
+}
 }

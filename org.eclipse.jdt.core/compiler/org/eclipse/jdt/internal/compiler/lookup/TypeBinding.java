@@ -628,11 +628,15 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 			final TypeVariableBinding variable = (TypeVariableBinding) this;
 			if (variable.isCapture()) {
 				CaptureBinding capture = (CaptureBinding) variable;
-				lowerBound1 = capture.lowerBound;
-				if (lowerBound1 == null) {
-					if (capture.firstBound == null)
+				switch (capture.wildcard.boundKind) {
+					case Wildcard.EXTENDS:
+						upperBound1 = capture.wildcard.bound;
+						break;
+					case Wildcard.SUPER:
+						lowerBound1 = capture.wildcard.bound;
+						break;
+					case Wildcard.UNBOUND:
 						return false;
-					upperBound1 = capture.firstBound;
 				}
 				break;
 			}
@@ -679,11 +683,15 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 			TypeVariableBinding otherVariable = (TypeVariableBinding) otherArgument;
 			if (otherVariable.isCapture()) {
 				CaptureBinding otherCapture = (CaptureBinding) otherVariable;
-				lowerBound2 = otherCapture.lowerBound;
-				if (lowerBound2 == null) {
-					if (otherCapture.firstBound == null)
+				switch (otherCapture.wildcard.boundKind) {
+					case Wildcard.EXTENDS:
+						upperBound2 = otherCapture.wildcard.bound;
+						break;
+					case Wildcard.SUPER:
+						lowerBound2 = otherCapture.wildcard.bound;
+						break;
+					case Wildcard.UNBOUND:
 						return false;
-					upperBound2 = otherCapture.firstBound;
 				}
 				break;
 			}
@@ -712,8 +720,14 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 			return false; // Object could always be a candidate
 
 		} else if (upperBound2 != null) {
+			if (lowerBound1.isTypeVariable() || upperBound2.isTypeVariable()) {
+				return false;
+			}
 			return !lowerBound1.isCompatibleWith(upperBound2);
 		} else {
+			if (lowerBound1.isTypeVariable() || otherArgument.isTypeVariable()) {
+				return false;
+			}
 			return !lowerBound1.isCompatibleWith(otherArgument);
 		}
 	} else if (upperBound1 != null) {
@@ -727,6 +741,9 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 		}
 	} else {
 		if (lowerBound2 != null) {
+			if (lowerBound2.isTypeVariable() || this.isTypeVariable()) {
+				return false;
+			}
 			return !lowerBound2.isCompatibleWith(this);
 		} else if (upperBound2 != null) {
 			return this.isProvableDistinctSubType(upperBound2);
