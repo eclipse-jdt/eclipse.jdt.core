@@ -265,7 +265,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						}
 						readOffset += (6 + u4At(classFileBytes, readOffset + 2, 0));
-					}					
+					}
 				} else {
 					for (int i = 0; i < attributesCount; i++) {
 						readOffset += (6 + u4At(classFileBytes, readOffset + 2, 0));
