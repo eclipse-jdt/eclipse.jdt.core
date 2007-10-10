@@ -41,7 +41,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				case Binding.FIELD : // reading a field
 					FieldBinding fieldBinding;
 					if ((fieldBinding = (FieldBinding) binding).isBlankFinal() 
-							&& currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
+							&& currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)) {
 						if (!flowInfo.isDefinitelyAssigned(fieldBinding)) {
 							currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 						}
@@ -152,7 +152,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					}
 				}				
 				// check if reading a final blank field
-				if (fieldBinding.isBlankFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
+				if (fieldBinding.isBlankFinal() && currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)) {
 					if (!flowInfo.isDefinitelyAssigned(fieldBinding)) {
 						currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 					}

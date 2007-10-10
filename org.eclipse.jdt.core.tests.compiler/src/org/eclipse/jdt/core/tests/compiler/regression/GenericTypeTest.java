@@ -21179,11 +21179,6 @@ public void test0675() {
 		"	Store<? extends Key<T>> store1;\n" + 
 		"	                    ^\n" + 
 		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	Store<? extends Key<? extends T>> store2;\n" + 
-		"	                    ^^^^^^^^^^^\n" + 
-		"Bound mismatch: The type ? extends T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
 		"----------\n");
 }	
 //check fault tolerance, in spite of bound mismatch, still pass param type for further resolving message send
@@ -27831,24 +27826,44 @@ public void test0882() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
 public void test0883() {
 	this.runNegativeTest(
-		new String[] {
-			"X.java", // =================
-			"import java.util.List;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	static <U extends List<U>> U foo(U u) {\n" + 
-			"		List<U> v = null;\n" + 
-			"		String s = (String) foo(v);\n" + 
-			"		return u;\n" + 
-			"	}\n" + 
-			"}\n",
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	String s = (String) foo(v);\n" + 
-		"	           ^^^^^^^^^^^^^^^\n" + 
-		"Cannot cast from List<U> to String\n" + // shouldn't it infer: List<List<U>> ?
-		"----------\n");
+			new String[] {
+				"X.java", // =================
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	static <U extends List<U>> U foo(U u) {\n" + 
+				"		List<U> listu = null;\n" + 
+				"		String s = (String)foo(listu);\n" + 
+				"		return u;\n" + 
+				"	}\n" + 
+				"	static <V extends List<V>> V bar(V v) {\n" + 
+				"		List<V> listv = null;\n" + 
+				"		String s = (String)foo(listv);\n" + 
+				"		return v;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	String s = (String)foo(listu);\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from List<U> to String\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	String s = (String)foo(listu);\n" + 
+			"	                   ^^^\n" + 
+			"Bound mismatch: The generic method foo(U) of type X is not applicable for the arguments (List<U>). The inferred type List<U> is not a valid substitute for the bounded parameter <U extends List<U>>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 11)\n" + 
+			"	String s = (String)foo(listv);\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from List<V> to String\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 11)\n" + 
+			"	String s = (String)foo(listv);\n" + 
+			"	                   ^^^\n" + 
+			"Bound mismatch: The generic method foo(U) of type X is not applicable for the arguments (List<V>). The inferred type List<V> is not a valid substitute for the bounded parameter <U extends List<U>>\n" + 
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=123078
 public void test0884() {
@@ -33910,19 +33925,14 @@ public void test1043() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214
 public void test1044() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"class X<T extends Number> {\n" + 
-			"    X<? extends Object> x;\n" + 
-			"}", // =================
-		}, 
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	X<? extends Object> x;\n" + 
-		"	  ^^^^^^^^^^^^^^^^\n" + 
-		"Bound mismatch: The type ? extends Object is not a valid substitute for the bounded parameter <T extends Number> of the type X<T>\n" + 
-		"----------\n");
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"class X<T extends Number> {\n" + 
+				"    X<? extends Object> x;\n" + 
+				"}", // =================
+			}, 
+			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214
 public void test1045() {
@@ -38064,5 +38074,715 @@ public void test1149() {
 		null,
 		false, // do not flush output
 		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=189158
+public void test1150() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.ref.Reference;\n"+
+			"public class X<T> {\n" + 
+			"	static class Rather {\n" + 
+			"		static class Deeply {\n" + 
+			"			static class Inside {\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	Reference<X.Rather.Deeply> x;\n" + 
+			"	Reference<X.Rather> y;	\n" + 
+			"	Reference<X.Rather.Deeply.Inside> z;	\n" + 
+			"\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		System.out.print(X.class.getDeclaredField(\"x\").getGenericType());\n" + 
+			"		System.out.print(\"##\");\n" + 
+			"		System.out.print(X.class.getDeclaredField(\"y\").getGenericType());\n" + 
+			"		System.out.print(\"##\");\n" + 
+			"		System.out.print(X.class.getDeclaredField(\"z\").getGenericType());\n" + 
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"java.lang.ref.Reference<X$Rather$Deeply>##java.lang.ref.Reference<X$Rather>##java.lang.ref.Reference<X$Rather$Deeply$Inside>"
+	);
+	String expectedOutput = 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX$Rather$Deeply;>;\n" + 
+		"  java.lang.ref.Reference x;\n" + 
+		"  \n" + 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX$Rather;>;\n" + 
+		"  java.lang.ref.Reference y;\n" + 
+		"  \n" + 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX$Rather$Deeply$Inside;>;\n" + 
+		"  java.lang.ref.Reference z;\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}			
+	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=189158 - variation
+public void test1151() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.ref.Reference;\n"+
+			"public class X<T> {\n" + 
+			"	class Other<U> {\n" + 
+			"		class Deeply {\n" + 
+			"			class Inside<V> {\n" + 
+			"			}			\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply> t;\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply.Inside<Number>> u;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		System.out.print(X.class.getDeclaredField(\"t\").getGenericType());\n" + 
+			"		//System.out.print(\"##\");\n" + 
+			"		//System.out.print(X.class.getDeclaredField(\"u\").getGenericType());\n" + // TODO disabled due to bug in libs (unable to re-read the generated signature)
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		//"java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>##java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply$Inside<java.lang.Number>>"
+		"java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>"
+	);
+	String expectedOutput = 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX<Ljava/lang/String;>.Other<Ljava/lang/Thread;>.Deeply;>;\n" + 
+		"  java.lang.ref.Reference t;\n" + 
+		"  \n" + 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX<Ljava/lang/String;>.Other<Ljava/lang/Thread;>.Deeply.Inside<Ljava/lang/Number;>;>;\n" + 
+		"  java.lang.ref.Reference u;\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}			
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=189158 - variation
+public void test1152() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.lang.ref.Reference;\n"+
+			"public class X<T> {\n" + 
+			"	class Other<U> {\n" + 
+			"		class Deeply {\n" + 
+			"			class Inside<V> {\n" + 
+			"			}			\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply.Inside> u;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		System.out.print(X.class.getDeclaredField(\"u\").getGenericType());\n" + 
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	Reference<X<String>.Other<Thread>.Deeply.Inside> u;\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The member type X<String>.Other<Thread>.Deeply.Inside must be parameterized, since it is qualified with a parameterized type\n" + 
+		"----------\n"	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=189158 - variation
+public void test1153() {
+	// check proper decoding of binary signatures, by compiling against generated binary
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" +
+			"import java.lang.ref.Reference;\n" + 
+			"public class X<T> {\n" + 
+			"	public static class Rather {\n" + 
+			"		public static class Deeply {\n" + 
+			"			public static class Inside {\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public class Other<U> {\n" + 
+			"		public class Deeply {\n" + 
+			"			public class Inside<V> {\n" + 
+			"			}			\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public Reference<X.Rather.Deeply> x;\n" + 
+			"	public Reference<X.Rather> y;	\n" + 
+			"	public Reference<X.Rather.Deeply.Inside> z;	\n" + 
+			"	public Reference<X<String>.Other<Thread>.Deeply> t;\n" + 
+			"	public Reference<X<String>.Other<Thread>.Deeply.Inside<Number>> u;\n" + 
+			"}\n",
+		},
+		""
+	);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"import java.lang.ref.Reference;\n" + 
+			"import p.X;\n" +
+			"public class Y {\n" + 
+			"	Reference<X.Rather.Deeply> x;\n" + 
+			"	Reference<X.Rather> y;	\n" + 
+			"	Reference<X.Rather.Deeply.Inside> z;	\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply> t;\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply.Inside<Number>> u;\n" + 
+			"	Y(X someX) {\n" + 
+			"		this.x = someX.x;\n" + 
+			"		this. y = someX.y;	\n" + 
+			"		this.z = someX.z;	\n" + 
+			"		this.t = someX.t;\n" + 
+			"		this.u = someX.u;		\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		System.out.print(Y.class.getDeclaredField(\"x\").getGenericType());\n" + 
+			"		System.out.print(\"##\");\n" + 
+			"		System.out.print(Y.class.getDeclaredField(\"y\").getGenericType());\n" + 
+			"		System.out.print(\"##\");\n" + 
+			"		System.out.print(Y.class.getDeclaredField(\"z\").getGenericType());\n" + 
+			"		System.out.print(\"##\");\n" + 
+			"		System.out.print(Y.class.getDeclaredField(\"t\").getGenericType());\n" + 
+			"		//System.out.print(\"##\");\n" + 
+			"		//System.out.print(Y.class.getDeclaredField(\"u\").getGenericType());\n" + // TODO disabled due to bug in libs (unable to re-read the generated signature)
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"java.lang.ref.Reference<p.X$Rather$Deeply>##java.lang.ref.Reference<p.X$Rather>##java.lang.ref.Reference<p.X$Rather$Deeply$Inside>##java.lang.ref.Reference<p.X<java.lang.String>.Other<java.lang.Thread>.Deeply>",
+		null,
+		false, // do not flush output
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=189158 - variation
+public void test1154() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.ref.Reference;\n" + 
+			"public class X {\n" + 
+			"	class Other<U> {\n" + 
+			"		class Deeply {\n" + 
+			"			class Deeper {\n" + 
+			"				class Inside<V> {\n" + 
+			"				}			\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	Reference<X.Other<Thread>.Deeply> t;\n" + 
+			"	Reference<X.Other<Thread>.Deeply.Deeper.Inside<Number>> u;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		//System.out.print(X.class.getDeclaredField(\"t\").getGenericType());\n" +  // TODO disabled due to bug in libs (unable to re-read the generated signature)
+			"		//System.out.print(\"##\");\n" + 
+			"		//System.out.print(X.class.getDeclaredField(\"u\").getGenericType());\n" + // TODO disabled due to bug in libs (unable to re-read the generated signature)
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"");
+	
+	String expectedOutput = 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX$Other<Ljava/lang/Thread;>.Deeply;>;\n" + 
+		"  java.lang.ref.Reference t;\n" + 
+		"  \n" + 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX$Other<Ljava/lang/Thread;>.Deeply.Deeper.Inside<Ljava/lang/Number;>;>;\n" + 
+		"  java.lang.ref.Reference u;\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=189158 - variation
+public void test1155() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.ref.Reference;\n" + 
+			"public class X<T> {\n" + 
+			"	class Other<U> {\n" + 
+			"		class Deeply {\n" + 
+			"			class Deeper {\n" + 
+			"				class Inside<V> {\n" + 
+			"				}			\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply> t;\n" + 
+			"	Reference<X<String>.Other<Thread>.Deeply.Deeper.Inside<Number>> u;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		System.out.print(X.class.getDeclaredField(\"t\").getGenericType());\n" + 
+			"		//System.out.print(\"##\");\n" + 
+			"		//System.out.print(X.class.getDeclaredField(\"u\").getGenericType());\n" + // TODO disabled due to bug in libs (unable to re-read the generated signature)
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>"	);
+	
+	String expectedOutput = 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX<Ljava/lang/String;>.Other<Ljava/lang/Thread;>.Deeply;>;\n" + 
+		"  java.lang.ref.Reference t;\n" + 
+		"  \n" + 
+		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" + 
+		"  // Signature: Ljava/lang/ref/Reference<LX<Ljava/lang/String;>.Other<Ljava/lang/Thread;>.Deeply.Deeper.Inside<Ljava/lang/Number;>;>;\n" + 
+		"  java.lang.ref.Reference u;\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203061 - variation
+public void test1163() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public final class X<T> {\n" + 
+			"	private final Object mObj;\n" + 
+			"	private final Object mDependent = new Object() {\n" + 
+			"		{\n" + 
+			"			Object o1 = mObj;\n" + 
+			"		}\n" + 
+			"		Object o2 = mObj;\n" + 
+			"		void foo() {\n" + 
+			"			Object o3 = mObj;\n" + 
+			"		}\n" + 
+			"	};\n" + 
+			"	public X() {\n" + 
+			"		mObj = \"\";\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	private final Object mDependent = new Object() {\n" + 
+		"	                     ^^^^^^^^^^\n" + 
+		"The field X<T>.mDependent is never read locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	Object o1 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Object o1 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"The blank final field mObj may not have been initialized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 7)\n" + 
+		"	Object o2 = mObj;\n" + 
+		"	       ^^\n" + 
+		"The field new Object(){}.o2 is never read locally\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 7)\n" + 
+		"	Object o2 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 7)\n" + 
+		"	Object o2 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"The blank final field mObj may not have been initialized\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 8)\n" + 
+		"	void foo() {\n" + 
+		"	     ^^^^^\n" + 
+		"The method foo() from the type new Object(){} is never used locally\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 9)\n" + 
+		"	Object o3 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203061 - variation
+public void test1164() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public final class X<T> {\n" + 
+			"	private final Object mObj;\n" + 
+			"	private final Object mDependent = new Object() {\n" + 
+			"		{\n" + 
+			"			Object o1 = mObj;\n" + 
+			"			mObj = \"1\";\n" + 
+			"		}\n" + 
+			"		Object o2 = mObj = \"2\";\n" + 
+			"		void foo() {\n" + 
+			"			Object o3 = mObj;\n" + 
+			"			mObj = \"3\";\n" + 
+			"		}\n" + 
+			"	};\n" + 
+			"	public X() {\n" + 
+			"		mObj = \"\";\n" + 
+			"	}\n" + 
+			"}\n"
+		}, 
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	private final Object mDependent = new Object() {\n" + 
+		"	                     ^^^^^^^^^^\n" + 
+		"The field X<T>.mDependent is never read locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	Object o1 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Object o1 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"The blank final field mObj may not have been initialized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 6)\n" + 
+		"	mObj = \"1\";\n" + 
+		"	^^^^\n" + 
+		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 6)\n" + 
+		"	mObj = \"1\";\n" + 
+		"	^^^^\n" + 
+		"The final field X<T>.mObj cannot be assigned\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 8)\n" + 
+		"	Object o2 = mObj = \"2\";\n" + 
+		"	       ^^\n" + 
+		"The field new Object(){}.o2 is never read locally\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 8)\n" + 
+		"	Object o2 = mObj = \"2\";\n" + 
+		"	            ^^^^\n" + 
+		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 8)\n" + 
+		"	Object o2 = mObj = \"2\";\n" + 
+		"	            ^^^^\n" + 
+		"The final field X<T>.mObj cannot be assigned\n" + 
+		"----------\n" + 
+		"9. WARNING in X.java (at line 9)\n" + 
+		"	void foo() {\n" + 
+		"	     ^^^^^\n" + 
+		"The method foo() from the type new Object(){} is never used locally\n" + 
+		"----------\n" + 
+		"10. WARNING in X.java (at line 10)\n" + 
+		"	Object o3 = mObj;\n" + 
+		"	            ^^^^\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"11. WARNING in X.java (at line 11)\n" + 
+		"	mObj = \"3\";\n" + 
+		"	^^^^\n" + 
+		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"12. ERROR in X.java (at line 11)\n" + 
+		"	mObj = \"3\";\n" + 
+		"	^^^^\n" + 
+		"The final field X<T>.mObj cannot be assigned\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=202404 - variation
+public void test1165() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			" interface A {}\n" + 
+			" class B implements A {}\n" + 
+			" class C implements A{}\n" + 
+			" \n" + 
+			" class D<U extends A, V extends U> {}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		D<?, ? super A> d1 = null;\n" + 
+			"		D<?, ? extends A> d2 = null;\n" + 
+			"		D<B, C> d3 = null;\n" + 
+			"		D<?, ?> d4 = null;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	D<B, C> d3 = null;\n" + 
+		"	     ^\n" + 
+		"Bound mismatch: The type C is not a valid substitute for the bounded parameter <V extends U> of the type D<U,V>\n" + 
+		"----------\n"
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203318
+public void test1166() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Number> {\n" + 
+			"	T get() {	return null; };\n" + 
+			"    void foo(X<? extends Object> x) {\n" + 
+			"		x.get().intValue();    	\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179902
+public void test1167() {
+	this.runConformTest(
+		new String[] {
+			"Foo.java",
+			"public class Foo<F extends Enum<F>> {\n" + 
+			"  class Bar<B> {\n" + 
+			"    Bar(Foo<? extends B> bar) {}\n" + 
+			"  }\n" + 
+			"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=169049
+public void test1168() {
+	this.runNegativeTest(
+		new String[] {
+			"example/Container.java",
+			"package example;\n" +
+			"class A<E> {}\n" + 
+			"class B<E> extends A<E> {}\n" + 
+			"\n" + 
+			"public interface Container<T, U extends T, V extends A<T>> {\n" + 
+			"	<T1, U1 extends T1, V1 extends A<T1>> void f(\n" + 
+			"			Container<?, ?, ?> a, \n" + 
+			"			Container<?, ? extends T1, ?> b, \n" + 
+			"			Container<T1, U1, V1> c, \n" + 
+			"			Container<? extends T1, ? extends U1, ? extends V1> d, \n" + 
+			"			Container<T1, ? extends U1, ? extends V1> e, \n" + 
+			"			Container<T1, ? extends U1, A<T>> f, \n" + 
+			"			Container<T1, U1, A<U1>> g,\n" + 
+			"			Container<T1, U1, A<T1>> h);\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in example\\Container.java (at line 12)\n" + 
+		"	Container<T1, ? extends U1, A<T>> f, \n" + 
+		"	                            ^\n" + 
+		"Bound mismatch: The type A<T> is not a valid substitute for the bounded parameter <V extends A<T>> of the type Container<T,U,V>\n" + 
+		"----------\n" + 
+		"2. ERROR in example\\Container.java (at line 13)\n" + 
+		"	Container<T1, U1, A<U1>> g,\n" + 
+		"	                  ^\n" + 
+		"Bound mismatch: The type A<U1> is not a valid substitute for the bounded parameter <V extends A<T>> of the type Container<T,U,V>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=169049 - variation
+public void test1169() {
+	this.runNegativeTest(
+		new String[] {
+			"example/Container2.java",
+			"package example;\n" +
+			"class A<E> {}\n" + 
+			"class B<E> extends A<E> {}\n" + 
+			"\n" + 
+			"public interface Container2<T, U extends T, V extends A<? extends T>> {\n" + 
+			"	<T1, U1 extends T1, V1 extends A<? extends T1>> void g(\n" + 
+			"			Container2<?, ?, ?> a, \n" + 
+			"			Container2<?, ? extends T1, ?> b, \n" + 
+			"			Container2<T1, U1, V1> c, \n" + 
+			"			Container2<? extends T1, ? extends U1, ? extends V1> d, \n" + 
+			"			Container2<T1, ? extends U1, ? extends V1> e, \n" + 
+			"			Container2<T1, ? extends U1, A<T>> f, \n" + 
+			"			Container2<T1, U1, A<U1>> g, \n" + 
+			"			Container2<? extends T1, U1, ? extends V1> h);\n" + 
+			"\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in example\\Container2.java (at line 12)\n" + 
+		"	Container2<T1, ? extends U1, A<T>> f, \n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type A<T> is not a valid substitute for the bounded parameter <V extends A<? extends T>> of the type Container2<T,U,V>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=169049 - variation
+public void test1170() {
+	this.runNegativeTest(
+		new String[] {
+			"example/Container3.java",
+			"package example;\n" +
+			"class A<E> {}\n" + 
+			"class B<E> extends A<E> {}\n" + 
+			"class A<E> {}\n" + 
+			"class B<E> extends A<E> {}\n" + 
+			"\n" + 
+			"public interface Container3<T, U extends T, V extends A<? super T>> {\n" + 
+			"	<T1, U1 extends T1, V1 extends A<? super T1>> void g(\n" + 
+			"			Container3<?, ?, ?> a, \n" + 
+			"			Container3<?, ? extends T1, ?> b, \n" + 
+			"			Container3<T1, U1, V1> c, \n" + 
+			"			Container3<? extends T1, ? extends U1, ? extends V1> d, \n" + 
+			"			Container3<T1, ? extends U1, ? extends V1> e, \n" + 
+			"			Container3<T1, ? extends U1, A<T>> f, \n" + 
+			"			Container3<T1, U1, A<U1>> g, \n" + 
+			"			Container3<? extends T1, U1, ? extends V1> h, \n" + 
+			"			Container3<T1, ? extends U1, A<? super T>> i, \n" + 
+			"			Container3<T1, ? extends U1, A> j);\n" + 
+			"\n" + 
+			"	<T1, U1 extends T1, V1 extends B<? super T1>> void h(\n" + 
+			"			Container3<?, ?, ?> a, \n" + 
+			"			Container3<?, ? extends T1, ?> b, \n" + 
+			"			Container3<T1, U1, V1> c, \n" + 
+			"			Container3<? extends T1, ? extends U1, ? extends V1> d, \n" + 
+			"			Container3<T1, ? extends U1, ? extends V1> e, \n" + 
+			"			Container3<T1, ? extends U1, B<T>> f, \n" + 
+			"			Container3<T1, U1, B<U1>> g, \n" + 
+			"			Container3<? extends T1, U1, ? extends V1> h, \n" + 
+			"			Container3<T1, ? extends U1, B<? super T>> i, \n" + 
+			"			Container3<T1, ? extends U1, B> j);\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in example\\Container3.java (at line 4)\n" + 
+		"	class A<E> {}\n" + 
+		"	      ^\n" + 
+		"The type A is already defined\n" + 
+		"----------\n" + 
+		"2. ERROR in example\\Container3.java (at line 5)\n" + 
+		"	class B<E> extends A<E> {}\n" + 
+		"	      ^\n" + 
+		"The type B is already defined\n" + 
+		"----------\n" + 
+		"3. ERROR in example\\Container3.java (at line 14)\n" + 
+		"	Container3<T1, ? extends U1, A<T>> f, \n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type A<T> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"4. ERROR in example\\Container3.java (at line 15)\n" + 
+		"	Container3<T1, U1, A<U1>> g, \n" + 
+		"	                   ^\n" + 
+		"Bound mismatch: The type A<U1> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"5. ERROR in example\\Container3.java (at line 17)\n" + 
+		"	Container3<T1, ? extends U1, A<? super T>> i, \n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type A<? super T> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"6. WARNING in example\\Container3.java (at line 18)\n" + 
+		"	Container3<T1, ? extends U1, A> j);\n" + 
+		"	                             ^\n" + 
+		"A is a raw type. References to generic type A<E> should be parameterized\n" + 
+		"----------\n" + 
+		"7. ERROR in example\\Container3.java (at line 18)\n" + 
+		"	Container3<T1, ? extends U1, A> j);\n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type A is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"8. ERROR in example\\Container3.java (at line 26)\n" + 
+		"	Container3<T1, ? extends U1, B<T>> f, \n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type B<T> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"9. ERROR in example\\Container3.java (at line 27)\n" + 
+		"	Container3<T1, U1, B<U1>> g, \n" + 
+		"	                   ^\n" + 
+		"Bound mismatch: The type B<U1> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"10. ERROR in example\\Container3.java (at line 29)\n" + 
+		"	Container3<T1, ? extends U1, B<? super T>> i, \n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type B<? super T> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n" + 
+		"11. WARNING in example\\Container3.java (at line 30)\n" + 
+		"	Container3<T1, ? extends U1, B> j);\n" + 
+		"	                             ^\n" + 
+		"B is a raw type. References to generic type B<E> should be parameterized\n" + 
+		"----------\n" + 
+		"12. ERROR in example\\Container3.java (at line 30)\n" + 
+		"	Container3<T1, ? extends U1, B> j);\n" + 
+		"	                             ^\n" + 
+		"Bound mismatch: The type B is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203905
+public void test1171() {
+	this.runConformTest(
+		new String[] {
+			"Function.java",
+			"public abstract class Function<A, B> {\n" + 
+			"        public abstract B apply(A a);\n" + 
+			"\n" + 
+			"        /** (f andThen g)(x) = g(f(x)) */\n" + 
+			"        public <C1> Function<A, C1> andThen(final Function<B, C1> g) {\n" + 
+			"                return new Function<A, C1>() {\n" + 
+			"                		@Override\n" + 
+			"                        public C1 apply(A a) {\n" + 
+			"                                return g.apply(Function.this.apply(a));\n" + 
+			"                        }\n" + 
+			"                };\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        /** (f compose g)(x) = f(g(x)) */\n" + 
+			"        public <C2> Function<C2, B> compose(final Function<C2, A> g) {\n" + 
+			"                return g.andThen(this);\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"");
 }
 }
