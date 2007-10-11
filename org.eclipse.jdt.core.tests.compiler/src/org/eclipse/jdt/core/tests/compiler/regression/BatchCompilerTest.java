@@ -52,24 +52,26 @@ public static Test suite() {
 	return buildUniqueComplianceTestSuite(testClass(), COMPLIANCE_1_5);
 }
 
-private String getLibraryClasses() {
+private String getLibraryClassesAsQuotedString() {
 	String[] paths = Util.getJavaClassLibs();
 	StringBuffer buffer = new StringBuffer();
+	buffer.append('"');
 	for (int i = 0, max = paths.length; i < max; i++) {
 		if (i != 0) {
 			buffer.append(File.pathSeparatorChar);
 		}
 		buffer.append(paths[i]);
 	}
+	buffer.append('"');
 	return String.valueOf(buffer);
 }
 
 
-	private String getJCEJar() {
+	private String getJCEJarAsQuotedString() {
 		if (Util.isMacOS()) {
-			return JRE_HOME_DIR + "/../Classes/jce.jar";
+			return "\"" + JRE_HOME_DIR + "/../Classes/jce.jar\"";
 		}
-		return JRE_HOME_DIR + "/lib/jce.jar";
+		return "\"" + JRE_HOME_DIR + "/lib/jce.jar\"";
 	}
 
 	private String getExtDirectory() {
@@ -762,8 +764,8 @@ public void test007(){
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -bootclasspath " + getLibraryClasses()
-        + " -cp " + getJCEJar()
+        + " -bootclasspath " + getLibraryClassesAsQuotedString()
+        + " -cp " + getJCEJarAsQuotedString()
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -verbose -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
@@ -801,8 +803,8 @@ public void test008(){
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -bootclasspath " + getLibraryClasses()
-        + " -cp " + getJCEJar()
+        + " -bootclasspath " + getLibraryClassesAsQuotedString()
+        + " -cp " + getJCEJarAsQuotedString()
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -2801,8 +2803,8 @@ public void test044(){
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -bootclasspath " + getLibraryClasses()
-        + " -cp " + getJCEJar()
+        + " -bootclasspath " + getLibraryClassesAsQuotedString()
+        + " -cp " + getJCEJarAsQuotedString()
         + " -warn:+null"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -2829,8 +2831,8 @@ public void test045(){
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -bootclasspath " + getLibraryClasses()
-        + " -cp " + getJCEJar()
+        + " -bootclasspath " + getLibraryClassesAsQuotedString()
+        + " -cp " + getJCEJarAsQuotedString()
         + " -warn:-null" // contrast with test036
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -3924,7 +3926,7 @@ public void test080_per_source_output_directory(){
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
-        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" +
+        + " -bootclasspath " + getLibraryClassesAsQuotedString() + File.pathSeparator + "\"" +
           OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
@@ -3964,7 +3966,7 @@ public void test081_per_source_output_directory(){
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
-        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" +
+        + " -bootclasspath " + getLibraryClassesAsQuotedString() + File.pathSeparator + "\"" +
           OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
@@ -3998,7 +4000,7 @@ public void test082_per_source_output_directory(){
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
-        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" +
+        + " -bootclasspath " + getLibraryClassesAsQuotedString() + File.pathSeparator + "\"" +
           OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d none]",
 		"",
@@ -4030,7 +4032,7 @@ public void test083_per_source_output_directory(){
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
-        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" +
+        + " -bootclasspath " + getLibraryClassesAsQuotedString() + File.pathSeparator + "\"" +
           OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d none",
@@ -4085,7 +4087,7 @@ public void test085_per_source_output_directory(){
         "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
-        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator +
+        + " -bootclasspath " + getLibraryClassesAsQuotedString() + File.pathSeparator +
         	"\"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
@@ -5215,8 +5217,8 @@ public void test141_null_ref_option(){
 			"}"},
      "\"" + OUTPUT_DIR +  File.separator + "X.java\""
      + " -1.5 -g -preserveAllLocals"
-     + " -bootclasspath " + getLibraryClasses()
-     + " -cp " + getJCEJar()
+     + " -bootclasspath " + getLibraryClassesAsQuotedString()
+     + " -cp " + getJCEJarAsQuotedString()
      + " -warn:+nullDereference"
      + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
      "",
@@ -5244,8 +5246,8 @@ public void test142_null_ref_option(){
 			"}"},
   "\"" + OUTPUT_DIR +  File.separator + "X.java\""
   + " -1.5 -g -preserveAllLocals"
-  + " -bootclasspath " + getLibraryClasses()
-  + " -cp " + getJCEJar()
+  + " -bootclasspath " + getLibraryClassesAsQuotedString()
+  + " -cp " + getJCEJarAsQuotedString()
   + " -warn:+null"
   + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
   "",
@@ -5273,8 +5275,8 @@ public void test143_null_ref_option(){
 			"}"},
 "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 + " -1.5 -g -preserveAllLocals"
-+ " -bootclasspath " + getLibraryClasses()
-+ " -cp " + getJCEJar()
++ " -bootclasspath " + getLibraryClassesAsQuotedString()
++ " -cp " + getJCEJarAsQuotedString()
 + " -warn:+nullDereference"
 + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
 "",
