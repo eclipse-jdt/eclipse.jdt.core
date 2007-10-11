@@ -339,7 +339,7 @@ public class DeltaProcessor {
 				JavaProject javaProject = (JavaProject)JavaCore.create(project);
 				switch (delta.getKind()) {
 					case IResourceDelta.ADDED :
-						this.manager.batchContainerInitializations = true;
+						this.manager.forceBatchInitializations(false/*not initAfterLoad*/);
 					
 						// remember project and its dependents
 						addToRootsToRefreshWithDependents(javaProject);
@@ -357,7 +357,7 @@ public class DeltaProcessor {
 						
 					case IResourceDelta.CHANGED : 
 							if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
-								this.manager.batchContainerInitializations = true;
+								this.manager.forceBatchInitializations(false/*not initAfterLoad*/);
 		
 								// project opened or closed: remember  project and its dependents
 								addToRootsToRefreshWithDependents(javaProject);
@@ -385,7 +385,7 @@ public class DeltaProcessor {
 								boolean wasJavaProject = this.state.findJavaProject(project.getName()) != null;
 								boolean isJavaProject = JavaProject.hasJavaNature(project);
 								if (wasJavaProject != isJavaProject) {
-									this.manager.batchContainerInitializations = true;
+									this.manager.forceBatchInitializations(false/*not initAfterLoad*/);
 									
 									// java nature added or removed: remember  project and its dependents
 									this.addToRootsToRefreshWithDependents(javaProject);
@@ -428,7 +428,7 @@ public class DeltaProcessor {
 							break;
 	
 					case IResourceDelta.REMOVED : 
-						this.manager.batchContainerInitializations = true;
+						this.manager.forceBatchInitializations(false/*not initAfterLoad*/);
 	
 						// remove classpath cache so that initializeRoots() will not consider the project has a classpath
 						this.manager.removePerProjectInfo(javaProject);
@@ -444,7 +444,7 @@ public class DeltaProcessor {
 				IFile file = (IFile) resource;
 				/* classpath file change */
 				if (file.getName().equals(JavaProject.CLASSPATH_FILENAME)) {
-					this.manager.batchContainerInitializations = true;
+					this.manager.forceBatchInitializations(false/*not initAfterLoad*/);
 					switch (delta.getKind()) {
 						case IResourceDelta.CHANGED :
 							int flags = delta.getFlags();
@@ -1705,7 +1705,7 @@ public class DeltaProcessor {
 					return null;
 				}
 			}
-			this.state.initializeRoots();
+			this.state.initializeRoots(false/*not initiAfterLoad*/);
 			this.currentElement = null;
 			
 			// get the workspace delta, and start processing there.

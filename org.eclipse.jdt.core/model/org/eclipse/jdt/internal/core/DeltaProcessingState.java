@@ -178,7 +178,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	    }
 	}
 	
-	public void initializeRoots() {
+	public void initializeRoots(boolean initAfterLoad) {
 		
 		// recompute root infos only if necessary
 		HashMap newRoots = null;
@@ -196,7 +196,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 				
 				// all classpaths in the workspace are going to be resolved
 				// ensure that containers are initialized in one batch
-				JavaModelManager.getJavaModelManager().batchContainerInitializations = true;
+				JavaModelManager.getJavaModelManager().forceBatchInitializations(initAfterLoad);
 
 				newRoots = new HashMap();
 				newOtherRoots = new HashMap();

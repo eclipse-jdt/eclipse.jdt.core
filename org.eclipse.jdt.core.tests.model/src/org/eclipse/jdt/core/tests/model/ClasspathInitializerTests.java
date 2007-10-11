@@ -781,7 +781,7 @@ public void testContainerInitializer17() throws CoreException {
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar", "P3", "/P1/lib.jar"}) {
 	        public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 	        	// simulate concurrency (another thread is initializing all containers in parallel and thus this flag is set to true)
-	        	JavaModelManager.getJavaModelManager().batchContainerInitializations = true;
+	        	JavaModelManager.getJavaModelManager().batchContainerInitializations = JavaModelManager.NEED_BATCH_INITIALIZATION;
 	            super.initialize(containerPath, project);
 	        }
 		});

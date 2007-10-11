@@ -100,8 +100,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public HashMap containers = new HashMap(5);
 	public HashMap previousSessionContainers = new HashMap(5);
 	private ThreadLocal containerInitializationInProgress = new ThreadLocal();
-	public boolean batchContainerInitializations = false;
-	public ThreadLocal batchContainerInitializationsProgress = new ThreadLocal();
+	
+	public static final int NO_BATCH_INITIALIZATION = 0;
+	public static final int NEED_BATCH_INITIALIZATION = 1;
+	public static final int BATCH_INITIALIZATION_IN_PROGRESS = 2;
+	public static final int BATCH_INITIALIZATION_FINISHED = 3;
+	public int batchContainerInitializations = NO_BATCH_INITIALIZATION;
+	
+	public BatchInitializationMonitor batchContainerInitializationsProgress = new BatchInitializationMonitor();
 	public HashMap containerInitializersCache = new HashMap(5);
 	
 	/*
@@ -1566,12 +1572,37 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	}
 	
-	private synchronized boolean batchContainerInitializations() {
-		if (this.batchContainerInitializations) {
-			this.batchContainerInitializations = false;
+	/*
+	 * Returns true if forcing batch initialization was successful.
+	 * Returns false if batch initialization is already running.
+	 */
+	public synchronized boolean forceBatchInitializations(boolean initAfterLoad) {
+		switch (this.batchContainerInitializations) {
+		case NO_BATCH_INITIALIZATION:
+			this.batchContainerInitializations = NEED_BATCH_INITIALIZATION;
+			return true;
+		case BATCH_INITIALIZATION_FINISHED:
+			if (initAfterLoad)
+				return false; // no need to initialize again
+			this.batchContainerInitializations = NEED_BATCH_INITIALIZATION;
 			return true;
 		}
 		return false;
+	}
+	
+	private synchronized boolean batchContainerInitializations() {
+		switch (this.batchContainerInitializations) {
+		case NEED_BATCH_INITIALIZATION:
+			this.batchContainerInitializations = BATCH_INITIALIZATION_IN_PROGRESS;
+			return true;
+		case BATCH_INITIALIZATION_IN_PROGRESS:
+			return true;
+		}
+		return false;
+	}
+	
+	private synchronized void batchInitializationFinished() {
+		this.batchContainerInitializations = BATCH_INITIALIZATION_FINISHED;
 	}
 	
 	public IClasspathContainer getClasspathContainer(final IPath containerPath, final IJavaProject project) throws JavaModelException {
@@ -1582,7 +1613,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (batchContainerInitializations()) {
 				// avoid deep recursion while initializaing container on workspace restart
 				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=60437)
-				container = initializeAllContainers(project, containerPath);
+				try {
+					container = initializeAllContainers(project, containerPath);
+				} finally {
+					batchInitializationFinished();
+				}
 			} else {
 				container = initializeContainer(project, containerPath);
 			}
@@ -2199,7 +2234,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						}
 					}
 				};
-			IProgressMonitor monitor = (IProgressMonitor) this.batchContainerInitializationsProgress.get();
+			IProgressMonitor monitor = this.batchContainerInitializationsProgress;
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			if (workspace.isTreeLocked())
 				runnable.run(monitor);
@@ -2234,7 +2269,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	IClasspathContainer initializeContainer(IJavaProject project, IPath containerPath) throws JavaModelException {
 
-		IProgressMonitor monitor = (IProgressMonitor) this.batchContainerInitializationsProgress.get();
+		IProgressMonitor monitor = this.batchContainerInitializationsProgress;
 		if (monitor != null && monitor.isCanceled())
 			throw new OperationCanceledException();
 		

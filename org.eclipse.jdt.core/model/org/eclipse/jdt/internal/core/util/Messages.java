@@ -37,12 +37,14 @@ public final class Messages extends NLS {
 	public static String element_nullType;
 	public static String element_illegalParent;
 	public static String javamodel_initialization;
+	public static String javamodel_initializing_delta_state;
 	public static String javamodel_building_after_upgrade;
 	public static String javamodel_configuring;
 	public static String javamodel_configuring_classpath_containers;
 	public static String javamodel_configuring_searchengine;
 	public static String javamodel_getting_build_state_number;
 	public static String javamodel_refreshing_external_jars;
+	public static String javamodel_resetting_source_attachment_properties;
 	public static String operation_needElements;
 	public static String operation_needName;
 	public static String operation_needPath;

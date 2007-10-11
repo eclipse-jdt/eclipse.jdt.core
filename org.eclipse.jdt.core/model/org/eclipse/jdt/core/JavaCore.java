@@ -105,6 +105,7 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.QualifiedName;
@@ -3330,52 +3331,78 @@ public final class JavaCore extends Plugin {
 	 */
 	public static void initializeAfterLoad(IProgressMonitor monitor) throws CoreException {
 		try {
-			if (monitor != null) 	monitor.beginTask(Messages.javamodel_initialization, 100);
+			if (monitor != null) {
+				monitor.beginTask(Messages.javamodel_initialization, 100);
+				monitor.subTask(Messages.javamodel_configuring_classpath_containers);
+			}
 
 			// initialize all containers and variables
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			SubProgressMonitor subMonitor = null;
 			try {
 				if (monitor != null) {
-					monitor.subTask(Messages.javamodel_configuring_classpath_containers);
-					manager.batchContainerInitializationsProgress.set(new SubProgressMonitor(monitor, 50)); // 50% of the time is spent in initializing containers and variables
+					subMonitor = new SubProgressMonitor(monitor, 50); // 50% of the time is spent in initializing containers and variables
+					subMonitor.beginTask("", 100); //$NON-NLS-1$
+					subMonitor.worked(5); // give feedback to the user that something is happening
+					manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(subMonitor);
 				}
-				
-				// all classpaths in the workspace are going to be resolved, ensure that containers are initialized in one batch
-				manager.batchContainerInitializations = true; 
-				
-				// avoid leaking source attachment properties (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=183413)
-				IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
-				for (int i = 0, length = projects.length; i < length; i++) {
-					IClasspathEntry[] classpath;
-					try {
-						classpath = ((JavaProject) projects[i]).getResolvedClasspath();
-					} catch (JavaModelException e) {
-						// project no longer exist: ignore
-						continue;
-					}
-					if (classpath != null) {
-						for (int j = 0, length2 = classpath.length; j < length2; j++) {
-							IClasspathEntry entry = classpath[j];
-							if (entry.getSourceAttachmentPath() != null)
-								Util.setSourceAttachmentProperty(entry.getPath(), null);
-							// else source might have been attached by IPackageFragmentRoot#attachSource(...), we keep it
+				if (manager.forceBatchInitializations(true/*initAfterLoad*/)) { // if no other thread has started the batch container initializations
+					manager.getClasspathContainer(Path.EMPTY, null); // force the batch initialization
+				} else { // else wait for the batch initialization to finish
+					while (manager.batchContainerInitializations == JavaModelManager.BATCH_INITIALIZATION_IN_PROGRESS) {
+						if (subMonitor != null) {
+							subMonitor.subTask(manager.batchContainerInitializationsProgress.subTaskName);
+							subMonitor.worked(manager.batchContainerInitializationsProgress.getWorked());
+						}
+						synchronized(manager) {
+							try {
+								manager.wait(100);
+							} catch (InterruptedException e) {
+								// continue
+							}
 						}
 					}
 				}
-				
-				// initialize delta state
-				manager.deltaState.rootsAreStale = true; // in case it was already initialized before we cleaned up the source attachment proprties
-				manager.deltaState.initializeRoots();
 			} finally {
-				manager.batchContainerInitializationsProgress.set(null);
+				if (subMonitor != null)
+					subMonitor.done();
+				manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(null);
 			}
+			
+			// avoid leaking source attachment properties (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=183413 )
+			if (monitor != null)
+				monitor.subTask(Messages.javamodel_resetting_source_attachment_properties);
+			final IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
+			for (int i = 0, length = projects.length; i < length; i++) {
+				IClasspathEntry[] classpath;
+				try {
+					classpath = ((JavaProject) projects[i]).getResolvedClasspath();
+				} catch (JavaModelException e) {
+					// project no longer exist: ignore
+					continue;
+				}
+				if (classpath != null) {
+					for (int j = 0, length2 = classpath.length; j < length2; j++) {
+						IClasspathEntry entry = classpath[j];
+						if (entry.getSourceAttachmentPath() != null)
+							Util.setSourceAttachmentProperty(entry.getPath(), null);
+						// else source might have been attached by IPackageFragmentRoot#attachSource(...), we keep it
+					}
+				}
+			}
+			
+			// initialize delta state
+			if (monitor != null)
+				monitor.subTask(Messages.javamodel_initializing_delta_state);
+			manager.deltaState.rootsAreStale = true; // in case it was already initialized before we cleaned up the source attachment proprties
+			manager.deltaState.initializeRoots(true/*initAfteLoad*/);
 
 			// dummy query for waiting until the indexes are ready
+			if (monitor != null)
+				monitor.subTask(Messages.javamodel_configuring_searchengine);
 			SearchEngine engine = new SearchEngine();
 			IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 			try {
-				if (monitor != null)
-					monitor.subTask(Messages.javamodel_configuring_searchengine);
 				engine.searchAllTypeNames(
 					null,
 					SearchPattern.R_EXACT_MATCH,
@@ -3426,22 +3453,14 @@ public final class JavaCore extends Plugin {
 					System.out.println("Build state version number has changed"); //$NON-NLS-1$
 				IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 					public void run(IProgressMonitor progressMonitor2) throws CoreException {
-						IJavaProject[] projects = null;
-						try {
-							projects = model.getJavaProjects();
-						} catch (JavaModelException e) {
-							// could not get Java projects: ignore
-						}
-						if (projects != null) {
-							for (int i = 0, length = projects.length; i < length; i++) {
-								IJavaProject project = projects[i];
-								try {
-									if (JavaBuilder.DEBUG)
-										System.out.println("Touching " + project.getElementName()); //$NON-NLS-1$
-									project.getProject().touch(progressMonitor2);
-								} catch (CoreException e) {
-									// could not touch this project: ignore
-								}
+						for (int i = 0, length = projects.length; i < length; i++) {
+							IJavaProject project = projects[i];
+							try {
+								if (JavaBuilder.DEBUG)
+									System.out.println("Touching " + project.getElementName()); //$NON-NLS-1$
+								project.getProject().touch(progressMonitor2);
+							} catch (CoreException e) {
+								// could not touch this project: ignore
 							}
 						}
 					}
