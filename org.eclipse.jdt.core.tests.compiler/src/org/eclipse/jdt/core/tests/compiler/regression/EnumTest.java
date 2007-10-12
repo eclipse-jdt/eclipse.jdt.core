@@ -1499,12 +1499,12 @@ public void test052() {
 			"	public abstract void foo();\n" + 
 			"}\n"
 		},
-	"----------\n" + 
-	"1. ERROR in X.java (at line 5)\n" + 
-	"	public abstract void foo();\n" + 
-	"	                     ^^^^^\n" + 
-	"The enum X can only define the abstract method foo() if it also defines enum constants with corresponding implementations\n" + 
-	"----------\n"
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	A\n" + 
+		"	^\n" + 
+		"The enum constant A must define the abstract method foo()\n" + 
+		"----------\n"
 	);
 }		
 
@@ -1540,12 +1540,12 @@ public void test054() {
 			"	public abstract void foo();\n" + 
 			"}\n"
 		},
-	"----------\n" + 
-	"1. ERROR in X.java (at line 2)\n" + 
-	"	A() {}\n" + 
-	"	    ^\n" + 
-	"The type new X(){} must implement the inherited abstract method X.foo()\n" + 
-	"----------\n"
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	A() {}\n" + 
+		"	^\n" + 
+		"The enum constant A must define the abstract method foo()\n" + 
+		"----------\n"
 	);
 }			
 
@@ -2165,10 +2165,10 @@ public void test073() {
 			"interface I { void test(); }\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X3a.java (at line 3)\n" + 
-		"	public abstract void test();\n" + 
-		"	                     ^^^^^^\n" + 
-		"The enum X3a can only define the abstract method test() if it also defines enum constants with corresponding implementations\n" + 
+		"1. ERROR in X3a.java (at line 2)\n" + 
+		"	A;\n" + 
+		"	^\n" + 
+		"The enum constant A must define the abstract method test()\n" + 
 		"----------\n"
 		// X3a is not abstract and does not override abstract method test() in X3a
 	);
@@ -2195,8 +2195,8 @@ public void test073() {
 		"----------\n" + 
 		"1. ERROR in X3c.java (at line 2)\n" + 
 		"	A() { void random() {} };\n" + 
-		"	    ^\n" + 
-		"The type new X3c(){} must implement the inherited abstract method X3c.test()\n" + 
+		"	^\n" + 
+		"The enum constant A must define the abstract method test()\n" + 
 		"----------\n"
 		// <anonymous X3c$1> is not abstract and does not override abstract method test() in X3c
 	);
@@ -2229,10 +2229,10 @@ public void test074() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X4a.java (at line 3)\n" + 
-		"	public abstract void test();\n" + 
-		"	                     ^^^^^^\n" + 
-		"The enum X4a can only define the abstract method test() if it also defines enum constants with corresponding implementations\n" + 
+		"1. ERROR in X4a.java (at line 2)\n" + 
+		"	A;\n" + 
+		"	^\n" + 
+		"The enum constant A must define the abstract method test()\n" + 
 		"----------\n"
 		// X4a is not abstract and does not override abstract method test() in X4a
 	);
@@ -2257,8 +2257,8 @@ public void test074() {
 		"----------\n" + 
 		"1. ERROR in X4c.java (at line 2)\n" + 
 		"	A() { void random() {} };\n" + 
-		"	    ^\n" + 
-		"The type new X4c(){} must implement the inherited abstract method X4c.test()\n" + 
+		"	^\n" + 
+		"The enum constant A must define the abstract method test()\n" + 
 		"----------\n"
 		// <anonymous X4c$1> is not abstract and does not override abstract method test() in X4c
 	);
@@ -2322,8 +2322,8 @@ public void test075() {
 		"----------\n" + 
 		"1. ERROR in X5c.java (at line 2)\n" + 
 		"	A() { void random() {} };\n" + 
-		"	    ^\n" + 
-		"The type new X5c(){} must implement the inherited abstract method I.test()\n" + 
+		"	^\n" + 
+		"The enum constant A must define the abstract method test()\n" + 
 		"----------\n"
 		// <anonymous X5c$1> is not abstract and does not override abstract method test() in I
 	);
@@ -4909,10 +4909,10 @@ public void test138() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156591 - variation
 public void test139() {
- this.runNegativeTest(
-     new String[] {
-    	    "X.java",
- 			"public enum X {\n" + 
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public enum X {\n" + 
 			"	PLUS {\n" + 
 			"		double eval(double x, double y) {\n" + 
 			"			return x + y;\n" + 
@@ -4925,23 +4925,24 @@ public void test139() {
 			"	abstract double eval(double x, double y);\n" + 
 			"}\n" + 
 			"\n", // =================
-     },
-	"----------\n" + 
-	"1. WARNING in X.java (at line 3)\n" + 
-	"	double eval(double x, double y) {\n" + 
-	"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-	"The method eval(double, double) of type new X(){} should be tagged with @Override since it actually overrides a superclass method\n" + 
-	"----------\n" + 
-	"2. ERROR in X.java (at line 7)\n" + 
-	"	MINUS {\n" + 
-	"	      ^\n" + 
-	"The type new X(){} must implement the inherited abstract method X.eval(double, double)\n" + 
-	"----------\n" + 
-	"3. ERROR in X.java (at line 8)\n" + 
-	"	abstract double eval2(double x, double y);\n" + 
-	"	                ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-	"The abstract method eval2 in type new X(){} can only be defined by an abstract class\n" + 
-	"----------\n");
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	double eval(double x, double y) {\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method eval(double, double) of type new X(){} should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	MINUS {\n" + 
+		"	^^^^^\n" + 
+		"The enum constant MINUS must define the abstract method eval(double, double)\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	abstract double eval2(double x, double y);\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The abstract method eval2 in type new X(){} can only be defined by an abstract class\n" + 
+		"----------\n"
+	);
 }
 //check final modifier
 public void test140() {

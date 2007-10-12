@@ -1002,7 +1002,7 @@ public void resolve() {
 		this.maxFieldCount = 0;
 		int lastVisibleFieldID = -1;
 		boolean hasEnumConstants = false;
-		boolean hasEnumConstantsWithoutBody = false;
+		FieldDeclaration[] enumConstantsWithoutBody = null;
 		
 		if (this.typeParameters != null) {
 			for (int i = 0, count = this.typeParameters.length; i < count; i++) {
@@ -1020,8 +1020,11 @@ public void resolve() {
 				switch(field.getKind()) {
 					case AbstractVariableDeclaration.ENUM_CONSTANT:
 						hasEnumConstants = true;
-						if (!(field.initialization instanceof QualifiedAllocationExpression))
-							hasEnumConstantsWithoutBody = true;
+						if (!(field.initialization instanceof QualifiedAllocationExpression)) {
+							if (enumConstantsWithoutBody == null)
+								enumConstantsWithoutBody = new FieldDeclaration[count];
+							enumConstantsWithoutBody[i] = field;
+						}
 					case AbstractVariableDeclaration.FIELD:
 						FieldBinding fieldBinding = field.binding;
 						if (fieldBinding == null) {
@@ -1063,11 +1066,19 @@ public void resolve() {
 			case TypeDeclaration.ENUM_DECL :
 				// check enum abstract methods
 				if (this.binding.isAbstract()) {
-					if (!hasEnumConstants || hasEnumConstantsWithoutBody) {
+					if (!hasEnumConstants) {
+						for (int i = 0, count = this.methods.length; i < count; i++) {
+							final AbstractMethodDeclaration methodDeclaration = this.methods[i];
+							if (methodDeclaration.isAbstract() && methodDeclaration.binding != null)
+								this.scope.problemReporter().enumAbstractMethodMustBeImplemented(methodDeclaration);
+						}
+					} else if (enumConstantsWithoutBody != null) {
 						for (int i = 0, count = this.methods.length; i < count; i++) {
 							final AbstractMethodDeclaration methodDeclaration = this.methods[i];
 							if (methodDeclaration.isAbstract() && methodDeclaration.binding != null) {
-								this.scope.problemReporter().enumAbstractMethodMustBeImplemented(methodDeclaration);
+								for (int f = 0, l = enumConstantsWithoutBody.length; f < l; f++)
+									if (enumConstantsWithoutBody[f] != null)
+										this.scope.problemReporter().enumConstantMustImplementAbstractMethod(methodDeclaration, enumConstantsWithoutBody[f]);
 							}
 						}
 					}

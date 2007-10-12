@@ -1242,6 +1242,8 @@ void setSourceStart(int sourceStart);
 	int MissingEnumConstantCase = FieldRelated + 761;
 	/** @since 3.2 */ // TODO need to fix 3.1.1 contribution (inline this constant on client side)
 	int EnumStaticFieldInInInitializerContext = FieldRelated + 762;
+	/** @since 3.4 */
+	int EnumConstantMustImplementAbstractMethod = MethodRelated + 763;
 	
 	/**
 	 * Var args

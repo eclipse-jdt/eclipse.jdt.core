@@ -474,24 +474,45 @@ public void abstractMethodInAbstractClass(SourceTypeBinding type, AbstractMethod
 		methodDecl.sourceEnd);
 }
 public void abstractMethodMustBeImplemented(SourceTypeBinding type, MethodBinding abstractMethod) {
-	this.handle(
-		// Must implement the inherited abstract method %1
-		// 8.4.3 - Every non-abstract subclass of an abstract type, A, must provide a concrete implementation of all of A's methods.
-		IProblem.AbstractMethodMustBeImplemented,
-		new String[] { 
-		        new String(abstractMethod.selector),
-		        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, false), 
-		        new String(abstractMethod.declaringClass.readableName()), 
-		        new String(type.readableName()), 
-		},
-		new String[] { 
-		        new String(abstractMethod.selector),
-		        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, true), 
-		        new String(abstractMethod.declaringClass.shortReadableName()), 
-		        new String(type.shortReadableName()), 
-		},
-		type.sourceStart(),
-		type.sourceEnd());
+	if (type.isEnum() && type.isLocalType()) {
+		FieldBinding field = type.scope.enclosingMethodScope().initializedField;
+		FieldDeclaration decl = field.sourceField();
+		this.handle(
+			// Must implement the inherited abstract method %1
+			// 8.4.3 - Every non-abstract subclass of an abstract type, A, must provide a concrete implementation of all of A's methods.
+			IProblem.EnumConstantMustImplementAbstractMethod,
+			new String[] { 
+			        new String(abstractMethod.selector),
+			        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, false), 
+			        new String(decl.name), 
+			},
+			new String[] { 
+			        new String(abstractMethod.selector),
+			        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, true), 
+			        new String(decl.name), 
+			},
+			decl.sourceStart(),
+			decl.sourceEnd());
+	} else {
+		this.handle(
+			// Must implement the inherited abstract method %1
+			// 8.4.3 - Every non-abstract subclass of an abstract type, A, must provide a concrete implementation of all of A's methods.
+			IProblem.AbstractMethodMustBeImplemented,
+			new String[] { 
+			        new String(abstractMethod.selector),
+			        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, false), 
+			        new String(abstractMethod.declaringClass.readableName()), 
+			        new String(type.readableName()), 
+			},
+			new String[] { 
+			        new String(abstractMethod.selector),
+			        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, true), 
+			        new String(abstractMethod.declaringClass.shortReadableName()), 
+			        new String(type.shortReadableName()), 
+			},
+			type.sourceStart(),
+			type.sourceEnd());
+	}
 }
 public void abstractMethodNeedingNoBody(AbstractMethodDeclaration method) {
 	this.handle(
@@ -1507,6 +1528,23 @@ public void enumAbstractMethodMustBeImplemented(AbstractMethodDeclaration method
 		},
 		method.sourceStart(),
 		method.sourceEnd());
+}
+public void enumConstantMustImplementAbstractMethod(AbstractMethodDeclaration method, FieldDeclaration field) {
+	MethodBinding abstractMethod = method.binding;
+	this.handle(
+		IProblem.EnumConstantMustImplementAbstractMethod,
+		new String[] { 
+		        new String(abstractMethod.selector),
+		        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, false), 
+		        new String(field.name), 
+		},
+		new String[] { 
+		        new String(abstractMethod.selector),
+		        typesAsString(abstractMethod.isVarargs(), abstractMethod.parameters, true), 
+		        new String(field.name), 
+		},
+		field.sourceStart(),
+		field.sourceEnd());
 }
 public void enumConstantsCannotBeSurroundedByParenthesis(Expression expression) {
 	this.handle(
