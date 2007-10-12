@@ -93,11 +93,11 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *  @deprecated this constructor is kept to preserve 3.1 and 3.2M4 compatibility
 	 */
 	public Compiler(
-		INameEnvironment environment,
-		IErrorHandlingPolicy policy,
-		Map settings,
-		final ICompilerRequestor requestor,
-		IProblemFactory problemFactory) {
+			INameEnvironment environment,
+			IErrorHandlingPolicy policy,
+			Map settings,
+			final ICompilerRequestor requestor,
+			IProblemFactory problemFactory) {
 		this(environment, policy, new CompilerOptions(settings), requestor, problemFactory, null); 
 	}
 	
@@ -144,12 +144,12 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *  @deprecated this constructor is kept to preserve 3.1 and 3.2M4 compatibility
 	 */
 	public Compiler(
-		INameEnvironment environment,
-		IErrorHandlingPolicy policy,
-		Map settings,
-		final ICompilerRequestor requestor,
-		IProblemFactory problemFactory,
-		boolean parseLiteralExpressionsAsConstants) {
+			INameEnvironment environment,
+			IErrorHandlingPolicy policy,
+			Map settings,
+			final ICompilerRequestor requestor,
+			IProblemFactory problemFactory,
+			boolean parseLiteralExpressionsAsConstants) {
 		this(environment, policy, new CompilerOptions(settings, parseLiteralExpressionsAsConstants), requestor, problemFactory, null); 
 	}
 	
