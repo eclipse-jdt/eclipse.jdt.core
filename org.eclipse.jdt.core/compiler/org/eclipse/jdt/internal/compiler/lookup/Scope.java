@@ -1213,17 +1213,19 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					visiblesCount++;
 				}
 			}
-			if (visiblesCount == 1) {
-				if (searchForDefaultAbstractMethod)
-					return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, candidates[0]);
-				unitScope.recordTypeReferences(candidates[0].thrownExceptions);
-				return candidates[0];
-			}
-			if (visiblesCount == 0) {
-				MethodBinding interfaceMethod =
-					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, null);
-				if (interfaceMethod != null) return interfaceMethod;
-				return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, ProblemReasons.NotVisible);
+			switch (visiblesCount) {
+				case 0 :
+					MethodBinding interfaceMethod =
+						findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, null);
+					if (interfaceMethod != null) return interfaceMethod;
+					return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, ProblemReasons.NotVisible);
+				case 1 :
+					if (searchForDefaultAbstractMethod)
+						return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, candidates[0]);
+					unitScope.recordTypeReferences(candidates[0].thrownExceptions);
+					return candidates[0];
+				default :
+					break;
 			}
 		}
 
@@ -1237,13 +1239,17 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		// check for duplicate parameterized methods
 		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 			for (int i = 0; i < visiblesCount; i++) {
-				MethodBinding current = candidates[i];
-				if (current instanceof ParameterizedGenericMethodBinding)
-					current = ((ParameterizedGenericMethodBinding) current).originalMethod;
-				if (current instanceof ParameterizedMethodBinding)
-					for (int j = i + 1; j < visiblesCount; j++)
-						if (current.declaringClass == candidates[j].declaringClass && current.areParametersEqual(candidates[j]))
+				MethodBinding candidate = candidates[i];
+				if (candidate instanceof ParameterizedGenericMethodBinding)
+					candidate = ((ParameterizedGenericMethodBinding) candidate).originalMethod;
+				if (candidate instanceof ParameterizedMethodBinding)
+					for (int j = i + 1; j < visiblesCount; j++) {
+						MethodBinding otherCandidate = candidates[j];
+						if (otherCandidate == candidate 
+								|| (candidate.declaringClass == otherCandidate.declaringClass && candidate.areParametersEqual(otherCandidate))) {
 							return new ProblemMethodBinding(candidates[i], candidates[i].selector, candidates[i].parameters, ProblemReasons.Ambiguous);
+						}
+					}
 			}
 		}
 

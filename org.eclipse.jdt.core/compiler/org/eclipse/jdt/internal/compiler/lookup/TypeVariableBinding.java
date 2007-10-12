@@ -42,7 +42,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 
 	public int kind() {
-		return TYPE_PARAMETER;
+		return Binding.TYPE_PARAMETER;
 	}	
 	
 	/**
@@ -284,6 +284,16 @@ public class TypeVariableBinding extends ReferenceBinding {
 		return this.genericTypeSignature = CharOperation.concat('T', this.sourceName, ';');
 	}
 
+	public int boundsCount() {
+		if (this.firstBound == null) {
+			return 0;
+		} else if (this.firstBound == this.superclass) {
+			return this.superInterfaces.length + 1;
+		} else {
+			return this.superInterfaces.length;
+		}
+	}
+	
 	/**
 	 * Returns true if the type variable is directly bound to a given type
 	 */
@@ -391,10 +401,10 @@ public class TypeVariableBinding extends ReferenceBinding {
         return this.readableName();
     }
 	public ReferenceBinding superclass() {
-		return superclass;
+		return this.superclass;
 	}
 	public ReferenceBinding[] superInterfaces() {
-		return superInterfaces;
+		return this.superInterfaces;
 	}	
 	/**
 	 * @see java.lang.Object#toString()
@@ -427,5 +437,19 @@ public class TypeVariableBinding extends ReferenceBinding {
 			return this.firstBound;
 	    }
 	    return this.superclass; // java/lang/Object
+	}
+	
+	public TypeBinding[] otherUpperBounds() {
+		if (this.firstBound == null) 
+			return Binding.NO_TYPES;
+		if (this.firstBound == this.superclass) 
+			return this.superInterfaces;
+		int otherLength = this.superInterfaces.length - 1;
+		if (otherLength > 0) {
+			TypeBinding[] otherBounds;
+			System.arraycopy(this.superInterfaces, 1, otherBounds = new TypeBinding[otherLength], 0, otherLength);
+			return otherBounds;
+		}
+		return Binding.NO_TYPES;
 	}
 }

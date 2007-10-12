@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
  * Binding denoting a generic method after type parameter substitutions got performed.
@@ -458,11 +459,19 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	 */
 	public MethodBinding tiebreakMethod() {
 		if (this.tiebreakMethod == null) {
-			TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
+			TypeVariableBinding[] originalVariables = this.originalMethod.typeVariables;
 			int length = originalVariables.length;
 			TypeBinding[] newArguments = new TypeBinding[length];
-			for (int i = 0; i < length; i++)
-				newArguments[i] = environment.convertToRawType(originalVariables[i].upperBound());
+			for (int i = 0; i < length; i++) {
+				TypeVariableBinding originalVariable = originalVariables[i];
+				if (originalVariable.boundsCount() == 1) {
+					newArguments[i] = this.environment.convertToRawType(originalVariable.upperBound());
+				} else {
+					newArguments[i] = this.environment.convertToRawType(
+							// use an intersection type to retain full bound information
+							this.environment.createWildcard(null, 0, originalVariable.superclass(), originalVariable.superInterfaces(), Wildcard.EXTENDS));
+				}
+			}
 			this.tiebreakMethod = this.environment.createParameterizedGenericMethod(this.originalMethod, newArguments);
 		} 
 		return this.tiebreakMethod;

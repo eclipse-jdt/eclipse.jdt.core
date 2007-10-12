@@ -39926,4 +39926,109 @@ public void test1197() {
 		"Type mismatch: cannot convert from Class<capture#6-of ? extends YYY> to Class<? extends YYY<? extends B>>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
+public void test1198() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    interface Listener {}\n" + 
+			"    interface ErrorListener {}  \n" + 
+			"    static Object createParser(Listener l) {\n" + 
+			"    	System.out.println(\"FAILED\");\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"    static <L extends ErrorListener & Listener> Object createParser(L l) {\n" + 
+			"    	System.out.println(\"SUCCESS\");\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"      class A implements Listener, ErrorListener {\n" + 
+			"      }\n" + 
+			"      createParser(new A()); // error here\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024 - variation
+public void test1199() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    interface Listener {}\n" + 
+			"    interface ErrorListener {}  \n" + 
+			"    static Object createParser(Listener l) {\n" + 
+			"    	System.out.println(\"SUCCESS\");\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"    static <L extends ErrorListener & Listener> Object createParser(L l) {\n" + 
+			"    	System.out.println(\"FAILED\");\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"      class A implements Listener {\n" + 
+			"      }\n" + 
+			"      createParser(new A()); // error here\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=205594
+public void test1200() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public class Map<T1, T2> {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public <K, V> Map<K, V> make(K key, V value) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public Map<Class<?>, X> method1() {\n" + 
+			"		X value = new X();\n" + 
+			"		Class<?> type = X.class;\n" + 
+			"		return make(type, value);//1\n" + 
+			"	}\n" + 
+			"	public Map<Class<?>, X> method2() {\n" + 
+			"		X value = new X();\n" + 
+			"		Class<?> type = X.class;\n" + 
+			"		return (Map<Class<?>, X>) make(type, value);//2\n" + 
+			"	}\n" + 
+			"	public Map<Class<?>, X> method3() {\n" + 
+			"		X value = new X();\n" + 
+			"		return make(X.class, value);//3\n" + 
+			"	}\n" + 
+			"	public Map<Class<?>, X> method4() {\n" + 
+			"		X value = new X();\n" + 
+			"		return (Map<Class<?>, X>) make(X.class, value);//4\n" + 
+			"	}	\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\r\n" + 
+		"	return make(type, value);//1\r\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X.Map<Class<capture#1-of ?>,X> to X.Map<Class<?>,X>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 17)\r\n" + 
+		"	return (Map<Class<?>, X>) make(type, value);//2\r\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from X.Map<Class<capture#2-of ?>,X> to X.Map<Class<?>,X>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 21)\r\n" + 
+		"	return make(X.class, value);//3\r\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X.Map<Class<X>,X> to X.Map<Class<?>,X>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 25)\r\n" + 
+		"	return (Map<Class<?>, X>) make(X.class, value);//4\r\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from X.Map<Class<X>,X> to X.Map<Class<?>,X>\n" + 
+		"----------\n");
+}
 }
