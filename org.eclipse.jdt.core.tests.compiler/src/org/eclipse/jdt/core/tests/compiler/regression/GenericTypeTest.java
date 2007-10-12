@@ -39884,4 +39884,46 @@ public void test1196() {
 		},
 		"");
 }
+public void test1197() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void test() {\n" + 
+			"		B b = new C();\n" + 
+			"		Class<? extends B> cb = C.class;\n" + 
+			"		YYY<C> y = new XXX();\n" + 
+			"		Class<? extends YYY<C>> cy = XXX.class;\n" + 
+			"		YYY<? extends B> yb = new XXX();\n" + 
+			"		Class<? extends YYY<? extends B>> ybc = XXX.class;\n" + 
+			"		Class<? extends YYY> ybb = yb.getClass();\n" + 
+			"		Class<? extends YYY<?>> ybb2 = yb.getClass();\n" + 
+			"		Class<? extends YYY<? extends B>> ybb3 = yb.getClass();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Obj {}\n" + 
+			"class B extends Obj {}\n" + 
+			"class C extends B {}\n" + 
+			"class ZZZ<T extends Obj> {}\n" + 
+			"class YYY<T extends B> extends ZZZ<T> {}\n" + 
+			"class XXX extends YYY<C> {} \n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 9)\n" + 
+		"	Class<? extends YYY> ybb = yb.getClass();\n" + 
+		"	                ^^^\n" + 
+		"YYY is a raw type. References to generic type YYY<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	Class<? extends YYY<?>> ybb2 = yb.getClass();\n" + 
+		"	                               ^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<capture#4-of ? extends YYY> to Class<? extends YYY<?>>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	Class<? extends YYY<? extends B>> ybb3 = yb.getClass();\n" + 
+		"	                                         ^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<capture#6-of ? extends YYY> to Class<? extends YYY<? extends B>>\n" + 
+		"----------\n");
+}
 }

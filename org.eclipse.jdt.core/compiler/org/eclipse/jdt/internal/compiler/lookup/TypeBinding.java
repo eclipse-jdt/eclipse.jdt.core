@@ -881,25 +881,21 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 		if (!paramType.isStatic()) { // static member types do not compare their enclosing
 			ReferenceBinding enclosing = enclosingType();
 			if (enclosing != null) {
-				ReferenceBinding otherEnclosing = otherParamType
-						.enclosingType();
+				ReferenceBinding otherEnclosing = otherParamType	.enclosingType();
 				if (otherEnclosing == null)
 					return false;
 				if ((otherEnclosing.tagBits & TagBits.HasDirectWildcard) == 0) {
 					if (enclosing != otherEnclosing)
 						return false;
 				} else {
-					if (!enclosing.isEquivalentTo(otherParamType
-							.enclosingType()))
+					if (!enclosing.isEquivalentTo(otherParamType.enclosingType()))
 						return false;
 				}
 			}
 		}
-		int length = paramType.arguments == null ? 0
-				: paramType.arguments.length;
+		int length = paramType.arguments == null ? 0 : paramType.arguments.length;
 		TypeBinding[] otherArguments = otherParamType.arguments;
-		int otherLength = otherArguments == null ? 0
-				: otherArguments.length;
+		int otherLength = otherArguments == null ? 0 : otherArguments.length;
 		if (otherLength != length)
 			return false;
 		nextArgument: for (int i = 0; i < length; i++) {
@@ -923,8 +919,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 				case Wildcard.EXTENDS:
 					// match "? extends <upperBound>" with "?"
 					if (otherWildcard.boundKind == Wildcard.UNBOUND
-							&& wildcard.bound == wildcard.typeVariable()
-									.upperBound())
+							&& wildcard.bound == wildcard.typeVariable().upperBound())
 						continue nextArgument;
 					break;
 				case Wildcard.SUPER:
@@ -932,8 +927,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 				case Wildcard.UNBOUND:
 					// match "?" with "? extends <upperBound>"
 					if (otherWildcard.boundKind == Wildcard.EXTENDS
-							&& otherWildcard.bound == otherWildcard
-									.typeVariable().upperBound())
+							&& otherWildcard.bound == otherWildcard.typeVariable().upperBound())
 						continue nextArgument;
 					break;
 				}
