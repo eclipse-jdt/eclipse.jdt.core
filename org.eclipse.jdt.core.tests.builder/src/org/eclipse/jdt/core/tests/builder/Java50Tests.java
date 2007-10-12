@@ -62,6 +62,24 @@ public class Java50Tests extends BuilderTests {
 		);
 	}
 
+	public void testHierarchyCycle() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.5"); 
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, "");
+
+		env.addClass(projectPath, "", "A",
+			"interface A<T extends C> {}\n" +
+			"interface B extends A<D> {}\n" +
+			"interface D extends C {}"
+		);
+		env.addClass(projectPath, "", "C",
+			"interface C extends B {}"
+		); 
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+	}
+
 	public void testParameterizedMemberType() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.5"); 
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());

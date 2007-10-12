@@ -4600,9 +4600,7 @@ public final class CompletionEngine
 			return;
 
 		if (this.assistNodeIsSuperType && !this.insideQualifiedReference) return; // we're trying to find a supertype
-			
-		if (currentType.superInterfaces() == null) return;
-		
+
 		if (this.insideQualifiedReference
 			|| typeName.length == 0) { // do not search up the hierarchy
 
@@ -4629,7 +4627,7 @@ public final class CompletionEngine
 
 		do {
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (interfacesToVisit == null) {
 					interfacesToVisit = itsInterfaces;
 					nextPosition = interfacesToVisit.length;
@@ -4702,7 +4700,7 @@ public final class CompletionEngine
 					missingElementsHaveProblems);
 						
 				ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-				if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+				if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 					int itsLength = itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
 						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
@@ -4769,9 +4767,7 @@ public final class CompletionEngine
 			return;
 
 		if (this.assistNodeIsSuperType && !this.insideQualifiedReference) return; // we're trying to find a supertype
-		
-		if (currentType.superInterfaces() == null) return;
-		 
+
 		findMemberTypes(
 				typeName,
 				currentType.memberTypes(),
@@ -4872,7 +4868,8 @@ public final class CompletionEngine
 					}
 				}
 
-				if ((itsInterfaces = currentType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
+				itsInterfaces = currentType.superInterfaces();
+				if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 					int itsLength = itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
 						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);

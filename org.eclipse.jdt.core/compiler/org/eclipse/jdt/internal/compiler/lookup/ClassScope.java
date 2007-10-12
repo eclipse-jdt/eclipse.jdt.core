@@ -1022,10 +1022,6 @@ public class ClassScope extends Scope {
 			compilationUnitScope().recordSuperTypeReference(superType); // to record supertypes
 			return detectHierarchyCycle(referenceContext.binding, (ReferenceBinding) superType, reference);
 		}
-
-		if ((superType.tagBits & TagBits.BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
-			// ensure if this is a source superclass that it has already been checked
-			((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
 		return false;
 	}
 
