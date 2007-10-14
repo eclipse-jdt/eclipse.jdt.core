@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.HashMap;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -34,15 +32,6 @@ protected BinaryMember(JavaElement parent, String name) {
  */
 public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-}
-/*
- * @see JavaElement#generateInfos
- */
-protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-	Openable openableParent = (Openable) getOpenableParent();
-	if (JavaModelManager.getJavaModelManager().getInfo(openableParent) == null) {
-		openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
-	}
 }
 public String[] getCategories() throws JavaModelException {
 	SourceMapper mapper= getSourceMapper();
