@@ -54,6 +54,8 @@ public class AptPlugin extends Plugin {
 	public static final String APT_CONFIG_PROBLEM_MARKER = PLUGIN_ID + ".configproblem"; //$NON-NLS-1$
 	/** Marker ID used for posting problems during reconcile/build */
 	public static final String APT_COMPILATION_PROBLEM_MARKER = PLUGIN_ID + ".compile.problem"; //$NON-NLS-1$
+	/** Marker ID used for posting problems during build by processors that don't run in reconcile */
+	public static final String APT_NONRECONCILE_COMPILATION_PROBLEM_MARKER = PLUGIN_ID + ".nonreconcile.compile.problem"; //$NON-NLS-1$
 	
 	private static final SimpleDateFormat TRACE_DATE_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS"); //$NON-NLS-1$
 	

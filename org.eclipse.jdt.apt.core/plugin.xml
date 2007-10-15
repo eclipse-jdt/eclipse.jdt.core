@@ -24,6 +24,7 @@
          id="APT"
          requiredSourceLevel="1.5">
       <managedMarker markerType="org.eclipse.jdt.apt.core.compile.problem"/>
+      <managedMarker markerType="org.eclipse.jdt.apt.core.nonreconcile.compile.problem"/>
    </compilationParticipant>
 </extension>
 
@@ -31,6 +32,11 @@
 <!-- Extension: APT Problem                                                             -->
 <!-- =================================================================================== -->
 <extension id="compile.problem" point="org.eclipse.core.resources.markers" name="%aptBatchMarkerName">
+	<super type="org.eclipse.jdt.core.problem"/>
+	<persistent value="true"/>
+</extension>  
+
+<extension id="nonreconcile.compile.problem" point="org.eclipse.core.resources.markers" name="%aptNonreconcileBatchMarkerName">
 	<super type="org.eclipse.core.resources.problemmarker"/>
 	<super type="org.eclipse.core.resources.textmarker"/>
 	<persistent value="true"/>

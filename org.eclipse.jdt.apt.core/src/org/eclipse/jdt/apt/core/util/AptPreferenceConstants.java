@@ -38,9 +38,20 @@ public class AptPreferenceConstants {
 	
 	/**
 	 * Processors should report this option in {@link com.sun.mirror.apt.AnnotationProcessorFactory#supportedOptions()}
-	 * in order to enable type generation while editing, that is, during reconcile.
+	 * in order to enable type generation while editing, that is, during reconcile.  This setting will be ignored if
+	 * the processor also reports {@link #PROCESSING_IN_EDITOR_DISABLED_OPTION}.
 	 */
 	public static final String RTTG_ENABLED_OPTION = "enableTypeGenerationInEditor"; //$NON-NLS-1$
+
+	/**
+	 * Processors should report this option in {@link com.sun.mirror.apt.AnnotationProcessorFactory#supportedOptions()}
+	 * in order to enable processing while editing, that is, during reconcile.  If this option is set, ie if processing
+	 * is disabled, then the value of {@link #RTTG_ENABLED_OPTION} will be ignored.  Whether a processor is called 
+	 * during reconcile is also influenced by the project settings and the project factory path.
+	 * <p>
+	 * @see AptConfig#setProcessDuringReconcile(org.eclipse.jdt.core.IJavaProject, boolean)
+	 */
+	public static final String PROCESSING_IN_EDITOR_DISABLED_OPTION = "disableProcessingInEditor"; //$NON-NLS-1$
 
 	public static Map<String,String> DEFAULT_OPTIONS_MAP;
 	

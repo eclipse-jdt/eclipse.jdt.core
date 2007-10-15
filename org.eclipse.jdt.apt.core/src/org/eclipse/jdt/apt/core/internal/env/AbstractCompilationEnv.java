@@ -56,6 +56,7 @@ public abstract class AbstractCompilationEnv
 	
 	// Bugzilla 188185: accept "-AenableTypeGenerationInEditor" as well as "enableTypeGenerationInEditor".
 	private final static String RTTG_ENABLED_DASH_A_OPTION = "-A" + AptPreferenceConstants.RTTG_ENABLED_OPTION; //$NON-NLS-1$
+	private final static String PROCESSING_IN_EDITOR_DISABLED_DASH_A_OPTION = "-A" + AptPreferenceConstants.PROCESSING_IN_EDITOR_DISABLED_OPTION; //$NON-NLS-1$
 	
 	private Set<AnnotationProcessorListener> _listeners = null;
 	
@@ -76,6 +77,12 @@ public abstract class AbstractCompilationEnv
 	 * The processor that is currently being executed, or null if processing is not underway.
 	 */
 	private AnnotationProcessorFactory _currentProcessorFactory = null;
+
+	/**
+	 * True if the currently active processor will be called during reconcile as well as build.
+	 * Takes into account project settings, factory path, and processor options.
+	 */
+	private boolean _currentProcessorFactoryWillReconcile;
 	
 	public static interface EnvCallback {
 		public void run(AbstractCompilationEnv env);
@@ -101,6 +108,22 @@ public abstract class AbstractCompilationEnv
 		BuildEnv env = new BuildEnv(filesWithAnnotations, additionalFiles, javaProj);
 		env._callback = callback;
 		env.createASTs(filesWithAnnotations);
+    }
+    
+    /**
+     * Determine whether a processor wants to be called during reconcile. By default
+     * processors are called during both build and reconcile, but a processor can choose
+     * not to be called during reconcile by reporting 
+     * {@link AptPreferenceConstants#PROCESSING_IN_EDITOR_DISABLED_OPTION}
+     * in its supportedOptions() method.
+     * @return false if the processor reports PROCESSING_IN_EDITOR_DISABLED_OPTION.
+     * This does not consider project or factory path settings.
+     */
+    public static boolean doesFactorySupportReconcile(AnnotationProcessorFactory factory) {
+    	Collection<String> options = factory.supportedOptions();
+    	return options == null || 
+    		(!options.contains(AptPreferenceConstants.PROCESSING_IN_EDITOR_DISABLED_OPTION) &&
+    		!options.contains(PROCESSING_IN_EDITOR_DISABLED_DASH_A_OPTION));
     }
 	
 	AbstractCompilationEnv(
@@ -188,7 +211,7 @@ public abstract class AbstractCompilationEnv
     	// end-1 since IProblem ending offsets are inclusive but DOM layer
     	// ending offsets are exclusive.
     	final APTProblem newProblem = 
-        	new APTProblem(msg, severity, resource, start, end-1, line, arguments);
+        	new APTProblem(msg, severity, resource, start, end-1, line, arguments, !_currentProcessorFactoryWillReconcile);
     	return newProblem;
     }
 	
@@ -308,9 +331,15 @@ public abstract class AbstractCompilationEnv
 		return _currentProcessorFactory;
 	}
 	
-	public void setCurrentProcessorFactory(AnnotationProcessorFactory processor)
+	/**
+	 * @param factory a processor factory, or null to indicate processing is over.
+	 * @param willReconcile true if the processor will be called during reconcile as well as during build,
+	 * taking into account project settings, factory path, and processor options.
+	 */
+	public void setCurrentProcessorFactory(AnnotationProcessorFactory factory, boolean willReconcile)
 	{
-		_currentProcessorFactory = processor;	
+		_currentProcessorFactory = factory;
+		_currentProcessorFactoryWillReconcile = willReconcile;
 	}
 
 	public boolean currentProcessorSupportsRTTG()

@@ -37,6 +37,7 @@ import org.eclipse.jdt.apt.core.internal.env.ReconcileEnv;
 import org.eclipse.jdt.apt.core.internal.env.AbstractCompilationEnv.EnvCallback;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
+import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.BuildContext;
@@ -73,7 +74,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			
 			// Dispatch the annotation processors.  Env will keep track of problems and generated types.
 			try {
-				dispatchToFileBasedProcessor(reconcileEnv);
+				dispatchToFileBasedProcessor(reconcileEnv, true, true);
 			} catch (Throwable t) {
 				AptPlugin.log(t, "Processor failure during reconcile"); //$NON-NLS-1$
 			}
@@ -310,9 +311,10 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	{
 		final BuildContext[] cpResults = processorEnv.getFilesWithAnnotation();
 		final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
+		boolean projectEnablesReconcile = AptConfig.shouldProcessDuringReconcile(_aptProject.getJavaProject());
 		for (BuildContext curResult : cpResults ) {			
 			processorEnv.beginFileProcessing(curResult);
-			dispatchToFileBasedProcessor(processorEnv);
+			dispatchToFileBasedProcessor(processorEnv, projectEnablesReconcile, false);
 			reportResult(
 					curResult,
 					processorEnv.getAllGeneratedFiles(),
@@ -490,9 +492,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 							trace( "runAPT: invoking batch processor " + processor.getClass().getName(), //$NON-NLS-1$
 									processorEnv);
 						_currentDispatchBatchFactories.add(factory);
-						processorEnv.setCurrentProcessorFactory(factory);
+						processorEnv.setCurrentProcessorFactory(factory, false);
 						processor.process();
-						processorEnv.setCurrentProcessorFactory(null);
+						processorEnv.setCurrentProcessorFactory(null, false);
 					}
 				}
 			}	
@@ -507,9 +509,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 					if ( AptPlugin.DEBUG ) 
 						trace( "runAPT: invoking batch processor " + processor.getClass().getName(), //$NON-NLS-1$
 								processorEnv);
-					processorEnv.setCurrentProcessorFactory(prevRoundFactory);
+					processorEnv.setCurrentProcessorFactory(prevRoundFactory, false);
 					processor.process();
-					processorEnv.setCurrentProcessorFactory(null);
+					processorEnv.setCurrentProcessorFactory(null, false);
 				}
 			}
 			
@@ -548,6 +550,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		
 		// Now, do the file based dispatch
 		if( !fileFactory2Annos.isEmpty() ){
+			boolean projectEnablesReconcile = AptConfig.shouldProcessDuringReconcile(_aptProject.getJavaProject());
 			for(BuildContext curResult : cpResults ){
 				final Set<AnnotationTypeDeclaration> annotationTypesInFile = file2AnnotationDecls.get(curResult);
 				if( annotationTypesInFile == null || annotationTypesInFile.isEmpty() )
@@ -565,9 +568,11 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 							if ( AptPlugin.DEBUG ) 
 								trace( "runAPT: invoking file-based processor " + processor.getClass().getName(), //$NON-NLS-1$
 										processorEnv );
-							processorEnv.setCurrentProcessorFactory(factory);
+							//TODO in 3.4: also consider factory path attributes
+							boolean willReconcile = projectEnablesReconcile && AbstractCompilationEnv.doesFactorySupportReconcile(factory);
+							processorEnv.setCurrentProcessorFactory(factory, willReconcile);
 							processor.process();
-							processorEnv.setCurrentProcessorFactory(null);
+							processorEnv.setCurrentProcessorFactory(null, false);
 						}
 					}
 				}
@@ -586,13 +591,23 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		}
 	}
 	
+	/**
+	 * @param projectEnablesReconcile true if reconcile-time processing is enabled in the current project
+	 * @param isReconcile true if this call is during reconcile, e.g., processorEnv is a ReconcileEnv
+	 */
 	private void dispatchToFileBasedProcessor(
-			final AbstractCompilationEnv processorEnv){
+			final AbstractCompilationEnv processorEnv,
+			boolean projectEnablesReconcile, boolean isReconcile){
 		
 		Map<String, AnnotationTypeDeclaration> annotationDecls = processorEnv.getAnnotationTypes();
 		for( Map.Entry<AnnotationProcessorFactory, FactoryPath.Attributes> entry : _factories.entrySet() ){
 			if( entry.getValue().runInBatchMode() ) continue;
 			AnnotationProcessorFactory factory = entry.getKey();
+			//TODO in 3.4: also consider factory path attributes
+			boolean reconcileSupported = projectEnablesReconcile && 
+				AbstractCompilationEnv.doesFactorySupportReconcile(factory);
+			if (isReconcile && !reconcileSupported)
+				continue;
 			Set<AnnotationTypeDeclaration> factoryDecls = getFactorySupportedAnnotations(factory, annotationDecls);
 			if( factoryDecls != null ){
 				if(factoryDecls.size() == 0 ){
@@ -609,9 +624,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 						trace( "runAPT: invoking file-based processor " + processor.getClass().getName() + " on " + processorEnv.getFile(), //$NON-NLS-1$ //$NON-NLS-2$ 
 								processorEnv); 
 					}
-					processorEnv.setCurrentProcessorFactory(factory);
+					processorEnv.setCurrentProcessorFactory(factory, reconcileSupported);
 					processor.process();						
-					processorEnv.setCurrentProcessorFactory(null);
+					processorEnv.setCurrentProcessorFactory(null, false);
 				}
 			}
 

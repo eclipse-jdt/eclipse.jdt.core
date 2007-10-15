@@ -26,6 +26,7 @@ class APTProblem extends CategorizedProblem implements IProblem
 	private int _line;
 	private IFile _resource;
 	private final String _message;
+	private final String _markerType;
 	
 	// May be null
 	private final String[] _arguments;
@@ -36,7 +37,8 @@ class APTProblem extends CategorizedProblem implements IProblem
 			   final int startingOffset,
 			   final int endingOffset,
 			   final int line,
-			   final String[] arguments){
+			   final String[] arguments,
+			   boolean isNonReconcile){
 		_message = msg;
 		_severity = severity;
 		_startingOffset = startingOffset;
@@ -44,6 +46,7 @@ class APTProblem extends CategorizedProblem implements IProblem
 		_line = line;
 		_resource = file;
 		_arguments = arguments;
+		_markerType = isNonReconcile ? AptPlugin.APT_NONRECONCILE_COMPILATION_PROBLEM_MARKER : AptPlugin.APT_COMPILATION_PROBLEM_MARKER;
 	}
 
 	public int getID() {
@@ -113,6 +116,6 @@ class APTProblem extends CategorizedProblem implements IProblem
 	
 	@Override
 	public String getMarkerType() {
-		return AptPlugin.APT_COMPILATION_PROBLEM_MARKER;
+		return _markerType;
 	}
 }
