@@ -286,7 +286,7 @@ public abstract class APTTestBase extends BuilderTests{
 		if (DEBUG)
 			printProblemsFor(root);
 	
-		Problem[] rootProblems = env.getProblemsFor(root, AptPlugin.APT_COMPILATION_PROBLEM_MARKER);
+		Problem[] rootProblems = env.getProblemsFor(root);
 	
 		for (int i = 0; i < expectedProblems.length; i++) {
 			ExpectedProblem expectedProblem = expectedProblems[i];
