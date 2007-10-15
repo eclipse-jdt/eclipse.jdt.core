@@ -28,6 +28,7 @@ public class DefaultProblemFactory implements IProblemFactory {
 	private static HashtableOfInt DEFAULT_LOCALE_TEMPLATES;
 	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
 	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
+	private final static char[] FIRST_ARGUMENT = "{0}".toCharArray(); //$NON-NLS-1$
 
 public DefaultProblemFactory() {
 	this(Locale.getDefault());
@@ -141,7 +142,12 @@ public final String getLocalizedMessage(int id, int elaborationId, String[] prob
 			return "Unable to retrieve the error message elaboration for elaboration id: " //$NON-NLS-1$
 				+ elaborationId + ". Check compiler resources.";  //$NON-NLS-1$
 		}
-		message = message.replaceAll("\\{0\\}", elaboration); //$NON-NLS-1$
+		// make the substitution. String.replaceAll(String,String) cannot be used since it is
+		// defined only in 1.4
+		message = new String(CharOperation.replace(
+				message.toCharArray(),
+				FIRST_ARGUMENT,
+				elaboration.toCharArray()));
 	}
 
 	// for compatibility with MessageFormat which eliminates double quotes in original message
