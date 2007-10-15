@@ -751,7 +751,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			// ignore
 			this.document.removeAllIndexEntries();
 			if (JavaCore.getPlugin().isDebugging()) {
-				Util.log(e, "ClassFormatException in " + this.document.getPath() + ". Please report this issue to JDT/Core including the problematic document"); //$NON-NLS-1$ //$NON-NLS-2$
+				Util.log(e, "ClassFormatException in " + this.document.getPath() + ". This document seems to be a corrupted .class file. Please report this issue against the .class file vendor"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		} catch (RuntimeException e) {
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=182154
@@ -759,7 +759,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			// we remove all entries relative to the boggus document
 			this.document.removeAllIndexEntries();
 			if (JavaCore.getPlugin().isDebugging()) {
-				Util.log(e, "Indexer crashed on document " + this.document.getPath() + ". Please report this issue to JDT/Core including the problematic document"); //$NON-NLS-1$ //$NON-NLS-2$
+				Util.log(e, "Indexer crashed on document " + this.document.getPath() + ". This document seems to be a corrupted .class file. Please report this issue against the .class file vendor"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}
