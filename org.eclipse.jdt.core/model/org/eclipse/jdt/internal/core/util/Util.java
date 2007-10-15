@@ -1461,6 +1461,17 @@ public class Util {
 		JavaCore.getPlugin().getLog().log(status);
 	}
 	
+	/*
+	 * Add a log entry
+	 */
+	public static void log(int statusErrorID, String message) {
+		IStatus status= new Status(
+			statusErrorID, 
+			JavaCore.PLUGIN_ID, 
+			message); 
+		JavaCore.getPlugin().getLog().log(status);
+	}
+
 	public static ClassFileReader newClassFileReader(IResource resource) throws CoreException, ClassFormatException, IOException {
 		InputStream in = null;
 		try {
