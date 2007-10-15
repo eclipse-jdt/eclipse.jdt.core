@@ -40031,4 +40031,26 @@ public void test1200() {
 		"Cannot cast from X.Map<Class<X>,X> to X.Map<Class<?>,X>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174282
+public void test1201() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public MyClass f() {\n" + 
+			"        SuperClass<? extends SuperDataModel> val = null;\n" + 
+			"        return (MyClass) val;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class MyClass extends SuperClass<MyDataModel> {\n" + 
+			"}\n" + 
+			"class MyDataModel extends SuperDataModel {\n" + 
+			"}\n" + 
+			"class SuperClass<A extends SuperDataModel> {\n" + 
+			"}\n" + 
+			"class SuperDataModel {\n" + 
+			"}\n", // =================
+		},
+		"");
+}
 }
