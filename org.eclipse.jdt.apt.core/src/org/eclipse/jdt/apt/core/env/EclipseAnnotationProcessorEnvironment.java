@@ -36,10 +36,19 @@ public interface EclipseAnnotationProcessorEnvironment extends
 	 */
 	EclipseMessager getMessager();
 	
-	/**	
-	 * @return the current processing phase: either
-	 * {@link Phase#RECONCILE} or {@link Phase#BUILD}
+	/**
+	 * Indicate whether the processor is being called during a build or during editing
+	 * (that is, during reconcile).
+	 * <p>
+	 * Note that processors that behave differently depending on phase may cause
+	 * inconsistent results, such as problems showing up in the Problems view but not in
+	 * the editor window. If the goal is to improve edit-time performance by skipping
+	 * processing during reconcile, it is recommended to use the
+	 * {@link org.eclipse.jdt.apt.core.util.AptPreferenceConstants#PROCESSING_IN_EDITOR_DISABLED_OPTION
+	 * PROCESSING_IN_EDITOR_DISABLED} option instead.
 	 * 
+	 * @return the current processing phase: either {@link Phase#RECONCILE} or
+	 *         {@link Phase#BUILD}
 	 */
 	Phase getPhase();
 	

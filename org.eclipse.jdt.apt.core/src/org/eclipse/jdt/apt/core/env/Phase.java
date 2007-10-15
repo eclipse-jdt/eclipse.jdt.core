@@ -12,6 +12,7 @@ package org.eclipse.jdt.apt.core.env;
 
 /**
  * Enum for APT related operation phase.
+ * @see EclipseAnnotationProcessorEnvironment#getPhase()
  */
 public enum Phase { 
 	
@@ -20,7 +21,7 @@ public enum Phase {
 	/** During Build phase */    
 	BUILD, 
 	/** 
-	 * Neither reconcile or build. Completion would be an example.  
+	 * Neither reconcile nor build. Completion would be an example.  
 	 */ 
 	OTHER 
 }
