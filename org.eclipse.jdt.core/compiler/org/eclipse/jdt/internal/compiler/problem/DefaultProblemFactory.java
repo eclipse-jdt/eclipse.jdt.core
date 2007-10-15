@@ -82,6 +82,28 @@ public CategorizedProblem createProblem(
 		lineNumber,
 		columnNumber); 
 }
+public CategorizedProblem createProblem(
+	char[] originatingFileName, 
+	int problemId, 
+	String[] problemArguments,
+	int elaborationId,
+	String[] messageArguments, 
+	int severity, 
+	int startPosition, 
+	int endPosition, 
+	int lineNumber,
+	int columnNumber) {
+	return new DefaultProblem(
+		originatingFileName, 
+		this.getLocalizedMessage(problemId, elaborationId, messageArguments),
+		problemId, 
+		problemArguments, 
+		severity, 
+		startPosition, 
+		endPosition, 
+		lineNumber,
+		columnNumber); 
+}
 private final static int keyFromID(int id) {
     return id + 1; // keys are offsetted by one in table, since it cannot handle 0 key
 }
@@ -104,13 +126,22 @@ public void setLocale(Locale locale) {
 		this.messageTemplates = loadMessageTemplates(locale);
 	}
 }
-
 public final String getLocalizedMessage(int id, String[] problemArguments) {
-	String message = (String) this.messageTemplates.get(keyFromID(id & IProblem.IgnoreCategoriesMask)); 
+	return getLocalizedMessage(id, 0, problemArguments);
+}
+public final String getLocalizedMessage(int id, int elaborationId, String[] problemArguments) {
+	String message = (String) this.messageTemplates.get(keyFromID(id & IProblem.IgnoreCategoriesMask));
 	if (message == null) {
 		return "Unable to retrieve the error message for problem id: " //$NON-NLS-1$
-			+ (id & IProblem.IgnoreCategoriesMask)
-			+ ". Check compiler resources.";  //$NON-NLS-1$
+			+ (id & IProblem.IgnoreCategoriesMask) + ". Check compiler resources.";  //$NON-NLS-1$
+	}
+	if (elaborationId != 0) {
+		String elaboration = (String) this.messageTemplates.get(keyFromID(elaborationId));
+		if (elaboration == null) {
+			return "Unable to retrieve the error message elaboration for elaboration id: " //$NON-NLS-1$
+				+ elaborationId + ". Check compiler resources.";  //$NON-NLS-1$
+		}
+		message = message.replaceAll("\\{0\\}", elaboration); //$NON-NLS-1$
 	}
 
 	// for compatibility with MessageFormat which eliminates double quotes in original message

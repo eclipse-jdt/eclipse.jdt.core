@@ -44,7 +44,7 @@ private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
 public static int MaxStructurallyChangedTypes = 100; // keep track of ? structurally changed types, otherwise consider all to be changed
 
-public static final byte VERSION = 0x0015; // changed access rule presentation
+public static final byte VERSION = 0x0016; // changed access rules sets storage
 
 static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;
@@ -342,12 +342,7 @@ private static AccessRuleSet readRestriction(DataInputStream in) throws IOExcept
 		accessRules[i] = new ClasspathAccessRule(pattern, problemId);
 	}
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	String[] messageTemplates = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
-	for (int i = 0; i < AccessRuleSet.MESSAGE_TEMPLATES_LENGTH; i++) {
-		messageTemplates[i] = manager.intern(in.readUTF());
-	}
-	AccessRuleSet accessRuleSet = new AccessRuleSet(accessRules, messageTemplates);
-	return accessRuleSet;
+	return new AccessRuleSet(accessRules, in.readByte(), manager.intern(in.readUTF()));
 }
 
 void tagAsNoopBuild() {
@@ -639,8 +634,8 @@ private void writeRestriction(AccessRuleSet accessRuleSet, DataOutputStream out)
 				writeName(accessRule.pattern, out);
 				out.writeInt(accessRule.problemId);
 			}
-			for (int i = 0; i < AccessRuleSet.MESSAGE_TEMPLATES_LENGTH; i++)
-				out.writeUTF(accessRuleSet.messageTemplates[i]);
+			out.writeByte(accessRuleSet.classpathEntryType);
+			out.writeUTF(accessRuleSet.classpathEntryName);
 		}
 	}
 }

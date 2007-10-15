@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.batch.Main.ResourceBundleFactory;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 
@@ -1085,20 +1086,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				}
 			}
 			if (rulesOK) {
-				String templates[] = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
-				templates[0] = this.bind(
-						"template.restrictedAccess.type", //$NON-NLS-1$
-						new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$
-				templates[1] = this.bind(
-						"template.restrictedAccess.constructor", //$NON-NLS-1$
-						new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$
-				templates[2] = this.bind(
-						"template.restrictedAccess.method", //$NON-NLS-1$
-						new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$
-				templates[3] = this.bind(
-						"template.restrictedAccess.field", //$NON-NLS-1$
-						new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$
-				accessRuleSet = new AccessRuleSet(accessRules, templates);
+	    		accessRuleSet = new AccessRuleSet(accessRules, AccessRestriction.COMMAND_LINE, currentClasspathName);
 			} else {
 				return;
 			}

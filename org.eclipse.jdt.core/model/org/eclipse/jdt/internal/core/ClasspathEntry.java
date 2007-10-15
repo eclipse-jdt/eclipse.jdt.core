@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -224,7 +225,22 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (accessRules != null && (length = accessRules.length) > 0) {
 			AccessRule[] rules = new AccessRule[length];
 			System.arraycopy(accessRules, 0, rules, 0, length);
-			this.accessRuleSet = new AccessRuleSet(rules, getMessageTemplates());
+			byte classpathEntryType;
+			String classpathEntryName;
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			if (this.entryKind == CPE_PROJECT || this.entryKind == CPE_SOURCE) { // can be remote source entry when reconciling
+				classpathEntryType = AccessRestriction.PROJECT;
+				classpathEntryName = manager.intern(getPath().segment(0));
+			} else {
+				classpathEntryType = AccessRestriction.LIBRARY;
+				Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, false);
+				if (target instanceof java.io.File) {
+					classpathEntryName = manager.intern(path.toOSString());
+				} else {
+					classpathEntryName = manager.intern(path.makeRelative().toString());
+				}
+			}
+			this.accessRuleSet = new AccessRuleSet(rules, classpathEntryType, classpathEntryName);
 		}
 //		else { -- implicit!
 //			this.accessRuleSet = null;
@@ -949,46 +965,6 @@ public class ClasspathEntry implements IClasspathEntry {
 
 	public IClasspathAttribute[] getExtraAttributes() {
 		return this.extraAttributes;
-	}
-
-	private String[] getMessageTemplates() {
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		String [] result = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
-		if (this.entryKind == CPE_PROJECT || this.entryKind == CPE_SOURCE) { // can be remote source entry when reconciling
-			result[0] = manager.intern(Messages.bind(
-				org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_project,
-				new String[] {"{0}", getPath().segment(0)}));  //$NON-NLS-1$
-			result[1] = manager.intern(Messages.bind(
-					org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_constructor_project,
-					new String[] {"{0}", getPath().segment(0)}));  //$NON-NLS-1$
-			result[2] = manager.intern(Messages.bind(
-					org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_method_project,
-					new String[] {"{0}", "{1}", getPath().segment(0)}));  //$NON-NLS-1$ //$NON-NLS-2$
-			result[3] = manager.intern(Messages.bind(
-					org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_field_project,
-					new String[] {"{0}", "{1}", getPath().segment(0)}));  //$NON-NLS-1$ //$NON-NLS-2$
-		} else {
-			IPath libPath = getPath();
-			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), libPath, false);
-			String pathString;
-			if (target instanceof java.io.File)
-				pathString = libPath.toOSString();
-			else
-				pathString = libPath.makeRelative().toString();
-			result[0] = manager.intern(Messages.bind(
-				org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_library,
-				new String[] {"{0}", pathString})); //$NON-NLS-1$
-			result[1] = manager.intern(Messages.bind(
-					org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_constructor_library,
-					new String[] {"{0}", pathString})); //$NON-NLS-1$
-			result[2] = manager.intern(Messages.bind(
-					org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_method_library,
-					new String[] {"{0}", "{1}", pathString})); //$NON-NLS-1$ //$NON-NLS-2$
-			result[3] = manager.intern(Messages.bind(
-					org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_field_library,
-					new String[] {"{0}", "{1}", pathString})); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		return result;
 	}
 
 	/**

@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.problem;
 import java.io.CharConversionException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.MessageFormat;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -33,7 +32,16 @@ public class ProblemReporter extends ProblemHandler {
 	
 	public ReferenceContext referenceContext;
 	private Scanner positionScanner;
-	
+	private final static byte
+	  // TYPE_ACCESS = 0x0,
+	  FIELD_ACCESS = 0x4,
+	  CONSTRUCTOR_ACCESS = 0x8,
+	  METHOD_ACCESS = 0xC;
+
+private static int getElaborationId (int leadProblemId, byte elaborationVariant) {
+	return leadProblemId << 8 | elaborationVariant; // leadProblemId comes into the higher order bytes
+}
+
 public static long getIrritant(int problemID) {
 	switch(problemID){
 
@@ -1682,50 +1690,61 @@ public void finalVariableBound(TypeVariableBinding typeVariable, TypeReference t
 		typeRef.sourceEnd);
 }
 public void forbiddenReference(FieldBinding field, ASTNode location, 
-		String messageTemplate, int problemId) {
+		 byte classpathEntryType, String classpathEntryName, int problemId) {
+	int severity = computeSeverity(problemId);
+	if (severity == ProblemSeverities.Ignore) return;
 	this.handle(
 		problemId,
 		new String[] { new String(field.readableName()) }, // distinct from msg arg for quickfix purpose
+		getElaborationId(IProblem.ForbiddenReference, (byte) (FIELD_ACCESS | classpathEntryType)),
 		new String[] { 
-			MessageFormat.format(messageTemplate, 
-				new String[]{
-					new String(field.shortReadableName()),
-			        new String(field.declaringClass.shortReadableName())})},
+			classpathEntryName, 
+			new String(field.shortReadableName()),
+	        new String(field.declaringClass.shortReadableName())},
+	    severity,
 		nodeSourceStart(field, location),
 		nodeSourceEnd(field, location));
 }
 public void forbiddenReference(MethodBinding method, ASTNode location, 
-		String messageTemplate, int problemId) {
+		byte classpathEntryType, String classpathEntryName, int problemId) {
+	int severity = computeSeverity(problemId);
+	if (severity == ProblemSeverities.Ignore) return;	
 	if (method.isConstructor())
 		this.handle(
 			problemId,
 			new String[] { new String(method.readableName()) }, // distinct from msg arg for quickfix purpose
+			getElaborationId(IProblem.ForbiddenReference, (byte) (CONSTRUCTOR_ACCESS | classpathEntryType)),
 			new String[] { 
-				MessageFormat.format(messageTemplate,
-						new String[]{new String(method.shortReadableName())})},
+				classpathEntryName, 
+				new String(method.shortReadableName())},
+			severity,
 			location.sourceStart,
 			location.sourceEnd);
 	else
 		this.handle(
 			problemId,
 			new String[] { new String(method.readableName()) }, // distinct from msg arg for quickfix purpose
+			getElaborationId(IProblem.ForbiddenReference, (byte) (METHOD_ACCESS | classpathEntryType)),
 			new String[] { 
-				MessageFormat.format(messageTemplate, 
-					new String[]{
-						new String(method.shortReadableName()),
-				        new String(method.declaringClass.shortReadableName())})},
+				classpathEntryName, 
+				new String(method.shortReadableName()),
+		        new String(method.declaringClass.shortReadableName())},
+		    severity,
 			location.sourceStart,
 			location.sourceEnd);
 }
-public void forbiddenReference(TypeBinding type, ASTNode location, String messageTemplate, int problemId) {
+public void forbiddenReference(TypeBinding type, ASTNode location, 
+		byte classpathEntryType, String classpathEntryName, int problemId) {
 	if (location == null) return;
 	int severity = computeSeverity(problemId);
 	if (severity == ProblemSeverities.Ignore) return;
-	// this problem has a message template extracted from the access restriction rule
 	this.handle(
 		problemId,
 		new String[] { new String(type.readableName()) }, // distinct from msg arg for quickfix purpose
-		new String[] { MessageFormat.format(messageTemplate, new String[]{ new String(type.shortReadableName())})},
+		getElaborationId(IProblem.ForbiddenReference, /* TYPE_ACCESS | */ classpathEntryType), // TYPE_ACCESS values to 0
+		new String[] {
+			classpathEntryName, 
+			new String(type.shortReadableName())},
 		severity,
 		location.sourceStart,
 		location.sourceEnd);
@@ -1809,6 +1828,27 @@ private void handle(
 	this.handle(
 			problemId,
 			problemArguments,
+			0, // no elaboration
+			messageArguments,
+			severity,
+			problemStartPosition,
+			problemEndPosition); 
+}
+// use this private API when the compilation unit result can be found through the
+// reference context. Otherwise, use the other API taking a problem and a compilation result
+// as arguments
+private void handle(
+		int problemId, 
+		String[] problemArguments,
+		int elaborationId,
+		String[] messageArguments,
+		int severity,
+		int problemStartPosition, 
+		int problemEndPosition){
+	this.handle(
+			problemId,
+			problemArguments,
+			elaborationId,
 			messageArguments,
 			severity,
 			problemStartPosition,

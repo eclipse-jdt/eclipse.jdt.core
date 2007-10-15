@@ -5350,7 +5350,69 @@ public void test146_declared_thrown_checked_exceptions(){
   true);
 }
 
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122885
+//coverage test
+public void test148_access_restrictions(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"/** */\n" +
+			"public class X {\n" +
+			"	KO ko;\n" +
+			"   void foo() {\n" +
+			"     ko = new KO();\n" +
+			"     ko.bar();\n" +
+			"     if (ko.m) {}\n" +
+			"   }\n" +
+			"   Zork z;\n" +
+			"}",
+			"KO.java",
+			"/** */\n" +
+			"public class KO {\n" +
+			"  void bar() {};\n" +
+			"  boolean m;\n" +
+			"}",
+		},
+  "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+  + " -1.5 -g -preserveAllLocals"
+  + " -cp \"" + OUTPUT_DIR + "[-KO]\""
+  + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
+  + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+  "",
+  "----------\n" + 
+  "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+  "	KO ko;\n" + 
+  "	^^\n" + 
+  "Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
+  "----------\n" + 
+  "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+  "	ko = new KO();\n" + 
+  "	     ^^^^^^^^\n" + 
+  "Access restriction: The constructor KO() is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
+  "----------\n" + 
+  "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+  "	ko = new KO();\n" + 
+  "	         ^^\n" + 
+  "Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
+  "----------\n" + 
+  "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+  "	ko.bar();\n" + 
+  "	^^^^^^^^\n" + 
+  "Access restriction: The method bar() from the type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
+  "----------\n" + 
+  "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+  "	if (ko.m) {}\n" + 
+  "	       ^\n" + 
+  "Access restriction: The field m from the type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
+  "----------\n" + 
+  "6. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" + 
+  "	Zork z;\n" + 
+  "	^^^^\n" + 
+  "Zork cannot be resolved to a type\n" + 
+  "----------\n" + 
+  "6 problems (1 error, 5 warnings)",
+  true);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }

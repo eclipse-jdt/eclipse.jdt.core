@@ -50,7 +50,17 @@ public class AccessRestrictionsTests extends ModifyingResourceTests {
 	public static Test suite() {
 		return buildModelTestSuite(AccessRestrictionsTests.class);
 	}
+	
+public void setUpSuite() throws Exception {
+	super.setUpSuite();
+	setUpJavaProject("AccessRestrictions");
+}
 
+public void tearDownSuite() throws Exception {
+	deleteProject("AccessRestrictions");
+	super.tearDownSuite();
+}
+	
 	protected void assertProblems(String message, String expected) {
 		assertProblems(message, expected, this.problemRequestor);
 	}
@@ -1009,4 +1019,73 @@ public void test010() throws CoreException {
 	}
 }
 
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=122885
+ * Checking library messages.
+ */
+public void test011() throws CoreException {
+	ICompilationUnit y = null;
+	try {
+		createJavaProject(
+			"P1", 
+			new String[] {"src"}, 
+			new String[] {"JCL_LIB", "/AccessRestrictions/lib.jar"}, 
+			new String[][]{{}, {}},
+			new String[][]{{}, {"**/*"}},
+			null/*no project*/, 
+			null/*no inclusion pattern*/,
+			null/*no exclusion pattern*/,
+			null/*no exported project*/, 
+			"bin", 
+			null/*no source outputs*/,
+			null/*no inclusion pattern*/,
+			null/*no exclusion pattern*/,
+			"1.4");
+		this.problemRequestor = new ProblemRequestor();
+		y = getWorkingCopy(
+			"/P1/src/q/Y.java",
+			"package q;\n" +
+			"public class Y {\n" +
+			"	void foo() {\n" +
+			"     p.X x = new p.X();\n" +
+			"     x.foo();\n" +
+			"     if (x.m > 0) {}\n" +
+			"	}\n" +
+			"}"
+		);	
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"1. ERROR in /P1/src/q/Y.java (at line 4)\n" + 
+			"	p.X x = new p.X();\n" + 
+			"	^^^\n" + 
+			"Access restriction: The type X is not accessible due to restriction on required library AccessRestrictions/lib.jar\n" + 
+			"----------\n" + 
+			"2. ERROR in /P1/src/q/Y.java (at line 4)\n" + 
+			"	p.X x = new p.X();\n" + 
+			"	        ^^^^^^^^^\n" + 
+			"Access restriction: The constructor X() is not accessible due to restriction on required library AccessRestrictions/lib.jar\n" + 
+			"----------\n" + 
+			"3. ERROR in /P1/src/q/Y.java (at line 4)\n" + 
+			"	p.X x = new p.X();\n" + 
+			"	            ^^^\n" + 
+			"Access restriction: The type X is not accessible due to restriction on required library AccessRestrictions/lib.jar\n" + 
+			"----------\n" + 
+			"4. ERROR in /P1/src/q/Y.java (at line 5)\n" + 
+			"	x.foo();\n" + 
+			"	^^^^^^^\n" + 
+			"Access restriction: The method foo() from the type X is not accessible due to restriction on required library AccessRestrictions/lib.jar\n" + 
+			"----------\n" + 
+			"5. ERROR in /P1/src/q/Y.java (at line 6)\n" + 
+			"	if (x.m > 0) {}\n" + 
+			"	      ^\n" + 
+			"Access restriction: The field m from the type X is not accessible due to restriction on required library AccessRestrictions/lib.jar\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (y != null)
+			y.discardWorkingCopy();
+		deleteProject("P1");
+	}
+}
 }

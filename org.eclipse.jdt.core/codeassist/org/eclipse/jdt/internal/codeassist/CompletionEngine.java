@@ -83,27 +83,8 @@ public final class CompletionEngine
 			super(loc);
 		}
 
-		public CategorizedProblem createProblem(
-			char[] originatingFileName,
-			int problemId,
-			String[] problemArguments,
-			String[] messageArguments,
-			int severity,
-			int start,
-			int end,
-			int lineNumber,
-			int columnNumber) {
-			
-			CategorizedProblem pb = super.createProblem(
-				originatingFileName,
-				problemId,
-				problemArguments,
-				messageArguments,
-				severity,
-				start,
-				end,
-				lineNumber,
-				columnNumber);
+		private CategorizedProblem checkProblem(CategorizedProblem pb,
+			char[] originatingFileName,	int severity, int start) {
 			int id = pb.getID();
 			if (CompletionEngine.this.actualCompletionPosition > start
 				&& this.lastErrorStart < start
@@ -146,6 +127,54 @@ public final class CompletionEngine
 			return pb;
 		}
 		
+		public CategorizedProblem createProblem(
+				char[] originatingFileName,
+				int problemId,
+				String[] problemArguments,
+				String[] messageArguments,
+				int severity,
+				int start,
+				int end,
+				int lineNumber,
+				int columnNumber) {
+				return checkProblem(
+					super.createProblem(
+						originatingFileName,
+						problemId,
+						problemArguments,
+						messageArguments,
+						severity,
+						start,
+						end,
+						lineNumber,
+						columnNumber), originatingFileName, severity, start);
+		}
+			
+		public CategorizedProblem createProblem(
+				char[] originatingFileName,
+				int problemId,
+				String[] problemArguments,
+				int elaborationId,				
+				String[] messageArguments,
+				int severity,
+				int start,
+				int end,
+				int lineNumber,
+				int columnNumber) {
+				return checkProblem(
+					super.createProblem(
+						originatingFileName,
+						problemId,
+						problemArguments,
+						elaborationId,						
+						messageArguments,
+						severity,
+						start,
+						end,
+						lineNumber,
+						columnNumber), originatingFileName, severity, start);
+		}
+			
 		public void startCheckingProblems() {
 			this.checkProblems = true;
 			this.hasForbiddenProblems = false;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,33 +13,19 @@ package org.eclipse.jdt.internal.compiler.env;
 public class AccessRestriction {
 
 	private AccessRule accessRule;
-	private String[] messageTemplates;
-	public AccessRestriction(AccessRule accessRule, String [] messageTemplates) {
+	public byte classpathEntryType;
+	public static final byte
+		COMMAND_LINE = 0,
+		PROJECT = 1,
+		LIBRARY = 2;	
+	public String classpathEntryName;
+	
+	public AccessRestriction(AccessRule accessRule, byte classpathEntryType, String classpathEntryName) {
 		this.accessRule = accessRule;
-		this.messageTemplates = messageTemplates;
+		this.classpathEntryName = classpathEntryName;
+		this.classpathEntryType = classpathEntryType;
 	}
 	
-	/**
-	 * Returns readable description for problem reporting, 
-	 * message is expected to contain room for restricted type name
-	 * e.g. "{0} has restricted access"
-	 */
-	public String getMessageTemplate() {
-		return this.messageTemplates[0];
-	}
-	
-	public String getConstructorAccessMessageTemplate() {
-		return this.messageTemplates[1];
-	}
-
-	public String getMethodAccessMessageTemplate() {
-		return this.messageTemplates[2];
-	}
-
-	public String getFieldAccessMessageTemplate() {
-		return this.messageTemplates[3];
-	}
-
 	public int getProblemId() {
 		return this.accessRule.getProblemId();
 	}

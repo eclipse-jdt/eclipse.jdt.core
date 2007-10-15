@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -1440,20 +1441,7 @@ protected void addNewEntry(ArrayList paths, String currentClasspathName,
 			}
 		}
 		if (rulesOK) {
-			String templates[] = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
-			templates[0] = this.bind(
-					"template.restrictedAccess.type", //$NON-NLS-1$
-					new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$
-			templates[1] = this.bind(
-					"template.restrictedAccess.constructor", //$NON-NLS-1$
-					new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$
-			templates[2] = this.bind(
-					"template.restrictedAccess.method", //$NON-NLS-1$
-					new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$
-			templates[3] = this.bind(
-					"template.restrictedAccess.field", //$NON-NLS-1$
-					new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$
-			accessRuleSet = new AccessRuleSet(accessRules, templates);
+    		accessRuleSet = new AccessRuleSet(accessRules, AccessRestriction.COMMAND_LINE, currentClasspathName);
 		} else {
 			if (currentClasspathName.length() != 0) {
 				// we go on anyway

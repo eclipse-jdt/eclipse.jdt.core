@@ -77,9 +77,33 @@ public CategorizedProblem createProblem(
 		lineNumber,
 		columnNumber); 
 }
+public CategorizedProblem createProblem(
+		char[] fileName, 
+		int problemId, 
+		String[] problemArguments,
+		int elaborationId,
+		String[] messageArguments,
+		int severity, 
+		int problemStartPosition, 
+		int problemEndPosition, 
+		int lineNumber,
+		int columnNumber) {
+	return this.problemFactory.createProblem(
+		fileName, 
+		problemId, 
+		problemArguments,
+		elaborationId,
+		messageArguments,
+		severity, 
+		problemStartPosition, 
+		problemEndPosition, 
+		lineNumber,
+		columnNumber); 
+}
 public void handle(
 	int problemId, 
-	String[] problemArguments, 
+	String[] problemArguments,
+	int elaborationId,
 	String[] messageArguments,
 	int severity, 
 	int problemStartPosition, 
@@ -93,7 +117,7 @@ public void handle(
 	// if no reference context, we need to abort from the current compilation process
 	if (referenceContext == null) {
 		if ((severity & ProblemSeverities.Error) != 0) { // non reportable error is fatal
-			CategorizedProblem problem = this.createProblem(null, problemId, problemArguments, messageArguments, severity, 0, 0, 0, 0);			
+			CategorizedProblem problem = this.createProblem(null, problemId, problemArguments, elaborationId, messageArguments, severity, 0, 0, 0, 0);			
 			throw new AbortCompilation(null, problem);
 		} else {
 			return; // ignore non reportable warning
@@ -112,6 +136,7 @@ public void handle(
 			unitResult.getFileName(), 
 			problemId, 
 			problemArguments, 
+			elaborationId,
 			messageArguments,
 			severity, 
 			problemStartPosition, 
@@ -154,6 +179,7 @@ public void handle(
 	this.handle(
 		problemId,
 		problemArguments,
+		0, // no message elaboration
 		messageArguments,
 		this.computeSeverity(problemId), // severity inferred using the ID
 		problemStartPosition,

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,26 +19,23 @@ import org.eclipse.jdt.core.compiler.IProblem;
 public class AccessRuleSet {
 
 	private AccessRule[] accessRules;
-	public String[] messageTemplates;
-	public static final int MESSAGE_TEMPLATES_LENGTH = 4;
+	public byte classpathEntryType; // one of AccessRestriction#COMMAND_LINE, LIBRARY, PROJECT
+	public String classpathEntryName;
 	
-	/**
-	 * Make a new set of access rules.
-	 * @param accessRules the access rules to be contained by the new set
-	 * @param messageTemplates a Sting[4] array specifying the messages for type, 
-	 * constructor, method and field access violation; each should contain as many
-	 * placeholders as expected by the respective access violation message (that is,
-	 * one for type and constructor, two for method and field); replaced by a
-	 * default value if null.
-	 */
-	public AccessRuleSet(AccessRule[] accessRules, String[] messageTemplates) {
-		this.accessRules = accessRules;
-		if (messageTemplates != null && messageTemplates.length == MESSAGE_TEMPLATES_LENGTH)
-			this.messageTemplates = messageTemplates;
-		else
-			this.messageTemplates = new String[] {"{0}", "{0}", "{0} {1}", "{0} {1}"};  //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
-	}
-	
+/**
+ * Make a new set of access rules.
+ * @param accessRules the access rules to be contained by the new set
+ * @param classpathEntryType one of {@link AccessRestriction#COMMAND_LINE},
+ *        {@link AccessRestriction#LIBRARY}, {@link AccessRestriction#PROJECT}
+ *        that tells the access restrictions how to render the classpath entry 
+ * @param classpathEntryName a user-readable name for the classpath entry
+ */
+public AccessRuleSet(AccessRule[] accessRules, byte classpathEntryType, String classpathEntryName) {
+	this.accessRules = accessRules;
+	this.classpathEntryType = classpathEntryType;
+	this.classpathEntryName = classpathEntryName;
+}
+
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -48,12 +45,11 @@ public class AccessRuleSet {
 		if (!(object instanceof AccessRuleSet))
 			return false;
 		AccessRuleSet otherRuleSet = (AccessRuleSet) object;
-		if (this.messageTemplates.length != MESSAGE_TEMPLATES_LENGTH ||
-				otherRuleSet.messageTemplates.length != MESSAGE_TEMPLATES_LENGTH)
-			return false; // guard
-		for (int i = 0; i < MESSAGE_TEMPLATES_LENGTH; i++) 
-			if (!this.messageTemplates[i].equals(otherRuleSet.messageTemplates[i])) 
-				return false;
+		if (this.classpathEntryType != otherRuleSet.classpathEntryType ||
+				this.classpathEntryName == null && otherRuleSet.classpathEntryName != null ||
+				! this.classpathEntryName.equals(otherRuleSet.classpathEntryName)) {
+			return false;
+		}
 		int rulesLength = this.accessRules.length;
 		if (rulesLength != otherRuleSet.accessRules.length) return false;
 		for (int i = 0; i < rulesLength; i++)
@@ -81,7 +77,7 @@ public AccessRestriction getViolatedRestriction(char[] targetTypeFilePath) {
 			switch (accessRule.getProblemId()) {
 				case IProblem.ForbiddenReference:
 				case IProblem.DiscouragedReference:
-					return new AccessRestriction(accessRule, this.messageTemplates);
+					return new AccessRestriction(accessRule, this.classpathEntryType, this.classpathEntryName);
 				default:
 					return null;
 			}
@@ -109,10 +105,9 @@ public AccessRestriction getViolatedRestriction(char[] targetTypeFilePath) {
 			else if (i < length-1)
 				buffer.append(", "); //$NON-NLS-1$
 		}
-		buffer.append("} [templates:\""); //$NON-NLS-1$
-		for (int i = 0; i < messageTemplates.length; i++)
-			buffer.append(this.messageTemplates[i]);
-		buffer.append("\"]"); //$NON-NLS-1$
+		buffer.append("} [classpath entry: "); //$NON-NLS-1$
+		buffer.append(this.classpathEntryName);
+		buffer.append("]"); //$NON-NLS-1$
 		return buffer.toString();
 	}
 }

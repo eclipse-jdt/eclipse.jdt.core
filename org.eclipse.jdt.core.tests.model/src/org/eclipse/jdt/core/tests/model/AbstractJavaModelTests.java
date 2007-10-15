@@ -1134,7 +1134,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 						entries[sourceLength+i] = JavaCore.newVariableEntry(
 							new Path(new String(vars[0])), 
 							vars.length > 1 ? new Path(new String(vars[1])) : null, 
-							vars.length > 2 ? new Path(new String(vars[2])) : null);
+							vars.length > 2 ? new Path(new String(vars[2])) : null,
+							ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles), // ClasspathEntry.NO_ACCESS_RULES,
+							ClasspathEntry.NO_EXTRA_ATTRIBUTES,
+							false);
 					} else if (lib.startsWith("org.eclipse.jdt.core.tests.model.")) { // container
 						entries[sourceLength+i] = JavaCore.newContainerEntry(
 								new Path(lib),

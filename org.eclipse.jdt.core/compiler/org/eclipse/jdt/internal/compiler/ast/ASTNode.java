@@ -351,7 +351,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				scope.environment().getAccessRestriction(field.declaringClass.erasure());
 			if (restriction != null) {
 				scope.problemReporter().forbiddenReference(field, this,
-						restriction.getFieldAccessMessageTemplate(), restriction.getProblemId());
+						restriction.classpathEntryType, restriction.classpathEntryName, 
+						restriction.getProblemId());
 			}
 		}
 
@@ -390,16 +391,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			AccessRestriction restriction =
 				scope.environment().getAccessRestriction(method.declaringClass.erasure());
 			if (restriction != null) {
-				if (method.isConstructor()) {
-					scope.problemReporter().forbiddenReference(method, this,
-							restriction.getConstructorAccessMessageTemplate(),
-							restriction.getProblemId());
-				}
-				else {
-					scope.problemReporter().forbiddenReference(method, this,
-							restriction.getMethodAccessMessageTemplate(),
-							restriction.getProblemId());
-				}
+				scope.problemReporter().forbiddenReference(method, this,
+						restriction.classpathEntryType, restriction.classpathEntryName,
+						restriction.getProblemId());
 			}
 		}
 
@@ -450,7 +444,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		if (refType.hasRestrictedAccess()) {
 			AccessRestriction restriction = scope.environment().getAccessRestriction(type.erasure());
 			if (restriction != null) {
-				scope.problemReporter().forbiddenReference(type, this, restriction.getMessageTemplate(), restriction.getProblemId());
+				scope.problemReporter().forbiddenReference(type, this, restriction.classpathEntryType,
+						restriction.classpathEntryName, restriction.getProblemId());
 			}
 		}
 
