@@ -696,10 +696,6 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_TargetPlatform)) != null) {
 			long level = versionToJdkLevel(optionValue);
 			if (level != 0) {
-				// TODO see 206483
-				if (level == ClassFileConstants.JDK1_7) {
-					level = ClassFileConstants.JDK1_6;
-				}
 				this.targetJDK = level;
 			}
 			if (this.targetJDK >= ClassFileConstants.JDK1_5) this.inlineJsrBytecode = true; // forced from 1.5 mode on
