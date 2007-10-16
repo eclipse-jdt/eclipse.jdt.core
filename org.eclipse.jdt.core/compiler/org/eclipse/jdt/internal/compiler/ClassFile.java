@@ -6859,11 +6859,10 @@ public class ClassFile
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 
-		long targetVersion = this.targetJDK == ClassFileConstants.JDK1_7 ? ClassFileConstants.JDK1_6: this.targetJDK;
-		header[headerOffset++] = (byte) (targetVersion >> 8); // minor high
-		header[headerOffset++] = (byte) (targetVersion>> 0); // minor low
-		header[headerOffset++] = (byte) (targetVersion >> 24); // major high
-		header[headerOffset++] = (byte) (targetVersion >> 16); // major low
+		header[headerOffset++] = (byte) (this.targetJDK >> 8); // minor high
+		header[headerOffset++] = (byte) (this.targetJDK >> 0); // minor low
+		header[headerOffset++] = (byte) (this.targetJDK >> 24); // major high
+		header[headerOffset++] = (byte) (this.targetJDK >> 16); // major low
 
 		constantPoolOffset = headerOffset;
 		headerOffset += 2;
