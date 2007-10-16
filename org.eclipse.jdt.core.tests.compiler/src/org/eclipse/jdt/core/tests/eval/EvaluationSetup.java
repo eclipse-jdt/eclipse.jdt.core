@@ -37,7 +37,7 @@ public class EvaluationSetup extends CompilerTestSetup {
 	LocalVirtualMachine launchedVM;
 	INameEnvironment env;
 
-	public EvaluationSetup(Test test, String complianceLevel) {
+	public EvaluationSetup(Test test, long complianceLevel) {
 		super(test, complianceLevel);
 	}
 

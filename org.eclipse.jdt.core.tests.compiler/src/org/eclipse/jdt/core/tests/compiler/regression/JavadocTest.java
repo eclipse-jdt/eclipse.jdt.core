@@ -19,6 +19,7 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public abstract class JavadocTest extends AbstractRegressionTest {
@@ -69,18 +70,18 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		}
 		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 		if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
-			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_3.class, COMPLIANCE_1_3));
+			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_3.class, ClassFileConstants.JDK1_3));
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0) {
-			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_4.class, COMPLIANCE_1_4));
+			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_4.class, ClassFileConstants.JDK1_4));
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
-			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_5.class, COMPLIANCE_1_5));
+			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_5.class, ClassFileConstants.JDK1_5));
 		}
 		return testSuite;
 	}
 	
-	public static Test suiteForComplianceLevel(String level, Class testClass) {
+	public static Test suiteForComplianceLevel(long level, Class testClass) {
 		Test suite = buildAllCompliancesTestSuite(testClass);
 		return new RegressionTestSetup(suite, level);
 	}

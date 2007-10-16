@@ -14,6 +14,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocBugsTest extends JavadocTest {
@@ -2962,7 +2963,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"	void foo() {}\n" + 
 			"}\n"
 		};
-		if (this.complianceLevel.equals(COMPLIANCE_1_3) || this.complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runConformTest(testFiles);
 		} else {
 			runNegativeTest(testFiles,
@@ -4257,7 +4258,7 @@ public class JavadocBugsTest extends JavadocTest {
 				"	IAFAState.ValidationException valid2;\n" + 
 				"}\n"
 			};
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(units,
 				//boden\TestValid.java:8: warning - Tag @see: reference not found: ValidationException
 				"----------\n" + 
@@ -4317,7 +4318,7 @@ public class JavadocBugsTest extends JavadocTest {
 				"	IAFAState.ValidationException valid2;\n" + 
 				"}\n"
 			};
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(units,
 				//boden\TestValid.java:8: warning - Tag @see: reference not found: ValidationException
 				//boden\TestValid.java:12: warning - Tag @see: reference not found: ValidationException#IAFAState.ValidationException(String, IAFAState)
@@ -4436,7 +4437,7 @@ public class JavadocBugsTest extends JavadocTest {
 				"Javadoc: IAFAState cannot be resolved or is not a field\n" + 
 				"----------\n"
 		);
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(units, errors_14);
 		} else {
 			runNegativeTest(units, errors_50);
@@ -5145,7 +5146,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"	class Sub {} \n" + 
 			"}\n"
 		};
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(testFiles,
 				"----------\n" + 
 				"1. ERROR in X.java (at line 7)\n" + 
@@ -5181,7 +5182,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"	class Sub {} \n" + 
 			"}\n"
 		};
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(testFiles,
 				"----------\n" + 
 				"1. ERROR in X.java (at line 7)\n" + 
@@ -5226,7 +5227,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"	public final static int MY_VALUE = 0; \n" + 
 			"}\n"
 		};
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(testFiles,
 				"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
@@ -5262,7 +5263,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"	public final static int MY_VALUE = 0; \n" + 
 			"}\n"
 		};
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(testFiles,
 				"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
@@ -5378,7 +5379,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"class Y {}\n" + 
 			"class Z {}"
 		};
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			return;
 		}
 		runConformTest(testFiles);
@@ -5457,7 +5458,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(testFiles,
 				"----------\n" + 
 				"1. ERROR in X.java (at line 9)\n" + 
@@ -5526,7 +5527,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"      void m() { }\n" +
 			"}\n"
 		};
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(units,
 				//somepkg/MemberTypeDocTest.java:6: warning - Tag @link: reference not found: Inner
 				"----------\n" + 
@@ -5561,7 +5562,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"      void m() { }\n" +
 			"}\n"
 		};
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(units,
 				//somepkg/MemberTypeDocTest.java:6: warning - Tag @link: reference not found: Inner
 				"----------\n" + 
@@ -5596,7 +5597,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"      void m() { }\n" +
 			"}\n"
 		};
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(units,
 				//somepkg/MemberTypeDocTest.java:6: warning - Tag @link: reference not found: Inner
 				"----------\n" + 
@@ -5631,7 +5632,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"      void m() { }\n" +
 			"}\n"
 		};
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(units,
 				//somepkg/MemberTypeDocTest.java:6: warning - Tag @link: reference not found: Inner
 				"----------\n" + 
@@ -5666,7 +5667,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"      void m() { }\n" +
 			"}\n"
 		};
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(units,
 				//somepkg/MemberTypeDocTest.java:6: warning - Tag @link: reference not found: Inner
 				"----------\n" + 
@@ -5701,7 +5702,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"      void m() { }\n" +
 			"}\n"
 		};
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(units,
 				//somepkg/MemberTypeDocTest.java:6: warning - Tag @link: reference not found: Inner
 				"----------\n" + 
@@ -5807,7 +5808,7 @@ public class JavadocBugsTest extends JavadocTest {
 				"----------\n");
 		
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(units,error14);
 		}
 		else {
@@ -5911,7 +5912,7 @@ public class JavadocBugsTest extends JavadocTest {
 				"----------\n");
 		
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(units,error14);
 		}
 		else {
@@ -6118,7 +6119,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n");
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(units,error14);
 		}
 		else {

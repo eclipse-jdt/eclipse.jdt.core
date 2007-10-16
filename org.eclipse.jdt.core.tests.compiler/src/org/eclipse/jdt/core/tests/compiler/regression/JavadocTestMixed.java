@@ -14,6 +14,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocTestMixed extends JavadocTest {
@@ -769,7 +770,7 @@ public class JavadocTestMixed extends JavadocTest {
 					+ "		return \"\";\n"
 					+ "	}\n"
 					+ "}\n" },
-					this.complianceLevel.compareTo(COMPLIANCE_1_5) < 0
+					this.complianceLevel < ClassFileConstants.JDK1_5
 					? "----------\n"
 						+ "1. ERROR in test\\X.java (at line 23)\n"
 						+ "	}\n"

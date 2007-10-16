@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -450,7 +451,7 @@ public void test012() {
 // JLS3 9.6
 // @Deprecated variant
 public void test013() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportDeprecation, 
 			CompilerOptions.ERROR);

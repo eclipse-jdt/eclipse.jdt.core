@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
 import org.eclipse.jdt.core.tests.runtime.TargetInterface;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.InstallException;
@@ -3812,7 +3813,7 @@ public void testNegative004() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=102778
  */
 public void test063() {
-	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) < 0) return;
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	try {
 		String sourceA63 =
 			"public class A63 {\n" +

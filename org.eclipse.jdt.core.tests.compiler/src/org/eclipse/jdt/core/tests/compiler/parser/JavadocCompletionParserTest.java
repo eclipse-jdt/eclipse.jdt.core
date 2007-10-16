@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
@@ -163,12 +164,11 @@ protected void verifyAllTagsCompletion() {
 		TAG_DOC_ROOT,
 	};
 	char[][] additionalTags = null;
-	if (complianceLevel.equals(COMPLIANCE_1_4)) {
+	if(this.complianceLevel == ClassFileConstants.JDK1_4) {	
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
-	}
-	else if (!complianceLevel.equals(COMPLIANCE_1_3)) {
+	} else if(this.complianceLevel > ClassFileConstants.JDK1_4) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL
@@ -216,7 +216,7 @@ public void test003() {
 		" */\n" +
 		"public class Test {}\n";
 	verifyCompletionInJavadoc(source, "@v");
-	char[][] allTags = this.complianceLevel.equals(COMPLIANCE_1_3) 
+	char[][] allTags = this.complianceLevel == ClassFileConstants.JDK1_3
 		? new char[][] { TAG_VERSION }
 		: new char[][] { TAG_VERSION, TAG_VALUE };
 	verifyCompletionOnJavadocTag(new char[] { 'v' }, allTags, false);
@@ -241,7 +241,7 @@ public void test005() {
 		" */\n" +
 		"public class Test {}\n";
 	verifyCompletionInJavadoc(source, "@link");
-	char[][] allTags = this.complianceLevel.equals(COMPLIANCE_1_3) 
+	char[][] allTags = this.complianceLevel == ClassFileConstants.JDK1_3
 		? new char[][] { TAG_LINK }
 		: new char[][] { TAG_LINK, TAG_LINKPLAIN };
 	verifyCompletionOnJavadocTag("link".toCharArray(), allTags, false);
@@ -259,12 +259,11 @@ public void test006() {
 		TAG_DOC_ROOT,
 	};
 	char[][] additionalTags = null;
-	if (complianceLevel.equals(COMPLIANCE_1_4)) {
+	if (this.complianceLevel == ClassFileConstants.JDK1_4) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
-	}
-	else if (!complianceLevel.equals(COMPLIANCE_1_3)) {
+	} else if (this.complianceLevel > ClassFileConstants.JDK1_4) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL
@@ -481,12 +480,12 @@ public void test025() {
 		TAG_DOC_ROOT,
 	};
 	char[][] additionalTags = null;
-	if (complianceLevel.equals(COMPLIANCE_1_4)) {
+	if (this.complianceLevel == ClassFileConstants.JDK1_4) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
 	}
-	else if (!complianceLevel.equals(COMPLIANCE_1_3)) {
+	else if (this.complianceLevel > ClassFileConstants.JDK1_4) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL
@@ -513,9 +512,9 @@ public void test026() {
 		" */\n" + 
 		"public class Test {}\n";
 	verifyCompletionInJavadoc(source, "{@li");
-	char[][] allTags = complianceLevel.equals(COMPLIANCE_1_3)
+	char[][] allTags = this.complianceLevel == ClassFileConstants.JDK1_3
 		? new char[][] { TAG_LINK }
-		: (complianceLevel.equals(COMPLIANCE_1_4)
+		: (this.complianceLevel == ClassFileConstants.JDK1_4
 				? new char[][] { TAG_LINK, TAG_LINKPLAIN }
 				: new char[][] { TAG_LINK, TAG_LINKPLAIN, TAG_LITERAL });
 	verifyCompletionOnJavadocTag("li".toCharArray(), allTags, false);
@@ -533,7 +532,7 @@ public void test027() {
 		" */\n" + 
 		"public class Test {}\n";
 	verifyCompletionInJavadoc(source, "{@link");
-	char[][] allTags = complianceLevel.equals(COMPLIANCE_1_3)
+	char[][] allTags = this.complianceLevel == ClassFileConstants.JDK1_3
 		? new char[][] { TAG_LINK }
 		: new char[][] { TAG_LINK, TAG_LINKPLAIN  };
 	verifyCompletionOnJavadocTag("link".toCharArray(), allTags, false);
@@ -555,12 +554,12 @@ public void test028() {
 		TAG_DOC_ROOT,
 	};
 	char[][] additionalTags = null;
-	if (complianceLevel.equals(COMPLIANCE_1_4)) {
+	if (this.complianceLevel == ClassFileConstants.JDK1_4) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
 	}
-	else if (!complianceLevel.equals(COMPLIANCE_1_3)) {
+	else if (this.complianceLevel > ClassFileConstants.JDK1_4) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL
@@ -587,9 +586,9 @@ public void test029() {
 		" */\n" + 
 		"public class Test {}\n";
 	verifyCompletionInJavadoc(source, "{@li");
-	char[][] allTags = complianceLevel.equals(COMPLIANCE_1_3)
+	char[][] allTags = this.complianceLevel == ClassFileConstants.JDK1_3
 		? new char[][] { TAG_LINK }
-		: (complianceLevel.equals(COMPLIANCE_1_4)
+		: (this.complianceLevel == ClassFileConstants.JDK1_4
 				? new char[][] { TAG_LINK, TAG_LINKPLAIN }
 				: new char[][] { TAG_LINK, TAG_LINKPLAIN, TAG_LITERAL });
 	verifyCompletionOnJavadocTag("li".toCharArray(), allTags, false);
@@ -607,7 +606,7 @@ public void test030() {
 		" */\n" + 
 		"public class Test {}\n";
 	verifyCompletionInJavadoc(source, "{@link");
-	char[][] allTags = complianceLevel.equals(COMPLIANCE_1_3)
+	char[][] allTags = this.complianceLevel == ClassFileConstants.JDK1_3
 		? new char[][] { TAG_LINK }
 		: new char[][] { TAG_LINK, TAG_LINKPLAIN  };
 	verifyCompletionOnJavadocTag("link".toCharArray(), allTags, false);

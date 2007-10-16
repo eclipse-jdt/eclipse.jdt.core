@@ -14,6 +14,7 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.IRequestor;
@@ -677,7 +678,7 @@ public void testRunMethodInAnonymous() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=89632
  */
 public void testFor89632() {
-	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) < 0) return;
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	try {
 		context.setImports(new char[][] {"java.util.*".toCharArray()});
 		evaluateWithExpectedDisplayString(

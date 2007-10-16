@@ -34660,7 +34660,7 @@ public void test1065() {
 		},
 		"[A#foo()][B#foo()][A#bar()][B#bar()]");
 	// 	check presence of checkcast in #testFoo() and #testBar()
-	String expectedOutput = this.complianceLevel.equals(COMPLIANCE_1_5)
+	String expectedOutput = this.complianceLevel == ClassFileConstants.JDK1_5
 			?	"  // Method descriptor #15 (ZLA;LB;)V\n" + 
 				"  // Stack: 2, Locals: 4\n" + 
 				"  void testFoo(boolean t, A a, B b);\n" + 
@@ -34813,7 +34813,7 @@ public void test1066() {
 		},
 		"[ClassCastException:foo(1)][ClassCastException:foo(2)][ClassCastException:bar(1)][ClassCastException:bar(2)]");
 	// 	check presence of checkcast
-	String expectedOutput = this.complianceLevel.equals(COMPLIANCE_1_5)
+	String expectedOutput = this.complianceLevel == ClassFileConstants.JDK1_5
 			?	"  // Stack: 4, Locals: 8\n" + 
 				"  public static void main(java.lang.String[] args);\n" + 
 				"      0  new X [1]\n" + 
@@ -40052,5 +40052,126 @@ public void test1201() {
 			"}\n", // =================
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=168230
+public void test1202() {
+	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_7
+		? 	"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	X.<String>foo();\n" + 
+			"	          ^^^\n" + 
+			"The method foo() of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	X.<Zork>foo();\n" + 
+			"	   ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n"
+		: 	"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	X.<String>foo();\n" + 
+			"	   ^^^^^^\n" + 
+			"Unused type arguments for the non generic method foo() of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	X.<Zork>foo();\n" + 
+			"	   ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n";
+	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void foo() {}\n" + 
+			"    public static void bar() {\n" + 
+			"        X.<String>foo();\n" + 
+			"        X.<Zork>foo();\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		expectedOutput);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=168230 - variation
+public void test1203() {
+	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_7
+		? 	"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	return X.<String>foo(one, two);\n" + 
+			"	                 ^^^\n" + 
+			"The method foo(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	return this.<String>bar(one, two);\n" + 
+			"	                    ^^^\n" + 
+			"The method bar(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	return this.<String>foobar(one, two);\n" + 
+			"	                    ^^^^^^\n" + 
+			"The method foobar(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 14)\n" + 
+			"	return this.<String>foobar2(one, two);// silenced\n" + 
+			"	                    ^^^^^^^\n" + 
+			"The method foobar2(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 22)\n" + 
+			"	this.<String,String>foobar(one, two);\n" + 
+			"	                    ^^^^^^\n" + 
+			"Incorrect number of type arguments for generic method <T>foobar(String, String) of type Y; it cannot be parameterized with arguments <String, String>\n" + 
+			"----------\n"
+		: 	"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	return X.<String>foo(one, two);\n" + 
+			"	          ^^^^^^\n" + 
+			"Unused type arguments for the non generic method foo(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	return this.<String>bar(one, two);\n" + 
+			"	             ^^^^^^\n" + 
+			"Unused type arguments for the non generic method bar(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
+			"	return this.<String>foobar(one, two);\n" + 
+			"	             ^^^^^^\n" + 
+			"Unused type arguments for the non generic method foobar(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 22)\n" + 
+			"	this.<String,String>foobar(one, two);\n" + 
+			"	                    ^^^^^^\n" + 
+			"Incorrect number of type arguments for generic method <T>foobar(String, String) of type Y; it cannot be parameterized with arguments <String, String>\n" + 
+			"----------\n";
+	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X extends Y {\n" + 
+			"  public static String foo(String one, String two) {\n" + 
+			"    return X.<String>foo(one, two);\n" + 
+			"  }\n" + 
+			"  public String bar(String one, String two) {\n" + 
+			"    return this.<String>bar(one, two);\n" + 
+			"  }\n" + 
+			"  @Override\n" + 
+			"  public String foobar(String one, String two) {\n" + 
+			"    return this.<String>foobar(one, two);\n" + 
+			"  }\n" + 
+			"	@SuppressWarnings(\"unused\")\n" +
+			"  public String foobar2(String one, String two) {\n" + 
+			"    return this.<String>foobar2(one, two);// silenced\n" + 
+			"  }\n" + 			
+			"}\n" + 
+			"class Y {\n" + 
+			"  public <T> String foobar(String one, String two) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  void test(String one, String two) {\n" + 
+			"	  this.<String,String>foobar(one, two);\n" + 
+			"  }\n" + 
+			"}\n", // =================
+		},
+		expectedOutput);
 }
 }

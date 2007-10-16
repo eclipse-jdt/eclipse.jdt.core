@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
 import junit.framework.Test;
 
 public class SuperTypeTest extends AbstractRegressionTest {
@@ -87,7 +89,7 @@ public void test002() {
 		"	class M {} \n" +
 		"} \n"
 	};
-	if (this.complianceLevel.equals(COMPLIANCE_1_3)) {
+	if (this.complianceLevel == ClassFileConstants.JDK1_3) {
 		runNegativeTest(
 			sources,
 			"----------\n" + 
@@ -126,7 +128,7 @@ public void test003() {
 		"	String bar(){ return \"SUCCESS\"; } \n" +
 		"} \n"
 	};
-	if (this.complianceLevel.equals(COMPLIANCE_1_3)) {
+	if (this.complianceLevel == ClassFileConstants.JDK1_3) {
 		runNegativeTest(
 			sources,
 			"----------\n" + 
@@ -163,7 +165,7 @@ public void test004() {
 		"	String bar = \"SUCCESS\"; \n" +
 		"} \n"
 	};
-	if (this.complianceLevel.equals(COMPLIANCE_1_3)) {
+	if (this.complianceLevel == ClassFileConstants.JDK1_3) {
 		runNegativeTest(
 			sources,
 			"----------\n" + 

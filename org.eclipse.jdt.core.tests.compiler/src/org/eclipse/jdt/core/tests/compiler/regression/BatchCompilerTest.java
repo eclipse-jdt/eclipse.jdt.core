@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class BatchCompilerTest extends AbstractRegressionTest {
 	public static final String OUTPUT_DIR_PLACEHOLDER = "---OUTPUT_DIR_PLACEHOLDER---";
@@ -49,7 +50,7 @@ public BatchCompilerTest(String name) {
  * @see TestAll
  */
 public static Test suite() {
-	return buildUniqueComplianceTestSuite(testClass(), COMPLIANCE_1_5);
+	return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_5);
 }
 
 private String getLibraryClassesAsQuotedString() {
@@ -1141,13 +1142,15 @@ public void test012b(){
         "      unqualified-field-access same as unqualifiedField\n" +
         "      unqualifiedField     unqualified reference to field\n" +
         "      unused               macro for unusedArgument, unusedImport, unusedLabel,\n" +
-        "                               unusedLocal, unusedPrivate and unusedThrown\n" +
+        "                               unusedLocal, unusedPrivate, unusedThrown,\n" + 
+        "                               and unusedTypeArgs\n" +
         "      unusedArgument       unread method parameter\n" +
         "      unusedImport       + unused import declaration\n" +
         "      unusedLabel        + unused label\n" +
         "      unusedLocal        + unread local variable\n" +
         "      unusedPrivate      + unused private member declaration\n" +
         "      unusedThrown         unused declared thrown exception\n" +
+        "      unusedTypeArgs     + unused type arguments for method\n" +
         "      uselessTypeCheck     unnecessary cast/instanceof operation\n" +
         "      varargsCast        + varargs argument need explicit cast\n" +
         "      warningToken       + unhandled warning token in @SuppressWarnings\n" +
@@ -1292,6 +1295,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedPrivateMember\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedTypeArgumentsForMethodInvocation\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.processAnnotations\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.source\" value=\"1.5\"/>\n" + 

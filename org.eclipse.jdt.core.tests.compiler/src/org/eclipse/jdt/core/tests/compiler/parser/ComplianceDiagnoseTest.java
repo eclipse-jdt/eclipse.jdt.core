@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class ComplianceDiagnoseTest extends AbstractRegressionTest {
 	public ComplianceDiagnoseTest(String name) {
@@ -36,11 +37,11 @@ public void runComplianceParserTest(
 	String expected13ProblemLog,
 	String expected14ProblemLog,
 	String expected15ProblemLog){
-	if(COMPLIANCE_1_3.equals(this.complianceLevel)) {
+	if(this.complianceLevel == ClassFileConstants.JDK1_3) {
 		this.runNegativeTest(testFiles, expected13ProblemLog);
-	} else if(COMPLIANCE_1_4.equals(this.complianceLevel)) {
+	} else if(this.complianceLevel == ClassFileConstants.JDK1_4) {
 		this.runNegativeTest(testFiles, expected14ProblemLog);
-	} else if(this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+	} else if(this.complianceLevel > ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(testFiles, expected15ProblemLog);
 	}
 }

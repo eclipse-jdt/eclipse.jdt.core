@@ -44,6 +44,7 @@ import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -261,13 +262,13 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			.append(fileName)
 			.append("\" -d \"")
 			.append(EVAL_DIRECTORY);
-		if (this.complianceLevel.compareTo(COMPLIANCE_1_5) < 0) {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 			buffer.append("\" -1.4 -source 1.3 -target 1.2");
-		} else if (this.complianceLevel.compareTo(COMPLIANCE_1_5) == 0) {
+		} else if (this.complianceLevel == ClassFileConstants.JDK1_5) {
 			buffer.append("\" -1.5");
-		} else if (this.complianceLevel.compareTo(COMPLIANCE_1_6) == 0) {
+		} else if (this.complianceLevel == ClassFileConstants.JDK1_6) {
 			buffer.append("\" -1.6");
-		} else if (this.complianceLevel.compareTo(COMPLIANCE_1_7) == 0) {
+		} else if (this.complianceLevel == ClassFileConstants.JDK1_7) {
 			buffer.append("\" -1.7");
 		}
 		buffer

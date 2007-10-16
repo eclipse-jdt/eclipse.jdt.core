@@ -18,6 +18,7 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class Compliance_1_3 extends AbstractRegressionTest {
@@ -40,7 +41,7 @@ protected Map getCompilerOptions() {
 	return options;
 }
 public static Test suite() {
-		return buildUniqueComplianceTestSuite(testClass(), COMPLIANCE_1_3);
+		return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_3);
 }
 public static Class testClass() {
 	return Compliance_1_3.class;

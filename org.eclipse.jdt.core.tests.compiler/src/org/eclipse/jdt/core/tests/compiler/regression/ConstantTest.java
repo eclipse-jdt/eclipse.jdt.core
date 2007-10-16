@@ -18,6 +18,7 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class ConstantTest extends AbstractRegressionTest {
 	
@@ -482,7 +483,7 @@ public void test009() {
 		"        [pc: 71, pc: 95] local: s index: 2 type: java.lang.String\n" + 
 		"        [pc: 86, pc: 95] local: s2 index: 3 type: java.lang.String\n";
 	
-	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		int index = actualOutput.indexOf(expectedOutput15);
 		if (index == -1 || expectedOutput15.length() == 0) {
 			System.out.println(Util.displayString(actualOutput, 2));
@@ -636,7 +637,7 @@ public void test013() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110182
 public void test014() {
-	if(this.complianceLevel.compareTo(COMPLIANCE_1_5) > 0) return;
+	if (this.complianceLevel > ClassFileConstants.JDK1_5) return;
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -802,7 +803,7 @@ public void test014() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110182 - variation
 public void test015() {
-	if(this.complianceLevel.compareTo(COMPLIANCE_1_5) > 0) return;
+	if(this.complianceLevel > ClassFileConstants.JDK1_5) return;
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -967,7 +968,7 @@ public void test015() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110182 - variation
 public void test016() {
-	if(this.complianceLevel.compareTo(COMPLIANCE_1_5) > 0) return;
+	if(this.complianceLevel > ClassFileConstants.JDK1_5) return;
 	this.runConformTest(
 		new String[] {
 			"X.java",

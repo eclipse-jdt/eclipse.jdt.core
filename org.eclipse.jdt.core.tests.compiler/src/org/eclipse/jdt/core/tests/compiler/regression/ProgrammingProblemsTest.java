@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import junit.framework.Test;
 
@@ -223,7 +224,7 @@ public void test0004_unread_parameters() {
 
 // disabling the reporting of unread parameters using SuppressWarnings
 public void test0005_unread_parameters() {
-	if (COMPLIANCE_1_5.compareTo(complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		runTest(
 			new String[] {
 				"X.java",
@@ -425,7 +426,7 @@ public void test0010_declared_thrown_checked_exceptions() {
 // disabling the reporting of unnecessary declaration of thrown checked 
 // exceptions using SuppressWarnings
 public void test0011_declared_thrown_checked_exceptions() {
-	if (COMPLIANCE_1_5.compareTo(complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		runTest(
 			new String[] {
 				"X.java",

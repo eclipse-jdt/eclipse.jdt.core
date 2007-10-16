@@ -2512,7 +2512,7 @@ public void test074() {
 		"	} \n"+
 		"} \n"
 	};
-	if (this.complianceLevel.equals(COMPLIANCE_1_3)) {
+	if (this.complianceLevel == ClassFileConstants.JDK1_3) {
 		runConformTest(
 			sources,
 			"SUCCESS");
@@ -2565,7 +2565,7 @@ public void test075() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159543
 public void test076() {
-	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(
 			new String[] {
 				"p/Y.java",	//===================
@@ -2819,7 +2819,7 @@ public void test083() {
 			"  void set(long value);\n" + 
 			"}\n",
 		};
-	if (complianceLevel.compareTo(COMPLIANCE_1_3) <= 0) {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_3) {
 		this.runNegativeTest(
 			src,
 			"----------\n" + 

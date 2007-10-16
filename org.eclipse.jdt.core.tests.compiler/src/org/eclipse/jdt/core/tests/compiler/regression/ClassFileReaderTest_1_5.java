@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	static {
@@ -420,7 +421,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 		String expectedOutput =
 			"abstract interface p.package-info {\n" + 
 			"}";
-		if (this.complianceLevel.compareTo(COMPLIANCE_1_5) > 0) {
+		if (this.complianceLevel > ClassFileConstants.JDK1_5) {
 			expectedOutput = "abstract synthetic interface p.package-info {\n" + 
 			"}";
 		}

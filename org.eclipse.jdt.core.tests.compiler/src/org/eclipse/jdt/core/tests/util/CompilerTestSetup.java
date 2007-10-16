@@ -19,9 +19,9 @@ import junit.framework.TestSuite;
 
 public class CompilerTestSetup extends TestDecorator {
 
-	String complianceLevel;
+	long complianceLevel;
 
-	public CompilerTestSetup(Test test, String complianceLevel) {
+	public CompilerTestSetup(Test test, long complianceLevel) {
 		super(test);
 		this.complianceLevel = complianceLevel;
 	}

@@ -16,6 +16,7 @@ import java.io.IOException;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 import junit.framework.Test;
 
@@ -1226,7 +1227,7 @@ public void test031() {
 		},
 		"true");
 	// 	ensure optimized boolean codegen sequence
-	String expectedOutput = this.complianceLevel.equals(COMPLIANCE_1_3)
+	String expectedOutput = this.complianceLevel == ClassFileConstants.JDK1_3
 		?	"  // Method descriptor #17 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 4\n" + 
 			"  public static void main(java.lang.String[] args);\n" + 

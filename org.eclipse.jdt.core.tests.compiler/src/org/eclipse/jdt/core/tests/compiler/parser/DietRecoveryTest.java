@@ -2526,8 +2526,7 @@ public void test32() {
 		"}\n";
 	
 	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString;
-	if(COMPLIANCE_1_3.equals(this.complianceLevel) ||
-			COMPLIANCE_1_4.equals(this.complianceLevel)) {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
 			"public class WB2 {\n" + 
 			"  public WB2() {\n" + 
@@ -6962,8 +6961,7 @@ public void test117() {
 	String expectedCompletionDietUnitToString = null;
 	
 	
-	if(COMPLIANCE_1_3.equals(this.complianceLevel) || 
-			COMPLIANCE_1_4.equals(this.complianceLevel)) {
+	if(this.complianceLevel <= ClassFileConstants.JDK1_4) {
 		
 		expectedDietUnitToString = 
 			"public class X {\n" + 
@@ -7017,7 +7015,7 @@ public void test117() {
 		
 		expectedCompletionDietUnitToString = 
 			expectedDietUnitToString;
-	} else if(this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+	} else if(this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		
 		expectedDietUnitToString = 
 			"public class X {\n" + 
@@ -7615,8 +7613,7 @@ public void test124() {
 		"}\n";
 	
 	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = null;
-	if(COMPLIANCE_1_3.equals(this.complianceLevel) || 
-			COMPLIANCE_1_4.equals(this.complianceLevel)) {
+	if(this.complianceLevel <= ClassFileConstants.JDK1_4) {	
 		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
 			"public class Test {\n" + 
 			"  public Test() {\n" + 

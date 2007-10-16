@@ -5394,7 +5394,7 @@ public void test132() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=168331
 public void test133() {
-	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runConformTest(
 			new String[] {
 				"X.java",	//===================
@@ -5429,7 +5429,7 @@ public void test133() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=168331
 public void test134() {
-	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runConformTest(
 			new String[] {
 				"X.java",	//===================

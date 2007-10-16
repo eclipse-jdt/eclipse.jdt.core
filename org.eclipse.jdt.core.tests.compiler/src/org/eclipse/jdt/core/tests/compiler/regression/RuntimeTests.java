@@ -14,6 +14,8 @@
  */
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
 import junit.framework.Test;
 
 public class RuntimeTests extends AbstractRegressionTest {
@@ -480,7 +482,7 @@ public void test1004_partial_rebuild() {
 		},
 		"X.field-X.staticField-X.method()-X.staticMethod()-");
 	String expectedOutput =
-		this.complianceLevel.equals(COMPLIANCE_1_3) ?
+		this.complianceLevel == ClassFileConstants.JDK1_3 ?
 			"X.field-X.staticField-Y.method()-X.staticMethod()-" :
 			"Y.field-Y.staticField-Y.method()-Y.staticMethod()-";
 	this.runConformTest(

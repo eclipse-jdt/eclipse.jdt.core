@@ -17,6 +17,7 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 
 public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
@@ -27,7 +28,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	}
 
 	public static Test suite() {
-		return buildUniqueComplianceTestSuite(testClass(), COMPLIANCE_1_4);
+		return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_4);
 	}
 	public static Class testClass() {
 		return ClassFileReaderTest_1_4.class;

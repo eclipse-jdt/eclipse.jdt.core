@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -333,7 +334,7 @@ public void test014() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157379
 public void test015() {
 	Map options = getCompilerOptions();
-	if (this.complianceLevel.equals(COMPLIANCE_1_3)) return;
+	if (this.complianceLevel == ClassFileConstants.JDK1_3) return;
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
 	this.runConformTest(
 			new String[] {

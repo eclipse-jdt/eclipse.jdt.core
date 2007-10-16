@@ -11,6 +11,8 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import junit.framework.Test;
 
@@ -545,7 +547,7 @@ public void test0025_parameter() {
 
 // null analysis -- suppress warnings
 public void test0026_suppress_warnings() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
 		this.runConformTest(
@@ -755,7 +757,7 @@ public void test0036_conditional_expression() {
 
 // null analysis -- autoboxing
 public void test0040_autoboxing_compound_assignment() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -776,7 +778,7 @@ public void test0040_autoboxing_compound_assignment() {
 
 // null analysis -- autoboxing
 public void test0041_autoboxing_increment_operator() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -798,7 +800,7 @@ public void test0041_autoboxing_increment_operator() {
 
 // null analysis -- autoboxing
 public void test0042_autoboxing_literal() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -819,7 +821,7 @@ public void test0042_autoboxing_literal() {
 
 // null analysis -- autoboxing
 public void test0043_autoboxing_literal() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -857,7 +859,7 @@ public void test0044_autoboxing() {
 // variant of 42 for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=165346
 public void test0045_autoboxing_operator() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6311,7 +6313,7 @@ public void test0710_for() {
 
 // null analysis -- for
 public void test0711_for() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6333,7 +6335,7 @@ public void test0711_for() {
 
 // null analysis -- for
 public void test0712_for() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6355,7 +6357,7 @@ public void test0712_for() {
 
 // null analysis -- for
 public void test0713_for() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6371,7 +6373,7 @@ public void test0713_for() {
 
 // null analysis -- for
 public void test0714_for() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6387,7 +6389,7 @@ public void test0714_for() {
 
 // null analysis -- for
 public void test0715_for() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6413,7 +6415,7 @@ public void test0715_for() {
 
 // null analysis -- for
 public void test0716_for() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6436,7 +6438,7 @@ public void test0716_for() {
 
 // null analysis -- for
 public void test0717_for() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6844,7 +6846,7 @@ public void test0734_for_while_break() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=129371
 // variant
 public void test0735_for_nested_break() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6952,7 +6954,7 @@ public void _test0738_for_unknown_protection() {
 // null analysis -- for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=178895
 public void test0739_for() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7030,7 +7032,7 @@ public void test0741_for_explicit_label() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
 // variant
 public void test0742_for_explicit_label() {
-	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7511,7 +7513,7 @@ public void test0906_non_null_protection_tag() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
 public void test0950_assert() {
-	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -7529,7 +7531,7 @@ public void test0950_assert() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
 public void test0951_assert() {
-	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7551,7 +7553,7 @@ public void test0951_assert() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
 public void test0952_assert() {
-	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7573,7 +7575,7 @@ public void test0952_assert() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
 public void test0953_assert_combined() {
-	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7601,7 +7603,7 @@ public void test0953_assert_combined() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
 public void test0954_assert_fake_reachable() {
-	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7618,7 +7620,7 @@ public void test0954_assert_fake_reachable() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
 public void test0955_assert_combined() {
-	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7640,7 +7642,7 @@ public void test0955_assert_combined() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
 // [compiler] Null reference analysis doesn't understand assertions
 public void test0956_assert_combined() {
-	if (COMPLIANCE_1_3.compareTo(this.complianceLevel) < 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8837,7 +8839,7 @@ public void test1055_options_mix() {
 // adding distinct options to control null checks in more detail
 // selectively changing error levels
 public void test1056_options_mix_with_SuppressWarnings() {
-	if (complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);

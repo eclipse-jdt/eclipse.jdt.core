@@ -5226,7 +5226,7 @@ public void test057() {
 		"	} \n"+
 		"} \n"
 	};
-	if (this.complianceLevel.equals(COMPLIANCE_1_3)) {
+	if (this.complianceLevel == ClassFileConstants.JDK1_3) {
 		runNegativeTest(
 			sources,
 			"----------\n" + 

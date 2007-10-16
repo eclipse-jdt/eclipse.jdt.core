@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -201,7 +202,7 @@ public void test006() {
 // [compiler] warning on fall through
 // SuppressWarnings effect - explicit fallthrough token
 public void test007() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (this.complianceLevel == ClassFileConstants.JDK1_5) {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.WARNING);
 		this.runNegativeTest(
@@ -325,7 +326,7 @@ public void test010() {
 // [compiler] warning on fall through
 // SuppressWarnings effect - implicit, using all token
 public void test011() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (this.complianceLevel == ClassFileConstants.JDK1_5) {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.WARNING);
 		this.runNegativeTest(
@@ -1099,7 +1100,7 @@ public void test036() {
 		"    }\n" + 
 		"  }\n" + 
 		"}";
-	if (complianceLevel.compareTo(COMPLIANCE_1_3) <= 0) {
+	if (complianceLevel <= ClassFileConstants.JDK1_3) {
 		this.runConformTest(
 				new String[] {
 					"X.java",

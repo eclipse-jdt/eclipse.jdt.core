@@ -14,6 +14,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ExternalizeStringLiterals15Test extends AbstractRegressionTest {
@@ -27,7 +28,7 @@ public ExternalizeStringLiterals15Test(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildUniqueComplianceTestSuite(testClass(), COMPLIANCE_1_5);
+	return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_5);
 }
 
 public void test001() {
