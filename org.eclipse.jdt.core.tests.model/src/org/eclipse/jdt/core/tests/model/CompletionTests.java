@@ -2386,118 +2386,246 @@ public void testCompletionBasicCompletionContext() throws JavaModelException {
 }
 
 public void testCompletionBasicField1() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBasicField1.java");
-
-	String str = cu.getSource();
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionBasicField1.java",
+		"public class CompletionBasicField1 {\n"+
+		"	public int zzvarzz;\n"+
+		"	void foo() {\n"+
+		"		zzvar\n"+
+		"	}\n"+
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "zzvar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int rStart = str.lastIndexOf("zzvar");
+	int rEnd = rStart + "zzvar".length();
+
+	int tStart = rStart;
+	int tEnd = rEnd;
+	
 	assertResults(
-			"zzvarzz[FIELD_REF]{zzvarzz, LCompletionBasicField1;, I, zzvarzz, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"zzvarzz[FIELD_REF]{zzvarzz, LCompletionBasicField1;, I, zzvarzz, null, replace["+rStart+", "+rEnd+"], token["+tStart+", "+tEnd+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 
 public void testCompletionBasicKeyword1() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBasicKeyword1.java");
-
-	String str = cu.getSource();
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionBasicKeyword1.java",
+		"public class CompletionBasicKeyword1 {\n"+
+		"	void foo() {\n"+
+		"		whil\n"+
+		"	}\n"+
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "whil";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	int rStart = str.lastIndexOf("whil");
+	int rEnd = rStart + "whil".length();
 
+	int tStart = rStart;
+	int tEnd = rEnd;
+	
 	assertResults(
-			"while[KEYWORD]{while, null, null, while, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			"while[KEYWORD]{while, null, null, while, null, replace["+rStart+", "+rEnd+"], token["+tStart+", "+tEnd+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 
 public void testCompletionBasicLocalVariable1() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBasicLocalVariable1.java");
-
-	String str = cu.getSource();
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionBasicLocalVariable1.java",
+		"public class CompletionBasicLocalVariable1 {\n"+
+		"	void foo() {\n"+
+		"		int zzvarzz;\n"+
+		"		zzvar\n"+
+		"	}\n"+
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "zzvar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	int rStart = str.lastIndexOf("zzvar");
+	int rEnd = rStart + "zzvar".length();
 
+	int tStart = rStart;
+	int tEnd = rEnd;
+	
 	assertResults(
-			"zzvarzz[LOCAL_VARIABLE_REF]{zzvarzz, null, I, zzvarzz, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"zzvarzz[LOCAL_VARIABLE_REF]{zzvarzz, null, I, zzvarzz, null, replace["+rStart+", "+rEnd+"], token["+tStart+", "+tEnd+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 
 public void testCompletionBasicMethod1() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBasicMethod1.java");
-
-	String str = cu.getSource();
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionBasicMethod1.java",
+		"public class CompletionBasicMethod1 {\n"+
+		"	void zzfoo() {\n"+
+		"		zzfo\n"+
+		"	}\n"+
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "zzfo";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	int rStart = str.lastIndexOf("zzfo");
+	int rEnd = rStart + "zzfo".length();
 
+	int tStart = rStart;
+	int tEnd = rEnd;
+	
 	assertResults(
-			"zzfoo[METHOD_REF]{zzfoo(), LCompletionBasicMethod1;, ()V, zzfoo, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"zzfoo[METHOD_REF]{zzfoo(), LCompletionBasicMethod1;, ()V, zzfoo, null, replace["+rStart+", "+rEnd+"], token["+tStart+", "+tEnd+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 
 public void testCompletionBasicMethodDeclaration1() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBasicMethodDeclaration1.java");
-
-	String str = cu.getSource();
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionBasicMethodDeclaration1.java",
+		"public class CompletionBasicMethodDeclaration1 {\n"+
+		"	equals\n"+
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "equals";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	int rStart = str.lastIndexOf("equals");
+	int rEnd = rStart + "equals".length();
 
+	int tStart = rStart;
+	int tEnd = rEnd;
+	
 	assertResults(
-			"equals[POTENTIAL_METHOD_DECLARATION]{equals, LCompletionBasicMethodDeclaration1;, ()V, equals, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
+			"equals[POTENTIAL_METHOD_DECLARATION]{equals, LCompletionBasicMethodDeclaration1;, ()V, equals, null, replace["+rStart+", "+rEnd+"], token["+tStart+", "+tEnd+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+rStart+", "+rEnd+"], token["+tStart+", "+tEnd+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 
 public void testCompletionBasicPackage1() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBasicPackage1.java");
-
-	String str = cu.getSource();
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionBasicPackage1.java",
+		"public class CompletionBasicPackage1 {\n"+
+		"	java.lan\n"+
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "java.lan";
-	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	int rStart = str.lastIndexOf("java.lan");
+	int rEnd = rStart + "java.lan".length();
 
+	int tStart = str.lastIndexOf("lan");
+	int tEnd = tStart + "lan".length();
+	
 	assertResults(
-			"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED + R_NON_RESTRICTED) + "}",
+			"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, replace["+rStart+", "+rEnd+"], token["+tStart+", "+tEnd+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 
 
 public void testCompletionBasicPotentialMethodDeclaration1() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBasicPotentialMethodDeclaration1.java");
-
-	String str = cu.getSource();
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionBasicPotentialMethodDeclaration1.java",
+		"public class CompletionBasicPotentialMethodDeclaration1 {\n"+
+		"	zzpot\n"+
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "zzpot";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	int rStart = str.lastIndexOf("zzpot");
+	int rEnd = rStart + "zzpot".length();
 
+	int tStart = rStart;
+	int tEnd = rEnd;
+	
 	assertResults(
-			"zzpot[POTENTIAL_METHOD_DECLARATION]{zzpot, LCompletionBasicPotentialMethodDeclaration1;, ()V, zzpot, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			"zzpot[POTENTIAL_METHOD_DECLARATION]{zzpot, LCompletionBasicPotentialMethodDeclaration1;, ()V, zzpot, null, replace["+rStart+", "+rEnd+"], token["+tStart+", "+tEnd+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 
 
 public void testCompletionBasicType1() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBasicType1.java");
-
-	String str = cu.getSource();
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionBasicType1.java",
+		"public class CompletionBasicType1 {\n"+
+		"	void foo() {\n"+
+		"		Objec\n"+
+		"	}\n"+
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "Objec";
-	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+	int rStart = str.lastIndexOf("Objec");
+	int rEnd = rStart + "Objec".length();
 
+	int tStart = rStart;
+	int tEnd = rEnd;
+	
 	assertResults(
-			"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, replace["+rStart+", "+rEnd+"], token["+tStart+", "+tEnd+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+		requestor.getResults());
+}
+
+public void testCompletionBasicType2() throws JavaModelException {
+
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionBasicType2.java",
+		"public class CompletionBasicType2 {\n"+
+		"	void foo() {\n"+
+		"		java.lang.Objec\n"+
+		"	}\n"+
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Objec";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+	int rStart = str.lastIndexOf("java.lang.Objec");
+	int rEnd = rStart + "java.lang.Objec".length();
+
+	int tStart = str.lastIndexOf("Objec");
+	int tEnd = tStart + "Objec".length();
+	
+	assertResults(
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, replace["+rStart+", "+rEnd+"], token["+tStart+", "+tEnd+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+		requestor.getResults());
 }
 
 public void testCompletionBasicVariableDeclaration1() throws JavaModelException {
@@ -2508,14 +2636,20 @@ public void testCompletionBasicVariableDeclaration1() throws JavaModelException 
 		"	public Object obj;\n"+
 		"}\n");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "obj";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+	int rStart = str.lastIndexOf("obj");
+	int rEnd = rStart + "obj".length();
+
+	int tStart = rStart;
+	int tEnd = rEnd;
 	
 	assertResults(
-		"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, " + (R_DEFAULT + R_INTERESTING + R_CASE+ R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED) + "}",
+		"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, replace["+rStart+", "+rEnd+"], token["+tStart+", "+tEnd+"], " + (R_DEFAULT + R_INTERESTING + R_CASE+ R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED) + "}",
 		requestor.getResults());
 }
 
@@ -10955,15 +11089,23 @@ public void testCompletionPrefixMethodName3() throws JavaModelException {
             "}");
     
     
-    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, false, true);
     String str = this.wc.getSource();
     String completeBehind = "xBar(1,";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
     this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
+    int rStart1 = str.lastIndexOf("xBar(1,");
+	int rEnd1 = rStart1 + "xBar(1,".length();
+	int rStart2 = str.lastIndexOf("xBar(1,") + "xBar(1,".length();
+	int rEnd2 = rStart2;
+	
+	int tStart = str.lastIndexOf("xBar(1,") + "xBar(1,".length();
+	int tEnd = tStart;
+	
 	assertResults(
-		"xBar[METHOD_REF]{CompletionPrefixMethodName3.this.xBar(1,, LCompletionPrefixMethodName3;, (II)I, xBar, (a, b), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_NON_RESTRICTED)+"}\n"+
-		"xBar[METHOD_REF]{, LCompletionPrefixMethodName3$classFoo;, (II)I, xBar, (a, b), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+		"xBar[METHOD_REF]{CompletionPrefixMethodName3.this.xBar(1,, LCompletionPrefixMethodName3;, (II)I, xBar, (a, b), replace["+rStart1+", "+rEnd1+"], token["+tStart+", "+tEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_NON_RESTRICTED)+"}\n"+
+		"xBar[METHOD_REF]{, LCompletionPrefixMethodName3$classFoo;, (II)I, xBar, (a, b), replace["+rStart2+", "+rEnd2+"], token["+tStart+", "+tEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 public void testCompletionQualifiedAllocationType1() throws JavaModelException {

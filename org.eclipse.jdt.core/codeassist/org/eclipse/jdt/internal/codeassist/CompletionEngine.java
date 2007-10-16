@@ -301,6 +301,7 @@ public final class CompletionEngine
 	CategorizedProblem problem = null;
 	char[] fileName = null;
 	int startPosition, actualCompletionPosition, endPosition, offset;
+	int tokenStart, tokenEnd;
 	int javadocTagPosition; // Position of previous tag while completing in javadoc
 	HashtableOfObject knownPkgs = new HashtableOfObject(10);
 	HashtableOfObject knownTypes = new HashtableOfObject(10);
@@ -691,7 +692,8 @@ public final class CompletionEngine
 			proposal.setName(name);
 			proposal.setCompletion(name);
 			proposal.setFlags(Flags.AccDefault);
-			proposal.setReplaceRange(CompletionEngine.this.startPosition - CompletionEngine.this.offset, CompletionEngine.this.endPosition - CompletionEngine.this.offset);
+			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance);
 			CompletionEngine.this.requestor.accept(proposal);
 			if(DEBUG) {
@@ -843,6 +845,7 @@ public final class CompletionEngine
 			proposal.setPackageName(packageName);
 			proposal.setCompletion(completion);
 			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance);
 			this.requestor.accept(proposal);
 			if(DEBUG) {
@@ -916,7 +919,7 @@ public final class CompletionEngine
 	
 	private boolean complete(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope, boolean insideTypeAnnotation) {
 
-		setSourceRange(astNode.sourceStart, astNode.sourceEnd);
+		setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd);
 
 		scope = computeForbiddenBindings(astNode, astNodeParent, scope);
 		computeUninterestingBindings(astNodeParent, scope);
@@ -932,7 +935,7 @@ public final class CompletionEngine
 			CompletionOnFieldType field = (CompletionOnFieldType) astNode;
 			CompletionOnSingleTypeReference type = (CompletionOnSingleTypeReference) field.type;
 			this.completionToken = type.token;
-			setSourceRange(type.sourceStart, type.sourceEnd);
+			setSourceAndTokenRange(type.sourceStart, type.sourceEnd);
 			
 			findTypesAndPackages(this.completionToken, scope, true, true, new ObjectVector());
 			if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
@@ -955,7 +958,7 @@ public final class CompletionEngine
 			CompletionOnMethodReturnType method = (CompletionOnMethodReturnType) astNode;
 			SingleTypeReference type = (CompletionOnSingleTypeReference) method.returnType;
 			this.completionToken = type.token;
-			setSourceRange(type.sourceStart, type.sourceEnd);
+			setSourceAndTokenRange(type.sourceStart, type.sourceEnd);
 			findTypesAndPackages(this.completionToken, scope.parent, true, true, new ObjectVector());
 			if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 				findKeywordsForMember(this.completionToken, method.modifiers);
@@ -1040,7 +1043,7 @@ public final class CompletionEngine
 				if (this.completionToken.length == 0 &&
 						(astNodeParent instanceof ParameterizedSingleTypeReference ||
 								astNodeParent instanceof ParameterizedQualifiedTypeReference)) {
-					this.setSourceRange(astNode.sourceStart, astNode.sourceStart - 1, false);
+					this.setSourceAndTokenRange(astNode.sourceStart, astNode.sourceStart - 1, false);
 					
 					findParameterizedType((TypeReference)astNodeParent, scope);
 				} else { 
@@ -1082,7 +1085,7 @@ public final class CompletionEngine
 			long completionPosition = ref.sourcePositions[ref.sourcePositions.length - 1];
 
 			if (qualifiedBinding.problemId() == ProblemReasons.NotFound) {
-				setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+				setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 				// complete field members with missing fields type
 				// class X {
 				//   Missing f;
@@ -1108,7 +1111,7 @@ public final class CompletionEngine
 					}
 				}
 			} else if (qualifiedBinding instanceof VariableBinding) {
-				setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+				setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 				TypeBinding receiverType = ((VariableBinding) qualifiedBinding).type;
 				if (receiverType != null) {
 					findFieldsAndMethods(this.completionToken, receiverType.capture(scope, ref.sourceEnd), scope, ref, scope,false,false, null, null, null, false);
@@ -1141,7 +1144,7 @@ public final class CompletionEngine
 			} else if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
 				boolean isInsideAnnotationAttribute = ref.isInsideAnnotationAttribute;
 				ReferenceBinding receiverType = (ReferenceBinding) qualifiedBinding;
-				setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+				setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 
 				findMembers(
 						this.completionToken,
@@ -1157,6 +1160,8 @@ public final class CompletionEngine
 			} else if (qualifiedBinding instanceof PackageBinding) {
 
 				setSourceRange(astNode.sourceStart, (int) completionPosition);
+				setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+				
 				// replace to the end of the completion identifier
 				findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 			}
@@ -1178,7 +1183,7 @@ public final class CompletionEngine
 			// get the source positions of the completion identifier
 			if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
 				if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-					setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+					setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 					
 					ObjectVector typesFound = new ObjectVector();
 					
@@ -1207,6 +1212,7 @@ public final class CompletionEngine
 			} else if (qualifiedBinding instanceof PackageBinding) {
 
 				setSourceRange(astNode.sourceStart, (int) completionPosition);
+				setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 				// replace to the end of the completion identifier
 				findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 			}
@@ -1214,7 +1220,7 @@ public final class CompletionEngine
 			this.insideQualifiedReference = true;
 			CompletionOnMemberAccess access = (CompletionOnMemberAccess) astNode;
 			long completionPosition = access.nameSourcePosition;
-			setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+			setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 
 			this.completionToken = access.token;
 			
@@ -1259,7 +1265,7 @@ public final class CompletionEngine
 			}
 
 		} else if (astNode instanceof CompletionOnMessageSend) {
-			setSourceRange(astNode.sourceStart, astNode.sourceEnd, false);
+			setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd, false);
 			
 			CompletionOnMessageSend messageSend = (CompletionOnMessageSend) astNode;
 			TypeBinding[] argTypes = computeTypes(messageSend.arguments);
@@ -1291,7 +1297,7 @@ public final class CompletionEngine
 			}
 		} else if (astNode instanceof CompletionOnExplicitConstructorCall) {
 			if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
-				setSourceRange(astNode.sourceStart, astNode.sourceEnd, false);
+				setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd, false);
 				
 				CompletionOnExplicitConstructorCall constructorCall =
 					(CompletionOnExplicitConstructorCall) astNode;
@@ -1304,7 +1310,7 @@ public final class CompletionEngine
 					false);
 									}
 		} else if (astNode instanceof CompletionOnQualifiedAllocationExpression) {
-			setSourceRange(astNode.sourceStart, astNode.sourceEnd, false);
+			setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd, false);
 			
 			CompletionOnQualifiedAllocationExpression allocExpression =
 				(CompletionOnQualifiedAllocationExpression) astNode;
@@ -1333,7 +1339,7 @@ public final class CompletionEngine
 		} else if (astNode instanceof CompletionOnClassLiteralAccess) {
 			if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
 				CompletionOnClassLiteralAccess access = (CompletionOnClassLiteralAccess) astNode;
-				setSourceRange(access.classStart, access.sourceEnd);
+				setSourceAndTokenRange(access.classStart, access.sourceEnd);
 
 				this.completionToken = access.completionIdentifier;
 
@@ -1343,7 +1349,7 @@ public final class CompletionEngine
 			if (!this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
 				CompletionOnMethodName method = (CompletionOnMethodName) astNode;
 					
-				setSourceRange(method.sourceStart, method.selectorEnd);
+				setSourceAndTokenRange(method.sourceStart, method.selectorEnd);
 					
 				FieldBinding[] fields = scope.enclosingSourceType().fields();
 				char[][] excludeNames = new char[fields.length][];
@@ -1418,7 +1424,7 @@ public final class CompletionEngine
 				
 				this.completionToken = ref.completionIdentifier;
 				long completionPosition = ref.sourcePositions[ref.tokens.length];
-				setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+				setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 				
 				ObjectVector typesFound = new ObjectVector();
 				if (this.assistNodeIsException && astNodeParent instanceof TryStatement) {
@@ -1460,7 +1466,7 @@ public final class CompletionEngine
 			if (annot.type instanceof CompletionOnSingleTypeReference) {
 				CompletionOnSingleTypeReference type = (CompletionOnSingleTypeReference) annot.type;
 				this.completionToken = type.token;
-				setSourceRange(type.sourceStart, type.sourceEnd);
+				setSourceAndTokenRange(type.sourceStart, type.sourceEnd);
 				
 				findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 			} else if (annot.type instanceof CompletionOnQualifiedTypeReference) {
@@ -1472,10 +1478,11 @@ public final class CompletionEngine
 				if (qualifiedBinding instanceof PackageBinding) {
 
 					setSourceRange(astNode.sourceStart, (int) completionPosition);
+					setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 					// replace to the end of the completion identifier
 					findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 				} else {
-					setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+					setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 
 					findMemberTypes(
 						this.completionToken,
@@ -1584,7 +1591,7 @@ public final class CompletionEngine
 				CompletionOnJavadocSingleTypeReference typeRef = (CompletionOnJavadocSingleTypeReference) astNode;
 				this.completionToken = typeRef.token;
 				this.javadocTagPosition = typeRef.tagSourceStart;
-				setSourceRange(typeRef.sourceStart, typeRef.sourceEnd);
+				setSourceAndTokenRange(typeRef.sourceStart, typeRef.sourceEnd);
 				findTypesAndPackages(
 						this.completionToken,
 						scope,
@@ -1606,7 +1613,7 @@ public final class CompletionEngine
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF) ||
 							((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF))) {
 						int rangeStart = typeRef.completeInText() ? typeRef.sourceStart : (int) (completionPosition >>> 32);
-						setSourceRange(rangeStart, (int) completionPosition);
+						setSourceAndTokenRange(rangeStart, (int) completionPosition);
 						findMemberTypes(
 							this.completionToken,
 							(ReferenceBinding) qualifiedBinding,
@@ -1623,6 +1630,8 @@ public final class CompletionEngine
 				} else if (qualifiedBinding instanceof PackageBinding) {
 
 					setSourceRange(astNode.sourceStart, (int) completionPosition);
+					int rangeStart = typeRef.completeInText() ? typeRef.sourceStart : (int) (completionPosition >>> 32);
+					setTokenRange(rangeStart, (int) completionPosition);
 					// replace to the end of the completion identifier
 					findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 				}
@@ -1644,7 +1653,7 @@ public final class CompletionEngine
 					} else if (fieldRef.completeInText()) {
 						rangeStart = fieldRef.receiver.sourceStart;
 					}
-					setSourceRange(rangeStart, (int) completionPosition);
+					setSourceAndTokenRange(rangeStart, (int) completionPosition);
 
 					if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)
 							|| !this.requestor.isIgnored(CompletionProposal.JAVADOC_FIELD_REF)) {
@@ -1710,7 +1719,7 @@ public final class CompletionEngine
 				} else if (messageSend.completeInText()) {
 					rangeStart = messageSend.receiver.sourceStart;
 				}
-				setSourceRange(rangeStart, astNode.sourceEnd, false);
+				setSourceAndTokenRange(rangeStart, astNode.sourceEnd, false);
 
 				if (qualifiedBinding == null) {
 					if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
@@ -1750,7 +1759,7 @@ public final class CompletionEngine
 				} else if (allocExpression.completeInText()) {
 					rangeStart = allocExpression.type.sourceStart;
 				}
-				setSourceRange(rangeStart, astNode.sourceEnd, false);
+				setSourceAndTokenRange(rangeStart, astNode.sourceEnd, false);
 				TypeBinding[] argTypes = computeTypes(allocExpression.arguments);
 
 				ReferenceBinding ref = (ReferenceBinding) qualifiedBinding;
@@ -1760,19 +1769,19 @@ public final class CompletionEngine
 			} else if (astNode instanceof CompletionOnJavadocParamNameReference) {
 				if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_PARAM_REF)) {
 					CompletionOnJavadocParamNameReference paramRef = (CompletionOnJavadocParamNameReference) astNode;
-					setSourceRange(paramRef.tagSourceStart, paramRef.tagSourceEnd);
+					setSourceAndTokenRange(paramRef.tagSourceStart, paramRef.tagSourceEnd);
 					findJavadocParamNames(paramRef.token, paramRef.missingParams, false);
 					findJavadocParamNames(paramRef.token, paramRef.missingTypeParams, true);
 				}
 			} else if (astNode instanceof CompletionOnJavadocTypeParamReference) {
 				if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_PARAM_REF)) {
 					CompletionOnJavadocTypeParamReference paramRef = (CompletionOnJavadocTypeParamReference) astNode;
-					setSourceRange(paramRef.tagSourceStart, paramRef.tagSourceEnd);
+					setSourceAndTokenRange(paramRef.tagSourceStart, paramRef.tagSourceEnd);
 					findJavadocParamNames(paramRef.token, paramRef.missingParams, true);
 				}
 			} else if (astNode instanceof CompletionOnJavadocTag) {
 				CompletionOnJavadocTag javadocTag = (CompletionOnJavadocTag) astNode;
-				setSourceRange(javadocTag.tagSourceStart, javadocTag.sourceEnd);
+				setSourceAndTokenRange(javadocTag.tagSourceStart, javadocTag.sourceEnd);
 				findJavadocBlockTags(javadocTag);
 				findJavadocInlineTags(javadocTag);
 			}
@@ -2001,7 +2010,7 @@ public final class CompletionEngine
 								this.buildContext(importReference, null, null, null);
 								
 								long positions = importReference.sourcePositions[importReference.sourcePositions.length - 1];
-								setSourceRange((int) (positions >>> 32), (int) positions);
+								setSourceAndTokenRange((int) (positions >>> 32), (int) positions);
 								
 								char[][] oldTokens = importReference.tokens;
 								int tokenCount = oldTokens.length;
@@ -2048,7 +2057,7 @@ public final class CompletionEngine
 							contextAccepted = true;
 							this.buildContext(importReference, null, null, null);
 							if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-								setSourceRange(importReference.sourceStart, importReference.sourceEnd);
+								setSourceAndTokenRange(importReference.sourceStart, importReference.sourceEnd);
 								CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;
 								findKeywords(keyword.getToken(), keyword.getPossibleKeywords(), false, false);
 							}
@@ -2232,6 +2241,7 @@ public final class CompletionEngine
 				proposal.setCompletion(method.selector);
 				proposal.setFlags(method.modifiers);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				this.requestor.accept(proposal);
 				if(DEBUG) {
@@ -2275,6 +2285,7 @@ public final class CompletionEngine
 				proposal.setCompletion(completion);
 				proposal.setFlags(Flags.AccPublic);
 				proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenEnd - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				this.requestor.accept(proposal);
 				if(DEBUG) {
@@ -2335,6 +2346,7 @@ public final class CompletionEngine
 				proposal.setCompletion(classField);
 				proposal.setFlags(Flags.AccStatic | Flags.AccPublic);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				this.requestor.accept(proposal);
 				if(DEBUG) {
@@ -2402,6 +2414,7 @@ public final class CompletionEngine
 					proposal.setCompletion(completion);
 					proposal.setFlags(field.modifiers);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					this.requestor.accept(proposal);
 					if(DEBUG) {
@@ -2682,6 +2695,7 @@ public final class CompletionEngine
 						proposal.setCompletion(completion);
 						proposal.setFlags(constructor.modifiers);
 						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						if(parameterNames != null) proposal.setParameterNames(parameterNames);
 						this.requestor.accept(proposal);
@@ -2767,6 +2781,7 @@ public final class CompletionEngine
 							proposal.setCompletion(completion);
 							proposal.setFlags(constructor.modifiers);
 							proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
+							proposal.setTokenRange(this.tokenEnd - this.offset, this.tokenEnd - this.offset);
 							proposal.setRelevance(relevance);
 							if(parameterNames != null) proposal.setParameterNames(parameterNames);
 							this.requestor.accept(proposal);
@@ -2855,6 +2870,7 @@ public final class CompletionEngine
 							proposal.setFlags(constructor.modifiers);
 							int start = (this.assistNodeInJavadoc > 0) ? this.startPosition : this.endPosition;
 							proposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
+							proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 							proposal.setRelevance(relevance);
 							if(parameterNames != null) proposal.setParameterNames(parameterNames);
 							this.requestor.accept(proposal);
@@ -2881,9 +2897,9 @@ public final class CompletionEngine
 							proposal.setIsContructor(true);
 							proposal.setCompletion(javadocCompletion);
 							proposal.setFlags(constructor.modifiers);
-							int start = (this.assistNodeInJavadoc > 0) ? this.startPosition : this.endPosition;
-							if ((this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0) start = this.javadocTagPosition;
+							int start = (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
 							proposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
+							proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 							proposal.setRelevance(relevance+R_INLINE_TAG);
 							if(parameterNames != null) proposal.setParameterNames(parameterNames);
 							this.requestor.accept(proposal);
@@ -3110,6 +3126,7 @@ public final class CompletionEngine
 				proposal.setCompletion(completion);
 				proposal.setFlags(field.modifiers);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				this.requestor.accept(proposal);
 				if(DEBUG) {
@@ -3132,6 +3149,7 @@ public final class CompletionEngine
 				proposal.setFlags(field.modifiers);
 				int start = (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
 				proposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance+R_INLINE_TAG);
 				this.requestor.accept(proposal);
 				if(DEBUG) {
@@ -3151,6 +3169,7 @@ public final class CompletionEngine
 					valueProposal.setCompletion(javadocCompletion);
 					valueProposal.setFlags(field.modifiers);
 					valueProposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
+					valueProposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					valueProposal.setRelevance(relevance+R_VALUE_TAG);
 					this.requestor.accept(valueProposal);
 					if(DEBUG) {
@@ -3330,6 +3349,7 @@ public final class CompletionEngine
 					proposal.setCompletion(lengthField);
 					proposal.setFlags(Flags.AccPublic);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					this.requestor.accept(proposal);
 					if(DEBUG) {
@@ -3400,6 +3420,7 @@ public final class CompletionEngine
 					proposal.setCompletion(completion);
 					proposal.setFlags(Flags.AccPublic);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					this.requestor.accept(proposal);
 					if(DEBUG) {
@@ -3772,6 +3793,7 @@ public final class CompletionEngine
 					proposal.setCompletion(completion);
 					proposal.setFlags(field.modifiers);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					
 					char[] typeImportCompletion = createImportCharArray(typeName, false, false);
@@ -3788,6 +3810,7 @@ public final class CompletionEngine
 					typeImportProposal.setFlags(receiverType.modifiers);
 					typeImportProposal.setAdditionalFlags(CompletionFlags.Default);
 					typeImportProposal.setReplaceRange(importStart - this.offset, importEnd - this.offset);
+					typeImportProposal.setTokenRange(importStart - this.offset, importEnd - this.offset);
 					typeImportProposal.setRelevance(relevance);
 					
 					proposal.setRequiredProposals(new CompletionProposal[]{typeImportProposal});
@@ -3812,6 +3835,7 @@ public final class CompletionEngine
 					proposal.setCompletion(completion);
 					proposal.setFlags(field.modifiers);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					
 					char[] fieldImportCompletion = createImportCharArray(CharOperation.concat(typeName, field.name, '.'), true, false);
@@ -3828,6 +3852,7 @@ public final class CompletionEngine
 					fieldImportProposal.setFlags(field.modifiers);
 					fieldImportProposal.setAdditionalFlags(CompletionFlags.StaticImport);
 					fieldImportProposal.setReplaceRange(importStart - this.offset, importEnd - this.offset);
+					fieldImportProposal.setTokenRange(importStart - this.offset, importEnd - this.offset);
 					fieldImportProposal.setRelevance(relevance);
 					
 					proposal.setRequiredProposals(new CompletionProposal[]{fieldImportProposal});
@@ -3986,6 +4011,7 @@ public final class CompletionEngine
 				proposal.setCompletion(completionName);
 				proposal.setFlags(field.modifiers);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				this.requestor.accept(proposal);
 				if(DEBUG) {
@@ -4056,6 +4082,7 @@ public final class CompletionEngine
 				proposal.setCompletion(completionName);
 				proposal.setFlags(method.modifiers);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				if(parameterNames != null) proposal.setParameterNames(parameterNames);
 				this.requestor.accept(proposal);
@@ -4089,6 +4116,7 @@ public final class CompletionEngine
 				System.arraycopy(possibleTag, 0, completion, 1, tagLength);
 				proposal.setCompletion(completion);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				this.requestor.accept(proposal);
 				if (DEBUG) {
@@ -4126,6 +4154,7 @@ public final class CompletionEngine
 				completion[tagLength+2] = '}';
 				proposal.setCompletion(completion);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				this.requestor.accept(proposal);
 				if (DEBUG) {
@@ -4163,6 +4192,7 @@ public final class CompletionEngine
 						proposal.setName(choices[i]);
 						proposal.setCompletion(choices[i]);
 						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						this.requestor.accept(proposal);
 						if(DEBUG) {
@@ -4195,6 +4225,7 @@ public final class CompletionEngine
 					proposal.setName(choices[i]);
 					proposal.setCompletion(choices[i]);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					this.requestor.accept(proposal);
 					if(DEBUG) {
@@ -4345,6 +4376,7 @@ public final class CompletionEngine
 					proposal.setName(Keywords.THIS);
 					proposal.setCompletion(Keywords.THIS);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					this.requestor.accept(proposal);
 					if (DEBUG) {
@@ -4771,6 +4803,7 @@ public final class CompletionEngine
 					char[] completion = isTypeParam ? CharOperation.concat('<', argName, '>') : argName;
 					proposal.setCompletion(completion);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(--relevance);
 					this.requestor.accept(proposal);
 					if (DEBUG) {
@@ -5111,6 +5144,7 @@ public final class CompletionEngine
 			char[] completion = CharOperation.NO_CHAR;
 			
 			int previousStartPosition = this.startPosition;
+			int previousTokenStart = this.tokenStart;
 
 			// Special case for completion in javadoc
 			if (this.assistNodeInJavadoc > 0) {
@@ -5176,6 +5210,7 @@ public final class CompletionEngine
 					} else {
 						this.startPosition = this.endPosition;
 					}
+					this.tokenStart = this.tokenEnd;
 				}
 				
 				if(prefixRequired || this.options.forceImplicitQualification){
@@ -5231,6 +5266,7 @@ public final class CompletionEngine
 				proposal.setCompletion(completion);
 				proposal.setFlags(method.modifiers);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				if(parameterNames != null) proposal.setParameterNames(parameterNames);
 				this.requestor.accept(proposal);
@@ -5260,6 +5296,7 @@ public final class CompletionEngine
 				proposal.setFlags(method.modifiers);
 				int start = (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
 				proposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance+R_INLINE_TAG);
 				if(parameterNames != null) proposal.setParameterNames(parameterNames);
 				this.requestor.accept(proposal);
@@ -5268,6 +5305,7 @@ public final class CompletionEngine
 				}
 			}
 			this.startPosition = previousStartPosition;
+			this.tokenStart = previousTokenStart;
 		}
 		
 		methodsFound.addAll(newMethodsFound);
@@ -5371,6 +5409,7 @@ public final class CompletionEngine
 				char[] completion = CharOperation.NO_CHAR;
 				
 				int previousStartPosition = this.startPosition;
+				int previousTokenStart = this.tokenStart;
 				
 				if (this.source != null
 					&& this.source.length > this.endPosition
@@ -5417,6 +5456,7 @@ public final class CompletionEngine
 							proposal.setCompletion(completion);
 							proposal.setFlags(method.modifiers);
 							proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+							proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 							proposal.setRelevance(relevance);
 							if(parameterNames != null) proposal.setParameterNames(parameterNames);
 							
@@ -5445,6 +5485,7 @@ public final class CompletionEngine
 						proposal.setCompletion(completion);
 						proposal.setFlags(method.modifiers);
 						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						if(parameterNames != null) proposal.setParameterNames(parameterNames);
 						
@@ -5462,6 +5503,7 @@ public final class CompletionEngine
 						typeImportProposal.setFlags(receiverType.modifiers);
 						typeImportProposal.setAdditionalFlags(CompletionFlags.Default);
 						typeImportProposal.setReplaceRange(importStart - this.offset, importEnd - this.offset);
+						typeImportProposal.setTokenRange(importStart - this.offset, importEnd - this.offset);
 						typeImportProposal.setRelevance(relevance);
 						
 						proposal.setRequiredProposals(new CompletionProposal[]{typeImportProposal});
@@ -5490,6 +5532,7 @@ public final class CompletionEngine
 						proposal.setCompletion(completion);
 						proposal.setFlags(method.modifiers);
 						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
 						if(parameterNames != null) proposal.setParameterNames(parameterNames);
 						
@@ -5512,6 +5555,7 @@ public final class CompletionEngine
 						methodImportProposal.setFlags(method.modifiers);
 						methodImportProposal.setAdditionalFlags(CompletionFlags.StaticImport);
 						methodImportProposal.setReplaceRange(importStart - this.offset, importEnd - this.offset);
+						methodImportProposal.setTokenRange(importStart - this.offset, importEnd - this.offset);
 						methodImportProposal.setRelevance(relevance);
 						if(parameterNames != null) methodImportProposal.setParameterNames(parameterNames);
 						
@@ -5525,6 +5569,7 @@ public final class CompletionEngine
 				}
 				
 				this.startPosition = previousStartPosition;
+				this.tokenStart = previousTokenStart;
 			}
 		}
 	
@@ -5547,6 +5592,7 @@ public final class CompletionEngine
 			proposal.setCompletion(fullyQualifiedName);
 			proposal.setFlags(typeBinding.modifiers);
 			proposal.setReplaceRange(start - this.offset, end - this.offset);
+			proposal.setTokenRange(start - this.offset, end - this.offset);
 			proposal.setRelevance(relevance);
 		} else if (binding instanceof PackageBinding) {
 			PackageBinding packageBinding = (PackageBinding) binding;
@@ -5558,6 +5604,7 @@ public final class CompletionEngine
 			proposal.setPackageName(packageName);
 			proposal.setCompletion(packageName);
 			proposal.setReplaceRange(start - this.offset, end - this.offset);
+			proposal.setTokenRange(start - this.offset, end - this.offset);
 			proposal.setRelevance(relevance);
 		}
 		return proposal;
@@ -5627,6 +5674,7 @@ public final class CompletionEngine
 			char[] completion = CharOperation.NO_CHAR;
 			
 			int previousStartPosition = this.startPosition;
+			int previousTokenStart = this.tokenStart;
 			
 			// nothing to insert - do not want to replace the existing selector & arguments
 			if (this.source != null
@@ -5665,6 +5713,7 @@ public final class CompletionEngine
 				proposal.setCompletion(completion);
 				proposal.setFlags(method.modifiers);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				if(parameterNames != null) proposal.setParameterNames(parameterNames);
 				this.requestor.accept(proposal);
@@ -5673,6 +5722,7 @@ public final class CompletionEngine
 				}
 			}
 			this.startPosition = previousStartPosition;
+			this.tokenStart = previousTokenStart;
 		}
 		
 		methodsFound.addAll(newMethodsFound);
@@ -5857,6 +5907,7 @@ public final class CompletionEngine
 					proposal.setName(choices[i]);
 					proposal.setCompletion(choices[i]);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					this.requestor.accept(proposal);
 					if(DEBUG) {
@@ -5991,6 +6042,7 @@ public final class CompletionEngine
 				proposal.setName(method.selector);
 				proposal.setFlags(method.modifiers);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 				proposal.setRelevance(relevance);
 				if(parameterNames != null) proposal.setParameterNames(parameterNames);
 				this.requestor.accept(proposal);
@@ -6597,6 +6649,8 @@ public final class CompletionEngine
 			return;
 
 		setSourceRange(packageStatement.sourceStart, packageStatement.sourceEnd);
+		long completionPosition = packageStatement.sourcePositions[packageStatement.sourcePositions.length - 1];
+		setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this);
 	}
 
@@ -6933,6 +6987,7 @@ public final class CompletionEngine
 								proposal.setCompletion(completionName);
 								proposal.setFlags(refBinding.modifiers);
 								proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+								proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 								proposal.setRelevance(relevance);
 								proposal.setAccessibility(accessibility);
 								this.requestor.accept(proposal);
@@ -7195,6 +7250,7 @@ public final class CompletionEngine
 								proposal.setCompletion(typeBinding.sourceName());
 								proposal.setFlags(typeBinding.modifiers);
 								proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+								proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 								proposal.setRelevance(relevance);
 								this.requestor.accept(proposal);
 								if(DEBUG) {
@@ -7295,6 +7351,7 @@ public final class CompletionEngine
 								proposal.setCompletion(local.name);
 								proposal.setFlags(local.modifiers);
 								proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+								proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 								proposal.setRelevance(relevance);
 								this.requestor.accept(proposal);
 								if(DEBUG) {
@@ -7515,6 +7572,7 @@ public final class CompletionEngine
 							proposal.setCompletion(name);
 							//proposal.setFlags(Flags.AccDefault);
 							proposal.setReplaceRange(CompletionEngine.this.startPosition - CompletionEngine.this.offset, CompletionEngine.this.endPosition - CompletionEngine.this.offset);
+							proposal.setTokenRange(CompletionEngine.this.tokenStart - CompletionEngine.this.offset, CompletionEngine.this.tokenEnd - CompletionEngine.this.offset);
 							proposal.setRelevance(relevance);
 							CompletionEngine.this.requestor.accept(proposal);
 							if(DEBUG) {
@@ -7782,6 +7840,7 @@ public final class CompletionEngine
 						proposal.setCompletion(name);
 						//proposal.setFlags(Flags.AccDefault);
 						proposal.setReplaceRange(CompletionEngine.this.startPosition - CompletionEngine.this.offset, CompletionEngine.this.endPosition - CompletionEngine.this.offset);
+						proposal.setTokenRange(CompletionEngine.this.tokenStart - CompletionEngine.this.offset, CompletionEngine.this.tokenEnd - CompletionEngine.this.offset);
 						proposal.setRelevance(relevance);
 						CompletionEngine.this.requestor.accept(proposal);
 						if(DEBUG) {
@@ -7952,17 +8011,40 @@ public final class CompletionEngine
 		this.knownTypes = new HashtableOfObject(10);
 	}
 	
+	private void setSourceAndTokenRange(int start, int end) {
+		this.setSourceAndTokenRange(start, end, true);
+	}
+	
+	private void setSourceAndTokenRange(int start, int end, boolean emptyTokenAdjstment) {
+		this.setSourceRange(start, end, emptyTokenAdjstment);
+		this.setTokenRange(start, end, emptyTokenAdjstment);
+	}
+	
 	private void setSourceRange(int start, int end) {
 		this.setSourceRange(start, end, true);
 	}
-
-	private void setSourceRange(int start, int end, boolean emptyTokenAdjstment) {		
+	
+	private void setSourceRange(int start, int end, boolean emptyTokenAdjstment) {
 		this.startPosition = start;
 		if(emptyTokenAdjstment) {
 			int endOfEmptyToken = ((CompletionScanner)this.parser.scanner).endOfEmptyToken;
 			this.endPosition = endOfEmptyToken > end ? endOfEmptyToken + 1 : end + 1;
 		} else {
 			this.endPosition = end + 1;
+		}
+	}
+	
+	private void setTokenRange(int start, int end) {
+		this.setTokenRange(start, end, true);
+	}
+	
+	private void setTokenRange(int start, int end, boolean emptyTokenAdjstment) {
+		this.tokenStart = start;
+		if(emptyTokenAdjstment) {
+			int endOfEmptyToken = ((CompletionScanner)this.parser.scanner).endOfEmptyToken;
+			this.tokenEnd = endOfEmptyToken > end ? endOfEmptyToken + 1 : end + 1;
+		} else {
+			this.tokenEnd = end + 1;
 		}
 	}
 	private char[][] computeAlreadyDefinedName(
@@ -8646,6 +8728,7 @@ public final class CompletionEngine
 			proposal.setCompletion(token);
 			proposal.setFlags(Flags.AccPublic);
 			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance);
 			this.requestor.accept(proposal);
 			if(DEBUG) {
@@ -8834,6 +8917,7 @@ public final class CompletionEngine
 			proposal.setCompletion(completionName);
 			proposal.setFlags(modifiers);
 			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance);
 			proposal.setAccessibility(accessibility);
 			this.requestor.accept(proposal);	
@@ -8856,6 +8940,7 @@ public final class CompletionEngine
 			proposal.setFlags(modifiers);
 			int start = (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
 			proposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
+			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance+R_INLINE_TAG);
 			proposal.setAccessibility(accessibility);
 			this.requestor.accept(proposal);
@@ -8903,6 +8988,7 @@ public final class CompletionEngine
 			proposal.setCompletion(completionName);
 			proposal.setFlags(refBinding.modifiers);
 			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance);
 			this.requestor.accept(proposal);
 			if(DEBUG) {
@@ -8924,6 +9010,7 @@ public final class CompletionEngine
 			proposal.setFlags(refBinding.modifiers);
 			int start = (this.assistNodeInJavadoc & CompletionOnJavadoc.REPLACE_TAG) != 0 ? this.javadocTagPosition : this.startPosition;
 			proposal.setReplaceRange(start - this.offset, this.endPosition - this.offset);
+			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance+R_INLINE_TAG);
 			this.requestor.accept(proposal);
 			if(DEBUG) {
@@ -8948,6 +9035,7 @@ public final class CompletionEngine
 			proposal.setCompletion(completionName);
 			proposal.setFlags(typeParameter.modifiers);
 			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance);
 			this.requestor.accept(proposal);
 			if(DEBUG) {
@@ -8966,6 +9054,7 @@ public final class CompletionEngine
 			proposal.setCompletion(javadocCompletion);
 			proposal.setFlags(typeParameter.modifiers);
 			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 			proposal.setRelevance(relevance+R_INLINE_TAG);
 			this.requestor.accept(proposal);
 			if(DEBUG) {
@@ -9113,6 +9202,11 @@ public final class CompletionEngine
 		printDebugTab(tab, buffer);
 		buffer.append("\tReplaceStart[").append(start).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
 		buffer.append("-ReplaceEnd[").append(end).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		start = proposal.getTokenStart();
+		end = proposal.getTokenEnd();
+		printDebugTab(tab, buffer);
+		buffer.append("\tTokenStart[").append(start).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("-TokenEnd[").append(end).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (this.source != null) {
 			printDebugTab(tab, buffer);
 			buffer.append("\tReplacedText[").append(this.source, start, end-start).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$

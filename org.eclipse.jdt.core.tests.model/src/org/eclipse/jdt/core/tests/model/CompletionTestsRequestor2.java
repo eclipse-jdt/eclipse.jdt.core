@@ -31,6 +31,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	private boolean showParameterNames;
 	private boolean showUniqueKeys;
 	private boolean showPositions;
+	private boolean showTokenPositions;
 	private boolean shortContext;
 	private boolean showMissingTypes;
 	
@@ -53,11 +54,16 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		this(showParamNames, showUniqueKeys, showPositions, shortContext, false);
 	}
 	public CompletionTestsRequestor2(boolean showParamNames, boolean showUniqueKeys, boolean showPositions, boolean shortContext, boolean showMissingTypes) {
+		this(showParamNames, showUniqueKeys, showPositions, shortContext, showMissingTypes, false);
+	}
+	public CompletionTestsRequestor2(boolean showParamNames, boolean showUniqueKeys, boolean showPositions, boolean shortContext, boolean showMissingTypes, boolean showTokenPositions) {
 		this.showParameterNames = showParamNames;
 		this.showUniqueKeys = showUniqueKeys;
 		this.showPositions = showPositions;
+		this.showTokenPositions =  showTokenPositions;
 		this.shortContext = shortContext;
 		this.showMissingTypes = showMissingTypes;
+		
 	}
 	public void acceptContext(CompletionContext cc) {
 		this.context = cc;
@@ -334,11 +340,21 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				buffer.append(")");
 			}
 		}
+		
 		if(this.showPositions) {
-			buffer.append(", [");
+			buffer.append(", ");
+			if(this.showTokenPositions) buffer.append("replace");
+			buffer.append("[");
 			buffer.append(proposal.getReplaceStart());
 			buffer.append(", ");
 			buffer.append(proposal.getReplaceEnd());
+			buffer.append("]");
+		}
+		if(this.showTokenPositions) {
+			buffer.append(", token[");
+			buffer.append(proposal.getTokenStart());
+			buffer.append(", ");
+			buffer.append(proposal.getTokenEnd());
 			buffer.append("]");
 		}
 		buffer.append(", ");

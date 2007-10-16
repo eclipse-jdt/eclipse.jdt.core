@@ -2049,11 +2049,15 @@ public final class CompletionProposal extends InternalCompletionProposal {
 		if (this.key != null) buffer.append(key);
 		buffer.append(", name:"); //$NON-NLS-1$
 		if (this.name != null) buffer.append(this.name);
-		buffer.append(", ["); //$NON-NLS-1$
+		buffer.append(", replace:["); //$NON-NLS-1$
 		buffer.append(this.replaceStart);
 		buffer.append(',');
 		buffer.append(this.replaceEnd);
-		buffer.append("], relevance="); //$NON-NLS-1$
+		buffer.append("], token:["); //$NON-NLS-1$
+		buffer.append(this.tokenStart);
+		buffer.append(',');
+		buffer.append(this.tokenEnd);
+		buffer.append("], relevance:"); //$NON-NLS-1$
 		buffer.append(this.relevance);
 		buffer.append('}');
 		return buffer.toString();
