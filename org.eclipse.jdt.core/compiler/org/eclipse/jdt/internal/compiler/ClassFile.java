@@ -409,8 +409,7 @@ public class ClassFile
 		// default constructor for subclasses
 		this.constantPool = new ConstantPool(this);
 		final CompilerOptions options = typeBinding.scope.compilerOptions();
-		// TODO see 206483
-		this.targetJDK = options.targetJDK == ClassFileConstants.JDK1_7 ? ClassFileConstants.JDK1_6: options.targetJDK;
+		this.targetJDK = options.targetJDK;
 		this.produceAttributes = options.produceDebugAttributes;
 		this.referenceBinding = typeBinding;
 		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
@@ -6860,10 +6859,11 @@ public class ClassFile
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 
-		header[headerOffset++] = (byte) (this.targetJDK >> 8); // minor high
-		header[headerOffset++] = (byte) (this.targetJDK >> 0); // minor low
-		header[headerOffset++] = (byte) (this.targetJDK >> 24); // major high
-		header[headerOffset++] = (byte) (this.targetJDK >> 16); // major low
+		long targetVersion = this.targetJDK == ClassFileConstants.JDK1_7 ? ClassFileConstants.JDK1_6: this.targetJDK;
+		header[headerOffset++] = (byte) (targetVersion >> 8); // minor high
+		header[headerOffset++] = (byte) (targetVersion>> 0); // minor low
+		header[headerOffset++] = (byte) (targetVersion >> 24); // major high
+		header[headerOffset++] = (byte) (targetVersion >> 16); // major low
 
 		constantPoolOffset = headerOffset;
 		headerOffset += 2;
