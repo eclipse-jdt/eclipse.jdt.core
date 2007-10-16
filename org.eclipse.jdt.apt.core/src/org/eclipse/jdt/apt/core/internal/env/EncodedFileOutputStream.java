@@ -14,7 +14,11 @@ package org.eclipse.jdt.apt.core.internal.env;
 import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 
 /**
  * Sets the encoding for the IFile on close of the stream
@@ -22,6 +26,8 @@ import org.eclipse.core.runtime.CoreException;
 public class EncodedFileOutputStream extends BinaryFileOutputStream {
 
 	private final String _charsetName;
+	
+	private static boolean _loggedEncodingFailure = false;
 	
 	public EncodedFileOutputStream(IFile file, BuildEnv env, String charsetName) {
 		super(file, env);
@@ -32,6 +38,26 @@ public class EncodedFileOutputStream extends BinaryFileOutputStream {
 	public void close() throws IOException {
 		super.close();
 		if (_charsetName != null) {
+			// Need to check for source control on the resources encoding file
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=190268
+			IWorkspace ws = ResourcesPlugin.getWorkspace();
+			
+			// Yuck -- we need to hardcode the location of the prefs file for file encoding
+			IFile resourceFile = _file.getProject().getFile(".settings/org.eclipse.core.resources.prefs"); //$NON-NLS-1$
+			IStatus result = ws.validateEdit(new IFile[]{resourceFile}, null);
+			if (result.getSeverity() == IStatus.CANCEL) {
+				// User cancelled the checkout. Don't try to edit the encoding for the file
+				return;
+			}
+			else if (result.getSeverity() == IStatus.ERROR) {
+				// No file modification validator, and prefs file is read-only.  Log warning and continue.
+				if (!_loggedEncodingFailure) {
+					_loggedEncodingFailure = true;
+					AptPlugin.logWarning(null, "Unable to set encoding on file " + _file.getName() +  //$NON-NLS-1$
+							": check that .settings/org.eclipse.core.resources.prefs is writeable."); //$NON-NLS-1$
+				}
+				return;
+			}
 			try {
 				_file.setCharset(_charsetName, null);
 			}
