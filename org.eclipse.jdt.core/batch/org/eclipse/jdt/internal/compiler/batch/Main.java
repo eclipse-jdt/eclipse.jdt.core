@@ -1960,6 +1960,9 @@ protected void handleWarningToken(String token, boolean isEnabling, boolean useE
 		this.options.put(
 				CompilerOptions.OPTION_ReportUnusedLabel,
 				isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		this.options.put(
+				CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation,
+				isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 	} else if (token.equals("paramAssign")) { //$NON-NLS-1$
 		this.options.put(
 			CompilerOptions.OPTION_ReportParameterAssignment,
