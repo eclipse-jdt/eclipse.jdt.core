@@ -58,6 +58,7 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 						Object value = field.get(this.currentTestCase);
 						field.set(test, value);
 					} catch (IllegalAccessException e) {
+						e.printStackTrace();
 					}
 				}
 				currentClass = currentClass.getSuperclass();
