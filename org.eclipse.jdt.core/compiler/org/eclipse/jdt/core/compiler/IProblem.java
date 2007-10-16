@@ -1085,7 +1085,9 @@ void setSourceStart(int sourceStart);
 	int TypeHidingTypeParameterFromMethod = TypeRelated + 577;
     /** @since 3.3 */
     int InvalidUsageOfWildcard = Syntax + Internal + 578;
-	
+    /** @since 3.4 */
+    int UnusedTypeArgumentsForMethodInvocation = MethodRelated + 579;
+    
 	/**
 	 * Foreach
 	 */

@@ -309,6 +309,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.4
+	 */
+	public static final String COMPILER_PB_UNUSED_TYPE_ARGUMENTS_FOR_METHOD_INVOCATION = PLUGIN_ID + ".compiler.problem.unusedTypeArgumentsForMethodInvocation"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 */
 	public static final String COMPILER_PB_SYNTHETIC_ACCESS_EMULATION = PLUGIN_ID + ".compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
 	/**
@@ -2580,6 +2586,14 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *
+	 * COMPILER / Reporting Presence of Type Arguments for a Non-Generic Method Invocation
+	 *    When enabled, the compiler will issue an error or a warning whenever type arguments are encountered for a
+	 *    non-generic method invocation. Note that prior to compliance level is "1.7", this situation would automatically result
+	 *    in an error. From Java7 on, unused type arguments are being tolerated, and optionally warned against.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedTypeArgumentsForMethodInvocation"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 *     
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.
 	 *     - option id:         "org.eclipse.jdt.core.builder.resourceCopyExclusionFilter"

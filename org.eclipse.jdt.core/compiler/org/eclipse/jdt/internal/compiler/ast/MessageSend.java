@@ -513,6 +513,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 	}
+	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
+		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this);
+	}
 	return this.resolvedType;
 }
 

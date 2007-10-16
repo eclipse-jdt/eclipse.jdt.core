@@ -422,7 +422,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.TypeArgumentsForRawGenericMethod);
 				}
 			} else {
-				return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.TypeParameterArityMismatch);
+				if (compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {
+					return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.TypeParameterArityMismatch);
+				}
 			}
 		}
 

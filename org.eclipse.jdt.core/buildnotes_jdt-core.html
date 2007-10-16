@@ -47,13 +47,26 @@ Eclipse SDK 3.4M3 - %date% - 3.4 MILESTONE 3
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_819">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
-<li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=122885">bug 122885</a> required the build state format to change. 
-    As a consequence, a full rebuild is expected when reusing existing workspaces.
+<li>Added new compiler optional warning for diagnosing generic invocations of non-generic methods. Basically, from Java7 compliance on, a non-generic method
+may be invoked with explicit type arguments syntax, which though unused are to be silently ignored. With this warning, the compiler will still flag such situations.
+The warning is on by default, and is suppressable with <code>@SuppressWarnings("unused")</code>.
+Also added option: <code>JavaCore.COMPILER_PB_UNUSED_TYPE_ARGUMENTS_FOR_METHOD_INVOCATION</code> and problem ID
+<code>IProblem.UnusedTypeArgumentsForMethodInvocation</code>.
+<pre>
+* COMPILER / Reporting Presence of Type Arguments for a Non-Generic Method Invocation
+*    When enabled, the compiler will issue an error or a warning whenever type arguments are encountered for a
+*    non-generic method invocation. Note that prior to compliance level is "1.7", this situation would automatically result
+*    in an error. From Java7 on, unused type arguments are being tolerated, and optionally warned against.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedTypeArgumentsForMethodInvocation"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
 </li>
 </ul>
-
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=206336">206336</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=168230">168230</a>
+[1.5][compiler] Non-generic methods can be called with type arguments
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=206336">206336</a>
 [assist] CompletionProposal#getTokenStart() return always 0
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=122885">122885</a>
 [builder] Project build states should not store the access restrictions templates

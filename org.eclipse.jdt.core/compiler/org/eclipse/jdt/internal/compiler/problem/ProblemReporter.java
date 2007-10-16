@@ -303,6 +303,9 @@ public static long getIrritant(int problemID) {
 			
 		case IProblem.OverridingMethodWithoutSuperInvocation:
 			return CompilerOptions.OverridingMethodWithoutSuperInvocation;
+			
+		case IProblem.UnusedTypeArgumentsForMethodInvocation:
+			return CompilerOptions.UnusedTypeArgumentsForMethodInvocation;
 	}
 	return 0;
 }
@@ -6373,6 +6376,24 @@ public void unnecessaryNLSTags(int sourceStart, int sourceEnd) {
 		NoArgument,
 		sourceStart,
 		sourceEnd);
+}
+public void unnecessaryTypeArgumentsForMethodInvocation(MessageSend messageSend) {
+	MethodBinding method = messageSend.binding;
+	TypeBinding[] genericTypeArguments = messageSend.genericTypeArguments;
+	this.handle(
+		IProblem.UnusedTypeArgumentsForMethodInvocation,
+		new String[] { 
+		        new String(method.selector),
+		        typesAsString(method.isVarargs(), method.parameters, false), 
+		        new String(method.declaringClass.readableName()), 
+		        typesAsString(method.isVarargs(), genericTypeArguments, false) },
+		new String[] { 
+		        new String(method.selector),
+		        typesAsString(method.isVarargs(), method.parameters, true), 
+		        new String(method.declaringClass.shortReadableName()), 
+		        typesAsString(method.isVarargs(), genericTypeArguments, true) },
+		messageSend.typeArguments[0].sourceStart,
+		messageSend.typeArguments[messageSend.typeArguments.length-1].sourceEnd);		
 }
 public void unqualifiedFieldAccess(NameReference reference, FieldBinding field) {
 	int sourceStart = reference.sourceStart;
