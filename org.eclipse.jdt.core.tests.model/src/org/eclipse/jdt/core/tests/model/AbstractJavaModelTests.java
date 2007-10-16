@@ -2261,6 +2261,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	protected void setUp () throws Exception {
 		super.setUp();
+		
 		if (NameLookup.VERBOSE || BasicSearchEngine.VERBOSE || JavaModelManager.VERBOSE) {
 			System.out.println("--------------------------------------------------------------------------------");
 			System.out.println("Running test "+getName()+"...");
@@ -2370,6 +2371,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			this.workingCopies = null;
 		}
 		this.wcOwner = null;
+		
+		// ensure workspace options have been restored to their default
+		Hashtable options = JavaCore.getOptions();
+		Hashtable defaultOptions = JavaCore.getDefaultOptions();
+		assertEquals(
+			"Workspace options should be back to their default", 
+			new CompilerOptions(defaultOptions).toString(), 
+			new CompilerOptions(options).toString());
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
