@@ -52,7 +52,7 @@ public CodeSnippetClassFile(
 	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 
-	long targetVersion = this.referenceBinding.scope.compilerOptions().targetJDK;
+	long targetVersion = this.targetJDK = this.referenceBinding.scope.compilerOptions().targetJDK;
 
 	if (targetVersion == ClassFileConstants.JDK1_7) {
 		targetVersion = ClassFileConstants.JDK1_6;
