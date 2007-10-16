@@ -409,7 +409,8 @@ public class ClassFile
 		// default constructor for subclasses
 		this.constantPool = new ConstantPool(this);
 		final CompilerOptions options = typeBinding.scope.compilerOptions();
-		this.targetJDK = options.targetJDK;
+		// TODO see 206483
+		this.targetJDK = options.targetJDK == ClassFileConstants.JDK1_7 ? ClassFileConstants.JDK1_6: options.targetJDK;
 		this.produceAttributes = options.produceDebugAttributes;
 		this.referenceBinding = typeBinding;
 		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
