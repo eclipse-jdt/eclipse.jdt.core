@@ -52,11 +52,15 @@ public CodeSnippetClassFile(
 	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 
-	this.targetJDK = this.referenceBinding.scope.compilerOptions().targetJDK;
-	this.header[this.headerOffset++] = (byte) (targetJDK >> 8); // minor high
-	this.header[this.headerOffset++] = (byte) (targetJDK >> 0); // minor low
-	this.header[this.headerOffset++] = (byte) (targetJDK >> 24); // major high
-	this.header[this.headerOffset++] = (byte) (targetJDK >> 16); // major low
+	long targetVersion = this.referenceBinding.scope.compilerOptions().targetJDK;
+
+	if (targetVersion == ClassFileConstants.JDK1_7) {
+		targetVersion = ClassFileConstants.JDK1_6;
+	}
+	this.header[this.headerOffset++] = (byte) (targetVersion >> 8); // minor high
+	this.header[this.headerOffset++] = (byte) (targetVersion >> 0); // minor low
+	this.header[this.headerOffset++] = (byte) (targetVersion >> 24); // major high
+	this.header[this.headerOffset++] = (byte) (targetVersion >> 16); // major low
 
 	this.constantPoolOffset = this.headerOffset;
 	this.headerOffset += 2;
