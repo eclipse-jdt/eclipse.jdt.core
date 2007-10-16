@@ -5418,6 +5418,24 @@ public void test148_access_restrictions(){
   "6 problems (1 error, 5 warnings)",
   true);
 }
+//http://bugs.eclipse.org/bugs/show_bug.cgi?id=168230
+public void test149() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {}\n" + 
+			"	public static void bar() {\n" + 
+			"		X.<String>foo();\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.7 -warn:-unused -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
