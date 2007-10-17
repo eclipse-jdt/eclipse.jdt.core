@@ -46,9 +46,27 @@ Eclipse SDK 3.4M3 - %date% - 3.4 MILESTONE 3
 <br>Project org.eclipse.jdt.core v_820
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_820">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Added a new compiler participant API to notify participants when a project's build is finished
+(see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=180107">bug 180107</a>):
+<pre>
+/**
+ * Notifies this participant that a build has finished for the project.
+ * This will be sent, even if buildStarting() was not sent when no source files needed to be compiled
+ * or the build failed.
+ * Only sent to participants interested in the project.
+ * @param project the project about to build
+ * @since 3.4
+  */
+public void buildFinished(IJavaProject project)
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=205860">205860</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=180107">180107</a>
+[PERF] need CompilationParticipant.buildComplete() API
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=205860">205860</a>
 ASTParser.createBindings() returns [null]
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=206027">206027</a>
 JavaCore#initializeAfterLoad - Util.setSourceAttachmentProperty performance

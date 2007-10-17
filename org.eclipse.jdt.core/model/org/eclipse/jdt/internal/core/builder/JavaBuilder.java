@@ -228,6 +228,8 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 			}
 		);
 	} finally {
+		for (int i = 0, l = this.participants == null ? 0 : this.participants.length; i < l; i++)
+			this.participants[i].buildFinished(this.javaProject);
 		if (!ok)
 			// If the build failed, clear the previously built state, forcing a full build next time.
 			clearLastState();

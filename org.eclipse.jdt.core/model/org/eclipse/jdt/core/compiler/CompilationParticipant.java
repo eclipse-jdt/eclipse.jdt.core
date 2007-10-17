@@ -8,7 +8,7 @@
  * Contributors:
  *    mkaufman@bea.com - initial API as ICompilationParticipant
  *    IBM - changed from interface ICompilationParticipant to abstract class CompilationParticipant
- *    IBM - rewrote spec
+ *    IBM - rewrote specification
  *    
  *******************************************************************************/
 
@@ -28,7 +28,7 @@ import org.eclipse.jdt.core.IJavaProject;
  * the build step needs to interact with the Java build, for instance by creating additional 
  * Java source files that must themselves in turn be compiled. 
  * <p>
- * Clients wishing to participate in the compilation process must suclass this class, and implement
+ * Clients wishing to participate in the compilation process must subclass this class, and implement
  * {@link #isActive(IJavaProject)}, {@link #aboutToBuild(IJavaProject)}, 
  * {@link #reconcile(ReconcileContext)}, etc.
 * </p><p>
@@ -49,11 +49,24 @@ public static int NEEDS_FULL_BUILD = 2;
  * <p>
  * Default is to return <code>READY_FOR_BUILD</code>.
  * </p>
+ * @see #buildFinished(IJavaProject project)
  * @param project the project about to build
  * @return READY_FOR_BUILD or NEEDS_FULL_BUILD
  */
 public int aboutToBuild(IJavaProject project) {
 	return READY_FOR_BUILD;
+}
+
+/**
+ * Notifies this participant that a build has finished for the project.
+ * This will be sent, even if buildStarting() was not sent when no source files needed to be compiled
+ * or the build failed.
+ * Only sent to participants interested in the project.
+ * @param project the project about to build
+ * @since 3.4
+  */
+public void buildFinished(IJavaProject project) {
+	// do nothing by default
 }
 
 /**
