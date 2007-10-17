@@ -81,6 +81,7 @@ package org.eclipse.jdt.core;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -3387,6 +3388,7 @@ public final class JavaCore extends Plugin {
 			if (monitor != null)
 				monitor.subTask(Messages.javamodel_resetting_source_attachment_properties);
 			final IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
+			HashSet visitedPaths = new HashSet();
 			for (int i = 0, length = projects.length; i < length; i++) {
 				IClasspathEntry[] classpath;
 				try {
@@ -3398,8 +3400,12 @@ public final class JavaCore extends Plugin {
 				if (classpath != null) {
 					for (int j = 0, length2 = classpath.length; j < length2; j++) {
 						IClasspathEntry entry = classpath[j];
-						if (entry.getSourceAttachmentPath() != null)
-							Util.setSourceAttachmentProperty(entry.getPath(), null);
+						if (entry.getSourceAttachmentPath() != null) {
+							IPath entryPath = entry.getPath();
+							if (visitedPaths.add(entryPath)) {
+								Util.setSourceAttachmentProperty(entryPath, null);
+							}
+						}
 						// else source might have been attached by IPackageFragmentRoot#attachSource(...), we keep it
 					}
 				}
@@ -3410,7 +3416,7 @@ public final class JavaCore extends Plugin {
 				monitor.subTask(Messages.javamodel_initializing_delta_state);
 			manager.deltaState.rootsAreStale = true; // in case it was already initialized before we cleaned up the source attachment proprties
 			manager.deltaState.initializeRoots(true/*initAfteLoad*/);
-
+			
 			// dummy query for waiting until the indexes are ready
 			if (monitor != null)
 				monitor.subTask(Messages.javamodel_configuring_searchengine);
