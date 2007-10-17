@@ -1458,4 +1458,38 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LA;.foo(Ljava/lang/String;)Ljava/lang/String;",
 			bindings);
 	}
+	
+	/*
+	 * Ensures that the correct IBinding is created for an IField starting with a 'L'
+	 * (regression test for 205860 ASTParser.createBindings() returns [null])
+	 */
+	public void testCreateBindings20() throws CoreException {
+		IField field = getClassFile("/P/lib/A.class").getType().getField("LINE");
+		IBinding[] bindings = createBinaryBindings(
+			"public class A {\n" +
+			"  static int LINE = 0;\n" +
+			"}",
+			field
+		);
+		assertBindingsEqual(
+			"LA;.LINE)I",
+			bindings);
+	}
+
+	/*
+	 * Ensures that the correct IBinding is created for an IField starting with a 'T'
+	 * (regression test for 205860 ASTParser.createBindings() returns [null])
+	 */
+	public void testCreateBindings21() throws CoreException {
+		IField field = getClassFile("/P/lib/A.class").getType().getField("THREE");
+		IBinding[] bindings = createBinaryBindings(
+			"public class A {\n" +
+			"  static int THREE = 0;\n" +
+			"}",
+			field
+		);
+		assertBindingsEqual(
+			"LA;.THREE)I",
+			bindings);
+	}
 }
