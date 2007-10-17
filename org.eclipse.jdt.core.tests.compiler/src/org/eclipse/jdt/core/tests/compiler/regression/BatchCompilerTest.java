@@ -1081,7 +1081,7 @@ public void test012(){
 // Progressive help text modifies the help options and messages.
 // amended for https://bugs.eclipse.org/bugs/show_bug.cgi?id=141512 (checking
 // width)
-public void _test012b(){
+public void test012b(){
 	final String expectedOutput =
         "{0} {1}\n" +
         "{2}\n" +
