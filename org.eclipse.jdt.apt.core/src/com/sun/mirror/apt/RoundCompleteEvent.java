@@ -43,6 +43,7 @@ package com.sun.mirror.apt;
  * @version 1.2 04/07/19
  * @since 1.5
  */
+@SuppressWarnings("serial")
 public abstract class RoundCompleteEvent extends java.util.EventObject {
     private RoundState rs;
 
