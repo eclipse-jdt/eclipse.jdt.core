@@ -1102,6 +1102,126 @@ public void test045() {
 		"The assignment to variable length3 has no effect\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
+public void test046() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static String s;\n" +
+			"	void foo(String s1) {\n" + 
+			"		X.s = s;" +
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	X.s = s;	}\n" + 
+		"	^^^^^^^\n" + 
+		"The assignment to variable s has no effect\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
+public void test047() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static X MyX;\n" +
+			"	public static String s;\n" +
+			"	void foo(String s1) {\n" + 
+			"		X.MyX.s = s;" + // MyX could hold any extending type, hence we must not complain
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
+// we could decide that MyX won't change, hence that the assignment
+// on line a has no effect, but we accept this as a limit
+public void _test048() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static final X MyX = new X();\n" +
+			"	public static String s;\n" +
+			"	void foo(String s1) {\n" + 
+			"		X.MyX.s = s;" + // a
+			"	}\n" + 
+			"}\n",
+		},
+		"ERR");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
+// adding a package to the picture
+public void test049() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"public class X {\n" + 
+			"	public static String s;\n" +
+			"	void foo(String s1) {\n" + 
+			"		p.X.s = s;" +
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 5)\n" + 
+		"	p.X.s = s;	}\n" + 
+		"	^^^^^^^^^\n" + 
+		"The assignment to variable s has no effect\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
+// adding an inner class to the picture
+public void test050() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  class XX {\n" + 
+			"	 public static String s;\n" +
+			"	 void foo(String s1) {\n" + 
+			"      X.XX.s = s;" +
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 4)\n" + 
+		"	public static String s;\n" + 
+		"	                     ^\n" + 
+		"The field s cannot be declared static; static fields can only be declared in static or top level types\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\X.java (at line 6)\n" + 
+		"	X.XX.s = s;    }\n" + 
+		"	^^^^^^^^^^\n" + 
+		"The assignment to variable s has no effect\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
+// swap lhs and rhs
+public void test051() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static String s;\n" +
+			"	void foo(String s1) {\n" + 
+			"		s = X.s;" +
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	s = X.s;	}\n" + 
+		"	^^^^^^^\n" + 
+		"The assignment to variable s has no effect\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }

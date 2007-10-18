@@ -118,6 +118,13 @@ public static Binding getDirectBinding(Expression someExpression) {
 			// i = i++; // eq to ++i;
 			return getDirectBinding (((Assignment)someExpression).lhs);
 		}
+	} else if (someExpression instanceof QualifiedNameReference) {
+		QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) someExpression;
+		if (qualifiedNameReference.indexOfFirstFieldBinding != 1
+				&& qualifiedNameReference.otherBindings == null) {
+			// case where a static field is retrieved using ClassName.fieldname
+			return qualifiedNameReference.binding;
+		}
 	}
 //		} else if (someExpression instanceof PostfixExpression) { // recurse for postfix: i++ --> i
 //			// note: "b = b++" is equivalent to doing nothing, not to "b++"
