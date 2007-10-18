@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
@@ -1692,6 +1693,8 @@ public void finalVariableBound(TypeVariableBinding typeVariable, TypeReference t
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
 }
+/** @param classpathEntryType one of {@link AccessRestriction#COMMAND_LINE}, 
+ * {@link AccessRestriction#LIBRARY}, {@link AccessRestriction#PROJECT} */
 public void forbiddenReference(FieldBinding field, ASTNode location, 
 		 byte classpathEntryType, String classpathEntryName, int problemId) {
 	int severity = computeSeverity(problemId);
@@ -1708,6 +1711,8 @@ public void forbiddenReference(FieldBinding field, ASTNode location,
 		nodeSourceStart(field, location),
 		nodeSourceEnd(field, location));
 }
+/** @param classpathEntryType one of {@link AccessRestriction#COMMAND_LINE}, 
+ * {@link AccessRestriction#LIBRARY}, {@link AccessRestriction#PROJECT} */
 public void forbiddenReference(MethodBinding method, ASTNode location, 
 		byte classpathEntryType, String classpathEntryName, int problemId) {
 	int severity = computeSeverity(problemId);
@@ -1736,6 +1741,8 @@ public void forbiddenReference(MethodBinding method, ASTNode location,
 			location.sourceStart,
 			location.sourceEnd);
 }
+/** @param classpathEntryType one of {@link AccessRestriction#COMMAND_LINE}, 
+ * {@link AccessRestriction#LIBRARY}, {@link AccessRestriction#PROJECT} */
 public void forbiddenReference(TypeBinding type, ASTNode location, 
 		byte classpathEntryType, String classpathEntryName, int problemId) {
 	if (location == null) return;
