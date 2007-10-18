@@ -19160,6 +19160,7 @@ public void test0617() {
 				"import java.util.ArrayList;\n" + 
 				"import java.util.List;\n" + 
 				"\n" + 
+				"@SuppressWarnings(\"null\")\n" +
 				"public class X {\n" + 
 				"\n" + 
 				"	void test0() {\n" + 
@@ -19192,7 +19193,7 @@ public void test0617() {
 				"}\n",
 	        },
 			"----------\n" + 
-			"1. ERROR in X.java (at line 17)\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
 			"	arrays.add(a); // Error: The method add(capture-of ? extends Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\n" + 
 			"	       ^^^\n" + 
 			"The method add(capture#4-of ? extends Number[]) in the type List<capture#4-of ? extends Number[]> is not applicable for the arguments (Number[])\n" + 
@@ -19228,6 +19229,7 @@ public void test0617() {
                 "X.java",
 				"import java.util.Vector;\n" + 
 				"\n" + 
+				"@SuppressWarnings(\"null\")\n" +
 				"public class X {\n" + 
 				"	void test01() {\n" + 
 				"		Vector<? super java.lang.Object[]> lhs = null;\n" + 
@@ -19252,17 +19254,17 @@ public void test0617() {
 				"}\n",
 	        },
 			"----------\n" + 
-			"1. ERROR in X.java (at line 12)\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
 			"The method add(capture#3-of ? extends Object[]) in the type Vector<capture#3-of ? extends Object[]> is not applicable for the arguments (capture#4-of ? extends Object[])\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 17)\n" + 
+			"2. ERROR in X.java (at line 18)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
 			"The method add(capture#5-of ? super Object[]) in the type Vector<capture#5-of ? super Object[]> is not applicable for the arguments (capture#6-of ? super Object[])\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 22)\n" + 
+			"3. ERROR in X.java (at line 23)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
 			"The method add(capture#7-of ? extends Object[]) in the type Vector<capture#7-of ? extends Object[]> is not applicable for the arguments (capture#8-of ? super Object[])\n" + 
@@ -26016,6 +26018,7 @@ public void test0828() {
 			"{\n" + 
 			"//	public V transform();\n" + 
 			"}\n" + 
+			"@SuppressWarnings(\"null\")\n" +
 			"public class X {\n" + 
 			"	void foo(){\n" + 
 			"		Volume v1 = null;\n" + 
@@ -26038,27 +26041,27 @@ public void test0828() {
 		"	                           ^^^^^^\n" + 
 		"Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 11)\n" + 
+		"3. WARNING in X.java (at line 12)\n" + 
 		"	Volume v1 = null;\n" + 
 		"	^^^^^^\n" + 
 		"Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
 		"----------\n" + 
-		"4. WARNING in X.java (at line 12)\n" + 
+		"4. WARNING in X.java (at line 13)\n" + 
 		"	Volume v2 = v1.transform();\n" + 
 		"	^^^^^^\n" + 
 		"Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 12)\n" + 
+		"5. ERROR in X.java (at line 13)\n" + 
 		"	Volume v2 = v1.transform();\n" + 
 		"	            ^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Transformable to Volume\n" + 
 		"----------\n" + 
-		"6. WARNING in X.java (at line 15)\n" + 
+		"6. WARNING in X.java (at line 16)\n" + 
 		"	Volume<Volume> v1 = null;\n" + 
 		"	       ^^^^^^\n" + 
 		"Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
 		"----------\n" + 
-		"7. WARNING in X.java (at line 16)\n" + 
+		"7. WARNING in X.java (at line 17)\n" + 
 		"	Volume v2 = v1.transform();\n" + 
 		"	^^^^^^\n" + 
 		"Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
@@ -33135,6 +33138,7 @@ public void test1031() {
 			"	public <T extends Comparable<? super T>> T getComparableValue();\n" + 
 			"}\n" + 
 			"\n" + 
+			"@SuppressWarnings(\"null\")\n" +
 			"public class X {\n" + 
 			"	public static void foo0() {\n" + 
 			"		IValue val1 = null;\n" + 
@@ -33157,7 +33161,7 @@ public void test1031() {
 			"}", // =================		
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 23)\n" + 
+		"1. ERROR in X.java (at line 24)\n" + 
 		"	Comparable<? super Object> o = new Object(); // 4\n" + 
 		"	                               ^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Object to Comparable<? super Object>\n" + 

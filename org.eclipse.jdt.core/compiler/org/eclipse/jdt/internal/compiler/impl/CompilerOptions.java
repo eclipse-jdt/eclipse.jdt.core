@@ -242,7 +242,7 @@ public class CompilerOptions {
 		| UnusedPrivateMember
 		| UnusedLabel
 		| UnusedTypeArgumentsForMethodInvocation
-		/*| NullReference -- keep JavaCore#getDefaultOptions comment in sync */;
+		| NullReference;
 
 	// By default only lines and source attributes are generated.
 	public int produceDebugAttributes = ClassFileConstants.ATTR_SOURCE | ClassFileConstants.ATTR_LINES;

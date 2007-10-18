@@ -1121,7 +1121,7 @@ public void test012b(){
         "      nls                  string literal lacking non-nls tag //$NON-NLS-<n>$\n" +
         "      noEffectAssign     + assignment without effect\n" +
         "      null                 potential missing or redundant null check\n" +
-        "      nullDereference      missing null check\n" +
+        "      nullDereference    + missing null check\n" +
         "      over-ann             missing @Override annotation\n" +
         "      paramAssign          assignment to a parameter\n" +
         "      pkgDefaultMethod   + attempt to override package-default method\n" +
@@ -1265,7 +1265,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noEffectAssignment\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullReference\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.parameterAssignment\" value=\"ignore\"/>\n" + 
@@ -5432,6 +5432,52 @@ public void test149() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.7 -warn:-unused -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+// http://bugs.eclipse.org/bugs/show_bug.cgi?id=192875
+// default in now on for nullDereference
+public void test150_null_ref_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"   }\n" + 
+			"	// Zork z;\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	s.toString();\n" + 
+		"	^\n" + 
+		"Null pointer access: The variable s can only be null at this location\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// http://bugs.eclipse.org/bugs/show_bug.cgi?id=192875
+// default in now on for nullDereference
+public void test151_null_ref_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"   }\n" + 
+			"	// Zork z;\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:-nullDereference -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);

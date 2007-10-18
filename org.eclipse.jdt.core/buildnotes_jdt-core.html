@@ -61,10 +61,16 @@ Eclipse SDK 3.4M3 - %date% - 3.4 MILESTONE 3
 public void buildFinished(IJavaProject project)
 </pre>
 </li>
+<li>The 'Null pointer access' potential programming problem is now reported as a 
+    warning by default, whereas it was previously ignored. See details in bug
+    <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=192875">192875</a>.
+</li> 
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=180107">180107</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=192875">192875</a>
+[compiler][options][null] Set &quot;Null pointer access&quot; to warning by default
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=180107">180107</a>
 [PERF] need CompilationParticipant.buildComplete() API
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=205860">205860</a>
 ASTParser.createBindings() returns [null]

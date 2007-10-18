@@ -2345,7 +2345,7 @@ public final class JavaCore extends Plugin {
 	 *
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.potentialNullReference"
 	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "ignore"
+	 *     - default:           "warning"
 	 *
 	 * COMPILER / Reporting Redundant Null Check
 	 *    When enabled, the compiler will issue an error or a warning whenever a

@@ -4393,7 +4393,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     		"\n" +
     		"class Use {\n" +
     		"	public static void main(String[] args) {\n" +
-    		"		X<String> i= null;\n" +
+    		"		X<String> i= new X<String>();\n" +
     		"		i.foo(\"Eclipse\");\n" +
     		"	}\n" +
     		"}";

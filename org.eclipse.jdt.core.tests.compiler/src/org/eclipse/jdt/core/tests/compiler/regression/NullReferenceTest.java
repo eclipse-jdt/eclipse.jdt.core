@@ -77,7 +77,7 @@ public void test0001_simple_local() {
 		"Null pointer access: The variable o can only be null at this location\n" + 
 	    "----------\n");
 }
-  
+
 // null analysis -- simple case for field
 // the current design leaves fields out of the analysis altogether
 public void test0002_simple_field() {
@@ -8627,10 +8627,12 @@ public void test1036() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
 // default for null options is Ignore
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=192875
+// changed default for null access to warning
 public void test1050_options_all_default() {
 	try {
 		setNullRelatedOptions = false;
-		this.runConformTest(
+		runTest(
 			new String[] {
 				"X.java",
 				  "public class X {\n" + 
@@ -8643,7 +8645,23 @@ public void test1050_options_all_default() {
 				  "    o.toString();\n" +
 				  "    p.toString();\n" + 
 				  "  }\n" + 
-				  "}\n"});
+				  "}\n"
+				  } /* testFiles */,
+			false /* expectingCompilerErrors */,
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	o.toString();\n" + 
+			"	^\n" + 
+			"Null pointer access: The variable o can only be null at this location\n" + 
+			"----------\n" /* expectedCompilerLog */,
+			"" /* expectedOutputString */,
+			false /* forceExecution */,
+			null /* classLib */,
+			true /* shouldFlushOutputDirectory */, 
+			null /* vmArguments */, 
+			null /* customOptions */,
+			null /* clientRequestor */,
+			false /* skipJavac */);
 	}
 	finally {
 		setNullRelatedOptions = true;
