@@ -168,4 +168,124 @@ public class RegressionTests extends APTTestBase {
 		);
     }
 	
+    /**
+     * Test the Types.isSubtype() API, in various inheritance scenarios
+     */
+    public void testBugzilla206591A() throws Exception {
+    	final String projName = RegressionTests.class.getName() + "206591.Project"; //$NON-NLS-1$
+		IPath projectPath = env.addProject( projName, "1.5" ); //$NON-NLS-1$
+		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
+
+		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
+		env.addPackageFragmentRoot( projectPath, "src" ); //$NON-NLS-1$
+		env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
+
+		TestUtil.createAndAddAnnotationJar( env
+			.getJavaProject( projectPath ) );
+		IProject project = env.getProject( projName );
+		IFolder srcFolder = project.getFolder( "src" );
+		IPath srcRoot = srcFolder.getFullPath();
+
+		String a1Code = "package pkg; " + "\n"
+			+ "import org.eclipse.jdt.apt.tests.annotations.apitest.SubtypeOf;\n" 
+			+ "public interface A1 {\n "
+			+ "}\n" 
+			+ "class A2 implements A1 {\n"
+			+ "}\n"
+			+ "class A3 extends A2 {\n"
+			+ "    @SubtypeOf(A1.class) // yes\n"
+			+ "    A2 _foo;\n"
+			+ "    @SubtypeOf(A1.class) // yes\n"
+			+ "    A3 _bar;\n"
+			+ "    @SubtypeOf(A2.class) // yes\n"
+			+ "    A3 _baz;\n"
+			+ "    @SubtypeOf(A1.class) // yes\n"
+			+ "    A1 _quux;\n"
+			+ "    @SubtypeOf(A2.class) // no\n"
+			+ "    A1 _yuzz;\n"
+			+ "    @SubtypeOf(String.class) // no\n"
+			+ "    A2 _wum;\n"
+			+ "}\n"
+			+ "class A4 extends A2 implements A1 {\n"
+			+ "    @SubtypeOf(A1.class) // yes\n"
+			+ "    A4 _humpf;\n"
+			+ "    @SubtypeOf(A2.class) // yes\n"
+			+ "    A4 _fuddle;\n"
+			+ "    @SubtypeOf(A5.class) // no\n"
+			+ "    A4 _snee;\n"
+			+ "}\n"
+			+ "class A5 {\n"
+			+ "}\n";
+	
+		final IPath a1Path = env.addClass( srcRoot, "pkg", "A1", a1Code ); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		// Set some per-project preferences
+		IJavaProject jproj = env.getJavaProject( projName );
+		AptConfig.setEnabled(jproj, true);
+		fullBuild( project.getFullPath() );				
+		expectingSpecificProblemsFor(a1Path, new ExpectedProblem[]{
+				new ExpectedProblem("", "pkg.A2 is a subtype of pkg.A1", a1Path),
+				new ExpectedProblem("", "pkg.A3 is a subtype of pkg.A1", a1Path),
+				new ExpectedProblem("", "pkg.A3 is a subtype of pkg.A2", a1Path),
+				new ExpectedProblem("", "pkg.A1 is a subtype of pkg.A1", a1Path),
+				new ExpectedProblem("", "pkg.A1 is not a subtype of pkg.A2", a1Path),
+				new ExpectedProblem("", "pkg.A2 is not a subtype of java.lang.String", a1Path),
+				new ExpectedProblem("", "pkg.A4 is a subtype of pkg.A1", a1Path),
+				new ExpectedProblem("", "pkg.A4 is a subtype of pkg.A2", a1Path),
+				new ExpectedProblem("", "pkg.A4 is not a subtype of pkg.A5", a1Path),
+				}
+		);
+    }
+	
+    /**
+     * Test the Types.isAssignable() API, in various inheritance scenarios
+     * @throws Exception
+     */
+    public void testBugzilla206591B() throws Exception {
+    	final String projName = RegressionTests.class.getName() + "206591.Project"; //$NON-NLS-1$
+		IPath projectPath = env.addProject( projName, "1.5" ); //$NON-NLS-1$
+		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
+
+		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
+		env.addPackageFragmentRoot( projectPath, "src" ); //$NON-NLS-1$
+		env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
+
+		TestUtil.createAndAddAnnotationJar( env
+			.getJavaProject( projectPath ) );
+		IProject project = env.getProject( projName );
+		IFolder srcFolder = project.getFolder( "src" );
+		IPath srcRoot = srcFolder.getFullPath();
+		
+		String a1Code = "package pkg; " + "\n"
+			+ "import org.eclipse.jdt.apt.tests.annotations.apitest.AssignableTo;\n" 
+			+ "public interface A1 {\n "
+			+ "}\n" 
+			+ "class A2 implements A1 {\n"
+			+ "}\n"
+			+ "class A3 extends A2 {\n"
+			+ "    @AssignableTo(A1.class) // yes\n"
+			+ "    A2 _foo;\n"
+			+ "    @AssignableTo(int.class) // yes\n"
+			+ "    byte _bar;\n"
+			+ "    @AssignableTo(A1.class) // yes\n"
+			+ "    A3 _baz;\n"
+			+ "    @AssignableTo(A2.class) // no\n"
+			+ "    A1 _quux;\n"
+			+ "}";
+	
+		final IPath a1Path = env.addClass( srcRoot, "pkg", "A1", a1Code ); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		// Set some per-project preferences
+		IJavaProject jproj = env.getJavaProject( projName );
+		AptConfig.setEnabled(jproj, true);
+		fullBuild( project.getFullPath() );				
+		expectingSpecificProblemsFor(a1Path, new ExpectedProblem[]{
+				new ExpectedProblem("", "pkg.A2 is assignable to pkg.A1", a1Path),
+				new ExpectedProblem("", "byte is assignable to int", a1Path),
+				new ExpectedProblem("", "pkg.A3 is assignable to pkg.A1", a1Path),
+				new ExpectedProblem("", "pkg.A1 is not assignable to pkg.A2", a1Path),
+				}
+		);
+    }
+	
 }
