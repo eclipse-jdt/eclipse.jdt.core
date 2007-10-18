@@ -246,7 +246,7 @@ public final class BindingKey {
 	/**
 	 * Transforms this binding key into a resolved signature.
 	 * If this binding key represents a field, the returned signature is
-	 * the declaring type's signature.
+	 * the field type's signature.
 	 * 
 	 * @return the resolved signature for this binding key
 	 * @see Signature
