@@ -133,7 +133,7 @@ public final class Util {
 		ByteBuffer byteBuffer = ByteBuffer.allocate(contents.length);
 		byteBuffer.put(contents);
 		byteBuffer.flip();
-		return charsetDecoder.decode(byteBuffer).array();		
+		return charsetDecoder.decode(byteBuffer).array();
 	}
 	
 	public static CharSequence getCharContents(FileObject fileObject, boolean ignoreEncodingErrors, byte[] contents, String encoding) throws IOException {
@@ -164,33 +164,33 @@ public final class Util {
 			EncodingErrorCollector collector = null;
 			while (true) {
 				result = charsetDecoder.decode(byteBuffer, out, true);
-    			if (result.isMalformed() || result.isUnmappable()) {
-    				/* treat the error
-    				 * The wrong input character is at out.position
-    				 */
-    				if (collector == null) {
-    					collector = new EncodingErrorCollector(fileObject, encoding);
-    				}
-    				reportEncodingError(collector, out.position(), result.length());
-    				if ((out.position() + replacementLength) >= out.capacity()) {
-    					// resize
-        				CharBuffer temp = CharBuffer.allocate(out.capacity() * 2);
-        				out.flip();
-        				temp.put(out);
-        				out = temp;
-    				}
-    				out.append(replacement);
-    				byteBuffer.position(byteBuffer.position() + result.length());
-    				continue;
-    			}
-    			if (result.isOverflow()) {
-    				CharBuffer temp = CharBuffer.allocate(out.capacity() * 2);
-    				out.flip();
-    				temp.put(out);
-    				out = temp;
-    			} else {
-    				break;
-    			}
+				if (result.isMalformed() || result.isUnmappable()) {
+					/* treat the error
+					 * The wrong input character is at out.position
+					 */
+					if (collector == null) {
+						collector = new EncodingErrorCollector(fileObject, encoding);
+					}
+					reportEncodingError(collector, out.position(), result.length());
+					if ((out.position() + replacementLength) >= out.capacity()) {
+						// resize
+						CharBuffer temp = CharBuffer.allocate(out.capacity() * 2);
+						out.flip();
+						temp.put(out);
+						out = temp;
+					}
+					out.append(replacement);
+					byteBuffer.position(byteBuffer.position() + result.length());
+					continue;
+				}
+				if (result.isOverflow()) {
+					CharBuffer temp = CharBuffer.allocate(out.capacity() * 2);
+					out.flip();
+					temp.put(out);
+					out = temp;
+				} else {
+					break;
+				}
 			}
 			out.flip();
 			if (collector != null) {
