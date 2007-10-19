@@ -238,7 +238,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 			for (int i = 0, length = problems.length; i < length; i++)
 				Util.appendProblem(buffer, problems[i], markerInfo.source.toCharArray(), i+1);
 			if (buffer.length() > 0)
-				System.err.println(buffer.toString());
+				assertEquals("Unexpected errors", "", buffer.toString());
 		}
 
 		return findNode(unit, markerInfo);
@@ -308,7 +308,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 			for (int i = 0, length = problems.length; i < length; i++)
 				Util.appendProblem(buffer, problems[i], newContents.toCharArray(), i+1);
 			if (buffer.length() > 0)
-				System.err.println(buffer.toString());
+				assertEquals("Unexpected errors", "", buffer.toString());
 		}
 
 		ASTNode[] nodes = findNodes(unit, markerInfo);
@@ -362,7 +362,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 			for (int i = 0, length = problems.length; i < length; i++)
 				Util.appendProblem(buffer, problems[i], newContents.toCharArray(), i+1);
 			if (buffer.length() > 0)
-				System.err.println(buffer.toString());
+				assertEquals("Unexpected errors", "", buffer.toString());
 		}
 
 		ASTNode[] nodes = findNodes(unit, markerInfo);
