@@ -5310,6 +5310,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	String contents =
 				"import java.util.Vector;\n" +
 				"\n" +
+				"@SuppressWarnings(\"null\")\n" +
 				"public class X {\n" +
 				"	void test1() {\n" +
 				"		Vector<? extends Number[]> v = null;\n" +
@@ -5356,6 +5357,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	String contents =
 				"import java.util.*;\n" +
 				"\n" +
+				"@SuppressWarnings(\"null\")\n" +
 				"public class X {\n" +
 				"	void test1() {\n" +
 				"		List<?> l = null;\n" +
