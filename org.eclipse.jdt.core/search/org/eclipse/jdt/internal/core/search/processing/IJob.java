@@ -40,4 +40,9 @@ public interface IJob {
 	 * Execute the current job, answer whether it was successful.
 	 */
 	public boolean execute(IProgressMonitor progress);
+	
+	/**
+	 * Returns this job's family
+	 */
+	public String getJobFamily();
 }

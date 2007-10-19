@@ -225,6 +225,11 @@ class AddJarFileToIndex extends IndexRequest {
 		}
 		return true;
 	}
+	public String getJobFamily() {
+		if (this.resource != null)
+			return super.getJobFamily();
+		return this.containerPath.toOSString(); // external jar
+	}
 	protected Integer updatedIndexState() {
 		return IndexManager.REBUILDING_STATE;
 	}

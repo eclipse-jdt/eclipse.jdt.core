@@ -158,6 +158,9 @@ class	 Measuring implements IJob {
 		}
 		return true;
 	}
+	public String getJobFamily() {
+		return "FullSourceWorkspaceCompleteSearchTests.Measuring";
+	}
 }
 
 protected void search(String patternString, int searchFor, int limitTo, JavaSearchResultCollector resultCollector) throws CoreException {

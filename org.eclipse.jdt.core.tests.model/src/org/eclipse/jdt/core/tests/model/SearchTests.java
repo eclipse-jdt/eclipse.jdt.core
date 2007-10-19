@@ -122,6 +122,9 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			}
 			return true;
 		}
+		public String getJobFamily() {
+			return "SearchTests.Waiting";
+		}
 	}
 static {
 	TESTS_PREFIX = "testSearchPatternValidateMatchRule";

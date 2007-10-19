@@ -102,6 +102,9 @@ public Index[] getIndexes(IProgressMonitor progressMonitor) {
 		System.arraycopy(indexes, 0, indexes=new Index[count], 0, count);
 	return indexes;
 }	
+public String getJobFamily() {
+	return ""; //$NON-NLS-1$
+}
 public boolean search(Index index, IProgressMonitor progressMonitor) {
 	if (index == null) return COMPLETE;
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();

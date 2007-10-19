@@ -162,6 +162,9 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			}
 			return true;
 		}
+		public String getJobFamily() {
+			return "FullSourceWorkspaceSearchTests.Measuring";
+		}
 	}
 	
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor resultCollector) throws CoreException {

@@ -221,8 +221,8 @@ public final class Messages extends NLS {
 	public static String engine_searching_matching;
 	public static String exception_wrongFormat;
 	public static String process_name;
-	public static String manager_filesToIndex;
-	public static String manager_indexingInProgress;
+	public static String jobmanager_filesToIndex;
+	public static String jobmanager_indexing;
 	public static String disassembler_description;
 	public static String disassembler_opentypedeclaration;
 	public static String disassembler_closetypedeclaration;

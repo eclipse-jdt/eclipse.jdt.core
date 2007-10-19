@@ -36,6 +36,9 @@ public abstract class IndexRequest implements IJob {
 		// tag the index as inconsistent
 		this.manager.aboutToUpdateIndex(this.containerPath, updatedIndexState());
 	}
+	public String getJobFamily() {
+		return this.containerPath.toString();
+	}
 	protected Integer updatedIndexState() {
 		return IndexManager.UPDATING_STATE;
 	}

@@ -238,7 +238,7 @@ public abstract class JobManager implements Runnable {
 											Util.verbose("-> NOT READY - waiting until ready - " + searchJob);//$NON-NLS-1$
 										if (subProgress != null) {
 											subProgress.subTask(
-												Messages.bind(Messages.manager_filesToIndex, Integer.toString(awaitingJobsCount)));
+												Messages.bind(Messages.jobmanager_filesToIndex, Integer.toString(awaitingJobsCount)));
 											// ratio of the amount of work relative to the total work
 											float ratio = awaitingJobsCount < totalWork ? 1 : ((float) totalWork) / awaitingJobsCount;
 											if (lastJobsCount > awaitingJobsCount) {
@@ -336,14 +336,17 @@ public abstract class JobManager implements Runnable {
 					super(name);
 				}
 				protected IStatus run(IProgressMonitor monitor) {
-					int awaitingJobsCount;
-					while (!monitor.isCanceled() && (awaitingJobsCount = awaitingJobsCount()) > 0) {
-						monitor.subTask(Messages.bind(Messages.manager_filesToIndex, Integer.toString(awaitingJobsCount))); 
+					IJob job = currentJob();
+					while (!monitor.isCanceled() && job != null) {
+						String indexing = Messages.bind(Messages.jobmanager_indexing, job.getJobFamily());
+						monitor.subTask(indexing);
+						setName(indexing); 
 						try {
 							Thread.sleep(500);
 						} catch (InterruptedException e) {
 							// ignore
 						}
+						job = currentJob();
 					}
 					return Status.OK_STATUS;
 				}
@@ -384,7 +387,7 @@ public abstract class JobManager implements Runnable {
 					try {
 						this.executing = true;
 						if (this.progressJob == null) {
-							this.progressJob = new ProgressJob(Messages.manager_indexingInProgress); 
+							this.progressJob = new ProgressJob(Messages.bind(Messages.jobmanager_indexing, "")); //$NON-NLS-1$
 							this.progressJob.setPriority(Job.LONG);
 							this.progressJob.setSystem(true);
 							this.progressJob.schedule();
