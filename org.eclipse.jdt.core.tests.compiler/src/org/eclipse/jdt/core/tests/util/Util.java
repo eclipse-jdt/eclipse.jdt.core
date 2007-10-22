@@ -20,6 +20,7 @@ import java.util.zip.*;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.compiler.regression.Requestor;
@@ -1110,7 +1111,14 @@ private static boolean waitUntilFileDeleted(File file) {
  * @return true if the file was finally deleted, false otherwise
  */
 private static boolean waitUntilResourceDeleted(IResource resource) {
-    File file = resource.getLocation().toFile();
+    IPath location = resource.getLocation();
+    if (location == null) {
+        System.out.println();
+        System.out.println("	!!! ERROR: "+resource+" getLocation() returned null!!!");
+        System.out.println();
+        return false;
+    }
+    File file = location.toFile();
     if (DELETE_DEBUG) {
         System.out.println();
         System.out.println("WARNING in test: "+getTestName());
