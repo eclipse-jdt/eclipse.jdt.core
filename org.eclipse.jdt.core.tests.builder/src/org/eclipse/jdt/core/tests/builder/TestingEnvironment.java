@@ -707,9 +707,13 @@ public void cleanBuild() {
 				if (child != null) {
 					buffer.append(child.getMessage());
 					buffer.append(System.getProperty("line.separator"));//$NON-NLS-1$
+					Throwable childException = child.getException();
+					if (childException != null) {
+						childException.printStackTrace();
+					}
 				}
 			}
-			message = String.valueOf(buffer);
+			message = buffer.toString();
 		}
 		Assert.isTrue(
 			false,
@@ -737,7 +741,9 @@ public void cleanBuild() {
 			getProject(projectPath).build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 		} catch (CoreException e) {
 			handle(e);
-		}
+		} catch(Throwable e) {
+			e.printStackTrace();
+	}
 	}
 	
 	public boolean isAutoBuilding() {
