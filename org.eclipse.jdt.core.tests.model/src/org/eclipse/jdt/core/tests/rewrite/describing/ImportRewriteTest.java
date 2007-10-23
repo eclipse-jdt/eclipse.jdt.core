@@ -793,6 +793,27 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		assertEqualString(cu.getSource(), buf.toString());
 	}
 	
+	public void testPackageInfo() throws Exception {
+		IPackageFragment pack1= sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("\npackage pack1;");
+
+		ICompilationUnit cu= pack1.createCompilationUnit("package-info.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "#", "java" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, true);
+		imports.addImport("foo.Bar");
+	
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("\npackage pack1;\n");
+		buf.append("import foo.Bar;\n");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
+
+	
 	private void assertAddedAndRemoved(ImportRewrite imports, String[] expectedAdded, String[] expectedRemoved, String[] expectedAddedStatic, String[] expectedRemovedStatic) {
 		assertEqualStringsIgnoreOrder(imports.getAddedImports(), expectedAdded);
 		assertEqualStringsIgnoreOrder(imports.getAddedStaticImports(), expectedAddedStatic);

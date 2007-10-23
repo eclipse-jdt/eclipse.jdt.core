@@ -731,22 +731,28 @@ public final class ImportRewriteAnalyzer {
 	private int getPackageStatementEndPos(CompilationUnit root) {
 		PackageDeclaration packDecl= root.getPackage();
 		if (packDecl != null) {
-			int lineAfterPackage= root.getLineNumber(packDecl.getStartPosition() + packDecl.getLength()) + 1;
-			int afterPackageStatementPos= root.getPosition(lineAfterPackage, 0);
-			if (afterPackageStatementPos >= 0) {
-				int firstTypePos= getFirstTypeBeginPos(root);
-				if (firstTypePos != -1 && firstTypePos <= afterPackageStatementPos) {
-					if (firstTypePos <= afterPackageStatementPos) {
-						this.flags |= F_NEEDS_TRAILING_DELIM;
-						if (firstTypePos == afterPackageStatementPos) {
-							this.flags |= F_NEEDS_LEADING_DELIM;
-						}
-						return firstTypePos;
-					}
-				}
-				this.flags |= F_NEEDS_LEADING_DELIM;
-				return afterPackageStatementPos; // insert a line after after package statement
+			int afterPackageStatementPos= -1;
+			int lineNumber= root.getLineNumber(packDecl.getStartPosition() + packDecl.getLength());
+			if (lineNumber >= 0) {
+				int lineAfterPackage= lineNumber + 1;
+				afterPackageStatementPos= root.getPosition(lineAfterPackage, 0);
 			}
+			if (afterPackageStatementPos < 0) {
+				this.flags|= F_NEEDS_LEADING_DELIM;
+				return packDecl.getStartPosition() + packDecl.getLength();
+			}
+			int firstTypePos= getFirstTypeBeginPos(root);
+			if (firstTypePos != -1 && firstTypePos <= afterPackageStatementPos) {
+				if (firstTypePos <= afterPackageStatementPos) {
+					this.flags|= F_NEEDS_TRAILING_DELIM;
+					if (firstTypePos == afterPackageStatementPos) {
+						this.flags|= F_NEEDS_LEADING_DELIM;
+					}
+					return firstTypePos;
+				}
+			}
+			this.flags|= F_NEEDS_LEADING_DELIM;
+			return afterPackageStatementPos; // insert a line after after package statement
 		}
 		this.flags |= F_NEEDS_TRAILING_DELIM;
 		return 0;
