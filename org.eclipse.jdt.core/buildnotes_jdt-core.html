@@ -46,6 +46,58 @@ Eclipse SDK 3.4M3 - %date% - 3.4 MILESTONE 3
 <br>Project org.eclipse.jdt.core v_821
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_821">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Added the following APIs to support annotation in the Java model (see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79112">bug 79112</a>
+     for more details):
+     <ul>
+     <li><pre>
+public interface IAnnotation extends IJavaElement, ISourceReference {
+	String getElementName();
+	IMemberValuePair[] getMemberValuePairs() throws JavaModelException;
+	ISourceRange getNameRange() throws JavaModelException;
+	int getOccurrenceCount();
+}    </pre></li>
+     <li><pre>
+public interface IMemberValuePair {
+	int K_INT = 1;
+	int K_BYTE = 2;
+	int K_SHORT = 3;
+	int K_CHAR = 4;
+	int K_FLOAT = 5;
+	int K_DOUBLE = 6;
+	int K_LONG = 7;
+	int K_BOOLEAN = 8;
+	int K_STRING = 9;
+	int K_ANNOTATION = 10;
+	int K_CLASS = 11;
+	int K_QUALIFIED_NAME = 12;
+	int K_UNKNOWN = 13;
+	String getMemberName();
+	Object getValue();
+	int getValueKind();
+}    </pre></li>
+     <li><pre>
+public interface IAnnotatable {
+	IAnnotation getAnnotation(String name);
+	IAnnotation[] getAnnotations() throws JavaModelException;
+}    </pre><code>IField</code>, <code>IMethod</code>, <code>IType</code>, <code>IPackageDeclaration</code>, and <code>ILocalVariable</code>
+     now implement this interface.</li>
+     <li><pre>
+public interface IJavaElement extends IAdaptable {
+	...
+	int ANNOTATION = 16;
+	...
+}    </pre></li>
+     <li><pre>
+public interface IJavaElementDelta {
+	...
+	public int F_ANNOTATIONS = 0x400000;
+	public IJavaElementDelta[] getAnnotationDeltas();	
+	...
+}    </pre></li>
+     </ul>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79112">79112</a>
