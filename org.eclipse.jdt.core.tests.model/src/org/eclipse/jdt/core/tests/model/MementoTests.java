@@ -93,6 +93,33 @@ public void tearDownSuite() throws Exception {
 	this.deleteProject("P");
 	super.tearDownSuite();
 }
+/*
+ * Tests that an annotation can be persisted and restored using its memento.
+ */
+public void testAnnotation1() {
+	IAnnotation annotation = getCompilationUnit("/P/src/p/X.java").getType("X").getAnnotation("MyAnnot");
+	assertMemento(
+		"=P/src<p{X.java[X}MyAnnot",
+		annotation);
+}
+/*
+ * Tests that an annotation can be persisted and restored using its memento.
+ */
+public void testAnnotation2() {
+	IAnnotation annotation = getCompilationUnit("/P/src/p/X.java").getType("X").getMethod("foo", new String[0]).getAnnotation("MyAnnot");
+	assertMemento(
+		"=P/src<p{X.java[X~foo}MyAnnot",
+		annotation);
+}
+/*
+ * Tests that an annotation can be persisted and restored using its memento.
+ */
+public void testAnnotation3() {
+	IAnnotation annotation = getCompilationUnit("/P/src/p/X.java").getType("X").getField("field").getAnnotation("MyAnnot");
+	assertMemento(
+		"=P/src<p{X.java[X^field}MyAnnot",
+		annotation);
+}
 /**
  * Tests that an anonymous type can be persisted and restored using its memento.
  */
@@ -424,7 +451,7 @@ public void testLocalVariableMemento1() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
 	IMethod method = type.getMethod("foo", new String[]{});
 
-	ILocalVariable localVar = new LocalVariable((JavaElement)method, "var", 1, 2, 3, 4, "Z");
+	ILocalVariable localVar = new LocalVariable((JavaElement)method, "var", 1, 2, 3, 4, "Z", null);
 	assertMemento(
 		"=P/src<p{X.java[X~foo@var!1!2!3!4!Z",
 		localVar);
@@ -436,7 +463,7 @@ public void testLocalVariableMemento3() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
 	IInitializer initializer = type.getInitializer(1);
 
-	ILocalVariable localVar = new LocalVariable((JavaElement)initializer, "var", 1, 2, 3, 4, "Z");
+	ILocalVariable localVar = new LocalVariable((JavaElement)initializer, "var", 1, 2, 3, 4, "Z", null);
 	assertMemento(
 		"=P/src<p{X.java[X|1@var!1!2!3!4!Z",
 		localVar);
@@ -448,7 +475,7 @@ public void testLocalVariableMemento2() throws JavaModelException {
 	IType type = getClassFile("/P/src/p/X.class").getType();
 	IMethod method = type.getMethod("foo", new String[]{"I"});
 
-	ILocalVariable localVar = new LocalVariable((JavaElement)method, "var", 1, 2, 3, 4, "Z");
+	ILocalVariable localVar = new LocalVariable((JavaElement)method, "var", 1, 2, 3, 4, "Z", null);
 	assertMemento(
 		"=P/src<p(X.class[X~foo~I@var!1!2!3!4!Z",
 		localVar);

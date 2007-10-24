@@ -2090,5 +2090,64 @@ public void test082() throws CoreException, IOException {
 			"Lp1/X;.foo()V#i#1");
 	}
 
+	/*
+	 * Ensures that an annotation binding can be retrieved using its key.
+	 */
+	public void test085() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"/*start*/@MyAnnot/*end*/\n" +
+				"public class X {\n" +
+				"}",
+				"/P/p1/MyAnnot.java",
+				"package p1;\n" +
+				"public @interface MyAnnot {\n" +
+				"}",
+			}, 
+			"Lp1/X;@Lp1/MyAnnot;");
+	}
+
+	/*
+	 * Ensures that an annotation binding can be retrieved using its key.
+	 */
+	public void test086() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  /*start*/@MyAnnot/*end*/\n" +
+				"  int field;\n" +
+				"}",
+				"/P/p1/MyAnnot.java",
+				"package p1;\n" +
+				"public @interface MyAnnot {\n" +
+				"}",
+			}, 
+			"Lp1/X;.field)I@Lp1/MyAnnot;");
+	}
+
+	/*
+	 * Ensures that an annotation binding can be retrieved using its key.
+	 */
+	public void test087() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  /*start*/@MyAnnot/*end*/\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}",
+				"/P/p1/MyAnnot.java",
+				"package p1;\n" +
+				"public @interface MyAnnot {\n" +
+				"}",
+			}, 
+			"Lp1/X;.foo()V@Lp1/MyAnnot;");
+	}
 
 }

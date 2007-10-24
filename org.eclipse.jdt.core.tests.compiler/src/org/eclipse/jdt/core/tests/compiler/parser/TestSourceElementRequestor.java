@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 
 public class TestSourceElementRequestor implements ISourceElementRequestor {
 /**
@@ -43,7 +44,7 @@ public void acceptMethodReference(char[] methodName, int argCount, int sourcePos
 /**
  * acceptPackage method comment.
  */
-public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {}
+public void acceptPackage(ImportReference importReference) {}
 /**
  * acceptProblem method comment.
  */

@@ -125,6 +125,13 @@ public interface IJavaElement extends IAdaptable {
 	 * @since 3.1
 	 */
 	int TYPE_PARAMETER = 15;
+	
+	/**
+	 * Constant representing an annotation.
+	 * A Java element with this type can be safely cast to {@link IAnnotation}.
+	 * @since 3.4
+	 */
+	int ANNOTATION = 16;
 
 	/**
 	 * Returns whether this Java element exists in the model.

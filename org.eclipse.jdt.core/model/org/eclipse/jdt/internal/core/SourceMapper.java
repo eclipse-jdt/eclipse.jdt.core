@@ -54,6 +54,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -267,10 +268,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void acceptPackage(
-		int declarationStart,
-		int declarationEnd,
-		char[] name) {
+	public void acceptPackage(ImportReference importReference) {
 		//do nothing
 	}
 	

@@ -60,6 +60,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public static final char JEM_COUNT = '!';
 	public static final char JEM_LOCALVARIABLE = '@';
 	public static final char JEM_TYPE_PARAMETER = ']';
+	public static final char JEM_ANNOTATION = '}';
 
 	/**
 	 * This element's parent, or <code>null</code> if this
@@ -139,6 +140,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				case JEM_IMPORTDECLARATION:
 				case JEM_LOCALVARIABLE:
 				case JEM_TYPE_PARAMETER:
+				case JEM_ANNOTATION:
 					buffer.append(JEM_ESCAPE);
 			}
 			buffer.append(character);

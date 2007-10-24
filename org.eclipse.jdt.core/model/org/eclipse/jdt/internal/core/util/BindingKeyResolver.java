@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -43,6 +44,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
 public class BindingKeyResolver extends BindingKeyParser {
@@ -54,6 +56,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	LookupEnvironment environment;
 	ReferenceBinding genericType;
 	MethodBinding methodBinding;
+	AnnotationBinding annotationBinding;
 	
 	char[] secondarySimpleName;
 	CompilationUnitDeclaration parsedUnit;
@@ -93,6 +96,29 @@ public class BindingKeyResolver extends BindingKeyParser {
 	 */
 	public char[][] compoundName() {
 		return this.compoundName;
+	}
+	
+	public void consumeAnnotation() {
+		int size = this.types.size();
+		if (size == 0) return;
+		Binding annotationType = ((BindingKeyResolver) this.types.get(size-1)).compilerBinding;
+		AnnotationBinding[] annotationBindings;
+		if (this.compilerBinding == null && this.typeBinding instanceof ReferenceBinding) {
+			annotationBindings = ((ReferenceBinding) this.typeBinding).getAnnotations();
+		} else if (this.compilerBinding instanceof MethodBinding) {
+			annotationBindings = ((MethodBinding) this.compilerBinding).getAnnotations();
+		} else if (this.compilerBinding instanceof VariableBinding) {
+			annotationBindings = ((VariableBinding) this.compilerBinding).getAnnotations();
+		} else {
+			return;
+		}
+		for (int i = 0, length = annotationBindings.length; i < length; i++) {
+			AnnotationBinding binding = annotationBindings[i];
+			if (binding.getAnnotationType() == annotationType) {
+				this.annotationBinding = binding;
+				break;
+			}
+		}
 	}
 	 
 	public void consumeArrayDimension(char[] brakets) {
@@ -381,6 +407,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 				this.typeBinding = this.environment.createWildcard((ReferenceBinding) this.typeBinding, rank++, null/*no bound*/, null /*no extra bound*/, kind);
 				break;
 		}
+	}
+	
+	public AnnotationBinding getAnnotationBinding() {
+		return this.annotationBinding;
 	}
 	
 	/*

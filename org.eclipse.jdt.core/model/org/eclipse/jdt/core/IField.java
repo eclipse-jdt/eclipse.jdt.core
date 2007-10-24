@@ -17,7 +17,8 @@ package org.eclipse.jdt.core;
  * This interface is not intended to be implemented by clients.
  * </p>
  */
-public interface IField extends IMember {
+public interface IField extends IMember, IAnnotatable {
+
 /**
  * Returns the constant value associated with this field
  * or <code>null</code> if this field has none. The field needs to be static and final to have
@@ -131,7 +132,7 @@ String getTypeSignature() throws JavaModelException;
 boolean isEnumConstant() throws JavaModelException;
 /**
  * Returns whether this field represents a resolved field.
- * If a field is resoved, its key contains resolved information.
+ * If a field is resolved, its key contains resolved information.
  * 
  * @return whether this field represents a resolved field.
  * @since 3.1

@@ -908,7 +908,7 @@ public void testSearchPatternCreation29() {
  * Test LocalVarDeclarationPattern creation
  */
 public void testSearchPatternCreation30() {
-	ILocalVariable localVar = new LocalVariable((JavaElement)getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]),  "var", 1, 2, 3, 4, "Z");
+	ILocalVariable localVar = new LocalVariable((JavaElement)getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]),  "var", 1, 2, 3, 4, "Z", null);
 	SearchPattern searchPattern = createPattern(
 			localVar, 
 			IJavaSearchConstants.DECLARATIONS);
@@ -922,7 +922,7 @@ public void testSearchPatternCreation30() {
  * Test LocalVarReferencePattern creation
  */
 public void testSearchPatternCreation31() {
-	ILocalVariable localVar = new LocalVariable((JavaElement)getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]),  "var", 1, 2, 3, 4, "Z");
+	ILocalVariable localVar = new LocalVariable((JavaElement)getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]),  "var", 1, 2, 3, 4, "Z", null);
 	SearchPattern searchPattern = createPattern(
 			localVar, 
 			IJavaSearchConstants.REFERENCES);
@@ -936,7 +936,7 @@ public void testSearchPatternCreation31() {
  * Test LocalVarCombinedPattern creation
  */
 public void testSearchPatternCreation32() {
-	ILocalVariable localVar = new LocalVariable((JavaElement)getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]),  "var", 1, 2, 3, 4, "Z");
+	ILocalVariable localVar = new LocalVariable((JavaElement)getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]),  "var", 1, 2, 3, 4, "Z", null);
 	SearchPattern searchPattern = createPattern(
 			localVar, 
 			IJavaSearchConstants.ALL_OCCURRENCES);

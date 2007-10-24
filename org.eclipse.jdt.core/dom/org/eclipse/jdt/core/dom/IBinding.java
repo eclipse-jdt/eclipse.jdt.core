@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IJavaElement;
 
 /**
@@ -192,8 +193,8 @@ public interface IBinding {
 	 * <p>
 	 * For array types, this method returns the Java element that corresponds
 	 * to the array's element type. For raw and parameterized types, this method
-	 * returns the Java element of the erasure. For annotations, this methods
-	 * returns the Java element of the annotation type.
+	 * returns the Java element of the erasure. For annotations, this method
+	 * returns the Java element of the annotation (i.e. an {@link IAnnotation}).
 	 * </p>
 	 * <p>
 	 * Here are the cases where a <code>null</code> should be expected:
@@ -270,10 +271,12 @@ public interface IBinding {
 	 * <li>members of generic type instances - the key of the generic type
 	 * instance and the key of the corresponding member in the generic
 	 * type</li>
+	 * <li>annotations - the key of the annotated element and the key of
+	 * the annotation type</li>
 	 * </ul>
 	 * </p>
-	 * <p>Note that the key for annotation bindings and member value pair bindings is
-	 * not yet implemented. This returns <code>null</code> for these 2 kinds of bindings.<br>
+	 * <p>Note that the key for member value pair bindings is
+	 * not yet implemented. This returns <code>null</code> for this kind of bindings.<br>
 	 * Recovered bindings have a unique key.
 	 * </p>
 	 *

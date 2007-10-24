@@ -107,6 +107,13 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 		openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
 	}
 }
+public IAnnotation getAnnotation(String name) {
+	return new Annotation(this, name);
+}
+public IAnnotation[] getAnnotations() throws JavaModelException {
+	AnnotatableInfo info = (AnnotatableInfo) getElementInfo();
+	return info.annotations;
+}
 /**
  * @see IMember
  */

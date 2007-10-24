@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -156,6 +157,11 @@ public IMethod[] findMethods(IMethod method) {
 		// if type doesn't exist, no matching method can exist
 		return null;
 	}
+}
+public IAnnotation[] getAnnotations() throws JavaModelException {
+	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryAnnotation[] binaryAnnotations = info.getAnnotations();
+	return getAnnotations(binaryAnnotations);
 }
 /*
  * @see IParent#getChildren()
@@ -341,6 +347,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 				switch (token.charAt(0)) {
 					case JEM_TYPE:
 					case JEM_TYPE_PARAMETER:
+					case JEM_ANNOTATION:
 						break nextParam;
 					case JEM_METHOD:
 						if (!memento.hasMoreTokens()) return this;
@@ -364,6 +371,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 				case JEM_TYPE:
 				case JEM_TYPE_PARAMETER:
 				case JEM_LOCALVARIABLE:
+				case JEM_ANNOTATION:
 					return method.getHandleFromMemento(token, memento, workingCopyOwner);
 				default:
 					return method;
@@ -394,6 +402,11 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			String typeParameterName = memento.nextToken();
 			JavaElement typeParameter = new TypeParameter(this, typeParameterName);
 			return typeParameter.getHandleFromMemento(memento, workingCopyOwner);
+		case JEM_ANNOTATION:
+			if (!memento.hasMoreTokens()) return this;
+			String annotationName = memento.nextToken();
+			JavaElement annotation = new Annotation(this, annotationName);
+			return annotation.getHandleFromMemento(memento, workingCopyOwner);
 	}
 	return null;
 }

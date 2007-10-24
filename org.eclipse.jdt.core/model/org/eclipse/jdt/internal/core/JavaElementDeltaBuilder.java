@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IParent;
@@ -25,7 +26,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
- * A java element delta biulder creates a java element delta on
+ * A java element delta builder creates a java element delta on
  * a java element between the version of the java element
  * at the time the comparator was created and the current version 
  * of the java element.
@@ -50,6 +51,7 @@ public class JavaElementDeltaBuilder {
 	 * The old handle to info relationships
 	 */
 	Map infos;
+	Map annotationInfos;
 
 	/**
 	 * The old position info
@@ -69,12 +71,12 @@ public class JavaElementDeltaBuilder {
 	/**
 	 * List of added elements
 	 */
-	ArrayList added;
+	HashSet added;
 
 	/**
 	 * List of removed elements
 	 */
-	ArrayList removed;
+	HashSet removed;
 	
 	/**
 	 * Doubly linked list item
@@ -230,6 +232,48 @@ private void findChangesInPositioning(IJavaElement element, int depth) {
 		}		
 	}
 }
+private void findAnnotationChanges(IAnnotation[] oldAnnotations, IAnnotation[] newAnnotations, IJavaElement parent) {
+	ArrayList annotationDeltas = null;
+	for (int i = 0, length = newAnnotations.length; i < length; i++) {
+		IAnnotation newAnnotation = newAnnotations[i];
+		Object oldInfo = this.annotationInfos.remove(newAnnotation);
+		if (oldInfo == null) {
+			JavaElementDelta annotationDelta = new JavaElementDelta(newAnnotation);
+			annotationDelta.added();
+			if (annotationDeltas == null) annotationDeltas = new ArrayList();
+			annotationDeltas.add(annotationDelta);
+			continue;
+		} else {
+			AnnotationInfo newInfo = null;
+			try { 
+				newInfo = (AnnotationInfo) ((JavaElement) newAnnotation).getElementInfo();
+			} catch (JavaModelException npe) {
+				return;
+			}
+			if (!Util.equalArraysOrNull(((AnnotationInfo) oldInfo).members, newInfo.members)) {
+				JavaElementDelta annotationDelta = new JavaElementDelta(newAnnotation);
+				annotationDelta.changed(IJavaElementDelta.F_CONTENT);
+				if (annotationDeltas == null) annotationDeltas = new ArrayList();
+				annotationDeltas.add(annotationDelta);
+			}		
+		}
+	}
+	for (int i = 0, length = oldAnnotations.length; i < length; i++) {
+		IAnnotation oldAnnotation = oldAnnotations[i];
+		if (this.annotationInfos.remove(oldAnnotation) != null) {
+			JavaElementDelta annotationDelta = new JavaElementDelta(oldAnnotation);
+			annotationDelta.removed();
+			if (annotationDeltas == null) annotationDeltas = new ArrayList();
+			annotationDeltas.add(annotationDelta);		}
+	}
+	if (annotationDeltas == null)
+		return;
+	int size = annotationDeltas.size();
+	if (size > 0) {
+		JavaElementDelta parentDelta = this.delta.changed(parent, IJavaElementDelta.F_ANNOTATIONS);
+		parentDelta.annotationDeltas = (IJavaElementDelta[]) annotationDeltas.toArray(new IJavaElementDelta[size]);
+	}
+}
 /**
  * The elements are equivalent, but might have content changes.
  */
@@ -237,7 +281,11 @@ private void findContentChange(JavaElementInfo oldInfo, JavaElementInfo newInfo,
 	if (oldInfo instanceof MemberElementInfo && newInfo instanceof MemberElementInfo) {
 		if (((MemberElementInfo)oldInfo).getModifiers() != ((MemberElementInfo)newInfo).getModifiers()) {
 			this.delta.changed(newElement, IJavaElementDelta.F_MODIFIERS);
-		} else if (oldInfo instanceof SourceMethodElementInfo && newInfo instanceof SourceMethodElementInfo) {
+		} 
+		if (oldInfo instanceof AnnotatableInfo && newInfo instanceof AnnotatableInfo) {
+			findAnnotationChanges(((AnnotatableInfo) oldInfo).annotations, ((AnnotatableInfo) newInfo).annotations, newElement);
+		}
+		if (oldInfo instanceof SourceMethodElementInfo && newInfo instanceof SourceMethodElementInfo) {
 			SourceMethodElementInfo oldSourceMethodInfo = (SourceMethodElementInfo)oldInfo;
 			SourceMethodElementInfo newSourceMethodInfo = (SourceMethodElementInfo)newInfo;
 			if (!CharOperation.equals(oldSourceMethodInfo.getReturnTypeName(), newSourceMethodInfo.getReturnTypeName())
@@ -251,43 +299,42 @@ private void findContentChange(JavaElementInfo oldInfo, JavaElementInfo newInfo,
 					((SourceFieldElementInfo)newInfo).getTypeName())) {
 				this.delta.changed(newElement, IJavaElementDelta.F_CONTENT);
 			}
-		}
-	}
-	if (oldInfo instanceof SourceTypeElementInfo && newInfo instanceof SourceTypeElementInfo) {
-		SourceTypeElementInfo oldSourceTypeInfo = (SourceTypeElementInfo)oldInfo;
-		SourceTypeElementInfo newSourceTypeInfo = (SourceTypeElementInfo)newInfo;
-		if (!CharOperation.equals(oldSourceTypeInfo.getSuperclassName(), newSourceTypeInfo.getSuperclassName()) 
-				|| !CharOperation.equals(oldSourceTypeInfo.getInterfaceNames(), newSourceTypeInfo.getInterfaceNames())) {
-			this.delta.changed(newElement, IJavaElementDelta.F_SUPER_TYPES);
-		}
-		if (!CharOperation.equals(oldSourceTypeInfo.getTypeParameterNames(), newSourceTypeInfo.getTypeParameterNames())
-				|| !equals(oldSourceTypeInfo.getTypeParameterBounds(), newSourceTypeInfo.getTypeParameterBounds())) {
-			this.delta.changed(newElement, IJavaElementDelta.F_CONTENT);
-		}
-		HashMap oldTypeCategories = oldSourceTypeInfo.categories;
-		HashMap newTypeCategories = newSourceTypeInfo.categories;
-		if (oldTypeCategories != null) {
-			// take the union of old and new categories elements (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=125675)
-			Set elements;
-			if (newTypeCategories != null) {
-				elements = new HashSet(oldTypeCategories.keySet());
-				elements.addAll(newTypeCategories.keySet());
-			} else
-				elements = oldTypeCategories.keySet();
-			Iterator iterator = elements.iterator();
-			while (iterator.hasNext()) {
-				IJavaElement element = (IJavaElement) iterator.next();
-				String[] oldCategories = (String[]) oldTypeCategories.get(element);
-				String[] newCategories = newTypeCategories == null ? null : (String[]) newTypeCategories.get(element);
-				if (!Util.equalArraysOrNull(oldCategories, newCategories)) {
-					this.delta.changed(element, IJavaElementDelta.F_CATEGORIES);
-				}
+		} else if (oldInfo instanceof SourceTypeElementInfo && newInfo instanceof SourceTypeElementInfo) {
+			SourceTypeElementInfo oldSourceTypeInfo = (SourceTypeElementInfo)oldInfo;
+			SourceTypeElementInfo newSourceTypeInfo = (SourceTypeElementInfo)newInfo;
+			if (!CharOperation.equals(oldSourceTypeInfo.getSuperclassName(), newSourceTypeInfo.getSuperclassName()) 
+					|| !CharOperation.equals(oldSourceTypeInfo.getInterfaceNames(), newSourceTypeInfo.getInterfaceNames())) {
+				this.delta.changed(newElement, IJavaElementDelta.F_SUPER_TYPES);
 			}
-		} else if (newTypeCategories != null) {
-			Iterator elements = newTypeCategories.keySet().iterator();
-			while (elements.hasNext()) {
-				IJavaElement element = (IJavaElement) elements.next();
-				this.delta.changed(element, IJavaElementDelta.F_CATEGORIES); // all categories for this element were removed
+			if (!CharOperation.equals(oldSourceTypeInfo.getTypeParameterNames(), newSourceTypeInfo.getTypeParameterNames())
+					|| !equals(oldSourceTypeInfo.getTypeParameterBounds(), newSourceTypeInfo.getTypeParameterBounds())) {
+				this.delta.changed(newElement, IJavaElementDelta.F_CONTENT);
+			}
+			HashMap oldTypeCategories = oldSourceTypeInfo.categories;
+			HashMap newTypeCategories = newSourceTypeInfo.categories;
+			if (oldTypeCategories != null) {
+				// take the union of old and new categories elements (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=125675)
+				Set elements;
+				if (newTypeCategories != null) {
+					elements = new HashSet(oldTypeCategories.keySet());
+					elements.addAll(newTypeCategories.keySet());
+				} else
+					elements = oldTypeCategories.keySet();
+				Iterator iterator = elements.iterator();
+				while (iterator.hasNext()) {
+					IJavaElement element = (IJavaElement) iterator.next();
+					String[] oldCategories = (String[]) oldTypeCategories.get(element);
+					String[] newCategories = newTypeCategories == null ? null : (String[]) newTypeCategories.get(element);
+					if (!Util.equalArraysOrNull(oldCategories, newCategories)) {
+						this.delta.changed(element, IJavaElementDelta.F_CATEGORIES);
+					}
+				}
+			} else if (newTypeCategories != null) {
+				Iterator elements = newTypeCategories.keySet().iterator();
+				while (elements.hasNext()) {
+					IJavaElement element = (IJavaElement) elements.next();
+					this.delta.changed(element, IJavaElementDelta.F_CATEGORIES); // all categories for this element were removed
+				}
 			}
 		}
 	}
@@ -316,10 +363,10 @@ private void initialize() {
 	this.infos = new HashMap(20);
 	this.oldPositions = new HashMap(20);
 	this.newPositions = new HashMap(20);
-	this.putOldPosition(this.javaElement, new ListItem(null, null));
-	this.putNewPosition(this.javaElement, new ListItem(null, null));	
-	this.added = new ArrayList(5);
-	this.removed = new ArrayList(5);
+	this.oldPositions.put(this.javaElement, new ListItem(null, null));
+	this.newPositions.put(this.javaElement, new ListItem(null, null));	
+	this.added = new HashSet(5);
+	this.removed = new HashSet(5);
 }
 /**
  * Inserts position information for the elements into the new or old positions table
@@ -332,9 +379,9 @@ private void insertPositions(IJavaElement[] elements, boolean isNew) {
 		current = next;
 		next = (i + 1 < length) ? elements[i + 1] : null;
 		if (isNew) {
-			this.putNewPosition(current, new ListItem(previous, next));
+			this.newPositions.put(current, new ListItem(previous, next));
 		} else {
-			this.putOldPosition(current, new ListItem(previous, next));
+			this.oldPositions.put(current, new ListItem(previous, next));
 		}
 	}
 }
@@ -356,15 +403,6 @@ private boolean isPositionedCorrectly(IJavaElement element) {
 		return oldPrevious.equals(newPrevious);
 	}
 }
-private void putElementInfo(IJavaElement element, JavaElementInfo info) {
-	this.infos.put(element, info);
-}
-private void putNewPosition(IJavaElement element, ListItem position) {
-	this.newPositions.put(element, position);
-}
-private void putOldPosition(IJavaElement element, ListItem position) {
-	this.oldPositions.put(element, position);
-}
 /**
  * Records this elements info, and attempts
  * to record the info for the children.
@@ -376,7 +414,7 @@ private void recordElementInfo(IJavaElement element, JavaModel model, int depth)
 	JavaElementInfo info = (JavaElementInfo)JavaModelManager.getJavaModelManager().getInfo(element);
 	if (info == null) // no longer in the java model.
 		return;
-	this.putElementInfo(element, info);
+	this.infos.put(element, info);
 		
 	if (element instanceof IParent) {
 		IJavaElement[] children = info.getChildren();
@@ -384,6 +422,17 @@ private void recordElementInfo(IJavaElement element, JavaModel model, int depth)
 			insertPositions(children, false);
 			for(int i = 0, length = children.length; i < length; i++)
 				recordElementInfo(children[i], model, depth + 1);
+		}
+	}
+	IAnnotation[] annotations = null;
+	if (info instanceof AnnotatableInfo) 
+		annotations = ((AnnotatableInfo) info).annotations;
+	if (annotations != null) {
+		if (this.annotationInfos == null)
+			this.annotationInfos = new HashMap();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		for (int i = 0, length = annotations.length; i < length; i++) {
+			this.annotationInfos.put(annotations[i], manager.getInfo(annotations[i]));
 		}
 	}
 }

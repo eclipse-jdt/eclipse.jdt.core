@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search.indexing;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
@@ -73,10 +74,10 @@ public void acceptMethodReference(char[] methodName, int argCount, int sourcePos
 	this.indexer.addMethodReference(methodName, argCount);
 }
 /**
- * @see ISourceElementRequestor#acceptPackage(int, int, char[])
+ * @see ISourceElementRequestor#acceptPackage(ImportReference)
  */
-public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {
-	this.packageName = name;
+public void acceptPackage(ImportReference importReference) {
+	this.packageName = CharOperation.concatWith(importReference.getImportName(), '.');
 }
 /**
  * @see ISourceElementRequestor#acceptProblem(CategorizedProblem)

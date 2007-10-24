@@ -152,6 +152,21 @@ AnnotationBinding(Annotation astAnnotation) {
 	this((ReferenceBinding) astAnnotation.resolvedType, astAnnotation.computeElementValuePairs());
 }
 
+/*
+ * Computes a key that uniquely identifies this binding, using the given recipient's unique key.
+ * recipientKey @ typeKey
+ * @MyAnnot void bar() --> Lp/X;.bar()V@Lp/MyAnnot;
+ */
+public char[] computeUniqueKey(char[] recipientKey) {
+	char[] typeKey = this.type.computeUniqueKey(false);
+	int recipientKeyLength = recipientKey.length;
+	char[] uniqueKey = new char[recipientKeyLength+1+typeKey.length];
+	System.arraycopy(recipientKey, 0, uniqueKey, 0, recipientKeyLength);
+	uniqueKey[recipientKeyLength] = '@';
+	System.arraycopy(typeKey, 0, uniqueKey, recipientKeyLength+1, typeKey.length);
+	return uniqueKey;
+}
+
 public ReferenceBinding getAnnotationType() {
 	return this.type;
 }
@@ -170,4 +185,5 @@ public static void setMethodBindings(ReferenceBinding type, ElementValuePair[] p
 			pair.setMethodBinding(methods[0]);
 	}
 }
+
 }

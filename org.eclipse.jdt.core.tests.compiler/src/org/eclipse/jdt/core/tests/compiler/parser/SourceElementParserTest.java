@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -99,13 +100,10 @@ public void acceptMethodReference(char[] methodName, int argCount, int sourcePos
 /**
  * acceptPackage method comment.
  */
-public void acceptPackage(
-	int declarationStart, 
-	int declarationEnd, 
-	char[] name) {
+public void acceptPackage(ImportReference importReference) {
 
 	currentPackage = 
-		new SourcePackage(declarationStart, declarationEnd, name, source); 
+		new SourcePackage(importReference.declarationSourceStart, importReference.declarationSourceEnd, CharOperation.concatWith(importReference.getImportName(), '.'), source); 
 }
 /**
  * acceptProblem method comment.

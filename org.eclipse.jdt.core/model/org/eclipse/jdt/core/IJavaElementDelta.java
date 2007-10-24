@@ -304,6 +304,15 @@ public interface IJavaElementDelta {
 	public int F_RESOLVED_CLASSPATH_CHANGED = 0x200000;
 
 	/**
+	 * Change flag indicating that the annotations of the element have changed.
+	 * Use {@link #getAnnotationDeltas()} to get the added/removed/changed annotations.
+	 * This flag is only valid if the element is an {@link IAnnotatable}.
+	 * 
+	 * @since 3.4
+	 */
+	public int F_ANNOTATIONS = 0x400000;
+	
+	/**
 	 * Returns deltas for the children that have been added.
 	 * @return deltas for the children that have been added
 	 */
@@ -314,6 +323,17 @@ public interface IJavaElementDelta {
 	 * @return deltas for the affected (added, removed, or changed) children
 	 */
 	public IJavaElementDelta[] getAffectedChildren();
+	
+	/**
+	 * Returns deltas for affected annotations (added, removed, or changed).
+	 * Returns an empty array if no annotations was affected, or if this delta's element is not
+	 * an {@link IAnnotatable}.
+	 * 
+	 * @return deltas for affected annotations (added, removed, or changed)
+	 * 
+	 * @since 3.4
+	 */
+	public IJavaElementDelta[] getAnnotationDeltas();
 	
 	/**
 	 * Returns the compilation unit AST created by the last reconcile operation on this delta's element.

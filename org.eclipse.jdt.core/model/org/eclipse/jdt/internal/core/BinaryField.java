@@ -12,10 +12,12 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 
@@ -34,6 +36,11 @@ protected BinaryField(JavaElement parent, String name) {
 public boolean equals(Object o) {
 	if (!(o instanceof BinaryField)) return false;
 	return super.equals(o);
+}
+public IAnnotation[] getAnnotations() throws JavaModelException {
+	IBinaryField info = (IBinaryField) getElementInfo();
+	IBinaryAnnotation[] binaryAnnotations = info.getAnnotations();
+	return getAnnotations(binaryAnnotations);
 }
 /*
  * @see IField

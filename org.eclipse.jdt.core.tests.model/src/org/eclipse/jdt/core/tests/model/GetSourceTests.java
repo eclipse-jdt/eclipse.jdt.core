@@ -196,6 +196,48 @@ public class GetSourceTests extends ModifyingResourceTests {
 	}
 	
 	/*
+	 * Ensures that the name range for an annotation is correct.
+	 */
+	public void testAnnotationNameRange1() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"@ MyAnnot (1)\n" +
+				"public class Y {\n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			IAnnotation annotation = getCompilationUnit("/P/p/Y.java").getType("Y").getAnnotation("MyAnnot");
+			assertSourceEquals(
+				"Unexpected source'", 
+				"MyAnnot",
+				getNameSource(cuSource, annotation));
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
+
+	/*
+	 * Ensures that the name range for an annotation is correct.
+	 */
+	public void testAnnotationNameRange2() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"@x.  y  .  z.MyAnnot (1)\n" +
+				"public class Y {\n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			IAnnotation annotation = getCompilationUnit("/P/p/Y.java").getType("Y").getAnnotation("x.y.z.MyAnnot");
+			assertSourceEquals(
+				"Unexpected source'", 
+				"x.  y  .  z.MyAnnot",
+				getNameSource(cuSource, annotation));
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
+
+	/*
 	 * Ensures the name range for an anonymous class is correct.
 	 * (regression test for bug 44450 Strange name range for anonymous classes)
 	 */

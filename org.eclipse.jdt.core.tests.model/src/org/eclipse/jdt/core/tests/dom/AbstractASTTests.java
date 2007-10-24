@@ -37,13 +37,16 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
@@ -519,6 +522,12 @@ public class AbstractASTTests extends ModifyingResourceTests {
 				return ((SimpleType) node).resolveBinding();
 			case ASTNode.QUALIFIED_NAME:
 				return ((QualifiedName) node).resolveBinding();
+			case ASTNode.MARKER_ANNOTATION:
+				return ((MarkerAnnotation) node).resolveAnnotationBinding();
+			case ASTNode.NORMAL_ANNOTATION:
+				return ((NormalAnnotation) node).resolveAnnotationBinding();
+			case ASTNode.SINGLE_MEMBER_ANNOTATION:
+				return ((SingleMemberAnnotation) node).resolveAnnotationBinding();
 			default:
 				throw new Error("Not yet implemented for this type of node: " + node);
 		}

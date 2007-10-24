@@ -259,16 +259,6 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 			alloc.sourceStart);
 	}
 }
-private long[] collectAnnotationPositions(Annotation[] annotations) {
-	if (annotations == null) return null;
-	int length = annotations.length;
-	long[] result = new long[length];
-	for (int i = 0; i < length; i++) {
-		Annotation annotation = annotations[i];
-		result[i] = (((long) annotation.sourceStart) << 32) + annotation.declarationSourceEnd;
-	}
-	return result;
-}
 protected void consumeAnnotationAsModifier() {
 	super.consumeAnnotationAsModifier();
 	Annotation annotation = (Annotation)expressionStack[expressionPtr];
@@ -1165,8 +1155,8 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			methodInfo.parameterNames = argumentNames;
 			methodInfo.exceptionTypes = thrownExceptionTypes;
 			methodInfo.typeParameters = getTypeParameterInfos(methodDeclaration.typeParameters());
-			methodInfo.annotationPositions = collectAnnotationPositions(methodDeclaration.annotations);
 			methodInfo.categories = (char[][]) this.nodesToCategories.get(methodDeclaration);
+			methodInfo.annotations = methodDeclaration.annotations;
 			requestor.enterConstructor(methodInfo);
 		}
 		if (reportReferenceInfo) {
@@ -1220,8 +1210,8 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		methodInfo.parameterNames = argumentNames;
 		methodInfo.exceptionTypes = thrownExceptionTypes;
 		methodInfo.typeParameters = getTypeParameterInfos(methodDeclaration.typeParameters());
-		methodInfo.annotationPositions = collectAnnotationPositions(methodDeclaration.annotations);
 		methodInfo.categories = (char[][]) this.nodesToCategories.get(methodDeclaration);
+		methodInfo.annotations = methodDeclaration.annotations;
 		requestor.enterMethod(methodInfo);
 	}		
 		
@@ -1289,8 +1279,8 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, Type
 				fieldInfo.type = typeName;
 				fieldInfo.nameSourceStart = fieldDeclaration.sourceStart;
 				fieldInfo.nameSourceEnd = fieldDeclaration.sourceEnd;
-				fieldInfo.annotationPositions = collectAnnotationPositions(fieldDeclaration.annotations);
 				fieldInfo.categories = (char[][]) this.nodesToCategories.get(fieldDeclaration);
+				fieldInfo.annotations = fieldDeclaration.annotations;
 				requestor.enterField(fieldInfo);
 			}
 			this.visitIfNeeded(fieldDeclaration, declaringType);
@@ -1329,10 +1319,7 @@ public void notifySourceElementRequestor(
 	ImportReference importReference, 
 	boolean isPackage) {
 	if (isPackage) {
-		requestor.acceptPackage(
-			importReference.declarationSourceStart, 
-			importReference.declarationSourceEnd, 
-			CharOperation.concatWith(importReference.getImportName(), '.')); 
+		requestor.acceptPackage(importReference); 
 	} else {
 		requestor.acceptImport(
 			importReference.declarationSourceStart, 
@@ -1411,10 +1398,10 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 			typeInfo.superclass = superclassName;
 			typeInfo.superinterfaces = interfaceNames;
 			typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
-			typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
 			typeInfo.categories = (char[][]) this.nodesToCategories.get(typeDeclaration);
 			typeInfo.secondary = typeDeclaration.isSecondary();
 			typeInfo.anonymousMember = typeDeclaration.allocation != null && typeDeclaration.allocation.enclosingInstance != null;
+			typeInfo.annotations = typeDeclaration.annotations;
 			requestor.enterType(typeInfo);
 			switch (kind) {
 				case TypeDeclaration.CLASS_DECL :

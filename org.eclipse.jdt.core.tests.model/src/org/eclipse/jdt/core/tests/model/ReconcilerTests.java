@@ -557,6 +557,130 @@ public void testAddPartialMethod1and2() throws JavaModelException {
 	);
 }
 /*
+ * Ensures that the delta is correct when adding an annotation
+ */
+public void testAnnotations1() throws JavaModelException {
+	setUp15WorkingCopy();
+	clearDeltas();
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  @MyAnnot\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected delta",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	foo()[*]: {ANNOTATIONS}\n" + 
+		"		@MyAnnot[+]: {}"
+	);
+}
+/*
+ * Ensures that the delta is correct when removing an annotation
+ */
+public void testAnnotations2() throws JavaModelException {
+	setUp15WorkingCopy();
+	clearDeltas();
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  @MyAnnot\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.makeConsistent(null);
+
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected delta",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	foo()[*]: {ANNOTATIONS}\n" + 
+		"		@MyAnnot[-]: {}"
+	);
+}
+/*
+ * Ensures that the delta is correct when changing an annotation
+ */
+public void testAnnotations3() throws JavaModelException {
+	setUp15WorkingCopy();
+	clearDeltas();
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  @MyAnnot(x=1)\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.makeConsistent(null);
+
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  @MyAnnot(y=1)\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected delta",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	foo()[*]: {ANNOTATIONS}\n" + 
+		"		@MyAnnot[*]: {CONTENT}"
+	);
+}
+/*
+ * Ensures that the delta is correct when changing an annotation
+ */
+public void testAnnotations4() throws JavaModelException {
+	setUp15WorkingCopy();
+	clearDeltas();
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  @MyAnnot(x=1)\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.makeConsistent(null);
+
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  @MyAnnot(x=2)\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected delta",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	foo()[*]: {ANNOTATIONS}\n" + 
+		"		@MyAnnot[*]: {CONTENT}"
+	);
+}
+/*
  * Ensures that the AST broadcasted during a reconcile operation is correct.
  * (case of a working copy being reconciled with changes, creating AST and no problem detection)
  */

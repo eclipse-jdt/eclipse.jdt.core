@@ -16,7 +16,7 @@ package org.eclipse.jdt.internal.compiler.env;
 public interface IBinaryAnnotation {
 
 /**
- * @return the fully qualified name of the annotation type.
+ * @return the signature of the annotation type.
  */
 char[] getTypeName();
 

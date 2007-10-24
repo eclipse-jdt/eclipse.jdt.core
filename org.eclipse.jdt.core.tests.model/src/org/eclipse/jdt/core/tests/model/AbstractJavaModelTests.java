@@ -544,6 +544,145 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		assertEquals(message, expected, actual);
 	}
+	protected void assertAnnotationsEqual(String expected, IAnnotation[] annotations) throws JavaModelException {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < annotations.length; i++) {
+			IAnnotation annotation = annotations[i];
+			appendAnnotation(buffer, annotation);
+			buffer.append("\n");
+		}
+		String actual = buffer.toString();
+		if (!expected.equals(actual)) {
+			System.out.println(displayString(actual, 2) + this.endChar);
+		}
+		assertEquals("Unexpected annotations", expected, actual);
+	}
+
+	private void appendAnnotation(StringBuffer buffer, IAnnotation annotation) throws JavaModelException {
+		buffer.append('@');
+		buffer.append(annotation.getElementName());
+		IMemberValuePair[] members = annotation.getMemberValuePairs();
+		int length = members.length;
+		if (length > 0) {
+			buffer.append('(');
+			for (int i = 0; i < length; i++) {
+				IMemberValuePair member = members[i];
+				String name = member.getMemberName();
+				if (!"value".equals(name)) {
+					buffer.append(name);
+					buffer.append('=');
+				}
+				appendAnnotationMember(buffer, member);
+				if (i < length-1)
+					buffer.append(", ");
+			}
+			buffer.append(')');
+		}
+	}
+
+	private void appendAnnotationMember(StringBuffer buffer, IMemberValuePair member) throws JavaModelException {
+		int kind = member.getValueKind();
+		Object value = member.getValue();
+		if (value instanceof Object[]) {
+			if (kind == IMemberValuePair.K_UNKNOWN)
+				buffer.append("[unknown]");
+			buffer.append('{');
+			Object[] array = (Object[]) value;
+			for (int i = 0, length = array.length; i < length; i++) {
+				appendAnnotationMemberValue(buffer, array[i], kind);
+				if (i < length-1)
+					buffer.append(", ");
+			}
+			buffer.append('}');
+		} else {
+			appendAnnotationMemberValue(buffer, value, kind);
+		}
+	}
+	
+	private void appendAnnotationMemberValue(StringBuffer buffer, Object value, int kind) throws JavaModelException {
+		if (value == null) {
+			buffer.append("<null>");
+			return;
+		}
+		switch(kind) {
+		case IMemberValuePair.K_INT:
+			buffer.append("(int)");
+			buffer.append(value);
+			break;
+		case IMemberValuePair.K_BYTE:
+			buffer.append("(byte)");
+			buffer.append(value);
+			break;
+		case IMemberValuePair.K_SHORT:
+			buffer.append("(short)");
+			buffer.append(value);
+			break;
+		case IMemberValuePair.K_CHAR:
+			buffer.append('\'');
+			buffer.append(value);
+			buffer.append('\'');
+			break;
+		case IMemberValuePair.K_FLOAT:
+			buffer.append(value);
+			buffer.append('f');
+			break;
+		case IMemberValuePair.K_DOUBLE:
+			buffer.append("(double)");
+			buffer.append(value);
+			break;
+		case IMemberValuePair.K_BOOLEAN:
+			buffer.append(value);
+			break;
+		case IMemberValuePair.K_LONG:
+			buffer.append(value);
+			buffer.append('L');
+			break;
+		case IMemberValuePair.K_STRING:
+			buffer.append('\"');
+			buffer.append(value);
+			buffer.append('\"');
+			break;
+		case IMemberValuePair.K_ANNOTATION:
+			appendAnnotation(buffer, (IAnnotation) value);
+			break;
+		case IMemberValuePair.K_CLASS:
+			buffer.append(value);
+			buffer.append(".class");
+			break;
+		case IMemberValuePair.K_QUALIFIED_NAME:
+			buffer.append(value);
+			break;
+		case IMemberValuePair.K_UNKNOWN:
+			appendAnnotationMemberValue(buffer, value, getValueKind(value));
+			break;
+		default:
+			buffer.append("<Unknown value: (" + (value == null ? "" : value.getClass().getName()) + ") " + value + ">");
+			break;
+		}
+	}
+	private int getValueKind(Object value) {
+		if (value instanceof Integer) {
+			return IMemberValuePair.K_INT;
+		} else if (value instanceof Byte) {
+			return IMemberValuePair.K_BYTE;
+		} else if (value instanceof Short) {
+			return IMemberValuePair.K_SHORT;
+		} else if (value instanceof Character) {
+			return IMemberValuePair.K_CHAR;
+		} else if (value instanceof Float) {
+			return IMemberValuePair.K_FLOAT;
+		} else if (value instanceof Double) {
+			return IMemberValuePair.K_DOUBLE;
+		} else if (value instanceof Boolean) {
+			return IMemberValuePair.K_BOOLEAN;
+		} else if (value instanceof Long) {
+			return IMemberValuePair.K_LONG;
+		} else if (value instanceof String) {
+			return IMemberValuePair.K_STRING;
+		}
+		return -1;
+		
+	}
 	/*
 	 * Ensures that the toString() of the given AST node is as expected.
 	 */
@@ -666,7 +805,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		if (!expected.equals(actual)) {
 			System.out.println(displayString(actual, 3) + this.endChar);
 		}
-		assertEquals("Unepexeted type parameters", expected, actual);
+		assertEquals("Unexpected type parameters", expected, actual);
 	}
 	protected void assertSortedStringsEqual(String message, String expected, String[] strings) {
 		Util.sort(strings);
@@ -1521,7 +1660,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return getLocalVariable(cu, selectAt, selection);
 	}
 	protected String getNameSource(String cuSource, IJavaElement element) throws JavaModelException {
-		ISourceRange nameRange = element instanceof ITypeParameter ? ((ITypeParameter) element).getNameRange() : ((IMember) element).getNameRange();
+		ISourceRange nameRange;
+		switch (element.getElementType()) {
+			case IJavaElement.TYPE_PARAMETER:
+				nameRange = ((ITypeParameter) element).getNameRange();
+				break;
+			case IJavaElement.ANNOTATION:
+				nameRange = ((IAnnotation) element).getNameRange();
+				break;
+			default:
+				nameRange = ((IMember) element).getNameRange();
+				break;
+		}
 		int start = nameRange.getOffset();
 		int end = start+nameRange.getLength();
 		String actualSource = start >= 0 && end >= start ? cuSource.substring(start, end) : "";

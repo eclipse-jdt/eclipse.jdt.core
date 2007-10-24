@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.env.ISourceType;
 /** 
  * Element info for an IType element that originated from source. 
  */
-public class SourceTypeElementInfo extends MemberElementInfo implements ISourceType {
+public class SourceTypeElementInfo extends AnnotatableInfo implements ISourceType {
 
 	protected static final ISourceImport[] NO_IMPORTS = new ISourceImport[0];
 	protected static final InitializerElementInfo[] NO_INITIALIZERS = new InitializerElementInfo[0];
@@ -54,7 +54,7 @@ public class SourceTypeElementInfo extends MemberElementInfo implements ISourceT
 	 * The type parameters of this source type. Empty if none.
 	 */
 	protected ITypeParameter[] typeParameters = TypeParameter.NO_TYPE_PARAMETERS;
-	
+
 	/*
 	 * A map from an IJavaElement (this type or a child of this type) to a String[] (the categories of this element)
 	 */

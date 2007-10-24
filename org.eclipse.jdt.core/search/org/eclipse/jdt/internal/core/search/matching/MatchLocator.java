@@ -603,7 +603,8 @@ protected IJavaElement createHandle(AbstractVariableDeclaration variableDeclarat
 				variableDeclaration.declarationSourceEnd,
 				variableDeclaration.sourceStart,
 				variableDeclaration.sourceEnd,
-				new String(variableDeclaration.type.resolvedType.signature())
+				new String(variableDeclaration.type.resolvedType.signature()),
+				variableDeclaration.annotations
 			);
 		case AbstractVariableDeclaration.PARAMETER:
 			return new LocalVariable((JavaElement)parent,
@@ -612,7 +613,8 @@ protected IJavaElement createHandle(AbstractVariableDeclaration variableDeclarat
 				variableDeclaration.declarationSourceEnd,
 				variableDeclaration.sourceStart,
 				variableDeclaration.sourceEnd,
-				new String(variableDeclaration.type.resolvedType.signature())
+				new String(variableDeclaration.type.resolvedType.signature()),
+				variableDeclaration.annotations
 			);
 		case AbstractVariableDeclaration.TYPE_PARAMETER:
 			return new org.eclipse.jdt.internal.core.TypeParameter((JavaElement)parent, new String(variableDeclaration.name));

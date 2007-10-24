@@ -24,15 +24,18 @@ package org.eclipse.jdt.internal.compiler.parser;
  */
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
+import org.eclipse.jdt.core.IAnnotatable;
+import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
@@ -70,7 +73,6 @@ public class SourceTypeConverter {
 	private ProblemReporter problemReporter;
 	private ICompilationUnit cu;
 	private char[] source;
-	private HashMap annotationPositions;
 	private boolean has1_5Compliance;
 	
 	int namePos;
@@ -117,9 +119,8 @@ public class SourceTypeConverter {
 		SourceTypeElementInfo topLevelTypeInfo = (SourceTypeElementInfo) sourceTypes[0];
 		org.eclipse.jdt.core.ICompilationUnit cuHandle = topLevelTypeInfo.getHandle().getCompilationUnit();
 		this.cu = (ICompilationUnit) cuHandle;
-		this.annotationPositions = ((CompilationUnitElementInfo) ((JavaElement) this.cu).getElementInfo()).annotationPositions;
 
-		if (this.has1_5Compliance && this.annotationPositions != null && this.annotationPositions.size() > 10) { // experimental value
+		if (this.has1_5Compliance && ((CompilationUnitElementInfo) ((JavaElement) this.cu).getElementInfo()).annotationNumber > 10) { // experimental value
 			// if more than 10 annotations, diet parse as this is faster
 			return new Parser(this.problemReporter, true).dietParse(this.cu, compilationResult);
 		}
@@ -592,37 +593,35 @@ public class SourceTypeConverter {
 		return type;
 	}
 	
-	private Annotation[] convertAnnotations(JavaElement element) {
-		if (this.annotationPositions == null) return null;
+	private Annotation[] convertAnnotations(IAnnotatable element) throws JavaModelException {
 		char[] cuSource = getSource();
-		long[] positions = (long[]) this.annotationPositions.get(element);
-		if (positions == null) return null;
-		int length = positions.length;
-		Annotation[] annotations = new Annotation[length];
+		IAnnotation[] annotations = element.getAnnotations();
+		int length = annotations.length;
+		Annotation[] astAnnotations = new Annotation[length];
 		int recordedAnnotations = 0;
 		for (int i = 0; i < length; i++) {
-			long position = positions[i];
-			int start = (int) (position >>> 32);
-			int end = (int) position;
-			char[] annotationSource = CharOperation.subarray(cuSource, start, end+1);
+			ISourceRange positions = annotations[i].getSourceRange();
+			int start = positions.getOffset();
+			int end = start + positions.getLength();
+			char[] annotationSource = CharOperation.subarray(cuSource, start, end);
 			if (annotationSource != null) {
     			Expression expression = parseMemberValue(annotationSource);
     			/*
     			 * expression can be null or not an annotation if the source has changed between
     			 * the moment where the annotation source positions have been retrieved and the moment were
-    			 * this parsing occured.
+    			 * this parsing occurred.
     			 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=90916
     			 */
     			if (expression instanceof Annotation) {
-    				annotations[recordedAnnotations++] = (Annotation) expression;
+    				astAnnotations[recordedAnnotations++] = (Annotation) expression;
     			}
 			}
 		}
 		if (length != recordedAnnotations) {
 			// resize to remove null annotations
-			System.arraycopy(annotations, 0, (annotations = new Annotation[recordedAnnotations]), 0, recordedAnnotations);
+			System.arraycopy(astAnnotations, 0, (astAnnotations = new Annotation[recordedAnnotations]), 0, recordedAnnotations);
 		}
-		return annotations;
+		return astAnnotations;
 	}
 
 	/*

@@ -11,6 +11,8 @@
 package org.eclipse.jdt.internal.compiler;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 
 /*
  * Part of the source element parser responsible for building the output. It
@@ -47,10 +49,10 @@ public interface ISourceElementRequestor {
 		public char[] superclass;
 		public char[][] superinterfaces;
 		public TypeParameterInfo[] typeParameters;
-		public long[] annotationPositions;
 		public char[][] categories;
 		public boolean secondary;
 		public boolean anonymousMember;
+		public Annotation[] annotations;
 	}
 	
 	public static class TypeParameterInfo {
@@ -60,7 +62,6 @@ public interface ISourceElementRequestor {
 		public int nameSourceStart;
 		public int nameSourceEnd;
 		public char[][] bounds;
-		public long[] annotationPositions;
 	}
 	
 	public static class MethodInfo {
@@ -76,8 +77,8 @@ public interface ISourceElementRequestor {
 		public char[][] parameterNames;
 		public char[][] exceptionTypes;
 		public TypeParameterInfo[] typeParameters;
-		public long[] annotationPositions;
 		public char[][] categories;
+		public Annotation[] annotations;
 	}
 	
 	public static class FieldInfo {
@@ -87,8 +88,8 @@ public interface ISourceElementRequestor {
 		public char[] name;
 		public int nameSourceStart; 
 		public int nameSourceEnd;
-		public long[] annotationPositions;
 		public char[][] categories;
+		public Annotation[] annotations;
 	}
 	
 	void acceptConstructorReference(char[] typeName, int argCount, int sourcePosition);
@@ -122,7 +123,7 @@ public interface ISourceElementRequestor {
 
 	void acceptMethodReference(char[] methodName, int argCount, int sourcePosition);
 	
-	void acceptPackage(int declarationStart, int declarationEnd, char[] name);
+	void acceptPackage(ImportReference importReference);
 
 	void acceptProblem(CategorizedProblem problem);
 

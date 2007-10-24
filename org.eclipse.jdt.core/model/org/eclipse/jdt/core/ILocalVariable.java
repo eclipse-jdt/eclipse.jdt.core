@@ -24,7 +24,7 @@ package org.eclipse.jdt.core;
  * </p>
  * @since 3.0
  */
-public interface ILocalVariable extends IJavaElement, ISourceReference {
+public interface ILocalVariable extends IJavaElement, ISourceReference, IAnnotatable {
 
 	/**
 	 * Returns the name of this local variable.

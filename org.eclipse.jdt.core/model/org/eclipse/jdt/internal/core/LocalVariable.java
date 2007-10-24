@@ -16,9 +16,12 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
+import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.Literal;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -29,6 +32,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	public int declarationSourceStart, declarationSourceEnd;
 	public int nameStart, nameEnd;
 	String typeSignature;
+	public IAnnotation[] annotations;
 	
 	public LocalVariable(
 			JavaElement parent, 
@@ -37,7 +41,8 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 			int declarationSourceEnd,
 			int nameStart, 
 			int nameEnd,
-			String typeSignature) {
+			String typeSignature,
+			org.eclipse.jdt.internal.compiler.ast.Annotation[] astAnnotations) {
 		
 		super(parent);
 		this.name = name;
@@ -46,6 +51,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 		this.nameStart = nameStart;
 		this.nameEnd = nameEnd;
 		this.typeSignature = typeSignature;
+		this.annotations = getAnnotations(astAnnotations);
 	}
 
 	protected void closing(Object info) {
@@ -74,6 +80,105 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 
 	protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) {
 		// a local variable has no info
+	}
+	
+	public IAnnotation getAnnotation(String annotationName) {
+		for (int i = 0, length = this.annotations.length; i < length; i++) {
+			IAnnotation annotation = this.annotations[i];
+			if (annotation.getElementName().equals(annotationName))
+				return annotation;
+		}
+		return super.getAnnotation(annotationName);
+	}
+
+	public IAnnotation[] getAnnotations() throws JavaModelException {
+		return this.annotations;
+	}
+	
+	private IAnnotation[] getAnnotations(org.eclipse.jdt.internal.compiler.ast.Annotation[] astAnnotations) {
+		int length;
+		if (astAnnotations == null || (length = astAnnotations.length) == 0)
+			return Annotation.NO_ANNOTATIONS;
+		IAnnotation[] result = new IAnnotation[length];
+		for (int i = 0; i < length; i++) {
+			result[i] = getAnnotation(astAnnotations[i], this);
+		}
+		return result;
+	}
+	
+	private IAnnotation getAnnotation(final org.eclipse.jdt.internal.compiler.ast.Annotation annotation, JavaElement parentElement) {
+		class LocalVarAnnotation extends Annotation {
+			IMemberValuePair[] memberValuePairs;
+			public LocalVarAnnotation(JavaElement localVar, String elementName) {
+				super(localVar, elementName);
+			}
+			public IMemberValuePair[] getMemberValuePairs() throws JavaModelException {
+				return this.memberValuePairs;
+			}
+			public boolean exists() {
+				return this.parent.exists();
+			}
+		}
+		String annotationName = new String(CharOperation.concatWith(annotation.type.getTypeName(), '.'));
+		LocalVarAnnotation localVarAnnotation = new LocalVarAnnotation(parentElement, annotationName);
+		org.eclipse.jdt.internal.compiler.ast.MemberValuePair[] astMemberValuePairs = annotation.memberValuePairs();
+		int length;
+		IMemberValuePair[] memberValuePairs;
+		if (astMemberValuePairs == null || (length = astMemberValuePairs.length) == 0) {
+			memberValuePairs = Annotation.NO_MEMBER_VALUE_PAIRS;
+		} else {
+			memberValuePairs = new IMemberValuePair[length];
+			for (int i = 0; i < length; i++) {
+				org.eclipse.jdt.internal.compiler.ast.MemberValuePair astMemberValuePair = astMemberValuePairs[i];
+				MemberValuePair memberValuePair = new MemberValuePair(new String(astMemberValuePair.name));
+				memberValuePair.value = getAnnotationMemberValue(memberValuePair, astMemberValuePair.value, localVarAnnotation);
+				memberValuePairs[i] = memberValuePair;
+			}
+		}
+		localVarAnnotation.memberValuePairs = memberValuePairs;
+		return localVarAnnotation;
+	}
+	
+	/*
+	 * Creates the value wrapper from the given expression, and sets the valueKind on the given memberValuePair
+	 */
+	private Object getAnnotationMemberValue(MemberValuePair memberValuePair, Expression expression, JavaElement parentElement) {
+		if (expression instanceof Literal) {
+			((Literal) expression).computeConstant();
+			return Util.getAnnotationMemberValue(memberValuePair, expression.constant);
+		} else if (expression instanceof org.eclipse.jdt.internal.compiler.ast.Annotation) {
+			memberValuePair.valueKind = IMemberValuePair.K_ANNOTATION;
+			return getAnnotation((org.eclipse.jdt.internal.compiler.ast.Annotation) expression, parentElement);
+		} else if (expression instanceof ClassLiteralAccess) {
+			ClassLiteralAccess classLiteral = (ClassLiteralAccess) expression;
+			char[] typeName = CharOperation.concatWith(classLiteral.type.getTypeName(), '.');
+			memberValuePair.valueKind = IMemberValuePair.K_CLASS;
+			return new String(typeName);
+		} else if (expression instanceof QualifiedNameReference) {
+			char[] qualifiedName = CharOperation.concatWith(((QualifiedNameReference) expression).tokens, '.');
+			memberValuePair.valueKind = IMemberValuePair.K_QUALIFIED_NAME;
+			return new String(qualifiedName);		
+		} else if (expression instanceof ArrayInitializer) {
+			memberValuePair.valueKind = -1; // modified below by the first call to getMemberValue(...)
+			Expression[] expressions = ((ArrayInitializer) expression).expressions;
+			int length = expressions == null ? 0 : expressions.length;
+			Object[] values = new Object[length];
+			for (int i = 0; i < length; i++) {
+				int previousValueKind = memberValuePair.valueKind;
+				Object value = getAnnotationMemberValue(memberValuePair, expressions[i], parentElement);
+				if (previousValueKind != IMemberValuePair.K_UNKNOWN && memberValuePair.valueKind != previousValueKind) {
+					// values are heterogeneous, value kind is thus unknown
+					memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+				}
+				values[i] = value;
+			}
+			if (memberValuePair.valueKind == -1)
+				memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+			return values;
+		} else {
+			memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+			return null;
+		}
 	}
 
 	public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
@@ -188,4 +293,5 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 		}
 		toStringName(buffer);
 	}
+	
 }

@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 import junit.framework.Test;
 
@@ -83,6 +84,61 @@ public void setUpSuite() throws Exception {
 		"package generic;\n" +
 		"public class V extends X<Thread> implements I<String> {\n" +
 		"}",
+		"annotated/X.java",
+		"package annotated;\n" +
+		"@MyOtherAnnot\n" +
+		"public class X {\n" +
+		"  @MyOtherAnnot\n" +
+		"  Object field;\n" +
+		"  @MyOtherAnnot\n" +
+		"  void method() {}\n" +
+		"  @MyAnnot(_int=1)\n" +
+		"  void foo01() {}\n" +
+		"  @MyAnnot(_byte=(byte)2)\n" +
+		"  void foo02() {}\n" +
+		"  @MyAnnot(_short=(short)3)\n" +
+		"  void foo03() {}\n" +
+		"  @MyAnnot(_char='a')\n" +
+		"  void foo04() {}\n" +
+		"  @MyAnnot(_float=1.2f)\n" +
+		"  void foo05() {}\n" +
+		"  @MyAnnot(_double=3.4)\n" +
+		"  void foo06() {}\n" +
+		"  @MyAnnot(_boolean=true)\n" +
+		"  void foo07() {}\n" +
+		"  @MyAnnot(_long=123456789L)\n" +
+		"  void foo08() {}\n" +
+		"  @MyAnnot(_string=\"abc\")\n" +
+		"  void foo09() {}\n" +
+		"  @MyAnnot(_annot=@MyOtherAnnot)\n" +
+		"  void foo10() {}\n" +
+		"  @MyAnnot(_class=String.class)\n" +
+		"  void foo11() {}\n" +
+		"  @MyAnnot(_enum=MyEnum.SECOND)\n" +
+		"  void foo12() {}\n" +
+		"  @MyAnnot(_array={1, 2, 3})\n" +
+		"  void foo13() {}\n" +
+		"}\n" +
+		"@interface MyAnnot {\n" +
+		"  int _int() default 0;\n" +
+		"  byte _byte() default 0;\n" +
+		"  short _short() default 0;\n" +
+		"  char _char() default ' ';\n" +
+		"  float _float() default 0.0f;\n" +
+		"  double _double() default 0.0;\n" +
+		"  boolean _boolean() default false;\n" +
+		"  long _long() default 0L;\n" +
+		"  String _string() default \"   \";\n" +
+		"  MyOtherAnnot _annot() default @MyOtherAnnot;\n" +
+		"  Class _class() default Object.class;\n" +
+		"  MyEnum _enum() default MyEnum.FIRST;\n" +
+		"  int[] _array() default {};\n" +
+		"}\n" +
+		"@interface MyOtherAnnot {\n" +
+		"}\n" +
+		"enum MyEnum {\n" +
+		"  FIRST, SECOND;\n" +
+		"}",
 		"varargs/X.java",
 		"package varargs;\n" +
 		"public class X {\n" +
@@ -104,6 +160,22 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"}",
 	};
+	if ((AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_5) == 0) {
+		int length = pathAndContents.length;
+		System.arraycopy(pathAndContents, 0, pathAndContents = new String[length+4], 0, length);
+		pathAndContents[length] = "java/lang/annotation/Annotation.java";
+		pathAndContents[length+1] =
+			"package java.lang.annotation;\n" +
+			"public interface Annotation {\n" +
+			"}";
+		pathAndContents[length+2] = "java/lang/Enum.java";
+		pathAndContents[length+3] =
+			"package java.lang;\n" +
+			"public abstract class Enum<E extends Enum<E>> {\n" +
+			"  protected Enum(String arg1, int arg2) {\n" +
+			"  }\n" +
+			"}";
+	}
 	addLibrary(javaProject, "lib.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
 	this.jarRoot = javaProject.getPackageFragmentRoot(getFile("/P/lib.jar"));
 }
@@ -128,6 +200,181 @@ private IClassFile createClassFile(String contents) throws CoreException, IOExce
 	addLibrary(project, "lib2.jar", "src2.zip", new String[] {"p/X.java", contents}, "1.5");
 	this.classFile =  project.getPackageFragmentRoot(getFile("/P/lib2.jar")).getPackageFragment("p").getClassFile("X.class");
 	return this.classFile;
+}
+
+/*
+ * Ensures that the annotations of a binary type are correct
+ */
+public void testAnnotations01() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	assertAnnotationsEqual(
+		"@annotated.MyOtherAnnot\n",
+		type.getAnnotations());
+}
+
+/*
+ * Ensures that the annotations of a binary method are correct
+ */
+public void testAnnotations02() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("method", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyOtherAnnot\n",
+		method.getAnnotations());
+}
+
+/*
+ * Ensures that the annotations of a binary field are correct
+ */
+public void testAnnotations03() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IField field = type.getField("field");
+	assertAnnotationsEqual(
+		"@annotated.MyOtherAnnot\n",
+		field.getAnnotations());
+}
+
+/*
+ * Ensures that an annotation with an int value is correct
+ */
+public void testAnnotations04() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo01", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_int=(int)1)\n",
+		method.getAnnotations());
+}
+
+/*
+ * Ensures that an annotation with a byte value is correct
+ */
+public void testAnnotations05() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo02", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_byte=(byte)2)\n",
+		method.getAnnotations());
+}
+
+/*
+ * Ensures that an annotation with a short value is correct
+ */
+public void testAnnotations06() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo03", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_short=(short)3)\n",
+		method.getAnnotations());
+}
+
+/*
+ * Ensures that an annotation with a char value is correct
+ */
+public void testAnnotations07() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo04", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_char='a')\n",
+		method.getAnnotations());
+}
+
+/*
+ * Ensures that an annotation with a float value is correct
+ */
+public void testAnnotations08() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo05", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_float=1.2f)\n",
+		method.getAnnotations());
+}
+
+/*
+ * Ensures that an annotation with a double value is correct
+ */
+public void testAnnotations09() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo06", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_double=(double)3.4)\n",
+		method.getAnnotations());
+}
+
+/*
+ * Ensures that an annotation with a boolean value is correct
+ */
+public void testAnnotations10() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo07", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_boolean=true)\n",
+		method.getAnnotations());
+}
+
+/*
+ * Ensures that an annotation with a long value is correct
+ */
+public void testAnnotations11() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo08", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_long=123456789L)\n",
+		method.getAnnotations());
+}
+
+/*
+ * Ensures that an annotation with a String value is correct
+ */
+public void testAnnotations12() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo09", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_string=\"abc\")\n",
+		method.getAnnotations());
+}
+
+/*
+ * Ensures that an annotation with an annotation value is correct
+ */
+public void testAnnotations13() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo10", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_annot=@annotated.MyOtherAnnot)\n",
+		method.getAnnotations());
+}
+
+/*
+ * Ensures that an annotation with a Class value is correct
+ */
+public void testAnnotations14() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo11", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_class=java.lang.String.class)\n",
+		method.getAnnotations());
+}
+
+/*
+ * Ensures that an annotation with an enumeration value is correct
+ */
+public void testAnnotations15() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo12", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_enum=annotated.MyEnum.SECOND)\n",
+		method.getAnnotations());
+}
+
+/*
+ * Ensures that an annotation with an array value is correct
+ */
+public void testAnnotations16() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IMethod method = type.getMethod("foo13", new String[0]);
+	assertAnnotationsEqual(
+		"@annotated.MyAnnot(_array={(int)1, (int)2, (int)3})\n",
+		method.getAnnotations());
 }
 
 /*

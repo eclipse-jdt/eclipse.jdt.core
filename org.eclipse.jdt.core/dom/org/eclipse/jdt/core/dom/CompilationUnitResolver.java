@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
@@ -669,7 +670,7 @@ class CompilationUnitResolver extends Compiler {
 
 	private void resolve(ICompilationUnit[] compilationUnits, String[] bindingKeys, ASTRequestor astRequestor, int apiLevel, Map compilerOptions, WorkingCopyOwner owner, int flags) {
 
-		// temporararily connect ourselves to the ASTResolver - must disconnect when done
+		// temporarily connect ourselves to the ASTResolver - must disconnect when done
 		astRequestor.compilationUnitResolver = this;
 		this.bindingTables = new DefaultBindingResolver.BindingTables();
 		CompilationUnitDeclaration unit = null;
@@ -779,7 +780,13 @@ class CompilationUnitResolver extends Compiler {
 		Binding compilerBinding = keyResolver.getCompilerBinding();
 		if (compilerBinding != null) {
 			DefaultBindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables, false);
-			IBinding binding = resolver.getBinding(compilerBinding);
+			AnnotationBinding annotationBinding = keyResolver.getAnnotationBinding();
+			IBinding binding;
+			if (annotationBinding != null) {
+				binding = resolver.getAnnotationInstance(annotationBinding);
+			} else {
+				binding = resolver.getBinding(compilerBinding);
+			}
 			if (binding != null)
 				astRequestor.acceptBinding(keyResolver.getKey(), binding);
 		}

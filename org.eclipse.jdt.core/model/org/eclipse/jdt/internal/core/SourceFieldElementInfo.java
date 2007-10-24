@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.env.ISourceField;
  * Element info for IField elements.
  */
 
-public class SourceFieldElementInfo extends MemberElementInfo implements ISourceField {
+public class SourceFieldElementInfo extends AnnotatableInfo implements ISourceField {
 	
 	/**
 	 * The type name of this field.

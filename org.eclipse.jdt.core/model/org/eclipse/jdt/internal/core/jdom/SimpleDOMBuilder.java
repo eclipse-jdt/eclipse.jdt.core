@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -47,9 +48,10 @@ public void acceptImport(int declarationStart, int declarationEnd, char[][] toke
 	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand, modifiers);
 	addChild(fNode);	
 }
-public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {
-	int[] sourceRange= new int[] {declarationStart, declarationEnd};
-	fNode= new DOMPackage(fDocument, sourceRange, CharOperation.charToString(name));
+public void acceptPackage(ImportReference importReference) {
+	int[] sourceRange= new int[] {importReference.declarationSourceStart, importReference.declarationSourceEnd};
+	char[] name = CharOperation.concatWith(importReference.getImportName(), '.');
+	fNode= new DOMPackage(fDocument, sourceRange, new String(name));
 	addChild(fNode);	
 }
 /**

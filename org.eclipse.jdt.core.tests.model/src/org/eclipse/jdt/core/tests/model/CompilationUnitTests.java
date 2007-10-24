@@ -253,6 +253,363 @@ public void testFindPrimaryType2() throws JavaModelException {
 }
 
 /*
+ * Ensure that the annotations for a type are correct.
+ */
+public void testAnnotations01() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot\n",
+		annotations);
+}
+
+/*
+ * Ensure that the annotations for a method are correct.
+ */
+public void testAnnotations02() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  @MyAnnot\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot\n",
+		annotations);
+}
+
+/*
+ * Ensure that the annotations for a field are correct.
+ */
+public void testAnnotations03() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  @MyAnnot\n" +
+		"  int field;\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getField("field").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot\n",
+		annotations);
+}
+
+/*
+ * Ensure that the annotations for a package declaration are correct.
+ */
+public void testAnnotations04() throws CoreException {
+	createWorkingCopy(
+		"@MyAnnot\n" +
+		"package p;"
+	);
+	IAnnotation[] annotations = this.workingCopy.getPackageDeclaration("p").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot\n",
+		annotations);
+}
+
+/*
+ * Ensure that the annotations for a local variable are correct.
+ */
+public void testAnnotations05() throws JavaModelException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  void foo() {\n" +
+		"    @MyAnnot\n" +
+		"    int var1 = 2;\n" +
+		"  }\n" +
+		"}"
+	);
+	IAnnotation[] annotations = getLocalVariable(this.workingCopy, "var1 = 2;", "var1").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot\n",
+		annotations);
+}
+
+/*
+ * Ensure that an int member annotation is correct.
+ */
+public void testAnnotations06() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(intMember=2)\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(intMember=(int)2)\n",
+		annotations);
+}
+
+/*
+ * Ensure that a long member annotation is correct.
+ */
+public void testAnnotations07() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(longMember=123456789L)\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(longMember=123456789L)\n",
+		annotations);
+}
+
+/*
+ * Ensure that a float member annotation is correct.
+ */
+public void testAnnotations08() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(floatMember=1.2f)\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(floatMember=1.2f)\n",
+		annotations);
+}
+
+/*
+ * Ensure that a double member annotation is correct.
+ */
+public void testAnnotations09() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(doubleMember=1.2)\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(doubleMember=(double)1.2)\n",
+		annotations);
+}
+
+/*
+ * Ensure that a char member annotation is correct.
+ */
+public void testAnnotations10() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(charMember='a')\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(charMember=\'a\')\n",
+		annotations);
+}
+
+/*
+ * Ensure that a boolean member annotation is correct.
+ */
+public void testAnnotations11() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(booleanMember=true)\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(booleanMember=true)\n",
+		annotations);
+}
+
+/*
+ * Ensure that a String member annotation is correct.
+ */
+public void testAnnotations12() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(stringMember=\"abc\")\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(stringMember=\"abc\")\n",
+		annotations);
+}
+
+/*
+ * Ensure that an annotation member annotation is correct.
+ */
+public void testAnnotations13() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(annotationMember=@MyOtherAnnot(1))\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(annotationMember=@MyOtherAnnot((int)1))\n",
+		annotations);
+}
+
+/*
+ * Ensure that a class literal member annotation is correct.
+ */
+public void testAnnotations14() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(classLiteralMember=Object.class)\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(classLiteralMember=Object.class)\n",
+		annotations);
+}
+
+/*
+ * Ensure that a qualified name member annotation is correct.
+ */
+public void testAnnotations15() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(qualifiedMember=MyEnum.FIRST)\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(qualifiedMember=MyEnum.FIRST)\n",
+		annotations);
+}
+
+/*
+ * Ensure that a array member annotation is correct.
+ */
+public void testAnnotations16() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(arrayMember={1, 2, 3})\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(arrayMember={(int)1, (int)2, (int)3})\n",
+		annotations);
+}
+
+/*
+ * Ensure that a empty array member annotation is correct.
+ */
+public void testAnnotations17() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(arrayMember={})\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(arrayMember=[unknown]{})\n",
+		annotations);
+}
+
+/*
+ * Ensure that a qualified annotation is correct
+ */
+public void testAnnotations18() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@x . y. MyAnnot(x='a', y=false)\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@x.y.MyAnnot(x='a', y=false)\n",
+		annotations);
+}
+
+/*
+ * Ensure that a annotation with an unknown member kind is correct
+ */
+public void testAnnotations19() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(unknown=1 + 2.3)\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(unknown=<null>)\n",
+		annotations);
+}
+
+/*
+ * Ensure that a single member annotation is correct
+ */
+public void testAnnotations20() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(1)\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot((int)1)\n",
+		annotations);
+}
+
+/*
+ * Ensure that an heterogeneous array member annotation is correct.
+ */
+public void testAnnotations21() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(arrayMember={1, 2.3, 1 + 3.4, 'a'})\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(arrayMember=[unknown]{(int)1, (double)2.3, <null>, \'a\'})\n",
+		annotations);
+}
+
+/*
+ * Ensure that an annotation with syntax error is correct.
+ */
+// TODO: enable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778 is fixed
+public void _testAnnotations22() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(name=)\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(name=<null>)\n",
+		annotations);
+}
+
+/*
  * Ensures that the categories for a class are correct.
  */
 public void testGetCategories01() throws CoreException {

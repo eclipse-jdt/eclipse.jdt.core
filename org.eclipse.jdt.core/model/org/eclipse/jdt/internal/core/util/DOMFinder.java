@@ -26,8 +26,11 @@ import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -123,15 +126,33 @@ public class DOMFinder extends ASTVisitor {
 		return true;
 	}
 	
+	public boolean visit(MarkerAnnotation node) {
+		if (found(node, node) && this.resolveBinding) 
+			this.foundBinding = node.resolveAnnotationBinding();
+		return true;
+	}
+	
 	public boolean visit(MethodDeclaration node) {
 		if (found(node, node.getName()) && this.resolveBinding) 
 			this.foundBinding = node.resolveBinding();
 		return true;
 	}
 	
+	public boolean visit(NormalAnnotation node) {
+		if (found(node, node) && this.resolveBinding) 
+			this.foundBinding = node.resolveAnnotationBinding();
+		return true;
+	}
+	
 	public boolean visit(PackageDeclaration node) {
 		if (found(node, node) && this.resolveBinding) 
 			this.foundBinding = node.resolveBinding();
+		return true;
+	}
+	
+	public boolean visit(SingleMemberAnnotation node) {
+		if (found(node, node) && this.resolveBinding) 
+			this.foundBinding = node.resolveAnnotationBinding();
 		return true;
 	}
 	

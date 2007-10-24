@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.jdt.core.IAnnotatable;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -23,13 +25,14 @@ import org.eclipse.jdt.internal.compiler.util.*;
  */
 class AnnotationBinding implements IAnnotationBinding {
 	static final AnnotationBinding[] NoAnnotations = new AnnotationBinding[0];
-	private org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalAnnotation;
+	private org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding binding;
 	private BindingResolver bindingResolver;
+	private String key;
 
 	AnnotationBinding(org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding annotation, BindingResolver resolver) {
 		if (annotation == null)
 			throw new IllegalStateException();
-		internalAnnotation = annotation;
+		binding = annotation;
 		bindingResolver = resolver;
 	}
 	
@@ -38,14 +41,14 @@ class AnnotationBinding implements IAnnotationBinding {
 	}
 
 	public ITypeBinding getAnnotationType() {
-		ITypeBinding binding = this.bindingResolver.getTypeBinding(this.internalAnnotation.getAnnotationType());
-		if (binding == null || !binding.isAnnotation())
+		ITypeBinding typeBinding = this.bindingResolver.getTypeBinding(this.binding.getAnnotationType());
+		if (typeBinding == null || !typeBinding.isAnnotation())
 			return null;
-		return binding;
+		return typeBinding;
 	}
 	
 	public IMemberValuePairBinding[] getDeclaredMemberValuePairs() {
-		ElementValuePair[] internalPairs = this.internalAnnotation.getElementValuePairs();
+		ElementValuePair[] internalPairs = this.binding.getElementValuePairs();
 		int length = internalPairs.length;
 		IMemberValuePairBinding[] pairs = length == 0 ? MemberValuePairBinding.NoPair : new MemberValuePairBinding[length];
 		for (int i = 0; i < length; i++)
@@ -55,7 +58,7 @@ class AnnotationBinding implements IAnnotationBinding {
 
 	public IMemberValuePairBinding[] getAllMemberValuePairs() {
 		IMemberValuePairBinding[] pairs = getDeclaredMemberValuePairs();
-		ReferenceBinding typeBinding = this.internalAnnotation.getAnnotationType();
+		ReferenceBinding typeBinding = this.binding.getAnnotationType();
 		if (typeBinding == null) return pairs;
 		MethodBinding[] methods = typeBinding.availableMethods(); // resilience
 		int methodLength = methods == null ? 0 : methods.length;
@@ -79,15 +82,70 @@ class AnnotationBinding implements IAnnotationBinding {
 	}
 	
 	public IJavaElement getJavaElement() {
-		ITypeBinding annotationType = getAnnotationType();
-		if (annotationType == null)
+		if (!(this.bindingResolver instanceof DefaultBindingResolver)) return null;
+		ASTNode node = (ASTNode) ((DefaultBindingResolver) this.bindingResolver).bindingsToAstNodes.get(this);
+		if (!(node instanceof Annotation)) return null;
+		ASTNode parent = node.getParent();
+		IJavaElement parentElement = null;
+		switch (parent.getNodeType()) {
+		case ASTNode.PACKAGE_DECLARATION:
+			IJavaElement cu = ((CompilationUnit) parent.getParent()).getJavaElement();
+			if (cu instanceof ICompilationUnit) {
+				String pkgName = ((PackageDeclaration) parent).getName().getFullyQualifiedName();
+				parentElement =  ((ICompilationUnit) cu).getPackageDeclaration(pkgName);
+			}
+			break;
+		case ASTNode.TYPE_DECLARATION:
+			parentElement = ((TypeDeclaration) parent).resolveBinding().getJavaElement();
+			break;
+		case ASTNode.FIELD_DECLARATION:
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) ((FieldDeclaration) parent).fragments().get(0);
+			parentElement = fragment.resolveBinding().getJavaElement();
+			break;
+		case ASTNode.METHOD_DECLARATION:
+			parentElement = ((MethodDeclaration) parent).resolveBinding().getJavaElement();
+			break;
+		case ASTNode.VARIABLE_DECLARATION_STATEMENT:
+			fragment = (VariableDeclarationFragment) ((VariableDeclarationStatement) parent).fragments().get(0);
+			parentElement = fragment.resolveBinding().getJavaElement();
+			break;
+		default:
 			return null;
-		return annotationType.getJavaElement();
+		}
+		if (! (parentElement instanceof IAnnotatable)) return null;
+		return ((IAnnotatable) parentElement).getAnnotation(getName());
 	}
 
 	public String getKey() {
-		// TODO when implementing, update spec in IBinding
-		return null;
+		if (this.key == null) {
+			String recipientKey = getRecipientKey();
+			this.key = new String(this.binding.computeUniqueKey(recipientKey.toCharArray()));
+		}
+		return this.key;
+	}
+	
+	private String getRecipientKey() {
+		if (!(this.bindingResolver instanceof DefaultBindingResolver)) return ""; //$NON-NLS-1$
+		DefaultBindingResolver resolver = (DefaultBindingResolver) this.bindingResolver;
+		ASTNode node = (ASTNode) resolver.bindingsToAstNodes.get(this);
+		ASTNode recipient = node.getParent();
+		switch (recipient.getNodeType()) {
+		case ASTNode.PACKAGE_DECLARATION:
+			String pkgName = ((PackageDeclaration) recipient).getName().getFullyQualifiedName();
+			return pkgName.replace('.', '/');
+		case ASTNode.TYPE_DECLARATION:
+			return ((TypeDeclaration) recipient).resolveBinding().getKey();
+		case ASTNode.FIELD_DECLARATION:
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) ((FieldDeclaration) recipient).fragments().get(0);
+			return fragment.resolveBinding().getKey();
+		case ASTNode.METHOD_DECLARATION:
+			return ((MethodDeclaration) recipient).resolveBinding().getKey();
+		case ASTNode.VARIABLE_DECLARATION_STATEMENT:
+			fragment = (VariableDeclarationFragment) ((VariableDeclarationStatement) recipient).fragments().get(0);
+			return fragment.resolveBinding().getKey();
+		default:
+			return ""; //$NON-NLS-1$
+		}
 	}
 
 	public int getKind() {
@@ -101,24 +159,24 @@ class AnnotationBinding implements IAnnotationBinding {
 	public String getName() {
 		ITypeBinding annotationType = getAnnotationType();
 		if (annotationType == null) {
-			return new String(this.internalAnnotation.getAnnotationType().sourceName());
+			return new String(this.binding.getAnnotationType().sourceName());
 		} else {
 			return annotationType.getName();
 		}
 	}
 	
 	public boolean isDeprecated() {
-		ReferenceBinding typeBinding = this.internalAnnotation.getAnnotationType();
+		ReferenceBinding typeBinding = this.binding.getAnnotationType();
 		if (typeBinding == null) return false;
 		return typeBinding.isDeprecated();
 	}
 	
-	public boolean isEqualTo(IBinding binding) {
-		if (this == binding)
+	public boolean isEqualTo(IBinding otherBinding) {
+		if (this == otherBinding)
 			return true;
-		if (binding.getKind() != IBinding.ANNOTATION)
+		if (otherBinding.getKind() != IBinding.ANNOTATION)
 			return false;
-		IAnnotationBinding other = (IAnnotationBinding) binding;
+		IAnnotationBinding other = (IAnnotationBinding) otherBinding;
 		if (!getAnnotationType().isEqualTo(other.getAnnotationType()))
 			return false;
 		IMemberValuePairBinding[] memberValuePairs = getDeclaredMemberValuePairs();

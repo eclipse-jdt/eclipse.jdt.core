@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
 /** 
  * Element info for IMethod elements. 
  */
-public abstract class SourceMethodElementInfo extends MemberElementInfo implements ISourceMethod {
+public abstract class SourceMethodElementInfo extends AnnotatableInfo implements ISourceMethod {
 	
 	/**
 	 * For a source method (that is, a method contained in a compilation unit)
@@ -43,7 +43,7 @@ public abstract class SourceMethodElementInfo extends MemberElementInfo implemen
 	 * The type parameters of this source type. Empty if none.
 	 */
 	protected ITypeParameter[] typeParameters = TypeParameter.NO_TYPE_PARAMETERS;
-	
+
 public char[][] getArgumentNames() {
 	return this.argumentNames;
 }

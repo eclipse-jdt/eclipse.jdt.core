@@ -24,7 +24,7 @@ public class JavaElementDelta extends SimpleDelta implements IJavaElementDelta {
 	/**
 	 * @see #getAffectedChildren()
 	 */
-	protected IJavaElementDelta[] affectedChildren = EMPTY_DELTA;
+	IJavaElementDelta[] affectedChildren = EMPTY_DELTA;
 	
 	/*
 	 * The AST created during the last reconcile operation.
@@ -33,34 +33,39 @@ public class JavaElementDelta extends SimpleDelta implements IJavaElementDelta {
 	 * - an AST was requested during the last reconcile operation
 	 * - the changed element is an ICompilationUnit in working copy mode
 	 */
-	protected CompilationUnit ast = null;
+	CompilationUnit ast = null;
 
 	/*
 	 * The element that this delta describes the change to.
 	 */
-	protected IJavaElement changedElement;
+	IJavaElement changedElement;
 	
 	/**
 	 * Collection of resource deltas that correspond to non java resources deltas.
 	 */
-	protected IResourceDelta[] resourceDeltas = null;
+	IResourceDelta[] resourceDeltas = null;
 
 	/**
 	 * Counter of resource deltas
 	 */
-	protected int resourceDeltasCounter;
+	int resourceDeltasCounter;
+	
 	/**
 	 * @see #getMovedFromElement()
 	 */
-	protected IJavaElement movedFromHandle = null;
+	IJavaElement movedFromHandle = null;
+	
 	/**
 	 * @see #getMovedToElement()
 	 */
-	protected IJavaElement movedToHandle = null;
+	IJavaElement movedToHandle = null;
+	
+	IJavaElementDelta[] annotationDeltas = EMPTY_DELTA;
+	
 	/**
 	 * Empty array of IJavaElementDelta
 	 */
-	protected static  IJavaElementDelta[] EMPTY_DELTA= new IJavaElementDelta[] {};
+	static  IJavaElementDelta[] EMPTY_DELTA= new IJavaElementDelta[] {};
 /**
  * Creates the root delta. To create the nested delta
  * hierarchies use the following convenience methods. The root
@@ -355,6 +360,9 @@ private ArrayList getAncestors(IJavaElement element) {
 public CompilationUnit getCompilationUnitAST() {
 	return this.ast;
 }
+public IJavaElementDelta[] getAnnotationDeltas() {
+	return this.annotationDeltas;
+}
 /**
  * @see IJavaElementDelta
  */
@@ -607,6 +615,13 @@ public String toDebugString(int depth) {
 		}
 		buffer.append("]"); //$NON-NLS-1$
 	}
+	IJavaElementDelta[] annotations = getAnnotationDeltas();
+	if (annotations != null) {
+		for (int i = 0; i < annotations.length; ++i) {
+			buffer.append("\n"); //$NON-NLS-1$
+			buffer.append(((JavaElementDelta) annotations[i]).toDebugString(depth + 1));
+		}
+	}
 	return buffer.toString();
 }
 protected boolean toDebugString(StringBuffer buffer, int flags) {
@@ -724,6 +739,12 @@ protected boolean toDebugString(StringBuffer buffer, int flags) {
 		if (prev)
 			buffer.append(" | "); //$NON-NLS-1$
 		buffer.append("CATEGORIES"); //$NON-NLS-1$
+		prev = true;
+	}
+	if ((flags & IJavaElementDelta.F_ANNOTATIONS) != 0) {
+		if (prev)
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("ANNOTATIONS"); //$NON-NLS-1$
 		prev = true;
 	}
 	return prev;

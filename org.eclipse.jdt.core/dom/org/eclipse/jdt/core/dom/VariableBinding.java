@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -219,7 +220,7 @@ class VariableBinding implements IVariableBinding {
 			sourceLength = node.getLength();
 		}
 		char[] typeSig = this.binding.type.genericTypeSignature();
-		return new LocalVariable(method, localVar.getName().getIdentifier(), sourceStart, sourceStart+sourceLength-1, nameStart, nameStart+nameLength-1, new String(typeSig));
+		return new LocalVariable(method, localVar.getName().getIdentifier(), sourceStart, sourceStart+sourceLength-1, nameStart, nameStart+nameLength-1, new String(typeSig), ((LocalVariableBinding) this.binding).declaration.annotations);
 	}
 
 	/*

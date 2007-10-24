@@ -17,7 +17,7 @@ package org.eclipse.jdt.core;
  * This interface is not intended to be implemented by clients.
  * </p>
  */
-public interface IMethod extends IMember {
+public interface IMethod extends IMember, IAnnotatable {
 /**
  * Returns the simple name of this method.
  * For a constructor, this returns the simple name of the declaring type.
@@ -224,7 +224,7 @@ boolean isConstructor() throws JavaModelException;
 boolean isMainMethod() throws JavaModelException;
 /**
  * Returns whether this method represents a resolved method.
- * If a method is resoved, its key contains resolved information.
+ * If a method is resolved, its key contains resolved information.
  * 
  * @return whether this method represents a resolved method.
  * @since 3.1

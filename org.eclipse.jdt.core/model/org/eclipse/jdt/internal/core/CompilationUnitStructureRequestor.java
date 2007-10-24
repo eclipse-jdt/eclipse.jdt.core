@@ -21,9 +21,17 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
+import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
+import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.Literal;
+import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * A requestor for the fuzzy parser, used to compute the children of an ICompilationUnit.
@@ -149,13 +157,14 @@ public void acceptLineSeparatorPositions(int[] positions) {
 /**
  * @see ISourceElementRequestor
  */
-public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {
+public void acceptPackage(ImportReference importReference) {
 
 		JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 		JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 		PackageDeclaration handle = null;
 		
 		if (parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT) {
+			char[] name = CharOperation.concatWith(importReference.getImportName(), '.');
 			handle = new PackageDeclaration((CompilationUnit) parentHandle, new String(name));
 		}
 		else {
@@ -163,13 +172,20 @@ public void acceptPackage(int declarationStart, int declarationEnd, char[] name)
 		}
 		resolveDuplicates(handle);
 		
-		SourceRefElementInfo info = new SourceRefElementInfo();
-		info.setSourceRangeStart(declarationStart);
-		info.setSourceRangeEnd(declarationEnd);
+		AnnotatableInfo info = new AnnotatableInfo();
+		info.setSourceRangeStart(importReference.declarationSourceStart);
+		info.setSourceRangeEnd(importReference.declarationSourceEnd);
 
 		addToChildren(parentInfo, handle);
 		this.newElements.put(handle, info);
 
+		if (importReference.annotations != null) {
+			for (int i = 0, length = importReference.annotations.length; i < length; i++) {
+				org.eclipse.jdt.internal.compiler.ast.Annotation annotation = importReference.annotations[i];
+				enterAnnotation(annotation, info, handle);
+				exitMember(annotation.declarationSourceEnd);
+			}
+		}	
 }
 public void acceptProblem(CategorizedProblem problem) {
 	if ((problem.getID() & IProblem.Syntax) != 0){
@@ -198,6 +214,42 @@ private void addToChildren(JavaElementInfo parentInfo, JavaElement handle) {
 		typeSigs[i] = manager.intern(Signature.createTypeSignature(typeNames[i], false));
 	}
 	return typeSigs;
+}
+protected IAnnotation enterAnnotation(org.eclipse.jdt.internal.compiler.ast.Annotation annotation, AnnotatableInfo parentInfo, JavaElement parentHandle) {
+	String nameString = new String(CharOperation.concatWith(annotation.type.getTypeName(), '.'));
+	Annotation handle = new Annotation(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
+	resolveDuplicates(handle);
+	
+	AnnotationInfo info = new AnnotationInfo();
+	
+	// populate the maps here as getValue(...) below may need them
+	this.newElements.put(handle, info);
+	this.infoStack.push(info);
+	this.handleStack.push(handle);
+	
+	info.setSourceRangeStart(annotation.sourceStart());
+	info.nameStart = annotation.type.sourceStart();
+	info.nameEnd = annotation.type.sourceEnd();
+	MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
+	int membersLength = memberValuePairs.length;
+	if (membersLength == 0) {
+		info.members = Annotation.NO_MEMBER_VALUE_PAIRS;
+	} else {
+		IMemberValuePair[] members = new IMemberValuePair[membersLength];
+		for (int j = 0; j < membersLength; j++) {
+			members[j] = getMemberValuePair(memberValuePairs[j]);
+		}
+		info.members = members;
+	}
+	
+	if (parentInfo != null) {
+		IAnnotation[] annotations = parentInfo.annotations;
+		int length = annotations.length;
+		System.arraycopy(annotations, 0, annotations = new IAnnotation[length+1], 0, length);
+		annotations[length] = handle;
+		parentInfo.annotations = annotations;
+	}
+	return handle;
 }
 /**
  * @see ISourceElementRequestor
@@ -240,14 +292,22 @@ public void enterField(FieldInfo fieldInfo) {
 	char[] typeName = JavaModelManager.getJavaModelManager().intern(fieldInfo.type);
 	info.setTypeName(typeName);
 	
-	this.unitInfo.addAnnotationPositions(handle, fieldInfo.annotationPositions);
-
 	addToChildren(parentInfo, handle);
 	parentInfo.addCategories(handle, fieldInfo.categories);
 	this.newElements.put(handle, info);
 
 	this.infoStack.push(info);
 	this.handleStack.push(handle);
+	
+	if (fieldInfo.annotations != null) {
+		int length = fieldInfo.annotations.length;
+		this.unitInfo.annotationNumber += length;
+		for (int i = 0; i < length; i++) {
+			org.eclipse.jdt.internal.compiler.ast.Annotation annotation = fieldInfo.annotations[i];
+			enterAnnotation(annotation, info, handle);
+			exitMember(annotation.declarationSourceEnd);
+		}
+	}	
 }
 /**
  * @see ISourceElementRequestor
@@ -330,7 +390,6 @@ public void enterMethod(MethodInfo methodInfo) {
 	info.setExceptionTypeNames(exceptionTypes);
 	for (int i = 0, length = exceptionTypes.length; i < length; i++)
 		exceptionTypes[i] = manager.intern(exceptionTypes[i]);
-	this.unitInfo.addAnnotationPositions(handle, methodInfo.annotationPositions);
 	addToChildren(parentInfo, handle);
 	parentInfo.addCategories(handle, methodInfo.categories);
 	this.newElements.put(handle, info);
@@ -342,6 +401,15 @@ public void enterMethod(MethodInfo methodInfo) {
 			TypeParameterInfo typeParameterInfo = methodInfo.typeParameters[i];
 			enterTypeParameter(typeParameterInfo);
 			exitMember(typeParameterInfo.declarationEnd);
+		}
+	}
+	if (methodInfo.annotations != null) {
+		int length = methodInfo.annotations.length;
+		this.unitInfo.annotationNumber += length;
+		for (int i = 0; i < length; i++) {
+			org.eclipse.jdt.internal.compiler.ast.Annotation annotation = methodInfo.annotations[i];
+			enterAnnotation(annotation, info, handle);
+			exitMember(annotation.declarationSourceEnd);
 		}
 	}
 }
@@ -380,7 +448,6 @@ public void enterType(TypeInfo typeInfo) {
 	if (parentHandle.getElementType() == IJavaElement.TYPE)
 		((SourceTypeElementInfo) parentInfo).addCategories(handle, typeInfo.categories);
 	addToChildren(parentInfo, handle);
-	this.unitInfo.addAnnotationPositions(handle, typeInfo.annotationPositions);
 	this.newElements.put(handle, info);
 	this.infoStack.push(info);
 	this.handleStack.push(handle);
@@ -390,6 +457,15 @@ public void enterType(TypeInfo typeInfo) {
 			TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
 			enterTypeParameter(typeParameterInfo);
 			exitMember(typeParameterInfo.declarationEnd);
+		}
+	}
+	if (typeInfo.annotations != null) {
+		int length = typeInfo.annotations.length;
+		this.unitInfo.annotationNumber += length;
+		for (int i = 0; i < length; i++) {
+			org.eclipse.jdt.internal.compiler.ast.Annotation annotation = typeInfo.annotations[i];
+			enterAnnotation(annotation, info, handle);
+			exitMember(annotation.declarationSourceEnd);
 		}
 	}
 }
@@ -420,7 +496,6 @@ protected void enterTypeParameter(TypeParameterInfo typeParameterInfo) {
 		typeParameters[length] = handle;
 		elementInfo.typeParameters = typeParameters;
 	}
-	this.unitInfo.addAnnotationPositions(handle, typeParameterInfo.annotationPositions);
 	this.newElements.put(handle, info);
 	this.infoStack.push(info);
 	this.handleStack.push(handle);
@@ -518,6 +593,55 @@ public void exitType(int declarationEnd) {
 protected void resolveDuplicates(SourceRefElement handle) {
 	while (this.newElements.containsKey(handle)) {
 		handle.occurrenceCount++;
+	}
+}
+private IMemberValuePair getMemberValuePair(MemberValuePair memberValuePair) {
+	String memberName = new String(memberValuePair.name);
+	org.eclipse.jdt.internal.core.MemberValuePair result = new org.eclipse.jdt.internal.core.MemberValuePair(memberName);
+	result.value = getMemberValue(result, memberValuePair.value);
+	return result;
+}
+/*
+ * Creates the value from the given expression, and sets the valueKind on the given memberValuePair
+ */
+private Object getMemberValue(org.eclipse.jdt.internal.core.MemberValuePair memberValuePair, Expression expression) {
+	if (expression instanceof Literal) {
+		((Literal) expression).computeConstant();
+		return Util.getAnnotationMemberValue(memberValuePair, expression.constant);
+	} else if (expression instanceof org.eclipse.jdt.internal.compiler.ast.Annotation) {
+		org.eclipse.jdt.internal.compiler.ast.Annotation annotation = (org.eclipse.jdt.internal.compiler.ast.Annotation) expression;
+		Object handle = enterAnnotation(annotation, null, (JavaElement) this.handleStack.peek());
+		exitMember(annotation.declarationSourceEnd);
+		memberValuePair.valueKind = IMemberValuePair.K_ANNOTATION;
+		return handle;
+	} else if (expression instanceof ClassLiteralAccess) {
+		ClassLiteralAccess classLiteral = (ClassLiteralAccess) expression;
+		char[] name = CharOperation.concatWith(classLiteral.type.getTypeName(), '.');
+		memberValuePair.valueKind = IMemberValuePair.K_CLASS;
+		return new String(name);
+	} else if (expression instanceof QualifiedNameReference) {
+		char[] qualifiedName = CharOperation.concatWith(((QualifiedNameReference) expression).tokens, '.');
+		memberValuePair.valueKind = IMemberValuePair.K_QUALIFIED_NAME;
+		return new String(qualifiedName);		
+	} else if (expression instanceof ArrayInitializer) {
+		memberValuePair.valueKind = -1; // modified below by the first call to getMemberValue(...)
+		Expression[] expressions = ((ArrayInitializer) expression).expressions;
+		int length = expressions == null ? 0 : expressions.length;
+		Object[] values = new Object[length];
+		for (int i = 0; i < length; i++) {
+			int previousValueKind = memberValuePair.valueKind;
+			Object value = getMemberValue(memberValuePair, expressions[i]);
+			if (previousValueKind != IMemberValuePair.K_UNKNOWN && memberValuePair.valueKind != previousValueKind) {
+				// values are heterogeneous, value kind is thus unknown
+				memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+			}
+			values[i] = value;
+		}
+		if (memberValuePair.valueKind == -1)
+			memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+		return values;
+	} else {
+		return null;
 	}
 }
 private void setChildren(JavaElementInfo info) {

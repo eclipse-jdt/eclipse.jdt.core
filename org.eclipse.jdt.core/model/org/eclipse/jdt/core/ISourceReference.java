@@ -12,10 +12,11 @@ package org.eclipse.jdt.core;
 
 /**
  * Common protocol for Java elements that have associated source code.
- * This set consists of <code>IClassFile</code>, <code>ICompilationUnit</code>,
- * <code>IPackageDeclaration</code>, <code>IImportDeclaration</code>,
- * <code>IImportContainer</code>, <code>IType</code>, <code>IField</code>,
- * <code>IMethod</code>, and <code>IInitializer</code>.
+ * This set consists of {@link IClassFile}, {@link ICompilationUnit},
+ * {@link IPackageDeclaration}, {@link IImportDeclaration},
+ * {@link IImportContainer}, {@link IType}, {@link IField},
+ * {@link IMethod}, {@link IInitializer}, {@link ITypeParameter}, 
+ * and {@link IAnnotation}.
  * <p>
  * Note: For <code>IClassFile</code>, <code>IType</code> and other members
  * derived from a binary type, the implementation returns source iff the

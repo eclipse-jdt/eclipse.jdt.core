@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -52,6 +53,11 @@ protected BinaryMethod(JavaElement parent, String name, String[] paramTypes) {
 public boolean equals(Object o) {
 	if (!(o instanceof BinaryMethod)) return false;
 	return super.equals(o) && Util.equalArraysOrNull(this.parameterTypes, ((BinaryMethod)o).parameterTypes);
+}
+public IAnnotation[] getAnnotations() throws JavaModelException {
+	IBinaryMethod info = (IBinaryMethod) getElementInfo();
+	IBinaryAnnotation[] binaryAnnotations = info.getAnnotations();
+	return getAnnotations(binaryAnnotations);
 }
 /*
  * @see IMethod

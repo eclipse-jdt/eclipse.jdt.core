@@ -49,6 +49,12 @@ public class BindingKeyParser {
 			return result;
 		}
 		
+		boolean isAtAnnotationStart() {
+			return 
+				this.index < this.source.length
+				&& this.source[this.index] == '@';
+		}
+		
 		boolean isAtCaptureStart() {
 			return 
 				this.index < this.source.length
@@ -190,6 +196,7 @@ public class BindingKeyParser {
 					case '%':
 					case ':':
 					case '>':
+					case '@':
 						this.start = this.index+1;
 						previousTokenEnd = this.start;
 						break;
@@ -287,6 +294,7 @@ public class BindingKeyParser {
 				switch (this.source[this.index]) {
 					case '#':
 					case '%':
+					case '@':
 					case C_THROWN:
 						return;
 					case ':':
@@ -401,6 +409,10 @@ public class BindingKeyParser {
 	
 	public BindingKeyParser(String key) {
 		this.scanner = new Scanner(key.toCharArray());
+	}
+	
+	public void consumeAnnotation() {
+		// default is to do nothing
 	}
 	
 	public void consumeArrayDimension(char[] brakets) {
@@ -575,6 +587,9 @@ public class BindingKeyParser {
 				switch (this.scanner.nextToken()) {
 					case Scanner.FIELD:
 						parseField();
+						if (this.scanner.isAtAnnotationStart()) {
+							parseAnnotation();
+						}
 						return;
 					case Scanner.METHOD:
 						parseMethod();
@@ -582,6 +597,8 @@ public class BindingKeyParser {
 							parseLocalVariable();
 						} else if (this.scanner.isAtTypeVariableStart()) {
 							parseTypeVariable();
+						} else if (this.scanner.isAtAnnotationStart()) {
+							parseAnnotation();
 						}
 				 		break;
 					default:
@@ -594,6 +611,8 @@ public class BindingKeyParser {
 				parseWildcard();
 			} else if (this.scanner.isAtTypeWithCaptureStart()) {
 				parseTypeWithCapture();
+			} else if (this.scanner.isAtAnnotationStart()) {
+				parseAnnotation();
 			}
 			
 			consumeKey();
@@ -719,6 +738,13 @@ public class BindingKeyParser {
 	 	}
 		if (this.scanner.isAtParametersStart())
 			parseParameterizedMethod();
+	}
+	
+	private void parseAnnotation() {
+		BindingKeyParser parser = newParser();
+		parser.parse();
+		consumeParser(parser);
+		consumeAnnotation();
 	}
 	
 	private void parseCapture() {

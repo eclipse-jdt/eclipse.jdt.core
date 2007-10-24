@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 
 public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 
@@ -61,12 +62,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 
 	/**
-	 * @see ISourceElementRequestor#acceptPackage(int, int, char[])
+	 * @see ISourceElementRequestor#acceptPackage(ImportReference)
 	 */
-	public void acceptPackage(
-		int declarationStart,
-		int declarationEnd,
-		char[] name) {
+	public void acceptPackage(ImportReference importReference) {
 		// default implementation: do nothing
 	}
 

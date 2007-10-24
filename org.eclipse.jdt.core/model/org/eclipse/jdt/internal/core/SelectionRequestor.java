@@ -418,7 +418,7 @@ public void acceptLocalMethodTypeParameter(TypeVariableBinding typeVariableBindi
 public void acceptLocalVariable(LocalVariableBinding binding) {
 	LocalDeclaration local = binding.declaration;
 	IJavaElement parent = findLocalElement(local.sourceStart); // findLocalElement() cannot find local variable
-	IJavaElement localVar = null;
+	LocalVariable localVar = null;
 	if(parent != null) {
 		localVar = new LocalVariable(
 				(JavaElement)parent,
@@ -427,7 +427,8 @@ public void acceptLocalVariable(LocalVariableBinding binding) {
 				local.declarationSourceEnd,
 				local.sourceStart,
 				local.sourceEnd,
-				Util.typeSignature(local.type));
+				Util.typeSignature(local.type),
+				binding.declaration.annotations);
 	}
 	if (localVar != null) {
 		addElement(localVar);

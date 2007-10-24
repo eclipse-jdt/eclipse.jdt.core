@@ -43,10 +43,13 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.MemberValuePair;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
@@ -2734,6 +2737,43 @@ public class Util {
 		}
 		return typeArguments;
 	}
+	/*
+	 * Creates a member value from the given constant, and sets the valueKind on the given memberValuePair
+	 */
+	public static Object getAnnotationMemberValue(MemberValuePair memberValuePair, Constant constant) {
+		switch (constant.typeID()) {
+			case TypeIds.T_int : 
+				memberValuePair.valueKind = IMemberValuePair.K_INT;
+				return new Integer(constant.intValue());
+			case TypeIds.T_byte : 
+				memberValuePair.valueKind = IMemberValuePair.K_BYTE;
+				return new Byte(constant.byteValue());
+			case TypeIds.T_short : 
+				memberValuePair.valueKind = IMemberValuePair.K_SHORT;
+				return new Short(constant.shortValue());
+			case TypeIds.T_char : 
+				memberValuePair.valueKind = IMemberValuePair.K_CHAR;
+				return new Character(constant.charValue());
+			case TypeIds.T_float : 
+				memberValuePair.valueKind = IMemberValuePair.K_FLOAT;
+				return new Float(constant.floatValue());
+			case TypeIds.T_double : 
+				memberValuePair.valueKind = IMemberValuePair.K_DOUBLE;
+				return new Double(constant.doubleValue());
+			case TypeIds.T_boolean : 
+				memberValuePair.valueKind = IMemberValuePair.K_BOOLEAN;
+				return Boolean.valueOf(constant.booleanValue());
+			case TypeIds.T_long : 
+				memberValuePair.valueKind = IMemberValuePair.K_LONG;
+				return new Long(constant.longValue());
+			case TypeIds.T_JavaLangString : 
+				memberValuePair.valueKind = IMemberValuePair.K_STRING;
+				return constant.stringValue();
+			default:
+				memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+				return null;
+		}
+	}
 	/**
 	 * Split signatures of all levels  from a type unique key.
 	 * 
@@ -3060,5 +3100,5 @@ public class Util {
 		}
 		return start;
 	}
-	
+
 }

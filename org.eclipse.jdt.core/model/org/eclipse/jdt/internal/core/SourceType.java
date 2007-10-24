@@ -168,6 +168,10 @@ public IMethod[] findMethods(IMethod method) {
 		return null;
 	}
 }
+public IAnnotation[] getAnnotations() throws JavaModelException {
+	AnnotatableInfo info = (AnnotatableInfo) getElementInfo();
+	return info.annotations;
+}
 public IJavaElement[] getChildrenForCategory(String category) throws JavaModelException {
 	IJavaElement[] children = getChildren();
 	int length = children.length;
@@ -278,6 +282,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 				switch (token.charAt(0)) {
 					case JEM_TYPE:
 					case JEM_TYPE_PARAMETER:
+					case JEM_ANNOTATION:
 						break nextParam;
 					case JEM_METHOD:
 						if (!memento.hasMoreTokens()) return this;
@@ -301,6 +306,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 				case JEM_TYPE:
 				case JEM_TYPE_PARAMETER:
 				case JEM_LOCALVARIABLE:
+				case JEM_ANNOTATION:
 					return method.getHandleFromMemento(token, memento, workingCopyOwner);
 				default:
 					return method;
@@ -331,7 +337,11 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			String typeParameterName = memento.nextToken();
 			JavaElement typeParameter = new TypeParameter(this, typeParameterName);
 			return typeParameter.getHandleFromMemento(memento, workingCopyOwner);
-			
+		case JEM_ANNOTATION:
+			if (!memento.hasMoreTokens()) return this;
+			String annotationName = memento.nextToken();
+			JavaElement annotation = new Annotation(this, annotationName);
+			return annotation.getHandleFromMemento(memento, workingCopyOwner);
 	}
 	return null;
 }

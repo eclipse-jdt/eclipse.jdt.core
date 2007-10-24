@@ -36,7 +36,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * This interface is not intended to be implemented by clients.
  * </p>
  */
-public interface IType extends IMember {
+public interface IType extends IMember, IAnnotatable {
 	/**
 	 * Do code completion inside a code snippet in the context of the current type.
 	 * 
@@ -343,7 +343,7 @@ public interface IType extends IMember {
 	 * @since 2.0 
 	 */
 	IMethod[] findMethods(IMethod method);
-	
+
 	/**
 	 * Returns the children of this type that have the given category as a <code>@category</code> tag.
 	 * Returns an empty array if no children with this category exist.

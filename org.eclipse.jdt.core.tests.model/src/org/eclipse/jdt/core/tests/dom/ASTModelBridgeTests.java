@@ -153,6 +153,133 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	/*
+	 * Ensures that the IJavaElement of an IBinding representing an annotation is correct.
+	 */
+	public void testAnnotation1() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" + 
+			"  /*start*/@MyAnnot/*end*/\n" + 
+			"  void foo() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"@interface MyAnnot {\n" + 
+			"}"
+		);
+		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"@MyAnnot [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing an annotation is correct.
+	 */
+	public void testAnnotation2() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" + 
+			"  /*start*/@MyAnnot/*end*/\n" + 
+			"  int field;\n" + 
+			"}\n" + 
+			"@interface MyAnnot {\n" + 
+			"}"
+		);
+		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"@MyAnnot [in field [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing an annotation is correct.
+	 */
+	public void testAnnotation3() throws JavaModelException {
+		ASTNode node = buildAST(
+			"/*start*/@MyAnnot/*end*/\n" + 
+			"public class X {\n" + 
+			"}\n" + 
+			"@interface MyAnnot {\n" + 
+			"}"
+		);
+		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"@MyAnnot [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing an annotation is correct.
+	 */
+	public void testAnnotation4() throws JavaModelException {
+		ICompilationUnit myAnnot = null;
+		ICompilationUnit packageInfo = null;
+		try {
+			WorkingCopyOwner owner = this.workingCopy.getOwner();
+			myAnnot = getCompilationUnit("/P/src/pkg/MyAnnot.java").getWorkingCopy(owner, null);
+			myAnnot.getBuffer().setContents(
+				"package pkg;\n" +
+				"public @interface MyAnnot {\n" + 
+				"}"
+			);
+			myAnnot.makeConsistent(null);
+			packageInfo = getCompilationUnit("/P/src/pkg/package-info.java").getWorkingCopy(owner, null);
+			ASTNode node = buildAST(
+				"/*start*/@MyAnnot/*end*/\n" + 
+				"package pkg;",
+				packageInfo
+			);
+			IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+			IJavaElement element = binding.getJavaElement();
+			assertElementEquals(
+				"Unexpected Java element",
+				"@MyAnnot [in package pkg [in [Working copy] package-info.java [in pkg [in src [in P]]]]]",
+				element
+			);
+			assertTrue("Element should exist", element.exists());
+		} finally {
+			if (myAnnot != null)
+				myAnnot.discardWorkingCopy();
+			if (packageInfo != null)
+				packageInfo.discardWorkingCopy();
+		}
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing an annotation is correct.
+	 */
+	public void testAnnotation5() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    /*start*/@MyAnnot/*end*/\n" + 
+			"    int var1 = 2;\n" +
+			"  }\n" + 
+			"}\n" + 
+			"@interface MyAnnot {\n" + 
+			"}"
+		);
+		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"@MyAnnot [in var1 [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
 	 * Ensures that the IJavaElement of an IBinding representing an anonymous type is correct.
 	 */
 	public void testAnonymousType() throws JavaModelException {
@@ -759,6 +886,78 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			bindings);
 	}
 
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=160637
+	 */
+	public void testCreateBindings19() throws CoreException {
+		IBinding[] bindings = createBinaryBindings(
+			"public class A {\n" +
+			"  String foo(String s) {\n" +
+			"		return null;\n" +
+			"  }\n" +
+			"}",
+			getClassFile("/P/lib/A.class").getType().getMethod("foo", new String[] {"Ljava.lang.String;"})
+		);
+		assertNotNull("No bindings", bindings);
+		assertEquals("Wrong size", 1, bindings.length);
+		assertTrue("Not a method binding", bindings[0] instanceof IMethodBinding);
+		assertBindingsEqual(
+			"LA;.foo(Ljava/lang/String;)Ljava/lang/String;",
+			bindings);
+	}
+	
+	/*
+	 * Ensures that the correct IBinding is created for an IField starting with a 'L'
+	 * (regression test for 205860 ASTParser.createBindings() returns [null])
+	 */
+	public void testCreateBindings20() throws CoreException {
+		IField field = getClassFile("/P/lib/A.class").getType().getField("LINE");
+		IBinding[] bindings = createBinaryBindings(
+			"public class A {\n" +
+			"  static int LINE = 0;\n" +
+			"}",
+			field
+		);
+		assertBindingsEqual(
+			"LA;.LINE)I",
+			bindings);
+	}
+
+	/*
+	 * Ensures that the correct IBinding is created for an IField starting with a 'T'
+	 * (regression test for 205860 ASTParser.createBindings() returns [null])
+	 */
+	public void testCreateBindings21() throws CoreException {
+		IField field = getClassFile("/P/lib/A.class").getType().getField("THREE");
+		IBinding[] bindings = createBinaryBindings(
+			"public class A {\n" +
+			"  static int THREE = 0;\n" +
+			"}",
+			field
+		);
+		assertBindingsEqual(
+			"LA;.THREE)I",
+			bindings);
+	}
+
+	/*
+	 * Ensures that the correct IBindings are created for a given set of IJavaElement
+	 * (annotation)
+	 */
+	public void testCreateBindings22() throws JavaModelException {
+		IBinding[] bindings = createBindings(
+			"@MyAnnot\n" +
+			"public class X {\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
+			"}",
+			this.workingCopy.getType("X").getAnnotation("MyAnnot")
+		);
+		assertBindingsEqual(
+			"LX;@LX~MyAnnot;",
+			bindings);
+	}
+	
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a field is correct.
 	 */
@@ -1439,57 +1638,4 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 	}
 
-	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=160637
-	 */
-	public void testCreateBindings19() throws CoreException {
-		IBinding[] bindings = createBinaryBindings(
-			"public class A {\n" +
-			"  String foo(String s) {\n" +
-			"		return null;\n" +
-			"  }\n" +
-			"}",
-			getClassFile("/P/lib/A.class").getType().getMethod("foo", new String[] {"Ljava.lang.String;"})
-		);
-		assertNotNull("No bindings", bindings);
-		assertEquals("Wrong size", 1, bindings.length);
-		assertTrue("Not a method binding", bindings[0] instanceof IMethodBinding);
-		assertBindingsEqual(
-			"LA;.foo(Ljava/lang/String;)Ljava/lang/String;",
-			bindings);
-	}
-	
-	/*
-	 * Ensures that the correct IBinding is created for an IField starting with a 'L'
-	 * (regression test for 205860 ASTParser.createBindings() returns [null])
-	 */
-	public void testCreateBindings20() throws CoreException {
-		IField field = getClassFile("/P/lib/A.class").getType().getField("LINE");
-		IBinding[] bindings = createBinaryBindings(
-			"public class A {\n" +
-			"  static int LINE = 0;\n" +
-			"}",
-			field
-		);
-		assertBindingsEqual(
-			"LA;.LINE)I",
-			bindings);
-	}
-
-	/*
-	 * Ensures that the correct IBinding is created for an IField starting with a 'T'
-	 * (regression test for 205860 ASTParser.createBindings() returns [null])
-	 */
-	public void testCreateBindings21() throws CoreException {
-		IField field = getClassFile("/P/lib/A.class").getType().getField("THREE");
-		IBinding[] bindings = createBinaryBindings(
-			"public class A {\n" +
-			"  static int THREE = 0;\n" +
-			"}",
-			field
-		);
-		assertBindingsEqual(
-			"LA;.THREE)I",
-			bindings);
-	}
 }

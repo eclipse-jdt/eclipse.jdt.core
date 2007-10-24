@@ -8229,7 +8229,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IJavaElement javaElement = annotationBinding.getJavaElement();
 		assertNotNull("No java element", javaElement);
 		assertEquals("Wrong kind", IBinding.ANNOTATION, annotationBinding.getKind());
-		assertNull("No key", annotationBinding.getKey());
+		assertEquals("Unexpected key", "LX;@LX~Annot;", annotationBinding.getKey());
 		assertEquals("Wrong modifier", Modifier.NONE, annotationBinding.getModifiers());
 		assertFalse("A deprecated annotation", annotationBinding.isDeprecated());
 	}
@@ -8271,7 +8271,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IJavaElement javaElement = annotationBinding.getJavaElement();
 		assertNotNull("No java element", javaElement);
 		assertEquals("Wrong kind", IBinding.ANNOTATION, annotationBinding.getKind());
-		assertNull("No key", annotationBinding.getKey());
+		assertEquals("Unexpected key", "LX;@LX~Annot;", annotationBinding.getKey());
 		assertEquals("Wrong modifier", Modifier.NONE, annotationBinding.getModifiers());
 		assertTrue("Not a deprecated annotation", annotationBinding.isDeprecated());
 		IMemberValuePairBinding[] allMemberValuePairs = annotationBinding.getAllMemberValuePairs();
@@ -8330,7 +8330,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IJavaElement javaElement = annotationBinding.getJavaElement();
 		assertNotNull("No java element", javaElement);
 		assertEquals("Wrong kind", IBinding.ANNOTATION, annotationBinding.getKind());
-		assertNull("No key", annotationBinding.getKey());
+		assertEquals("Unexpected key", "LX;@LX~Annot;", annotationBinding.getKey());
 		assertEquals("Wrong modifier", Modifier.NONE, annotationBinding.getModifiers());
 		assertFalse("Not a deprecated annotation", annotationBinding.isDeprecated());
 		IMemberValuePairBinding[] declaredMemberValuePairs = annotationBinding.getDeclaredMemberValuePairs();
@@ -8443,7 +8443,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IJavaElement javaElement = annotationBinding.getJavaElement();
 		assertNotNull("No java element", javaElement);
 		assertEquals("Wrong kind", IBinding.ANNOTATION, annotationBinding.getKind());
-		assertNull("No key", annotationBinding.getKey());
+		assertEquals("Unexpected key", "LX;@LX~Annot;", annotationBinding.getKey());
 		assertEquals("Wrong modifier", Modifier.NONE, annotationBinding.getModifiers());
 		assertFalse("Not a deprecated annotation", annotationBinding.isDeprecated());
 		IMemberValuePairBinding[] declaredMemberValuePairs = annotationBinding.getDeclaredMemberValuePairs();
