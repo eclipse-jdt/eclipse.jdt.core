@@ -560,11 +560,11 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().indirectAccessToStaticField(this, fieldBinding);
 		}
 	}
-	// perform capture conversion if read access
-	return this.resolvedType = 
-		(((this.bits & IsStrictlyAssigned) == 0) 
-			? fieldBinding.type.capture(scope, this.sourceEnd)
-			: fieldBinding.type);
+	TypeBinding fieldType = fieldBinding.type;
+	if (fieldType != null && ((this.bits & IsStrictlyAssigned) == 0)) {
+		fieldType = fieldType.capture(scope, this.sourceEnd);	// perform capture conversion if read access
+	}
+	return this.resolvedType = fieldType;
 }
 
 public void setActualReceiverType(ReferenceBinding receiverType) {
