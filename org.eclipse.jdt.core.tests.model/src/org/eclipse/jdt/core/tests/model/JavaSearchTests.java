@@ -1025,6 +1025,20 @@ public void testLocalVariableDeclaration2() throws CoreException {
 		"src/f1/X.java void f1.X.foo2().var2 [var2]",
 		this.resultCollector);
 }
+/**
+ * @bug 207257: [search] SearchEngine returns incorrectly typed SearchMatch when searching for local variable declarations
+ * @test The accepted match should be a {@link LocalVariableDeclarationMatch}
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=207257"
+ */
+public void testLocalVariableDeclaration_Bug207257() throws CoreException {
+	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var1 = 1;", "var1");
+	search(
+		localVar, 
+		DECLARATIONS, 
+		getJavaSearchScope(), 
+		this.resultCollector);
+	assertEquals("Invalid Search Match class", LocalVariableDeclarationMatch.class, this.resultCollector.match.getClass());
+}
 /*
  * Local variable occurrences test.
  * (SingleNameReference)
