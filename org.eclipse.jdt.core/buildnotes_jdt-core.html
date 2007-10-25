@@ -97,7 +97,165 @@ public interface IJavaElementDelta {
 }    </pre></li>
      </ul>
 </li>
-<li>Added API CompletionRequestor#CompletionRequestor(boolean ignoreAll) to be able to ignore all completion kinds by default instead of propose all completion kinds by default.
+<li>Code Assist: Added API <code>CompletionRequestor#CompletionRequestor(boolean ignoreAll)</code> to be able to ignore all completion kinds by default instead of propose all completion kinds by default.
+</li>
+<li>Code Assist: Improved code assist inside an <code>if</code> statement with an <code>instanceof</code> expression as condition.<br>
+When a member access is completed in this case then the members of the <code>instanceof</code> type are proposed and the receiver is casted to this type.
+<pre>
+Object x = ... ;
+if (x instanceof IType) {
+   x.get|code assist
+</pre>
+The method <code>IType#getFullyQualifiedName()</code> will be proposed and the receiver will be casted to <code>IType</code>.
+The completion string will be '((IType)x).getFullyQualifiedName()'.<br>
+<br>
+These proposals will be proposed with the new proposal kinds <code>CompletionProposal#METHOD_REF_WITH_CASTED_RECEIVER</code> and
+<code>CompletionProposal#FIELD_REF_WITH_CASTED_RECEIVER</code>.<br>
+These new proposals require new API on CompletionProposal to be usable by client.
+<pre>
+public class CompletionProposal {
+   ...
+
+   /**
+    * Completion is a reference to a method with a casted receiver.
+    * This kind of completion might occur in a context like
+    * &lt;code&gt;"receiver.fo^();"&lt;/code&gt; and complete it to
+    * &lt;code&gt;""((X)receiver).foo();"&lt;/code&gt;.
+    * &lt;p&gt;
+    * The following additional context information is available
+    * for this kind of completion proposal at little extra cost:
+    * &lt;ul&gt;
+    * &lt;li&gt;{@link #getDeclarationSignature()} -
+    * the type signature of the type that declares the method that is referenced
+    * &lt;/li&gt;
+    * &lt;li&gt;{@link #getFlags()} -
+    * the modifiers flags of the method that is referenced
+    * &lt;/li&gt;
+    * &lt;li&gt;{@link #getName()} -
+    * the simple name of the method that is referenced
+    * &lt;/li&gt;
+    * &lt;li&gt;{@link #getReceiverSignature()} -
+    * the type signature of the receiver type. It's the type of the cast expression.
+    * &lt;/li&gt;
+    * &lt;li&gt;{@link #getSignature()} -
+    * the method signature of the method that is referenced
+    * &lt;/li&gt;
+    * &lt;/ul&gt;
+    * &lt;/p&gt;
+    * 
+    * @see #getKind()
+    * 
+    * @since 3.4
+    */
+    public static final int METHOD_REF_WITH_CASTED_RECEIVER;
+
+   /**
+    * Completion is a reference to a field with a casted receiver.
+    * This kind of completion might occur in a context like
+    * &lt;code&gt;"recevier.ref^ = 0;"&lt;/code&gt; and complete it to
+    * &lt;code&gt;"((X)receiver).refcount = 0;"&lt;/code&gt;.
+    * &lt;p&gt;
+    * The following additional context information is available
+    * for this kind of completion proposal at little extra cost:
+    * &lt;ul&gt;
+    * &lt;li&gt;{@link #getDeclarationSignature()} -
+    * the type signature of the type that declares the field that is referenced
+    * &lt;/li&gt;
+    * &lt;li&gt;{@link #getFlags()} -
+    * the modifiers flags (including ACC_ENUM) of the field that is referenced
+    * &lt;/li&gt;
+    * &lt;li&gt;{@link #getName()} -
+    * the simple name of the field that is referenced
+    * &lt;/li&gt;
+    * &lt;li&gt;{@link #getReceiverSignature()} -
+    * the type signature of the receiver type. It's the type of the cast expression.
+    * &lt;/li&gt;
+    * &lt;li&gt;{@link #getSignature()} -
+    * the type signature of the field's type (as opposed to the
+    * signature of the type in which the referenced field
+    * is declared)
+    * &lt;/li&gt;
+    * 
+    * &lt;/ul&gt;
+    * &lt;/p&gt;
+    * 
+    * @see #getKind()
+    * 
+    * @since 3.4
+    */
+   public static final int FIELD_REF_WITH_CASTED_RECEIVER;
+
+   /**
+    * Returns the type signature or package name of the relevant
+    * receiver in the context, or &lt;code&gt;null&lt;/code&gt; if none.
+    * &lt;p&gt;
+    * This field is available for the following kinds of
+    * completion proposals:
+    * &lt;ul&gt;
+    *  &lt;li&gt;&lt;code&gt;FIELD_REF_WITH_CASTED_RECEIVER&lt;/code&gt; - type signature
+    * of the type that cast the receiver of the field that is referenced&lt;/li&gt;
+    *  &lt;li&gt;&lt;code&gt;METHOD_REF_WITH_CASTED_RECEIVER&lt;/code&gt; - type signature
+    * of the type that cast the receiver of the method that is referenced&lt;/li&gt;
+    * &lt;/ul&gt;
+    * For kinds of completion proposals, this method returns
+    * &lt;code&gt;null&lt;/code&gt;. Clients must not modify the array
+    * returned.
+    * &lt;/p&gt;
+    * 
+    * @return a type signature or a package name (depending
+    * on the kind of completion), or &lt;code&gt;null&lt;/code&gt; if none
+    * @see Signature
+    * 
+    * @since 3.4
+    */
+   public char[] getReceiverSignature() {}
+
+   /**
+    * Returns the character index of the start of the
+    * subrange in the source file buffer containing the
+    * relevant receiver of the member being completed. This
+    * receiver is an expression.
+    * 
+    * &lt;p&gt;
+    * This field is available for the following kinds of
+    * completion proposals:
+    * &lt;ul&gt;
+    *  &lt;li&gt;&lt;code&gt;FIELD_REF_WITH_CASTED_RECEIVER&lt;/code&gt;&lt;/li&gt;
+    *  &lt;li&gt;&lt;code&gt;METHOD_REF_WITH_CASTED_RECEIVER&lt;/code&gt;&lt;/li&gt;
+    * &lt;/ul&gt;
+    * For kinds of completion proposals, this method returns &lt;code&gt;0&lt;/code&gt;.
+    * &lt;/p&gt;
+    * 
+    * @return character index of receiver start position (inclusive)
+    * 
+    * @since 3.4
+    */
+   public int getReceiverStart() {}
+
+   /**
+    * Returns the character index of the end (exclusive) of the subrange
+    * in the source file buffer containing the
+    * relevant receiver of the member being completed.
+    * 
+    * * &lt;p&gt;
+    * This field is available for the following kinds of
+    * completion proposals:
+    * &lt;ul&gt;
+    *  &lt;li&gt;&lt;code&gt;FIELD_REF_WITH_CASTED_RECEIVER&lt;/code&gt;&lt;/li&gt;
+    *  &lt;li&gt;&lt;code&gt;METHOD_REF_WITH_CASTED_RECEIVER&lt;/code&gt;&lt;/li&gt;
+    * &lt;/ul&gt;
+    * For kinds of completion proposals, this method returns &lt;code&gt;0&lt;/code&gt;.
+    * &lt;/p&gt;
+    * 
+    * @return character index of receiver end position (exclusive)
+    * 
+    * @since 3.4
+    */
+   public int getReceiverEnd() {}
+
+   ...
+}
+</pre>
 </li>
 </ul>
 
