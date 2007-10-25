@@ -1562,6 +1562,1291 @@ public void testCompletionAfterCase4() throws JavaModelException {
 			"ZZZ1[FIELD_REF]{ZZZ1, Ltest.TestConstants;, I, ZZZ1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_QUALIFIED+ R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof01() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof02_01() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public Object a;\n" +
+		"	void bar(){\n" +
+		"		if (this.a instanceof CompletionAfterInstanceOf) {\n" +
+		"			this.a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("this.a.equal");
+	int end2 = start2 + "this.a.equal".length();
+	int start3 = str.lastIndexOf("this.a.");
+	int end3 = start3 + "this.a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)this.a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof02_02() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public Object a;\n" +
+		"	void bar(){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			this.a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("this.a.equal");
+	int end2 = start2 + "this.a.equal".length();
+	int start3 = str.lastIndexOf("this.a.");
+	int end3 = start3 + "this.a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)this.a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof02_03() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public Object a;\n" +
+		"	void bar(){\n" +
+		"		if (this.a instanceof CompletionAfterInstanceOf) {\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof02_04() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public Object a;\n" +
+		"	void bar(){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof03_01() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf)\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof03_02() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf)\n" +
+		"			bar(a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof03_03() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public void bar(Object a){\n" +
+		"		while (true) {\n" +
+		"			if (a instanceof CompletionAfterInstanceOf)\n" +
+		"				bar(a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof03_04() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public void bar(Object a){\n" +
+		"		if (true) {\n" +
+		"			if (a instanceof CompletionAfterInstanceOf)\n" +
+		"				bar(a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// unsupported case
+public void testCompletionAfterInstanceof03_05() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) \n" +
+		"			while (true)\n" +
+		"				a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof03_06() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) \n" +
+		"			while (a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof04() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			bar(null);\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof05() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			class Z {}\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// unsupported case
+public void testCompletionAfterInstanceof06_01() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			while (true) {\n" +
+		"				a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// unsupported case
+public void testCompletionAfterInstanceof06_02() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			while (true) \n" +
+		"				a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// unsupported case
+public void testCompletionAfterInstanceof07() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			if (b instanceof CompletionAfterInstanceOf2) {\n" +
+		"				a.equal\n" +
+		"	}\n" +
+		"}\n" +
+		"class CompletionAfterInstanceOf2 {\n" +
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof08() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (b instanceof CompletionAfterInstanceOf2) {\n" +
+		"			if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"				a.equal\n" +
+		"	}\n" +
+		"}\n" +
+		"class CompletionAfterInstanceOf2 {\n" +
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// unsupported case
+public void testCompletionAfterInstanceof09() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (!(a instanceof CompletionAfterInstanceOf)) {\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// unsupported case
+public void testCompletionAfterInstanceof10() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a, boolean b){\n" +
+		"		if (b && (a instanceof CompletionAfterInstanceOf)) {\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// unsupported case
+public void testCompletionAfterInstanceof11() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a, boolean b){\n" +
+		"		if (b || (a instanceof CompletionAfterInstanceOf)) {\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof12() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			#\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof13() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		#\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// unsupported case
+public void testCompletionAfterInstanceof14() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			(a).equal\n" +
+		"	}\n" +
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// should not return proposals related to instanceof
+public void testCompletionAfterInstanceof15() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a, Object b){\n" +
+		"		if (b instanceof CompletionAfterInstanceOf) {\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// unsupported case
+public void testCompletionAfterInstanceof16() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public Object a;\n" +
+		"	public CompletionAfterInstanceOf b;\n" +
+		"	void bar(Object a){\n" +
+		"		if (b.a instanceof CompletionAfterInstanceOf) {\n" +
+		"			b.a.equal\n" +
+		"	}\n" +
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// unsupported case
+public void testCompletionAfterInstanceof17() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public Object a;\n" +
+		"	public CompletionAfterInstanceOf b;\n" +
+		"	void bar(Object a){\n" +
+		"		if (b.a instanceof CompletionAfterInstanceOf) {\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof18_01() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			bar(a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof18_02() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			new CompletionAfterInstanceOf(){}.bar(a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof18_03() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public void bar(Object a, Object b){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			bar(new CompletionAfterInstanceOf(){}, a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof19() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			a /* comment 1 */\n" +
+		"				/* comment 2 */ . /* comment 3 */\n" +
+		"					/* comment 4 */ equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a /* comment 1 */");
+	int end2 = start2 + "a /* comment 1 */\n\t\t\t\t/* comment 2 */ . /* comment 3 */\n\t\t\t\t\t/* comment 4 */ equal".length();
+	int start3 = str.lastIndexOf("a /* comment 1 */");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a) /* comment 1 */\n\t\t\t\t/* comment 2 */ . /* comment 3 */\n\t\t\t\t\t/* comment 4 */ equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof20() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public void bar(Object a){\n" +
+		"		#\n" +
+		"		bar(null);\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// should not return proposals related to instanceof
+public void testCompletionAfterInstanceof21() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf)\n" +
+		"			bar(null);\n" +
+		"		a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// should not return proposals related to instanceof
+public void testCompletionAfterInstanceof22_01() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			bar(null);\n" +
+		"		} else {\n" +
+		"			a.equal\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// should not return proposals related to instanceof
+public void testCompletionAfterInstanceof22_02() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf)\n" +
+		"			bar(null);\n" +
+		"		else {\n" +
+		"			a.equal\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// should not return proposals related to instanceof
+public void testCompletionAfterInstanceof22_03() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			bar(null);\n" +
+		"		} else\n" +
+		"			a.equal\n" +
+		"		\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// should not return proposals related to instanceof
+public void testCompletionAfterInstanceof22_04() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	public void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf)\n" +
+		"			bar(null);\n" +
+		"		else\n" +
+		"			a.equal\n" +
+		"		\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof23() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public int equalsFoo;\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[FIELD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo, Ltest.CompletionAfterInstanceOf;, I, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof24_1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public int equalsFoo;\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf[]) {\n" +
+		"			a.le\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "a.le";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("le");
+	int end1 = start1 + "le".length();
+	int start2 = str.lastIndexOf("a.le");
+	int end2 = start2 + "a.le".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"length[FIELD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).length, [Ltest.CompletionAfterInstanceOf;, I, [Ltest.CompletionAfterInstanceOf;, length, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
+// supported case
+public void testCompletionAfterInstanceof24_2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public int equalsFoo;\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf[]) {\n" +
+		"			a.cl\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "a.cl";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("cl") + "".length();
+	int end1 = start1 + "cl".length();
+	int start2 = str.lastIndexOf("a.cl");
+	int end2 = start2 + "a.cl".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"clone[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).clone(), [Ltest.CompletionAfterInstanceOf;, ()Ljava.lang.Object;, [Ltest.CompletionAfterInstanceOf;, clone, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
 public void testCompletionAfterSupercall1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(

@@ -726,6 +726,75 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	public static final int TYPE_IMPORT = 23;
 	
 	/**
+	 * Completion is a reference to a method with a casted receiver.
+	 * This kind of completion might occur in a context like
+	 * <code>"receiver.fo^();"</code> and complete it to
+	 * <code>""((X)receiver).foo();"</code>.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the method that is referenced
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags of the method that is referenced
+	 * </li>
+	 * <li>{@link #getName()} -
+	 * the simple name of the method that is referenced
+	 * </li>
+	 * <li>{@link #getReceiverSignature()} -
+	 * the type signature of the receiver type. It's the type of the cast expression.
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the method signature of the method that is referenced
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 * 
+	 * @since 3.4
+	 */
+	public static final int METHOD_REF_WITH_CASTED_RECEIVER = 24;
+	
+	/**
+	 * Completion is a reference to a field with a casted receiver.
+	 * This kind of completion might occur in a context like
+	 * <code>"recevier.ref^ = 0;"</code> and complete it to
+	 * <code>"((X)receiver).refcount = 0;"</code>.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the field that is referenced
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags (including ACC_ENUM) of the field that is referenced
+	 * </li>
+	 * <li>{@link #getName()} -
+	 * the simple name of the field that is referenced
+	 * </li>
+	 * <li>{@link #getReceiverSignature()} -
+	 * the type signature of the receiver type. It's the type of the cast expression.
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the type signature of the field's type (as opposed to the
+	 * signature of the type in which the referenced field
+	 * is declared)
+	 * </li>
+	 * 
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 * 
+	 * @since 3.4
+	 */
+	public static final int FIELD_REF_WITH_CASTED_RECEIVER = 25;
+	
+	/**
 	 * First valid completion kind.
 	 * 
 	 * @since 3.1
@@ -737,7 +806,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * 
 	 * @since 3.1
 	 */
-	protected static final int LAST_KIND = TYPE_IMPORT;
+	protected static final int LAST_KIND = FIELD_REF_WITH_CASTED_RECEIVER;
 	
 	/**
 	 * Kind of completion request.
@@ -1213,9 +1282,13 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * of the type that declares the field that is imported</li>
 	 *  <li><code>FIELD_REF</code> - type signature
 	 * of the type that declares the field that is referenced</li>
+	 *  <li><code>FIELD_REF_WITH_CASTED_RECEIVER</code> - type signature
+	 * of the type that declares the field that is referenced</li>
 	 * 	<li><code>METHOD_IMPORT</code> - type signature
 	 * of the type that declares the method that is imported</li>
 	 *  <li><code>METHOD_REF</code> - type signature
+	 * of the type that declares the method that is referenced</li>
+	 *  <li><code>METHOD_REF_WITH_CASTED_RECEIVER</code> - type signature
 	 * of the type that declares the method that is referenced</li>
 	 * 	<li><code>METHOD_DECLARATION</code> - type signature
 	 * of the type that declares the method that is being
@@ -1316,11 +1389,13 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 *  <li><code>ANNOTATION_ATTRIBUT_REF</code> - the name of the attribute</li>
 	 * 	<li><code>FIELD_IMPORT</code> - the name of the field</li>
 	 *  <li><code>FIELD_REF</code> - the name of the field</li>
+	 *  <li><code>FIELD_REF_WITH_CASTED_RECEIVER</code> - the name of the field</li>
 	 * 	<li><code>KEYWORD</code> - the keyword</li>
 	 * 	<li><code>LABEL_REF</code> - the name of the label</li>
 	 * 	<li><code>LOCAL_VARIABLE_REF</code> - the name of the local variable</li>
 	 * 	<li><code>METHOD_IMPORT</code> - the name of the method</li>
 	 *  <li><code>METHOD_REF</code> - the name of the method (the type simple name for constructor)</li>
+	 *  <li><code>METHOD_REF_WITH_CASTED_RECEIVER</code> - the name of the method</li>
 	 * 	<li><code>METHOD_DECLARATION</code> - the name of the method (the type simple name for constructor)</li>
 	 * 	<li><code>VARIABLE_DECLARATION</code> - the name of the variable</li>
 	 *  <li><code>POTENTIAL_METHOD_DECLARATION</code> - the name of the method</li>
@@ -1372,11 +1447,15 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * of the referenced field's type</li>
 	 *  <li><code>FIELD_REF</code> - the type signature
 	 * of the referenced field's type</li>
+	 *  <li><code>FIELD_REF_WITH_CASTED_RECEIVER</code> - the type signature
+	 * of the referenced field's type</li>
 	 * 	<li><code>LOCAL_VARIABLE_REF</code> - the type signature
 	 * of the referenced local variable's type</li>
 	 * 	<li><code>METHOD_IMPORT</code> - method signature
 	 * of the method that is imported</li>
 	 *  <li><code>METHOD_REF</code> - method signature
+	 * of the method that is referenced</li>
+	 *  <li><code>METHOD_REF_WITH_CASTED_RECEIVER</code> - method signature
 	 * of the method that is referenced</li>
 	 * 	<li><code>METHOD_DECLARATION</code> - method signature
 	 * of the method that is being implemented or overridden</li>
@@ -1685,6 +1764,9 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * <code>Flags.AccEnum</code> can be used to recognize
 	 * references to enum constants
 	 * </li>
+	 *  <li><code>FIELD_REF_WITH_CASTED_RECEIVER</code> - modifier flags
+	 * of the field that is referenced.
+	 * </li>
 	 * 	<li><code>KEYWORD</code> - modifier flag
 	 * corresponding to the modifier keyword</li>
 	 * 	<li><code>LOCAL_VARIABLE_REF</code> - modifier flags
@@ -1696,6 +1778,9 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * of the method that is referenced;
 	 * <code>Flags.AccAnnotation</code> can be used to recognize
 	 * references to annotation type members
+	 * </li>
+	 * <li><code>METHOD_REF_WITH_CASTED_RECEIVER</code> - modifier flags
+	 * of the method that is referenced.
 	 * </li>
 	 * <li><code>METHOD_DECLARATION</code> - modifier flags
 	 * for the method that is being implemented or overridden</li>
@@ -1852,6 +1937,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 					}
 					break;
 				case METHOD_REF:
+				case METHOD_REF_WITH_CASTED_RECEIVER:
 					try {
 						this.parameterNames = this.findMethodParameterNames(
 								this.declarationPackageName,
@@ -1953,6 +2039,123 @@ public final class CompletionProposal extends InternalCompletionProposal {
 		return this.isConstructor;
 	}
 	
+	private int receiverStart;
+	private int receiverEnd;
+	private char[] receiverSignature;
+	
+	/**
+	 * Returns the type signature or package name of the relevant
+	 * receiver in the context, or <code>null</code> if none.
+	 * <p>
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * <ul>
+	 *  <li><code>FIELD_REF_WITH_CASTED_RECEIVER</code> - type signature
+	 * of the type that cast the receiver of the field that is referenced</li>
+	 *  <li><code>METHOD_REF_WITH_CASTED_RECEIVER</code> - type signature
+	 * of the type that cast the receiver of the method that is referenced</li>
+	 * </ul>
+	 * For kinds of completion proposals, this method returns
+	 * <code>null</code>. Clients must not modify the array
+	 * returned.
+	 * </p>
+	 * 
+	 * @return a type signature or a package name (depending
+	 * on the kind of completion), or <code>null</code> if none
+	 * @see Signature
+	 * 
+	 * @since 3.4
+	 */
+	public char[] getReceiverSignature() {
+		return receiverSignature;
+	}
+	
+	/**
+	 * Returns the character index of the start of the
+	 * subrange in the source file buffer containing the
+	 * relevant receiver of the member being completed. This
+	 * receiver is an expression.
+	 * 
+	 * <p>
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * <ul>
+	 *  <li><code>FIELD_REF_WITH_CASTED_RECEIVER</code></li>
+	 *  <li><code>METHOD_REF_WITH_CASTED_RECEIVER</code></li>
+	 * </ul>
+	 * For kinds of completion proposals, this method returns <code>0</code>.
+	 * </p>
+	 * 
+	 * @return character index of receiver start position (inclusive)
+	 * 
+	 * @since 3.4
+	 */
+	public int getReceiverStart() {
+		return receiverStart;
+	}
+	
+	/**
+	 * Returns the character index of the end (exclusive) of the subrange
+	 * in the source file buffer containing the
+	 * relevant receiver of the member being completed.
+	 * 
+	 * * <p>
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * <ul>
+	 *  <li><code>FIELD_REF_WITH_CASTED_RECEIVER</code></li>
+	 *  <li><code>METHOD_REF_WITH_CASTED_RECEIVER</code></li>
+	 * </ul>
+	 * For kinds of completion proposals, this method returns <code>0</code>.
+	 * </p>
+	 * 
+	 * @return character index of receiver end position (exclusive)
+	 * 
+	 * @since 3.4
+	 */
+	public int getReceiverEnd() {
+		return receiverEnd;
+	}
+	
+	/**
+	 * Sets the type or package signature of the relevant
+	 * receiver in the context, or <code>null</code> if none.
+	 * <p>
+	 * If not set, defaults to none.
+	 * </p>
+	 * <p>
+	 * The completion engine creates instances of this class and sets
+	 * its properties; this method is not intended to be used by other clients.
+	 * </p>
+	 * 
+	 * @param signature the type or package signature, or
+	 * <code>null</code> if none
+	 * 
+	 * @since 3.4
+	 */
+	public void setReceiverSignature(char[] signature) {
+		this.receiverSignature = signature;
+	}
+	
+	/**
+	 * Sets the character indices of the subrange in the
+	 * source file buffer containing the relevant receiver 
+	 * of the member being completed.
+	 * 
+	 * <p>
+	 * If not set, defaults to empty subrange at [0,0).
+	 * </p>
+	 * 
+	 * @param startIndex character index of receiver start position (inclusive)
+	 * @param endIndex character index of receiver end position (exclusive)
+	 * 
+	 * @since 3.4
+	 */
+	public void setReceiverRange(int startIndex, int endIndex) {
+		this.receiverStart = startIndex;
+		this.receiverEnd = endIndex;
+	}
+	
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append('[');
@@ -2031,6 +2234,12 @@ public final class CompletionProposal extends InternalCompletionProposal {
 				break;
 			case CompletionProposal.TYPE_IMPORT :
 				buffer.append("TYPE_IMPORT"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER :
+				buffer.append("METHOD_REF_WITH_CASTED_RECEIVER"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER :
+				buffer.append("FIELD_REF_WITH_CASTED_RECEIVER"); //$NON-NLS-1$
 				break;
 			default :
 				buffer.append("PROPOSAL"); //$NON-NLS-1$

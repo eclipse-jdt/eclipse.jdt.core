@@ -82,7 +82,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	
 	public void allowAllRequiredProposals() {
 		for (int i = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; i <= CompletionProposal.TYPE_IMPORT; i++) {
-			for (int j = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; j <= CompletionProposal.TYPE_IMPORT; j++) {
+			for (int j = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; j <= CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER; j++) {
 				this.setAllowsRequiredProposals(i, j, true);
 			}
 		}
@@ -242,6 +242,9 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.FIELD_REF :
 				buffer.append("FIELD_REF"); //$NON-NLS-1$
 				break;
+			case CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER :
+				buffer.append("FIELD_REF_WITH_CASTED_RECEIVER"); //$NON-NLS-1$
+				break;
 			case CompletionProposal.KEYWORD :
 				buffer.append("KEYWORD"); //$NON-NLS-1$
 				break;
@@ -259,6 +262,12 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				break;
 			case CompletionProposal.METHOD_REF :
 				buffer.append("METHOD_REF"); //$NON-NLS-1$
+				if(proposal.isConstructor()) {
+					buffer.append("<CONSTRUCTOR>"); //$NON-NLS-1$
+				}
+				break;
+			case CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER :
+				buffer.append("METHOD_REF_WITH_CASTED_RECEIVER"); //$NON-NLS-1$
 				if(proposal.isConstructor()) {
 					buffer.append("<CONSTRUCTOR>"); //$NON-NLS-1$
 				}
@@ -322,6 +331,13 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		buffer.append(proposal.getDeclarationSignature() == null ? NULL_LITERAL : proposal.getDeclarationSignature());  
 		buffer.append(", ");
 		buffer.append(proposal.getSignature() == null ? NULL_LITERAL : proposal.getSignature());
+		
+		char[] receiverSignature = proposal.getReceiverSignature();
+		if (receiverSignature != null) {
+			buffer.append(", ");
+			buffer.append(receiverSignature);
+		}
+		
 		if(this.showUniqueKeys) {
 			buffer.append(", ");
 			buffer.append(proposal.getDeclarationKey() == null ? NULL_LITERAL : proposal.getDeclarationKey());
@@ -347,7 +363,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		
 		if(this.showPositions) {
 			buffer.append(", ");
-			if(this.showTokenPositions) buffer.append("replace");
+			if(this.showTokenPositions || receiverSignature != null) buffer.append("replace");
 			buffer.append("[");
 			buffer.append(proposal.getReplaceStart());
 			buffer.append(", ");
@@ -359,6 +375,13 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			buffer.append(proposal.getTokenStart());
 			buffer.append(", ");
 			buffer.append(proposal.getTokenEnd());
+			buffer.append("]");
+		}
+		if(this.showPositions && receiverSignature != null) {
+			buffer.append(", receiver[");
+			buffer.append(proposal.getReceiverStart());
+			buffer.append(", ");
+			buffer.append(proposal.getReceiverEnd());
 			buffer.append("]");
 		}
 		buffer.append(", ");
@@ -448,10 +471,12 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.JAVADOC_TYPE_REF :
 				return new String(Signature.getSignatureSimpleName(proposal.getSignature()));
 			case CompletionProposal.FIELD_REF :
+			case CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER :
 			case CompletionProposal.KEYWORD:
 			case CompletionProposal.LABEL_REF:
 			case CompletionProposal.LOCAL_VARIABLE_REF:
 			case CompletionProposal.METHOD_REF:
+			case CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER:
 			case CompletionProposal.METHOD_DECLARATION:
 			case CompletionProposal.VARIABLE_DECLARATION:
 			case CompletionProposal.POTENTIAL_METHOD_DECLARATION:
@@ -467,7 +492,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.METHOD_IMPORT :
 				return new String(proposal.getName());
 			case CompletionProposal.PACKAGE_REF:
-				return new String(proposal.getDeclarationSignature());	
+				return new String(proposal.getDeclarationSignature());
 		}
 		return "";
 	}

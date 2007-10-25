@@ -73,6 +73,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_INSIDE_CONTINUE_STATEMENT = COMPLETION_PARSER + 35;
 	protected static final int K_LABEL = COMPLETION_PARSER + 36;
 	protected static final int K_MEMBER_VALUE_ARRAY_INITIALIZER = COMPLETION_PARSER + 37;
+	protected static final int K_CONTROL_STATEMENT_DELIMITER = COMPLETION_PARSER + 38;
 
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
 	public final static char[] FAKE_METHOD_NAME = new char[]{' '};
@@ -83,6 +84,8 @@ public class CompletionParser extends AssistParser {
 
 	public int cursorLocation;
 	public ASTNode assistNodeParent; // the parent node of assist node
+	public ASTNode enclosingNode; // an enclosing node used by proposals inference
+	
 	/* the following fields are internal flags */
 
 	// block kind
@@ -939,22 +942,54 @@ private void buildMoreCompletionContext(Expression expression) {
 		}
 	}
 	if(assistNodeParent != null) {
-		currentElement = currentElement.add((Statement)assistNodeParent, 0);
+		currentElement = currentElement.add(buildMoreCompletionEnclosingContext((Statement)assistNodeParent), 0);
 	} else {
 		if(currentElement instanceof RecoveredField && !(currentElement instanceof RecoveredInitializer)
 			&& ((RecoveredField) currentElement).fieldDeclaration.initialization == null) {
 
 			assistNodeParent = ((RecoveredField) currentElement).fieldDeclaration;
-			currentElement = currentElement.add(statement, 0);
+			currentElement = currentElement.add(buildMoreCompletionEnclosingContext(statement), 0);
 		} else if(currentElement instanceof RecoveredLocalVariable
 			&& ((RecoveredLocalVariable) currentElement).localDeclaration.initialization == null) {
 
 			assistNodeParent = ((RecoveredLocalVariable) currentElement).localDeclaration;
-			currentElement = currentElement.add(statement, 0);
+			currentElement = currentElement.add(buildMoreCompletionEnclosingContext(statement), 0);
 		} else {
-			currentElement = currentElement.add(expression, 0);
+			currentElement = currentElement.add(buildMoreCompletionEnclosingContext(expression), 0);
 		}
 	}
+}
+private Statement buildMoreCompletionEnclosingContext(Statement statement) {
+	
+	int blockIndex = this.lastIndexOfElement(K_BLOCK_DELIMITER);
+	int controlIndex = this.lastIndexOfElement(K_CONTROL_STATEMENT_DELIMITER);
+	if (blockIndex != -1 && controlIndex < blockIndex) {
+		if (this.elementInfoStack[blockIndex] == IF && this.elementObjectInfoStack[blockIndex] != null) {
+			Expression condition = (Expression)this.elementObjectInfoStack[blockIndex];
+			IfStatement ifStatement =
+				new IfStatement(
+					condition, 
+					statement, 
+					condition.sourceStart, 
+					statement.sourceEnd);
+			this.enclosingNode = ifStatement;
+			return ifStatement;
+		}
+	} else if (controlIndex != -1) {
+		if (this.elementInfoStack[controlIndex] == IF && this.elementObjectInfoStack[controlIndex] != null) {
+			Expression condition = (Expression)this.elementObjectInfoStack[controlIndex];
+			IfStatement ifStatement =
+				new IfStatement(
+					condition, 
+					statement, 
+					condition.sourceStart, 
+					statement.sourceEnd);
+			this.enclosingNode = ifStatement;
+			return ifStatement;
+		}
+	}
+	
+	return statement;
 }
 private void buildMoreGenericsCompletionContext(ASTNode node, boolean consumeTypeArguments) {
 	int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
@@ -2062,6 +2097,13 @@ protected void consumeDimWithOrWithOutExpr() {
 	// DimWithOrWithOutExpr ::= '[' ']'
 	pushOnExpressionStack(null);
 }
+protected void consumeEnhancedForStatement() {
+	super.consumeEnhancedForStatement();
+	
+	if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_CONTROL_STATEMENT_DELIMITER) {
+		popElement(K_CONTROL_STATEMENT_DELIMITER);
+	}
+}
 protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 	super.consumeEnhancedForStatementHeaderInit(hasModifiers);
 	if (this.pendingAnnotation != null) {
@@ -2279,6 +2321,27 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		/* if incomplete method header, listLength counter will not have been reset,
 			indicating that some arguments are available on the stack */
 		listLength++;
+	}
+}
+protected void consumeStatementFor() {
+	super.consumeStatementFor();
+	
+	if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_CONTROL_STATEMENT_DELIMITER) {
+		popElement(K_CONTROL_STATEMENT_DELIMITER);
+	}
+}
+protected void consumeStatementIfNoElse() {
+	super.consumeStatementIfNoElse();
+	
+	if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_CONTROL_STATEMENT_DELIMITER) {
+		popElement(K_CONTROL_STATEMENT_DELIMITER);
+	}
+}
+protected void consumeStatementIfWithElse() {
+	super.consumeStatementIfWithElse();
+	
+	if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_CONTROL_STATEMENT_DELIMITER) {
+		popElement(K_CONTROL_STATEMENT_DELIMITER);
 	}
 }
 protected void consumeInsideCastExpression() {
@@ -2803,6 +2866,12 @@ protected void consumeStatementSwitch() {
 		popElement(K_BLOCK_DELIMITER);
 	}
 }
+protected void consumeStatementWhile() {
+	super.consumeStatementWhile();
+	if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_CONTROL_STATEMENT_DELIMITER) {
+		popElement(K_CONTROL_STATEMENT_DELIMITER);
+	}
+}
 protected void consumeStaticImportOnDemandDeclarationName() {
 	super.consumeStaticImportOnDemandDeclarationName();
 	this.pendingAnnotation = null; // the pending annotation cannot be attached to next nodes
@@ -3062,41 +3131,42 @@ protected void consumeToken(int token) {
 				} else if (kind == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN) {
 					pushOnElementStack(K_MEMBER_VALUE_ARRAY_INITIALIZER, endPosition);
 				} else {
-					switch(previous) {
-						case TokenNameRPAREN :
-							switch(previousKind) {
-								case K_BETWEEN_IF_AND_RIGHT_PAREN :
-									pushOnElementStack(K_BLOCK_DELIMITER, IF);
-									break;
-								case K_BETWEEN_CATCH_AND_RIGHT_PAREN :
-									pushOnElementStack(K_BLOCK_DELIMITER, CATCH);
-									break;
-								case K_BETWEEN_WHILE_AND_RIGHT_PAREN :
-									pushOnElementStack(K_BLOCK_DELIMITER, WHILE);
-									break;
-								case K_BETWEEN_SWITCH_AND_RIGHT_PAREN :
-									pushOnElementStack(K_BLOCK_DELIMITER, SWITCH);
-									break;
-								case K_BETWEEN_FOR_AND_RIGHT_PAREN :
-									pushOnElementStack(K_BLOCK_DELIMITER, FOR);
-									break;
-								case K_BETWEEN_SYNCHRONIZED_AND_RIGHT_PAREN :
-									pushOnElementStack(K_BLOCK_DELIMITER, SYNCHRONIZED);
-									break;
-								default :
-									pushOnElementStack(K_BLOCK_DELIMITER);
-									break;
-							}
-							break;
-						case TokenNametry :
-							pushOnElementStack(K_BLOCK_DELIMITER, TRY);
-							break;
-						case TokenNamedo:
-							pushOnElementStack(K_BLOCK_DELIMITER, DO);
-							break;
-						default :
-							pushOnElementStack(K_BLOCK_DELIMITER);
-							break;
+					if (kind == K_CONTROL_STATEMENT_DELIMITER) {
+						int info = topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER);
+						popElement(K_CONTROL_STATEMENT_DELIMITER);
+						if (info == IF) {
+							pushOnElementStack(K_BLOCK_DELIMITER, IF, this.expressionStack[this.expressionPtr]);
+						} else {
+							pushOnElementStack(K_BLOCK_DELIMITER, info);
+						}
+					} else {
+						switch(previous) {
+							case TokenNameRPAREN :
+								switch(previousKind) {
+									case K_BETWEEN_CATCH_AND_RIGHT_PAREN :
+										pushOnElementStack(K_BLOCK_DELIMITER, CATCH);
+										break;
+									case K_BETWEEN_SWITCH_AND_RIGHT_PAREN :
+										pushOnElementStack(K_BLOCK_DELIMITER, SWITCH);
+										break;
+									case K_BETWEEN_SYNCHRONIZED_AND_RIGHT_PAREN :
+										pushOnElementStack(K_BLOCK_DELIMITER, SYNCHRONIZED);
+										break;
+									default :
+										pushOnElementStack(K_BLOCK_DELIMITER);
+										break;
+								}
+								break;
+							case TokenNametry :
+								pushOnElementStack(K_BLOCK_DELIMITER, TRY);
+								break;
+							case TokenNamedo:
+								pushOnElementStack(K_BLOCK_DELIMITER, DO);
+								break;
+							default :
+								pushOnElementStack(K_BLOCK_DELIMITER);
+								break;
+						}
 					}
 				}
 				break;
@@ -3125,16 +3195,19 @@ protected void consumeToken(int token) {
 					case K_BETWEEN_IF_AND_RIGHT_PAREN :
 						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == bracketDepth) {
 							popElement(K_BETWEEN_IF_AND_RIGHT_PAREN);
+							pushOnElementStack(K_CONTROL_STATEMENT_DELIMITER, IF, this.expressionStack[this.expressionPtr]);
 						}
 						break;
 					case K_BETWEEN_WHILE_AND_RIGHT_PAREN :
 						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == bracketDepth) {
 							popElement(K_BETWEEN_WHILE_AND_RIGHT_PAREN);
+							pushOnElementStack(K_CONTROL_STATEMENT_DELIMITER, WHILE);
 						}
 						break;
 					case K_BETWEEN_FOR_AND_RIGHT_PAREN :
 						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == bracketDepth) {
 							popElement(K_BETWEEN_FOR_AND_RIGHT_PAREN);
+							pushOnElementStack(K_CONTROL_STATEMENT_DELIMITER, FOR);
 						}
 						break;
 					case K_BETWEEN_SWITCH_AND_RIGHT_PAREN :
@@ -3284,6 +3357,11 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameif:
 				pushOnElementStack(K_BETWEEN_IF_AND_RIGHT_PAREN, bracketDepth);
+				break;
+			case TokenNameelse:
+				if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_CONTROL_STATEMENT_DELIMITER) {
+					popElement(K_CONTROL_STATEMENT_DELIMITER);
+				}
 				break;
 			case TokenNamewhile:
 				pushOnElementStack(K_BETWEEN_WHILE_AND_RIGHT_PAREN, bracketDepth);
@@ -4093,6 +4171,12 @@ protected void popUntilCompletedAnnotationIfNecessary() {
 	if(i >= 0) {
 		previousKind = elementKindStack[i];
 		previousInfo = elementInfoStack[i];
+		previousObjectInfo = elementObjectInfoStack[i];
+		
+		for (int j = i; j <= elementPtr; j++) {
+			elementObjectInfoStack[j] = null;
+		}
+		
 		elementPtr = i - 1;	
 	}
 }

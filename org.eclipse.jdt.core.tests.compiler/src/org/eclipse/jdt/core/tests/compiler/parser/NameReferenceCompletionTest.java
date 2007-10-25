@@ -495,7 +495,8 @@ public void testInIfThenStatement() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" +
-		"    <CompleteOnName:>;\n" +
+		"    if (bar())\n" + 
+		"        <CompleteOnName:>;\n" +
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

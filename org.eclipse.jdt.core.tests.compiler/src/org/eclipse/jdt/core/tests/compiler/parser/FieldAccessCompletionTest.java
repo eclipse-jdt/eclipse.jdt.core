@@ -1289,7 +1289,8 @@ public void testIfThenStatement() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    if (true)\n" + 
+		"        <CompleteOnMemberAccess:fred().x>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1325,7 +1326,8 @@ public void testIfThenStatementElse() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    if (true)\n" + 
+		"        <CompleteOnMemberAccess:fred().x>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

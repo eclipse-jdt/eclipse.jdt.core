@@ -855,7 +855,8 @@ public void testDeepReference() {
 		"  void foo() {\n" +
 		"    {\n" +
 		"      {\n" +
-		"        <CompleteOnName:X>;\n" +
+		"        if ((1 == fgh))\n" + 
+		"            <CompleteOnName:X>;\n" +
 		"      }\n" +
 		"    }\n" +
 		"  }\n" +

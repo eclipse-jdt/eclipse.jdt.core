@@ -171,6 +171,7 @@ public CompletionRequestor getCompletionRequestor(final CompletionRequestor orig
 					break;
 				case CompletionProposal.METHOD_REF:
 				case CompletionProposal.METHOD_DECLARATION:
+				case CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER:
 					// Remove completion on generated method
 					char[] declaringTypePackageName = Signature.getSignatureQualifier(proposal.getDeclarationSignature());
 					char[] declaringTypeName = Signature.getSignatureSimpleName(proposal.getDeclarationSignature());

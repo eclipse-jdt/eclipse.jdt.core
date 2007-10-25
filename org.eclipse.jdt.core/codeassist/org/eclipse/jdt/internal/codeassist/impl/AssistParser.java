@@ -48,8 +48,10 @@ public abstract class AssistParser extends Parser {
 	protected int elementPtr;
 	protected int[] elementKindStack = new int[ElementStackIncrement];
 	protected int[] elementInfoStack = new int[ElementStackIncrement];
+	protected Object[] elementObjectInfoStack = new Object[ElementStackIncrement];
 	protected int previousKind;
 	protected int previousInfo;
+	protected Object previousObjectInfo;
 	
 	// OWNER
 	protected static final int ASSIST_PARSER = 512;
@@ -832,9 +834,14 @@ public void flushAssistState(){
 	this.setAssistIdentifier(null);
 }
 protected void flushElementStack() {
+	for (int j = 0; j <= elementPtr; j++) {
+		elementObjectInfoStack[j] = null;
+	}
+	
 	this.elementPtr = -1;
 	this.previousKind = 0;
 	this.previousInfo = 0;
+	this.previousObjectInfo = null;
 }
 /*
  * Build specific type reference nodes in case the cursor is located inside the type reference
@@ -1381,6 +1388,9 @@ protected void popElement(int kind){
 	
 	previousKind = elementKindStack[elementPtr];
 	previousInfo = elementInfoStack[elementPtr];
+	previousObjectInfo = elementObjectInfoStack[elementPtr];
+	
+	elementObjectInfoStack[elementPtr] = null;
 	
 	switch (kind) {
 		default :
@@ -1398,6 +1408,11 @@ protected void popUntilElement(int kind){
 		if(i < elementPtr) {
 			previousKind = elementKindStack[i+1];
 			previousInfo = elementInfoStack[i+1];
+			previousObjectInfo = elementObjectInfoStack[i+1];
+			
+			for (int j = i + 1; j <= elementPtr; j++) {
+				elementObjectInfoStack[j] = null;
+			}
 		}
 		elementPtr = i;	
 	}
@@ -1439,13 +1454,17 @@ protected void prepareForHeaders() {
 	}
 }
 protected void pushOnElementStack(int kind){
-	this.pushOnElementStack(kind, 0);
+	this.pushOnElementStack(kind, 0, null);
 }
 protected void pushOnElementStack(int kind, int info){
+	this.pushOnElementStack(kind, info, null);
+}
+protected void pushOnElementStack(int kind, int info, Object objectInfo){
 	if (this.elementPtr < -1) return;
 	
 	this.previousKind = 0;
 	this.previousInfo = 0;
+	this.previousObjectInfo = null;
 	
 	int stackLength = this.elementKindStack.length;
 	if (++this.elementPtr >= stackLength) {
@@ -1457,9 +1476,14 @@ protected void pushOnElementStack(int kind, int info){
 			this.elementInfoStack, 0,
 			this.elementInfoStack = new int[stackLength + StackIncrement], 0,
 			stackLength);
+		System.arraycopy(
+			this.elementObjectInfoStack, 0,
+			this.elementObjectInfoStack = new Object[stackLength + StackIncrement], 0,
+			stackLength);
 	}
 	this.elementKindStack[this.elementPtr] = kind;
 	this.elementInfoStack[this.elementPtr] = info;
+	this.elementObjectInfoStack[this.elementPtr] = objectInfo;
 }
 public void recoveryExitFromVariable() {
 	if(currentElement != null && currentElement instanceof RecoveredField
@@ -1608,6 +1632,20 @@ protected int topKnownElementKind(int owner, int offSet) {
 		i--;
 	}
 	return 0;
+}
+protected Object topKnownElementObjectInfo(int owner, int offSet) {
+	int i = elementPtr;
+	while(i > -1) {
+		if((elementKindStack[i] & owner) != 0) {
+			if(offSet <= 0) return elementObjectInfoStack[i];
+			offSet--;
+		}
+		i--;
+	}
+	return null;
+}
+protected Object topKnownElementObjectInfo(int owner) {
+	return topKnownElementObjectInfo(owner, 0);
 }
 /**
  * If the given ast node is inside an explicit constructor call
