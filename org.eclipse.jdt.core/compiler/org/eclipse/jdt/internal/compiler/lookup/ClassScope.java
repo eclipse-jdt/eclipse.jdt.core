@@ -54,8 +54,9 @@ public class ClassScope extends Scope {
 	}
 	
 	private void buildFields() {
+		SourceTypeBinding sourceType = referenceContext.binding;		
 		if (referenceContext.fields == null) {
-			referenceContext.binding.setFields(Binding.NO_FIELDS);
+			sourceType.setFields(Binding.NO_FIELDS);
 			return;
 		}
 		// count the number of fields vs. initializers
@@ -78,10 +79,10 @@ public class ClassScope extends Scope {
 		for (int i = 0; i < size; i++) {
 			FieldDeclaration field = fields[i];
 			if (field.getKind() == AbstractVariableDeclaration.INITIALIZER) {
-				if (referenceContext.binding.isInterface())
-					problemReporter().interfaceCannotHaveInitializers(referenceContext.binding, field);
+				if (sourceType.isInterface())
+					problemReporter().interfaceCannotHaveInitializers(sourceType, field);
 			} else {
-				FieldBinding fieldBinding = new FieldBinding(field, null, field.modifiers | ExtraCompilerModifiers.AccUnresolved, referenceContext.binding);
+				FieldBinding fieldBinding = new FieldBinding(field, null, field.modifiers | ExtraCompilerModifiers.AccUnresolved, sourceType);
 				fieldBinding.id = count;
 				// field's type will be resolved when needed for top level types
 				checkAndSetModifiersForField(fieldBinding, field);
@@ -93,14 +94,14 @@ public class ClassScope extends Scope {
 						for (int f = 0; f < i; f++) {
 							FieldDeclaration previousField = fields[f];
 							if (previousField.binding == previousBinding) {
-								problemReporter().duplicateFieldInType(referenceContext.binding, previousField);
+								problemReporter().duplicateFieldInType(sourceType, previousField);
 								previousField.binding = null;
 								break;
 							}
 						}
 					}
 					knownFieldNames.put(field.name, null); // ensure that the duplicate field is found & removed
-					problemReporter().duplicateFieldInType(referenceContext.binding, field);
+					problemReporter().duplicateFieldInType(sourceType, field);
 					field.binding = null;
 				} else {
 					knownFieldNames.put(field.name, fieldBinding);
@@ -126,7 +127,8 @@ public class ClassScope extends Scope {
 		}
 		if (count != fieldBindings.length)
 			System.arraycopy(fieldBindings, 0, fieldBindings = new FieldBinding[count], 0, count);
-		referenceContext.binding.setFields(fieldBindings);
+		sourceType.tagBits &= ~(TagBits.AreFieldsSorted|TagBits.AreFieldsComplete); // in case some static imports reached already into this type		
+		sourceType.setFields(fieldBindings);
 	}
 	
 	void buildFieldsAndMethods() {
@@ -290,7 +292,7 @@ public class ClassScope extends Scope {
 		}
 		if (count != methodBindings.length)
 			System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[count], 0, count);
-		sourceType.tagBits &= ~TagBits.AreMethodsSorted; // in case some static imports reached already into this type
+		sourceType.tagBits &= ~(TagBits.AreMethodsSorted|TagBits.AreMethodsComplete); // in case some static imports reached already into this type
 		sourceType.setMethods(methodBindings);
 	}
 	
