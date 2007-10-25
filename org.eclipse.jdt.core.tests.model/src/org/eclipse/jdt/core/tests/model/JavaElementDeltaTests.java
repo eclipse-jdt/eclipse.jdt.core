@@ -295,6 +295,32 @@ public void testAddFileToNonJavaProject() throws CoreException {
 }
 
 /*
+ * Ensure that the correct delta is sent when a file is added to a non-Java resource folder 
+ * which is also on the build path of another project.
+ * (regression test for bug 207441 Wrong delta for files created in folders that are on a java project as classes folder)
+ */
+public void testAddFileToSharedNonJavaResource() throws CoreException {
+	try {
+		createJavaProject("A", new String[0], "bin");
+		createFolder("/A/resources");
+		createJavaProject("B", new String[0], new String[] {"/A/resources"}, "bin");
+		startDeltas();
+		createFile("/A/resources/test", "");
+		assertDeltas(
+			"Unexpected delta", 
+			"A[*]: {CONTENT}\n" + 
+			"	ResourceDelta(/A/resources)[*]\n" + 
+			"B[*]: {CHILDREN}\n" + 
+			"	/A/resources[*]: {CONTENT}\n" + 
+			"		ResourceDelta(/A/resources/test)[+]"
+		);
+	} finally {
+		stopDeltas();
+		deleteProjects(new String[] {"A", "B"});
+	}
+}
+
+/*
  * Ensure that adding a folder in a non-Java folder (i.e. a folder with an invalid package name) reports the correct delta
  * (regression test for bug 130982 META-INF directories shown as empty META-INF.* packages in J2EE Navigator)
  */

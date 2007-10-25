@@ -2090,7 +2090,11 @@ public class DeltaProcessor {
 							orphanChildren[i] = child;
 						}
 					} else {
-						oneChildOnClasspath = true;
+						if (rootInfo == null && childRootInfo == null) {
+							// the non-java resource (or its parent folder) will be attached to the java project
+							if (orphanChildren == null) orphanChildren = new IResourceDelta[length];
+							orphanChildren[i] = child;
+						}
 					}
 				} else {
 					oneChildOnClasspath = true; // to avoid reporting child delta as non-java resource delta
