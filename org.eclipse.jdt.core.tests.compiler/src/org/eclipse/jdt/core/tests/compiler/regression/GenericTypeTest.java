@@ -40178,4 +40178,56 @@ public void test1203() {
 		},
 		expectedOutput);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207299
+public void test1204() {
+	this.runConformTest(
+		new String[] {
+			"ExpressionGraph.java",
+			"import java.util.*;\n" + 
+			"public class ExpressionGraph<G extends ExpressionGraph<G, V>, V extends IVertex<G, V>> {\n" + 
+			"	void foo(Set<V> set, Collection<? extends V> col) {\n" + 
+			"		if (set == col) return;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface IVertex<G extends ExpressionGraph<G, V>, V extends IVertex<G, V>> {	\n" + 
+			"	// empty\n" + 
+			"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207299 - variation
+public void test1205() {
+	this.runConformTest(
+		new String[] {
+			"ExpressionGraph.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class ExpressionGraph<G extends ExpressionGraph<G, V, L>, V extends ExpressionVertex<G, V, L>, L> extends AbstractGraph<G, V> {\n" + 
+			"	void foo(Set<V> set, Collection<? extends V> col) {\n" + 
+			"		if (set == col) return;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	interface IVertex<G extends ExpressionGraph<G, V, L>, V extends IVertex<G, V, L>, L> extends ExpressionVertex<G, V, L> {	\n" + 
+			"		// empty\n" + 
+			"	}\n" + 
+			"	static abstract class Vertex<G extends ExpressionGraph<G, V, L>, V extends IVertex<G, V, L>, L> /*extends TaggableVertex<G, V>*/ implements IVertex<G, V, L> {	\n" + 
+			"		// empty\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"abstract class AbstractGraph<G extends AbstractGraph<G,V>, V extends Vertex<G,V>> implements Graph<G,V> {\n" + 
+			"	// empty\n" + 
+			"}\n" + 
+			"interface Graph<G extends Graph<G,V>, V extends Vertex<G,V>> {	\n" + 
+			"	// empty\n" + 
+			"}\n" + 
+			"interface Vertex<G extends Graph<G,V>, V extends Vertex<G,V>> {\n" + 
+			"	// empty\n" + 
+			"}\n" + 
+			"interface ExpressionVertex<G extends Graph<G,V>, V extends ExpressionVertex<G,V,L>, L> extends Vertex<G,V> {\n" + 
+			"	// empty\n" + 
+			"}\n", // =================
+		},
+		"");
+}
 }

@@ -11,7 +11,9 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFilePool;
@@ -415,13 +417,13 @@ public ReferenceBinding convertToParameterizedType(ReferenceBinding originalType
 	return originalType;
 }
 
-public TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, ReferenceBinding genericType, int rank, TypeVariableBinding eliminatedVariable) {
+public TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, ReferenceBinding genericType, int rank, Set eliminatedVariables) {
 	if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
 		switch (originalType.kind()) {
 			case Binding.ARRAY_TYPE :
 				ArrayBinding originalArrayType = (ArrayBinding) originalType;
 				TypeBinding originalLeafComponentType = originalArrayType.leafComponentType;
-				TypeBinding substitute = convertEliminatingTypeVariables(originalLeafComponentType, genericType, rank, eliminatedVariable); // substitute could itself be array type
+				TypeBinding substitute = convertEliminatingTypeVariables(originalLeafComponentType, genericType, rank, eliminatedVariables); // substitute could itself be array type
 				if (substitute != originalLeafComponentType) {
 					return createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalArrayType.dimensions());
 				}
@@ -431,13 +433,13 @@ public TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, Ref
 				ReferenceBinding originalEnclosing = paramType.enclosingType();
 				ReferenceBinding substitutedEnclosing = originalEnclosing;
 				if (originalEnclosing != null) {
-					substitutedEnclosing = (ReferenceBinding) convertEliminatingTypeVariables(originalEnclosing, genericType, rank, eliminatedVariable);
+					substitutedEnclosing = (ReferenceBinding) convertEliminatingTypeVariables(originalEnclosing, genericType, rank, eliminatedVariables);
 				}
 				TypeBinding[] originalArguments = paramType.arguments;
 				TypeBinding[] substitutedArguments = originalArguments;
 				for (int i = 0, length = originalArguments == null ? 0 : originalArguments.length; i < length; i++) {
 					TypeBinding originalArgument = originalArguments[i];
-					TypeBinding substitutedArgument = convertEliminatingTypeVariables(originalArgument, paramType.genericType(), i, eliminatedVariable);
+					TypeBinding substitutedArgument = convertEliminatingTypeVariables(originalArgument, paramType.genericType(), i, eliminatedVariables);
 					if (substitutedArgument != originalArgument) {
 						if (substitutedArguments == originalArguments) {
 							System.arraycopy(originalArguments, 0, substitutedArguments = new TypeBinding[length], 0, i);
@@ -452,12 +454,17 @@ public TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, Ref
 				}
 				break;
 			case Binding.TYPE_PARAMETER :
-				if (eliminatedVariable == originalType) {
+				if (eliminatedVariables != null && eliminatedVariables.contains(originalType)) {
 					return createWildcard(genericType, rank, null, null, Wildcard.UNBOUND);
 				}
 				TypeVariableBinding variable = (TypeVariableBinding) originalType;
 				TypeBinding originalUpperBound = variable.upperBound();
-				TypeBinding substitutedUpperBound = convertEliminatingTypeVariables(originalUpperBound, genericType, rank, variable);
+				if (eliminatedVariables == null) {
+					eliminatedVariables = new HashSet(2);
+				}
+				eliminatedVariables.add(variable);
+				TypeBinding substitutedUpperBound = convertEliminatingTypeVariables(originalUpperBound, genericType, rank, eliminatedVariables);
+				eliminatedVariables.remove(variable);
 				return createWildcard(genericType, rank, substitutedUpperBound, null, Wildcard.EXTENDS);
 			case Binding.RAW_TYPE :
 				break;
@@ -466,13 +473,13 @@ public TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, Ref
 				originalEnclosing = currentType.enclosingType();
 				substitutedEnclosing = originalEnclosing;
 				if (originalEnclosing != null) {
-					substitutedEnclosing = (ReferenceBinding) convertEliminatingTypeVariables(originalEnclosing, genericType, rank, eliminatedVariable);
+					substitutedEnclosing = (ReferenceBinding) convertEliminatingTypeVariables(originalEnclosing, genericType, rank, eliminatedVariables);
 				}
 				originalArguments = currentType.typeVariables();
 				substitutedArguments = originalArguments;
 				for (int i = 0, length = originalArguments == null ? 0 : originalArguments.length; i < length; i++) {
 					TypeBinding originalArgument = originalArguments[i];
-					TypeBinding substitutedArgument = convertEliminatingTypeVariables(originalArgument, currentType, i, eliminatedVariable);
+					TypeBinding substitutedArgument = convertEliminatingTypeVariables(originalArgument, currentType, i, eliminatedVariables);
 					if (substitutedArgument != originalArgument) {
 						if (substitutedArguments == originalArguments) {
 							System.arraycopy(originalArguments, 0, substitutedArguments = new TypeBinding[length], 0, i);
@@ -491,7 +498,7 @@ public TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, Ref
 				TypeBinding originalBound = wildcard.bound;
 				TypeBinding substitutedBound = originalBound;
 				if (originalBound != null) {
-					substitutedBound = convertEliminatingTypeVariables(originalBound, genericType, rank, eliminatedVariable);
+					substitutedBound = convertEliminatingTypeVariables(originalBound, genericType, rank, eliminatedVariables);
 					if (substitutedBound != originalBound) {
 						return createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, null, wildcard.boundKind);
 					}
@@ -502,13 +509,13 @@ public TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, Ref
 				originalBound = intersection.bound;
 				substitutedBound = originalBound;
 				if (originalBound != null) {
-					substitutedBound = convertEliminatingTypeVariables(originalBound, genericType, rank, eliminatedVariable);
+					substitutedBound = convertEliminatingTypeVariables(originalBound, genericType, rank, eliminatedVariables);
 				}
 				TypeBinding[] originalOtherBounds = intersection.otherBounds;
 				TypeBinding[] substitutedOtherBounds = originalOtherBounds;
 				for (int i = 0, length = originalOtherBounds == null ? 0 : originalOtherBounds.length; i < length; i++) {
 					TypeBinding originalOtherBound = originalOtherBounds[i];
-					TypeBinding substitutedOtherBound = convertEliminatingTypeVariables(originalOtherBound, genericType, rank, eliminatedVariable);
+					TypeBinding substitutedOtherBound = convertEliminatingTypeVariables(originalOtherBound, genericType, rank, eliminatedVariables);
 					if (substitutedOtherBound != originalOtherBound) {
 						if (substitutedOtherBounds == originalOtherBounds) {
 							System.arraycopy(originalOtherBounds, 0, substitutedOtherBounds = new TypeBinding[length], 0, i);
