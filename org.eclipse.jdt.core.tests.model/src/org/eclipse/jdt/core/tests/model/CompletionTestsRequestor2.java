@@ -57,6 +57,10 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		this(showParamNames, showUniqueKeys, showPositions, shortContext, showMissingTypes, false);
 	}
 	public CompletionTestsRequestor2(boolean showParamNames, boolean showUniqueKeys, boolean showPositions, boolean shortContext, boolean showMissingTypes, boolean showTokenPositions) {
+		this(false, showParamNames, showUniqueKeys, showPositions, shortContext, showMissingTypes, showTokenPositions);
+	}
+	public CompletionTestsRequestor2(boolean ignoreAll, boolean showParamNames, boolean showUniqueKeys, boolean showPositions, boolean shortContext, boolean showMissingTypes, boolean showTokenPositions) {
+		super(ignoreAll);
 		this.showParameterNames = showParamNames;
 		this.showUniqueKeys = showUniqueKeys;
 		this.showPositions = showPositions;

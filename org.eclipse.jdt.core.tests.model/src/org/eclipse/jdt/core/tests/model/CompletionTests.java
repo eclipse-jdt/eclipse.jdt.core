@@ -2628,6 +2628,29 @@ public void testCompletionBasicType2() throws JavaModelException {
 		requestor.getResults());
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=207418
+public void testCompletionBasicType3() throws JavaModelException {
+
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionBasicType3.java",
+		"public class CompletionBasicType3 {\n"+
+		"	void foo() {\n"+
+		"		Objec\n"+
+		"	}\n"+
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, false, true, true, false, true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Objec";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+		"",
+		requestor.getResults());
+}
+
 public void testCompletionBasicVariableDeclaration1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(

@@ -73,9 +73,28 @@ public abstract class CompletionRequestor {
 	 * Creates a new completion requestor.
 	 * The requestor is interested in all kinds of completion
 	 * proposals; none will be ignored.
+	 * 
+	 * Calls to this constructor are identical to calls to <code>CompletionRequestor(false)</code>
 	 */
 	public CompletionRequestor() {
-		// do nothing
+		this(false);
+	}
+	
+	/**
+	 * Creates a new completion requestor.
+	 * If <code>ignoreAll</code> is <code>true</code> the requestor is not interested in
+	 * all kinds of completion proposals; all will be ignored. For each kind of completion proposals
+	 * that is of interest, <code>setIgnored(kind, false)</code> must be called.
+	 * If <code>ignoreAll</code> is <code>false</code> the requestor is interested in
+	 * all kinds of completion proposals; none will be ignored.
+	 *
+	 * @param ignoreAll <code>true</code> to ignore all kinds of completion proposals,
+	 * and <code>false</code> to propose all kinds
+	 * 
+	 * @since 3.4
+	 */
+	public CompletionRequestor(boolean ignoreAll) {
+		this.ignoreSet = ignoreAll ? 0xffffffff : 0x00000000;
 	}
 
 	/**
