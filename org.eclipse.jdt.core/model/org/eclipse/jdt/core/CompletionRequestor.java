@@ -177,6 +177,9 @@ public abstract class CompletionRequestor {
 	 * Sets whether a proposal of a given kind with a required proposal
 	 * of the given kind is allowed.
 	 * 
+	 * A required proposal of a given kind is proposed even if {@link #isIgnored(int)}
+	 * return <code>true</code> for that kind.
+	 * 
 	 * Currently only a subset of kinds support required proposals. To see what combinations
 	 * are supported you must look at {@link CompletionProposal#getRequiredProposals()}
 	 * documentation.

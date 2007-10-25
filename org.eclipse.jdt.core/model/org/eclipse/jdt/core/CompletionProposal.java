@@ -1866,6 +1866,10 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * only kinds which are in this list to avoid unexpected results in the future.
 	 * </p>
 	 * <p>
+	 * A required proposal of a given kind is proposed even if {@link CompletionRequestor#isIgnored(int)}
+	 * return <code>true</code> for that kind.
+	 * </p>
+	 * <p>
 	 * A required completion proposal cannot have required completion proposals.
 	 * </p>
 	 * 
