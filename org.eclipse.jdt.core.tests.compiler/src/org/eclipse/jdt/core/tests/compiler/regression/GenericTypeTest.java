@@ -40230,4 +40230,22 @@ public void test1205() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573
+public void _test1206() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public final <E extends Exception> E throwE(E ex, Object... args) throws E {\n" + 
+			"		Object[] oar = new Object[0];\n" + 
+			"		return throwE(oar, ex, args);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public final <E extends Exception> E throwE(Object[] oar, E ex, Object... args) throws E {\n" + 
+			"		throw ex;\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"");
+}
 }
