@@ -1675,4 +1675,207 @@ public class StaticImportTest extends AbstractComparableTest {
 			// arrayList(int) in X cannot be applied to ()
 		);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=207433
+	public void test051() {
+		this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"import static r.Y.Z;\n" + 
+				"import q.*;\n" + 
+				"public class X<T> extends Z<T> {\n" + 
+				"   Z<T> getZ() { return null; } \n" +
+				"	void bar() {\n" + 
+				"		System.out.println(getZ().value);\n" + 
+				"	}\n" + 
+				"}\n",
+				"q/Z.java",
+				"package q;\n" + 
+				"import r.Y;\n" + 
+				"public class Z<T> extends Y<T> {\n" + 
+				"}\n",
+				"r/Y.java",
+				"package r;\n" + 
+				"public class Y<T> {\n" + 
+				"	public static String foo;\n" + 
+				"	public String value;\n" + 
+				"	public static String Z;\n" + 
+				"}\n" ,
+			},
+			"");		
+	}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=207433 - variation
+	public void test052() {
+		this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"import static r.Y.*;\n" + 
+				"import q.*;\n" + 
+				"public class X<T> extends Z<T> {\n" + 
+				"   Z<T> getZ() { return null; } \n" +
+				"	void bar() {\n" + 
+				"		System.out.println(getZ().value);\n" + 
+				"	}\n" + 
+				"}\n",
+				"q/Z.java",
+				"package q;\n" + 
+				"import r.Y;\n" + 
+				"public class Z<T> extends Y<T> {\n" + 
+				"}\n",
+				"r/Y.java",
+				"package r;\n" + 
+				"public class Y<T> {\n" + 
+				"	public static String foo;\n" + 
+				"	public String value;\n" + 
+				"	public static String Z;\n" + 
+				"}\n" ,
+			},
+			"");		
+	}			
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=207433 - variation
+	public void test053() {
+		this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"import static q.Y.foo;\n" + 
+				"public class X extends Z {\n" + 
+				"   Z getZ() { return null; } \n" +
+				"	void bar() {\n" + 
+				"		System.out.println(getZ().value);\n" + 
+				"	}\n" + 
+				"}\n",
+				"p/Z.java",
+				"package p;\n" + 
+				"import q.Y;\n" + 
+				"public class Z extends Y {\n" + 
+				"}\n",
+				"q/Y.java",
+				"package q;\n" + 
+				"public class Y {\n" + 
+				"	public static int foo;\n" + 
+				"	public int value;\n" + 
+				"}\n" ,
+			},
+			"");		
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193210
+	public void test055() {
+		this.runConformTest(
+				new String[] {
+					"p/X.java",
+					"package p;\n" + 
+					"import static r.Y.Z;\n" + 
+					"import q.*;\n" + 
+					"import r.*;\n" + 
+					"public class X<T> extends Z<T> {\n" + 
+					"   V<T> getV() { return null; } \n" +
+					"	void bar() {\n" + 
+					"		System.out.println(getV().value);\n" + 
+					"	}\n" + 
+					"}\n",
+					"q/Z.java",
+					"package q;\n" + 
+					"import r.Y;\n" + 
+					"public class Z<T> extends Y<T> {\n" + 
+					"}\n",
+					"r/Y.java",
+					"package r;\n" + 
+					"public class Y<T> extends V<T>{\n" + 
+					"	public static class Z<U> {}\n" +
+					"}\n" ,
+					"r/V.java",
+					"package r;\n" + 
+					"public class V<T> {\n" + 
+					"	public Runnable value;\n" + 
+					"}\n" ,
+				},
+				"");		
+		}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193210 - variation
+	public void test056() {
+		this.runNegativeTest(
+				new String[] {
+					"p/X.java",
+					"package p;\n" + 
+					"import static r.Y.Z;\n" + 
+					"import q.*;\n" + 
+					"public class X extends Z {\n" + 
+					"   Z getZ() { return null; } \n" +
+					"	void bar() {\n" + 
+					"		System.out.println(getZ().value);\n" + 
+					"	}\n" + 
+					"}\n",
+					"q/Z.java",
+					"package q;\n" + 
+					"import r.Y;\n" + 
+					"public class Z extends Y {\n" + 
+					"}\n",
+					"r/Y.java",
+					"package r;\n" + 
+					"public class Y extends V{\n" + 
+					"	public static class Z {}\n" +
+					"}\n" ,
+					"r/V.java",
+					"package r;\n" + 
+					"public class V {\n" + 
+					"	public Runnable value;\n" + 
+					"}\n" ,
+				},
+				"----------\n" + 
+				"1. ERROR in p\\X.java (at line 7)\n" + 
+				"	System.out.println(getZ().value);\n" + 
+				"	                          ^^^^^\n" + 
+				"value cannot be resolved or is not a field\n" + 
+				"----------\n");		
+		}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=193210 - variation
+	public void test057() {
+		this.runNegativeTest(
+				new String[] {
+					"p/X.java",
+					"package p;\n" + 
+					"import static r.Y.Z;\n" + 
+					"import q.*;\n" + 
+					"public class X<T> extends Z<T> {\n" + 
+					"   Z<T> getZ() { return null; } \n" +
+					"	void bar() {\n" + 
+					"		System.out.println(getZ().value);\n" + 
+					"	}\n" + 
+					"}\n",
+					"q/Z.java",
+					"package q;\n" + 
+					"import r.Y;\n" + 
+					"public class Z<T> extends Y<T> {\n" + 
+					"}\n",
+					"r/Y.java",
+					"package r;\n" + 
+					"public class Y<T> extends V<T>{\n" + 
+					"	public static class Z {}\n" +
+					"}\n" ,
+					"r/V.java",
+					"package r;\n" + 
+					"public class V<T> {\n" + 
+					"	public Runnable value;\n" + 
+					"}\n" ,
+				},
+				"----------\n" + 
+				"1. ERROR in p\\X.java (at line 4)\n" + 
+				"	public class X<T> extends Z<T> {\n" + 
+				"	                          ^\n" + 
+				"The type Y<T>.Z is not generic; it cannot be parameterized with arguments <T>\n" + 
+				"----------\n" + 
+				"2. ERROR in p\\X.java (at line 5)\n" + 
+				"	Z<T> getZ() { return null; } \n" + 
+				"	^\n" + 
+				"The type Y<T>.Z is not generic; it cannot be parameterized with arguments <T>\n" + 
+				"----------\n" + 
+				"3. ERROR in p\\X.java (at line 7)\n" + 
+				"	System.out.println(getZ().value);\n" + 
+				"	                   ^^^^\n" + 
+				"The method getZ() is undefined for the type X<T>\n" + 
+				"----------\n");		
+		}		
+	
 }
