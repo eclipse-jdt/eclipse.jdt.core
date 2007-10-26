@@ -631,7 +631,7 @@ private Object getMemberValue(org.eclipse.jdt.internal.core.MemberValuePair memb
 		for (int i = 0; i < length; i++) {
 			int previousValueKind = memberValuePair.valueKind;
 			Object value = getMemberValue(memberValuePair, expressions[i]);
-			if (previousValueKind != IMemberValuePair.K_UNKNOWN && memberValuePair.valueKind != previousValueKind) {
+			if (previousValueKind != -1 && memberValuePair.valueKind != previousValueKind) {
 				// values are heterogeneous, value kind is thus unknown
 				memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
 			}

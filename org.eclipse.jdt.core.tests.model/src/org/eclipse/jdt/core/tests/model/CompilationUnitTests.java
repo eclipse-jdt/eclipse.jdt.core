@@ -610,6 +610,23 @@ public void _testAnnotations22() throws CoreException {
 }
 
 /*
+ * Ensure that an heterogeneous array member annotation is correct.
+ * (regression test for bug 207445 IMemberValuePair with heterogenous array values should be of kind K_UNKNOWN)
+ */
+public void testAnnotations23() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(arrayMember={1, \"abc\"})\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(arrayMember=[unknown]{(int)1, \"abc\"})\n",
+		annotations);
+}
+
+/*
  * Ensures that the categories for a class are correct.
  */
 public void testGetCategories01() throws CoreException {
