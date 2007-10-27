@@ -730,6 +730,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.4
+	 */
+	public static final String COMPILER_PB_UNUSED_WARNING_TOKEN = PLUGIN_ID + ".compiler.problem.unusedWarningToken"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 3.2
 	 */
 	public static final String COMPILER_PB_NULL_REFERENCE = PLUGIN_ID + ".compiler.problem.nullReference"; //$NON-NLS-1$
@@ -2555,6 +2561,15 @@ public final class JavaCore extends Plugin {
 	 *    When enabled, the compiler will issue an error or a warning when encountering a token
 	 *    it cannot handle inside a @SuppressWarnings annotation.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 *
+	 * COMPILER / Reporting Unnecessary @SuppressWarnings
+	 *    When enabled, the compiler will issue an error or a warning when encountering @SuppressWarnings annotation 
+	 *    for which no corresponding warning got detected in the code. This diagnostic is provided to help developers to get
+	 *    rid of transient @SuppressWarnings no longer needed. Note that <code>@SuppressWarnings("all")</code> is still 
+	 *    silencing the warning for unnecessary <code>@SuppressWarnings</code>, as it is the master switch to silence ALL warnings.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedWarningToken"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 *

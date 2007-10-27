@@ -19821,7 +19821,6 @@ public void test0617() {
                 "X.java",
 				"public class X {\n" + 
 				"	void foo() {\n" + 
-				"		@SuppressWarnings(\"unused\")\n" + 
 				"		Outer.Inner inner = new Sub().get();\n" + 
 				"	}\n" + 
 				"	Zork z;\n" + 
@@ -19835,22 +19834,22 @@ public void test0617() {
 				"}\n",
 	        },
 	        "----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
 			"	Outer.Inner inner = new Sub().get();\n" + 
 			"	^^^^^^^^^^^\n" + 
 			"Outer.Inner is a raw type. References to generic type Outer<T>.Inner<U> should be parameterized\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 12)\n" + 
+			"3. WARNING in X.java (at line 11)\n" + 
 			"	class Sub extends Outer {\n" + 
 			"	                  ^^^^^\n" + 
 			"Outer is a raw type. References to generic type Outer<T> should be parameterized\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 13)\n" + 
+			"4. WARNING in X.java (at line 12)\n" + 
 			"	Inner get() { return null; }\n" + 
 			"	^^^^^\n" + 
 			"Outer.Inner is a raw type. References to generic type Outer<T>.Inner<U> should be parameterized\n" + 
@@ -19863,7 +19862,6 @@ public void test0617() {
                 "X.java",
 				"public class X {\n" + 
 				"	void foo() {\n" + 
-				"		@SuppressWarnings(\"unused\")\n" + 
 				"		Outer<String>.Inner inner = new Sub().get();\n" + 
 				"	}\n" + 
 				"	Zork z;\n" + 
@@ -19877,22 +19875,22 @@ public void test0617() {
 				"}\n",
 	        },
 	        "----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
 			"	Outer<String>.Inner inner = new Sub().get();\n" + 
 			"	                            ^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The expression of type Outer.Inner needs unchecked conversion to conform to Outer<String>.Inner\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 12)\n" + 
+			"3. WARNING in X.java (at line 11)\n" + 
 			"	class Sub extends Outer {\n" + 
 			"	                  ^^^^^\n" + 
 			"Outer is a raw type. References to generic type Outer<T> should be parameterized\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 13)\n" + 
+			"4. WARNING in X.java (at line 12)\n" + 
 			"	Inner get() { return null; }\n" + 
 			"	^^^^^\n" + 
 			"Outer.Inner is a raw type. References to generic type Outer<T>.Inner should be parameterized\n" + 
@@ -23141,7 +23139,7 @@ public void test0744() {
 			"			super(0, null, null, null);\n" + 
 			"		}\n" + 
 			"\n" + 
-			"		void ab(@SuppressWarnings(\"unused\") Entry<K2, V2> e) {\n" + 
+			"		void ab(Entry<K2, V2> e) {\n" + 
 			"		}\n" + 
 			"\n" + 
 			"		@Override void recordAccess(Super<K2, V2> m) {\n" + 

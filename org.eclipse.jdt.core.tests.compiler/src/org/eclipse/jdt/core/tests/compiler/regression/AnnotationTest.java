@@ -4226,11 +4226,10 @@ public class AnnotationTest extends AbstractComparableTest {
     			"		} finally {\n" + 
     			"			throw new Error();\n" + 
     			"		}\n" + 
-    			"		Zork z;\n" + 
     			"	}\n" + 
     			"\n" + 
     			"	class S implements Serializable {\n" + 
-    			"		String dummy;\n" + 
+    			"		Zork dummy;\n" + 
     			"	}\n" + 
     			"}",
     			"W.java",
@@ -4243,8 +4242,8 @@ public class AnnotationTest extends AbstractComparableTest {
     			"}\n"
             },
     		"----------\n" + 
-    		"1. ERROR in X.java (at line 20)\n" + 
-    		"	Zork z;\n" + 
+    		"1. ERROR in X.java (at line 23)\n" + 
+    		"	Zork dummy;\n" + 
     		"	^^^^\n" + 
     		"Zork cannot be resolved to a type\n" + 
     		"----------\n");
@@ -4272,7 +4271,6 @@ public class AnnotationTest extends AbstractComparableTest {
     			"		} finally {\n" + 
     			"			throw new Error();\n" + 
     			"		}\n" + 
-    			"		Zork z;\n" + 
     			"	}\n" + 
     			"\n" + 
     			"	@SuppressWarnings(\"unchecked\"//$NON-NLS-1$\n" + 
@@ -4282,7 +4280,7 @@ public class AnnotationTest extends AbstractComparableTest {
     			"	@SuppressWarnings(\"serial\"//$NON-NLS-1$\n" + 
     			"	)\n" + 
     			"	class S implements Serializable {\n" + 
-    			"		String dummy;\n" + 
+    			"		Zork dummy;\n" + 
     			"	}\n" + 
     			"}",
     			"W.java",
@@ -4295,8 +4293,8 @@ public class AnnotationTest extends AbstractComparableTest {
     			"}\n"
             },
     		"----------\n" + 
-    		"1. ERROR in X.java (at line 19)\n" + 
-    		"	Zork z;\n" + 
+    		"1. ERROR in X.java (at line 28)\n" + 
+    		"	Zork dummy;\n" + 
     		"	^^^^\n" + 
     		"Zork cannot be resolved to a type\n" + 
     		"----------\n");
@@ -4450,17 +4448,17 @@ public class AnnotationTest extends AbstractComparableTest {
     			"	Zork z;\n" + 
     			"}\n"
             },
-			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	@SuppressWarnings(\"zork\")//$NON-NLS-1$\n" + 
-			"	                  ^^^^^^\n" + 
-			"Unhandled warning token zork\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n",
+    		"----------\n" + 
+    		"1. WARNING in X.java (at line 1)\n" + 
+    		"	@SuppressWarnings(\"zork\")//$NON-NLS-1$\n" + 
+    		"	                  ^^^^^^\n" + 
+    		"Unsupported @SuppressWarnings(\"zork\")\n" + 
+    		"----------\n" + 
+    		"2. ERROR in X.java (at line 3)\n" + 
+    		"	Zork z;\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n",
 			null, true, customOptions);
     }      
     // check @SuppressWarning support
@@ -4476,16 +4474,16 @@ public class AnnotationTest extends AbstractComparableTest {
     			"	Zork z;\n" + 
     			"}\n"
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. WARNING in X.java (at line 1)\n" + 
     		"	@SuppressWarnings({\"zork\", \"warningToken\"})//$NON-NLS-1$//$NON-NLS-2$\n" + 
     		"	                   ^^^^^^\n" + 
-    		"Unhandled warning token zork\n" + 
+    		"Unsupported @SuppressWarnings(\"zork\")\n" + 
     		"----------\n" + 
     		"2. WARNING in X.java (at line 1)\n" + 
     		"	@SuppressWarnings({\"zork\", \"warningToken\"})//$NON-NLS-1$//$NON-NLS-2$\n" + 
     		"	                           ^^^^^^^^^^^^^^\n" + 
-    		"Unhandled warning token warningToken\n" + 
+    		"Unsupported @SuppressWarnings(\"warningToken\")\n" + 
     		"----------\n" + 
     		"3. ERROR in X.java (at line 3)\n" + 
     		"	Zork z;\n" + 
@@ -4913,11 +4911,11 @@ public void test142c() {
 				"@SuppressWarnings(\"assertIdentifier\")\n" + 
 				"class X {}",
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. WARNING in X.java (at line 1)\n" + 
     		"	@SuppressWarnings(\"assertIdentifier\")\n" + 
     		"	                  ^^^^^^^^^^^^^^^^^^\n" + 
-    		"Unhandled warning token assertIdentifier\n" + 
+    		"Unsupported @SuppressWarnings(\"assertIdentifier\")\n" + 
     		"----------\n");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
@@ -5680,7 +5678,7 @@ public void test142c() {
 			null, true, customOptions);
     }
     
-    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test170() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5695,7 +5693,7 @@ public void test142c() {
     		"",
 			null, true, null, customOptions, null);
     }
-    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test171() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5709,20 +5707,25 @@ public void test142c() {
     			"	String s2 = \"Hello2\"; \n" +
     			"}"
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. WARNING in X.java (at line 1)\n" + 
     		"	public class X extends Exception {\n" + 
     		"	             ^\n" + 
     		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
     		"----------\n" + 
-    		"2. WARNING in X.java (at line 5)\n" + 
+    		"2. WARNING in X.java (at line 4)\n" + 
+    		"	@SuppressWarnings(\"serial\")\n" + 
+    		"	                  ^^^^^^^^\n" + 
+    		"Unnecessary @SuppressWarnings(\"serial\")\n" + 
+    		"----------\n" + 
+    		"3. WARNING in X.java (at line 5)\n" + 
     		"	String s2 = \"Hello2\"; \n" + 
     		"	            ^^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
     		"----------\n",
 			null, true, customOptions);
     }
-    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test172() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5738,14 +5741,19 @@ public void test142c() {
     			"}"
             },
     		"----------\n" + 
-    		"1. WARNING in X.java (at line 6)\n" + 
+    		"1. WARNING in X.java (at line 5)\n" + 
+    		"	@SuppressWarnings(\"serial\")\n" + 
+    		"	                  ^^^^^^^^\n" + 
+    		"Unnecessary @SuppressWarnings(\"serial\")\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 6)\n" + 
     		"	String s2 = \"Hello2\"; \n" + 
     		"	            ^^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
     		"----------\n",
 			null, true, customOptions);
     }
-    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test173() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5763,20 +5771,25 @@ public void test142c() {
     			"	String s2 = \"Hello2\"; \n" +
     			"}"
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. WARNING in X.java (at line 5)\n" + 
     		"	public class X extends Exception {\n" + 
     		"	             ^\n" + 
     		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
     		"----------\n" + 
-    		"2. WARNING in X.java (at line 9)\n" + 
+    		"2. WARNING in X.java (at line 8)\n" + 
+    		"	@SuppressWarnings(\"serial\")\n" + 
+    		"	                  ^^^^^^^^\n" + 
+    		"Unnecessary @SuppressWarnings(\"serial\")\n" + 
+    		"----------\n" + 
+    		"3. WARNING in X.java (at line 9)\n" + 
     		"	String s2 = \"Hello2\"; \n" + 
     		"	            ^^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
     		"----------\n",
 			null, true, customOptions);
     }
-    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test174() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5798,15 +5811,20 @@ public void test142c() {
                 "X.java",
     			source
             },
-            "----------\n" + 
-    		"1. WARNING in X.java (at line 12)\n" + 
+    		"----------\n" + 
+    		"1. WARNING in X.java (at line 11)\n" + 
+    		"	@SuppressWarnings(\"serial\")\n" + 
+    		"	                  ^^^^^^^^\n" + 
+    		"Unnecessary @SuppressWarnings(\"serial\")\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 12)\n" + 
     		"	String s2 = \"Hello2\"; \n" + 
     		"	            ^^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
     		"----------\n",
 			null, true, customOptions);
     }
-    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test175() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5827,20 +5845,25 @@ public void test142c() {
                 "X.java",
     			source
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. WARNING in X.java (at line 9)\n" + 
     		"	@Annot2(value=\"nls\") String s = \"value\"; \n" + 
     		"	                                ^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
     		"----------\n" + 
-    		"2. WARNING in X.java (at line 11)\n" + 
+    		"2. WARNING in X.java (at line 10)\n" + 
+    		"	@SuppressWarnings(\"serial\")\n" + 
+    		"	                  ^^^^^^^^\n" + 
+    		"Unnecessary @SuppressWarnings(\"serial\")\n" + 
+    		"----------\n" + 
+    		"3. WARNING in X.java (at line 11)\n" + 
     		"	String s2 = \"Hello2\"; \n" + 
     		"	            ^^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
     		"----------\n",
 			null, true, customOptions);
     }
-    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test176() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
@@ -5862,11 +5885,16 @@ public void test142c() {
                 "X.java",
     			source
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. WARNING in X.java (at line 9)\n" + 
     		"	@Annot2(value=\"nls\") String s = \"value\"; \n" + 
     		"	                                ^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 10)\n" + 
+    		"	@SuppressWarnings({\"serial\", \"nls\"})\n" + 
+    		"	                   ^^^^^^^^\n" + 
+    		"Unnecessary @SuppressWarnings(\"serial\")\n" + 
     		"----------\n",
 			null, true, customOptions);
     }
@@ -7588,6 +7616,187 @@ public void test227() {
 		"	public @interface X<T> {}\n" + 
 		"	                    ^\n" + 
 		"Syntax error, annotation declaration cannot have type parameters\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533
+public void test228() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@SuppressWarnings(\"unchecked\") //unused\n" + 
+				"	void doNoEvil(){\n" + 
+				"	}\n" + 
+				"	Zork z;\n" + 
+				"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	@SuppressWarnings(\"unchecked\") //unused\n" + 
+		"	                  ^^^^^^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"unchecked\")\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533
+public void test229() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@SuppressWarnings({\"unchecked\",\"all\"})\n" + 
+				"	void doNoEvil(){\n" + 
+				"	}\n" + 
+				"	Zork z;\n" + 
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
+public void test230() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@SuppressWarnings({\"zork\", \"unused\" })\n" + 
+				"	void foo() {}\n" + 
+				"}\n" + 
+				"@SuppressWarnings({\"all\"})\n" + 
+				"class X2 {\n" + 
+				"	@SuppressWarnings({\"zork\", \"unused\" })\n" + 
+				"	Zork foo() {}\n" + 
+				"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	@SuppressWarnings({\"zork\", \"unused\" })\n" + 
+		"	                   ^^^^^^\n" + 
+		"Unsupported @SuppressWarnings(\"zork\")\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 2)\n" + 
+		"	@SuppressWarnings({\"zork\", \"unused\" })\n" + 
+		"	                           ^^^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	Zork foo() {}\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
+public void test231() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@SuppressWarnings({\"zork\", \"unused\",\"all\"})\n" + 
+				"	void foo() {}\n" + 
+				"}\n" + 
+				"\n" + 
+				"@SuppressWarnings({\"all\"})\n" + 
+				"class X2 {\n" + 
+				"	@SuppressWarnings(\"unused\")\n" + 
+				"	void foo() {}\n" + 
+				"	Zork z;\n" + 
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
+public void test232() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    @SuppressWarnings({\"finally\",\"finally\"})\n" + 
+				"    public int test(int p) {\n" + 
+				"    	try {\n" +
+				"		return 1;\n" +
+				"	} finally {\n" +
+				"		return 2;\n" +
+				"	}\n" + 
+				"    }\n" + 
+				"}\n" +
+				"class Y extends Zork{}",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	@SuppressWarnings({\"finally\",\"finally\"})\n" + 
+		"	                             ^^^^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"finally\")\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	class Y extends Zork{}\n" + 
+		"	                ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
+public void test233() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    @SuppressWarnings({\"finally\",\"finally\"})\n" + 
+				"    public int test(int p) {\n" + 
+				"    	try {\n" +
+				"		return Zork;\n" +
+				"	} finally {\n" +
+				"		return 2;\n" +
+				"	}\n" + 
+				"    }\n" + 
+				"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	@SuppressWarnings({\"finally\",\"finally\"})\n" + 
+		"	                             ^^^^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"finally\")\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	return Zork;\n" + 
+		"	       ^^^^\n" + 
+		"Zork cannot be resolved\n" + 
+		"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
+public void test234() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    @SuppressWarnings(\"finally\")\n" + // unused but no complaint since an error is nested (can't tell for sure)
+				"    public int test(int p) {\n" + 
+				"		return Zork;\n" +
+				"    }\n" + 
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	return Zork;\n" + 
+		"	       ^^^^\n" + 
+		"Zork cannot be resolved\n" + 
 		"----------\n");
 }
 }

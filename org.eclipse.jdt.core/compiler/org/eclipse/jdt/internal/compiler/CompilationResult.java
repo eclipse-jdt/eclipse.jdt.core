@@ -46,7 +46,6 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
-import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class CompilationResult {
@@ -56,8 +55,8 @@ public class CompilationResult {
 	public int problemCount;
 	public int taskCount;
 	public ICompilationUnit compilationUnit;
-	private Map problemsMap;
-	private Set firstErrors;
+	public Map problemsMap;
+	public Set firstErrors;
 	private int maxProblemPerUnit;
 	public char[][][] qualifiedReferences;
 	public char[][] simpleNameReferences;
@@ -70,9 +69,6 @@ public class CompilationResult {
 	public char[] fileName;
 	public boolean hasInconsistentToplevelHierarchies = false; // record the fact some toplevel types have inconsistent hierarchies
 	public boolean hasSyntaxError = false;
-	long[] suppressWarningIrritants;  // irritant for suppressed warnings
-	long[] suppressWarningScopePositions; // (start << 32) + end 
-	int suppressWarningsCount;
 	public char[][] packageName;
 	
 private static final int[] EMPTY_LINE_ENDS = Util.EMPTY_INT_ARRAY;
@@ -135,48 +131,6 @@ private int computePriority(CategorizedProblem problem){
 		priority += P_OUTSIDE_METHOD;
 	}
 	return priority;
-}
-
-public void discardSuppressedWarnings() {
-	if (this.suppressWarningsCount == 0) return;
-	int removed = 0;
-	nextProblem: for (int i = 0, length = this.problemCount; i < length; i++) {
-		CategorizedProblem problem = this.problems[i];
-		int problemID = problem.getID();
-		if (!problem.isWarning()) {
-			continue nextProblem;
-		}
-		int start = problem.getSourceStart();
-		int end = problem.getSourceEnd();
-		nextSuppress: for (int j = 0, max = this.suppressWarningsCount; j < max; j++) {
-			long position = this.suppressWarningScopePositions[j];
-			int startSuppress = (int) (position >>> 32);
-			int endSuppress = (int) position;
-			if (start < startSuppress) continue nextSuppress;
-			if (end > endSuppress) continue nextSuppress;
-			if ((ProblemReporter.getIrritant(problemID) & this.suppressWarningIrritants[j]) == 0)
-				continue nextSuppress;
-			// discard suppressed warning
-			removed++;
-			this.problems[i] = null;
-			if (this.problemsMap != null) this.problemsMap.remove(problem);
-			if (this.firstErrors != null) this.firstErrors.remove(problem);
-			continue nextProblem;
-		}
-	}
-	if (removed > 0) {
-		for (int i = 0, index = 0; i < this.problemCount; i++) {
-			CategorizedProblem problem;
-			if ((problem = this.problems[i]) != null) {
-				if (i > index) {
-					this.problems[index++] = problem;
-				} else {
-					index++;
-				}
-			}
-		}
-		this.problemCount -= removed;
-	}
 }
 
 public CategorizedProblem[] getAllProblems() {
@@ -285,8 +239,6 @@ public int[] getLineSeparatorPositions() {
 public CategorizedProblem[] getProblems() {
 	// Re-adjust the size of the problems if necessary.
 	if (this.problems != null) {
-		discardSuppressedWarnings();
-
 		if (this.problemCount != this.problems.length) {
 			System.arraycopy(this.problems, 0, (this.problems = new CategorizedProblem[this.problemCount]), 0, this.problemCount);
 		}
@@ -414,18 +366,6 @@ public void record(char[] typeName, ClassFile classFile) {
         this.hasInconsistentToplevelHierarchies = true;
     }
 	this.compiledTypes.put(typeName, classFile);
-}
-
-public void recordSuppressWarnings(long irritant, int scopeStart, int scopeEnd) {
-	if (this.suppressWarningIrritants == null) {
-		this.suppressWarningIrritants = new long[3];
-		this.suppressWarningScopePositions = new long[3];
-	} else if (this.suppressWarningIrritants.length == this.suppressWarningsCount) {
-		System.arraycopy(this.suppressWarningIrritants, 0,this.suppressWarningIrritants = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
-		System.arraycopy(this.suppressWarningScopePositions, 0,this.suppressWarningScopePositions = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
-	}
-	this.suppressWarningIrritants[this.suppressWarningsCount] = irritant;
-	this.suppressWarningScopePositions[this.suppressWarningsCount++] = ((long)scopeStart<<32) + scopeEnd;
 }
 
 private void recordTask(CategorizedProblem newProblem) {

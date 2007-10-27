@@ -1193,6 +1193,8 @@ void setSourceStart(int sourceStart);
 	int AnnotationValueMustBeAnEnumConstant = Internal + 633;
 	/** @since 3.3 */
 	int MethodMustOverrideOrImplement = MethodRelated + 634;
+	/** @since 3.4 */
+	int UnusedWarningToken = Internal + 635;
 	
 	/**
 	 * Corrupted binaries

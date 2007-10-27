@@ -1918,12 +1918,17 @@ public class VarargsTest extends AbstractComparableTest {
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
 				"----------\n" + 
-				"2. WARNING in X.java (at line 19)\n" + 
+				"2. WARNING in X.java (at line 17)\n" + 
+				"	@SuppressWarnings(\"boxing\")\n" + 
+				"	                  ^^^^^^^^\n" + 
+				"Unnecessary @SuppressWarnings(\"boxing\")\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 19)\n" + 
 				"	varargs(i);\n" + 
 				"	^^^^^^^^^^\n" + 
 				"The argument of type Integer[] should explicitly be cast to Object[] for the invocation of the varargs method varargs(Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" + 
 				"----------\n" + 
-				"3. WARNING in X.java (at line 22)\n" + 
+				"4. WARNING in X.java (at line 22)\n" + 
 				"	varargs(i.clone());\n" + 
 				"	^^^^^^^^^^^^^^^^^^\n" + 
 				"The argument of type Integer[] should explicitly be cast to Object[] for the invocation of the varargs method varargs(Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" + 

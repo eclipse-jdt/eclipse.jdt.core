@@ -632,6 +632,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		if (options.produceReferenceInfo && unit.scope != null)
 			unit.scope.storeDependencyInfo();
 
+		// finalize problems (suppressWarnings)
+		unit.finalizeProblems();
+		
 		// refresh the total number of units known at this stage
 		unit.compilationResult.totalUnitsKnown = totalUnits;
 
@@ -732,6 +735,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		
 				// code generation
 				if (generateCode) unit.generateCode();
+				
+				// finalize problems (suppressWarnings)
+				unit.finalizeProblems();
 			}
 			if (unitsToProcess != null) unitsToProcess[0] = null; // release reference to processed unit declaration
 			requestor.acceptResult(unit.compilationResult.tagAsAccepted());

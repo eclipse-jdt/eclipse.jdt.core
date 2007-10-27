@@ -15,15 +15,19 @@ import java.util.Comparator;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.NLSTag;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
@@ -66,6 +70,11 @@ public class CompilationUnitDeclaration
 	private StringLiteral[] stringLiterals;
 	private int stringLiteralsPtr;
 
+	long[] suppressWarningIrritants;  // irritant for suppressed warnings
+	Annotation[] suppressWarningAnnotations;
+	long[] suppressWarningScopePositions; // (start << 32) + end 
+	int suppressWarningsCount;
+	
 	public CompilationUnitDeclaration(
 		ProblemReporter problemReporter,
 		CompilationResult compilationResult,
@@ -142,6 +151,8 @@ public class CompilationUnitDeclaration
 			classFile.referenceBinding = null;
 			classFile.innerClassesBindings = null;
 		}
+		
+		this.suppressWarningAnnotations = null;
 	}
 	private void cleanUp(TypeDeclaration type) {
 		if (type.memberTypes != null) {
@@ -191,6 +202,118 @@ public class CompilationUnitDeclaration
 		return null;
 	}
 
+	public void finalizeProblems() {
+		if (this.suppressWarningsCount == 0) return;
+		int removed = 0;
+		CategorizedProblem[] problems = this.compilationResult.problems;
+		int problemCount = this.compilationResult.problemCount;
+		long[] foundIrritants = new long[this.suppressWarningsCount];
+		nextProblem: for (int iProblem = 0, length = problemCount; iProblem < length; iProblem++) {
+			CategorizedProblem problem = problems[iProblem];
+			int problemID = problem.getID();
+			long problemIrritant = ProblemReporter.getIrritant(problemID);
+			boolean isWarning = problem.isWarning();
+			int start = problem.getSourceStart();
+			int end = problem.getSourceEnd();
+			nextSuppress: for (int iSuppress = 0, suppressCount = this.suppressWarningsCount; iSuppress < suppressCount; iSuppress++) {
+				long position = this.suppressWarningScopePositions[iSuppress];
+				int startSuppress = (int) (position >>> 32);
+				int endSuppress = (int) position;
+				if (start < startSuppress) continue nextSuppress;
+				if (end > endSuppress) continue nextSuppress;
+				if (isWarning) {
+					if ((problemIrritant & this.suppressWarningIrritants[iSuppress]) == 0)
+						continue nextSuppress;
+					// discard suppressed warning
+					removed++;
+					problems[iProblem] = null;
+					if (compilationResult.problemsMap != null) compilationResult.problemsMap.remove(problem);
+					if (compilationResult.firstErrors != null) compilationResult.firstErrors.remove(problem);
+					foundIrritants[iSuppress] |= problemIrritant;
+					continue nextProblem;
+				} else {
+					// any error may prevent further warnings to be emitted, hence shouldn't report unused warning tokens if in same scope
+					foundIrritants[iSuppress] = this.suppressWarningIrritants[iSuppress]; // treat as used
+					continue nextSuppress;					
+				}
+			}
+		}
+		// compact remaining problems
+		if (removed > 0) {
+			for (int i = 0, index = 0; i < problemCount; i++) {
+				CategorizedProblem problem;
+				if ((problem = problems[i]) != null) {
+					if (i > index) {
+						problems[index++] = problem;
+					} else {
+						index++;
+					}
+				}
+			}
+			this.compilationResult.problemCount -= removed;
+		}
+		// flag SuppressWarnings which had no effect
+		if (scope.compilerOptions().getSeverity(CompilerOptions.UnusedWarningToken) != ProblemSeverities.Ignore) {
+			for (int iSuppress = 0, suppressCount = this.suppressWarningsCount; iSuppress < suppressCount; iSuppress++) {
+				Annotation annotation = this.suppressWarningAnnotations[iSuppress];
+				if (annotation == null) continue; // implicit annotation
+				long irritants = this.suppressWarningIrritants[iSuppress];
+				if (~irritants == 0) continue; // @SuppressWarnings("all") also suppresses unused warning token
+				if (irritants != foundIrritants[iSuppress]) { // mismatch, some warning tokens were unused
+					MemberValuePair[] pairs = annotation.memberValuePairs();
+					pairLoop: for (int iPair = 0, pairCount = pairs.length; iPair < pairCount; iPair++) {
+						MemberValuePair pair = pairs[iPair];
+						if (CharOperation.equals(pair.name, TypeConstants.VALUE)) {
+							Expression value = pair.value;
+							if (value instanceof ArrayInitializer) {
+								ArrayInitializer initializer = (ArrayInitializer) value;
+								Expression[] inits = initializer.expressions;
+								if (inits != null) {
+									for (int iToken = 0, tokenCount = inits.length; iToken < tokenCount; iToken++) {
+										Constant cst = inits[iToken].constant;
+										if (cst != Constant.NotAConstant && cst.typeID() == TypeIds.T_JavaLangString) {
+											long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
+											if (irritant != 0 && (foundIrritants[iSuppress] & irritant) == 0) {
+												int start = value.sourceStart, end = value.sourceEnd;
+												nextSuppress: for (int jSuppress = iSuppress - 1; jSuppress >= 0; jSuppress--) {
+													long position = this.suppressWarningScopePositions[jSuppress];
+													int startSuppress = (int) (position >>> 32);
+													int endSuppress = (int) position;
+													if (start < startSuppress) continue nextSuppress;
+													if (end > endSuppress) continue nextSuppress;
+													if (~this.suppressWarningIrritants[jSuppress] == 0) break pairLoop; // suppress all?
+												}
+												scope.problemReporter().unusedWarningToken(inits[iToken]);
+											}
+										}
+									}
+								}
+							} else {
+								Constant cst = value.constant;
+								if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
+									long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
+									if (irritant != 0 && (foundIrritants[iSuppress] & irritant) == 0) {
+										int start = value.sourceStart, end = value.sourceEnd;
+										nextSuppress: for (int jSuppress = iSuppress - 1; jSuppress >= 0; jSuppress--) {
+											long position = this.suppressWarningScopePositions[jSuppress];
+											int startSuppress = (int) (position >>> 32);
+											int endSuppress = (int) position;
+											if (start < startSuppress) continue nextSuppress;
+											if (end > endSuppress) continue nextSuppress;
+											if (~this.suppressWarningIrritants[jSuppress] == 0) break pairLoop; // suppress all?
+										}
+										scope.problemReporter().unusedWarningToken(value);
+									}
+								}	
+							}
+							break pairLoop;
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Bytecode generation
 	 */
@@ -313,6 +436,21 @@ public class CompilationUnitDeclaration
 		this.stringLiterals[this.stringLiteralsPtr++] = literal;
 	}
 
+	public void recordSuppressWarnings(long irritant, Annotation annotation, int scopeStart, int scopeEnd) {
+		if (this.suppressWarningIrritants == null) {
+			this.suppressWarningIrritants = new long[3];
+			this.suppressWarningAnnotations = new Annotation[3];
+			this.suppressWarningScopePositions = new long[3];
+		} else if (this.suppressWarningIrritants.length == this.suppressWarningsCount) {
+			System.arraycopy(this.suppressWarningIrritants, 0,this.suppressWarningIrritants = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
+			System.arraycopy(this.suppressWarningAnnotations, 0,this.suppressWarningAnnotations = new Annotation[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
+			System.arraycopy(this.suppressWarningScopePositions, 0,this.suppressWarningScopePositions = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
+		}
+		this.suppressWarningIrritants[this.suppressWarningsCount] = irritant;
+		this.suppressWarningAnnotations[this.suppressWarningsCount] = annotation;
+		this.suppressWarningScopePositions[this.suppressWarningsCount++] = ((long)scopeStart<<32) + scopeEnd;
+	}
+	
 	/*
 	 * Keep track of all local types, so as to update their innerclass
 	 * emulation later on.

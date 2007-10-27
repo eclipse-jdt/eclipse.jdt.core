@@ -109,6 +109,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportDiscouragedReference =  "org.eclipse.jdt.core.compiler.problem.discouragedReference"; //$NON-NLS-1$
 	public static final String OPTION_SuppressWarnings =  "org.eclipse.jdt.core.compiler.problem.suppressWarnings"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnhandledWarningToken =  "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedWarningToken =  "org.eclipse.jdt.core.compiler.problem.unusedWarningToken"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedLabel =  "org.eclipse.jdt.core.compiler.problem.unusedLabel"; //$NON-NLS-1$
 	public static final String OPTION_FatalOptionalError =  "org.eclipse.jdt.core.compiler.problem.fatalOptionalError"; //$NON-NLS-1$
 	public static final String OPTION_ReportParameterAssignment =  "org.eclipse.jdt.core.compiler.problem.parameterAssignment"; //$NON-NLS-1$
@@ -208,6 +209,7 @@ public class CompilerOptions {
 	public static final long RedundantNullCheck = ASTNode.Bit52L;
 	public static final long MissingJavadocTagDescription = ASTNode.Bit53L;
 	public static final long UnusedTypeArgumentsForMethodInvocation = ASTNode.Bit54L;
+	public static final long UnusedWarningToken = ASTNode.Bit55L;
 
 	// Map: String optionKey --> Long irritant>
 	private static Map OptionToIrritants;
@@ -242,7 +244,8 @@ public class CompilerOptions {
 		| UnusedPrivateMember
 		| UnusedLabel
 		| UnusedTypeArgumentsForMethodInvocation
-		| NullReference;
+		| NullReference
+		| UnusedWarningToken;
 
 	// By default only lines and source attributes are generated.
 	public int produceDebugAttributes = ClassFileConstants.ATTR_SOURCE | ClassFileConstants.ATTR_LINES;
@@ -444,6 +447,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportRedundantNullCheck, getSeverityString(RedundantNullCheck));
 		optionsMap.put(OPTION_SuppressWarnings, this.suppressWarnings ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnhandledWarningToken, getSeverityString(UnhandledWarningToken));
+		optionsMap.put(OPTION_ReportUnusedWarningToken, getSeverityString(UnusedWarningToken));
 		optionsMap.put(OPTION_ReportParameterAssignment, getSeverityString(ParameterAssignment));
 		optionsMap.put(OPTION_ReportFallthroughCase, getSeverityString(FallthroughCase));
 		optionsMap.put(OPTION_ReportOverridingMethodWithoutSuperInvocation, getSeverityString(OverridingMethodWithoutSuperInvocation));
@@ -575,6 +579,8 @@ public class CompilerOptions {
 					return OPTION_ReportMissingJavadocTagDescription;
 				case (int)(UnusedTypeArgumentsForMethodInvocation >>> 32):
 					return OPTION_ReportUnusedTypeArgumentsForMethodInvocation;
+				case (int)(UnusedWarningToken >>> 32) :
+					return OPTION_ReportUnusedWarningToken;
 			}
 		}
 		return null;
@@ -596,6 +602,9 @@ public class CompilerOptions {
 
 	public int getSeverity(long irritant) {
 		if((this.errorThreshold & irritant) != 0) {
+			if (irritant == UnusedWarningToken) {
+				return ProblemSeverities.Error | ProblemSeverities.Optional; // cannot be treated as fatal - codegen already occurred
+			}
 			return this.treatOptionalErrorAsFatal
 				? ProblemSeverities.Error | ProblemSeverities.Optional | ProblemSeverities.Fatal
 				: ProblemSeverities.Error | ProblemSeverities.Optional;
@@ -847,6 +856,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingDeprecatedAnnotation)) != null) updateSeverity(MissingDeprecatedAnnotation, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportIncompleteEnumSwitch)) != null) updateSeverity(IncompleteEnumSwitch, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnhandledWarningToken)) != null) updateSeverity(UnhandledWarningToken, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedWarningToken)) != null) updateSeverity(UnusedWarningToken, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedLabel)) != null) updateSeverity(UnusedLabel, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportParameterAssignment)) != null) updateSeverity(ParameterAssignment, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportFallthroughCase)) != null) updateSeverity(FallthroughCase, optionValue);
@@ -1039,6 +1049,7 @@ public class CompilerOptions {
 		buf.append("\n\t- incomplete enum switch: ").append(getSeverityString(IncompleteEnumSwitch)); //$NON-NLS-1$
 		buf.append("\n\t- suppress warnings: ").append(this.suppressWarnings ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unhandled warning token: ").append(getSeverityString(UnhandledWarningToken)); //$NON-NLS-1$
+		buf.append("\n\t- unused warning token: ").append(getSeverityString(UnusedWarningToken)); //$NON-NLS-1$
 		buf.append("\n\t- unused label: ").append(getSeverityString(UnusedLabel)); //$NON-NLS-1$
 		buf.append("\n\t- treat optional error as fatal: ").append(this.treatOptionalErrorAsFatal ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- parameter assignment: ").append(getSeverityString(ParameterAssignment)); //$NON-NLS-1$
@@ -1184,12 +1195,16 @@ public class CompilerOptions {
 			OPTION_ReportUnusedPrivateMember,
 			OPTION_ReportVarargsArgumentNeedCast,
 			OPTION_ReportUnhandledWarningToken,
+			OPTION_ReportUnusedWarningToken,
 			OPTION_ReportOverridingMethodWithoutSuperInvocation,
 			OPTION_ReportUnusedTypeArgumentsForMethodInvocation,
 		};
 		return result;
 	}
 
+	/**
+	 * For suppressable warnings
+	 */
 	public static String warningTokenFromIrritant(long irritant) {
 		// keep in sync with warningTokens and warningTokenToIrritant
 		int irritantInt = (int) irritant;

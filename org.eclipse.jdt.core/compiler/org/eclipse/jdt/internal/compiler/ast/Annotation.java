@@ -192,8 +192,11 @@ public abstract class Annotation extends Expression {
 							if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
 								long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
 								if (irritant != 0) {
-									suppressWarningIrritants |= irritant;
-									if (~suppressWarningIrritants == 0) break pairLoop;
+									if ((suppressWarningIrritants & irritant) == irritant) {
+										scope.problemReporter().unusedWarningToken(inits[j]);
+									} else {
+										suppressWarningIrritants |= irritant;
+									}
 								} else {
 									scope.problemReporter().unhandledWarningToken(inits[j]);
 								}
@@ -206,7 +209,6 @@ public abstract class Annotation extends Expression {
 						long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
 						if (irritant != 0) {
 							suppressWarningIrritants |= irritant;
-							if (~suppressWarningIrritants == 0) break pairLoop;
 						} else {
 							scope.problemReporter().unhandledWarningToken(value);
 						}
@@ -216,7 +218,7 @@ public abstract class Annotation extends Expression {
 			}
 		}
 		if (isSuppressingWarnings && suppressWarningIrritants != 0) {
-			scope.referenceCompilationUnit().compilationResult.recordSuppressWarnings(suppressWarningIrritants, startSuppresss, endSuppress);
+			scope.referenceCompilationUnit().recordSuppressWarnings(suppressWarningIrritants, this, startSuppresss, endSuppress);
 		}
 	}
 	
@@ -303,7 +305,7 @@ public abstract class Annotation extends Expression {
 		long tagBits = detectStandardAnnotation(scope, annotationType, valueAttribute);
 
 		// record annotation positions in the compilation result
-		scope.referenceCompilationUnit().compilationResult.recordSuppressWarnings(CompilerOptions.NonExternalizedString, this.sourceStart, this.declarationSourceEnd);
+		scope.referenceCompilationUnit().recordSuppressWarnings(CompilerOptions.NonExternalizedString, null, this.sourceStart, this.declarationSourceEnd);
 		if (this.recipient != null) {
 			if (tagBits != 0) {
 				// tag bits onto recipient

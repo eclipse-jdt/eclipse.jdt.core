@@ -47,6 +47,23 @@ Eclipse SDK 3.4M3 - %date% - 3.4 MILESTONE 3
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_821">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>Added new compiler optional warning for diagnosing unnecessary @SuppressWarnings annotation. This is mostly helpful
+to get rid of <code>@SupressWarnings(...)</code> annotations which were necessary a while ago, but are no longer useful.
+Note that <code>@SuppressWarnings("all")</code> is still silencing the warning for unnecessary <code>@SuppressWarnings</code>,
+as it is the master switch to silence ALL warnings.
+Also added option: <code>JavaCore.COMPILER_PB_UNUSED_WARNING_TOKEN</code> and problem ID
+<code>IProblem.UnusedWarningToken</code>.
+<pre>
+* COMPILER / Reporting Unnecessary @SuppressWarnings
+*    When enabled, the compiler will issue an error or a warning when encountering @SuppressWarnings annotation 
+*    for which no corresponding warning got detected in the code. This diagnostic is provided to help developers to get
+*    rid of transient @SuppressWarnings no longer needed. Note that <code>@SuppressWarnings("all")</code> is still 
+*    silencing the warning for unnecessary <code>@SuppressWarnings</code>, as it is the master switch to silence ALL warnings.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedWarningToken"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
+</li>
 <li>Added the following APIs to support annotation in the Java model (see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79112">bug 79112</a>
      for more details):
      <ul>

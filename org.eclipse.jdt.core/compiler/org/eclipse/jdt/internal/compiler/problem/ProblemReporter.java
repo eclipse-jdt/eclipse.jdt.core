@@ -219,6 +219,9 @@ public static long getIrritant(int problemID) {
 			
 		case IProblem.UnhandledWarningToken :
 			return CompilerOptions.UnhandledWarningToken;
+
+		case IProblem.UnusedWarningToken :
+			return CompilerOptions.UnusedWarningToken;
 			
 		case IProblem.UnusedLabel :
 			return CompilerOptions.UnusedLabel;
@@ -6298,6 +6301,15 @@ public void unhandledException(TypeBinding exceptionType, ASTNode location) {
 		new String[] {new String(exceptionType.shortReadableName())},
 		location.sourceStart,
 		location.sourceEnd);
+}
+public void unusedWarningToken(Expression token) {
+	String[] arguments = new String[] { token.constant.stringValue() };
+	this.handle(
+		IProblem.UnusedWarningToken,
+		arguments,
+		arguments,
+		token.sourceStart,
+		token.sourceEnd);
 }
 public void unhandledWarningToken(Expression token) {
 	String[] arguments = new String[] { token.constant.stringValue() };

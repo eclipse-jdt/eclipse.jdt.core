@@ -1153,7 +1153,7 @@ public void test012b(){
         "      unusedTypeArgs     + unused type arguments for method\n" +
         "      uselessTypeCheck     unnecessary cast/instanceof operation\n" +
         "      varargsCast        + varargs argument need explicit cast\n" +
-        "      warningToken       + unhandled warning token in @SuppressWarnings\n" +
+        "      warningToken       + unsupported or unnecessary @SuppressWarnings\n" +
         " \n" +
         " Advanced options:\n" +
         "    -? -help           print the help message\n" +
@@ -1296,7 +1296,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedPrivateMember\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedTypeArgumentsForMethodInvocation\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedWarningToken\" value=\"warning\"/>\n" +			"		<option key=\"org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.processAnnotations\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.source\" value=\"1.5\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.taskCaseSensitive\" value=\"enabled\"/>\n" + 
@@ -2950,13 +2950,18 @@ public void test048(){
         + " -warn:+discouraged,forbidden,deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" +
-		"	p.X x;\n" +
-		"	^^^\n" +
-		"Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-		"----------\n" +
-		"1 problem (1 warning)",
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 2)\n" + 
+        "	@SuppressWarnings(\"deprecation\")\n" + 
+        "	                  ^^^^^^^^^^^^^\n" + 
+        "Unnecessary @SuppressWarnings(\"deprecation\")\n" + 
+        "----------\n" + 
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" + 
+        "	p.X x;\n" + 
+        "	^^^\n" + 
+        "Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
+        "----------\n" + 
+        "2 problems (2 warnings)",
         false);
 }
 

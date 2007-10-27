@@ -217,12 +217,14 @@ public void test007() {
 				"        case 1:\n" + 
 				"            System.out.println(1); // silent because of SuppressWarnings\n" + 
 				"        }\n" + 
-				"    }\n" +
-				"	Zork z;\n" + // complain on Zork (unknown type)
-				"}"
+				"    }\n" + 
+				"    void foo() {\n" + 
+				"		Zork z;\n" + 
+				"    }\n" + 
+				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 11)\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 

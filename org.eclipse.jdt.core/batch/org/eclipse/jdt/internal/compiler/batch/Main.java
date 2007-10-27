@@ -1768,6 +1768,9 @@ protected void handleWarningToken(String token, boolean isEnabling, boolean useE
 		this.options.put(
 			CompilerOptions.OPTION_ReportUnhandledWarningToken,
 			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		this.options.put(
+				CompilerOptions.OPTION_ReportUnusedWarningToken,
+				isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 	} else if (token.equals("unnecessaryElse")) {//$NON-NLS-1$
 		this.options.put(
 			CompilerOptions.OPTION_ReportUnnecessaryElse,
