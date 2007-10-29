@@ -39928,7 +39928,7 @@ public void test1197() {
 		"Type mismatch: cannot convert from Class<capture#6-of ? extends YYY> to Class<? extends YYY<? extends B>>\n" + 
 		"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024 - variation
 public void test1198() {
 	this.runConformTest(
 		new String[] {
@@ -39940,7 +39940,32 @@ public void test1198() {
 			"    	System.out.println(\"FAILED\");\n" + 
 			"      return null;\n" + 
 			"    }\n" + 
-			"    static <L extends ErrorListener & Listener> Object createParser(L l) {\n" + 
+			"    static <L extends Object & Listener & ErrorListener> Object createParser(L l) {\n" + 
+			"    	System.out.println(\"SUCCESS\");\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"      class A implements Listener, ErrorListener {\n" + 
+			"      }\n" + 
+			"      createParser(new A()); // error here\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024 - variation
+public void test1198a() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    interface Listener {}\n" + 
+			"    interface ErrorListener {}  \n" + 
+			"    static Object createParser(Listener l) {\n" + 
+			"    	System.out.println(\"FAILED\");\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"    static <L extends Object & ErrorListener & Listener> Object createParser(L l) {\n" + 
 			"    	System.out.println(\"SUCCESS\");\n" + 
 			"      return null;\n" + 
 			"    }\n" + 
