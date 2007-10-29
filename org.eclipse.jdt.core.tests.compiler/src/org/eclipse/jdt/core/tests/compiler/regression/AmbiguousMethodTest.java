@@ -375,7 +375,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 		);
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
-public void _test010a() {
+public void test010a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -409,7 +409,7 @@ public void _test010a() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
-public void _test010b() {
+public void test010b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -428,7 +428,7 @@ public void _test010b() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
-public void _test010c() {
+public void test010c() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
