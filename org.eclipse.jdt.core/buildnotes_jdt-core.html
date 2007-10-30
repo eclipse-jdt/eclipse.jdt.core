@@ -591,14 +591,19 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
 </li>
 <li>CodeAssist: Member types and static members are proposed when the receiver is a not yet imported type.
 <pre>
+package p;
 class X {
    public static void bar() {}
+}
+
+package q;
+class Y {
    void foo() {
       X.bar
    }
 }
 </pre>
-When the completion occurs after <i>X.bar</i> the method <code>X#bar()</code> is proposed with a required proposal the complete the not imported type.
+When the completion occurs after <i>X.bar</i> the method <code>X#bar()</code> is proposed with a required proposal to complete the not imported type.
 </li>
 </ul>
 
