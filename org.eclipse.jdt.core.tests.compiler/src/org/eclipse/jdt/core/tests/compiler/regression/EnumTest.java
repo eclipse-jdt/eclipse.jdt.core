@@ -5073,4 +5073,34 @@ public void test145() {
 		true,
 		options);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207915
+public void test146() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	enum MyEnum {\n" + 
+				"		A, B\n" + 
+				"	}\n" + 
+				"	final String test;\n" + 
+				"	public X(MyEnum e) { // error\n" + 
+				"		switch (e) {\n" + 
+				"			case A:\n" + 
+				"				test = \"a\";\n" + 
+				"				break;\n" + 
+				"			case B:\n" + 
+				"				test = \"a\";\n" + 
+				"				break;\n" + 
+				"			// default: test = \"unknown\"; // enabling this line fixes above error\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	public X(MyEnum e) { // error\n" + 
+		"	       ^^^^^^^^^^^\n" + 
+		"The blank final field test may not have been initialized\n" + 
+		"----------\n");
+}
 }
