@@ -40108,8 +40108,9 @@ public void test1202() {
 		expectedOutput);
 }
 
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=168230 - variation
-public void test1203() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=168230 - variation
+// split because of https://bugs.eclipse.org/bugs/show_bug.cgi?id=207935
+public void test1203a() {
 	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_7
 		? 	"----------\n" + 
 			"1. ERROR in X.java (at line 3)\n" + 
@@ -40121,21 +40122,6 @@ public void test1203() {
 			"	return this.<String>bar(one, two);\n" + 
 			"	                    ^^^\n" + 
 			"The method bar(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 10)\n" + 
-			"	return this.<String>foobar(one, two);\n" + 
-			"	                    ^^^^^^\n" + 
-			"The method foobar(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 14)\n" + 
-			"	return this.<String>foobar2(one, two);// silenced\n" + 
-			"	                    ^^^^^^^\n" + 
-			"The method foobar2(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 22)\n" + 
-			"	this.<String,String>foobar(one, two);\n" + 
-			"	                    ^^^^^^\n" + 
-			"Incorrect number of type arguments for generic method <T>foobar(String, String) of type Y; it cannot be parameterized with arguments <String, String>\n" + 
 			"----------\n"
 		: 	"----------\n" + 
 			"1. WARNING in X.java (at line 3)\n" + 
@@ -40147,13 +40133,49 @@ public void test1203() {
 			"	return this.<String>bar(one, two);\n" + 
 			"	             ^^^^^^\n" + 
 			"Unused type arguments for the non generic method bar(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 10)\n" + 
+			"----------\n";
+	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static String foo(String one, String two) {\n" + 
+			"    return X.<String>foo(one, two);\n" + 
+			"  }\n" + 
+			"  public String bar(String one, String two) {\n" + 
+			"    return this.<String>bar(one, two);\n" + 
+			"  }\n" + 
+			"}\n", // =================
+		},
+		expectedOutput);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=207935
+// this case is not solved as expected in 1.5 and 1.6 mode; keeping the 1.7 mode
+// activated
+public void test1203b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+		return;
+	}
+	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_7
+		? 	"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
 			"	return this.<String>foobar(one, two);\n" + 
 			"	             ^^^^^^\n" + 
 			"Unused type arguments for the non generic method foobar(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 22)\n" + 
+			"2. ERROR in X.java (at line 16)\n" + 
+			"	this.<String,String>foobar(one, two);\n" + 
+			"	                    ^^^^^^\n" + 
+			"Incorrect number of type arguments for generic method <T>foobar(String, String) of type Y; it cannot be parameterized with arguments <String, String>\n" + 
+			"----------\n"
+		: 	"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	return this.<String>foobar(one, two);\n" + 
+			"	             ^^^^^^\n" + 
+			"Unused type arguments for the non generic method foobar(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 16)\n" + 
 			"	this.<String,String>foobar(one, two);\n" + 
 			"	                    ^^^^^^\n" + 
 			"Incorrect number of type arguments for generic method <T>foobar(String, String) of type Y; it cannot be parameterized with arguments <String, String>\n" + 
@@ -40163,12 +40185,6 @@ public void test1203() {
 		new String[] {
 			"X.java",
 			"public class X extends Y {\n" + 
-			"  public static String foo(String one, String two) {\n" + 
-			"    return X.<String>foo(one, two);\n" + 
-			"  }\n" + 
-			"  public String bar(String one, String two) {\n" + 
-			"    return this.<String>bar(one, two);\n" + 
-			"  }\n" + 
 			"  @Override\n" + 
 			"  public String foobar(String one, String two) {\n" + 
 			"    return this.<String>foobar(one, two);\n" + 
@@ -40189,6 +40205,7 @@ public void test1203() {
 		},
 		expectedOutput);
 }
+
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207299
 public void test1204() {
 	this.runConformTest(
