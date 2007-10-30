@@ -361,6 +361,12 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 			if (isImplementorOf(intf.getErasure(), t2))
 				return true;
 		}
+        ITypeBinding superClass = t1.getSuperclass();
+        if (superClass != null) {
+                if (isImplementorOf(superClass, t2)) {
+                        return true;
+                }
+        }
 		return false;
 	}
 
