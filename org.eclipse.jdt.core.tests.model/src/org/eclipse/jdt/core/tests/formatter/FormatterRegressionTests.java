@@ -9460,44 +9460,45 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test674", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091
-//
-//	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
-//	public void test675() {
-//		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-//		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-//		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-//		IRegion[] regions = new IRegion[] {
-//				new Region(10, 20), 
-//				new Region(50, 14),
-//				new Region(68, 25)
-//		};
-//		runTest(codeFormatter, "test675", "A.java", CodeFormatter.K_MULTI_LINE_COMMENT, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
-//	}
-//	
-//	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
-//	public void test676() {
-//		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-//		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-//		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-//		IRegion[] regions = new IRegion[] {
-//				new Region(3, 16), 
-//				new Region(31, 16)
-//		};
-//		runTest(codeFormatter, "test676", "A.java", CodeFormatter.K_SINGLE_LINE_COMMENT, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
-//	}
-//	
-//	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
-//	public void test677() {
-//		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-//		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-//		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-//		IRegion[] regions = new IRegion[] {
-//				new Region(4, 16), 
-//				new Region(32, 16)
-//		};
-//		runTest(codeFormatter, "test677", "A.java", CodeFormatter.K_JAVA_DOC, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
-//	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+	// TODO: re-enable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091 is fixed
+	public void _test675() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(10, 20), 
+				new Region(50, 14),
+				new Region(68, 25)
+		};
+		runTest(codeFormatter, "test675", "A.java", CodeFormatter.K_MULTI_LINE_COMMENT, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+	// TODO: re-enable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091 is fixed
+	public void _test676() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(3, 16), 
+				new Region(31, 16)
+		};
+		runTest(codeFormatter, "test676", "A.java", CodeFormatter.K_SINGLE_LINE_COMMENT, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+	// TODO: re-enable when https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091 is fixed
+	public void _test677() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(4, 16), 
+				new Region(32, 16)
+		};
+		runTest(codeFormatter, "test677", "A.java", CodeFormatter.K_JAVA_DOC, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
 	public void test678() {
