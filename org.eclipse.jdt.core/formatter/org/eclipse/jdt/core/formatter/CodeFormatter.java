@@ -109,8 +109,8 @@ public abstract class CodeFormatter {
 	 * @param lineSeparator the line separator to use in formatted source,
 	 *     if set to <code>null</code>, then the platform default one will be used.
 	 * @return the text edit
-	 * @throws IllegalArgumentException if offset is lower than 0, length is lower than 0 or
-	 * length is greater than source length.
+	 * @throws IllegalArgumentException if there is no region, a region overlaps with another region, or the regions are not
+	 * sorted in the ascending order.
 	 * @since 3.4
 	 */
 	public abstract TextEdit format(int kind, String source, IRegion[] regions, int indentationLevel, String lineSeparator);
