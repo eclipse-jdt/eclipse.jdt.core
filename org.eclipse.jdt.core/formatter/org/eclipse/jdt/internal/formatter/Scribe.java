@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.formatter;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -25,6 +26,8 @@ import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
 import org.eclipse.jdt.internal.formatter.align.Alignment;
 import org.eclipse.jdt.internal.formatter.align.AlignmentException;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.Region;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
@@ -66,9 +69,8 @@ public class Scribe {
 	public Scanner scanner;
 	public int scannerEndPosition;
 	public int tabLength;	
-	public int indentationSize;	
-	private int textRegionEnd;
-	private int textRegionStart;
+	public int indentationSize;
+	private IRegion[] regions;
 	public int tabChar;
 	public int numberOfIndentations;
 	private boolean useTabsOnlyForLeadingIndents;
@@ -79,7 +81,7 @@ public class Scribe {
 	private final boolean formatJavadocComment;
 	private final boolean formatBlockComment;
 	
-	Scribe(CodeFormatterVisitor formatter, long sourceLevel, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
+	Scribe(CodeFormatterVisitor formatter, long sourceLevel, IRegion[] regions, CodeSnippetParsingUtil codeSnippetParsingUtil) {
 		this.scanner = new Scanner(true, true, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		this.formatter = formatter;
 		this.pageWidth = formatter.preferences.page_width;
@@ -96,8 +98,7 @@ public class Scribe {
 		}
 		this.lineSeparator = formatter.preferences.line_separator;
 		this.indentationLevel = formatter.preferences.initial_indentation_level * this.indentationSize;
-		this.textRegionStart = offset;
-		this.textRegionEnd = offset + length - 1;
+		this.regions= regions;
 		if (codeSnippetParsingUtil != null) {
 			final RecordedParsingInformation information = codeSnippetParsingUtil.recordedParsingInformation;
 			if (information != null) {
@@ -541,9 +542,8 @@ public class Scribe {
 			int rem = indent % this.indentationSize;
 			int addition = rem == 0 ? 0 : this.indentationSize - rem; // round to superior
 			return indent + addition;
-		} else {
-			return indent;
 		}
+		return indent;
 	}
 
 	private String getPreserveEmptyLines(int count) {
@@ -551,24 +551,36 @@ public class Scribe {
 			if (this.formatter.preferences.number_of_empty_lines_to_preserve != 0) {
 				int linesToPreserve = Math.min(count, this.formatter.preferences.number_of_empty_lines_to_preserve);
 				return this.getEmptyLines(linesToPreserve);
-			} else {
-				return getNewLine();
 			}
+			return getNewLine();
 		}
 		return Util.EMPTY_STRING;
 	}
 	
 	public TextEdit getRootEdit() {
 		MultiTextEdit edit = null;
-		int length = this.textRegionEnd - this.textRegionStart + 1;
-		if (this.textRegionStart <= 0) {
+		int regionsLength = this.regions.length;
+		int textRegionStart;
+		int textRegionEnd;
+		if (regionsLength == 1) {
+			IRegion lastRegion = this.regions[0];
+			textRegionStart = lastRegion.getOffset();
+			textRegionEnd = textRegionStart + lastRegion.getLength();
+		} else {
+			textRegionStart = this.regions[0].getOffset();
+			IRegion lastRegion = this.regions[regionsLength - 1];
+			textRegionEnd = lastRegion.getOffset() + lastRegion.getLength();
+		}
+		
+		int length = textRegionEnd - textRegionStart + 1;
+		if (textRegionStart <= 0) {
 			if (length <= 0) {
 				edit = new MultiTextEdit(0, 0);
 			} else {
-				edit = new MultiTextEdit(0, this.textRegionEnd + 1);
+				edit = new MultiTextEdit(0, textRegionEnd);
 			}
 		} else {
-			edit = new MultiTextEdit(this.textRegionStart, this.textRegionEnd - this.textRegionStart + 1);
+			edit = new MultiTextEdit(textRegionStart, length - 1);
 		}
 		for (int i= 0, max = this.editsIndex; i < max; i++) {
 			OptimizedReplaceEdit currentEdit = edits[i];
@@ -664,7 +676,9 @@ public class Scribe {
 		final int editReplacementLength= edit.replacement.length();
 		final int editOffset= edit.offset;
 		if (editLength != 0) {
-			if (this.textRegionStart <= editOffset && (editOffset + editLength - 1) <= this.textRegionEnd) {
+			
+			IRegion covering = getCoveringRegion(editOffset, (editOffset + editLength - 1));
+			if (covering != null) {
 				if (editReplacementLength != 0 && editLength == editReplacementLength) {
 					for (int i = editOffset, max = editOffset + editLength; i < max; i++) {
 						if (scanner.source[i] != edit.replacement.charAt(i - editOffset)) {
@@ -672,10 +686,12 @@ public class Scribe {
 						}
 					}
 					return false;
-				} else {
-					return true;
 				}
-			} else if (editOffset + editLength == this.textRegionStart) {
+				return true;
+			}
+
+			IRegion starting = getRegionAt(editOffset + editLength);
+			if (starting != null) {
 				int i = editOffset;
 				for (int max = editOffset + editLength; i < max; i++) {
 					int replacementStringIndex = i - editOffset;
@@ -684,18 +700,87 @@ public class Scribe {
 					}
 				}
 				if (i - editOffset != editReplacementLength && i != editOffset + editLength - 1) {
-					edit.offset = textRegionStart;
+					edit.offset = starting.getOffset();
 					edit.length = 0;
 					edit.replacement = edit.replacement.substring(i - editOffset);
 					return true;
 				}
 			}
-		} else if (this.textRegionStart <= editOffset && editOffset <= this.textRegionEnd) {
+			
+			return false;
+		}
+		
+		IRegion covering = getCoveringRegion(editOffset, editOffset);
+		if (covering != null) {
 			return true;
-		} else if (editOffset == this.scannerEndPosition && editOffset == this.textRegionEnd + 1) {
+		}
+
+		if (editOffset == this.scannerEndPosition) {
+			int index = Arrays.binarySearch(
+				this.regions,
+				new Region(editOffset, 0),
+				new Comparator() {
+					public int compare(Object o1, Object o2) {
+						IRegion r1 = (IRegion)o1;
+						IRegion r2 = (IRegion)o2;
+						
+						int r1End = r1.getOffset() + r1.getLength();
+						int r2End = r2.getOffset() + r2.getLength();
+						
+						return r1End - r2End;
+					}
+				});
+			if (index < 0) {
+				return false;
+			}
 			return true;
 		}
 		return false;
+	}
+
+	private IRegion getRegionAt(int offset) {
+		int index = getIndexOfRegionAt(offset);
+		if (index < 0) {
+			return null;
+		}
+		
+		return this.regions[index];
+	}
+
+	private IRegion getCoveringRegion(int offset, int end) {
+		int index = getIndexOfRegionAt(offset);
+
+		if (index < 0) {
+			index = -(index + 1);
+			index--;
+			if (index < 0) {
+				return null;
+			}
+		}
+
+		IRegion region = this.regions[index];
+		if ((region.getOffset() <= offset) && (end <= region.getOffset() + region.getLength() - 1)) {
+			return region;
+		}
+		return null;
+	}
+	
+	private int getIndexOfRegionAt(int offset) {
+		if (this.regions.length == 1) {
+			int offset2 = this.regions[0].getOffset();
+			if (offset2 == offset) {
+				return 0;
+			}
+			return offset2 < offset ? -2 : -1; 
+		}
+		return Arrays.binarySearch(this.regions, new Region(offset, 0), new Comparator() {
+			public int compare(Object o1, Object o2) {
+				int r1Offset = ((IRegion)o1).getOffset();
+				int r2Offset = ((IRegion)o2).getOffset();
+				
+				return r1Offset - r2Offset;
+			}
+		});
 	}
 
 	private void preserveEmptyLines(int count, int insertPosition) {
@@ -1559,10 +1644,9 @@ public class Scribe {
 								addDeleteEdit(currentTokenStartPosition, this.scanner.getCurrentTokenEndPosition());
 								this.scanner.resetTo(this.scanner.currentPosition, this.scannerEndPosition - 1);
 								return;
-							} else {
-								this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
-								return;
 							}
+							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+							return;
 						} else if (count > 1) {
 							this.printEmptyLines(numberOfNewLinesToInsert, this.scanner.getCurrentTokenStartPosition());
 							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
@@ -1631,10 +1715,9 @@ public class Scribe {
 								addDeleteEdit(currentTokenStartPosition, this.scanner.getCurrentTokenEndPosition());
 								this.scanner.resetTo(this.scanner.currentPosition, this.scannerEndPosition - 1);
 								return;
-							} else {
-								this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
-								return;
 							}
+							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+							return;
 						} else if (count >= 1) {
 							if (hasComment) {
 								this.printNewLine(this.scanner.getCurrentTokenStartPosition());
@@ -1643,7 +1726,7 @@ public class Scribe {
 							return;
 						} else {
 							hasWhitespaces = true;
-							currentTokenStartPosition = this.scanner.currentPosition;						
+							currentTokenStartPosition = this.scanner.currentPosition;
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						}
 						break;

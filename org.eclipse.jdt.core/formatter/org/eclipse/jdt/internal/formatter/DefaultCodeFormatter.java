@@ -32,7 +32,9 @@ import org.eclipse.jdt.internal.formatter.comment.JavaDocRegion;
 import org.eclipse.jdt.internal.formatter.comment.MultiCommentRegion;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.Region;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
@@ -147,34 +149,88 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		if (offset < 0 || length < 0 || length > source.length()) {
 			throw new IllegalArgumentException();
 		}
-		this.codeSnippetParsingUtil = new CodeSnippetParsingUtil();
 		switch(kind) {
-			case K_CLASS_BODY_DECLARATIONS :
-				return formatClassBodyDeclarations(source, indentationLevel, lineSeparator, offset, length);
-			case K_COMPILATION_UNIT :
-				return formatCompilationUnit(source, indentationLevel, lineSeparator, offset, length);
-			case K_EXPRESSION :
-				return formatExpression(source, indentationLevel, lineSeparator, offset, length);
-			case K_STATEMENTS :
-				return formatStatements(source, indentationLevel, lineSeparator, offset, length);
-			case K_UNKNOWN :
-				return probeFormatting(source, indentationLevel, lineSeparator, offset, length);
 			case K_JAVA_DOC :
 			case K_MULTI_LINE_COMMENT :
 			case K_SINGLE_LINE_COMMENT :
-				return formatComment(kind, source, indentationLevel, lineSeparator, offset, length);
+				this.codeSnippetParsingUtil = new CodeSnippetParsingUtil();
+				return formatComment(kind, source, indentationLevel, lineSeparator, new IRegion[] {new Region(offset, length)});
+		}
+
+		return format(kind, source, new IRegion[] {new Region(offset, length)}, indentationLevel, lineSeparator);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public TextEdit format(int kind, String source, IRegion[] regions, int indentationLevel, String lineSeparator) {
+		if (!regionsSatisfiesPreconditions(regions, source.length())) {
+			throw new IllegalArgumentException();
+		}
+
+		this.codeSnippetParsingUtil = new CodeSnippetParsingUtil();
+		switch(kind) {
+			case K_CLASS_BODY_DECLARATIONS :
+				return formatClassBodyDeclarations(source, indentationLevel, lineSeparator, regions);
+			case K_COMPILATION_UNIT :
+				return formatCompilationUnit(source, indentationLevel, lineSeparator, regions);
+			case K_EXPRESSION :
+				return formatExpression(source, indentationLevel, lineSeparator, regions);
+			case K_STATEMENTS :
+				return formatStatements(source, indentationLevel, lineSeparator, regions);
+			case K_UNKNOWN :
+				return probeFormatting(source, indentationLevel, lineSeparator, regions);
+			case K_JAVA_DOC :
+			case K_MULTI_LINE_COMMENT :
+			case K_SINGLE_LINE_COMMENT :
+				//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091
+				throw new IllegalArgumentException();
 		}
 		return null;
 	}
 
-	private TextEdit formatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+	/**
+	 * True if
+	 * 1. All regions are within maxLength
+	 * 2. regions are sorted
+	 * 3. regions are not overlapping
+	 */
+	private boolean regionsSatisfiesPreconditions(IRegion[] regions, int maxLength) {
+		int regionsLength = regions == null ? 0 : regions.length;
+		if (regionsLength == 0) {
+			return false;
+		}
+
+		IRegion first = regions[0];
+		if (first.getOffset() < 0 || first.getLength() < 0 || first.getOffset() + first.getLength() > maxLength) {
+			return false;
+		}
+
+		int lastOffset = first.getOffset() + first.getLength() - 1;
+		for (int i= 1; i < regionsLength; i++) {
+			IRegion current = regions[i];
+			if (lastOffset > current.getOffset()) {
+				return false;
+			}
+			
+			if (current.getOffset() < 0 || current.getLength() < 0 || current.getOffset() + current.getLength() > maxLength) {
+				return false;
+			}
+			
+			lastOffset = current.getOffset() + current.getLength() - 1;
+		}
+
+		return true;
+	}
+
+	private TextEdit formatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
 		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), getDefaultCompilerOptions(), true);
 		
 		if (bodyDeclarations == null) {
 			// a problem occured while parsing the source
 			return null;
 		}
-		return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
+		return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, regions);
 	}
 
 	/**
@@ -184,12 +240,11 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	 * @param source the given source
 	 * @param indentationLevel the given indentation level
 	 * @param lineSeparator the given line separator
-	 * @param offset the given offset
-	 * @param length the given length
+	 * @param regions the given regions
 	 * @return the resulting text edit
 	 * @deprecated
 	 */
-	private TextEdit formatComment(int kind, String source, int indentationLevel, String lineSeparator, int offset, int length) {
+	private TextEdit formatComment(int kind, String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
 		Object oldOption = this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT);
 		boolean isFormattingComments = false;
 		if (oldOption == null) {
@@ -213,7 +268,12 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				this.preferences.line_separator = Util.LINE_SEPARATOR;
 			}
 			this.preferences.initial_indentation_level = indentationLevel;
-			this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length, null);
+			this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, null);
+			
+			IRegion coveredRegion = getCoveredRegion(regions);
+			int offset = coveredRegion.getOffset();
+			int length = coveredRegion.getLength();
+			
 			final CommentRegion region = createRegion(kind, new Document(source), new Position(offset, length), this.newCodeFormatter);
 			if (region != null) {
 				return this.newCodeFormatter.format(source, region);
@@ -222,7 +282,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		return new MultiTextEdit();
 	}
 
-	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
 		CompilationUnitDeclaration compilationUnitDeclaration = this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
 		
 		if (lineSeparator != null) {
@@ -232,29 +292,29 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length, this.codeSnippetParsingUtil);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil);
 		
 		return this.newCodeFormatter.format(source, compilationUnitDeclaration);
 	}
 
-	private TextEdit formatExpression(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+	private TextEdit formatExpression(String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
 		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), getDefaultCompilerOptions(), true);
 		
 		if (expression == null) {
 			// a problem occured while parsing the source
 			return null;
 		}
-		return internalFormatExpression(source, indentationLevel, lineSeparator, expression, offset, length);
+		return internalFormatExpression(source, indentationLevel, lineSeparator, expression, regions);
 	}
 
-	private TextEdit formatStatements(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+	private TextEdit formatStatements(String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
 		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), getDefaultCompilerOptions(), true, false);
 		
 		if (constructorDeclaration.statements == null) {
 			// a problem occured while parsing the source
 			return null;
 		}
-		return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);
+		return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, regions);
 	}
 
 	public String getDebugOutput() {
@@ -332,7 +392,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		return this.defaultCompilerOptions;		
 	}
 
-	private TextEdit internalFormatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, ASTNode[] bodyDeclarations, int offset, int length) {
+	private TextEdit internalFormatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, ASTNode[] bodyDeclarations, IRegion[] regions) {
 		if (lineSeparator != null) {
 			this.preferences.line_separator = lineSeparator;
 		} else {
@@ -340,11 +400,11 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length, this.codeSnippetParsingUtil);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil);
 		return this.newCodeFormatter.format(source, bodyDeclarations);
 	}
 	
-	private TextEdit internalFormatExpression(String source, int indentationLevel, String lineSeparator, Expression expression, int offset, int length) {
+	private TextEdit internalFormatExpression(String source, int indentationLevel, String lineSeparator, Expression expression, IRegion[] regions) {
 		if (lineSeparator != null) {
 			this.preferences.line_separator = lineSeparator;
 		} else {
@@ -352,13 +412,13 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length, this.codeSnippetParsingUtil);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil);
 		
 		TextEdit textEdit = this.newCodeFormatter.format(source, expression);
 		return textEdit;
 	}
 
-	private TextEdit internalFormatStatements(String source, int indentationLevel, String lineSeparator, ConstructorDeclaration constructorDeclaration, int offset, int length) {
+	private TextEdit internalFormatStatements(String source, int indentationLevel, String lineSeparator, ConstructorDeclaration constructorDeclaration, IRegion[] regions) {
 		if (lineSeparator != null) {
 			this.preferences.line_separator = lineSeparator;
 		} else {
@@ -366,33 +426,38 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length, this.codeSnippetParsingUtil);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil);
 		
 		return this.newCodeFormatter.format(source, constructorDeclaration);
 	}
 
-	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
 		if (ProbingScanner == null) {
 			// scanner use to check if the kind could be K_JAVA_DOC, K_MULTI_LINE_COMMENT or K_SINGLE_LINE_COMMENT 
 			ProbingScanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3, ClassFileConstants.JDK1_3, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		}
 		ProbingScanner.setSource(source.toCharArray());
+		
+		IRegion coveredRegion = getCoveredRegion(regions);
+		int offset = coveredRegion.getOffset();
+		int length = coveredRegion.getLength();
+		
 		ProbingScanner.resetTo(offset, offset + length);
 		try {
 			switch(ProbingScanner.getNextToken()) {
 				case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
 					if (ProbingScanner.getCurrentTokenEndPosition() == offset + length - 1) {
-						return formatComment(K_MULTI_LINE_COMMENT, source, indentationLevel, lineSeparator, offset, length);
+						return formatComment(K_MULTI_LINE_COMMENT, source, indentationLevel, lineSeparator, regions);
 					}
 					break;
 				case ITerminalSymbols.TokenNameCOMMENT_LINE :
 					if (ProbingScanner.getCurrentTokenEndPosition() == offset + length - 1) {
-						return formatComment(K_SINGLE_LINE_COMMENT, source, indentationLevel, lineSeparator, offset, length);
+						return formatComment(K_SINGLE_LINE_COMMENT, source, indentationLevel, lineSeparator, regions);
 					}
 					break;
 				case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
 					if (ProbingScanner.getCurrentTokenEndPosition() == offset + length - 1) {
-						return formatComment(K_JAVA_DOC, source, indentationLevel, lineSeparator, offset, length);
+						return formatComment(K_JAVA_DOC, source, indentationLevel, lineSeparator, regions);
 					}
 			}
 		} catch (InvalidInputException e) {
@@ -403,22 +468,34 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		// probe for expression
 		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), getDefaultCompilerOptions(), true);
 		if (expression != null) {
-			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, offset, length);
+			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, regions);
 		}
 
 		// probe for body declarations (fields, methods, constructors)
 		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), getDefaultCompilerOptions(), true);
 		if (bodyDeclarations != null) {
-			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
+			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, regions);
 		}
 
 		// probe for statements
 		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), getDefaultCompilerOptions(), true, false);
 		if (constructorDeclaration.statements != null) {
-			return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);
+			return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, regions);
 		}
 
 		// this has to be a compilation unit
-		return formatCompilationUnit(source, indentationLevel, lineSeparator, offset, length);
+		return formatCompilationUnit(source, indentationLevel, lineSeparator, regions);
+	}
+	
+	private IRegion getCoveredRegion(IRegion[] regions) {
+		int length = regions.length;
+		if (length == 1) {
+			return regions[0];
+		}
+		
+		int offset = regions[0].getOffset();
+		IRegion lastRegion = regions[length - 1];
+		
+		return new Region(offset, lastRegion.getOffset() + lastRegion.getLength() - offset);
 	}
 }

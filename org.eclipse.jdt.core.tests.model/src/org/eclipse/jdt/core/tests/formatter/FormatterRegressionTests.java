@@ -29,19 +29,21 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.Region;
 import org.eclipse.text.edits.TextEdit;
 
 public class FormatterRegressionTests extends AbstractJavaModelTests {
@@ -133,6 +135,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			}
 		}
 		return result;
+	}
+	
+	private String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, IRegion[] regions, String lineSeparator) {
+//		long time = System.currentTimeMillis();
+		TextEdit edit = codeFormatter.format(kind, source, regions, indentationLevel, lineSeparator);//$NON-NLS-1$
+//		System.out.println((System.currentTimeMillis() - time) + " ms");
+		if (edit == null) return null;
+		
+		return org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 	}
 
 	/**
@@ -251,6 +262,21 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			} else {
 				result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, length, lineSeparator);
 			}
+			assertLineEquals(result, s, outputUnit.getSource(), checkNull);
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	
+	private void runTest(CodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, IRegion[] regions, String lineSeparator) {
+		try {
+			ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", packageName, getIn(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
+			String s = sourceUnit.getSource();
+			assertNotNull(s);
+			ICompilationUnit outputUnit = getCompilationUnit("Formatter" , "", packageName, getOut(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
+			assertNotNull(outputUnit);
+			String result= runFormatter(codeFormatter, s, kind, indentationLevel, regions, lineSeparator);
 			assertLineEquals(result, s, outputUnit.getSource(), checkNull);
 		} catch (JavaModelException e) {
 			e.printStackTrace();
@@ -9385,4 +9411,178 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test670", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+	public void test671() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(59, 20), 
+				new Region(101, 20)
+		};
+		runTest(codeFormatter, "test671", "A.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+	public void test672() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(0, 18), 
+				new Region(38, 18)
+		};
+		runTest(codeFormatter, "test672", "A.java", CodeFormatter.K_STATEMENTS, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+	public void test673() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(0, 9), 
+				new Region(19, 19)
+		};
+		runTest(codeFormatter, "test673", "A.java", CodeFormatter.K_EXPRESSION, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+	public void test674() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(44, 126), 
+				new Region(276, 54)
+		};
+		runTest(codeFormatter, "test674", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091
+//
+//	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+//	public void test675() {
+//		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+//		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+//		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+//		IRegion[] regions = new IRegion[] {
+//				new Region(10, 20), 
+//				new Region(50, 14),
+//				new Region(68, 25)
+//		};
+//		runTest(codeFormatter, "test675", "A.java", CodeFormatter.K_MULTI_LINE_COMMENT, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+//	}
+//	
+//	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+//	public void test676() {
+//		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+//		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+//		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+//		IRegion[] regions = new IRegion[] {
+//				new Region(3, 16), 
+//				new Region(31, 16)
+//		};
+//		runTest(codeFormatter, "test676", "A.java", CodeFormatter.K_SINGLE_LINE_COMMENT, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+//	}
+//	
+//	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+//	public void test677() {
+//		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+//		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+//		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+//		IRegion[] regions = new IRegion[] {
+//				new Region(4, 16), 
+//				new Region(32, 16)
+//		};
+//		runTest(codeFormatter, "test677", "A.java", CodeFormatter.K_JAVA_DOC, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+//	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+	public void test678() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(59, 20), 
+				new Region(101, 20)
+		};
+		runTest(codeFormatter, "test671", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+	public void test679() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(0, 18), 
+				new Region(38, 18)
+		};
+		runTest(codeFormatter, "test672", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+	public void test680() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(0, 9), 
+				new Region(19, 19)
+		};
+		runTest(codeFormatter, "test673", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+	public void test681() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(44, 126), 
+				new Region(276, 54)
+		};
+		runTest(codeFormatter, "test674", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091
+//
+//	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+//	public void test682() {
+//		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+//		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+//		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+//		IRegion[] regions = new IRegion[] {
+//				new Region(10, 20), 
+//				new Region(50, 14),
+//				new Region(68, 25)
+//		};
+//		runTest(codeFormatter, "test675", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+//	}
+//	
+//	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+//	public void test683() {
+//		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+//		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+//		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+//		IRegion[] regions = new IRegion[] {
+//				new Region(3, 16), 
+//				new Region(31, 16)
+//		};
+//		runTest(codeFormatter, "test676", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+//	}
+//	
+//	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
+//	public void test684() {
+//		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+//		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+//		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+//		IRegion[] regions = new IRegion[] {
+//				new Region(4, 16), 
+//				new Region(32, 16)
+//		};
+//		runTest(codeFormatter, "test677", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+//	}
 }

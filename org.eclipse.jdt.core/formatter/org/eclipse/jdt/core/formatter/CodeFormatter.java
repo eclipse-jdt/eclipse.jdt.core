@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.formatter;
 
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.text.edits.TextEdit;
 
 /**
@@ -85,6 +86,34 @@ public abstract class CodeFormatter {
 	 * length is greater than source length.
 	 */
 	public abstract TextEdit format(int kind, String source, int offset, int length, int indentationLevel, String lineSeparator);
+	
+	/** 
+	 * Format <code>source</code>,
+	 * and returns a text edit that correspond to the difference between the given string and the formatted string.
+	 * <p>It returns null if the given string cannot be formatted.</p>
+	 * 
+	 * <p>If an offset position is matching a whitespace, the result can include whitespaces. It would be up to the
+	 * caller to get rid of preceeding whitespaces.</p>
+	 * 
+	 * <p>No region in <code>regions</code> must overlap with any other region in <code>regions</code>.
+	 * Each region must be within source. There must be at least one region. Regions must be sorted
+	 * by their offsets, smaller offset first.</p>
+	 * 
+	 * @param kind Use to specify the kind of the code snippet to format. It can be any of these:
+	 *        K_EXPRESSION, K_STATEMENTS, K_CLASS_BODY_DECLARATIONS, K_COMPILATION_UNIT, K_UNKNOWN
+	 * @param source the source to format
+	 * @param regions a set of regions in source to format
+	 * @param indentationLevel the initial indentation level, used 
+	 *      to shift left/right the entire source fragment. An initial indentation
+	 *      level of zero or below has no effect.
+	 * @param lineSeparator the line separator to use in formatted source,
+	 *     if set to <code>null</code>, then the platform default one will be used.
+	 * @return the text edit
+	 * @throws IllegalArgumentException if offset is lower than 0, length is lower than 0 or
+	 * length is greater than source length.
+	 * @since 3.4
+	 */
+	public abstract TextEdit format(int kind, String source, IRegion[] regions, int indentationLevel, String lineSeparator);
 	
 	/**
 	 * Answers the string that corresponds to the indentation to the given indentation level or an empty string
