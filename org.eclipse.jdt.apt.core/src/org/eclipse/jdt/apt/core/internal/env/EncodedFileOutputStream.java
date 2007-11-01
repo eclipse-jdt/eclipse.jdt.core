@@ -59,7 +59,10 @@ public class EncodedFileOutputStream extends BinaryFileOutputStream {
 				return;
 			}
 			try {
-				_file.setCharset(_charsetName, null);
+				String defaultCharset = _file.getCharset();
+				if (!_charsetName.equalsIgnoreCase(defaultCharset)) {
+					_file.setCharset(_charsetName, null);
+				}
 			}
 			catch (CoreException ce) {
 				IOException ioe = new IOException("Could not set charset: " + _charsetName); //$NON-NLS-1$
