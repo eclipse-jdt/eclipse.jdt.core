@@ -25,44 +25,24 @@
             category="org.eclipse.jdt.ui.propertyPages.CompliancePreferencePage"
             class="org.eclipse.jdt.apt.ui.internal.preferences.AptPreferencePage"
             id="org.eclipse.jdt.apt.ui.propertyPages.aptPreferences"
-            name="%annotationProcessingName"
-            objectClass="org.eclipse.core.resources.IProject">
-         <filter
-               name="%natureName"
-               value="org.eclipse.jdt.core.javanature">
-         </filter>
+            name="%annotationProcessingName">
+         <enabledWhen>
+		     <adapt type="org.eclipse.core.resources.IProject">
+		          <test property="org.eclipse.core.resources.projectNature" value="org.eclipse.jdt.core.javanature"/>
+		     </adapt>         
+         </enabledWhen>
       </page>            
-      <page
-            category="org.eclipse.jdt.ui.propertyPages.CompliancePreferencePage"
-            class="org.eclipse.jdt.apt.ui.internal.preferences.AptPreferencePage"
-            id="org.eclipse.jdt.apt.ui.propertyPages.aptPreferences"
-            name="%annotationProcessingName"
-            objectClass="org.eclipse.jdt.core.IJavaProject">
-         <filter
-               name="%natureName"
-               value="org.eclipse.jdt.core.javanature">
-         </filter>
-      </page>
       <page
             category="org.eclipse.jdt.apt.ui.propertyPages.aptPreferences"
             class="org.eclipse.jdt.apt.ui.internal.preferences.FactoryPathPreferencePage"
             id="org.eclipse.jdt.apt.ui.propertyPages.factoryPathPreferences"
-            name="%factoryPathName"
-            objectClass="org.eclipse.core.resources.IProject">
-         <filter
-               name="%natureName"
-               value="org.eclipse.jdt.core.javanature"/>
+            name="%factoryPathName">
+         <enabledWhen>
+		     <adapt type="org.eclipse.core.resources.IProject">
+		          <test property="org.eclipse.core.resources.projectNature" value="org.eclipse.jdt.core.javanature"/>
+		     </adapt>         
+         </enabledWhen>
       </page>
-      <page
-            category="org.eclipse.jdt.apt.ui.propertyPages.aptPreferences"
-            class="org.eclipse.jdt.apt.ui.internal.preferences.FactoryPathPreferencePage"
-            id="org.eclipse.jdt.apt.ui.propertyPages.factoryPathPreferences"
-            name="%factoryPathName"
-            objectClass="org.eclipse.jdt.core.IJavaProject">
-         <filter
-               name="%natureName"
-               value="org.eclipse.jdt.core.javanature"/>
-      </page>            
    </extension>
    
 </plugin>
