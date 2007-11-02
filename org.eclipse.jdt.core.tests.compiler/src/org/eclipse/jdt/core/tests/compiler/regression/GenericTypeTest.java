@@ -18049,6 +18049,7 @@ public void test0500(){
 			"");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90433
+	// **
 	public void test0588() {
 	    this.runNegativeTest(
             new String[] {
