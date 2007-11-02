@@ -106,6 +106,8 @@ public class ParameterizedMethodBinding extends MethodBinding {
 			this.returnType = Scope.substitute(substitution, this.returnType);
 			this.parameters = Scope.substitute(substitution, this.parameters);
 			this.thrownExceptions = Scope.substitute(substitution, this.thrownExceptions);
+		    // error case where exception type variable would have been substituted by a non-reference type (207573)
+		    if (this.thrownExceptions == null) this.thrownExceptions = Binding.NO_EXCEPTIONS;	    			
 		}
 	}
 	
@@ -195,6 +197,8 @@ public class ParameterizedMethodBinding extends MethodBinding {
 			this.returnType = Scope.substitute(substitution, this.returnType);
 			this.parameters = Scope.substitute(substitution, this.parameters);
 			this.thrownExceptions = Scope.substitute(substitution, this.thrownExceptions);
+		    // error case where exception type variable would have been substituted by a non-reference type (207573)
+		    if (this.thrownExceptions == null) this.thrownExceptions = Binding.NO_EXCEPTIONS;	    			
 		}
 	}
 
