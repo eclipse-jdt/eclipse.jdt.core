@@ -5633,6 +5633,25 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// parameterized invocation of non generic method
 	public void test0189() {
+		String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_7
+			? 	"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	System.out.println(new X().<String>foo());\n" + 
+				"	                                   ^^^\n" + 
+				"The method foo() of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+				"----------\n"
+			: 	"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	System.out.println(new X().<String>foo());\n" + 
+				"	           ^^^^^^^\n" + 
+				"The method println(boolean) in the type PrintStream is not applicable for the arguments (void)\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 7)\n" + 
+				"	System.out.println(new X().<String>foo());\n" + 
+				"	                            ^^^^^^\n" + 
+				"Unused type arguments for the non generic method foo() of type X; it should not be parameterized with arguments <String>\n" + 
+				"----------\n";
+		
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5646,12 +5665,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	}\n" + 
 				"}\n", 
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	System.out.println(new X().<String>foo());\n" + 
-			"	                                   ^^^\n" + 
-			"The method foo() of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
-			"----------\n");
+			expectedOutput);
 	}		
 	// parameterized allocation
 	public void test0190() {
@@ -5693,24 +5707,51 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// parameterized allocation - non generic target constructor
 	// **
 	public void test0192() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+			this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public X(String t){\n" + 
+					"		System.out.println(t);\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		new <String>X(\"FAILED\");\n" + 
+					"	}\n" + 
+					"}\n", 
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	new <String>X(\"FAILED\");\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The constructor X(String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+				"----------\n");
+			return;
+		}
 		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"	public X(String t){\n" + 
-				"		System.out.println(t);\n" + 
-				"	}\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		new <String>X(\"FAILED\");\n" + 
-				"	}\n" + 
-				"}\n", 
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	new <String>X(\"FAILED\");\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The constructor X(String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
-			"----------\n");
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public X(String t){\n" + 
+					"		System.out.println(t);\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		new <String>X(\"FAILED\");\n" + 
+					"		Zork z;\n" +
+					"	}\n" + 
+					"}\n", 
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 6)\n" + 
+				"	new <String>X(\"FAILED\");\n" + 
+				"	     ^^^^^^\n" + 
+				"Unused type arguments for the non generic constructor X(String) of type X; it should not be parameterized with arguments <String>\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
 	}			
 	// parameterized allocation - argument type mismatch
 	public void test0193() {
@@ -5799,26 +5840,55 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// parameterized qualified allocation - non generic target constructor
 	// **
 	public void test0197() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+			this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public class MX {\n" +
+					"		public MX(String t){\n" + 
+					"			System.out.println(t);\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		new X().new <String>MX(\"FAILED\");\n" + 
+					"	}\n" + 
+					"}\n", 
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	new X().new <String>MX(\"FAILED\");\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The constructor MX(String) of type X.MX is not generic; it cannot be parameterized with arguments <String>\n" + 
+				"----------\n");
+			return;
+		}
 		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"	public class MX {\n" +
-				"		public MX(String t){\n" + 
-				"			System.out.println(t);\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		new X().new <String>MX(\"FAILED\");\n" + 
-				"	}\n" + 
-				"}\n", 
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	new X().new <String>MX(\"FAILED\");\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The constructor MX(String) of type X.MX is not generic; it cannot be parameterized with arguments <String>\n" + 
-			"----------\n");
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public class MX {\n" +
+					"		public MX(String t){\n" + 
+					"			System.out.println(t);\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		new X().new <String>MX(\"FAILED\");\n" + 
+					"		Zork z;\n" +
+					"	}\n" + 
+					"}\n", 
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 8)\n" + 
+				"	new X().new <String>MX(\"FAILED\");\n" + 
+				"	             ^^^^^^\n" + 
+				"Unused type arguments for the non generic constructor X.MX(String) of type X.MX; it should not be parameterized with arguments <String>\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 9)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");		
 	}			
 	// parameterized qualified allocation - argument type mismatch
 	public void test0198() {
@@ -5893,29 +5963,61 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// parameterized explicit constructor call - non generic target constructor
 	// **
 	public void test0201() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+			this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public X(String t){\n" + 
+					"		System.out.println(t);\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		class Local extends X {\n" + 
+					"			Local() {\n" +
+					"				<String>super(\"FAILED\");\n" + 
+					"			}\n" + 
+					"		};\n" + 
+					"		new Local();\n" +				
+					"	}\n" + 
+					"}\n", 
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	<String>super(\"FAILED\");\n" + 
+				"	        ^^^^^^^^^^^^^^^^\n" + 
+				"The constructor X(String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+				"----------\n");
+			return;
+		}
 		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"	public X(String t){\n" + 
-				"		System.out.println(t);\n" + 
-				"	}\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		class Local extends X {\n" + 
-				"			Local() {\n" +
-				"				<String>super(\"FAILED\");\n" + 
-				"			}\n" + 
-				"		};\n" + 
-				"		new Local();\n" +				
-				"	}\n" + 
-				"}\n", 
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	<String>super(\"FAILED\");\n" + 
-			"	        ^^^^^^^^^^^^^^^^\n" + 
-			"The constructor X(String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
-			"----------\n");
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public X(String t){\n" + 
+					"		System.out.println(t);\n" + 
+					"		Zork z;\n" +
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		class Local extends X {\n" + 
+					"			Local() {\n" +
+					"				<String>super(\"FAILED\");\n" + 
+					"			}\n" + 
+					"		};\n" + 
+					"		new Local();\n" +				
+					"	}\n" + 
+					"}\n", 
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 9)\n" + 
+				"	<String>super(\"FAILED\");\n" + 
+				"	 ^^^^^^\n" + 
+				"Unused type arguments for the non generic constructor X(String) of type X; it should not be parameterized with arguments <String>\n" + 
+				"----------\n");
 	}			
 	// parameterized explicit constructor call - argument type mismatch
 	public void test0202() {
@@ -21974,22 +22076,44 @@ public void test0705() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
 public void test0706() {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"	void foo() {\n" + 
-			"		BB bb = new BB();\n" + 
-			"		bb.<Object>test();\n" + 
-			"		((AA<CC>) bb).test();\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"class AA<T> { AA<Object> test() {return null;} }\n" + 
-			"class BB extends AA<CC> { <U> BB test() {return null;} }\n" + 
-			"class CC {}\n",
-		},
-		""
-	);
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		BB bb = new BB();\n" + 
+				"		bb.<Object>test();\n" + 
+				"		((AA<CC>) bb).test();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class AA<T> { AA<Object> test() {return null;} }\n" + 
+				"class BB extends AA<CC> { <U> BB test() {return null;} }\n" + 
+				"class CC {}\n",
+			},
+			"");
+		return;
+	}
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		BB bb = new BB();\n" + 
+				"		bb.<Object>test();\n" + 
+				"		((AA<CC>) bb).test();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class AA<T> { AA<Object> test() {return null;} }\n" + 
+				"class BB extends AA<CC> { <U> BB test() {return null;} }\n" + 
+				"class CC {}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\r\n" + 
+			"	bb.<Object>test();\r\n" + 
+			"	           ^^^^\n" + 
+			"The method test() is ambiguous for the type BB\n" + 
+			"----------\n");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
 public void test0706a() {
@@ -28230,20 +28354,45 @@ public void test0894() {
 		"[c1m1][c1m1][c1m1]");
 }
 public void test0895() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) {	
+		this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"interface I {}\n" + 
+				"public class X {\n" + 
+				"    Object o = new <Object> I() {};\n" + 
+				"}\n" ,
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Object o = new <Object> I() {};\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor Object() of type Object is not generic; it cannot be parameterized with arguments <Object>\n" + 
+			"----------\n");
+		return;
+	}
 	this.runNegativeTest(
-		new String[] {
-			"X.java", // =================
-			"interface I {}\n" + 
-			"public class X {\n" + 
-			"    Object o = new <Object> I() {};\n" + 
-			"}\n" ,
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	Object o = new <Object> I() {};\n" + 
-		"	           ^^^^^^^^^^^^^^^^^^^\n" + 
-		"The constructor Object() of type Object is not generic; it cannot be parameterized with arguments <Object>\n" + 
-		"----------\n");
+			new String[] {
+				"X.java", // =================
+				"interface I {}\n" + 
+				"public class X {\n" + 
+				"    Object o = new <Object> I() {};\n" + 
+				"}\n" ,
+				"Y.java",
+				"class Y extends Zork {}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	Object o = new <Object> I() {};\n" + 
+			"	                ^^^^^^\n" + 
+			"Unused type arguments for the non generic constructor Object() of type Object; it should not be parameterized with arguments <Object>\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 1)\n" + 
+			"	class Y extends Zork {}\n" + 
+			"	                ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
 }
 public void test0896() {
 	this.runConformTest(
@@ -40259,7 +40408,7 @@ public void test1205() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573
-public void _test1206() {
+public void test1206() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -40276,4 +40425,171 @@ public void _test1206() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573 - variation
+public void test1207() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public final <E extends Exception> E throwE (E ex) throws E {\n" + 
+			"    	throw ex;\n" + 
+			"    }\n" + 
+			"    void foo(Object[] objs) {\n" + 
+			"    	throwE(objs);\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\r\n" + 
+		"	throwE(objs);\r\n" + 
+		"	^^^^^^\n" + 
+		"Bound mismatch: The generic method throwE(E) of type X is not applicable for the arguments (Object[]). The inferred type Object[] is not a valid substitute for the bounded parameter <E extends Exception>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573 - variation
+public void test1208() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public final <E extends Exception> E throwE2(E ex, Object... args) throws E {\n" + 
+			"		Object[] oar = new Object[0];\n" + 
+			"		return throwE(oar, ex, args);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public final <E extends Exception> E throwE(Object[] oar, E ex, Object... args) throws E {\n" + 
+			"		throw ex;\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573 - variation
+public void test1209() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public final <E extends Exception> E throwE (E ex, Object ... args) throws E {\n" + 
+			"    	throw ex;\n" + 
+			"    }\n" + 
+			"    void foo(Object[] objs) {\n" + 
+			"    	throwE(objs);\n" + 
+			"    }\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\r\n" + 
+		"	throwE(objs);\r\n" + 
+		"	^^^^^^\n" + 
+		"Bound mismatch: The generic method throwE(E, Object...) of type X is not applicable for the arguments (Object[]). The inferred type Object[] is not a valid substitute for the bounded parameter <E extends Exception>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573 - variation
+public void test1210() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public final <E extends Exception> E throwE (Object ... args) throws E {\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"    void foo(Object[] objs) {\n" + 
+			"    	Object[] o  = throwE(objs);\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Object[] o  = throwE(objs);\n" + 
+		"	              ^^^^^^\n" + 
+		"Bound mismatch: The generic method throwE(Object...) of type X is not applicable for the arguments (Object[]). The inferred type Object[] is not a valid substitute for the bounded parameter <E extends Exception>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=208030
+public void test1211() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public X(String t){\n" + 
+				"		System.out.println(t);\n" + 
+				"		Zork z;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		class Local extends X {\n" + 
+				"			Local() {\n" + 
+				"				<String>super(\"FAILED\");\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		new <String>Local();\n" + 
+				"		new <String>Local(){};\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	<String>super(\"FAILED\");\n" + 
+			"	        ^^^^^^^^^^^^^^^^\n" + 
+			"The constructor X(String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
+			"	new <String>Local();\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor Local() of type Local is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 13)\n" + 
+			"	new <String>Local(){};\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor Local() of type Local is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n");
+		return;
+	}
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public X(String t){\n" + 
+				"		System.out.println(t);\n" + 
+				"		Zork z;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		class Local extends X {\n" + 
+				"			Local() {\n" + 
+				"				<String>super(\"FAILED\");\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		new <String>Local();\n" + 
+				"		new <String>Local(){};\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	<String>super(\"FAILED\");\n" + 
+			"	 ^^^^^^\n" + 
+			"Unused type arguments for the non generic constructor X(String) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 12)\n" + 
+			"	new <String>Local();\n" + 
+			"	     ^^^^^^\n" + 
+			"Unused type arguments for the non generic constructor Local() of type Local; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 13)\n" + 
+			"	new <String>Local(){};\n" + 
+			"	     ^^^^^^\n" + 
+			"Unused type arguments for the non generic constructor Local() of type Local; it should not be parameterized with arguments <String>\n" + 
+			"----------\n");
+}	
 }
