@@ -370,6 +370,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					scope.problemReporter().deprecatedMethod(this.binding, this);
 				}
 				checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, argumentTypes, argsContainCast, this);
+				if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
+					scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
+				}				
 			} else {
 				if (this.binding.declaringClass == null) {
 					this.binding.declaringClass = allocationType;
@@ -434,6 +437,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		if (this.arguments != null)
 			checkInvocationArguments(scope, null, this.superTypeBinding, inheritedBinding, this.arguments, argumentTypes, argsContainCast, this);
 
+		if (this.typeArguments != null && inheritedBinding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
+			scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(inheritedBinding, this.genericTypeArguments, this.typeArguments);
+		}		
 		// Update the anonymous inner class : superclass, interface  
 		this.binding = this.anonymousType.createDefaultConstructorWithBinding(inheritedBinding);
 		return this.resolvedType = this.anonymousType.binding; // 1.2 change

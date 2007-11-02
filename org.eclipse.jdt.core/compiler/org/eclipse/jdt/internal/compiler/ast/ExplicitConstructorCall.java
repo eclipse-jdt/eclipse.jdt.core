@@ -372,6 +372,9 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				checkInvocationArguments(scope, null, receiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
 				if (binding.isPrivate() || receiverType.isLocalType()) {
 					binding.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+				}
+				if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
+					scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
 				}				
 			} else {
 				if (binding.declaringClass == null)

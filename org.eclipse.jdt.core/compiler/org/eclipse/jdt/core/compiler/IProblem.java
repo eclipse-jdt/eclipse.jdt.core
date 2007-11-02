@@ -1197,6 +1197,12 @@ void setSourceStart(int sourceStart);
 	int UnusedWarningToken = Internal + 635;
 	
 	/**
+	 * More problems in generics
+	 */
+    /** @since 3.4 */
+    int UnusedTypeArgumentsForConstructorInvocation = MethodRelated + 660;
+
+	/**
 	 * Corrupted binaries
 	 */
 	/** @since 3.1 */

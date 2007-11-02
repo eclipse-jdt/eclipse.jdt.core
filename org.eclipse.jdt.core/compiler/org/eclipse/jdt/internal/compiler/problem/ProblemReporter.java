@@ -309,7 +309,8 @@ public static long getIrritant(int problemID) {
 			return CompilerOptions.OverridingMethodWithoutSuperInvocation;
 			
 		case IProblem.UnusedTypeArgumentsForMethodInvocation:
-			return CompilerOptions.UnusedTypeArgumentsForMethodInvocation;
+		case IProblem.UnusedTypeArgumentsForConstructorInvocation:
+			return CompilerOptions.UnusedTypeArguments;
 	}
 	return 0;
 }
@@ -6396,23 +6397,26 @@ public void unnecessaryNLSTags(int sourceStart, int sourceEnd) {
 		sourceStart,
 		sourceEnd);
 }
-public void unnecessaryTypeArgumentsForMethodInvocation(MessageSend messageSend) {
-	MethodBinding method = messageSend.binding;
-	TypeBinding[] genericTypeArguments = messageSend.genericTypeArguments;
+public void unnecessaryTypeArgumentsForMethodInvocation(MethodBinding method, TypeBinding[] genericTypeArguments, TypeReference[] typeArguments) {
+	String methodName = method.isConstructor()
+		? new String(method.declaringClass.shortReadableName())
+		: new String(method.selector);
 	this.handle(
-		IProblem.UnusedTypeArgumentsForMethodInvocation,
+			method.isConstructor()
+				? IProblem.UnusedTypeArgumentsForConstructorInvocation
+				: IProblem.UnusedTypeArgumentsForMethodInvocation,
 		new String[] { 
-		        new String(method.selector),
+				methodName,
 		        typesAsString(method.isVarargs(), method.parameters, false), 
 		        new String(method.declaringClass.readableName()), 
 		        typesAsString(method.isVarargs(), genericTypeArguments, false) },
 		new String[] { 
-		        new String(method.selector),
+				methodName,
 		        typesAsString(method.isVarargs(), method.parameters, true), 
 		        new String(method.declaringClass.shortReadableName()), 
 		        typesAsString(method.isVarargs(), genericTypeArguments, true) },
-		messageSend.typeArguments[0].sourceStart,
-		messageSend.typeArguments[messageSend.typeArguments.length-1].sourceEnd);		
+		typeArguments[0].sourceStart,
+		typeArguments[typeArguments.length-1].sourceEnd);		
 }
 public void unqualifiedFieldAccess(NameReference reference, FieldBinding field) {
 	int sourceStart = reference.sourceStart;

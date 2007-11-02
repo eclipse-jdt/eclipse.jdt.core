@@ -208,7 +208,7 @@ public class CompilerOptions {
 	public static final long PotentialNullReference = ASTNode.Bit51L;
 	public static final long RedundantNullCheck = ASTNode.Bit52L;
 	public static final long MissingJavadocTagDescription = ASTNode.Bit53L;
-	public static final long UnusedTypeArgumentsForMethodInvocation = ASTNode.Bit54L;
+	public static final long UnusedTypeArguments = ASTNode.Bit54L;
 	public static final long UnusedWarningToken = ASTNode.Bit55L;
 
 	// Map: String optionKey --> Long irritant>
@@ -243,7 +243,7 @@ public class CompilerOptions {
 		| UnusedLocalVariable
 		| UnusedPrivateMember
 		| UnusedLabel
-		| UnusedTypeArgumentsForMethodInvocation
+		| UnusedTypeArguments
 		| NullReference
 		| UnusedWarningToken;
 
@@ -425,7 +425,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportMissingDeprecatedAnnotation, getSeverityString(MissingDeprecatedAnnotation));
 		optionsMap.put(OPTION_ReportIncompleteEnumSwitch, getSeverityString(IncompleteEnumSwitch));
 		optionsMap.put(OPTION_ReportUnusedLabel, getSeverityString(UnusedLabel));
-		optionsMap.put(OPTION_ReportUnusedTypeArgumentsForMethodInvocation, getSeverityString(UnusedTypeArgumentsForMethodInvocation));
+		optionsMap.put(OPTION_ReportUnusedTypeArgumentsForMethodInvocation, getSeverityString(UnusedTypeArguments));
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(this.complianceLevel));
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(this.sourceLevel));
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(this.targetJDK));
@@ -577,7 +577,7 @@ public class CompilerOptions {
 					return OPTION_ReportOverridingMethodWithoutSuperInvocation;
 				case (int)(MissingJavadocTagDescription >>> 32):
 					return OPTION_ReportMissingJavadocTagDescription;
-				case (int)(UnusedTypeArgumentsForMethodInvocation >>> 32):
+				case (int)(UnusedTypeArguments >>> 32):
 					return OPTION_ReportUnusedTypeArgumentsForMethodInvocation;
 				case (int)(UnusedWarningToken >>> 32) :
 					return OPTION_ReportUnusedWarningToken;
@@ -861,7 +861,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportParameterAssignment)) != null) updateSeverity(ParameterAssignment, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportFallthroughCase)) != null) updateSeverity(FallthroughCase, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportOverridingMethodWithoutSuperInvocation)) != null) updateSeverity(OverridingMethodWithoutSuperInvocation, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportUnusedTypeArgumentsForMethodInvocation)) != null) updateSeverity(UnusedTypeArgumentsForMethodInvocation, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedTypeArgumentsForMethodInvocation)) != null) updateSeverity(UnusedTypeArguments, optionValue);
 
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
@@ -1055,7 +1055,7 @@ public class CompilerOptions {
 		buf.append("\n\t- parameter assignment: ").append(getSeverityString(ParameterAssignment)); //$NON-NLS-1$
 		buf.append("\n\t- generate class files: ").append(this.generateClassFiles ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- process annotations: ").append(this.processAnnotations ? ENABLED : DISABLED); //$NON-NLS-1$
-		buf.append("\n\t- unused type arguments for method invocation: ").append(getSeverityString(UnusedTypeArgumentsForMethodInvocation)); //$NON-NLS-1$
+		buf.append("\n\t- unused type arguments for method/constructor invocation: ").append(getSeverityString(UnusedTypeArguments)); //$NON-NLS-1$
 		return buf.toString();
 	}
 
@@ -1255,7 +1255,7 @@ public class CompilerOptions {
 				case (int)(RawTypeReference >>> 32):
 					return "unchecked"; //$NON-NLS-1$
 				case (int) (UnusedLabel >>> 32):
-				case (int) (UnusedTypeArgumentsForMethodInvocation >>> 32) :
+				case (int) (UnusedTypeArguments >>> 32) :
 					return "unused"; //$NON-NLS-1$
 				case (int) (DiscouragedReference >>> 32) :
 				case (int) (ForbiddenReference >>> 32) :
@@ -1352,7 +1352,7 @@ public class CompilerOptions {
 				break;
 			case 'u' :
 				if ("unused".equals(warningToken)) //$NON-NLS-1$
-					return UnusedLocalVariable | UnusedArgument | UnusedPrivateMember | UnusedDeclaredThrownException | UnusedLabel | UnusedImport | UnusedTypeArgumentsForMethodInvocation;
+					return UnusedLocalVariable | UnusedArgument | UnusedPrivateMember | UnusedDeclaredThrownException | UnusedLabel | UnusedImport | UnusedTypeArguments;
 				if ("unchecked".equals(warningToken)) //$NON-NLS-1$
 					return UncheckedTypeOperation | RawTypeReference;
 				if ("unqualified-field-access".equals(warningToken)) //$NON-NLS-1$
