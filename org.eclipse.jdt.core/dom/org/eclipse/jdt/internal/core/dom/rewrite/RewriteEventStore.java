@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,9 @@ package org.eclipse.jdt.internal.core.dom.rewrite;
 import java.util.*;
 
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer;
 import org.eclipse.text.edits.TextEditGroup;
 
@@ -223,7 +225,7 @@ public final class RewriteEventStore {
 		private Iterator trackedNodeIter;
 		
 		public ParentIterator() {
-			this.eventIter= RewriteEventStore.this.events.iterator();
+			this.eventIter= RewriteEventStore.this.eventLookup.keySet().iterator();
 			if (RewriteEventStore.this.nodeCopySources != null) {
 				this.sourceNodeIter= RewriteEventStore.this.nodeCopySources.iterator();
 			} else {
@@ -253,7 +255,7 @@ public final class RewriteEventStore {
 		 */
 		public Object next() {
 			if (this.eventIter.hasNext()) {
-				return ((EventHolder) this.eventIter.next()).parent;
+				return this.eventIter.next();
 			}
 			if (this.sourceNodeIter.hasNext()) {
 				return ((CopySourceInfo) this.sourceNodeIter.next()).getNode();
@@ -276,9 +278,9 @@ public final class RewriteEventStore {
 	public final static int ORIGINAL= 2;
 	public final static int BOTH= NEW | ORIGINAL;
 		
-	
-	/** all events */
-	final List events;
+		
+	/** all events by parent*/
+	final Map eventLookup;
 	
 	/** cache for last accessed event */
 	private EventHolder lastEvent;
@@ -305,7 +307,7 @@ public final class RewriteEventStore {
 	private static final String INTERNAL_PLACEHOLDER_PROPERTY= "rewrite_internal_placeholder"; //$NON-NLS-1$
 		
 	public RewriteEventStore() {
-		this.events= new ArrayList();
+		this.eventLookup= new HashMap();
 		this.lastEvent= null;
 		
 		this.editGroups= null; // lazy initialization
@@ -328,7 +330,7 @@ public final class RewriteEventStore {
 	}
 	
 	public void clear() {
-		this.events.clear();
+		this.eventLookup.clear();
 		this.lastEvent= null;
 		this.trackedNodes= null;
 		
@@ -346,16 +348,21 @@ public final class RewriteEventStore {
 		
 		EventHolder holder= new EventHolder(parent, childProperty, event);
 		
-		// check if already in list
-		for (int i= 0; i < this.events.size(); i++) {
-			EventHolder curr= (EventHolder) this.events.get(i);
-			if (curr.parent == parent && curr.childProperty == childProperty) {
-				this.events.set(i, holder);
-				this.lastEvent= null;
-				return;
+		List entriesList = (List) this.eventLookup.get(parent);
+		if (entriesList != null) {
+			for (int i= 0; i < entriesList.size(); i++) {
+				EventHolder curr= (EventHolder) entriesList.get(i);
+				if (curr.childProperty == childProperty) {
+					entriesList.set(i, holder);
+					this.lastEvent= null;
+					return;
+				}
 			}
+		} else {
+			entriesList= new ArrayList(3);
+			this.eventLookup.put(parent, entriesList);
 		}
-		this.events.add(holder);
+		entriesList.add(holder);
 	}
 	
 	public RewriteEvent getEvent(ASTNode parent, StructuralPropertyDescriptor property) {
@@ -365,11 +372,14 @@ public final class RewriteEventStore {
 			return this.lastEvent.event;
 		}
 		
-		for (int i= 0; i < this.events.size(); i++) {
-			EventHolder holder= (EventHolder) this.events.get(i);
-			if (holder.parent == parent && holder.childProperty == property) {
-				this.lastEvent= holder;
-				return holder.event;
+		List entriesList = (List) this.eventLookup.get(parent);
+		if (entriesList != null) {
+			for (int i= 0; i < entriesList.size(); i++) {
+				EventHolder holder= (EventHolder) entriesList.get(i);
+				if (holder.childProperty == property) {
+					this.lastEvent= holder;
+					return holder.event;
+				}
 			}
 		}
 		return null;
@@ -403,9 +413,10 @@ public final class RewriteEventStore {
 	
 	
 	public boolean hasChangedProperties(ASTNode parent) {
-		for (int i= 0; i < this.events.size(); i++) {
-			EventHolder holder= (EventHolder) this.events.get(i);
-			if (holder.parent == parent) {
+		List entriesList = (List) this.eventLookup.get(parent);
+		if (entriesList != null) {
+			for (int i= 0; i < entriesList.size(); i++) {
+				EventHolder holder= (EventHolder) entriesList.get(i);
 				if (holder.event.getChangeKind() != RewriteEvent.UNCHANGED) {
 					return true;
 				}
@@ -415,17 +426,20 @@ public final class RewriteEventStore {
 	}
 	
 	public PropertyLocation getPropertyLocation(Object value, int kind) {
-		for (int i= 0; i < this.events.size(); i++) {
-			EventHolder holder= (EventHolder) this.events.get(i);
-			RewriteEvent event= holder.event;
-			if (isNodeInEvent(event, value, kind)) {
-				return new PropertyLocation(holder.parent, holder.childProperty);
-			}
-			if (event.isListRewrite()) {
-				RewriteEvent[] children= event.getChildren();
-				for (int k= 0; k < children.length; k++) {
-					if (isNodeInEvent(children[k], value, kind)) {
-						return new PropertyLocation(holder.parent, holder.childProperty);
+		for (Iterator iter= this.eventLookup.values().iterator(); iter.hasNext();) {
+			List events= (List) iter.next();
+			for (int i= 0; i < events.size(); i++) {
+				EventHolder holder= (EventHolder) events.get(i);
+				RewriteEvent event= holder.event;
+				if (isNodeInEvent(event, value, kind)) {
+					return new PropertyLocation(holder.parent, holder.childProperty);
+				}
+				if (event.isListRewrite()) {
+					RewriteEvent[] children= event.getChildren();
+					for (int k= 0; k < children.length; k++) {
+						if (isNodeInEvent(children[k], value, kind)) {
+							return new PropertyLocation(holder.parent, holder.childProperty);
+						}
 					}
 				}
 			}
@@ -445,16 +459,19 @@ public final class RewriteEventStore {
 	 * @return Returns the event with the given value of <code>null</code>.
 	 */
 	public RewriteEvent findEvent(Object value, int kind) {
-		for (int i= 0; i < this.events.size(); i++) {
-			RewriteEvent event= ((EventHolder) this.events.get(i)).event;
-			if (isNodeInEvent(event, value, kind)) {
-				return event;
-			}
-			if (event.isListRewrite()) {
-				RewriteEvent[] children= event.getChildren();
-				for (int k= 0; k < children.length; k++) {
-					if (isNodeInEvent(children[k], value, kind)) {
-						return children[k];
+		for (Iterator iter= this.eventLookup.values().iterator(); iter.hasNext();) {
+			List events= (List) iter.next();
+			for (int i= 0; i < events.size(); i++) {
+				RewriteEvent event= ((EventHolder) events.get(i)).event;
+				if (isNodeInEvent(event, value, kind)) {
+					return event;
+				}
+				if (event.isListRewrite()) {
+					RewriteEvent[] children= event.getChildren();
+					for (int k= 0; k < children.length; k++) {
+						if (isNodeInEvent(children[k], value, kind)) {
+							return children[k];
+						}
 					}
 				}
 			}
@@ -823,8 +840,11 @@ public final class RewriteEventStore {
 	
 	public String toString() {
 		StringBuffer buf= new StringBuffer();
-		for (int i= 0; i < this.events.size(); i++) {
-			buf.append(this.events.get(i).toString()).append('\n');
+		for (Iterator iter = this.eventLookup.values().iterator(); iter.hasNext();) {
+			List events = (List) iter.next();
+			for (int i= 0; i < events.size(); i++) {
+				buf.append(events.get(i).toString()).append('\n');
+			}
 		}
 		return buf.toString();
 	}
