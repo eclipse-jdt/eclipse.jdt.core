@@ -284,6 +284,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.thrownExceptions = Scope.substitute(this, 	ignoreRawTypeSubstitution 
 	    									? originalMethod.thrownExceptions // no substitution if original was static
 	    									: Scope.substitute(rawType, originalMethod.thrownExceptions));
+	    // error case where exception type variable would have been substituted by a non-reference type (207573)
+	    if (this.thrownExceptions == null) this.thrownExceptions = Binding.NO_EXCEPTIONS;	    
 	    this.returnType = Scope.substitute(this, ignoreRawTypeSubstitution 
 	    									? originalMethod.returnType // no substitution if original was static
 	    									: Scope.substitute(rawType, originalMethod.returnType));
@@ -306,6 +308,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.originalMethod = originalMethod;
 	    this.parameters = Scope.substitute(this, originalMethod.parameters);
 	    this.thrownExceptions = Scope.substitute(this, originalMethod.thrownExceptions);
+	    // error case where exception type variable would have been substituted by a non-reference type (207573)
+	    if (this.thrownExceptions == null) this.thrownExceptions = Binding.NO_EXCEPTIONS;	    
 	    this.returnType = Scope.substitute(this, originalMethod.returnType);
 	    this.wasInferred = true;// resulting from method invocation inferrence
 	}
@@ -432,6 +436,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		this.inferredReturnType = inferenceContext.hasExplicitExpectedType && this.returnType != oldReturnType;
 	    this.parameters = Scope.substitute(this, this.parameters);
 	    this.thrownExceptions = Scope.substitute(this, this.thrownExceptions);
+	    // error case where exception type variable would have been substituted by a non-reference type (207573)
+	    if (this.thrownExceptions == null) this.thrownExceptions = Binding.NO_EXCEPTIONS;
 	    return this;
 	}
 

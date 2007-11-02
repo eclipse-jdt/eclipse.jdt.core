@@ -200,12 +200,15 @@ public abstract class Scope implements TypeConstants, TypeIds {
 	    ReferenceBinding[] substitutedTypes = originalTypes;
 	    for (int i = 0, length = originalTypes.length; i < length; i++) {
 	        ReferenceBinding originalType = originalTypes[i];
-	        ReferenceBinding substitutedParameter = (ReferenceBinding)substitute(substitution, originalType);
-	        if (substitutedParameter != originalType) {
+	        TypeBinding substitutedType = substitute(substitution, originalType);
+	        if (!(substitutedType instanceof ReferenceBinding)) {
+	        	return null; // impossible substitution
+	        }
+	        if (substitutedType != originalType) {
 	            if (substitutedTypes == originalTypes) {
 	                System.arraycopy(originalTypes, 0, substitutedTypes = new ReferenceBinding[length], 0, i);
 	            }
-	            substitutedTypes[i] = substitutedParameter;
+	            substitutedTypes[i] = (ReferenceBinding)substitutedType;
 	        } else if (substitutedTypes != originalTypes) {
 	            substitutedTypes[i] = originalType;
 	        }
