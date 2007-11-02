@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- build script to create a plugin from ${plugin} -->
-<project name="${plugin}" default="export plug-in [_3.1.2]" basedir="..">
+<project name="${plugin}" default="export plug-in [_3.1.3]" basedir="..">
+
+<target name="export plug-in [_3.1.3]">
+	<antcall target="zz_internal_export">
+		<param name="jdt_core_version" value="3.1.3"/>
+	</antcall>
+</target>
 
 <target name="export plug-in [_3.1.2]">
 	<antcall target="zz_internal_export">
