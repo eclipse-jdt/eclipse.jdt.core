@@ -38785,4 +38785,104 @@ public void test1171() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573
+public void test1206() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public final <E extends Exception> E throwE(E ex, Object... args) throws E {\n" + 
+			"		Object[] oar = new Object[0];\n" + 
+			"		return throwE(oar, ex, args);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public final <E extends Exception> E throwE(Object[] oar, E ex, Object... args) throws E {\n" + 
+			"		throw ex;\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573 - variation
+public void test1207() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public final <E extends Exception> E throwE (E ex) throws E {\n" + 
+			"    	throw ex;\n" + 
+			"    }\n" + 
+			"    void foo(Object[] objs) {\n" + 
+			"    	throwE(objs);\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\r\n" + 
+		"	throwE(objs);\r\n" + 
+		"	^^^^^^\n" + 
+		"Bound mismatch: The generic method throwE(E) of type X is not applicable for the arguments (Object[]). The inferred type Object[] is not a valid substitute for the bounded parameter <E extends Exception>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573 - variation
+public void test1208() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public final <E extends Exception> E throwE2(E ex, Object... args) throws E {\n" + 
+			"		Object[] oar = new Object[0];\n" + 
+			"		return throwE(oar, ex, args);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public final <E extends Exception> E throwE(Object[] oar, E ex, Object... args) throws E {\n" + 
+			"		throw ex;\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573 - variation
+public void test1209() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public final <E extends Exception> E throwE (E ex, Object ... args) throws E {\n" + 
+			"    	throw ex;\n" + 
+			"    }\n" + 
+			"    void foo(Object[] objs) {\n" + 
+			"    	throwE(objs);\n" + 
+			"    }\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\r\n" + 
+		"	throwE(objs);\r\n" + 
+		"	^^^^^^\n" + 
+		"Bound mismatch: The generic method throwE(E, Object...) of type X is not applicable for the arguments (Object[]). The inferred type Object[] is not a valid substitute for the bounded parameter <E extends Exception>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573 - variation
+public void test1210() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public final <E extends Exception> E throwE (Object ... args) throws E {\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"    void foo(Object[] objs) {\n" + 
+			"    	Object[] o  = throwE(objs);\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Object[] o  = throwE(objs);\n" + 
+		"	              ^^^^^^\n" + 
+		"Bound mismatch: The generic method throwE(Object...) of type X is not applicable for the arguments (Object[]). The inferred type Object[] is not a valid substitute for the bounded parameter <E extends Exception>\n" + 
+		"----------\n");
+}
+
 }
