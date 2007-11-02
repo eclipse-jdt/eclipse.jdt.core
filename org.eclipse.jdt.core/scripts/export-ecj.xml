@@ -51,17 +51,17 @@
 	<target name="export" depends="init">
 		<mkdir dir="${dest}" />
 
-		<echo message="UPDATE ecj_3.1.2.jar" />
-		<delete file="${dest}/ecj_3.1.2.jar" failonerror="false"/>
-		<zip zipfile="${dest}/ecj_3.1.2.jar">
+		<echo message="UPDATE ecj_3.1.3.jar" />
+		<delete file="${dest}/ecj_3.1.3.jar" failonerror="false"/>
+		<zip zipfile="${dest}/ecj_3.1.3.jar">
 			<fileset dir="${ecj-temp-folder}">
 				<include name="**/*"/>
 				<include name="about.html"/>
 	        </fileset>
 		</zip>
 		<echo message="UPDATE ecjsrc.zip" />
-		<delete file="${dest}/ecj_3.1.2src.zip" failonerror="false"/>
-		<zip zipfile="${dest}/ecj_3.1.2src.zip">
+		<delete file="${dest}/ecj_3.1.3src.zip" failonerror="false"/>
+		<zip zipfile="${dest}/ecj_3.1.3src.zip">
 		    <zipfileset dir="batch" />
 		    <zipfileset dir="compiler" />
 		    <zipfileset dir="antadapter">
