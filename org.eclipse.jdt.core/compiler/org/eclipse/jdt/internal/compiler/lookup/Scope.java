@@ -709,7 +709,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding()) {
 						if (concreteMatch != null && concreteMatch.declaringClass.findSuperTypeOriginatingFrom(compatibleMethod.declaringClass) != null)
-							if (environment().methodVerifier().doesMethodOverride(concreteMatch, compatibleMethod))
+							if (environment().methodVerifier().isParameterSubsignature(concreteMatch, compatibleMethod))
 								continue; // can skip this method since concreteMatch overrides it
 						if (candidatesCount == 0) {
 							candidates = new MethodBinding[foundSize - startFoundSize + 1];
@@ -1089,7 +1089,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						// BUT we can also ignore any overridden method since we already know the better match (fixes 80028)
 						for (int j = 0, max = found.size; j < max; j++) {
 							MethodBinding matchingMethod = (MethodBinding) found.elementAt(j);
-							if (verifier.doesMethodOverride(matchingMethod.original(), currentMethod.original())) {
+							if (verifier.isParameterSubsignature(matchingMethod.original(), currentMethod.original())) {
 								if (isCompliant15) {
 									if (matchingMethod.isBridge() && !currentMethod.isBridge())
 										continue nextMethod; // keep inherited methods to find concrete method over a bridge method
@@ -3423,7 +3423,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 									}
 								}
 							}
-							if (!environment().methodVerifier().doesMethodOverride(original, original2))
+							if (!environment().methodVerifier().isParameterSubsignature(original, original2))
 								continue nextSpecific; // current does not override next
 						}
 					} else if (receiverType != null) { // should not be null if original isAbstract, but be safe

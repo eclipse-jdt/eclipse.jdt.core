@@ -784,4 +784,274 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		assertTrue("Y#foo() should not override X#foo()", !bindings[0].overrides(bindings[1]));
 	}
 	
+	/*
+	 * Ensures that a method with different paramter types is not a subsignature of its super method.
+	 * (regression test for bug 111093 More problems with IMethodBinding#isSubsignature(..))
+	 */
+	public void test035() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/A.java",
+				"package p1;\n" +
+				"public class A<T> {\n" + 
+				"  public void o1_xoo2(A<?> s) {\n" + 
+				"  }\n" + 
+				"}\n" +
+				"class B<S> extends A<S> {\n" + 
+				"  @Override\n" + 
+				"  public void o1_xoo2(A<Object> s) {\n" + 
+				"  }\n" + 
+				"}",
+			},
+			new String[] {
+				"Lp1/A;.o1_xoo2(Lp1/A<*>;)V",
+				"Lp1/A~B;.o1_xoo2(Lp1/A<Ljava/lang/Object;>;)V"
+			});	
+		assertFalse("B#o1_xoo2() should not be a subsignature of A#o1_xoo2()", bindings[1].isSubsignature(bindings[0]));
+	}
+	
+	/*
+	 * Ensures that a method with different paramter types is not a subsignature of its super method.
+	 * (regression test for bug 111093 More problems with IMethodBinding#isSubsignature(..))
+	 */
+	public void test036() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/A.java",
+				"package p1;\n" +
+				"public class A<T> {\n" + 
+				"  public void o1_xoo3(A<? extends T> s) {\n" + 
+				"  }\n" + 
+				"}\n" +
+				"class B<S> extends A<S> {\n" + 
+				"  @Override\n" + 
+				"  public void o1_xoo3(A<? super S> s) {\n" + 
+				"  }\n" + 
+				"}",
+			},
+			new String[] {
+				"Lp1/A;.o1_xoo3(Lp1/A<+TT;>;)V",
+				"Lp1/A~B;.o1_xoo3(Lp1/A<-TS;>;)V"
+			});	
+		assertFalse("B#o1_xoo3() should not be a subsignature of A#o1_xoo3()", bindings[1].isSubsignature(bindings[0]));
+	}
+	
+	/*
+	 * Ensures that a method with different paramter types is not a subsignature of its super method.
+	 * (regression test for bug 111093 More problems with IMethodBinding#isSubsignature(..))
+	 */
+	public void test037() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/A.java",
+				"package p1;\n" +
+				"public class A<S, T> {\n" + 
+				"  public void o2_xoo1(List<? extends T> t) {\n" + 
+				"  }\n" + 
+				"}\n" +
+				"class B<V, W> extends A<W, V> {\n" + 
+				"  @Override\n" + 
+				"  public void o2_xoo1(List<? extends W> t) {\n" + 
+				"  }\n" + 
+				"}\n" +
+				"class List<T> {\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/A;.o2_xoo1(Lp1/List<+TT;>;)V",
+				"Lp1/A~B;.o2_xoo1(Lp1/List<+TW;>;)V"
+			});	
+		assertFalse("B#o1_xoo1() should not be a subsignature of A#o1_xoo1()", bindings[1].isSubsignature(bindings[0]));
+	}
+	
+	/*
+	 * Ensures that a method with different paramter types is not a subsignature of its super method.
+	 * (regression test for bug 111093 More problems with IMethodBinding#isSubsignature(..))
+	 */
+	public void test038() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/A.java",
+				"package p1;\n" +
+				"public class A {\n" + 
+				"  public void o3_xoo1(List t) {\n" + 
+				"  }\n" + 
+				"}\n" +
+				"class B extends A {\n" + 
+				"  @Override\n" + 
+				"  public void o3_xoo1(List<Object> t) {\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"class List<T> {\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/A;.o3_xoo1(Lp1/List;)V",
+				"Lp1/A~B;.o3_xoo1(Lp1/List<Ljava/lang/Object;>;)V"
+			});	
+		assertFalse("B#o3_xoo1() should not be a subsignature of A#o3_xoo1()", bindings[1].isSubsignature(bindings[0]));
+	}
+	
+	/*
+	 * Ensures that a method with different paramter types is not a subsignature of its super method.
+	 * (regression test for bug 111093 More problems with IMethodBinding#isSubsignature(..))
+	 */
+	public void test039() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/A.java",
+				"package p1;\n" +
+				"public class A<T> {\n" + 
+				"  public void o4_xoo1(T t) {\n" + 
+				"  }\n" + 
+				"}\n" +
+				"class B extends A<List<String>> {\n" + 
+				"  @Override\n" + 
+				"  public void o4_xoo1(List<?> t) {\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"class List<T> {\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/A;.o4_xoo1(TT;)V",
+				"Lp1/A~B;.o4_xoo1(Lp1/List<*>;)V"
+			});	
+		assertFalse("B#o4_xoo1() should not be a subsignature of A#o4_xoo1()", bindings[1].isSubsignature(bindings[0]));
+	}
+	
+	/*
+	 * Ensures that a method with different paramter types is not a subsignature of its super method.
+	 * (regression test for bug 111093 More problems with IMethodBinding#isSubsignature(..))
+	 */
+	public void test040() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/A.java",
+				"package p1;\n" +
+				"public class A<S> {\n" + 
+				"  public <X, Y> void tp1_xoo3(X x, Y y) {\n" + 
+				"  }\n" + 
+				"}\n" +
+				"class B extends A<String> {\n" + 
+				"  @Override\n" + 
+				"  public <W, V> void tp1_xoo3(V x, W y) {\n" + 
+				"  }\n" + 
+				"}",
+			},
+			new String[] {
+				"Lp1/A;.tp1_xoo3<X:Ljava/lang/Object;Y:Ljava/lang/Object;>(TX;TY;)V",
+				"Lp1/A~B;.tp1_xoo3<W:Ljava/lang/Object;V:Ljava/lang/Object;>(TV;TW;)V"
+			});	
+		assertFalse("B#tp1_xoo3() should not be a subsignature of A#tp1_xoo3()", bindings[1].isSubsignature(bindings[0]));
+	}
+	
+	/*
+	 * Ensures that a method with different paramter types is not a subsignature of its super method.
+	 * (regression test for bug 111093 More problems with IMethodBinding#isSubsignature(..))
+	 */
+	public void test041() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/A.java",
+				"package p1;\n" +
+				"public class A<S> {\n" + 
+				"  public <X, Y> void tp1_foo2(S s, X x, Y y) {\n" + 
+				"  }\n" + 
+				"}\n" +
+				"class B extends A<String> {\n" + 
+				"  @Override\n" + 
+				"  public void tp1_foo2(String s, Object x, Object y) {\n" + 
+				"  }\n" + 
+				"}",
+			},
+			new String[] {
+				"Lp1/A;.tp1_foo2<X:Ljava/lang/Object;Y:Ljava/lang/Object;>(TS;TX;TY;)V",
+				"Lp1/A~B;.tp1_foo2(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"
+			});	
+		assertTrue("B#tp1_foo2() should be a subsignature of A#tp1_foo2()", bindings[1].isSubsignature(bindings[0]));
+	}
+	
+	/*
+	 * Ensures that a method with different paramter types is not a subsignature of its super method.
+	 * (regression test for bug 111093 More problems with IMethodBinding#isSubsignature(..))
+	 */
+	public void test042() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/A.java",
+				"package p1;\n" +
+				"public abstract class A<T> {\n" + 
+				"  void g2 (T t) {\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"class B extends A<List<Number>> {\n" + 
+				"  void g2 (List<Number> t) {\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"class List<T> {\n" + 
+				"}\n" +
+				"class Number {\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/A~B;.g2(Lp1/List<Lp1/Number;>;)V"
+			});	
+		ITypeBinding superType = bindings[0].getDeclaringClass().getSuperclass(); // parameterized type
+		IMethodBinding ag2 = superType.getDeclaredMethods()[1];
+		assertTrue("B#g2() should be a subsignature of A#g2()", bindings[0].isSubsignature(ag2));
+	}
+	
+	/*
+	 * Ensures that a method with same signature in a different hierarchy doesn't overide another one
+	 */
+	public void test043() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}",
+				"/P/p1/Y.java",
+				"package p1;\n" +
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/X;.foo()V",
+				"Lp1/Y;.foo()V"
+			});	
+		assertFalse("Y#foo() should not override X#foo()", bindings[1].overrides(bindings[0]));
+	}
+	
+	/*
+	 * Ensures that a method is a subsignature of the same method in a different hierarchy 
+	 */
+	public void test044() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}",
+				"/P/p1/Y.java",
+				"package p1;\n" +
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/X;.foo()V",
+				"Lp1/Y;.foo()V"
+			});	
+		assertTrue("Y#foo() should be a subsignature of X#foo()", bindings[1].isSubsignature(bindings[0]));
+	}
+	
 }

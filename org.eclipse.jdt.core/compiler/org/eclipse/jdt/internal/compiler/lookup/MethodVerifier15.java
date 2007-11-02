@@ -21,7 +21,7 @@ MethodVerifier15(LookupEnvironment environment) {
 }
 boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
 	MethodBinding sub = computeSubstituteMethod(two, one);
-	return sub != null && doesSubstituteMethodOverride(one, sub) && areReturnTypesCompatible(one, sub);
+	return sub != null && isSubstituteParameterSubsignature(one, sub) && areReturnTypesCompatible(one, sub);
 }
 boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 	TypeBinding[] oneArgs = one.parameters;
@@ -224,7 +224,7 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 			MethodBinding[] methods = superType.getMethods(currentMethod.selector);
 			for (int m = 0, n = methods.length; m < n; m++) {
 				MethodBinding substitute = computeSubstituteMethod(methods[m], currentMethod);
-				if (substitute != null && !doesSubstituteMethodOverride(currentMethod, substitute) && detectNameClash(currentMethod, substitute))
+				if (substitute != null && !isSubstituteParameterSubsignature(currentMethod, substitute) && detectNameClash(currentMethod, substitute))
 					return;
 			}
 			if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
@@ -252,7 +252,7 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 				MethodBinding[] methods = superType.getMethods(currentMethod.selector);
 				for (int m = 0, n = methods.length; m < n; m++){
 					MethodBinding substitute = computeSubstituteMethod(methods[m], currentMethod);
-					if (substitute != null && !doesSubstituteMethodOverride(currentMethod, substitute) && detectNameClash(currentMethod, substitute))
+					if (substitute != null && !isSubstituteParameterSubsignature(currentMethod, substitute) && detectNameClash(currentMethod, substitute))
 						return;
 				}
 				if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
@@ -424,7 +424,7 @@ void checkMethods() {
 				for (int j = 0, length2 = inherited.length; j < length2; j++) {
 					MethodBinding inheritedMethod = computeSubstituteMethod(inherited[j], currentMethod);
 					if (inheritedMethod != null) {
-						if (foundMatch[j] == 0 && doesSubstituteMethodOverride(currentMethod, inheritedMethod)) {
+						if (foundMatch[j] == 0 && isSubstituteParameterSubsignature(currentMethod, inheritedMethod)) {
 							matchingInherited[++index] = inheritedMethod;
 							foundMatch[j] = 1; // cannot null out inherited methods
 						} else {
@@ -454,7 +454,7 @@ void checkMethods() {
 				otherInheritedMethod = computeSubstituteMethod(otherInheritedMethod, inheritedMethod);
 				if (otherInheritedMethod != null) {
 					if (inheritedMethod.declaringClass != otherInheritedMethod.declaringClass
-						&& doesSubstituteMethodOverride(inheritedMethod, otherInheritedMethod)) {
+						&& isSubstituteParameterSubsignature(inheritedMethod, otherInheritedMethod)) {
 							matchingInherited[++index] = otherInheritedMethod;
 							foundMatch[j] = 1; // cannot null out inherited methods
 					} else {
@@ -491,7 +491,7 @@ void checkTypeVariableMethods(TypeParameter typeParameter) {
 					if (canSkipInheritedMethods(inheritedMethod, otherInheritedMethod))
 						continue;
 					otherInheritedMethod = computeSubstituteMethod(otherInheritedMethod, inheritedMethod);
-					if (otherInheritedMethod != null && doesSubstituteMethodOverride(inheritedMethod, otherInheritedMethod)) {
+					if (otherInheritedMethod != null && isSubstituteParameterSubsignature(inheritedMethod, otherInheritedMethod)) {
 						matchingInherited[++index] = otherInheritedMethod;
 						inherited[j] = null; // do not want to find it again
 					}
@@ -586,29 +586,26 @@ boolean detectNameClash(MethodBinding current, MethodBinding inherited) {
 	return true;
 }
 public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
-	MethodBinding substitute = computeSubstituteMethod(inheritedMethod, method);
-	return substitute != null && doesSubstituteMethodOverride(method, substitute);
-}
-// if method "overrides" substituteMethod then we can skip over substituteMethod while resolving a message send
-// if it does not then a name clash error is likely
-boolean doesSubstituteMethodOverride(MethodBinding method, MethodBinding substituteMethod) {
-	if (!areParametersEqual(method, substituteMethod)) {
-		// method can still override substituteMethod in cases like :
-		// <U extends Number> void c(U u) {}
-		// @Override void c(Number n) {}
-		// but method cannot have a "generic-enabled" parameter type
-		if (substituteMethod.hasSubstitutedParameters() && method.areParameterErasuresEqual(substituteMethod))
-			return method.typeVariables == Binding.NO_TYPE_VARIABLES && !hasGenericParameter(method);
+	if (!couldMethodOverride(method, inheritedMethod))
 		return false;
+
+	// need to switch back to the original if the method is from a ParameterizedType
+	if (method.declaringClass.isParameterizedType())
+		method = method.original();
+
+	inheritedMethod = inheritedMethod.original();
+	TypeBinding match = method.declaringClass.findSuperTypeOriginatingFrom(inheritedMethod.declaringClass);
+	if (!(match instanceof ReferenceBinding))
+		return false; // method's declaringClass does not inherit from inheritedMethod's 
+
+	if (match != inheritedMethod.declaringClass) {
+		MethodBinding[] superMethods = ((ReferenceBinding) match).getMethods(inheritedMethod.selector);
+		for (int i = 0, length = superMethods.length; i < length; i++)
+			if (superMethods[i].original() == inheritedMethod)
+				return isParameterSubsignature(method, superMethods[i]);
 	}
 
-	if (substituteMethod instanceof ParameterizedGenericMethodBinding) {
-		// since substituteMethod has substituted type variables, method cannot have a generic signature AND no variables -> its a name clash if it does
-		return ! (hasGenericParameter(method) && method.typeVariables == Binding.NO_TYPE_VARIABLES);
-	}
-
-	// if method has its own variables, then substituteMethod failed bounds check in computeSubstituteMethod()
-	return method.typeVariables == Binding.NO_TYPE_VARIABLES;
+	return isParameterSubsignature(method, inheritedMethod);
 }
 boolean hasGenericParameter(MethodBinding method) {
 	if (method.genericSignature() == null) return false;
@@ -707,6 +704,50 @@ boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBindin
 	return inheritedMethod != null
 		&& inheritedMethod.returnType == existingMethod.returnType // keep around to produce bridge methods
 		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
+}
+public boolean isMethodSubsignature(MethodBinding method, MethodBinding inheritedMethod) {
+	if (!org.eclipse.jdt.core.compiler.CharOperation.equals(method.selector, inheritedMethod.selector))
+		return false;
+
+	// need to switch back to the original if the method is from a ParameterizedType
+	if (method.declaringClass.isParameterizedType())
+		method = method.original();
+
+	inheritedMethod = inheritedMethod.original();
+	TypeBinding match = method.declaringClass.findSuperTypeOriginatingFrom(inheritedMethod.declaringClass);
+	if ((match instanceof ReferenceBinding) && match != inheritedMethod.declaringClass) {
+		MethodBinding[] superMethods = ((ReferenceBinding) match).getMethods(inheritedMethod.selector);
+		for (int i = 0, length = superMethods.length; i < length; i++)
+			if (superMethods[i].original() == inheritedMethod.original())
+				return isParameterSubsignature(method, superMethods[i]);
+	}
+
+	return isParameterSubsignature(method, inheritedMethod);
+}
+boolean isParameterSubsignature(MethodBinding method, MethodBinding inheritedMethod) {
+	MethodBinding substitute = computeSubstituteMethod(inheritedMethod, method);
+	return substitute != null && isSubstituteParameterSubsignature(method, substitute);
+}
+// if method "overrides" substituteMethod then we can skip over substituteMethod while resolving a message send
+// if it does not then a name clash error is likely
+boolean isSubstituteParameterSubsignature(MethodBinding method, MethodBinding substituteMethod) {
+	if (!areParametersEqual(method, substituteMethod)) {
+		// method can still override substituteMethod in cases like :
+		// <U extends Number> void c(U u) {}
+		// @Override void c(Number n) {}
+		// but method cannot have a "generic-enabled" parameter type
+		if (substituteMethod.hasSubstitutedParameters() && method.areParameterErasuresEqual(substituteMethod))
+			return method.typeVariables == Binding.NO_TYPE_VARIABLES && !hasGenericParameter(method);
+		return false;
+	}
+
+	if (substituteMethod instanceof ParameterizedGenericMethodBinding) {
+		// since substituteMethod has substituted type variables, method cannot have a generic signature AND no variables -> its a name clash if it does
+		return ! (hasGenericParameter(method) && method.typeVariables == Binding.NO_TYPE_VARIABLES);
+	}
+
+	// if method has its own variables, then substituteMethod failed bounds check in computeSubstituteMethod()
+	return method.typeVariables == Binding.NO_TYPE_VARIABLES;
 }
 boolean isUnsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	// JLS 3 §8.4.5: more are accepted, with an unchecked conversion

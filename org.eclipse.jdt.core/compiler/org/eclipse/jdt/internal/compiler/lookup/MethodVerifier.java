@@ -51,7 +51,7 @@ MethodVerifier(LookupEnvironment environment) {
 			&& environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_5;
 }
 boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
-	return doesMethodOverride(one, two) && areReturnTypesCompatible(one, two);
+	return isParameterSubsignature(one, two) && areReturnTypesCompatible(one, two);
 }
 boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 	TypeBinding[] oneArgs = one.parameters;
@@ -348,7 +348,7 @@ void checkMethods() {
 				for (int j = 0, length2 = inherited.length; j < length2; j++) {
 					MethodBinding inheritedMethod = computeSubstituteMethod(inherited[j], currentMethod);
 					if (inheritedMethod != null) {
-						if (doesMethodOverride(currentMethod, inheritedMethod)) {
+						if (isParameterSubsignature(currentMethod, inheritedMethod)) {
 							matchingInherited[++index] = inheritedMethod;
 							inherited[j] = null; // do not want to find it again
 						}
@@ -372,7 +372,7 @@ void checkMethods() {
 					continue;
 				otherInheritedMethod = computeSubstituteMethod(otherInheritedMethod, inheritedMethod);
 				if (otherInheritedMethod != null) {
-					if (doesMethodOverride(inheritedMethod, otherInheritedMethod)) {
+					if (isParameterSubsignature(inheritedMethod, otherInheritedMethod)) {
 						matchingInherited[++index] = otherInheritedMethod;
 						inherited[j] = null; // do not want to find it again
 					}
@@ -591,8 +591,36 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 	if (currentMethod.parameters.length != inheritedMethod.parameters.length) return null; // no match
 	return inheritedMethod;
 }
+boolean couldMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
+	if (!org.eclipse.jdt.core.compiler.CharOperation.equals(method.selector, inheritedMethod.selector))
+		return false;
+	if (method == inheritedMethod || method.isStatic() || inheritedMethod.isStatic())
+		return false;
+	if (inheritedMethod.isPrivate())
+		return false;
+	if (inheritedMethod.isDefault() && method.declaringClass.getPackage() != inheritedMethod.declaringClass.getPackage())
+		return false;
+	if (!method.isPublic()) { // inheritedMethod is either public or protected & method is less than public
+		if (inheritedMethod.isPublic())
+			return false;
+		if (inheritedMethod.isProtected() && !method.isProtected())
+			return false;
+	}
+	return true;
+}
+// Answer whether the method overrides the inheritedMethod
+// Check the necessary visibility rules & inheritance from the inheritedMethod's declaringClass
+// See isMethodSubsignature() for parameter comparisons
 public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
-	return areParametersEqual(method, inheritedMethod);
+	if (!couldMethodOverride(method, inheritedMethod))
+		return false;
+
+	inheritedMethod = inheritedMethod.original();
+	TypeBinding match = method.declaringClass.findSuperTypeOriginatingFrom(inheritedMethod.declaringClass);
+	if (!(match instanceof ReferenceBinding))
+		return false; // method's declaringClass does not inherit from inheritedMethod's 
+
+	return isParameterSubsignature(method, inheritedMethod);
 }
 SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
 	return null; // noop in 1.4
@@ -661,6 +689,13 @@ boolean isAsVisible(MethodBinding newMethod, MethodBinding inheritedMethod) {
 boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBinding existingMethod, ReferenceBinding superType) {
 	// skip interface method with the same signature if visible to its declaringClass
 	return areParametersEqual(existingMethod, inheritedMethod) && existingMethod.declaringClass.implementsInterface(superType, true);
+}
+public boolean isMethodSubsignature(MethodBinding method, MethodBinding inheritedMethod) {
+	return org.eclipse.jdt.core.compiler.CharOperation.equals(method.selector, inheritedMethod.selector)
+		&& isParameterSubsignature(method, inheritedMethod);
+}
+boolean isParameterSubsignature(MethodBinding method, MethodBinding inheritedMethod) {
+	return areParametersEqual(method, inheritedMethod);
 }
 boolean isSameClassOrSubclassOf(ReferenceBinding testClass, ReferenceBinding superclass) {
 	do {

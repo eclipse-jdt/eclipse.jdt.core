@@ -5615,13 +5615,13 @@ public final class CompletionEngine
 				
 				if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
 					if (receiverType == otherReceiverType) {
-						if (lookupEnvironment.methodVerifier().doesMethodOverride(otherMethod, method)) {
+						if (lookupEnvironment.methodVerifier().isMethodSubsignature(otherMethod, method)) {
 							if (!superCall || !otherMethod.declaringClass.isInterface()) {
 								continue next;
 							}
 						}
 					} else {
-						if (lookupEnvironment.methodVerifier().doesMethodOverride(otherMethod, method)) {
+						if (lookupEnvironment.methodVerifier().isMethodSubsignature(otherMethod, method)) {
 							if(receiverType.isAnonymousType()) continue next;
 							
 							if(!superCall) {
@@ -5921,7 +5921,7 @@ public final class CompletionEngine
 					if (method == otherMethod) continue next;
 					
 					if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
-						if (lookupEnvironment.methodVerifier().doesMethodOverride(otherMethod, method)) {
+						if (lookupEnvironment.methodVerifier().isMethodSubsignature(otherMethod, method)) {
 							continue next;
 						}
 					}
@@ -6216,7 +6216,7 @@ public final class CompletionEngine
 					continue next;
 				
 				if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
-					if (lookupEnvironment.methodVerifier().doesMethodOverride(otherMethod, method)) {
+					if (lookupEnvironment.methodVerifier().isMethodSubsignature(otherMethod, method)) {
 						continue next;
 					}
 				}
@@ -6541,7 +6541,7 @@ public final class CompletionEngine
 					continue next;
 
 				if (CharOperation.equals(method.selector, otherMethod.selector, true)
-						&& lookupEnvironment.methodVerifier().doesMethodOverride(otherMethod, method)) {
+						&& lookupEnvironment.methodVerifier().isMethodSubsignature(otherMethod, method)) {
 					continue next;
 				}
 			}
@@ -7028,11 +7028,7 @@ public final class CompletionEngine
 			} else {
 				hasPotentialDefaultAbstractMethods = false;
 			}
-			if(currentType.isParameterizedType()) {
-				currentType = ((ParameterizedTypeBinding)currentType).genericType().superclass();
-			} else {
-				currentType = currentType.superclass();
-			}
+			currentType = currentType.superclass();
 		}
 	}
 	private char[][] findMethodParameterNames(MethodBinding method, char[][] parameterTypeNames){

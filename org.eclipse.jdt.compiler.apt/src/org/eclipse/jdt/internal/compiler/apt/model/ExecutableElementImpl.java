@@ -259,7 +259,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 			return false;
 		}
 		// check parameters
-		if (!_env.getLookupEnvironment().methodVerifier().doesMethodOverride(hiderBinding, hiddenBinding)) {
+		if (!_env.getLookupEnvironment().methodVerifier().isMethodSubsignature(hiderBinding, hiddenBinding)) {
 			return false;
 		}
 		return null != hiderBinding.declaringClass.findSuperTypeOriginatingFrom(hiddenBinding.declaringClass); 
@@ -321,14 +321,12 @@ public class ExecutableElementImpl extends ElementImpl implements
 		if (!(match instanceof ReferenceBinding)) return false;
 
 		org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] superMethods = ((ReferenceBinding)match).getMethods(selector);
+		LookupEnvironment lookupEnvironment = _env.getLookupEnvironment();
+		if (lookupEnvironment == null) return false;
+		MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
 		for (int i = 0, length = superMethods.length; i < length; i++) {
 			if (superMethods[i].original() == overriddenBinding) {
-				LookupEnvironment lookupEnvironment = _env.getLookupEnvironment();
-				if (lookupEnvironment == null) return false;
-				MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
-				org.eclipse.jdt.internal.compiler.lookup.MethodBinding superMethod = superMethods[i];
-				return !(superMethod.isDefault() && (superMethod.declaringClass.getPackage()) != overriderBinding.declaringClass.getPackage())
-					&& methodVerifier.doesMethodOverride(overriderBinding, superMethod);
+				return methodVerifier.doesMethodOverride(overriderBinding, superMethods[i]);
 			}
 		}
 		return false;
