@@ -28,6 +28,8 @@ import org.eclipse.jdt.core.IJavaElement;
  * @see ITypeBinding
  * @see IVariableBinding
  * @see IMethodBinding
+ * @see IAnnotationBinding
+ * @see IMemberValuePairBinding
  * @since 2.0
  */
 public interface IBinding {

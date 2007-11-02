@@ -13,7 +13,7 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Represents an resolved annotation. Resolved annotation are computed along with other
+ * Represents a resolved annotation. Resolved annotations are computed along with other
  * bindings; they correspond to {@link Annotation} nodes.
  * <p>
  * This interface is not intended to be implemented by clients.

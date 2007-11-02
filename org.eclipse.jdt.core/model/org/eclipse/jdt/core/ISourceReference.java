@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,8 +15,8 @@ package org.eclipse.jdt.core;
  * This set consists of {@link IClassFile}, {@link ICompilationUnit},
  * {@link IPackageDeclaration}, {@link IImportDeclaration},
  * {@link IImportContainer}, {@link IType}, {@link IField},
- * {@link IMethod}, {@link IInitializer}, {@link ITypeParameter}, 
- * and {@link IAnnotation}.
+ * {@link IMethod}, {@link IInitializer}, {@link ITypeParameter},
+ * {@link ILocalVariable}, and {@link IAnnotation}.
  * <p>
  * Note: For <code>IClassFile</code>, <code>IType</code> and other members
  * derived from a binary type, the implementation returns source iff the
