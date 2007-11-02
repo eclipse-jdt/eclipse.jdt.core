@@ -1222,6 +1222,54 @@ public void test051() {
 		"The assignment to variable s has no effect\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206017
+public void test052() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  void foo() {\n" + 
+			"    int i = \"aaa\";\n" + 
+			"    i = \"bbb\";\n" + 
+			"  }\n" + 
+			"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	int i = \"aaa\";\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from String to int\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	i = \"bbb\";\n" + 
+			"	    ^^^^^\n" + 
+			"Type mismatch: cannot convert from String to int\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206017
+public void test053() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  int i = \"aaa\";\n" + 
+			"  { \n" + 
+			"    i = \"bbb\";\n" + 
+			"  }\n" + 
+			"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	int i = \"aaa\";\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from String to int\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	i = \"bbb\";\n" + 
+			"	    ^^^^^\n" + 
+			"Type mismatch: cannot convert from String to int\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }

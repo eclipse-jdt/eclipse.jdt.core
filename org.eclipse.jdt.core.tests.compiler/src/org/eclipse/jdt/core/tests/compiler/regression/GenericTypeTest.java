@@ -6579,9 +6579,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"	, 
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	static final Map<String, Class<? extends Object>> classes2 \n" + 
-			"	                                                  ^^^^^^^^\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	= new HashMap<String, Class>();\n" + 
+			"	  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from HashMap<String,Class> to Map<String,Class<? extends Object>>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
@@ -18183,15 +18183,15 @@ public void test0500(){
 				"}\n",
             },
     		"----------\n" + 
-    		"1. ERROR in X.java (at line 3)\n" + 
-    		"	List<Class<?>> classes1 = Arrays.asList(String.class, Boolean.class);\n" + 
-    		"	               ^^^^^^^^\n" + 
-    		"Type mismatch: cannot convert from List<Class<? extends Object&Serializable&Comparable<?>>> to List<Class<?>>\n" + 
-    		"----------\n" + 
-    		"2. WARNING in X.java (at line 3)\n" + 
+    		"1. WARNING in X.java (at line 3)\n" + 
     		"	List<Class<?>> classes1 = Arrays.asList(String.class, Boolean.class);\n" + 
     		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
     		"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
+    		"----------\n" + 
+    		"2. ERROR in X.java (at line 3)\n" + 
+    		"	List<Class<?>> classes1 = Arrays.asList(String.class, Boolean.class);\n" + 
+    		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		"Type mismatch: cannot convert from List<Class<? extends Object&Serializable&Comparable<?>>> to List<Class<?>>\n" + 
     		"----------\n" + 
     		"3. WARNING in X.java (at line 4)\n" + 
     		"	List<? extends Class<?>> classes2 = Arrays.asList(String.class, Boolean.class);\n" + 
@@ -21918,15 +21918,15 @@ public void test0701() {
 		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 14)\n" + 
-		"	List<Counter<? extends String>> list5 = Arrays.asList(songCounter, genreCounter);\n" + 
-		"	                                ^^^^^\n" + 
-		"Type mismatch: cannot convert from List<Deejay.Counter<? extends Object>> to List<Deejay.Counter<? extends String>>\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 14)\n" + 
+		"3. WARNING in X.java (at line 14)\n" + 
 		"	List<Counter<? extends String>> list5 = Arrays.asList(songCounter, genreCounter);\n" + 
 		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 14)\n" + 
+		"	List<Counter<? extends String>> list5 = Arrays.asList(songCounter, genreCounter);\n" + 
+		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<Deejay.Counter<? extends Object>> to List<Deejay.Counter<? extends String>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303 - variation
@@ -38299,7 +38299,7 @@ public void test1144() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	Iterable<? extends Comparator<? super Object>> itc2 = itc1;\n" + 
-		"	                                               ^^^^\n" + 
+		"	                                                      ^^^^\n" + 
 		"Type mismatch: cannot convert from Iterable<Comparator<? extends Object>> to Iterable<? extends Comparator<? super Object>>\n" + 
 		"----------\n");
 }

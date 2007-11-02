@@ -39,7 +39,7 @@ public void test001() {
 		"----------\n" + 
 		"1. ERROR in prs\\Test1.java (at line 4)\n" + 
 		"	String s = 3;	\n" + 
-		"	       ^\n" + 
+		"	           ^\n" + 
 		"Type mismatch: cannot convert from int to String\n" + 
 		"----------\n",
 		null,

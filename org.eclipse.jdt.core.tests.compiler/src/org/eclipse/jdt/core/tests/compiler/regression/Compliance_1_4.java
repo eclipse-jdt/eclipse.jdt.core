@@ -3247,7 +3247,7 @@ public void test101() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	Character c0 = \'a\';\n" + 
-		"	          ^^\n" + 
+		"	               ^^^\n" + 
 		"Type mismatch: cannot convert from char to Character\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 5)\n" + 
