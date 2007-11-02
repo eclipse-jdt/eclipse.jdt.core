@@ -15,6 +15,7 @@ import java.util.Comparator;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -207,34 +208,36 @@ public class CompilationUnitDeclaration
 		CategorizedProblem[] problems = this.compilationResult.problems;
 		int problemCount = this.compilationResult.problemCount;
 		long[] foundIrritants = new long[this.suppressWarningsCount];
+		CompilerOptions options = scope.compilerOptions();
+		boolean hasErrors = false;
 		nextProblem: for (int iProblem = 0, length = problemCount; iProblem < length; iProblem++) {
 			CategorizedProblem problem = problems[iProblem];
 			int problemID = problem.getID();
-			long problemIrritant = ProblemReporter.getIrritant(problemID);
-			boolean isWarning = problem.isWarning();
+			if (problem.isError()) {
+				if (problemID != IProblem.UnusedWarningToken) {
+				// tolerate unused warning tokens which were promoted as errors
+					hasErrors = true;
+				}
+				continue;
+			}
 			int start = problem.getSourceStart();
 			int end = problem.getSourceEnd();
+			long irritant = ProblemReporter.getIrritant(problemID);
 			nextSuppress: for (int iSuppress = 0, suppressCount = this.suppressWarningsCount; iSuppress < suppressCount; iSuppress++) {
 				long position = this.suppressWarningScopePositions[iSuppress];
 				int startSuppress = (int) (position >>> 32);
 				int endSuppress = (int) position;
 				if (start < startSuppress) continue nextSuppress;
 				if (end > endSuppress) continue nextSuppress;
-				if (isWarning) {
-					if ((problemIrritant & this.suppressWarningIrritants[iSuppress]) == 0)
-						continue nextSuppress;
-					// discard suppressed warning
-					removed++;
-					problems[iProblem] = null;
-					if (compilationResult.problemsMap != null) compilationResult.problemsMap.remove(problem);
-					if (compilationResult.firstErrors != null) compilationResult.firstErrors.remove(problem);
-					foundIrritants[iSuppress] |= problemIrritant;
-					continue nextProblem;
-				} else {
-					// any error may prevent further warnings to be emitted, hence shouldn't report unused warning tokens if in same scope
-					foundIrritants[iSuppress] = this.suppressWarningIrritants[iSuppress]; // treat as used
-					continue nextSuppress;					
-				}
+				if ((irritant & this.suppressWarningIrritants[iSuppress]) == 0)
+					continue nextSuppress;
+				// discard suppressed warning
+				removed++;
+				problems[iProblem] = null;
+				if (compilationResult.problemsMap != null) compilationResult.problemsMap.remove(problem);
+				if (compilationResult.firstErrors != null) compilationResult.firstErrors.remove(problem);
+				foundIrritants[iSuppress] |= irritant;
+				continue nextProblem;
 			}
 		}
 		// compact remaining problems
@@ -251,28 +254,53 @@ public class CompilationUnitDeclaration
 			}
 			this.compilationResult.problemCount -= removed;
 		}
-		// flag SuppressWarnings which had no effect
-		if (scope.compilerOptions().getSeverity(CompilerOptions.UnusedWarningToken) != ProblemSeverities.Ignore) {
-			for (int iSuppress = 0, suppressCount = this.suppressWarningsCount; iSuppress < suppressCount; iSuppress++) {
-				Annotation annotation = this.suppressWarningAnnotations[iSuppress];
-				if (annotation == null) continue; // implicit annotation
-				long irritants = this.suppressWarningIrritants[iSuppress];
-				if (~irritants == 0) continue; // @SuppressWarnings("all") also suppresses unused warning token
-				if (irritants != foundIrritants[iSuppress]) { // mismatch, some warning tokens were unused
-					MemberValuePair[] pairs = annotation.memberValuePairs();
-					pairLoop: for (int iPair = 0, pairCount = pairs.length; iPair < pairCount; iPair++) {
-						MemberValuePair pair = pairs[iPair];
-						if (CharOperation.equals(pair.name, TypeConstants.VALUE)) {
-							Expression value = pair.value;
-							if (value instanceof ArrayInitializer) {
-								ArrayInitializer initializer = (ArrayInitializer) value;
-								Expression[] inits = initializer.expressions;
-								if (inits != null) {
-									for (int iToken = 0, tokenCount = inits.length; iToken < tokenCount; iToken++) {
-										Constant cst = inits[iToken].constant;
-										if (cst != Constant.NotAConstant && cst.typeID() == TypeIds.T_JavaLangString) {
-											long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
-											if (irritant != 0 && (foundIrritants[iSuppress] & irritant) == 0) {
+		// flag SuppressWarnings which had no effect (only if no (mandatory) error got detected within unit
+		if (!hasErrors) {
+			int severity = options.getSeverity(CompilerOptions.UnusedWarningToken);
+			if (severity != ProblemSeverities.Ignore) {
+				boolean unusedWarningTokenIsWarning = (severity & ProblemSeverities.Error) == 0;
+				for (int iSuppress = 0, suppressCount = this.suppressWarningsCount; iSuppress < suppressCount; iSuppress++) {
+					Annotation annotation = this.suppressWarningAnnotations[iSuppress];
+					if (annotation == null) continue; // implicit annotation
+					long irritants = this.suppressWarningIrritants[iSuppress];
+					if (unusedWarningTokenIsWarning && ~irritants == 0) continue; // @SuppressWarnings("all") also suppresses unused warning token
+					if (irritants != foundIrritants[iSuppress]) { // mismatch, some warning tokens were unused
+						MemberValuePair[] pairs = annotation.memberValuePairs();
+						pairLoop: for (int iPair = 0, pairCount = pairs.length; iPair < pairCount; iPair++) {
+							MemberValuePair pair = pairs[iPair];
+							if (CharOperation.equals(pair.name, TypeConstants.VALUE)) {
+								Expression value = pair.value;
+								if (value instanceof ArrayInitializer) {
+									ArrayInitializer initializer = (ArrayInitializer) value;
+									Expression[] inits = initializer.expressions;
+									if (inits != null) {
+										for (int iToken = 0, tokenCount = inits.length; iToken < tokenCount; iToken++) {
+											Constant cst = inits[iToken].constant;
+											if (cst != Constant.NotAConstant && cst.typeID() == TypeIds.T_JavaLangString) {
+												long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
+												if (irritant != 0 && (foundIrritants[iSuppress] & irritant) == 0) {
+													if (unusedWarningTokenIsWarning) {
+														int start = value.sourceStart, end = value.sourceEnd;
+														nextSuppress: for (int jSuppress = iSuppress - 1; jSuppress >= 0; jSuppress--) {
+															long position = this.suppressWarningScopePositions[jSuppress];
+															int startSuppress = (int) (position >>> 32);
+															int endSuppress = (int) position;
+															if (start < startSuppress) continue nextSuppress;
+															if (end > endSuppress) continue nextSuppress;
+															if (~this.suppressWarningIrritants[jSuppress] == 0) break pairLoop; // suppress all?
+														}
+													}
+													scope.problemReporter().unusedWarningToken(inits[iToken]);
+												}
+											}
+										}
+									}
+								} else {
+									Constant cst = value.constant;
+									if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
+										long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
+										if (irritant != 0 && (foundIrritants[iSuppress] & irritant) == 0) {
+											if (unusedWarningTokenIsWarning) {
 												int start = value.sourceStart, end = value.sourceEnd;
 												nextSuppress: for (int jSuppress = iSuppress - 1; jSuppress >= 0; jSuppress--) {
 													long position = this.suppressWarningScopePositions[jSuppress];
@@ -282,30 +310,13 @@ public class CompilationUnitDeclaration
 													if (end > endSuppress) continue nextSuppress;
 													if (~this.suppressWarningIrritants[jSuppress] == 0) break pairLoop; // suppress all?
 												}
-												scope.problemReporter().unusedWarningToken(inits[iToken]);
 											}
+											scope.problemReporter().unusedWarningToken(value);
 										}
-									}
+									}	
 								}
-							} else {
-								Constant cst = value.constant;
-								if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
-									long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
-									if (irritant != 0 && (foundIrritants[iSuppress] & irritant) == 0) {
-										int start = value.sourceStart, end = value.sourceEnd;
-										nextSuppress: for (int jSuppress = iSuppress - 1; jSuppress >= 0; jSuppress--) {
-											long position = this.suppressWarningScopePositions[jSuppress];
-											int startSuppress = (int) (position >>> 32);
-											int endSuppress = (int) position;
-											if (start < startSuppress) continue nextSuppress;
-											if (end > endSuppress) continue nextSuppress;
-											if (~this.suppressWarningIrritants[jSuppress] == 0) break pairLoop; // suppress all?
-										}
-										scope.problemReporter().unusedWarningToken(value);
-									}
-								}	
+								break pairLoop;
 							}
-							break pairLoop;
 						}
 					}
 				}

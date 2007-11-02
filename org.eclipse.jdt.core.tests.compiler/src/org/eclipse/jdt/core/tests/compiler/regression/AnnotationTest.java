@@ -7627,6 +7627,9 @@ public void test228() {
 				"	@SuppressWarnings(\"unchecked\") //unused\n" + 
 				"	void doNoEvil(){\n" + 
 				"	}\n" + 
+				"}\n",
+				"Y.java",
+				"public class Y {\n" + 
 				"	Zork z;\n" + 
 				"}\n",
 		},
@@ -7636,7 +7639,8 @@ public void test228() {
 		"	                  ^^^^^^^^^^^\n" + 
 		"Unnecessary @SuppressWarnings(\"unchecked\")\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 2)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -7665,6 +7669,8 @@ public void test229() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
 public void test230() {
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 				"X.java",
@@ -7675,7 +7681,7 @@ public void test230() {
 				"@SuppressWarnings({\"all\"})\n" + 
 				"class X2 {\n" + 
 				"	@SuppressWarnings({\"zork\", \"unused\" })\n" + 
-				"	Zork foo() {}\n" + 
+				"	void foo() {}\n" + 
 				"}\n",
 		},
 		"----------\n" + 
@@ -7684,20 +7690,25 @@ public void test230() {
 		"	                   ^^^^^^\n" + 
 		"Unsupported @SuppressWarnings(\"zork\")\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 2)\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
 		"	@SuppressWarnings({\"zork\", \"unused\" })\n" + 
 		"	                           ^^^^^^^^\n" + 
 		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 8)\n" + 
-		"	Zork foo() {}\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"----------\n");
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	@SuppressWarnings({\"zork\", \"unused\" })\n" + 
+		"	                           ^^^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
+		"----------\n",
+		null,
+		false,
+		options);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
 public void test231() {
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 				"X.java",
@@ -7710,19 +7721,34 @@ public void test231() {
 				"class X2 {\n" + 
 				"	@SuppressWarnings(\"unused\")\n" + 
 				"	void foo() {}\n" + 
-				"	Zork z;\n" + 
+				"	Object z;\n" + 
 				"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 10)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"----------\n");
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@SuppressWarnings({\"zork\", \"unused\",\"all\"})\n" + 
+		"	                           ^^^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	@SuppressWarnings({\"all\"})\n" + 
+		"	                   ^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"all\")\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	@SuppressWarnings(\"unused\")\n" + 
+		"	                  ^^^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
+		"----------\n",
+		null,
+		false,
+		options);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
 public void test232() {
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 				"X.java",
@@ -7736,19 +7762,17 @@ public void test232() {
 				"	}\n" + 
 				"    }\n" + 
 				"}\n" +
-				"class Y extends Zork{}",
+				"class Y {}",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
 		"	@SuppressWarnings({\"finally\",\"finally\"})\n" + 
 		"	                             ^^^^^^^^^\n" + 
 		"Unnecessary @SuppressWarnings(\"finally\")\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
-		"	class Y extends Zork{}\n" + 
-		"	                ^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"----------\n");
+		"----------\n",
+		null,
+		false,
+		options);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
@@ -7798,5 +7822,102 @@ public void test234() {
 		"	       ^^^^\n" + 
 		"Zork cannot be resolved\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207758
+public void test235() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"        void foo() {\n" + 
+				"                ArrayList al = null;\n" + 
+				"                @SuppressWarnings(\"unchecked\")\n" + 
+				"                List<String> ls = al;\n" + 
+				"        }\n" + 
+				"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	ArrayList al = null;\n" + 
+		"	^^^^^^^^^\n" + 
+		"ArrayList cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207758 - variation
+public void test236() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		@SuppressWarnings(\"unchecked\")\n" + 
+				"		List<String> ls = bar();\n" + 
+				"	}\n" + 
+				"	ArrayList bar() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	List<String> ls = bar();\n" + 
+		"	                  ^^^\n" + 
+		"The method bar() is undefined for the type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	ArrayList bar() {\n" + 
+		"	^^^^^^^^^\n" + 
+		"ArrayList cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207758 - variation
+public void test237() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"public class X<B extends ArrayList> {\n" + 
+				"	B get() { return null; }\n" + 
+				"	void foo() {\n" + 
+				"		@SuppressWarnings(\"unchecked\")\n" + 
+				"		List<String> ls = get();\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public class X<B extends ArrayList> {\n" + 
+		"	                         ^^^^^^^^^\n" + 
+		"ArrayList cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	List<String> ls = get();\n" + 
+		"	                  ^^^^^\n" + 
+		"Type mismatch: cannot convert from B to List<String>\n" + 
+		"----------\n");
+}
+public void test238() {
+	// check that if promoted to ERROR, unhandled warning token shouldn't be suppressed by @SuppressWarnings("all")
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@SuppressWarnings({\"zork\",\"all\"})\n" + 
+				"	void foo() {}\n" + 
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@SuppressWarnings({\"zork\",\"all\"})\n" + 
+		"	                   ^^^^^^\n" + 
+		"Unsupported @SuppressWarnings(\"zork\")\n" + 
+		"----------\n",
+		null,
+		false,
+		options);
 }
 }
