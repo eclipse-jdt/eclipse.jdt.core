@@ -2262,6 +2262,30 @@ public void testSelectOnCursor1() throws JavaModelException {
 		elements
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207572
+public void testSelectOnCursor2() throws JavaModelException {
+	ICompilationUnit cu = getWorkingCopy(
+			"/Resolve/src/AType.java",
+			"public class X {\n" +
+			"        Object o;\n" +
+			"\n" +
+			"        String foo() {\n" +
+			"                return \"aaa\n" +
+			"        }\n" +
+			"}n");
+	
+	String str = cu.getSource();
+	
+	int start = str.indexOf("foo") + "fo".length();
+	int length = 0;
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo() [in X [in [Working copy] AType.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
+
 
 /*
  * Ensures that the first type is found when defined in 2 different roots by working copies.

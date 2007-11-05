@@ -400,7 +400,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			
 			// compute start and end of the last token
 			scanner.resetTo(nextCharacterPosition, end);
-			do {
+			isolateLastName: do {
 				try {
 					token = scanner.getNextToken();
 				} catch (InvalidInputException e) {
@@ -420,6 +420,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							lastIdentifierStart = scanner.startPosition;
 							lastIdentifierEnd = scanner.currentPosition - 1;
 							lastIdentifier = scanner.getCurrentTokenSource();
+							break isolateLastName;
 						}
 						break;
 				}
@@ -428,50 +429,48 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			scanner.resetTo(selectionStart, selectionEnd);
 	
 			boolean expectingIdentifier = true;
-			try {
-				do {
+			do {
+				try {
 					token = scanner.getNextToken();
-
-					switch (token) {
-						case TerminalTokens.TokenNamethis :
-						case TerminalTokens.TokenNamesuper :
-						case TerminalTokens.TokenNameIdentifier :
-							if (!expectingIdentifier)
-								return false;
-							lastIdentifier = scanner.getCurrentTokenSource();
-							lastIdentifierStart = scanner.startPosition;
-							lastIdentifierEnd = scanner.currentPosition - 1;
-							if(lastIdentifierEnd > selectionEnd) {
-								lastIdentifierEnd = selectionEnd;
-								lastIdentifier = CharOperation.subarray(lastIdentifier, 0,lastIdentifierEnd - lastIdentifierStart + 1);
-							}
-	
-							expectingIdentifier = false;
-							break;
-						case TerminalTokens.TokenNameDOT :
-							if (expectingIdentifier)
-								return false;
-							expectingIdentifier = true;
-							break;
-						case TerminalTokens.TokenNameEOF :
-							if (expectingIdentifier)
-								return false;
-							break;
-						case TerminalTokens.TokenNameLESS :
-							if(!checkTypeArgument(scanner))
-								return false;
-							break;
-						case TerminalTokens.TokenNameAT:
-							if(scanner.startPosition != scanner.initialPosition)
-								return false;
-							break;
-						default :
+				} catch (InvalidInputException e) {
+					return false;
+				}
+				switch (token) {
+					case TerminalTokens.TokenNamethis :
+					case TerminalTokens.TokenNamesuper :
+					case TerminalTokens.TokenNameIdentifier :
+						if (!expectingIdentifier)
 							return false;
-					}
-				} while (token != TerminalTokens.TokenNameEOF);
-			} catch (InvalidInputException e) {
-				return false;
-			}
+						lastIdentifier = scanner.getCurrentTokenSource();
+						lastIdentifierStart = scanner.startPosition;
+						lastIdentifierEnd = scanner.currentPosition - 1;
+						if(lastIdentifierEnd > selectionEnd) {
+							lastIdentifierEnd = selectionEnd;
+							lastIdentifier = CharOperation.subarray(lastIdentifier, 0,lastIdentifierEnd - lastIdentifierStart + 1);
+						}
+						expectingIdentifier = false;
+						break;
+					case TerminalTokens.TokenNameDOT :
+						if (expectingIdentifier)
+							return false;
+						expectingIdentifier = true;
+						break;
+					case TerminalTokens.TokenNameEOF :
+						if (expectingIdentifier)
+							return false;
+						break;
+					case TerminalTokens.TokenNameLESS :
+						if(!checkTypeArgument(scanner))
+							return false;
+						break;
+					case TerminalTokens.TokenNameAT:
+						if(scanner.startPosition != scanner.initialPosition)
+							return false;
+						break;
+					default :
+						return false;
+				}
+			} while (token != TerminalTokens.TokenNameEOF);
 		}
 		if (lastIdentifierStart > 0) {
 			this.actualSelectionStart = lastIdentifierStart;
@@ -481,13 +480,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 		return false;
 	}
-	private boolean checkTypeArgument(Scanner scanner) throws InvalidInputException {
+	private boolean checkTypeArgument(Scanner scanner) {
 		int depth = 1;
 		int token;
 		StringBuffer buffer = new StringBuffer();
 		do {
-			token = scanner.getNextToken();
-	
+			try {
+				token = scanner.getNextToken();
+			} catch (InvalidInputException e) {
+				return false;
+			}
 			switch(token) {
 				case TerminalTokens.TokenNameLESS :
 					depth++;
