@@ -1441,7 +1441,14 @@ public final class CompletionEngine
 
 				this.completionToken = access.completionIdentifier;
 
-				findClassField(this.completionToken, (TypeBinding) qualifiedBinding, scope);
+				findClassField(
+						this.completionToken,
+						(TypeBinding) qualifiedBinding,
+						scope,
+						null,
+						null,
+						null,
+						false);
 			}
 		} else if (astNode instanceof CompletionOnMethodName) {
 			if (!this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
@@ -2570,7 +2577,14 @@ public final class CompletionEngine
 		}
 	}
 
-	private void findClassField(char[] token, TypeBinding receiverType, Scope scope) {
+	private void findClassField(
+			char[] token,
+			TypeBinding receiverType,
+			Scope scope,
+			Binding[] missingElements,
+			int[] missingElementsStarts,
+			int[] missingElementsEnds,
+			boolean missingElementsHaveProblems) {
 
 		if (token == null) return;
 
@@ -2585,8 +2599,12 @@ public final class CompletionEngine
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); //no access restriction for class field 
 			relevance += R_NON_INHERITED;
 			
+			if (missingElements != null) {
+				relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+			}
+			
 			this.noProposal = false;
-			if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+			if(!isIgnored(CompletionProposal.FIELD_REF, missingElements != null)) {
 				CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 				//proposal.setDeclarationSignature(null);
 				char[] signature = 
@@ -2611,6 +2629,18 @@ public final class CompletionEngine
 				proposal.setPackageName(CharOperation.concatWith(JAVA_LANG, '.'));
 				proposal.setTypeName(CLASS);
 				proposal.setName(classField);
+				if (missingElements != null) {
+					CompletionProposal[] subProposals = new CompletionProposal[missingElements.length];
+					for (int i = 0; i < missingElements.length; i++) {
+						subProposals[i] =
+							createRequiredTypeProposal(
+									missingElements[i],
+									missingElementsStarts[i],
+									missingElementsEnds[i],
+									relevance);
+					}
+					proposal.setRequiredProposals(subProposals);
+				}
 				proposal.setCompletion(classField);
 				proposal.setFlags(Flags.AccStatic | Flags.AccPublic);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
@@ -4850,7 +4880,14 @@ public final class CompletionEngine
 					missingElementsHaveProblems);
 		}
 		if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
-			findClassField(token, receiverType, scope);
+			findClassField(
+					token,
+					receiverType,
+					scope,
+					missingElements,
+					missingElementsStarts,
+					missingElementsEnds,
+					missingElementsHaveProblems);
 		}
 		
 		MethodScope methodScope = null;

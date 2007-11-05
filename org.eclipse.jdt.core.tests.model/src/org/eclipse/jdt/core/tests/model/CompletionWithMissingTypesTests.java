@@ -1558,4 +1558,39 @@ public void test0037() throws JavaModelException {
 			"",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207929
+public void test0038() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"    MissingType.cla\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/missing/MissingType.java",
+		"package missing;"+
+		"public class MissingType {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "cla";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_INHERITED + R_NO_PROBLEMS;
+	int start1 = str.lastIndexOf("cla") + "".length();
+	int end1 = start1 + "cla".length();
+	int start2 = str.lastIndexOf("MissingType");
+	int end2 = start2 + "MissingType".length();
+	assertResults(
+			"class[FIELD_REF]{class, null, Ljava.lang.Class;, class, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
 }
