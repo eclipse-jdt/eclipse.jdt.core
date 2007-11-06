@@ -1103,7 +1103,7 @@ Finally ::= 'finally'    Block
 
 --18.12 Productions from 14: Expressions
 
---for source positionning purpose
+--for source positioning purpose
 PushLPAREN ::= '('
 /.$putCase consumeLeftParen(); $break ./
 /:$readableName (:/
