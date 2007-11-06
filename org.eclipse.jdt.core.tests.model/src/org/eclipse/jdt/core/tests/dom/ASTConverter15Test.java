@@ -9478,4 +9478,38 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a number literal", ASTNode.NUMBER_LITERAL, initializer.getNodeType());
 		checkSourceRange(initializer, "0x0.0000000000001P-1022", contents);
 	}
+
+	/**
+	 * @bug 187430: Unresolved types surfacing through DOM AST for annotation default values
+	 * @test That the qualified name of the default value does not contain any '$' character
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=187430"
+	 */
+	public void testBug187430() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/b187430/Test.java", true/*resolve*/);
+    	String contents =
+    		"package b187430;\n" +
+    		"@C\n" +
+    		"public class Test {}\n";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0, "");
+		List types = unit.types();
+		assertEquals("Wrong size", 1, types.size());
+		AbstractTypeDeclaration abstractTypeDeclaration = (AbstractTypeDeclaration) types.get(0);
+		assertEquals("Wrong type", ASTNode.TYPE_DECLARATION, abstractTypeDeclaration.getNodeType());
+		TypeDeclaration declaration = (TypeDeclaration) abstractTypeDeclaration;
+		ITypeBinding typeBinding = declaration.resolveBinding();
+		IAnnotationBinding[] annotations = typeBinding.getAnnotations();
+		assertEquals("Wrong size", 1, annotations.length);
+		IMemberValuePairBinding[] allMemberValuePairs = annotations[0].getAllMemberValuePairs();
+		assertEquals("Expected 'intval' and 'classval' member pair values", 2, allMemberValuePairs.length);
+		IMethodBinding methodBinding = allMemberValuePairs[0].getMethodBinding();
+		Object defaultValue = methodBinding.getDefaultValue();
+		ITypeBinding iTypeBinding = (ITypeBinding) defaultValue;
+		assertEquals("Unexpected default value", "b187430.A.B", iTypeBinding.getQualifiedName());
+	}
 }
