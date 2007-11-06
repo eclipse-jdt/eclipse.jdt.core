@@ -1686,14 +1686,11 @@ protected void consumeBinaryExpression(int op) {
 					// on demand; past the arityMax-th
 					// consecutive BE, a CBE is inserted that holds a 
 					// full-fledged references table
-					if ((cursor = (CombinedBinaryExpression)expr1).arity <
-								cursor.arityMax) {
-						cursor.left = new BinaryExpression(cursor.left,
-								cursor.right, PLUS);
+					if ((cursor = (CombinedBinaryExpression)expr1).arity < cursor.arityMax) {
+						cursor.left = new BinaryExpression(cursor);
 						cursor.arity++;
 					} else {
-						cursor.left = new CombinedBinaryExpression(cursor.left,
-								cursor.right, PLUS, cursor.arity);
+						cursor.left = new CombinedBinaryExpression(cursor);
 						cursor.arity = 0;
 						cursor.tuneArityMax();
 					}
@@ -1729,28 +1726,16 @@ protected void consumeBinaryExpression(int op) {
 				}
 			} else if (expr1 instanceof CombinedBinaryExpression) {
 					CombinedBinaryExpression cursor;
-					int numberOfParens = (expr1.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 					// shift cursor; create BE/CBE as needed
-					if ((cursor = (CombinedBinaryExpression)expr1).arity <
-								cursor.arityMax) {
-						cursor.left = new BinaryExpression(cursor.left,
-								cursor.right, PLUS);
-						if (numberOfParens != 0) {
-							// clear the bits on cursor and put them back on cursor.left
-							cursor.bits &= ~ASTNode.ParenthesizedMASK;
-							cursor.left.bits &= ~ASTNode.ParenthesizedMASK;
-							cursor.left.bits |= numberOfParens << ASTNode.ParenthesizedSHIFT;
-						}
+					if ((cursor = (CombinedBinaryExpression)expr1).arity < cursor.arityMax) {
+						cursor.left = new BinaryExpression(cursor);
+						// clear the bits on cursor
+						cursor.bits &= ~ASTNode.ParenthesizedMASK;
 						cursor.arity++;
 					} else {
-						cursor.left = new CombinedBinaryExpression(cursor.left,
-								cursor.right, PLUS, cursor.arity);
-						if (numberOfParens != 0) {
-							// clear the bits on cursor and put them back on cursor.left
-							cursor.bits &= ~ASTNode.ParenthesizedMASK;
-							cursor.left.bits &= ~ASTNode.ParenthesizedMASK;
-							cursor.left.bits |= numberOfParens << ASTNode.ParenthesizedSHIFT;
-						}
+						cursor.left = new CombinedBinaryExpression(cursor);
+						// clear the bits on cursor
+						cursor.bits &= ~ASTNode.ParenthesizedMASK;
 						cursor.arity = 0;
 						cursor.tuneArityMax();
 					}

@@ -106,20 +106,13 @@ public class CombinedBinaryExpression extends BinaryExpression {
  *        already exist into the leftmost branch of left (including left); must
  *        be strictly greater than 0
  */
-public CombinedBinaryExpression(Expression left, Expression right, int operator,
-		int arity) {
+public CombinedBinaryExpression(Expression left, Expression right, int operator, int arity) {
 	super(left, right, operator);
-	this.arity = arity;
-	if (arity > 1) {
-		this.referencesTable = new BinaryExpression[arity];
-		this.referencesTable[arity - 1] = (BinaryExpression) left;
-		for (int i = arity - 1; i > 0; i--) {
-			this.referencesTable[i - 1] = 
-				(BinaryExpression) this.referencesTable[i].left; 
-		}
-	} else {
-		this.arityMax = defaultArityMaxStartingValue;
-	}
+	initArity(left, arity);
+}
+public CombinedBinaryExpression(CombinedBinaryExpression expression) {
+	super(expression);
+	initArity(expression.left, expression.arity);
 }
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, 
@@ -297,6 +290,19 @@ public void generateOptimizedStringConcatenationCreation(BlockScope blockScope,
 			super.generateOptimizedStringConcatenationCreation(blockScope, 
 				codeStream, typeID);
 		}
+	}
+}
+private void initArity(Expression expression, int value) {
+	this.arity = value;
+	if (value > 1) {
+		this.referencesTable = new BinaryExpression[value];
+		this.referencesTable[value - 1] = (BinaryExpression) expression;
+		for (int i = value - 1; i > 0; i--) {
+			this.referencesTable[i - 1] = 
+				(BinaryExpression) this.referencesTable[i].left; 
+		}
+	} else {
+		this.arityMax = defaultArityMaxStartingValue;
 	}
 }
 

@@ -49,7 +49,13 @@ public BinaryExpression(Expression left, Expression right, int operator) {
 //		this.depthTracker = 1;
 //	}
 }
-
+public BinaryExpression(BinaryExpression expression) {
+	this.left = expression.left;
+	this.right = expression.right;
+	this.bits = expression.bits;
+	this.sourceStart = expression.sourceStart;
+	this.sourceEnd = expression.sourceEnd;
+}
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, 
 		FlowInfo flowInfo) {
 	// keep implementation in sync with CombinedBinaryExpression#analyseCode

@@ -120,7 +120,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 631, 686 };
+//		TESTS_NUMBERS =  new int[] { 687 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -9511,6 +9511,40 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			fragment = (VariableDeclarationFragment) fragments.get(1);
 			checkSourceRange(fragment, "m", contents);
 			assertFalse("Not a malformed node", isMalformed(fragment));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=207754
+	 */
+	public void test0687() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	protected String foo(String string) {\n" + 
+				"		return (\"\" + string + \"\") + (\"\");\n" + 
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement statement = (ReturnStatement) node;
+			Expression expression = statement.getExpression();
+			checkSourceRange(expression, "(\"\" + string + \"\") + (\"\")", contents);
+			assertEquals("Not an infix expression", ASTNode.INFIX_EXPRESSION, expression.getNodeType());
+			InfixExpression infixExpression = (InfixExpression) expression;
+			Expression leftOperand = infixExpression.getLeftOperand();
+			checkSourceRange(leftOperand, "(\"\" + string + \"\")", contents);
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
