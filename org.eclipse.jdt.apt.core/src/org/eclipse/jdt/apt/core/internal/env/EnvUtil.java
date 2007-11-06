@@ -96,7 +96,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
     private static int[] getClassNameRange(final CompilationUnit astUnit){
     	int[] startAndEnd = null;
     	if( astUnit != null){
-    		@SuppressWarnings({"unchecked", "nls"})
+    		@SuppressWarnings({"unchecked"})
     		final List<AbstractTypeDeclaration> topTypes = astUnit.types();
     		if( topTypes != null && topTypes.size() > 0 ){
     			final AbstractTypeDeclaration topType = topTypes.get(0);

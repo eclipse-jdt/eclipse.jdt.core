@@ -136,7 +136,6 @@ public class AptBuilderTests extends APTTestBase
 		expectingOnlyProblemsFor( new IPath[0] );
 	}
 
-	@SuppressWarnings("nls")
 	/**
 	 *  slight variation to _testGeneratedFileInBuilder0. 
 	 *  Difference: 
@@ -163,7 +162,6 @@ public class AptBuilderTests extends APTTestBase
 		expectingOnlyProblemsFor( new IPath[0] );
 	}
 	
-	@SuppressWarnings("nls")
 	/**
 	 *  Try generating a bogus type name; expect exception 
 	 */
@@ -205,7 +203,6 @@ public class AptBuilderTests extends APTTestBase
 		expectingNoProblems();
 	}
 	
-	@SuppressWarnings("nls")
 	/**
 	 *  Try running two processors on the same file, and look for interactions.
 	 *  Regression for https://bugs.eclipse.org/bugs/show_bug.cgi?id=175794
@@ -244,7 +241,6 @@ public class AptBuilderTests extends APTTestBase
 	 *  This test makes sure we run apt on generated files during build
 	 */
 
-	@SuppressWarnings("nls")
 	public void testNestedGeneratedFileInBuilder() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -294,7 +290,6 @@ public class AptBuilderTests extends APTTestBase
 	 *   build output is there because of the dependency.
 	 */
 
-	@SuppressWarnings("nls")	
 	public void testExtraDependencies()
 	{
 		String codeA = "package p1.p2.p3.p4;\n"
@@ -416,7 +411,6 @@ public class AptBuilderTests extends APTTestBase
 	 *   not changed even as their parent is modified.
 	 */
 
-	@SuppressWarnings("nls")
 	public void testCaching()
 	{
 		String code = "package p1;\n"
@@ -469,7 +463,6 @@ public class AptBuilderTests extends APTTestBase
 	 * is deleted.  We also make sure that multi-parent support is working.
 	 */
 
-	@SuppressWarnings("nls")
 	public void testDeletedParentFile() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -529,7 +522,6 @@ public class AptBuilderTests extends APTTestBase
 		internalTestStopGeneratingFileInBuilder( false );
 	}
 	
-	@SuppressWarnings("nls")
 	private void internalTestStopGeneratingFileInBuilder( boolean fullBuild )
 	{
 		IProject project = env.getProject( getProjectName() );

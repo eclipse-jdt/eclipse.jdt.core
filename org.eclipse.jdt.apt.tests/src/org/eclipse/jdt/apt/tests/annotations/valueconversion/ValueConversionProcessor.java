@@ -48,7 +48,6 @@ public class ValueConversionProcessor extends BaseProcessor {
 		super(env);
 	}
 	
-	@SuppressWarnings("nls")
 	public void process() 
 	{	
 		final TypeDeclaration test = _env.getTypeDeclaration("sample.Test");

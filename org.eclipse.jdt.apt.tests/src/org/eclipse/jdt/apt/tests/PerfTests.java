@@ -89,7 +89,6 @@ public class PerfTests extends BuilderTests
 	 * JDT Core has one warning on the use of IWorkingCopy, and a number
 	 * of TODOs, XXXs and FIXMEs.
 	 */
-	@SuppressWarnings("nls")
 	private void assertNoUnexpectedProblems() {
 		Problem[] problems = env.getProblems();
 		for (Problem problem : problems) {
@@ -119,7 +118,6 @@ public class PerfTests extends BuilderTests
 		return srcRoot;
 	}
 	
-	@SuppressWarnings("nls")
 	public void testBuilding() throws Throwable {
 		IProject proj = env.getProject(projectPath);
 		IJavaProject jproj = JavaCore.create(proj); // doesn't actually create anything

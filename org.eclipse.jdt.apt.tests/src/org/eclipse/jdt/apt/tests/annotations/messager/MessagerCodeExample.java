@@ -15,7 +15,6 @@ package org.eclipse.jdt.apt.tests.annotations.messager;
 /**
  * Code examples for tests of Messager interface
  */
-@SuppressWarnings("nls")
 public class MessagerCodeExample {
 
 	public static final String CODE_PACKAGE = "messagertestpackage";

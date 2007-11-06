@@ -119,7 +119,6 @@ public class PreferencesTests extends APTTestBase {
 		}
 	}
 	
-	@SuppressWarnings("nls")
 	private static final String serializedFactories = 
 		"<factorypath>\n" + 
 		"    <factorypathentry kind=\"EXTJAR\" id=\"" + JAR_PATH_1 + "\" enabled=\"true\" runInBatchMode=\"false\"/>\n" + 
@@ -131,7 +130,6 @@ public class PreferencesTests extends APTTestBase {
 	 * Test the config API for settings other than factory path
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testSimpleConfigApi() throws Exception {
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		
@@ -207,7 +205,6 @@ public class PreferencesTests extends APTTestBase {
 	/**
 	 * Test the config API for automatically generated options.
 	 */
-	@SuppressWarnings("nls")
 	public void testAutomaticOptions() throws Exception {
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		Map<String,String> options = AptConfig.getProcessorOptions(jproj);

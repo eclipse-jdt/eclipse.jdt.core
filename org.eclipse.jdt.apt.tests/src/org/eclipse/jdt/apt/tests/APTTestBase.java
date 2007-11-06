@@ -221,7 +221,6 @@ public abstract class APTTestBase extends BuilderTests{
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	protected IMarker[] getAllAPTMarkers(IPath path){
 		IResource resource;
 		if(path.equals(env.getWorkspaceRootPath())){

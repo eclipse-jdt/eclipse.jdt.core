@@ -39,7 +39,6 @@ public class AptReconcileTests extends ModifyingResourceTests
 		return new TestSuite(AptReconcileTests.class);
 	}
 	
-	@SuppressWarnings("nls")
 	public void testGeneratedFile() throws Throwable
 	{
 		String fname = _testFolder + "/A.java";
@@ -123,7 +122,6 @@ public class AptReconcileTests extends ModifyingResourceTests
 	 *   TODO: re-enable this test - it seems sporadically flaky, need to find out why.
 	 * @throws Throwable
 	 */
-	@SuppressWarnings("nls")
 	public void testNestedGeneratedFile() throws Throwable
 	{
 		String fname = _testFolder + "/A.java";
@@ -201,7 +199,6 @@ public class AptReconcileTests extends ModifyingResourceTests
 	}
 
 
-	@SuppressWarnings("nls")
 	public void testStopGeneratingFileInReconciler() throws Exception
 	{
 		String fname = _testFolder + "/A.java";
@@ -291,7 +288,6 @@ public class AptReconcileTests extends ModifyingResourceTests
 	 * Tests that when a working copy is discarded, we clean up any cached data in the
 	 * GeneratedFileManager.
 	 */
-	@SuppressWarnings("nls")	
 	public void testDiscardParentWorkingCopy()
 	 	throws Throwable
 	{
@@ -473,7 +469,6 @@ public class AptReconcileTests extends ModifyingResourceTests
 		}
 	}
 
-	@SuppressWarnings("nls")
 	public void setUp() throws Exception 
 	{
 		// This increments the project name for each test, which helps get past

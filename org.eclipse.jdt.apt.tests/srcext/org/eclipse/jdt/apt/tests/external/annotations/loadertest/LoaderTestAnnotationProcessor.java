@@ -83,7 +83,6 @@ public class LoaderTestAnnotationProcessor implements AnnotationProcessor {
 		return "LoadFactoryFromJarTest";  //$NON-NLS-1$
 	}
 
-	@SuppressWarnings("nls")
 	protected final static String CODE			= 
 		"package " + getPackageName() + ";\n" +
 		"public class "	+ getTypeName()	+ "\n"	+ 

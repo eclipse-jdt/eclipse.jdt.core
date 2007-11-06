@@ -75,7 +75,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 		return env.getProject(getProjectName());
 	}
 	
-	@SuppressWarnings("nls")
 	public void testByteConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -103,7 +102,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	
-	@SuppressWarnings("nls")
 	public void testByteConversion_Reflection() throws Exception {
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
@@ -134,7 +132,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Test conversion on short. 
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testShortConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -163,7 +160,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	
-	@SuppressWarnings("nls")
 	public void testShortConversion_Reflection() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -196,7 +192,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Test conversion on char. 
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testCharConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -229,7 +224,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Test conversion on char through reflection
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testCharConversion_Reflection() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -262,7 +256,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Test conversion on int. 
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testIntConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -295,7 +288,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Test conversion on int through reflection
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testIntConversion_Reflection() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -328,7 +320,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Test conversion on long. 
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testLongConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -369,7 +360,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Test conversion on long. 
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testLongConversion_Reflection() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -410,7 +400,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Test conversion on Float. 
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testFloatConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -457,7 +446,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Test conversion on Float. 
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testFloatConversion_Reflection() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -504,7 +492,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Test conversion on double. No arrayification.
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testDoubleConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -549,7 +536,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Test conversion on double. No arrayification.
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testDoubleConversion_Reflection() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -594,7 +580,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Convert "singleton" instance to array of the correct type
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testArrayification() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -624,7 +609,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Convert "singleton" instance to array of the correct type
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testArrayification_Reflection() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -654,7 +638,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Test conversion on array elements.
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testArrayElementConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -688,7 +671,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * Test conversion on array elements.
 	 * @throws Exception
 	 */
-	@SuppressWarnings("nls")
 	public void testArrayElementConversion_Reflection() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -779,7 +761,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	
-	@SuppressWarnings("nls")
 	public void testMissingPrimitiveTypeValues_Reflection() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	

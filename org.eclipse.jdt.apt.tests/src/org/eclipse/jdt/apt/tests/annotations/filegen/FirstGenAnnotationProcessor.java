@@ -41,7 +41,6 @@ public class FirstGenAnnotationProcessor extends BaseProcessor {
 		}
 	}
 
-	@SuppressWarnings("nls")
 	protected String CODE =
 		"package duptest;" + "\n" +
 		"import org.eclipse.jdt.apt.tests.annotations.filegen.SecondGenAnnotation;" + "\n" +

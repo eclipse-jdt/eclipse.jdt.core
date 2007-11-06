@@ -15,7 +15,6 @@ package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 /**
  * Holds information for the mirror tests.
  */
-@SuppressWarnings("nls")
 public class MirrorUtilTestCodeExample {
 	
 	public static final String CODE_PACKAGE = "testpackage";

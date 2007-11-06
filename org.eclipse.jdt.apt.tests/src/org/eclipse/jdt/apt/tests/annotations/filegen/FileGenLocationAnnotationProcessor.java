@@ -47,14 +47,12 @@ public class FileGenLocationAnnotationProcessor extends BaseProcessor {
 		}
 	}
 
-	@SuppressWarnings("nls")
 	protected String CODE_GEN_IN_PKG = 
 		"package test;" + "\n" +
 		"public class A" + "\n" +
 		"{" + "\n" +
 		"}";
 
-	@SuppressWarnings("nls")
 	protected String CODE_GEN_AT_PROJ_ROOT = 
 		"public class B" + "\n" +
 		"{" + "\n" +

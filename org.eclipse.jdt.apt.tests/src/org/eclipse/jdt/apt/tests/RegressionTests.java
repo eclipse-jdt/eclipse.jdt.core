@@ -45,7 +45,6 @@ public class RegressionTests extends APTTestBase {
 	/**
 	 * Bugzilla 104032: NPE when deleting project that has APT settings.
 	 */
-	@SuppressWarnings("nls")
 	public void testBugzilla104032() throws Exception
 	{
 		// set up project with unique name

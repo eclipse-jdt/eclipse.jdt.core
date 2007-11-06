@@ -46,7 +46,6 @@ public class SecondGenAnnotationProcessor extends BaseProcessor {
 		}
 	}
 
-	@SuppressWarnings("nls")
 	protected String CODE_OVERWRITE =
 		"package duptest;" + "\n" +
 		"public class DupFile" + "\n" +
@@ -56,7 +55,6 @@ public class SecondGenAnnotationProcessor extends BaseProcessor {
 		"    }" + "\n" +
 		"}";
 
-	@SuppressWarnings("nls")
 	protected String CODE_REF =
 		"package reftest;" + "\n" +
 		"public class RefFile" + "\n" +

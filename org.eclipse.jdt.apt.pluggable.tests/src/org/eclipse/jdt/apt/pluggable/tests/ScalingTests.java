@@ -49,7 +49,6 @@ public class ScalingTests extends TestBase
 	 * A customer reports that projects with ~2000 files abort generation.
 	 * Note, this test will take quite a long time to run.
 	 */
-	@SuppressWarnings("nls")
 	public void testGeneratingLotsOfFiles() throws Exception
 	{
 		final int FILES_TO_GENERATE = 4000; // total number of files to create

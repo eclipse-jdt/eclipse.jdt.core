@@ -32,7 +32,6 @@ public class ExceptionHandlingTests extends APTTestBase {
 	/**
 	 * Annotation that expects a primitive but gets its wrapper class should not throw a ClassCastException
 	 */
-	@SuppressWarnings("nls")
 	public void testWrapperClassForPrimitiveValue() throws Exception {
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
@@ -47,7 +46,6 @@ public class ExceptionHandlingTests extends APTTestBase {
 	/**
 	 * Annotation that expects one primitive but gets another should not throw a ClassCastException
 	 */
-	@SuppressWarnings("nls")
 	public void testOtherPrimitiveForBooleanValue() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -63,7 +61,6 @@ public class ExceptionHandlingTests extends APTTestBase {
 	/**
 	 * Annotation that expects a primitive but gets a String should not throw a ClassCastException
 	 */
-	@SuppressWarnings("nls")
 	public void testStringForBooleanValue() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -79,7 +76,6 @@ public class ExceptionHandlingTests extends APTTestBase {
 	/**
 	 * Annotation that expects a primitive but gets an array should not throw a ClassCastException
 	 */
-	@SuppressWarnings("nls")
 	public void testArrayForBooleanValue() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -96,7 +92,6 @@ public class ExceptionHandlingTests extends APTTestBase {
 	/**
 	 * Annotation that expects a String but gets a primitive should not throw a ClassCastException
 	 */
-	@SuppressWarnings("nls")
 	public void testPrimitiveForStringValue() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -112,7 +107,6 @@ public class ExceptionHandlingTests extends APTTestBase {
 	/**
 	 * Annotation that expects a String but gets another class should not throw a ClassCastException
 	 */
-	@SuppressWarnings("nls")
 	public void testOtherClassForStringValue() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -128,7 +122,6 @@ public class ExceptionHandlingTests extends APTTestBase {
 	/**
 	 * Annotation that expects a String but gets an array should not throw a ClassCastException
 	 */
-	@SuppressWarnings("nls")
 	public void testArrayForStringValue() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -145,7 +138,6 @@ public class ExceptionHandlingTests extends APTTestBase {
 	/**
 	 * Annotation that expects an array but gets a primitive should not throw a ClassCastException
 	 */
-	@SuppressWarnings("nls")
 	public void testPrimitiveForArrayValue() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -161,7 +153,6 @@ public class ExceptionHandlingTests extends APTTestBase {
 	/**
 	 * Annotation that expects an array but gets an object should not throw a ClassCastException
 	 */
-	@SuppressWarnings("nls")
 	public void testNonArrayForArrayValue() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -177,7 +168,6 @@ public class ExceptionHandlingTests extends APTTestBase {
 	/**
 	 * Annotation that expects an array of enums but gets an annotation should not throw a ClassCastException
 	 */
-	@SuppressWarnings("nls")
 	public void testAnnotationForEnumArrayValue() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );

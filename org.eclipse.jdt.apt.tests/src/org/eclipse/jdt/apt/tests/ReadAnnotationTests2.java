@@ -201,7 +201,6 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		return requestor._result;
 	}
 	
-	@SuppressWarnings("nls")
 	public void _testAnnotations()
 	{	
 		final String typeKey = BindingKey.createTypeBindingKey("question.AnnotationTest");

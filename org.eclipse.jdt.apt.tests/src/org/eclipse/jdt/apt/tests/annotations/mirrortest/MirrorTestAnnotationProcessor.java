@@ -30,7 +30,6 @@ import com.sun.mirror.declaration.TypeParameterDeclaration;
 import com.sun.mirror.type.InterfaceType;
 import com.sun.mirror.util.Declarations;
 
-@SuppressWarnings("nls")
 public class MirrorTestAnnotationProcessor extends BaseProcessor {
 	
 	public static boolean _processRun = false;

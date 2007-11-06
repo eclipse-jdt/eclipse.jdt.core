@@ -48,7 +48,6 @@ import com.sun.mirror.type.AnnotationType;
 import com.sun.mirror.type.ClassType;
 import com.sun.mirror.type.ReferenceType;
 
-@SuppressWarnings("nls")
 public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 	
 	public MirrorDeclarationTestAnnotationProcessor(AnnotationProcessorEnvironment env) {

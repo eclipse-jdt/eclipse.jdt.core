@@ -23,7 +23,6 @@ import com.sun.mirror.declaration.FieldDeclaration;
 import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 
-@SuppressWarnings("nls")
 public class MirrorUtilTestAnnotationProcessor extends BaseProcessor
 {
 

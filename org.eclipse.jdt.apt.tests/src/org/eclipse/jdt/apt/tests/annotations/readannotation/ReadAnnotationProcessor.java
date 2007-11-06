@@ -35,7 +35,6 @@ public class ReadAnnotationProcessor extends BaseProcessor
 		super(env);
 	}
 
-	@SuppressWarnings("nls")
 	public void process()
 	{	
 		try{			
