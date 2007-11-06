@@ -2889,14 +2889,14 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static String getEncoding() {
-		// Verify that workspace is not shutting down (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=60687)
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		if (workspace != null) {
-			try {
-				return workspace.getRoot().getDefaultCharset();
-			} catch (CoreException e) {
-				// fails silently and return plugin global encoding if core exception occurs
-			}
+		try {
+			return ResourcesPlugin.getWorkspace().getRoot().getDefaultCharset();
+		}
+		catch (IllegalStateException ise) {
+			// happen when the workspace is shutting down (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=60687)
+		}
+		catch (CoreException ce) {
+			// fails silently and return plugin global encoding if core exception occurs
 		}
 		return ResourcesPlugin.getEncoding();
 	}
