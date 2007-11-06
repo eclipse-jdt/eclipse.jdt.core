@@ -8372,6 +8372,57 @@ public void testBug167190() throws CoreException, JavaModelException {
 }
 
 /**
+ * @bug 178596: [search] Search for method references does not find references to interface method
+ * @test Ensure that searching method reference finds the interface method reference
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=178596"
+ */
+public void testBug178596() throws CoreException {
+	workingCopies = new ICompilationUnit[5];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/ClassA.java",
+		"public class ClassA implements InterfaceA {\n" + 
+		"    public void setValue(int aValue) {\n" + 
+		"    }\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/ClassB.java",
+		"public class ClassB extends ClassA implements InterfaceB {}\n"
+	);
+	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/InterfaceA.java",
+		"public interface InterfaceA {\n" + 
+		"    public void setValue(int aValue);\n" + 
+		"}\n"
+	);
+	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/InterfaceB.java",
+		"public interface InterfaceB extends InterfaceA {}\n"
+	);
+	workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/Main.java",
+		"public class Main {\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        new Main().run();\n" + 
+		"    }\n" + 
+		"    private void run() {\n" + 
+		"        InterfaceB anB = new ClassB();\n" + 
+		"        anB.setValue(123);\n" + 
+		"    }\n" + 
+		"}\n"
+	);
+	JavaSearchResultCollector testCollector = new JavaSearchResultCollector() {
+		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+	        super.acceptSearchMatch(searchMatch);
+	        assertTrue("Method reference match should be super invocation one!", ((MethodReferenceMatch)searchMatch).isSuperInvocation());
+        }
+		
+	};
+	testCollector.showAccuracy = true;
+	IMethod method = workingCopies[0].getType("ClassA").getMethod("setValue", new String[] { "I" });
+	search(method, REFERENCES, getJavaSearchScope(), testCollector);
+	assertSearchResults(
+		"src/Main.java void Main.run() [setValue(123)] EXACT_MATCH",
+		testCollector
+	);
+}
+
+/**
  * @bug 178847 [search] Potential matches found when searching references to IJavaElement#getResource()
  * @test Ensure that accurate matches are found
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=178847"
