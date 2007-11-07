@@ -16,7 +16,9 @@ import org.eclipse.text.edits.TextEdit;
 
 /**
  * Specification for a generic source code formatter.
- * 
+ * <p>
+ * This class is not intended to be instantiated or subclassed by clients.
+ * </p>
  * @since 3.0
  */
 public abstract class CodeFormatter {
