@@ -76,10 +76,10 @@ public class ScalingTests extends APTTestBase {
 			"package p;\n" +
 			"import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\n" +
 			"@HelloWorldAnnotation(\"Generated%05d\")\n" +
-			"public class Test%05d {}";
+			"public class Test%05d { generatedfilepackage.Generated%05d _t; }";
 		for (int i = 1; i <= FILES_TO_GENERATE; ++i) {
 			String name = String.format("Test%05d", i);
-			String contents = String.format(template, i, i);
+			String contents = String.format(template, i, i, FILES_TO_GENERATE - i + 1);
 			env.addClass( srcRoot, "p", name, contents ); //$NON-NLS-1$ //$NON-NLS-2$
 			
 			// pause to let indexer catch up
