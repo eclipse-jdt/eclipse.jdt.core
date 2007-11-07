@@ -262,4 +262,55 @@ public void test003() {
 		"}";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+public void test004() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.InputStream;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	private static final Y[] A = new Y[1];\n" + 
+			"\n" + 
+			"	public static void x() {\n" + 
+			"		for (int i = 0; i < 0; i++) {\n" + 
+			"			try {\n" + 
+			"				A[i] = foo(X.class.getResourceAsStream(\"\"), null);\n" + 
+			"			} catch (Throwable e) {\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static boolean a = false;\n" + 
+			"\n" + 
+			"	private static int b = -1;\n" + 
+			"\n" + 
+			"	private static int C = 0;\n" + 
+			"\n" + 
+			"	public static void z(int c) {\n" + 
+			"		if (!a || (b == c && A[c].foo() == C)) {\n" + 
+			"			return;\n" + 
+			"		}\n" + 
+			"		y();\n" + 
+			"		b = c;\n" + 
+			"		try {\n" + 
+			"			A[c].bar();\n" + 
+			"		} catch (Throwable e) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void y() {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static Y foo(InputStream stream, String s) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}",
+			"Y.java",
+			"interface Y {\n" + 
+			"	int foo();\n" + 
+			"	void bar();\n" + 
+			"}"
+		},
+		"");
+	}
 }

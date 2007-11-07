@@ -413,6 +413,9 @@ public void init(ClassFile targetClassFile) {
 	if (this.stackDepthMarkers != null) {
 		this.stackDepthMarkers.clear();
 	}
+	if (this.stackMarkers != null) {
+		this.stackMarkers.clear();
+	}
 }
 
 public void initializeMaxLocals(MethodBinding methodBinding) {
@@ -467,6 +470,9 @@ public void reset(ClassFile givenClassFile) {
 	}
 	if (this.stackDepthMarkers != null) {
 		this.stackDepthMarkers.clear();
+	}
+	if (this.stackMarkers != null) {
+		this.stackMarkers.clear();
 	}
 }
 protected void writePosition(BranchLabel label) {
