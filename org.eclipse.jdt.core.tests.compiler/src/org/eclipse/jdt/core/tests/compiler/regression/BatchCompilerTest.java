@@ -37,7 +37,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 
 	static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 24 };
+//	TESTS_NUMBERS = new int[] { 152 };
 //	TESTS_RANGE = new int[] { 107, -1 };
 	}
 public BatchCompilerTest(String name) {
@@ -5485,6 +5485,32 @@ public void test151_null_ref_options() {
 		+ " -warn:-nullDereference -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=138018
+public void test152() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"   }\n" + 
+			"	// Zork z;\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:-nullDereferences -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"invalid warning: nullDereferences. Ignoring warning and compiling\n" + 
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	s.toString();\n" + 
+		"	^\n" + 
+		"Null pointer access: The variable s can only be null at this location\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
 		true);
 }
 public static Class testClass() {

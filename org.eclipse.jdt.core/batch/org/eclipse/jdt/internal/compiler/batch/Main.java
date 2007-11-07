@@ -223,7 +223,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		public void compiling() {
 			this.printlnOut(this.main.bind("progress.compiling")); //$NON-NLS-1$
 		}
-
 		/**
 		 * Used to stop logging problems.
 		 * Only use in xml mode.
@@ -465,45 +464,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 
-		/**
-		 * @param wrongClasspath
-		 *            the given wrong classpath entry
-		 */
-		public void logIncorrectClasspath(String wrongClasspath) {
-			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.put(Logger.MESSAGE, this.main.bind("configure.incorrectClasspath", wrongClasspath)); //$NON-NLS-1$
-				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
-			}
-			this.printlnErr(this.main.bind(
-				"configure.incorrectClasspath", wrongClasspath)); //$NON-NLS-1$
-		}
-
-		/**
-		 * @param wrongPath
-		 *            the given wrong path entry
-		 */
-		public void logIncorrectEndorsedDirsEntry(String wrongPath) {
-			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.put(Logger.MESSAGE, this.main.bind("configure.incorrectEndorsedDirsEntry", wrongPath)); //$NON-NLS-1$
-				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
-			}
-			this.printlnErr(this.main.bind(
-				"configure.incorrectEndorsedDirsEntry", wrongPath)); //$NON-NLS-1$
-		}
-
-		/**
-		 * @param wrongPath
-		 *            the given wrong path entry
-		 */
-		public void logIncorrectExtDirsEntry(String wrongPath) {
-			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.put(Logger.MESSAGE, this.main.bind("configure.incorrectExtDirsEntry", wrongPath)); //$NON-NLS-1$
-				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
-			}
-			this.printlnErr(this.main.bind(
-				"configure.incorrectExtDirsEntry", wrongPath)); //$NON-NLS-1$
-		}
-
 		public void logIncorrectVMVersionForAnnotationProcessing() {
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.parameters.put(Logger.MESSAGE, this.main.bind("configure.incorrectVMVersionforAPT")); //$NON-NLS-1$
@@ -531,14 +491,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					relativeFileName,
 					e.getMessage()
 				}));
-		}
-
-		public void logNoClasspath() {
-			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.put(Logger.MESSAGE, this.main.bind("configure.noClasspath")); //$NON-NLS-1$
-				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
-			}
-			this.printlnErr(this.main.bind("configure.noClasspath")); //$NON-NLS-1$
 		}
 
 		/**
@@ -581,6 +533,17 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				}
 				this.endTag(Logger.OPTIONS);
 			}
+		}
+
+		/**
+		 * @param error the given error
+		 */
+		public void logPendingError(String error) {
+			if ((this.tagBits & Logger.XML) != 0) {
+				this.parameters.put(Logger.MESSAGE, error);
+				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
+			}
+			this.printlnErr(error);
 		}
 
 		private void logProblem(CategorizedProblem problem, int localErrorCount,
@@ -1355,7 +1318,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public String log;
 	public Logger logger;
 	public int maxProblems;
-	public boolean noWarn = false;
 	public Map options;
 	protected PrintWriter out;
 	public boolean proceed = true;
@@ -1365,6 +1327,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 	public boolean showProgress = false;
 	public long startTime;
+	public ArrayList pendingErrors;
 
 public boolean systemExitWhenFinished = true;
 
@@ -1445,7 +1408,7 @@ protected void addNewEntry(ArrayList paths, String currentClasspathName,
 		} else {
 			if (currentClasspathName.length() != 0) {
 				// we go on anyway
-				this.logger.logIncorrectClasspath(currentClasspathName);
+				addPendingErrors(this.bind("configure.incorrectClasspath", currentClasspathName));//$NON-NLS-1$
 			}
 			return;
 		}
@@ -1470,8 +1433,14 @@ protected void addNewEntry(ArrayList paths, String currentClasspathName,
 		paths.add(currentClasspath);
 	} else if (currentClasspathName.length() != 0) {
 		// we go on anyway
-		this.logger.logIncorrectClasspath(currentClasspathName);
+		addPendingErrors(this.bind("configure.incorrectClasspath", currentClasspathName));//$NON-NLS-1$
 	}
+}
+private void addPendingErrors(String message) {
+	if (this.pendingErrors == null) {
+		this.pendingErrors = new ArrayList();
+	}
+	this.pendingErrors.add(message);
 }
 /*
  * Lookup the message with the given ID in this catalog
@@ -1991,7 +1960,7 @@ protected void handleWarningToken(String token, boolean isEnabling, boolean useE
 				CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation,
 				isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);	
 	} else {
-		throw new InvalidInputException(this.bind("configure.invalidWarning", token)); //$NON-NLS-1$
+		addPendingErrors(this.bind("configure.invalidWarning", token)); //$NON-NLS-1$
 	}
 }
 /*
@@ -2098,7 +2067,7 @@ protected ArrayList handleClasspath(ArrayList classpaths, String customEncoding)
 		classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 		String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 		if ((classProp == null) || (classProp.length() == 0)) {
-			this.logger.logNoClasspath();
+			addPendingErrors(this.bind("configure.noClasspath")); //$NON-NLS-1$
 			final Classpath classpath = FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null);//$NON-NLS-1$
 			if (classpath != null) {
 				classpaths.add(classpath);
@@ -2113,7 +2082,7 @@ protected ArrayList handleClasspath(ArrayList classpaths, String customEncoding)
 				if (currentClasspath != null) {
 					classpaths.add(currentClasspath);
 				} else if (token.length() != 0) {
-					this.logger.logIncorrectClasspath(token);
+					addPendingErrors(this.bind("configure.incorrectClasspath", token));//$NON-NLS-1$
 				}
 			}
 		}
@@ -2169,7 +2138,9 @@ protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
 						}
 					}
 				} else if (directoriesToCheck[i].isFile()) {
-					this.logger.logIncorrectExtDirsEntry(directoriesToCheck[i].getAbsolutePath());
+					addPendingErrors(this.bind(
+							"configure.incorrectExtDirsEntry", //$NON-NLS-1$
+							directoriesToCheck[i].getAbsolutePath()));
 				}
 			}
 		}
@@ -2227,7 +2198,10 @@ protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
 						}
 					}
 				} else if (directoriesToCheck[i].isFile()) {
-					this.logger.logIncorrectEndorsedDirsEntry(directoriesToCheck[i].getAbsolutePath());
+					addPendingErrors(
+						this.bind(
+							"configure.incorrectEndorsedDirsEntry", //$NON-NLS-1$
+							directoriesToCheck[i].getAbsolutePath()));
 				}
 			}
 		}
@@ -2737,11 +2711,22 @@ public void configure(String[] argv) throws InvalidInputException {
 					while (tokenizer.hasMoreTokens()) {
 						String token = tokenizer.nextToken();
 						tokenCounter++;
+						switch(token.charAt(0)) {
+							case '+' :
+								isEnabling = true;
+								token = token.substring(1);
+								break;
+							case '-' :
+								isEnabling = false;
+								token = token.substring(1);
+								break;
+						}
 						handleWarningToken(token, isEnabling, useEnableJavadoc);
 					}
-					if (tokenCounter == 0)
+					if (tokenCounter == 0) {
 						throw new InvalidInputException(
 							this.bind("configure.invalidWarningOption", currentArg)); //$NON-NLS-1$
+					}
 					didSpecifyWarnings = true;
 					continue;
 				}
@@ -3098,6 +3083,7 @@ public void configure(String[] argv) throws InvalidInputException {
 
 	this.logger.logCommandLineArguments(newCommandLineArgs);
 	this.logger.logOptions(this.options);
+
 	if (this.repetitions == 0) {
 		this.repetitions = 1;
 	}
@@ -3131,6 +3117,14 @@ public void configure(String[] argv) throws InvalidInputException {
 			extdirsClasspaths,
 			endorsedDirClasspaths,
 			customEncoding);
+	
+	if (this.pendingErrors != null) {
+		for (Iterator iterator = this.pendingErrors.iterator(); iterator.hasNext(); ) {
+			String message = (String) iterator.next();
+			this.logger.logPendingError(message);
+		}
+		this.pendingErrors = null;
+	}
 }
 
 protected void disableWarnings() {
@@ -3665,7 +3659,7 @@ public void processPathEntries(final int defaultSize, final ArrayList paths,
 		default :
 			// we go on anyway
 			if (currentPath.length() != 0) {
-				this.logger.logIncorrectClasspath(currentPath);
+				addPendingErrors(this.bind("configure.incorrectClasspath", currentPath));//$NON-NLS-1$
 			}
 	}
 }
