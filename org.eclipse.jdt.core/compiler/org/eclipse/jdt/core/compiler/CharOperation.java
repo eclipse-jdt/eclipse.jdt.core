@@ -2845,7 +2845,28 @@ public static final int occurencesOf(
 			count++;
 	return count;
 }
-
+/**
+ * Return the int value represented by the designated subpart of array. The 
+ * calculation of the result for single-digit positive integers is optimized in 
+ * time.
+ * @param array the array within which the int value is to be parsed
+ * @param start first character of the int value in array
+ * @param length length of the int value in array
+ * @return the int value of a subpart of array
+ * @throws NumberFormatException if the designated subpart of array does not
+ *         parse to an int
+ */
+public static final int parseInt(char[] array, int start, int length) throws NumberFormatException {
+	if (length == 1) {
+		int result = array[start] - '0';
+		if (result < 0 || result > 9) {
+			throw new NumberFormatException("invalid digit"); //$NON-NLS-1$
+		}
+		return result;
+	} else {
+		return Integer.parseInt(new String(array, start, length));
+	}
+}
 /**
  * Answers true if the given name starts with the given prefix, false otherwise.
  * The comparison is case sensitive.

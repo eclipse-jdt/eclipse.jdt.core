@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
@@ -787,5 +788,18 @@ public void _test008_task_tags_options() {
 		"[FIXME,message contents,NORMAL]\n" +
 		"[TODO,message contents,NORMAL]\n" +
 		"[XXX,message contents,NORMAL]\n");
+} 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206423
+// that bug showed that we had no coverage in the area of missing message
+// templates, which can occur downstream in the localization process (assuming
+// that we always release the English version right)
+public void test009_missing_message_templates() {
+	assertEquals("Unable to retrieve the error message for problem id: 16777215. Check compiler resources.", 
+			new DefaultProblemFactory().getLocalizedMessage(Integer.MAX_VALUE, new String[]{}));
+} 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206423
+public void test010_missing_elaboration_templates() {
+	assertEquals("Unable to retrieve the error message elaboration for elaboration id: 1073741823. Check compiler resources.", 
+			new DefaultProblemFactory().getLocalizedMessage(0, Integer.MAX_VALUE / 2, new String[]{"Zork"}));
 } 
 }
