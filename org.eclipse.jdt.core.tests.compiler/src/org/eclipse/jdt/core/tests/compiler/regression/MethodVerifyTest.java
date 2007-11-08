@@ -8022,4 +8022,78 @@ public void test148() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=208995
+public void test149() {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"class A {\n" +
+			"	void a(X x) {}\n" +
+			"	void b(Y<Integer> y) {}\n" +
+			"	static void c(X x) {}\n" +
+			"	static void d(Y<Integer> y) {}\n" +
+			"}\n",
+			"B.java",
+			"class B extends A {\n" +
+			"	static void a(X x) {}\n" + // cannot override a(X) in A; overriding method is static
+			"	static void b(Y<String> y) {}\n" + // name clash
+			"	static void c(X x) {}\n" +
+			"	static void d(Y<String> y) {}\n" +
+			"}\n",
+			"B2.java",
+			"class B2 extends A {\n" +
+			"	static void b(Y<Integer> y) {}\n" + // cannot override b(Y<Integer>) in A; overriding method is static
+			"	static void d(Y<Integer> y) {}\n" +
+			"}\n",
+			"C.java",
+			"class C extends A {\n" +
+			"	@Override void a(X x) {}\n" +
+			"	void b(Y<String> y) {}\n" + // name clash
+			"	void c(X x) {}\n" + // cannot override c(X) in A; overridden method is static
+			"	void d(Y<String> y) {}\n" +
+			"}\n",
+			"C2.java",
+			"class C2 extends A {\n" +
+			"	@Override void b(Y<Integer> y) {}\n" +
+			"	void d(Y<Integer> y) {}\n" + // cannot override b(Y<Integer>) in A; overridden method is static
+			"}\n" + 
+			"class X {}\n" + 
+			"class Y<T> {}"
+		},
+		"----------\n" + 
+		"1. ERROR in B.java (at line 2)\n" + 
+		"	static void a(X x) {}\n" + 
+		"	            ^^^^^^\n" + 
+		"This static method cannot hide the instance method from A\n" + 
+		"----------\n" + 
+		"2. ERROR in B.java (at line 3)\n" + 
+		"	static void b(Y<String> y) {}\n" + 
+		"	            ^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method b(Y<String>) of type B has the same erasure as b(Y<Integer>) of type A but does not override it\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in B2.java (at line 2)\n" + 
+		"	static void b(Y<Integer> y) {}\n" + 
+		"	            ^^^^^^^^^^^^^^^\n" + 
+		"This static method cannot hide the instance method from A\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in C.java (at line 3)\n" + 
+		"	void b(Y<String> y) {}\n" + 
+		"	     ^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method b(Y<String>) of type C has the same erasure as b(Y<Integer>) of type A but does not override it\n" + 
+		"----------\n" + 
+		"2. ERROR in C.java (at line 4)\n" + 
+		"	void c(X x) {}\n" + 
+		"	     ^^^^^^\n" + 
+		"This instance method cannot override the static method from A\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in C2.java (at line 3)\n" + 
+		"	void d(Y<Integer> y) {}\n" + 
+		"	     ^^^^^^^^^^^^^^^\n" + 
+		"This instance method cannot override the static method from A\n" + 
+		"----------\n"
+	);
+}
 }
