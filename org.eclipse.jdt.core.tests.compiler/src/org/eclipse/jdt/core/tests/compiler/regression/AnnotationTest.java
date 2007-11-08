@@ -7920,4 +7920,34 @@ public void test238() {
 		false,
 		options);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
+public void test239() {
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRedundantSuperinterface, CompilerOptions.WARNING);
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"class X implements I {}\n" + 
+				"@SuppressWarnings(\"unused\")\n" + 
+				"class Y extends X implements I {\n" + 
+				"	Zork z;\n" + 
+				"}\n" +
+				"class Z extends X implements I {}\n" +
+				"interface I {}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 6)\n" + 
+		"	class Z extends X implements I {}\n" + 
+		"	                             ^\n" + 
+		"Redundant superinterface I for the type Z, already defined by X\n" + 
+		"----------\n",
+		null,
+		false,
+		options);
+}
 }

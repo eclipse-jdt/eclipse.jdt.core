@@ -1264,6 +1264,7 @@ public class CompilerOptions {
 					return "unchecked"; //$NON-NLS-1$
 				case (int) (UnusedLabel >>> 32):
 				case (int) (UnusedTypeArguments >>> 32) :
+				case (int) (RedundantSuperinterface >>> 32) :
 					return "unused"; //$NON-NLS-1$
 				case (int) (DiscouragedReference >>> 32) :
 				case (int) (ForbiddenReference >>> 32) :
@@ -1360,7 +1361,7 @@ public class CompilerOptions {
 				break;
 			case 'u' :
 				if ("unused".equals(warningToken)) //$NON-NLS-1$
-					return UnusedLocalVariable | UnusedArgument | UnusedPrivateMember | UnusedDeclaredThrownException | UnusedLabel | UnusedImport | UnusedTypeArguments;
+					return UnusedLocalVariable | UnusedArgument | UnusedPrivateMember | UnusedDeclaredThrownException | UnusedLabel | UnusedImport | UnusedTypeArguments | RedundantSuperinterface;
 				if ("unchecked".equals(warningToken)) //$NON-NLS-1$
 					return UncheckedTypeOperation | RawTypeReference;
 				if ("unqualified-field-access".equals(warningToken)) //$NON-NLS-1$
