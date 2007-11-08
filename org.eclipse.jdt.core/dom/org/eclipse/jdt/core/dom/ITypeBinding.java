@@ -370,10 +370,12 @@ public interface ITypeBinding extends IBinding {
 
 	/**
 	 * Returns the binding for the package in which this type is declared.
-	 * 
-	 * <p>The package of a recovered type reference binding is the package of the
-	 * enclosing type.</p>
 	 *
+	 * <p>The package of a recovered type reference binding is either
+	 * the package of the enclosing type, or, if the type name is the name of a
+	 * {@linkplain AST#resolveWellKnownType(String) well-known type},
+	 * the package of the matching well-known type.</p>
+	 * 
 	 * @return the binding for the package in which this class, interface,
 	 * enum, or annotation type is declared, or <code>null</code> if this type
 	 * binding represents a primitive type, an array type, the null type,
