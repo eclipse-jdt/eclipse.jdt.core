@@ -46,9 +46,27 @@ Eclipse SDK 3.4M4 - %date% - 3.4 MILESTONE 4
 <br>Project org.eclipse.jdt.core v_824
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_824">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Added new compiler option to find redundant superinterfaces.
+<pre>
+* COMPILER / Reporting Redundant Superinterface
+*    When enabled, the compiler will issue an error or a warning if a type
+*    explicitly implements an interface that is already implemented by any 
+*    of its supertypes.
+*     - option id: "org.eclipse.jdt.core.compiler.problem.redundantSuperinterface"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+(see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77918">bug 77918</a>)
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=209054">209054</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77918">77918</a>
+[compiler] Unnecessary implementation of interface in class declaration
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=208995">208995</a>
+Static method hides method from instance when using generics
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=209054">209054</a>
 [search] for references to method finds wrong interface call
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=208234">208234</a>
 Specify that CodeFormatter is not intended to be subclassed
