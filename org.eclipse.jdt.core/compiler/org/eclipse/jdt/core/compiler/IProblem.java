@@ -111,6 +111,8 @@
  *     IBM Corporation - added the following constants
  *                                 InvalidUsageOfTypeParametersForAnnotationDeclaration
  *                                 InvalidUsageOfTypeParametersForEnumDeclaration
+ *     IBM Corporation - added the following constants
+ *								   RedundantSuperinterface
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -614,6 +616,8 @@ void setSourceStart(int sourceStart);
 	int ObjectCannotHaveSuperTypes = Internal + 329;
 	/** @since 3.1 */
 	int ObjectMustBeClass = Internal + 330;
+	/** @since 3.4 */
+	int RedundantSuperinterface = TypeRelated + 331;
 
 	/** @deprecated - problem is no longer generated, use {@link #UndefinedType} instead */
 	int SuperclassNotFound =  TypeRelated + 329 + ProblemReasons.NotFound; // TypeRelated + 330

@@ -40593,4 +40593,53 @@ public void test1211() {
 			"Unused type arguments for the non generic constructor Local() of type Local; it should not be parameterized with arguments <String>\n" + 
 			"----------\n");
 }	
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
+// generic variants
+public void test1212() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> implements I<T> {}\n" + 
+			"class Y<T extends Z> extends X<T> implements I<T>, J {}\n" +
+			"class Z {}" + 
+			"interface I <T> {}\n" + 
+			"interface J {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	class Y<T extends Z> extends X<T> implements I<T>, J {}\n" + 
+		"	                                             ^\n" + 
+		"Redundant superinterface I<T> for the type Y<T>, already defined by X<T>\n" + 
+		"----------\n",
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
+// generic variants - the 'different arguments' error overrides the
+// redundant error
+public void test1213() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> implements I<T> {}\n" + 
+			"class Y<T extends Z, U extends T> extends X<T> implements I<U>, J {}\n" +
+			"class Z {}" + 
+			"interface I <T> {}\n" + 
+			"interface J {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	class Y<T extends Z, U extends T> extends X<T> implements I<U>, J {}\n" + 
+		"	      ^\n" + 
+		"The interface I cannot be implemented more than once with different arguments: I<T> and I<U>\n" + 
+		"----------\n",
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		customOptions);
+}
 }

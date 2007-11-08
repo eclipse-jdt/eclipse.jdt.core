@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -235,6 +234,67 @@ void checkExceptions(MethodBinding newMethod, MethodBinding inheritedMethod) {
 void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMethod, MethodBinding[] allInheritedMethods) {
 	// no op before 1.5
 }
+void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
+	if (superInterfaces == Binding.NO_SUPERINTERFACES) return;
+
+	SimpleSet interfacesToCheck = new SimpleSet(superInterfaces.length);
+	for (int i = 0, l = superInterfaces.length; i < l; i++)
+		interfacesToCheck.add(superInterfaces[i]);
+	ReferenceBinding[] itsInterfaces = null;
+	SimpleSet inheritedInterfaces = new SimpleSet(5);
+	ReferenceBinding superType = superclass;
+	while (superType != null && superType.isValidBinding()) {
+		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
+			for (int i = 0, l = itsInterfaces.length; i < l; i++) {
+				ReferenceBinding inheritedInterface = itsInterfaces[i];
+				if (!inheritedInterfaces.includes(inheritedInterface) && inheritedInterface.isValidBinding()) {
+					if (interfacesToCheck.includes(inheritedInterface)) {
+						TypeReference[] refs = this.type.scope.referenceContext.superInterfaces;
+						for (int r = 0, rl = refs.length; r < rl; r++) {
+							if (refs[r].resolvedType == inheritedInterface) {
+								problemReporter().redundantSuperInterface(this.type, refs[r], inheritedInterface, superType);
+								break;
+							}
+						}
+					} else {
+						inheritedInterfaces.add(inheritedInterface);
+					}
+				}
+			}
+		}
+		superType = superType.superclass();
+	}
+
+	int nextPosition = inheritedInterfaces.elementSize;
+	if (nextPosition == 0) return;
+	ReferenceBinding[] interfacesToVisit = new ReferenceBinding[nextPosition];
+	inheritedInterfaces.asArray(interfacesToVisit);
+	for (int i = 0; i < nextPosition; i++) {
+		superType = interfacesToVisit[i];
+		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
+			int itsLength = itsInterfaces.length;
+			if (nextPosition + itsLength >= interfacesToVisit.length)
+				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+			for (int a = 0; a < itsLength; a++) {
+				ReferenceBinding inheritedInterface = itsInterfaces[a];
+				if (!inheritedInterfaces.includes(inheritedInterface) && inheritedInterface.isValidBinding()) {
+					if (interfacesToCheck.includes(inheritedInterface)) {
+						TypeReference[] refs = this.type.scope.referenceContext.superInterfaces;
+						for (int r = 0, rl = refs.length; r < rl; r++) {
+							if (refs[r].resolvedType == inheritedInterface) {
+								problemReporter().redundantSuperInterface(this.type, refs[r], inheritedInterface, superType);
+								break;
+							}
+						}
+					} else {
+						inheritedInterfaces.add(inheritedInterface);
+						interfacesToVisit[nextPosition++] = inheritedInterface;
+					}
+				}
+			}
+		}
+	}
+}
 void checkInheritedMethods(MethodBinding[] methods, int length) {
 	if (length > 1) {
 		int[] overriddenInheritedMethods = findOverriddenInheritedMethods(methods, length);
@@ -418,6 +478,7 @@ void computeInheritedMethods() {
 		? this.type.scope.getJavaLangObject() // check interface methods against Object
 		: this.type.superclass(); // class or enum
 	computeInheritedMethods(superclass, type.superInterfaces());
+	checkForRedundantSuperinterfaces(superclass, type.superInterfaces());
 }
 /*
 Binding creation is responsible for reporting:
@@ -517,9 +578,9 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 					problemReporter().abstractMethodCannotBeOverridden(this.type, inheritedMethod);
 
 				MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(inheritedMethod.selector);
-				if (current != null) { // non visible methods cannot be overridden so a warning is issued
+				if (current != null && !inheritedMethod.isStatic()) { // non visible methods cannot be overridden so a warning is issued
 					foundMatch : for (int i = 0, length = current.length; i < length; i++) {
-						if (areMethodsCompatible(current[i], inheritedMethod)) {
+						if (!current[i].isStatic() && areMethodsCompatible(current[i], inheritedMethod)) {
 							problemReporter().overridesPackageDefaultMethod(current[i], inheritedMethod);
 							break foundMatch;
 						}

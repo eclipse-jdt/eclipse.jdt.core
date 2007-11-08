@@ -11,7 +11,9 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+import java.util.Map;
 import junit.framework.Test;
 
 public class SuperTypeTest extends AbstractRegressionTest {
@@ -264,5 +266,110 @@ public void test007() {
 		"The method bar(int) in the type Secondary is not applicable for the arguments ()\n" + 
 		"----------\n"
 	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
+// default is silent
+public void test008() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X implements I {}\n" + 
+			"class Y extends X implements I, J {}" + 
+			"interface I {}\n" + 
+			"interface J {}\n"
+		},
+		""
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
+// raising an error
+public void test009() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X implements I {}\n" + 
+			"class Y extends X implements I, J {}\n" + 
+			"interface I {}\n" + 
+			"interface J {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	class Y extends X implements I, J {}\n" + 
+		"	                             ^\n" + 
+		"Redundant superinterface I for the type Y, already defined by X\n" + 
+		"----------\n",
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
+// raising an error - deeper hierarchy
+public void test010() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X implements I {}\n" + 
+			"class Y extends X {}\n" + 
+			"class Z extends Y implements J, I {}\n" + 
+			"interface I {}\n" + 
+			"interface J {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	class Z extends Y implements J, I {}\n" + 
+		"	                                ^\n" + 
+		"Redundant superinterface I for the type Z, already defined by X\n" + 
+		"----------\n",
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
+// no error - deeper hierarchy
+public void test011() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X implements I {}\n" + 
+			"class Y extends X {}\n" + 
+			"class Z extends Y implements J {}" + 
+			"interface I {}\n" + 
+			"interface J {}\n"
+		},
+		"",
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		null /* no vm arguments */,
+		customOptions,
+		null /* no custom requestor*/);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
+// error - extending interfaces
+public void test012() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X implements J {}\n" + 
+			"class Y extends X implements I {}\n" + 
+			"interface I {}\n" + 
+			"interface J extends I {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	class Y extends X implements I {}\n" + 
+		"	                             ^\n" + 
+		"Redundant superinterface I for the type Y, already defined by J\n" + 
+		"----------\n",
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		customOptions);
 }
 }

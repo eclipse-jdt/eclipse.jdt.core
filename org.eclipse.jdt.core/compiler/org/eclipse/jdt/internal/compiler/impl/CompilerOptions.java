@@ -117,6 +117,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportOverridingMethodWithoutSuperInvocation =  "org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation"; //$NON-NLS-1$
 	public static final String OPTION_GenerateClassFiles = "org.eclipse.jdt.core.compiler.generateClassFiles"; //$NON-NLS-1$
 	public static final String OPTION_Process_Annotations = "org.eclipse.jdt.core.compiler.processAnnotations"; //$NON-NLS-1$
+	public static final String OPTION_ReportRedundantSuperinterface =  "org.eclipse.jdt.core.compiler.problem.redundantSuperinterface"; //$NON-NLS-1$
 
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -210,6 +211,7 @@ public class CompilerOptions {
 	public static final long MissingJavadocTagDescription = ASTNode.Bit53L;
 	public static final long UnusedTypeArguments = ASTNode.Bit54L;
 	public static final long UnusedWarningToken = ASTNode.Bit55L;
+	public static final long RedundantSuperinterface = ASTNode.Bit56L;
 
 	// Map: String optionKey --> Long irritant>
 	private static Map OptionToIrritants;
@@ -453,6 +455,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportOverridingMethodWithoutSuperInvocation, getSeverityString(OverridingMethodWithoutSuperInvocation));
 		optionsMap.put(OPTION_GenerateClassFiles, this.generateClassFiles ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_Process_Annotations, this.processAnnotations ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportRedundantSuperinterface, getSeverityString(RedundantSuperinterface));
 		return optionsMap;
 	}
 
@@ -581,6 +584,8 @@ public class CompilerOptions {
 					return OPTION_ReportUnusedTypeArgumentsForMethodInvocation;
 				case (int)(UnusedWarningToken >>> 32) :
 					return OPTION_ReportUnusedWarningToken;
+				case (int)(RedundantSuperinterface >>> 32) :
+					return OPTION_ReportRedundantSuperinterface;
 			}
 		}
 		return null;
@@ -862,6 +867,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportFallthroughCase)) != null) updateSeverity(FallthroughCase, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportOverridingMethodWithoutSuperInvocation)) != null) updateSeverity(OverridingMethodWithoutSuperInvocation, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedTypeArgumentsForMethodInvocation)) != null) updateSeverity(UnusedTypeArguments, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportRedundantSuperinterface)) != null) updateSeverity(RedundantSuperinterface, optionValue);
 
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
@@ -1056,6 +1062,7 @@ public class CompilerOptions {
 		buf.append("\n\t- generate class files: ").append(this.generateClassFiles ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- process annotations: ").append(this.processAnnotations ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unused type arguments for method/constructor invocation: ").append(getSeverityString(UnusedTypeArguments)); //$NON-NLS-1$
+		buf.append("\n\t- redundant superinterface: ").append(getSeverityString(RedundantSuperinterface)); //$NON-NLS-1$
 		return buf.toString();
 	}
 
@@ -1178,6 +1185,7 @@ public class CompilerOptions {
 			OPTION_ReportNullReference,
 			OPTION_ReportPotentialNullReference,
 			OPTION_ReportRedundantNullCheck,
+			OPTION_ReportRedundantSuperinterface,
 			OPTION_ReportOverridingPackageDefaultMethod,
 			OPTION_ReportParameterAssignment,
 			OPTION_ReportPossibleAccidentalBooleanAssignment,

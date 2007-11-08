@@ -311,6 +311,9 @@ public static long getIrritant(int problemID) {
 		case IProblem.UnusedTypeArgumentsForMethodInvocation:
 		case IProblem.UnusedTypeArgumentsForConstructorInvocation:
 			return CompilerOptions.UnusedTypeArguments;
+
+		case IProblem.RedundantSuperinterface:
+			return CompilerOptions.RedundantSuperinterface;
 	}
 	return 0;
 }
@@ -409,6 +412,7 @@ public static int getProblemCategory(int severity, int problemID) {
 					
 				case (int)(CompilerOptions.UnhandledWarningToken >>> 32):
 				case (int)(CompilerOptions.UnusedLabel >>> 32):
+				case (int)(CompilerOptions.RedundantSuperinterface >>> 32):
 					return CategorizedProblem.CAT_UNNECESSARY_CODE;
 
 				case (int)(CompilerOptions.ForbiddenReference >>> 32):
@@ -5707,7 +5711,24 @@ public void redefineLocal(LocalDeclaration localDecl) {
 		localDecl.sourceStart,
 		localDecl.sourceEnd);
 }
-
+public void redundantSuperInterface(SourceTypeBinding type, TypeReference reference, ReferenceBinding superinterface, ReferenceBinding declaringType) {
+	int severity = computeSeverity(IProblem.RedundantSuperinterface);
+	if (severity != ProblemSeverities.Ignore) {
+		this.handle(
+			IProblem.RedundantSuperinterface,
+			new String[] {
+				new String(superinterface.readableName()),
+				new String(type.readableName()),
+				new String(declaringType.readableName())},
+			new String[] {
+				new String(superinterface.shortReadableName()),
+				new String(type.shortReadableName()),
+				new String(declaringType.shortReadableName())},
+			severity,
+			reference.sourceStart,
+			reference.sourceEnd);
+	}
+}
 public void referenceMustBeArrayTypeAt(TypeBinding arrayType, ArrayReference arrayRef) {
 	this.handle(
 		IProblem.ArrayReferenceRequired,

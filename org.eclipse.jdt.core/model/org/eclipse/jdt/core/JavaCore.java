@@ -75,6 +75,8 @@
  *								   COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_NO_TAG
  *								   COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_RETURN_TAG
  *								   COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_ALL_TAGS
+ *     IBM Corporation - added the following constants:
+ *                                 COMPILER_PB_REDUNDANT_SUPERINTERFACE
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -757,6 +759,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.3
 	 */
 	public static final String COMPILER_PB_OVERRIDING_METHOD_WITHOUT_SUPER_INVOCATION = PLUGIN_ID + ".compiler.problem.overridingMethodWithoutSuperInvocation"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.4
+	 */
+	public static final String COMPILER_PB_REDUNDANT_SUPERINTERFACE = PLUGIN_ID + ".compiler.problem.redundantSuperinterface"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -2610,6 +2618,14 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 *     
+	 * COMPILER / Reporting Redundant Superinterface
+	 *    When enabled, the compiler will issue an error or a warning if a type
+	 *    explicitly implements an interface that is already implemented by any 
+	 *    of its supertypes.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.redundantSuperinterface"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 *
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.
 	 *     - option id:         "org.eclipse.jdt.core.builder.resourceCopyExclusionFilter"
