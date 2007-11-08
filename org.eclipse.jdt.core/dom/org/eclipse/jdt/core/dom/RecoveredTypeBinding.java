@@ -15,8 +15,11 @@ import java.util.List;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.PackageFragment;
@@ -32,7 +35,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 	private int dimensions;
 	private RecoveredTypeBinding innerTypeBinding;
 	private ITypeBinding[] typeArguments;
-	private org.eclipse.jdt.internal.compiler.lookup.TypeBinding referenceBinding;
+	private org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding;
 
 	RecoveredTypeBinding(BindingResolver resolver, VariableDeclaration variableDeclaration) {
 		this.variableDeclaration = variableDeclaration;
@@ -44,10 +47,10 @@ class RecoveredTypeBinding implements ITypeBinding {
 		}
 	}
 
-	RecoveredTypeBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.TypeBinding referenceBinding) {
+	RecoveredTypeBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
 		this.resolver = resolver;
-		this.dimensions = referenceBinding.dimensions();
-		this.referenceBinding = referenceBinding;
+		this.dimensions = typeBinding.dimensions();
+		this.binding = typeBinding;
 	}
 
 	RecoveredTypeBinding(BindingResolver resolver, Type type) {
@@ -147,12 +150,12 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getElementType()
 	 */
 	public ITypeBinding getElementType() {
-		if (this.referenceBinding != null) {
-			if (this.referenceBinding.isArrayType()) {
-				ArrayBinding arrayBinding = (ArrayBinding) this.referenceBinding;
+		if (this.binding != null) {
+			if (this.binding.isArrayType()) {
+				ArrayBinding arrayBinding = (ArrayBinding) this.binding;
 				return new RecoveredTypeBinding(this.resolver, arrayBinding.leafComponentType);
 			} else {
-				return new RecoveredTypeBinding(this.resolver, this.referenceBinding);
+				return new RecoveredTypeBinding(this.resolver, this.binding);
 			}
 		}
 		if (this.innerTypeBinding != null) {
@@ -205,19 +208,10 @@ class RecoveredTypeBinding implements ITypeBinding {
 	private String getInternalName() {
 		if (this.innerTypeBinding != null) {
 			return this.innerTypeBinding.getInternalName();
-		} else if (this.referenceBinding != null) {
-			org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding typeBinding = null;
-			if (this.referenceBinding.isArrayType()) {
-				ArrayBinding arrayBinding = (ArrayBinding) this.referenceBinding;
-				if (arrayBinding.leafComponentType instanceof org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding) {
-					typeBinding = (org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding) arrayBinding.leafComponentType;
-				}
-			} else if (this.referenceBinding instanceof org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding) {
-				typeBinding = (org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding) this.referenceBinding;
-			}
-			if (typeBinding != null) {
-				return new String(typeBinding.compoundName[typeBinding.compoundName.length - 1]);
-			}
+		}
+		ReferenceBinding referenceBinding = getReferenceBinding();
+		if (referenceBinding != null) {
+			return new String(referenceBinding.compoundName[referenceBinding.compoundName.length - 1]);
 		}
 		return this.getTypeNameFrom(getType());
 	}
@@ -226,6 +220,21 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getPackage()
 	 */
 	public IPackageBinding getPackage() {
+		if (this.binding != null) {
+			switch (this.binding.kind()) {
+				case Binding.BASE_TYPE :
+				case Binding.ARRAY_TYPE :
+				case Binding.TYPE_PARAMETER : // includes capture scenario
+				case Binding.WILDCARD_TYPE :
+				case Binding.INTERSECTION_TYPE:
+					return null;
+			}
+			IPackageBinding packageBinding = this.resolver.getPackageBinding(this.binding.getPackage());
+			if (packageBinding != null) return packageBinding;
+		}
+		if (this.innerTypeBinding != null && this.dimensions > 0) {
+			return null;
+		}
 		CompilationUnitScope scope = this.resolver.scope();
 		if (scope != null) {
 			return this.resolver.getPackageBinding(scope.getCurrentPackage());
@@ -237,13 +246,45 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getQualifiedName()
 	 */
 	public String getQualifiedName() {
-		return this.getName();
+		ReferenceBinding referenceBinding = getReferenceBinding();
+		if (referenceBinding != null) {
+			StringBuffer buffer = new StringBuffer();
+			char[] brackets = new char[this.dimensions * 2];
+			for (int i = this.dimensions * 2 - 1; i >= 0; i -= 2) {
+				brackets[i] = ']';
+				brackets[i - 1] = '[';
+			}
+			buffer.append(CharOperation.toString(referenceBinding.compoundName));
+			buffer.append(brackets);
+			return String.valueOf(buffer);
+		} else { 
+			return getName();
+		}
+	}
+
+	private ReferenceBinding getReferenceBinding() {
+		if (this.binding != null) {
+			if (this.binding.isArrayType()) {
+				ArrayBinding arrayBinding = (ArrayBinding) this.binding;
+				if (arrayBinding.leafComponentType instanceof ReferenceBinding) {
+					return (ReferenceBinding) arrayBinding.leafComponentType;
+				}
+			} else if (this.binding instanceof ReferenceBinding) {
+				return (ReferenceBinding) this.binding;
+			}
+		} else if (this.innerTypeBinding != null) {
+			return this.innerTypeBinding.getReferenceBinding();
+		}
+		return null;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getSuperclass()
 	 */
 	public ITypeBinding getSuperclass() {
+		if (getQualifiedName().equals("java.lang.Object")) {	//$NON-NLS-1$
+			return null;
+		}
 		return this.resolver.resolveWellKnownType("java.lang.Object"); //$NON-NLS-1$
 	}
 
@@ -251,7 +292,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeArguments()
 	 */
 	public ITypeBinding[] getTypeArguments() {
-		if (this.referenceBinding != null) {
+		if (this.binding != null) {
 			return this.typeArguments = TypeBinding.NO_TYPE_BINDINGS;
 		}
 		if (this.typeArguments != null) {
@@ -523,9 +564,9 @@ class RecoveredTypeBinding implements ITypeBinding {
 		} else if (this.currentType != null) {
 			buffer.append("currentType") //$NON-NLS-1$
 			      .append(this.currentType.toString());
-		} else if (this.referenceBinding != null) {
-			buffer.append("referenceBinding") //$NON-NLS-1$
-				  .append(this.referenceBinding.computeUniqueKey());
+		} else if (this.binding != null) {
+			buffer.append("typeBinding") //$NON-NLS-1$
+				  .append(this.binding.computeUniqueKey());
 		} else if (variableDeclaration != null) {
 			buffer
 				.append("variableDeclaration") //$NON-NLS-1$
