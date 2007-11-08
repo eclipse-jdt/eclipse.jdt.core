@@ -635,7 +635,7 @@ protected int resolveLevel(MessageSend messageSend) {
 			if (method.declaringClass == null || this.allSuperDeclaringTypeNames == null) {
 				declaringLevel = INACCURATE_MATCH;
 			} else {
-				if (resolveLevelAsSuperInvocation(methodReceiverType)) {
+				if (resolveLevelAsSuperInvocation(methodReceiverType, method.parameters, false)) {
 					declaringLevel = methodLevel // since this is an ACCURATE_MATCH so return the possibly weaker match
 						| SUPER_INVOCATION_FLAVOR; // this is an overridden method => add flavor to returned level
 				}
@@ -723,11 +723,30 @@ protected int resolveLevelAsSubtype(char[] qualifiedPattern, ReferenceBinding ty
  * Return whether the given type binding or one of its possible super interfaces
  * matches a type in the declaring type names hierarchy.
  */
-protected boolean resolveLevelAsSuperInvocation(ReferenceBinding type) {
+protected boolean resolveLevelAsSuperInvocation(ReferenceBinding type, TypeBinding[] argumentTypes, boolean verifyMethod) {
 	char[][] compoundName = type.compoundName;
 	for (int i = 0, max = this.allSuperDeclaringTypeNames.length; i < max; i++) {
 		if (CharOperation.equals(this.allSuperDeclaringTypeNames[i], compoundName)) {
-			return true;
+			if (!verifyMethod) return true;
+			// need to verify if the type implements the pattern method
+			MethodBinding[] methods = type.getMethods(this.pattern.selector);
+			for (int j=0, length=methods.length; j<length; j++) {
+				MethodBinding method = methods[j];
+				TypeBinding[] parameters = method.parameters;
+				if (argumentTypes.length == parameters.length) {
+					boolean found = true;
+					for (int k=0,l=parameters.length; k<l; k++) {
+						if (parameters[k].erasure() != argumentTypes[k].erasure()) {
+							found = false;
+							break;
+						}
+					}
+					if (found) {
+						return true;
+					}
+				}
+			}
+			break;
 		}
 	}
 
@@ -736,7 +755,7 @@ protected boolean resolveLevelAsSuperInvocation(ReferenceBinding type) {
 		ReferenceBinding[] interfaces = type.superInterfaces();
 		if (interfaces == null) return false;
 		for (int i = 0; i < interfaces.length; i++) {
-			if (resolveLevelAsSuperInvocation(interfaces[i])) {
+			if (resolveLevelAsSuperInvocation(interfaces[i], argumentTypes, true)) {
 				return true;
 			}
 		}

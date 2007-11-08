@@ -9141,4 +9141,29 @@ public void testBug204652() throws CoreException {
 		javaProject.setRawClasspath(originalRawClasspath, null);
 	}
 }
+
+/**
+ * @bug 209054: [search] for references to method finds wrong interface call
+ * @test Ensure that searching method reference does not find wrong interface call
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=209054"
+ */
+public void testBug209054() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/xy/Try.java",
+		"package xy;\n" + 
+		"public class Try implements IReferenceUpdating {\n" + 
+		"        IMovePolicy fInter;\n" + 
+		"        boolean canDo() { // find references\n" + 
+		"                return fInter.canDo(); // not a reference\n" + 
+		"        }\n" + 
+		"}\n" + 
+		"interface IMovePolicy extends IReferenceUpdating {\n" + 
+		"        boolean canDo();\n" + 
+		"}\n" + 
+		"interface IReferenceUpdating {}"
+	);
+	IMethod method = workingCopies[0].getType("Try").getMethod("canDo", new String[0]);
+	search(method, REFERENCES);
+	assertSearchResults("");
+}
 }
