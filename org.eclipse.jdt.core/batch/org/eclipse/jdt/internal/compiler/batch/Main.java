@@ -1773,6 +1773,9 @@ protected void handleWarningToken(String token, boolean isEnabling, boolean useE
 			this.options.put(
 				CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
 				CompilerOptions.PRIVATE);
+			this.options.put(
+				CompilerOptions.OPTION_ReportRedundantSuperinterface,
+				CompilerOptions.DISABLED);
 		}
 	} else if (token.equals("allJavadoc")) { //$NON-NLS-1$
 		if (!useEnableJavadoc) {

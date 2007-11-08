@@ -1126,6 +1126,7 @@ public void test012b(){
         "      paramAssign          assignment to a parameter\n" +
         "      pkgDefaultMethod   + attempt to override package-default method\n" +
         "      raw                + usage of raw type\n" +
+        "      redundantSuperinterface                + find redundant superinterfaces\n" +
         "      semicolon            unnecessary semicolon, empty statement\n" +
         "      serial             + missing serialVersionUID\n" +
         "      specialParamHiding   constructor or setter parameter hiding another field\n" +
