@@ -411,6 +411,7 @@ public static int getProblemCategory(int severity, int problemID) {
 					return CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT;
 					
 				case (int)(CompilerOptions.UnhandledWarningToken >>> 32):
+				case (int)(CompilerOptions.UnusedWarningToken >>> 32):
 				case (int)(CompilerOptions.UnusedLabel >>> 32):
 				case (int)(CompilerOptions.RedundantSuperinterface >>> 32):
 					return CategorizedProblem.CAT_UNNECESSARY_CODE;
