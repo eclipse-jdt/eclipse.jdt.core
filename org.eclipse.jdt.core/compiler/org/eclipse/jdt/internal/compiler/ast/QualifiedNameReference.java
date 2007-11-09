@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
@@ -25,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -351,7 +353,18 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 	    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
 	    		? compileTimeType  // unboxing: checkcast before conversion
 	    		: runtimeTimeType;
-	    	setGenericCast(length, originalType.genericCast(targetType));
+	    	TypeBinding typeCast = originalType.genericCast(targetType);
+	    	setGenericCast(length, typeCast);
+	        if (typeCast instanceof ReferenceBinding) {
+				ReferenceBinding referenceCast = (ReferenceBinding) typeCast;
+				if (!referenceCast.canBeSeenBy(scope)) {
+		        	scope.problemReporter().invalidType(this, 
+		        			new ProblemReferenceBinding(
+								CharOperation.splitOn('.', referenceCast.shortReadableName()),
+								referenceCast,
+								ProblemReasons.NotVisible));
+				}
+	        }			    	
 		} 	
 	}
 	super.computeConversion(scope, runtimeTimeType, compileTimeType);

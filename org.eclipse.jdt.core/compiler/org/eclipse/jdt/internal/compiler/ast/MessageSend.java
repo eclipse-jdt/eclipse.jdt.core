@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -98,7 +99,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 	    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
 	    		? compileTimeType  // unboxing: checkcast before conversion
 	    		: runtimeTimeType;
-	        this.valueCast = originalType.genericCast(targetType); 
+	        this.valueCast = originalType.genericCast(targetType);
 		} 	else if (this.actualReceiverType.isArrayType() 
 						&& runtimeTimeType.id != TypeIds.T_JavaLangObject
 						&& this.binding.parameters == Binding.NO_PARAMETERS 
@@ -107,6 +108,16 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 					// from 1.5 compliant mode on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
 			this.valueCast = runtimeTimeType;			
 		}
+        if (this.valueCast instanceof ReferenceBinding) {
+			ReferenceBinding referenceCast = (ReferenceBinding) this.valueCast;
+			if (!referenceCast.canBeSeenBy(scope)) {
+	        	scope.problemReporter().invalidType(this, 
+	        			new ProblemReferenceBinding(
+							CharOperation.splitOn('.', referenceCast.shortReadableName()),
+							referenceCast,
+							ProblemReasons.NotVisible));
+			}
+        }		
 	}
 	super.computeConversion(scope, runtimeTimeType, compileTimeType);
 }

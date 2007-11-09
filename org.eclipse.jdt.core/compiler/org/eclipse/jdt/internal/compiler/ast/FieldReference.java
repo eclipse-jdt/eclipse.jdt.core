@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -127,6 +128,16 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 	    		? compileTimeType  // unboxing: checkcast before conversion
 	    		: runtimeTimeType;
 	        this.genericCast = originalBinding.type.genericCast(targetType);
+	        if (this.genericCast instanceof ReferenceBinding) {
+				ReferenceBinding referenceCast = (ReferenceBinding) this.genericCast;
+				if (!referenceCast.canBeSeenBy(scope)) {
+		        	scope.problemReporter().invalidType(this, 
+		        			new ProblemReferenceBinding(
+								CharOperation.splitOn('.', referenceCast.shortReadableName()),
+								referenceCast,
+								ProblemReasons.NotVisible));
+				}
+	        }			        
 		}
 	} 	
 	super.computeConversion(scope, runtimeTimeType, compileTimeType);
