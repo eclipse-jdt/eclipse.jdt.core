@@ -38884,5 +38884,219 @@ public void test1210() {
 		"Bound mismatch: The generic method throwE(Object...) of type X is not applicable for the arguments (Object[]). The inferred type Object[] is not a valid substitute for the bounded parameter <E extends Exception>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=208873
+public void test1212() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public interface Loader {\n" + 
+			"		public <T extends Integer, K extends String> T load(final K key);\n" + 
+			"	}\n" + 
+			"	Loader loader;\n" + 
+			"	public <K extends String, T extends Integer> T get(final K key) {\n" + 
+			"		T data = this.loader.load(key);\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=208873 - variation
+public void test1213() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    <T, U extends T, V extends T> T cond1(boolean z, U x1, V x2) {\n" + 
+			"        return (z? x1: x2);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209153
+public void test1214() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		p.A myA = new p.A();\n" + 
+			"		myA.p = myA.box.get(); // [msgSend] generic cast to P -> error\n" + 
+			"		Object o = myA.box.get(); // ok, since no generic cast actually inserted\n" + 
+			"		myA.p = myA.getBox().t;// [fieldRef] generic cast to P -> error\n" + 
+			"		myA.p = myA.box.t;// [qName] generic cast to P -> error\n" + 
+			"		int pval = myA.box.t.pval;// intermediate access through P already flagged as error\n" + 
+			"	}\n" + 
+			"}\n",
+			"p/A.java",
+			"package p;\n" + 
+			"public class A {\n" + 
+			"	public static class Box<T> {\n" + 
+			"		public T t;\n" + 
+			"		public void set(T t) { this.t = t; }\n" + 
+			"		public T get()	{ return this.t; }\n" + 
+			"	}\n" + 
+			"	private class P {\n" + 
+			"		public int pval;\n" + 
+			"	}\n" + 
+			"	public P p;\n" + 
+			"	public Box<P> box;\n" + 
+			"	public Box<P> getBox() { return this.box; }\n" + 
+			"	public A next;\n" + 
+			"	public A getNext() { return this;} \n" + 
+			"	public A() {\n" + 
+			"		this.box = new Box<P>();\n" + 
+			"		this.box.set(new P());\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	myA.p = myA.box.get(); // [msgSend] generic cast to P -> error\n" + 
+		"	        ^^^^^^^^^^^^^\n" + 
+		"The type A.P is not visible\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	myA.p = myA.getBox().t;// [fieldRef] generic cast to P -> error\n" + 
+		"	        ^^^^^^^^^^^^^^\n" + 
+		"The type A.P is not visible\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	myA.p = myA.box.t;// [qName] generic cast to P -> error\n" + 
+		"	        ^^^\n" + 
+		"The type A.P is not visible\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	int pval = myA.box.t.pval;// intermediate access through P already flagged as error\n" + 
+		"	           ^^^^^^^^^^^^^^\n" + 
+		"The type A.P is not visible\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in p\\A.java (at line 18)\n" + 
+		"	this.box.set(new P());\n" + 
+		"	             ^^^^^^^\n" + 
+		"Access to enclosing constructor A.P() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209153 - variation
+public void test1215() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		p.A myA = new p.A();\n" + 
+			"		myA.p = myA.box.get(); // [msgSend] generic cast to P -> error\n" + 
+			"		Object o = myA.box.get(); // ok, since no generic cast actually inserted\n" + 
+			"		myA.p = myA.getBox().t;// [fieldRef] generic cast to P -> error\n" + 
+			"		myA.p = myA.box.t;// [qName] generic cast to P -> error\n" + 
+			"		int pval = myA.box.t.pval;// intermediate access through P already flagged as error\n" + 
+			"	}\n" + 
+			"}\n",
+			"p/A.java",
+			"package p;\n" + 
+			"public class A {\n" + 
+			"	public static class Box<T> {\n" + 
+			"		public T t;\n" + 
+			"		public void set(T t) { this.t = t; }\n" + 
+			"		public T get()	{ return this.t; }\n" + 
+			"	}\n" + 
+			"	protected class P {\n" + 
+			"		public int pval;\n" + 
+			"	}\n" + 
+			"	public P p;\n" + 
+			"	public Box<P> box;\n" + 
+			"	public Box<P> getBox() { return this.box; }\n" + 
+			"	public A next;\n" + 
+			"	public A getNext() { return this;} \n" + 
+			"	public A() {\n" + 
+			"		this.box = new Box<P>();\n" + 
+			"		this.box.set(new P());\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	myA.p = myA.box.get(); // [msgSend] generic cast to P -> error\n" + 
+		"	        ^^^^^^^^^^^^^\n" + 
+		"The type A.P is not visible\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	myA.p = myA.getBox().t;// [fieldRef] generic cast to P -> error\n" + 
+		"	        ^^^^^^^^^^^^^^\n" + 
+		"The type A.P is not visible\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	myA.p = myA.box.t;// [qName] generic cast to P -> error\n" + 
+		"	        ^^^\n" + 
+		"The type A.P is not visible\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	int pval = myA.box.t.pval;// intermediate access through P already flagged as error\n" + 
+		"	           ^^^^^^^^^^^^^^\n" + 
+		"The type A.P is not visible\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209153 - variation
+public void test1216() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		p.A myA = new p.A();\n" + 
+			"		myA.p = myA.box.get(); // [msgSend] generic cast to P -> error\n" + 
+			"		Object o = myA.box.get(); // ok, since no generic cast actually inserted\n" + 
+			"		myA.p = myA.getBox().t;// [fieldRef] generic cast to P -> error\n" + 
+			"		myA.p = myA.box.t;// [qName] generic cast to P -> error\n" + 
+			"		int pval = myA.box.t.pval;// intermediate access through P already flagged as error\n" + 
+			"	}\n" + 
+			"}\n",
+			"p/A.java",
+			"package p;\n" + 
+			"public class A {\n" + 
+			"	public static class Box<T> {\n" + 
+			"		public T t;\n" + 
+			"		public void set(T t) { this.t = t; }\n" + 
+			"		public T get()	{ return this.t; }\n" + 
+			"	}\n" + 
+			"	class P {\n" + 
+			"		public int pval;\n" + 
+			"	}\n" + 
+			"	public P p;\n" + 
+			"	public Box<P> box;\n" + 
+			"	public Box<P> getBox() { return this.box; }\n" + 
+			"	public A next;\n" + 
+			"	public A getNext() { return this;} \n" + 
+			"	public A() {\n" + 
+			"		this.box = new Box<P>();\n" + 
+			"		this.box.set(new P());\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	myA.p = myA.box.get(); // [msgSend] generic cast to P -> error\n" + 
+		"	        ^^^^^^^^^^^^^\n" + 
+		"The type A.P is not visible\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	myA.p = myA.getBox().t;// [fieldRef] generic cast to P -> error\n" + 
+		"	        ^^^^^^^^^^^^^^\n" + 
+		"The type A.P is not visible\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	myA.p = myA.box.t;// [qName] generic cast to P -> error\n" + 
+		"	        ^^^\n" + 
+		"The type A.P is not visible\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	int pval = myA.box.t.pval;// intermediate access through P already flagged as error\n" + 
+		"	           ^^^^^^^^^^^^^^\n" + 
+		"The type A.P is not visible\n" + 
+		"----------\n");
+}	
 
 }
