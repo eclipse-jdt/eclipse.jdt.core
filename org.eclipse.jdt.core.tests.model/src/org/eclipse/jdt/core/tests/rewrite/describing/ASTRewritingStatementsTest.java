@@ -16,7 +16,6 @@ import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
@@ -2966,7 +2965,10 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("    }\n");
 		buf.append("    public void goo() {\n");
 		buf.append("        throw new Exception('d');\n");
-		buf.append("    }\n");		
+		buf.append("    }\n");
+		buf.append("    public void hoo() {\n");
+		buf.append("        throw(e);\n");
+		buf.append("    }\n");				
 		buf.append("}\n");	
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 		
@@ -3004,7 +3006,19 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			
 			ASTNode newArgument= ast.newSimpleName("x");
 			rewrite.replace((ASTNode) creation.arguments().get(0), newArgument, null);
-		}				
+		}
+		
+		{ // replace expression, introduce space
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "hoo");
+			Block block= methodDecl.getBody();
+			List statements= block.statements();
+			assertTrue("Number of statements not 1", statements.size() == 1);			
+			
+			ThrowStatement statement= (ThrowStatement) statements.get(0);			
+			
+			ParenthesizedExpression expression= (ParenthesizedExpression) statement.getExpression();
+			rewrite.replace(expression, rewrite.createMoveTarget(expression.getExpression()), null);	
+		}		
 				
 		String preview= evaluateRewrite(cu, rewrite);
 		
@@ -3016,7 +3030,10 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("    }\n");
 		buf.append("    public void goo() {\n");
 		buf.append("        throw new Exception(x);\n");
-		buf.append("    }\n");		
+		buf.append("    }\n");
+		buf.append("    public void hoo() {\n");
+		buf.append("        throw e;\n");
+		buf.append("    }\n");				
 		buf.append("}\n");	
 		assertEqualString(preview, buf.toString());
 

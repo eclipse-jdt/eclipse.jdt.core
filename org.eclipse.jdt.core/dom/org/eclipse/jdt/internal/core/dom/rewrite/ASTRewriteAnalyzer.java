@@ -2698,7 +2698,14 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		
-		rewriteRequiredNode(node, ThrowStatement.EXPRESSION_PROPERTY);		
+		try {
+			int offset= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNamethrow, node.getStartPosition());
+			ensureSpaceBeforeReplace(node, ThrowStatement.EXPRESSION_PROPERTY, offset, 0);
+			
+			rewriteRequiredNode(node, ThrowStatement.EXPRESSION_PROPERTY);
+		} catch (CoreException e) {
+			handleException(e);
+		}
 		return false;	
 	}
 
