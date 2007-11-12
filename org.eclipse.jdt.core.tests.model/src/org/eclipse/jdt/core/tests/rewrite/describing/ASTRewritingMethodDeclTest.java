@@ -2765,5 +2765,64 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");	
 		assertEqualString(preview, buf.toString());
 	}
+	
+	public void testParameterAnnotations() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class E {\n");
+		buf.append("    public void foo(@A int a, @B1 @B2 int b, int c, @D int d) {\n");
+		buf.append("    }\n");	
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		MethodDeclaration methodDecl= (MethodDeclaration) findTypeDeclaration(astRoot, "E").bodyDeclarations().get(0);
+		List params= methodDecl.parameters();
+		assertEquals(4, params.size());
+		{
+			SingleVariableDeclaration decl= (SingleVariableDeclaration) params.get(0);
+			
+			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("X"));
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(decl, SingleVariableDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.insertFirst(markerAnnotation, null);
+		}
+		{
+			SingleVariableDeclaration decl= (SingleVariableDeclaration) params.get(1);
+			
+			rewrite.remove((ASTNode) decl.modifiers().get(0), null);
+		}
+		{
+			SingleVariableDeclaration decl= (SingleVariableDeclaration) params.get(2);
+			
+			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("X"));
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(decl, SingleVariableDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.insertFirst(markerAnnotation, null);
+		}
+		{
+			SingleVariableDeclaration decl= (SingleVariableDeclaration) params.get(3);
+			
+			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("X"));
+			
+			rewrite.replace((ASTNode) decl.modifiers().get(0), markerAnnotation, null);
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class E {\n");
+		buf.append("    public void foo(@X @A int a, @B2 int b, @X int c, @X int d) {\n");
+		buf.append("    }\n");	
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+	}
+
 
 }

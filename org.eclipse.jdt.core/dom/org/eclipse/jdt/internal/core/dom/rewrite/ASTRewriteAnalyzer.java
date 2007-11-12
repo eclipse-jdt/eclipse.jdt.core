@@ -1198,7 +1198,13 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			}
 		}
 		
-		int endPos= new ModifierRewriter(this.formatter.ANNOTATION_SEPARATION).rewriteList(node, property, pos, "", " "); //$NON-NLS-1$ //$NON-NLS-2$
+		Prefix formatterPrefix;
+		if (property == SingleVariableDeclaration.MODIFIERS2_PROPERTY)
+			formatterPrefix= this.formatter.PARAM_ANNOTATION_SEPARATION;
+		else
+			formatterPrefix= this.formatter.ANNOTATION_SEPARATION;
+		
+		int endPos= new ModifierRewriter(formatterPrefix).rewriteList(node, property, pos, "", " "); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		try {
 			int nextPos= getScanner().getNextStartOffset(endPos, false);
@@ -1212,7 +1218,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				RewriteEvent lastChild= children[children.length - 1];
 				String separator;
 				if (lastChild.getNewValue() instanceof Annotation) {
-					separator= this.formatter.ANNOTATION_SEPARATION.getPrefix(getIndent(pos));
+					separator= formatterPrefix.getPrefix(getIndent(pos));
 				} else {
 					separator= String.valueOf(' ');
 				}
