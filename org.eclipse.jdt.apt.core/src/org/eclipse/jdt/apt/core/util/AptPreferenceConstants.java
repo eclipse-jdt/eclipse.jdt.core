@@ -17,6 +17,8 @@ import java.util.Map;
 
 /**
  * String constants used to access APT preference store
+ * 
+ * This class is not intended to be subclassed or instantiated.
  */
 public class AptPreferenceConstants {
 	public static final String APT_STRING_BASE = "org.eclipse.jdt.apt"; //$NON-NLS-1$
