@@ -22,7 +22,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public MethodBinding targetMethod;			// method or constructor
 	public TypeBinding targetEnumType; 			// enum type
 	
-	public int kind;
+	public int purpose;
 
 	public final static int FieldReadAccess = 1; 		// field read
 	public final static int FieldWriteAccess = 2; 		// field write
@@ -55,7 +55,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 				this.parameters[0] = declaringSourceType;
 			}
 			this.targetReadField = targetField;
-			this.kind = FieldReadAccess;
+			this.purpose = SyntheticMethodBinding.FieldReadAccess;
 		} else {
 			this.returnType = TypeBinding.VOID;
 			if (targetField.isStatic()) {
@@ -67,7 +67,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 				this.parameters[1] = targetField.type;
 			}
 			this.targetWriteField = targetField;
-			this.kind = FieldWriteAccess;
+			this.purpose = SyntheticMethodBinding.FieldWriteAccess;
 		}
 		this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		this.declaringClass = declaringSourceType;
@@ -154,7 +154,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.parameters = Binding.NO_PARAMETERS;
 		this.targetReadField = targetField;
 		this.targetEnumType = enumBinding;
-		this.kind = SwitchTable;
+		this.purpose = SyntheticMethodBinding.SwitchTable;
 		this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		this.declaringClass = declaringSourceType;
   
@@ -230,7 +230,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.parameters = overridenMethodToBridge.parameters;
 	    this.thrownExceptions = overridenMethodToBridge.thrownExceptions;
 	    this.targetMethod = targetMethod;
-	    this.kind = BridgeMethod;
+	    this.purpose = SyntheticMethodBinding.BridgeMethod;
 		SyntheticMethodBinding[] knownAccessMethods = declaringClass.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
 		this.index = methodId;	    
@@ -248,11 +248,11 @@ public class SyntheticMethodBinding extends MethodBinding {
 		if (selector == TypeConstants.VALUES) {
 		    this.returnType = declaringEnum.scope.createArrayType(declaringEnum, 1);
 		    this.parameters = Binding.NO_PARAMETERS;
-		    this.kind = EnumValues;
+		    this.purpose = SyntheticMethodBinding.EnumValues;
 		} else if (selector == TypeConstants.VALUEOF) {
 		    this.returnType = declaringEnum;
 		    this.parameters = new TypeBinding[]{ declaringEnum.scope.getJavaLangString() };
-		    this.kind = EnumValueOf;
+		    this.purpose = SyntheticMethodBinding.EnumValueOf;
 		}
 		SyntheticMethodBinding[] knownAccessMethods = ((SourceTypeBinding)this.declaringClass).syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
@@ -278,7 +278,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	
 		this.selector = accessedConstructor.selector;
 		this.returnType = accessedConstructor.returnType;
-		this.kind = ConstructorAccess;
+		this.purpose = SyntheticMethodBinding.ConstructorAccess;
 		this.parameters = new TypeBinding[accessedConstructor.parameters.length + 1];
 		System.arraycopy(
 			accessedConstructor.parameters, 
@@ -286,7 +286,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 			this.parameters, 
 			0, 
 			accessedConstructor.parameters.length); 
-		parameters[accessedConstructor.parameters.length] = 
+		this.parameters[accessedConstructor.parameters.length] = 
 			accessedConstructor.declaringClass; 
 		this.thrownExceptions = accessedConstructor.thrownExceptions;
 		this.declaringClass = sourceType;
@@ -358,7 +358,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	
 		this.selector = CharOperation.concat(TypeConstants.SYNTHETIC_ACCESS_METHOD_PREFIX, String.valueOf(methodId).toCharArray());
 		this.returnType = accessedMethod.returnType;
-		this.kind = isSuperAccess ? SuperMethodAccess : MethodAccess;
+		this.purpose = isSuperAccess ? SyntheticMethodBinding.SuperMethodAccess : SyntheticMethodBinding.MethodAccess;
 		
 		if (accessedMethod.isStatic()) {
 			this.parameters = accessedMethod.parameters;
@@ -412,6 +412,6 @@ public class SyntheticMethodBinding extends MethodBinding {
 	}
 
 	protected boolean isConstructorRelated() {
-		return kind == ConstructorAccess;
+		return this.purpose == SyntheticMethodBinding.ConstructorAccess;
 	}
 }

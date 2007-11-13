@@ -868,8 +868,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				boolean isValuesOrValueOf = false;
 				if(binding instanceof SyntheticMethodBinding) {
 					SyntheticMethodBinding syntheticMethodBinding = (SyntheticMethodBinding) binding;
-					if(syntheticMethodBinding.kind  == SyntheticMethodBinding.EnumValues
-							|| syntheticMethodBinding.kind  == SyntheticMethodBinding.EnumValueOf) {
+					if(syntheticMethodBinding.purpose  == SyntheticMethodBinding.EnumValues
+							|| syntheticMethodBinding.purpose  == SyntheticMethodBinding.EnumValueOf) {
 						isValuesOrValueOf =  true;
 					}
 				}

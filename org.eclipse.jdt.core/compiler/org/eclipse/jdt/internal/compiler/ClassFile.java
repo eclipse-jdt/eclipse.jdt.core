@@ -1207,7 +1207,7 @@ public class ClassFile
 		if (syntheticMethods != null) {
 			for (int i = 0, max = syntheticMethods.length; i < max; i++) {
 				SyntheticMethodBinding syntheticMethod = syntheticMethods[i];
-				switch (syntheticMethod.kind) {
+				switch (syntheticMethod.purpose) {
 					case SyntheticMethodBinding.FieldReadAccess :
 						// generate a method info to emulate an reading access to
 						// a non-accessible field

@@ -2456,7 +2456,7 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 	MethodBinding targetMethod = accessMethod.targetMethod;
 	TypeBinding[] parameters = targetMethod.parameters;
 	int length = parameters.length;
-	TypeBinding[] arguments = accessMethod.kind == SyntheticMethodBinding.BridgeMethod 
+	TypeBinding[] arguments = accessMethod.purpose == SyntheticMethodBinding.BridgeMethod 
 													? accessMethod.parameters
 													: null;
 	int resolvedPosition;
@@ -2487,7 +2487,7 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 		if (targetMethod.isConstructor()
 			|| targetMethod.isPrivate()
 			// qualified super "X.super.foo()" targets methods from superclass
-			|| accessMethod.kind == SyntheticMethodBinding.SuperMethodAccess){
+			|| accessMethod.purpose == SyntheticMethodBinding.SuperMethodAccess){
 			this.invokespecial(targetMethod);
 		} else {
 			if (targetMethod.declaringClass.isInterface()) { // interface or annotation type
