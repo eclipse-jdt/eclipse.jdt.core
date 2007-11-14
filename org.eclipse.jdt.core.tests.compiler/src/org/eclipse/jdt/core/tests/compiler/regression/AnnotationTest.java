@@ -7950,4 +7950,20 @@ public void test239() {
 		false,
 		options);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207411
+public void test240() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"@Deprecated @Zork\n" + 
+				"public class X {\n" + 
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	@Deprecated @Zork\n" + 
+		"	             ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }

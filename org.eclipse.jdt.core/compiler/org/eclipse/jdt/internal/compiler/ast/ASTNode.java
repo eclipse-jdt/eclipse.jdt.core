@@ -7,8 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Matt McCutchen
- *     		Partial fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995.
+ *     Matt McCutchen - partial fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995
+ *     Karen Moore - fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=207411
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -603,7 +603,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				TypeBinding annotationType = annotation.getAnnotationType();
 				boolean foundDuplicate = false;
 				for (int j = i+1; j < length; j++) {
-					if (distinctAnnotations[j].getAnnotationType() == annotationType) {
+					AnnotationBinding otherAnnotation = distinctAnnotations[j];
+					if (otherAnnotation == null) continue;
+					if (otherAnnotation.getAnnotationType() == annotationType) {
 						foundDuplicate = true;
 						if (distinctAnnotations == annotations) {
 							System.arraycopy(distinctAnnotations, 0, distinctAnnotations = new AnnotationBinding[length], 0, length);
