@@ -635,7 +635,7 @@ protected int resolveLevel(MessageSend messageSend) {
 			if (method.declaringClass == null || this.allSuperDeclaringTypeNames == null) {
 				declaringLevel = INACCURATE_MATCH;
 			} else {
-				if (resolveLevelAsSuperInvocation(methodReceiverType, method.parameters, false)) {
+				if (resolveLevelAsSuperInvocation(methodReceiverType, method.parameters, true)) {
 					declaringLevel = methodLevel // since this is an ACCURATE_MATCH so return the possibly weaker match
 						| SUPER_INVOCATION_FLAVOR; // this is an overridden method => add flavor to returned level
 				}
@@ -723,12 +723,12 @@ protected int resolveLevelAsSubtype(char[] qualifiedPattern, ReferenceBinding ty
  * Return whether the given type binding or one of its possible super interfaces
  * matches a type in the declaring type names hierarchy.
  */
-protected boolean resolveLevelAsSuperInvocation(ReferenceBinding type, TypeBinding[] argumentTypes, boolean verifyMethod) {
+private boolean resolveLevelAsSuperInvocation(ReferenceBinding type, TypeBinding[] argumentTypes, boolean methodAlreadyVerified) {
 	char[][] compoundName = type.compoundName;
 	for (int i = 0, max = this.allSuperDeclaringTypeNames.length; i < max; i++) {
 		if (CharOperation.equals(this.allSuperDeclaringTypeNames[i], compoundName)) {
-			if (!verifyMethod) return true;
 			// need to verify if the type implements the pattern method
+			if (methodAlreadyVerified) return true; // already verified before enter into this method (see resolveLevel(MessageSend))
 			MethodBinding[] methods = type.getMethods(this.pattern.selector);
 			for (int j=0, length=methods.length; j<length; j++) {
 				MethodBinding method = methods[j];
@@ -750,12 +750,15 @@ protected boolean resolveLevelAsSuperInvocation(ReferenceBinding type, TypeBindi
 		}
 	}
 
-	// maybe super interfaces?
+	// If the given type is an interface then a common super interface may be found
+	// in a parallel branch of the super hierarchy, so we need to verify all super interfaces.
+	// If it's a class then there's only one possible branch for the hierarchy and 
+	// this branch has been already verified by the test above
 	if (type.isInterface()) {
 		ReferenceBinding[] interfaces = type.superInterfaces();
 		if (interfaces == null) return false;
 		for (int i = 0; i < interfaces.length; i++) {
-			if (resolveLevelAsSuperInvocation(interfaces[i], argumentTypes, true)) {
+			if (resolveLevelAsSuperInvocation(interfaces[i], argumentTypes, false)) {
 				return true;
 			}
 		}
