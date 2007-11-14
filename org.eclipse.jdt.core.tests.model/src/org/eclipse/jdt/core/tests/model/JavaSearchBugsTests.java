@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
  */
 public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJavaSearchConstants {
 	private final static int UI_DECLARATIONS = DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE;
-	
+
 public JavaSearchBugsTests(String name) {
 	super(name);
 	this.endChar = "";
@@ -141,19 +141,19 @@ public void testBug41018() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b41018/A.java",
 		"package b41018;\n" +
-		"public class A {\n" + 
-		"	protected void anotherMethod() {\n" + 
-		"		methodA(null);\n" + 
-		"	}\n" + 
-		"	private Object methodA(ClassB.InnerInterface arg3) {\n" + 
-		"		return null;\n" + 
-		"	}\n" + 
-		"}\n" + 
-		"class ClassB implements InterfaceB {\n" + 
-		"}\n" + 
-		"interface InterfaceB {\n" + 
-		"	interface InnerInterface {\n" + 
-		"	}\n" + 
+		"public class A {\n" +
+		"	protected void anotherMethod() {\n" +
+		"		methodA(null);\n" +
+		"	}\n" +
+		"	private Object methodA(ClassB.InnerInterface arg3) {\n" +
+		"		return null;\n" +
+		"	}\n" +
+		"}\n" +
+		"class ClassB implements InterfaceB {\n" +
+		"}\n" +
+		"interface InterfaceB {\n" +
+		"	interface InnerInterface {\n" +
+		"	}\n" +
 		"}\n"
 		);
 	IType type = workingCopies[0].getType("A");
@@ -171,18 +171,18 @@ public void testBug41018() throws CoreException {
 public void testBug70827() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b70827/A.java",
-		"package b70827;\n" + 
-		"class A {\n" + 
-		"	private void privateMethod() {\n" + 
-		"	}\n" + 
-		"}\n" + 
-		"class Second extends A {\n" + 
-		"	void call() {\n" + 
-		"		int i= privateMethod();\n" + 
-		"	}\n" + 
-		"	int privateMethod() {\n" + 
-		"		return 1;\n" + 
-		"	}\n" + 
+		"package b70827;\n" +
+		"class A {\n" +
+		"	private void privateMethod() {\n" +
+		"	}\n" +
+		"}\n" +
+		"class Second extends A {\n" +
+		"	void call() {\n" +
+		"		int i= privateMethod();\n" +
+		"	}\n" +
+		"	int privateMethod() {\n" +
+		"		return 1;\n" +
+		"	}\n" +
 		"}\n"
 		);
 	IType type = workingCopies[0].getType("A");
@@ -208,14 +208,14 @@ public void testBug71279() throws CoreException {
 	};
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b71279/AA.java",
-		"package b71279;\n" + 
-		"public class AA {\n" + 
-		"	Unknown ref;\n" + 
+		"package b71279;\n" +
+		"public class AA {\n" +
+		"	Unknown ref;\n" +
 		"}\n"
 		);
 	new SearchEngine(workingCopies).searchDeclarationsOfReferencedTypes(workingCopies[0], result, null);
 	assertSearchResults(
-		"Starting search...\n" + 
+		"Starting search...\n" +
 		"Done searching.",
 		result);
 }
@@ -228,36 +228,36 @@ public void testBug72866() throws CoreException {
 	workingCopies = new ICompilationUnit[4];
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b72866/A.java",
-		"package b72866;\n" + 
-		"public abstract class A {\n" + 
-		"	public abstract void foo(V v);\n" + 
+		"package b72866;\n" +
+		"public abstract class A {\n" +
+		"	public abstract void foo(V v);\n" +
 		"}\n",
 		owner
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b72866/SX.java",
-		"package b72866;\n" + 
-		"public class SX extends A {\n" + 
-		"	public void foo(V v) {\n" + 
-		"	    v.bar(this);\n" + 
-		"	}\n" + 
+		"package b72866;\n" +
+		"public class SX extends A {\n" +
+		"	public void foo(V v) {\n" +
+		"	    v.bar(this);\n" +
+		"	}\n" +
 		"}\n"	,
 		owner
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b72866/V.java",
-		"package b72866;\n" + 
-		"public class V {\n" + 
-		"	void bar(A a) {}\n" + 
-		"	void bar(X x) {}\n" + 
-		"	void bar(SX s) {}\n" + 
+		"package b72866;\n" +
+		"public class V {\n" +
+		"	void bar(A a) {}\n" +
+		"	void bar(X x) {}\n" +
+		"	void bar(SX s) {}\n" +
 		"}\n"	,
 		owner
 	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b72866/X.java",
-		"package b72866;\n" + 
-		"public class X extends A {\n" + 
-		"	public void foo(V v) {\n" + 
-		"	    v.bar(this);\n" + 
-		"	}\n" + 
+		"package b72866;\n" +
+		"public class X extends A {\n" +
+		"	public void foo(V v) {\n" +
+		"	    v.bar(this);\n" +
+		"	}\n" +
 		"}\n"	,
 		owner
 	);
@@ -276,45 +276,45 @@ public void testBug72866() throws CoreException {
 public void testBug73112a() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b73112/A.java",
-		"package b73112;\n" + 
-		"public class A {\n" + 
-		"    int fieldA73112a = 1, fieldA73112b = new Integer(2).intValue(), fieldA73112c = fieldA73112a + fieldA73112b;\n" + 
-		"    int fieldA73112d;\n" + 
-		"    \n" + 
-		"    public void method(){}\n" + 
+		"package b73112;\n" +
+		"public class A {\n" +
+		"    int fieldA73112a = 1, fieldA73112b = new Integer(2).intValue(), fieldA73112c = fieldA73112a + fieldA73112b;\n" +
+		"    int fieldA73112d;\n" +
+		"    \n" +
+		"    public void method(){}\n" +
 		"}\n");
 	// search field references to first multiple field
 	search("fieldA73112*", FIELD, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b73112/A.java b73112.A.fieldA73112a [fieldA73112a] EXACT_MATCH\n" + 
-		"src/b73112/A.java b73112.A.fieldA73112b [fieldA73112b] EXACT_MATCH\n" + 
-		"src/b73112/A.java b73112.A.fieldA73112c [fieldA73112c] EXACT_MATCH\n" + 
-		"src/b73112/A.java b73112.A.fieldA73112c [fieldA73112a] EXACT_MATCH\n" + 
-		"src/b73112/A.java b73112.A.fieldA73112c [fieldA73112b] EXACT_MATCH\n" + 
+		"src/b73112/A.java b73112.A.fieldA73112a [fieldA73112a] EXACT_MATCH\n" +
+		"src/b73112/A.java b73112.A.fieldA73112b [fieldA73112b] EXACT_MATCH\n" +
+		"src/b73112/A.java b73112.A.fieldA73112c [fieldA73112c] EXACT_MATCH\n" +
+		"src/b73112/A.java b73112.A.fieldA73112c [fieldA73112a] EXACT_MATCH\n" +
+		"src/b73112/A.java b73112.A.fieldA73112c [fieldA73112b] EXACT_MATCH\n" +
 		"src/b73112/A.java b73112.A.fieldA73112d [fieldA73112d] EXACT_MATCH"
 	);
 }
 public void testBug73112b() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = super.getWorkingCopy("/JavaSearchBugs/src/b73112/B.java",
-		"package b73112;\n" + 
-		"public class B {\n" + 
-		"    int fieldB73112a, fieldB73112b = 10;\n" + 
-		"    int fieldB73112c = fieldB73112a + fieldB73112b, fieldB73112d = fieldB73112c + fieldB73112a, fieldB73112e;\n" + 
-		"    \n" + 
-		"    public void method(){}\n" + 
+		"package b73112;\n" +
+		"public class B {\n" +
+		"    int fieldB73112a, fieldB73112b = 10;\n" +
+		"    int fieldB73112c = fieldB73112a + fieldB73112b, fieldB73112d = fieldB73112c + fieldB73112a, fieldB73112e;\n" +
+		"    \n" +
+		"    public void method(){}\n" +
 		"}\n");
 	// search field references to first multiple field
 	search("fieldB73112*", FIELD, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b73112/B.java b73112.B.fieldB73112a [fieldB73112a] EXACT_MATCH\n" + 
-		"src/b73112/B.java b73112.B.fieldB73112b [fieldB73112b] EXACT_MATCH\n" + 
-		"src/b73112/B.java b73112.B.fieldB73112c [fieldB73112c] EXACT_MATCH\n" + 
-		"src/b73112/B.java b73112.B.fieldB73112c [fieldB73112a] EXACT_MATCH\n" + 
-		"src/b73112/B.java b73112.B.fieldB73112c [fieldB73112b] EXACT_MATCH\n" + 
-		"src/b73112/B.java b73112.B.fieldB73112d [fieldB73112d] EXACT_MATCH\n" + 
-		"src/b73112/B.java b73112.B.fieldB73112d [fieldB73112c] EXACT_MATCH\n" + 
-		"src/b73112/B.java b73112.B.fieldB73112d [fieldB73112a] EXACT_MATCH\n" + 
+		"src/b73112/B.java b73112.B.fieldB73112a [fieldB73112a] EXACT_MATCH\n" +
+		"src/b73112/B.java b73112.B.fieldB73112b [fieldB73112b] EXACT_MATCH\n" +
+		"src/b73112/B.java b73112.B.fieldB73112c [fieldB73112c] EXACT_MATCH\n" +
+		"src/b73112/B.java b73112.B.fieldB73112c [fieldB73112a] EXACT_MATCH\n" +
+		"src/b73112/B.java b73112.B.fieldB73112c [fieldB73112b] EXACT_MATCH\n" +
+		"src/b73112/B.java b73112.B.fieldB73112d [fieldB73112d] EXACT_MATCH\n" +
+		"src/b73112/B.java b73112.B.fieldB73112d [fieldB73112c] EXACT_MATCH\n" +
+		"src/b73112/B.java b73112.B.fieldB73112d [fieldB73112a] EXACT_MATCH\n" +
 		"src/b73112/B.java b73112.B.fieldB73112e [fieldB73112e] EXACT_MATCH"
 	);
 }
@@ -327,46 +327,46 @@ public void testBug73336() throws CoreException {
 	workingCopies = new ICompilationUnit[6];
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b73336/A.java",
-		"package b73336;\n" + 
+		"package b73336;\n" +
 		"public class A {}\n",
 		owner
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b73336/AA.java",
-		"package b73336;\n" + 
+		"package b73336;\n" +
 		"public class AA extends A {}\n",
 		owner
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b73336/B.java",
-		"package b73336;\n" + 
-		"public class B extends X<A, A> {\n" + 
-		"	<T> void foo(T t) {}\n" + 
+		"package b73336;\n" +
+		"public class B extends X<A, A> {\n" +
+		"	<T> void foo(T t) {}\n" +
 		"}\n",
 		owner
 	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b73336/C.java",
-		"package b73336;\n" + 
-		"public class C implements I<A> {\n" + 
-		"	public void foo() {\n" + 
-		"		B b = new B();\n" + 
-		"		b.<A>foo(new A());\n" + 
-		"	}\n" + 
+		"package b73336;\n" +
+		"public class C implements I<A> {\n" +
+		"	public void foo() {\n" +
+		"		B b = new B();\n" +
+		"		b.<A>foo(new A());\n" +
+		"	}\n" +
 		"}\n",
 		owner
 	);
 	workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/b73336/I.java",
-		"package b73336;\n" + 
-		"public interface I<T>  {\n" + 
-		"	public void foo();\n" + 
+		"package b73336;\n" +
+		"public interface I<T>  {\n" +
+		"	public void foo();\n" +
 		"}\n",
 		owner
 	);
 	workingCopies[5] = getWorkingCopy("/JavaSearchBugs/src/b73336/X.java",
-		"package b73336;\n" + 
-		"public class X<T, U> {\n" + 
-		"	<V> void foo(V v) {}\n" + 
-		"	class Member<T> {\n" + 
-		"		void foo() {}\n" + 
-		"	}\n" + 
+		"package b73336;\n" +
+		"public class X<T, U> {\n" +
+		"	<V> void foo(V v) {}\n" +
+		"	class Member<T> {\n" +
+		"		void foo() {}\n" +
+		"	}\n" +
 		"}\n",
 		owner
 	);
@@ -374,11 +374,11 @@ public void testBug73336() throws CoreException {
 	IType type = workingCopies[0].getType("A");
 	search(type, REFERENCES); //, getJavaSearchScopeBugs("b73336", false));
 	assertSearchResults(
-		"src/b73336/AA.java b73336.AA [A] EXACT_MATCH\n" + 
-		"src/b73336/B.java b73336.B [A] EXACT_MATCH\n" + 
-		"src/b73336/B.java b73336.B [A] EXACT_MATCH\n" + 
-		"src/b73336/C.java b73336.C [A] EXACT_MATCH\n" + 
-		"src/b73336/C.java void b73336.C.foo() [A] EXACT_MATCH\n" + 
+		"src/b73336/AA.java b73336.AA [A] EXACT_MATCH\n" +
+		"src/b73336/B.java b73336.B [A] EXACT_MATCH\n" +
+		"src/b73336/B.java b73336.B [A] EXACT_MATCH\n" +
+		"src/b73336/C.java b73336.C [A] EXACT_MATCH\n" +
+		"src/b73336/C.java void b73336.C.foo() [A] EXACT_MATCH\n" +
 		"src/b73336/C.java void b73336.C.foo() [A] EXACT_MATCH"
 	);
 }
@@ -386,32 +386,32 @@ public void testBug73336b() throws CoreException {
 	workingCopies = new ICompilationUnit[4];
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b73336b/A.java",
-		"package b73336b;\n" + 
+		"package b73336b;\n" +
 		"public class A {}\n",
 		owner
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b73336b/B.java",
-		"package b73336b;\n" + 
-		"public class B extends X<A, A> {\n" + 
+		"package b73336b;\n" +
+		"public class B extends X<A, A> {\n" +
 		"}\n",
 		owner
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b73336b/C.java",
-		"package b73336b;\n" + 
-		"public class C extends X<A, A>.Member<A> {\n" + 
-		"	public C() {\n" + 
-		"		new X<A, A>().super();\n" + 
-		"	}\n" + 
+		"package b73336b;\n" +
+		"public class C extends X<A, A>.Member<A> {\n" +
+		"	public C() {\n" +
+		"		new X<A, A>().super();\n" +
+		"	}\n" +
 		"}\n",
 		owner
 	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b73336b/X.java",
-		"package b73336b;\n" + 
-		"public class X<T, U> {\n" + 
-		"	<V> void foo(V v) {}\n" + 
-		"	class Member<T> {\n" + 
-		"		void foo() {}\n" + 
-		"	}\n" + 
+		"package b73336b;\n" +
+		"public class X<T, U> {\n" +
+		"	<V> void foo(V v) {}\n" +
+		"	class Member<T> {\n" +
+		"		void foo() {}\n" +
+		"	}\n" +
 		"}\n",
 		owner
 	);
@@ -420,12 +420,12 @@ public void testBug73336b() throws CoreException {
 //	search(type, REFERENCES, getJavaSearchScopeBugs("b73336b", false));
 	search(type, REFERENCES); //, getJavaSearchScopeBugs("b73336", false));
 	assertSearchResults(
-		"src/b73336b/B.java b73336b.B [A] EXACT_MATCH\n" + 
-		"src/b73336b/B.java b73336b.B [A] EXACT_MATCH\n" + 
-		"src/b73336b/C.java b73336b.C [A] EXACT_MATCH\n" + 
-		"src/b73336b/C.java b73336b.C [A] EXACT_MATCH\n" + 
-		"src/b73336b/C.java b73336b.C [A] EXACT_MATCH\n" + 
-		"src/b73336b/C.java b73336b.C() [A] EXACT_MATCH\n" + 
+		"src/b73336b/B.java b73336b.B [A] EXACT_MATCH\n" +
+		"src/b73336b/B.java b73336b.B [A] EXACT_MATCH\n" +
+		"src/b73336b/C.java b73336b.C [A] EXACT_MATCH\n" +
+		"src/b73336b/C.java b73336b.C [A] EXACT_MATCH\n" +
+		"src/b73336b/C.java b73336b.C [A] EXACT_MATCH\n" +
+		"src/b73336b/C.java b73336b.C() [A] EXACT_MATCH\n" +
 		"src/b73336b/C.java b73336b.C() [A] EXACT_MATCH"
 	);
 }
@@ -434,29 +434,29 @@ public void testBug73336c() throws CoreException {
 	workingCopies = new ICompilationUnit[4];
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b73336c/A.java",
-		"package b73336c;\n" + 
+		"package b73336c;\n" +
 		"public class A {}\n",
 		owner
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b73336c/B.java",
-		"package b73336c;\n" + 
-		"public class B extends X<A, A> {\n" + 
+		"package b73336c;\n" +
+		"public class B extends X<A, A> {\n" +
 		"}\n",
 		owner
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b73336c/C.java",
-		"package b73336c;\n" + 
-		"public class C implements X<A, A>.Interface<A>  {\n" + 
-		"	void bar() {}\n" + 
+		"package b73336c;\n" +
+		"public class C implements X<A, A>.Interface<A>  {\n" +
+		"	void bar() {}\n" +
 		"}\n",
 		owner
 	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b73336c/X.java",
-		"package b73336c;\n" + 
-		"public class X<T, U> {\n" + 
-		"	interface Interface<V> {\n" + 
-		"		void bar();\n" + 
-		"	}\n" + 
+		"package b73336c;\n" +
+		"public class X<T, U> {\n" +
+		"	interface Interface<V> {\n" +
+		"		void bar();\n" +
+		"	}\n" +
 		"}\n",
 		owner
 	);
@@ -465,10 +465,10 @@ public void testBug73336c() throws CoreException {
 //	search(type, REFERENCES, getJavaSearchScopeBugs("b73336c", false));
 	search(type, REFERENCES); //, getJavaSearchScopeBugs("b73336", false));
 	assertSearchResults(
-		"src/b73336c/B.java b73336c.B [A] EXACT_MATCH\n" + 
-		"src/b73336c/B.java b73336c.B [A] EXACT_MATCH\n" + 
-		"src/b73336c/C.java b73336c.C [A] EXACT_MATCH\n" + 
-		"src/b73336c/C.java b73336c.C [A] EXACT_MATCH\n" + 
+		"src/b73336c/B.java b73336c.B [A] EXACT_MATCH\n" +
+		"src/b73336c/B.java b73336c.B [A] EXACT_MATCH\n" +
+		"src/b73336c/C.java b73336c.C [A] EXACT_MATCH\n" +
+		"src/b73336c/C.java b73336c.C [A] EXACT_MATCH\n" +
 		"src/b73336c/C.java b73336c.C [A] EXACT_MATCH"
 	);
 }
@@ -481,18 +481,18 @@ public void testBug73696() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b73696/C.java",
-		"package b73696;\n" + 
-		"public class C implements  I {\n" + 
+		"package b73696;\n" +
+		"public class C implements  I {\n" +
 		"}",
 		owner
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b73696/I.java",
-		"package b73696;\n" + 
+		"package b73696;\n" +
 		"public interface I {}\n",
 		owner
 	);
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
-	
+
 	// Interface declaration
 	TypeDeclarationPattern pattern = new TypeDeclarationPattern(
 		null,
@@ -522,7 +522,7 @@ public void testBug73696() throws CoreException {
 		resultCollector,
 		null);
 	assertSearchResults(
-		"src/b73696/I.java b73696.I [I] EXACT_MATCH\n" + 
+		"src/b73696/I.java b73696.I [I] EXACT_MATCH\n" +
 		"src/b73696/C.java b73696.C [C] EXACT_MATCH"
 	);
 }
@@ -535,30 +535,30 @@ public void testBug74776() throws CoreException {
 	workingCopies = new ICompilationUnit[3];
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b74776/A.java",
-		"package b74776;\n" + 
-		"public class A {\n" + 
-		"	/**\n" + 
-		"	 * @deprecated Use {@link #foo(IRegion)} instead\n" + 
-		"	 * @param r\n" + 
-		"	 */\n" + 
-		"	void foo(Region r) {\n" + 
-		"		foo((IRegion)r);\n" + 
-		"	}\n" + 
-		"	void foo(IRegion r) {\n" + 
-		"	}\n" + 
+		"package b74776;\n" +
+		"public class A {\n" +
+		"	/**\n" +
+		"	 * @deprecated Use {@link #foo(IRegion)} instead\n" +
+		"	 * @param r\n" +
+		"	 */\n" +
+		"	void foo(Region r) {\n" +
+		"		foo((IRegion)r);\n" +
+		"	}\n" +
+		"	void foo(IRegion r) {\n" +
+		"	}\n" +
 		"}\n",
 		owner
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b74776/IRegion.java",
-		"package b74776;\n" + 
-		"public interface IRegion {\n" + 
+		"package b74776;\n" +
+		"public interface IRegion {\n" +
 		"}\n",
 		owner
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b74776/Region.java",
-		"package b74776;\n" + 
-		"public class Region implements IRegion {\n" + 
-		"\n" + 
+		"package b74776;\n" +
+		"public class Region implements IRegion {\n" +
+		"\n" +
 		"}\n",
 		owner
 	);
@@ -591,23 +591,23 @@ public void testBug75816() throws CoreException {
 private void setUpBug77093() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b77093/X.java",
-		"package b77093;\n" + 
-		"public class X {\n" + 
-		"	class Z {\n" + 
-		"	}\n" + 
-		"	Z[][] z_arrays;\n" + 
-		"	X() {\n" + 
-		"		this(new Z[10][]);\n" + 
-		"	}\n" + 
-		"	X(Z[][] arrays) {\n" + 
-		"		z_arrays = arrays;\n" + 
-		"	}\n" + 
-		"	private void foo(Z[] args) {\n" + 
-		"	}\n" + 
-		"	void bar() {\n" + 
-		"		for (int i=0; i<z_arrays.length; i++)\n" + 
-		"			foo(z_arrays[i]);\n" + 
-		"	}\n" + 
+		"package b77093;\n" +
+		"public class X {\n" +
+		"	class Z {\n" +
+		"	}\n" +
+		"	Z[][] z_arrays;\n" +
+		"	X() {\n" +
+		"		this(new Z[10][]);\n" +
+		"	}\n" +
+		"	X(Z[][] arrays) {\n" +
+		"		z_arrays = arrays;\n" +
+		"	}\n" +
+		"	private void foo(Z[] args) {\n" +
+		"	}\n" +
+		"	void bar() {\n" +
+		"		for (int i=0; i<z_arrays.length; i++)\n" +
+		"			foo(z_arrays[i]);\n" +
+		"	}\n" +
 		"}"
 	);
 }
@@ -630,8 +630,8 @@ public void testBug77093field() throws CoreException {
 	search(field, ALL_OCCURRENCES);
 	assertSearchResults(
 		"src/b77093/X.java b77093.X.z_arrays [z_arrays] EXACT_MATCH\n" +
-		"src/b77093/X.java b77093.X(Z[][]) [z_arrays] EXACT_MATCH\n" + 
-		"src/b77093/X.java void b77093.X.bar() [z_arrays] EXACT_MATCH\n" + 
+		"src/b77093/X.java b77093.X(Z[][]) [z_arrays] EXACT_MATCH\n" +
+		"src/b77093/X.java void b77093.X.bar() [z_arrays] EXACT_MATCH\n" +
 		"src/b77093/X.java void b77093.X.bar() [z_arrays] EXACT_MATCH"
 	);
 }
@@ -652,13 +652,13 @@ public void testBug77093method() throws CoreException {
 public void testBug77388() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b77388/Test.java",
-		"package b77388;\n" + 
-		"class Test {\n" + 
-		"	Test(int a, int b) {	}\n" + 
-		"	void take(Test mc) { }\n" + 
-		"	void run() {\n" + 
-		"		take( new Test(1, 2) ); // space in \") )\" is in match\n" + 
-		"	}\n" + 
+		"package b77388;\n" +
+		"class Test {\n" +
+		"	Test(int a, int b) {	}\n" +
+		"	void take(Test mc) { }\n" +
+		"	void run() {\n" +
+		"		take( new Test(1, 2) ); // space in \") )\" is in match\n" +
+		"	}\n" +
 		"}");
 	IType type = workingCopies[0].getType("Test");
 	IMethod method = type.getMethod("Test", new String[] {"I", "I"});
@@ -677,18 +677,18 @@ public void testBug78082() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b78082/M.java",
-		"package b78082;\n" + 
-		"public class M {\n" + 
-		"	static int VAL=78082;\n" + 
+		"package b78082;\n" +
+		"public class M {\n" +
+		"	static int VAL=78082;\n" +
 		"}\n",
 		owner
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b78082/XY.java",
-		"package b78082;\n" + 
-		"import static b78082.M.VAL;\n" + 
-		"public class XY {\n" + 
-		"	double val = VAL;\n" + 
-		"	double val2= b78082.M.VAL;\n" + 
+		"package b78082;\n" +
+		"import static b78082.M.VAL;\n" +
+		"public class XY {\n" +
+		"	double val = VAL;\n" +
+		"	double val2= b78082.M.VAL;\n" +
 		"}\n",
 		owner
 	);
@@ -697,9 +697,9 @@ public void testBug78082() throws CoreException {
 	IField field = type.getField("VAL");
 	search(field, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b78082/M.java b78082.M.VAL [VAL] EXACT_MATCH\n" + 
-		"src/b78082/XY.java [VAL] EXACT_MATCH\n" + 
-		"src/b78082/XY.java b78082.XY.val [VAL] EXACT_MATCH\n" + 
+		"src/b78082/M.java b78082.M.VAL [VAL] EXACT_MATCH\n" +
+		"src/b78082/XY.java [VAL] EXACT_MATCH\n" +
+		"src/b78082/XY.java b78082.XY.val [VAL] EXACT_MATCH\n" +
 		"src/b78082/XY.java b78082.XY.val2 [VAL] EXACT_MATCH"
 	);
 }
@@ -711,29 +711,29 @@ public void testBug78082() throws CoreException {
 public void testBug79267() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79267/Test.java",
-		"package b79267;\n" + 
-		"public class Test {\n" + 
-		"	private static final X<String, String> BEFORE	= new X<String, String>(4);\n" + 
-		"\n" + 
-		"	static {\n" + 
-		"		BEFORE.put(\"key1\",\"value1\");\n" + 
-		"		BEFORE.put(\"key2\",\"value2\");\n" + 
-		"	}\n" + 
-		"	\n" + 
-		"	private static final X<Y, Object>	objectToPrimitiveMap	= new X<Y, Object>(8);\n" + 
-		"\n" + 
-		"	static {\n" + 
-		"		objectToPrimitiveMap.put(new Y<Object>(new Object()), new Object());\n" + 
-		"	}\n" + 
-		"}\n" + 
-		"\n" + 
-		"class X<T, U> {\n" + 
-		"	X(int x) {}\n" + 
-		"	void put(T t, U u) {}\n" + 
-		"}\n" + 
-		"\n" + 
-		"class Y<T> {\n" + 
-		"	Y(T t) {}\n" + 
+		"package b79267;\n" +
+		"public class Test {\n" +
+		"	private static final X<String, String> BEFORE	= new X<String, String>(4);\n" +
+		"\n" +
+		"	static {\n" +
+		"		BEFORE.put(\"key1\",\"value1\");\n" +
+		"		BEFORE.put(\"key2\",\"value2\");\n" +
+		"	}\n" +
+		"	\n" +
+		"	private static final X<Y, Object>	objectToPrimitiveMap	= new X<Y, Object>(8);\n" +
+		"\n" +
+		"	static {\n" +
+		"		objectToPrimitiveMap.put(new Y<Object>(new Object()), new Object());\n" +
+		"	}\n" +
+		"}\n" +
+		"\n" +
+		"class X<T, U> {\n" +
+		"	X(int x) {}\n" +
+		"	void put(T t, U u) {}\n" +
+		"}\n" +
+		"\n" +
+		"class Y<T> {\n" +
+		"	Y(T t) {}\n" +
 		"}\n");
 	// search field references
 	IType type = workingCopies[0].getType("Test");
@@ -742,8 +742,8 @@ public void testBug79267() throws CoreException {
 	field = type.getField("objectToPrimitiveMap");
 	search(field, REFERENCES);
 	assertSearchResults(
-		"src/b79267/Test.java b79267.Test.static {} [BEFORE] EXACT_MATCH\n" + 
-		"src/b79267/Test.java b79267.Test.static {} [BEFORE] EXACT_MATCH\n" + 
+		"src/b79267/Test.java b79267.Test.static {} [BEFORE] EXACT_MATCH\n" +
+		"src/b79267/Test.java b79267.Test.static {} [BEFORE] EXACT_MATCH\n" +
 		"src/b79267/Test.java b79267.Test.static {} [objectToPrimitiveMap] EXACT_MATCH"
 	);
 }
@@ -755,15 +755,15 @@ public void testBug79267() throws CoreException {
 public void testBug79378() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79378/A.java",
-		"package b79378;\n" + 
-		"public class Test {\n" + 
-		"	void foo79378(String s, RuntimeException[] exceptions) {}\n" + 
-		"	void foo79378(RuntimeException[] exceptions) {}\n" + 
-		"	void call() {\n" + 
-		"		String s= null; \n" + 
-		"		Exception[] exceptions= null;\n" + 
-		"		foo79378(s, exceptions);\n" + 
-		"	}\n" + 
+		"package b79378;\n" +
+		"public class Test {\n" +
+		"	void foo79378(String s, RuntimeException[] exceptions) {}\n" +
+		"	void foo79378(RuntimeException[] exceptions) {}\n" +
+		"	void call() {\n" +
+		"		String s= null; \n" +
+		"		Exception[] exceptions= null;\n" +
+		"		foo79378(s, exceptions);\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IMethod[] methods = workingCopies[0].getType("Test").getMethods();
@@ -777,15 +777,15 @@ public void testBug79378b() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79378/A.java",
-		"package b79378;\n" + 
-		"public class Test {\n" + 
-		"	void foo79378(String s, RuntimeException[] exceptions) {}\n" + 
-		"	void foo79378(RuntimeException[] exceptions) {}\n" + 
-		"	void call() {\n" + 
-		"		String s= null; \n" + 
-		"		Exception[] exceptions= null;\n" + 
-		"		foo79378(s, exceptions);\n" + 
-		"	}\n" + 
+		"package b79378;\n" +
+		"public class Test {\n" +
+		"	void foo79378(String s, RuntimeException[] exceptions) {}\n" +
+		"	void foo79378(RuntimeException[] exceptions) {}\n" +
+		"	void call() {\n" +
+		"		String s= null; \n" +
+		"		Exception[] exceptions= null;\n" +
+		"		foo79378(s, exceptions);\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IMethod[] methods = workingCopies[0].getType("Test").getMethods();
@@ -801,32 +801,32 @@ public void testBug79378b() throws CoreException {
 public void testBug79803() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79803/A.java",
-		"package b79803;\n" + 
-		"class A<A> {\n" + 
-		"    A a;\n" + 
-		"    b79803.A pa= new b79803.A();\n" + 
-		"}\n"	
+		"package b79803;\n" +
+		"class A<A> {\n" +
+		"    A a;\n" +
+		"    b79803.A pa= new b79803.A();\n" +
+		"}\n"
 	);
 	IType type = workingCopies[0].getType("A");
 	search(type, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
-		"src/b79803/A.java b79803.A.pa [b79803.A] EXACT_MATCH\n" + 
+		"src/b79803/A.java b79803.A.pa [b79803.A] EXACT_MATCH\n" +
 		"src/b79803/A.java b79803.A.pa [b79803.A] EXACT_MATCH"
 	);
 }
 public void testBug79803string() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79803/A.java",
-		"package b79803;\n" + 
-		"class A<A> {\n" + 
-		"    A a;\n" + 
-		"    b79803.A pa= new b79803.A();\n" + 
-		"}\n"	
+		"package b79803;\n" +
+		"class A<A> {\n" +
+		"    A a;\n" +
+		"    b79803.A pa= new b79803.A();\n" +
+		"}\n"
 	);
 	search("A", TYPE, REFERENCES);
 	assertSearchResults(
-		"src/b79803/A.java b79803.A.a [A] EXACT_MATCH\n" + 
-		"src/b79803/A.java b79803.A.pa [A] EXACT_MATCH\n" + 
+		"src/b79803/A.java b79803.A.a [A] EXACT_MATCH\n" +
+		"src/b79803/A.java b79803.A.pa [A] EXACT_MATCH\n" +
 		"src/b79803/A.java b79803.A.pa [A] EXACT_MATCH"
 	);
 }
@@ -839,17 +839,17 @@ public void testBug79860() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79860/X.java",
-		"package b79860;\n" + 
-		"public class X<T extends A> { }\n" + 
+		"package b79860;\n" +
+		"public class X<T extends A> { }\n" +
 		"class A { }",
 		owner
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b79860/Y.java",
-		"package b79860;\n" + 
-		"public class Y<T extends B&I1&I2&I3> { }\n" + 
-		"class B { }\n" + 
-		"interface I1 {}\n" + 
-		"interface I2 {}\n" + 
+		"package b79860;\n" +
+		"public class Y<T extends B&I1&I2&I3> { }\n" +
+		"class B { }\n" +
+		"interface I1 {}\n" +
+		"interface I2 {}\n" +
 		"interface I3 {}\n",
 		owner
 	);
@@ -863,24 +863,24 @@ public void testBug79860string() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79860/X.java",
-		"package b79860;\n" + 
-		"public class X<T extends A> { }\n" + 
+		"package b79860;\n" +
+		"public class X<T extends A> { }\n" +
 		"class A { }",
 		owner
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b79860/Y.java",
-		"package b79860;\n" + 
-		"public class Y<T extends B&I1&I2&I3> { }\n" + 
-		"class B { }\n" + 
-		"interface I1 {}\n" + 
-		"interface I2 {}\n" + 
+		"package b79860;\n" +
+		"public class Y<T extends B&I1&I2&I3> { }\n" +
+		"class B { }\n" +
+		"interface I1 {}\n" +
+		"interface I2 {}\n" +
 		"interface I3 {}\n",
 		owner
 	);
 	search("I?", TYPE, REFERENCES);
 	assertSearchResults(
-		"src/b79860/Y.java b79860.Y [I1] EXACT_MATCH\n" + 
-		"src/b79860/Y.java b79860.Y [I2] EXACT_MATCH\n" + 
+		"src/b79860/Y.java b79860.Y [I1] EXACT_MATCH\n" +
+		"src/b79860/Y.java b79860.Y [I2] EXACT_MATCH\n" +
 		"src/b79860/Y.java b79860.Y [I3] EXACT_MATCH"
 	);
 }
@@ -892,14 +892,14 @@ public void testBug79860string() throws CoreException {
 private void setUpBug79990() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79990/Test.java",
-		"package b79990;\n" + 
-		"class Test<T> {\n" + 
-		"    public void first(Exception num) {}\n" + 
-		"    public void second(T t) {}\n" + 
-		"}\n" + 
-		"class Sub extends Test<Exception> {\n" + 
-		"    public void first(Exception num) {}\n" + 
-		"    public void second(Exception t) {}\n" + 
+		"package b79990;\n" +
+		"class Test<T> {\n" +
+		"    public void first(Exception num) {}\n" +
+		"    public void second(T t) {}\n" +
+		"}\n" +
+		"class Sub extends Test<Exception> {\n" +
+		"    public void first(Exception num) {}\n" +
+		"    public void second(Exception t) {}\n" +
 		"}\n"
 	);}
 public void testBug79990() throws CoreException {
@@ -907,7 +907,7 @@ public void testBug79990() throws CoreException {
 	IMethod method = workingCopies[0].getType("Test").getMethods()[0];
 	search(method, DECLARATIONS);
 	assertSearchResults(
-		"src/b79990/Test.java void b79990.Test.first(Exception) [first] EXACT_MATCH\n" + 
+		"src/b79990/Test.java void b79990.Test.first(Exception) [first] EXACT_MATCH\n" +
 		"src/b79990/Test.java void b79990.Sub.first(Exception) [first] EXACT_MATCH"
 	);
 }
@@ -916,7 +916,7 @@ public void testBug79990b() throws CoreException {
 	IMethod method = workingCopies[0].getType("Test").getMethods()[1];
 	search(method, DECLARATIONS);
 	assertSearchResults(
-		"src/b79990/Test.java void b79990.Test.second(T) [second] EXACT_MATCH\n" + 
+		"src/b79990/Test.java void b79990.Test.second(T) [second] EXACT_MATCH\n" +
 		"src/b79990/Test.java void b79990.Sub.second(Exception) [second] EXACT_MATCH"
 	);
 }
@@ -925,25 +925,25 @@ public void testBug79990c() throws CoreException {
 	IMethod method = workingCopies[0].getType("Test").getMethods()[1];
 	search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
 	assertSearchResults(
-		"src/b79990/Test.java void b79990.Test.second(T) [second] EXACT_MATCH\n" + 
+		"src/b79990/Test.java void b79990.Test.second(T) [second] EXACT_MATCH\n" +
 		"src/b79990/Test.java void b79990.Sub.second(Exception) [second] EXACT_MATCH"
 	);
 }
 public void testBug79990d() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79990/Test.java",
-		"package b79990;\n" + 
-		"public class Test<T> {\n" + 
-		"	void methodT(T t) {}\n" + 
-		"}\n" + 
-		"class Sub<X> extends Test<X> {\n" + 
-		"	void methodT(X x) {} // overrides Super#methodT(T)\n" + 
+		"package b79990;\n" +
+		"public class Test<T> {\n" +
+		"	void methodT(T t) {}\n" +
+		"}\n" +
+		"class Sub<X> extends Test<X> {\n" +
+		"	void methodT(X x) {} // overrides Super#methodT(T)\n" +
 		"}\n"
 	);
 	IMethod method = workingCopies[0].getType("Test").getMethods()[0];
 	search(method, DECLARATIONS);
 	assertSearchResults(
-		"src/b79990/Test.java void b79990.Test.methodT(T) [methodT] EXACT_MATCH\n" + 
+		"src/b79990/Test.java void b79990.Test.methodT(T) [methodT] EXACT_MATCH\n" +
 		"src/b79990/Test.java void b79990.Sub.methodT(X) [methodT] EXACT_MATCH"
 	);
 }
@@ -955,14 +955,14 @@ public void testBug79990d() throws CoreException {
 public void testBug80084() throws CoreException, JavaModelException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80084/Test.java",
-		"package b80084;\n" + 
-		"class List<T> {}\n" + 
-		"public class Test {\n" + 
-		"  void foo(List<Exception> le) {}\n" + 
-		"  void bar() {\n" + 
-		"    List<Exception> le = new List<Exception>();\n" + 
-		"    foo(le);\n" + 
-		"  }\n" + 
+		"package b80084;\n" +
+		"class List<T> {}\n" +
+		"public class Test {\n" +
+		"  void foo(List<Exception> le) {}\n" +
+		"  void bar() {\n" +
+		"    List<Exception> le = new List<Exception>();\n" +
+		"    foo(le);\n" +
+		"  }\n" +
 		"}\n"
 		);
 	IType type = workingCopies[0].getType("Test");
@@ -980,19 +980,19 @@ public void testBug80084() throws CoreException, JavaModelException {
 private void setUpBug80194() throws CoreException, JavaModelException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80194/Test.java",
-		"package b80194;\n" + 
-		"interface Map<K, V> {}\n" + 
-		"class HashMap<K, V> implements Map {}\n" + 
-		"public class Test {\n" + 
-		"	void callDoSomething() {\n" + 
-		"		final Map<String, Object> map = new HashMap<String, Object>();\n" + 
-		"		doSomething(map);\n" + 
-		"		doSomething(map, true);\n" + 
-		"		doSomething(true);\n" + 
-		"	}\n" + 
-		"	void doSomething(final Map<String, Object> map) {}\n" + 
-		"	void doSomething(final Map<String, Object> map, final boolean flag) {}\n" + 
-		"	void doSomething(final boolean flag) {}\n" + 
+		"package b80194;\n" +
+		"interface Map<K, V> {}\n" +
+		"class HashMap<K, V> implements Map {}\n" +
+		"public class Test {\n" +
+		"	void callDoSomething() {\n" +
+		"		final Map<String, Object> map = new HashMap<String, Object>();\n" +
+		"		doSomething(map);\n" +
+		"		doSomething(map, true);\n" +
+		"		doSomething(true);\n" +
+		"	}\n" +
+		"	void doSomething(final Map<String, Object> map) {}\n" +
+		"	void doSomething(final Map<String, Object> map, final boolean flag) {}\n" +
+		"	void doSomething(final boolean flag) {}\n" +
 		"}\n"
 	);
 }
@@ -1018,8 +1018,8 @@ public void testBug80194string1() throws CoreException, JavaModelException {
 	setUpBug80194();
 	search("doSomething(boolean)", METHOD, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map)] EXACT_MATCH\n" + 
-		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(true)] EXACT_MATCH\n" + 
+		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map)] EXACT_MATCH\n" +
+		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(true)] EXACT_MATCH\n" +
 		"src/b80194/Test.java void b80194.Test.doSomething(boolean) [doSomething] EXACT_MATCH"
 	);
 }
@@ -1027,8 +1027,8 @@ public void testBug80194string2() throws CoreException, JavaModelException {
 	setUpBug80194();
 	search("doSomething(Map<String,Object>)", METHOD, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map)] EXACT_MATCH\n" + 
-		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(true)] EXACT_MATCH\n" + 
+		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map)] EXACT_MATCH\n" +
+		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(true)] EXACT_MATCH\n" +
 		"src/b80194/Test.java void b80194.Test.doSomething(Map<String,Object>) [doSomething] EXACT_MATCH"
 	);
 }
@@ -1036,7 +1036,7 @@ public void testBug80194string3() throws CoreException, JavaModelException {
 	setUpBug80194();
 	search("doSomething(Map<String,Object>,boolean)", METHOD, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map, true)] EXACT_MATCH\n" + 
+		"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map, true)] EXACT_MATCH\n" +
 		"src/b80194/Test.java void b80194.Test.doSomething(Map<String,Object>, boolean) [doSomething] EXACT_MATCH"
 	);
 }
@@ -1049,16 +1049,16 @@ public void testBug80223() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80223/a/A.java",
-		"package b80223.a;\n" + 
-		"public class A {\n" + 
-		"    void m() {}\n" + 
+		"package b80223.a;\n" +
+		"public class A {\n" +
+		"    void m() {}\n" +
 		"}",
 		owner
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b80223/b/B.java",
-		"package b80223.b;\n" + 
-		"public class B extends b80223.a.A {\n" + 
-		"    void m() {}\n" + 
+		"package b80223.b;\n" +
+		"public class B extends b80223.a.A {\n" +
+		"    void m() {}\n" +
 		"}",
 		owner
 	);
@@ -1074,7 +1074,7 @@ public void testBug80223() throws CoreException {
 /**
  * Bug 80264: [search] Search for method declarations in workspace, disregarding declaring type
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80264"
- * 
+ *
  * Following tests also verify
  * Bug 87778: [search] doesn't find all declarations of method with covariant return type
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=87778"
@@ -1083,18 +1083,18 @@ public void testBug80223() throws CoreException {
 private void setUpBug80264_Methods() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80264/Methods.java",
-		"package b80264;\n" + 
-		"class Methods {\n" + 
-		"    Methods stable() { return null; }\n" + 
-		"    Methods covariant() { return null; }\n" + 
-		"}\n" + 
-		"class MethodsSub extends Methods {\n" + 
-		"    Methods stable() { return null; }\n" + 
-		"    MethodsSub covariant() { return null; }\n" + 
-		"}\n" + 
-		"class MethodsOther {\n" + 
-		"    Methods stable() { return null; }\n" + 
-		"    Methods covariant() { return null; }\n" + 
+		"package b80264;\n" +
+		"class Methods {\n" +
+		"    Methods stable() { return null; }\n" +
+		"    Methods covariant() { return null; }\n" +
+		"}\n" +
+		"class MethodsSub extends Methods {\n" +
+		"    Methods stable() { return null; }\n" +
+		"    MethodsSub covariant() { return null; }\n" +
+		"}\n" +
+		"class MethodsOther {\n" +
+		"    Methods stable() { return null; }\n" +
+		"    Methods covariant() { return null; }\n" +
 		"}\n"
 	);
 }
@@ -1105,9 +1105,9 @@ public void testBug80264_Methods() throws CoreException {
 	search(methods[0], DECLARATIONS);
 	search(methods[1], DECLARATIONS);
 	assertSearchResults(
-		"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" + 
-		"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" + 
-		"src/b80264/Methods.java Methods b80264.Methods.covariant() [covariant] EXACT_MATCH\n" + 
+		"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" +
+		"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" +
+		"src/b80264/Methods.java Methods b80264.Methods.covariant() [covariant] EXACT_MATCH\n" +
 		"src/b80264/Methods.java MethodsSub b80264.MethodsSub.covariant() [covariant] EXACT_MATCH"
 	);
 }
@@ -1118,10 +1118,10 @@ public void testBug80264_MethodsIgnoreDeclaringType() throws CoreException, Java
 	search(methods[0], DECLARATIONS|IGNORE_DECLARING_TYPE);
 	search(methods[1], DECLARATIONS|IGNORE_DECLARING_TYPE);
 	assertSearchResults(
-		"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" + 
-		"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" + 
-		"src/b80264/Methods.java Methods b80264.MethodsOther.stable() [stable] EXACT_MATCH\n" + 
-		"src/b80264/Methods.java Methods b80264.Methods.covariant() [covariant] EXACT_MATCH\n" + 
+		"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" +
+		"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" +
+		"src/b80264/Methods.java Methods b80264.MethodsOther.stable() [stable] EXACT_MATCH\n" +
+		"src/b80264/Methods.java Methods b80264.Methods.covariant() [covariant] EXACT_MATCH\n" +
 		"src/b80264/Methods.java Methods b80264.MethodsOther.covariant() [covariant] EXACT_MATCH"
 	);
 }
@@ -1132,9 +1132,9 @@ public void testBug80264_MethodsIgnoreReturnType() throws CoreException, JavaMod
 	search(methods[0], DECLARATIONS|IGNORE_RETURN_TYPE);
 	search(methods[1], DECLARATIONS|IGNORE_RETURN_TYPE);
 	assertSearchResults(
-		"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" + 
-		"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" + 
-		"src/b80264/Methods.java Methods b80264.Methods.covariant() [covariant] EXACT_MATCH\n" + 
+		"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" +
+		"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" +
+		"src/b80264/Methods.java Methods b80264.Methods.covariant() [covariant] EXACT_MATCH\n" +
 		"src/b80264/Methods.java MethodsSub b80264.MethodsSub.covariant() [covariant] EXACT_MATCH"
 	);
 }
@@ -1145,11 +1145,11 @@ public void testBug80264_MethodsIgnoreBothTypes() throws CoreException, JavaMode
 	search(methods[0], DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
 	search(methods[1], DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
 	assertSearchResults(
-		"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" + 
-		"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" + 
-		"src/b80264/Methods.java Methods b80264.MethodsOther.stable() [stable] EXACT_MATCH\n" + 
-		"src/b80264/Methods.java Methods b80264.Methods.covariant() [covariant] EXACT_MATCH\n" + 
-		"src/b80264/Methods.java MethodsSub b80264.MethodsSub.covariant() [covariant] EXACT_MATCH\n" + 
+		"src/b80264/Methods.java Methods b80264.Methods.stable() [stable] EXACT_MATCH\n" +
+		"src/b80264/Methods.java Methods b80264.MethodsSub.stable() [stable] EXACT_MATCH\n" +
+		"src/b80264/Methods.java Methods b80264.MethodsOther.stable() [stable] EXACT_MATCH\n" +
+		"src/b80264/Methods.java Methods b80264.Methods.covariant() [covariant] EXACT_MATCH\n" +
+		"src/b80264/Methods.java MethodsSub b80264.MethodsSub.covariant() [covariant] EXACT_MATCH\n" +
 		"src/b80264/Methods.java Methods b80264.MethodsOther.covariant() [covariant] EXACT_MATCH"
 	);
 }
@@ -1157,15 +1157,15 @@ public void testBug80264_MethodsIgnoreBothTypes() throws CoreException, JavaMode
 private void setUpBug80264_Classes() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80264/Classes.java",
-		"package b80264;\n" + 
-		"class Classes {\n" + 
-		"    class Inner {}\n" + 
-		"}\n" + 
-		"class ClassesSub extends Classes {\n" + 
-		"    class Inner {}\n" + 
-		"}\n" + 
-		"class ClassesOther {\n" + 
-		"    class Inner {}\n" + 
+		"package b80264;\n" +
+		"class Classes {\n" +
+		"    class Inner {}\n" +
+		"}\n" +
+		"class ClassesSub extends Classes {\n" +
+		"    class Inner {}\n" +
+		"}\n" +
+		"class ClassesOther {\n" +
+		"    class Inner {}\n" +
 		"}\n"
 	);
 }
@@ -1182,8 +1182,8 @@ public void testBug80264_ClassesIgnoreDeclaringType() throws CoreException, Java
 	IType type = workingCopies[0].getType("Classes").getType("Inner");
 	search(type, DECLARATIONS|IGNORE_DECLARING_TYPE);
 	assertSearchResults(
-		"src/b80264/Classes.java b80264.Classes$Inner [Inner] EXACT_MATCH\n" + 
-		"src/b80264/Classes.java b80264.ClassesSub$Inner [Inner] EXACT_MATCH\n" + 
+		"src/b80264/Classes.java b80264.Classes$Inner [Inner] EXACT_MATCH\n" +
+		"src/b80264/Classes.java b80264.ClassesSub$Inner [Inner] EXACT_MATCH\n" +
 		"src/b80264/Classes.java b80264.ClassesOther$Inner [Inner] EXACT_MATCH"
 	);
 }
@@ -1200,8 +1200,8 @@ public void testBug80264_ClassesIgnoreTypes() throws CoreException, JavaModelExc
 	IType type = workingCopies[0].getType("Classes").getType("Inner");
 	search(type, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
 	assertSearchResults(
-		"src/b80264/Classes.java b80264.Classes$Inner [Inner] EXACT_MATCH\n" + 
-		"src/b80264/Classes.java b80264.ClassesSub$Inner [Inner] EXACT_MATCH\n" + 
+		"src/b80264/Classes.java b80264.Classes$Inner [Inner] EXACT_MATCH\n" +
+		"src/b80264/Classes.java b80264.ClassesSub$Inner [Inner] EXACT_MATCH\n" +
 		"src/b80264/Classes.java b80264.ClassesOther$Inner [Inner] EXACT_MATCH"
 	);
 }
@@ -1209,18 +1209,18 @@ public void testBug80264_ClassesIgnoreTypes() throws CoreException, JavaModelExc
 private void setUpBug80264_Fields() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80264/Fields.java",
-		"package b80264;\n" + 
-		"class Fields {\n" + 
-		"    Fields field1;\n" + 
-		"    Fields field2;\n" + 
-		"}\n" + 
-		"class FieldsSub extends Fields {\n" + 
-		"    Fields field1;\n" + 
-		"    FieldsSub field2;\n" + 
-		"}\n" + 
-		"class FieldsOther {\n" + 
-		"    Fields field1;\n" + 
-		"    Fields field2;\n" + 
+		"package b80264;\n" +
+		"class Fields {\n" +
+		"    Fields field1;\n" +
+		"    Fields field2;\n" +
+		"}\n" +
+		"class FieldsSub extends Fields {\n" +
+		"    Fields field1;\n" +
+		"    FieldsSub field2;\n" +
+		"}\n" +
+		"class FieldsOther {\n" +
+		"    Fields field1;\n" +
+		"    Fields field2;\n" +
 		"}\n"
 	);
 }
@@ -1231,7 +1231,7 @@ public void testBug80264_Fields() throws CoreException {
 	search(fields[0], DECLARATIONS);
 	search(fields[1], DECLARATIONS);
 	assertSearchResults(
-		"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" + 
+		"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" +
 		"src/b80264/Fields.java b80264.Fields.field2 [field2] EXACT_MATCH"
 	);
 }
@@ -1242,10 +1242,10 @@ public void testBug80264_FieldsIgnoreDeclaringType() throws CoreException, JavaM
 	search(fields[0], DECLARATIONS|IGNORE_DECLARING_TYPE);
 	search(fields[1], DECLARATIONS|IGNORE_DECLARING_TYPE);
 	assertSearchResults(
-		"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" + 
-		"src/b80264/Fields.java b80264.FieldsSub.field1 [field1] EXACT_MATCH\n" + 
-		"src/b80264/Fields.java b80264.FieldsOther.field1 [field1] EXACT_MATCH\n" + 
-		"src/b80264/Fields.java b80264.Fields.field2 [field2] EXACT_MATCH\n" + 
+		"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" +
+		"src/b80264/Fields.java b80264.FieldsSub.field1 [field1] EXACT_MATCH\n" +
+		"src/b80264/Fields.java b80264.FieldsOther.field1 [field1] EXACT_MATCH\n" +
+		"src/b80264/Fields.java b80264.Fields.field2 [field2] EXACT_MATCH\n" +
 		"src/b80264/Fields.java b80264.FieldsOther.field2 [field2] EXACT_MATCH"
 	);
 }
@@ -1256,7 +1256,7 @@ public void testBug80264_FieldsIgnoreReturnType() throws CoreException, JavaMode
 	search(fields[0], DECLARATIONS|IGNORE_RETURN_TYPE);
 	search(fields[1], DECLARATIONS|IGNORE_RETURN_TYPE);
 	assertSearchResults(
-		"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" + 
+		"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" +
 		"src/b80264/Fields.java b80264.Fields.field2 [field2] EXACT_MATCH"
 	);
 }
@@ -1267,11 +1267,11 @@ public void testBug80264_FieldsIgnoreBothTypes() throws CoreException, JavaModel
 	search(fields[0], DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
 	search(fields[1], DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
 	assertSearchResults(
-		"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" + 
-		"src/b80264/Fields.java b80264.FieldsSub.field1 [field1] EXACT_MATCH\n" + 
-		"src/b80264/Fields.java b80264.FieldsOther.field1 [field1] EXACT_MATCH\n" + 
-		"src/b80264/Fields.java b80264.Fields.field2 [field2] EXACT_MATCH\n" + 
-		"src/b80264/Fields.java b80264.FieldsSub.field2 [field2] EXACT_MATCH\n" + 
+		"src/b80264/Fields.java b80264.Fields.field1 [field1] EXACT_MATCH\n" +
+		"src/b80264/Fields.java b80264.FieldsSub.field1 [field1] EXACT_MATCH\n" +
+		"src/b80264/Fields.java b80264.FieldsOther.field1 [field1] EXACT_MATCH\n" +
+		"src/b80264/Fields.java b80264.Fields.field2 [field2] EXACT_MATCH\n" +
+		"src/b80264/Fields.java b80264.FieldsSub.field2 [field2] EXACT_MATCH\n" +
 		"src/b80264/Fields.java b80264.FieldsOther.field2 [field2] EXACT_MATCH"
 	);
 }
@@ -1283,20 +1283,20 @@ public void testBug80264_FieldsIgnoreBothTypes() throws CoreException, JavaModel
 public void testBug80890() throws CoreException, JavaModelException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b80890/A.java",
-		"package b80890;\n" + 
-		"public class A {\n" + 
-		"	protected void foo(Exception e) {}\n" + 
-		"	protected void foo(String s) {}\n" + 
-		"}\n" + 
-		"class B1 extends A {\n" + 
-		"	public void bar1() {\n" + 
-		"		foo(null);\n" + 
-		"	}\n" + 
-		"}\n" + 
-		"class B2 extends A {\n" + 
-		"	public void bar2() {\n" + 
-		"		foo(null);\n" + 
-		"	}\n" + 
+		"package b80890;\n" +
+		"public class A {\n" +
+		"	protected void foo(Exception e) {}\n" +
+		"	protected void foo(String s) {}\n" +
+		"}\n" +
+		"class B1 extends A {\n" +
+		"	public void bar1() {\n" +
+		"		foo(null);\n" +
+		"	}\n" +
+		"}\n" +
+		"class B2 extends A {\n" +
+		"	public void bar2() {\n" +
+		"		foo(null);\n" +
+		"	}\n" +
 		"}\n"
 		);
 	// search for first and second method should both return 2 inaccurate matches
@@ -1306,9 +1306,9 @@ public void testBug80890() throws CoreException, JavaModelException {
 	method = type.getMethods()[1];
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/b80890/A.java void b80890.B1.bar1() [foo(null)] POTENTIAL_MATCH\n" + 
-		"src/b80890/A.java void b80890.B2.bar2() [foo(null)] POTENTIAL_MATCH\n" + 
-		"src/b80890/A.java void b80890.B1.bar1() [foo(null)] POTENTIAL_MATCH\n" + 
+		"src/b80890/A.java void b80890.B1.bar1() [foo(null)] POTENTIAL_MATCH\n" +
+		"src/b80890/A.java void b80890.B2.bar2() [foo(null)] POTENTIAL_MATCH\n" +
+		"src/b80890/A.java void b80890.B1.bar1() [foo(null)] POTENTIAL_MATCH\n" +
 		"src/b80890/A.java void b80890.B2.bar2() [foo(null)] POTENTIAL_MATCH"
 	);
 }
@@ -1333,18 +1333,18 @@ public void testBug80918() throws CoreException {
 public void testBug81084a() throws CoreException, JavaModelException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b81084a/Test.java",
-		"package b81084a;\n" + 
-		"class List<E> {}\n" + 
-		"public class Test {\n" + 
-		"	class Element{}\n" + 
-		"	static class Inner {\n" + 
-		"		private final List<Element> fList1;\n" + 
-		"		private final List<Test.Element> fList2;\n" + 
-		"		public Inner(List<Element> list) {\n" + 
-		"			fList1 = list;\n" + 
-		"			fList2 = list;\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"package b81084a;\n" +
+		"class List<E> {}\n" +
+		"public class Test {\n" +
+		"	class Element{}\n" +
+		"	static class Inner {\n" +
+		"		private final List<Element> fList1;\n" +
+		"		private final List<Test.Element> fList2;\n" +
+		"		public Inner(List<Element> list) {\n" +
+		"			fList1 = list;\n" +
+		"			fList2 = list;\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IType type = workingCopies[0].getType("Test").getType("Inner");
@@ -1353,49 +1353,49 @@ public void testBug81084a() throws CoreException, JavaModelException {
 	IField field2 = type.getField("fList2");
 	search(field2, REFERENCES);
 	assertSearchResults(
-		"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList1] EXACT_MATCH\n" + 
+		"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList1] EXACT_MATCH\n" +
 		"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList2] EXACT_MATCH"
 	);
 }
 public void testBug81084string() throws CoreException, JavaModelException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b81084a/Test.java",
-		"package b81084a;\n" + 
-		"class List<E> {}\n" + 
-		"public class Test {\n" + 
-		"	class Element{}\n" + 
-		"	static class Inner {\n" + 
-		"		private final List<Element> fList1;\n" + 
-		"		private final List<Test.Element> fList2;\n" + 
-		"		public Inner(List<Element> list) {\n" + 
-		"			fList1 = list;\n" + 
-		"			fList2 = list;\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"package b81084a;\n" +
+		"class List<E> {}\n" +
+		"public class Test {\n" +
+		"	class Element{}\n" +
+		"	static class Inner {\n" +
+		"		private final List<Element> fList1;\n" +
+		"		private final List<Test.Element> fList2;\n" +
+		"		public Inner(List<Element> list) {\n" +
+		"			fList1 = list;\n" +
+		"			fList2 = list;\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 	);
 	search("fList1", FIELD, REFERENCES);
 	search("fList2", FIELD, REFERENCES);
 	assertSearchResults(
-		"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList1] EXACT_MATCH\n" + 
+		"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList1] EXACT_MATCH\n" +
 		"src/b81084a/Test.java b81084a.Test$Inner(List<Element>) [fList2] EXACT_MATCH"
 	);
 }
 public void testBug81084b() throws CoreException, JavaModelException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b81084b/Test.java",
-		"package b81084b;\n" + 
-		"class List<E> {}\n" + 
-		"public class Test {\n" + 
-		"	class Element{}\n" + 
-		"	static class Inner {\n" + 
-		"		private final List<? extends Element> fListb1;\n" + 
-		"		private final List<? extends Test.Element> fListb2;\n" + 
-		"		public Inner(List<Element> list) {\n" + 
-		"			fListb1 = list;\n" + 
-		"			fListb2 = list;\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"package b81084b;\n" +
+		"class List<E> {}\n" +
+		"public class Test {\n" +
+		"	class Element{}\n" +
+		"	static class Inner {\n" +
+		"		private final List<? extends Element> fListb1;\n" +
+		"		private final List<? extends Test.Element> fListb2;\n" +
+		"		public Inner(List<Element> list) {\n" +
+		"			fListb1 = list;\n" +
+		"			fListb2 = list;\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 		);
 	// search element patterns
@@ -1405,7 +1405,7 @@ public void testBug81084b() throws CoreException, JavaModelException {
 	IField field2 = type.getField("fListb2");
 	search(field2, REFERENCES);
 	assertSearchResults(
-		"src/b81084b/Test.java b81084b.Test$Inner(List<Element>) [fListb1] EXACT_MATCH\n" + 
+		"src/b81084b/Test.java b81084b.Test$Inner(List<Element>) [fListb1] EXACT_MATCH\n" +
 		"src/b81084b/Test.java b81084b.Test$Inner(List<Element>) [fListb2] EXACT_MATCH"
 	);
 }
@@ -1432,22 +1432,22 @@ public void testBug82088method() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b82088/m/Test.java",
 		"package b82088.m;\n" +
-		"/**\n" + 
-		" * @see #setA(A)\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"	A a;\n" + 
-		"	public void setA(A a) {\n" + 
-		"		this.a = a;\n" + 
-		"	}\n" + 
-		"}\n" + 
+		"/**\n" +
+		" * @see #setA(A)\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"	A a;\n" +
+		"	public void setA(A a) {\n" +
+		"		this.a = a;\n" +
+		"	}\n" +
+		"}\n" +
 		"class A {}\n"
 		);
 	IType type = workingCopies[0].getType("A");
 	search(type, REFERENCES);
 	assertSearchResults(
-		"src/b82088/m/Test.java b82088.m.Test [A] EXACT_MATCH\n" + 
-		"src/b82088/m/Test.java b82088.m.Test.a [A] EXACT_MATCH\n" + 
+		"src/b82088/m/Test.java b82088.m.Test [A] EXACT_MATCH\n" +
+		"src/b82088/m/Test.java b82088.m.Test.a [A] EXACT_MATCH\n" +
 		"src/b82088/m/Test.java void b82088.m.Test.setA(A) [A] EXACT_MATCH"
 	);
 }
@@ -1455,22 +1455,22 @@ public void testBug82088constructor() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b82088/c/Test.java",
 		"package b82088.c;\n" +
-		"/**\n" + 
-		" * @see #Test(A)\n" + 
-		" */\n" + 
-		"public class Test {\n" + 
-		"	A a;\n" + 
-		"	Test(A a) {\n" + 
-		"		this.a = a;\n" + 
-		"	}\n" + 
-		"}\n" + 
+		"/**\n" +
+		" * @see #Test(A)\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"	A a;\n" +
+		"	Test(A a) {\n" +
+		"		this.a = a;\n" +
+		"	}\n" +
+		"}\n" +
 		"class A {}\n"
 		);
 	IType type = workingCopies[0].getType("A");
 	search(type, REFERENCES);
 	assertSearchResults(
-		"src/b82088/c/Test.java b82088.c.Test [A] EXACT_MATCH\n" + 
-		"src/b82088/c/Test.java b82088.c.Test.a [A] EXACT_MATCH\n" + 
+		"src/b82088/c/Test.java b82088.c.Test [A] EXACT_MATCH\n" +
+		"src/b82088/c/Test.java b82088.c.Test.a [A] EXACT_MATCH\n" +
 		"src/b82088/c/Test.java b82088.c.Test(A) [A] EXACT_MATCH"
 	);
 }
@@ -1482,10 +1482,10 @@ public void testBug82088constructor() throws CoreException {
 private void setUpBug82208() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b82208/Test.java",
-		"package b82208;\n" + 
-		"interface B82208_I {}\n" + 
-		"enum B82208_E {}\n" + 
-		"@interface B82208_A {}\n" + 
+		"package b82208;\n" +
+		"interface B82208_I {}\n" +
+		"enum B82208_E {}\n" +
+		"@interface B82208_A {}\n" +
 		"public class B82208 {}\n"
 	);
 }
@@ -1494,9 +1494,9 @@ public void testBug82208_TYPE() throws CoreException {
 	setUpBug82208();
 	search("B82208*", TYPE, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b82208/Test.java b82208.B82208_I [B82208_I] EXACT_MATCH\n" + 
-		"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH\n" + 
-		"src/b82208/Test.java b82208.B82208_A [B82208_A] EXACT_MATCH\n" + 
+		"src/b82208/Test.java b82208.B82208_I [B82208_I] EXACT_MATCH\n" +
+		"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH\n" +
+		"src/b82208/Test.java b82208.B82208_A [B82208_A] EXACT_MATCH\n" +
 		"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
 	);
 }
@@ -1537,7 +1537,7 @@ public void testBug82208_CLASS_AND_INTERFACE() throws CoreException {
 	setUpBug82208();
 	search("B82208*", CLASS_AND_INTERFACE, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b82208/Test.java b82208.B82208_I [B82208_I] EXACT_MATCH\n" + 
+		"src/b82208/Test.java b82208.B82208_I [B82208_I] EXACT_MATCH\n" +
 		"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
 	);
 }
@@ -1546,7 +1546,7 @@ public void testBug82208_CLASS_AND_ENUMERATION() throws CoreException {
 	setUpBug82208();
 	search("B82208*", CLASS_AND_ENUM, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH\n" + 
+		"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH\n" +
 		"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
 	);
 }
@@ -1559,27 +1559,27 @@ public void testBug82673() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b82673/Test.java",
-		"package b82673;\n" + 
-		"public class Test {\n" + 
-		"    void test1() {\n" + 
-		"        class Dummy {};\n" + 
-		"        Dummy d = new Dummy();\n" + 
-		"		new X();\n" + 
-		"    }\n" + 
-		"    \n" + 
-		"    void test2() {\n" + 
-		"        class Dummy {};\n" + 
-		"        Dummy d = new Dummy();\n" + 
-		"		new Y();\n" + 
-		"    }\n" + 
-		"}\n" + 
-		"class X {}\n" + 
+		"package b82673;\n" +
+		"public class Test {\n" +
+		"    void test1() {\n" +
+		"        class Dummy {};\n" +
+		"        Dummy d = new Dummy();\n" +
+		"		new X();\n" +
+		"    }\n" +
+		"    \n" +
+		"    void test2() {\n" +
+		"        class Dummy {};\n" +
+		"        Dummy d = new Dummy();\n" +
+		"		new Y();\n" +
+		"    }\n" +
+		"}\n" +
+		"class X {}\n" +
 		"class Y {}\n"
 	);
 	IType type = selectType(workingCopies[0], "Test").getMethod("test1", new String[0]).getType("Dummy", 1);
 	search(type, REFERENCES);
 	assertSearchResults(
-		"src/b82673/Test.java void b82673.Test.test1() [Dummy] EXACT_MATCH\n" + 
+		"src/b82673/Test.java void b82673.Test.test1() [Dummy] EXACT_MATCH\n" +
 		"src/b82673/Test.java void b82673.Test.test1() [Dummy] EXACT_MATCH"
 	);
 }
@@ -1592,26 +1592,26 @@ public void testBug83012() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83012/Test.java",
-		"package b83012;\n" + 
-		"@interface A {\n" + 
-		"    String value() default \"\";\n" + 
-		"}\n" + 
-		"@interface Main {\n" + 
-		"	A first() default @A(\"Void\");\n" + 
-		"	A second();\n" + 
-		"}\n" + 
-		"\n" + 
-		"@Main(first=@A(\"\"), second=@A(\"2\"))\n" + 
-		"public class Test {\n" + 
+		"package b83012;\n" +
+		"@interface A {\n" +
+		"    String value() default \"\";\n" +
+		"}\n" +
+		"@interface Main {\n" +
+		"	A first() default @A(\"Void\");\n" +
+		"	A second();\n" +
+		"}\n" +
+		"\n" +
+		"@Main(first=@A(\"\"), second=@A(\"2\"))\n" +
+		"public class Test {\n" +
 		"}\n"
 	);
 	IType type = selectType(workingCopies[0], "A");
 	search(type, REFERENCES);
 	assertSearchResults(
-		"src/b83012/Test.java A b83012.Main.first() [A] EXACT_MATCH\n" + 
-		"src/b83012/Test.java A b83012.Main.first() [A] EXACT_MATCH\n" + 
-		"src/b83012/Test.java A b83012.Main.second() [A] EXACT_MATCH\n" + 
-		"src/b83012/Test.java b83012.Test [A] EXACT_MATCH\n" + 
+		"src/b83012/Test.java A b83012.Main.first() [A] EXACT_MATCH\n" +
+		"src/b83012/Test.java A b83012.Main.first() [A] EXACT_MATCH\n" +
+		"src/b83012/Test.java A b83012.Main.second() [A] EXACT_MATCH\n" +
+		"src/b83012/Test.java b83012.Test [A] EXACT_MATCH\n" +
 		"src/b83012/Test.java b83012.Test [A] EXACT_MATCH"
 	);
 }
@@ -1624,38 +1624,38 @@ private void setUpBug83230_Explicit() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
-		"package b83230;\n" + 
-		"@interface Author {\n" + 
-		"	String[] authorName() default \"FREDERIC\";\n" + 
-		"	int[] age();\n" + 
-		"	int ageMin = 20;\n" + 
-		"	@interface Surname {}\n" + 
-		"	class Address {\n" + 
-		"		String city;\n" + 
-		"		public void foo(Object obj) {}\n" + 
-		"	}\n" + 
+		"package b83230;\n" +
+		"@interface Author {\n" +
+		"	String[] authorName() default \"FREDERIC\";\n" +
+		"	int[] age();\n" +
+		"	int ageMin = 20;\n" +
+		"	@interface Surname {}\n" +
+		"	class Address {\n" +
+		"		String city;\n" +
+		"		public void foo(Object obj) {}\n" +
+		"	}\n" +
 		"}\n" +
 		"\n" +
-		"@Author(authorName=\"FREDERIC\", age=41)\n" + 
-		"public class Test {\n" + 
-		"	@Author(authorName={\"FREDERIC\", \"JEROME\"}, age={41, 35} )\n" + 
-		"	Test() {}\n" + 
-		"	@Author(authorName=\"PHILIPPE\", age=37)\n" + 
-		"	void foo() {\n" + 
-		"		@Author(authorName=\"FREDERIC\", age=41)\n" + 
-		"		final Object obj = new Object() {};\n" + 
-		"		@Author(authorName=\"FREDERIC\", age=41)\n" + 
-		"		class Local {\n" + 
-		"			@Author(authorName=\"FREDERIC\", age=41)\n" + 
-		"			String foo() {\n" + 
-		"				Author.Address address = new Author.Address();\n" + 
-		"				address.foo(obj);\n" + 
-		"				return address.city;\n" + 
-		"			}\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	@Author(authorName=\"DAVID\", age=28)\n" + 
-		"	int min = Author.ageMin;\n" + 
+		"@Author(authorName=\"FREDERIC\", age=41)\n" +
+		"public class Test {\n" +
+		"	@Author(authorName={\"FREDERIC\", \"JEROME\"}, age={41, 35} )\n" +
+		"	Test() {}\n" +
+		"	@Author(authorName=\"PHILIPPE\", age=37)\n" +
+		"	void foo() {\n" +
+		"		@Author(authorName=\"FREDERIC\", age=41)\n" +
+		"		final Object obj = new Object() {};\n" +
+		"		@Author(authorName=\"FREDERIC\", age=41)\n" +
+		"		class Local {\n" +
+		"			@Author(authorName=\"FREDERIC\", age=41)\n" +
+		"			String foo() {\n" +
+		"				Author.Address address = new Author.Address();\n" +
+		"				address.foo(obj);\n" +
+		"				return address.city;\n" +
+		"			}\n" +
+		"		}\n" +
+		"	}\n" +
+		"	@Author(authorName=\"DAVID\", age=28)\n" +
+		"	int min = Author.ageMin;\n" +
 		"}\n"
 	);
 }
@@ -1665,12 +1665,12 @@ public void testBug83230_Explicit() throws CoreException {
 	IMethod method = selectMethod(workingCopies[0], "authorName");
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/b83230/Test.java b83230.Test [authorName] EXACT_MATCH\n" + 
-		"src/b83230/Test.java b83230.Test.min [authorName] EXACT_MATCH\n" + 
-		"src/b83230/Test.java b83230.Test() [authorName] EXACT_MATCH\n" + 
-		"src/b83230/Test.java void b83230.Test.foo():Local#1 [authorName] EXACT_MATCH\n" + 
-		"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [authorName] EXACT_MATCH\n" + 
-		"src/b83230/Test.java void b83230.Test.foo() [authorName] EXACT_MATCH\n" + 
+		"src/b83230/Test.java b83230.Test [authorName] EXACT_MATCH\n" +
+		"src/b83230/Test.java b83230.Test.min [authorName] EXACT_MATCH\n" +
+		"src/b83230/Test.java b83230.Test() [authorName] EXACT_MATCH\n" +
+		"src/b83230/Test.java void b83230.Test.foo():Local#1 [authorName] EXACT_MATCH\n" +
+		"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [authorName] EXACT_MATCH\n" +
+		"src/b83230/Test.java void b83230.Test.foo() [authorName] EXACT_MATCH\n" +
 		"src/b83230/Test.java void b83230.Test.foo() [authorName] EXACT_MATCH"
 	);
 }
@@ -1689,7 +1689,7 @@ public void testBug83230_Explicit02() throws CoreException {
 	IType type = selectType(workingCopies[0], "Address");
 	search(type, REFERENCES);
 	assertSearchResults(
-		"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [Author.Address] EXACT_MATCH\n" + 
+		"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [Author.Address] EXACT_MATCH\n" +
 		"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [Author.Address] EXACT_MATCH"
 	);
 }
@@ -1724,24 +1724,24 @@ public void testBug83230_Implicit01() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
-		"package b83230;\n" + 
-		"@interface Annot {\n" + 
+		"package b83230;\n" +
+		"@interface Annot {\n" +
 		"	int value();\n" +
 		"}\n" +
-		"@Annot(41)\n" + 
-		"public class Test {\n" + 
-		"	@Annot(10)\n" + 
-		"	public void foo() {}\n" + 
-		"	@Annot(21)\n" + 
-		"	int bar;\n" + 
+		"@Annot(41)\n" +
+		"public class Test {\n" +
+		"	@Annot(10)\n" +
+		"	public void foo() {}\n" +
+		"	@Annot(21)\n" +
+		"	int bar;\n" +
 		"}\n"
 	);
 	IType type = selectType(workingCopies[0], "Annot");
 	IMethod method = type.getMethod("value", new String[0]);
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/b83230/Test.java b83230.Test [41] EXACT_MATCH\n" + 
-		"src/b83230/Test.java b83230.Test.bar [21] EXACT_MATCH\n" + 
+		"src/b83230/Test.java b83230.Test [41] EXACT_MATCH\n" +
+		"src/b83230/Test.java b83230.Test.bar [21] EXACT_MATCH\n" +
 		"src/b83230/Test.java void b83230.Test.foo() [10] EXACT_MATCH"
 	);
 }
@@ -1749,25 +1749,25 @@ public void testBug83230_Implicit02() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
-		"package b83230;\n" + 
-		"@interface A {\n" + 
-		"    String value() default \"\";\n" + 
-		"}\n" + 
-		"@interface Main {\n" + 
-		"	A first() default @A(\"Void\");\n" + 
-		"	A second();\n" + 
-		"}\n" + 
-		"\n" + 
-		"@Main(first=@A(\"\"), second=@A(\"2\"))\n" + 
-		"public class Test {\n" + 
+		"package b83230;\n" +
+		"@interface A {\n" +
+		"    String value() default \"\";\n" +
+		"}\n" +
+		"@interface Main {\n" +
+		"	A first() default @A(\"Void\");\n" +
+		"	A second();\n" +
+		"}\n" +
+		"\n" +
+		"@Main(first=@A(\"\"), second=@A(\"2\"))\n" +
+		"public class Test {\n" +
 		"}\n"
 	);
 	IType type = selectType(workingCopies[0], "A");
 	IMethod method = type.getMethod("value", new String[0]);
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/b83230/Test.java A b83230.Main.first() [\"Void\"] EXACT_MATCH\n" + 
-		"src/b83230/Test.java b83230.Test [\"\"] EXACT_MATCH\n" + 
+		"src/b83230/Test.java A b83230.Main.first() [\"Void\"] EXACT_MATCH\n" +
+		"src/b83230/Test.java b83230.Test [\"\"] EXACT_MATCH\n" +
 		"src/b83230/Test.java b83230.Test [\"2\"] EXACT_MATCH"
 	);
 }
@@ -1780,21 +1780,21 @@ public void testBug83304() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Test.java",
-		"package b83304;\n" + 
-		"public class Test {\n" + 
-		"	void foo() {\n" + 
-		"		Class<? extends Throwable> l1= null;\n" + 
-		"		Class<Exception> l2= null;\n" + 
-		"		\n" + 
-		"		Class<String> string_Class;\n" + 
-		"	}\n" + 
+		"package b83304;\n" +
+		"public class Test {\n" +
+		"	void foo() {\n" +
+		"		Class<? extends Throwable> l1= null;\n" +
+		"		Class<Exception> l2= null;\n" +
+		"		\n" +
+		"		Class<String> string_Class;\n" +
+		"	}\n" +
 		"}\n"
 		);
 	IType type = selectType(workingCopies[0], "Class", 3);
 	search(type, REFERENCES, ERASURE_RULE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
-		"src/b83304/Test.java void b83304.Test.foo() [Class] ERASURE_MATCH\n" + 
-		"src/b83304/Test.java void b83304.Test.foo() [Class] ERASURE_MATCH\n" + 
+		"src/b83304/Test.java void b83304.Test.foo() [Class] ERASURE_MATCH\n" +
+		"src/b83304/Test.java void b83304.Test.foo() [Class] ERASURE_MATCH\n" +
 		"src/b83304/Test.java void b83304.Test.foo() [Class] EXACT_MATCH"
 	);
 }
@@ -1802,15 +1802,15 @@ private void setUpBug83304_TypeParameterizedElementPattern() throws CoreExceptio
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Types.java",
-		"package b83304;\n" + 
-		"import g1.t.s.def.Generic;\n" + 
-		"public class Types {\n" + 
-		"	public Generic gen;\n" + 
-		"	public Generic<Object> gen_obj;\n" + 
-		"	public Generic<Exception> gen_exc;\n" + 
-		"	public Generic<?> gen_wld;\n" + 
-		"	public Generic<? extends Throwable> gen_thr;\n" + 
-		"	public Generic<? super RuntimeException> gen_run;\n" + 
+		"package b83304;\n" +
+		"import g1.t.s.def.Generic;\n" +
+		"public class Types {\n" +
+		"	public Generic gen;\n" +
+		"	public Generic<Object> gen_obj;\n" +
+		"	public Generic<Exception> gen_exc;\n" +
+		"	public Generic<?> gen_wld;\n" +
+		"	public Generic<? extends Throwable> gen_thr;\n" +
+		"	public Generic<? super RuntimeException> gen_run;\n" +
 		"}\n"
 	);
 }
@@ -1820,13 +1820,13 @@ public void testBug83304_TypeParameterizedElementPattern() throws CoreException 
 	IType type = selectType(workingCopies[0], "Generic", 4);
 	search(type, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
-		"src/b83304/Types.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_obj [Generic] ERASURE_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_exc [Generic] EXACT_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_thr [Generic] EQUIVALENT_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_run [Generic] EQUIVALENT_MATCH\n" + 
+		"src/b83304/Types.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_obj [Generic] ERASURE_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_exc [Generic] EXACT_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_wld [Generic] EQUIVALENT_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_thr [Generic] EQUIVALENT_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_run [Generic] EQUIVALENT_MATCH\n" +
 		"lib/JavaSearch15.jar g1.t.s.def.Generic<T> g1.t.s.def.Generic.foo() ERASURE_MATCH"
 	);
 }
@@ -1836,13 +1836,13 @@ public void testBug83304_TypeGenericElementPattern() throws CoreException {
 	IType type = getClassFile("JavaSearchBugs", "lib/JavaSearch15.jar", "g1.t.s.def", "Generic.class").getType();
 	search(type, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
-		"src/b83304/Types.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen [Generic] ERASURE_RAW_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_obj [Generic] ERASURE_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_exc [Generic] ERASURE_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_wld [Generic] ERASURE_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_thr [Generic] ERASURE_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_run [Generic] ERASURE_MATCH\n" + 
+		"src/b83304/Types.java [g1.t.s.def.Generic] EQUIVALENT_RAW_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen [Generic] ERASURE_RAW_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_obj [Generic] ERASURE_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_exc [Generic] ERASURE_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_wld [Generic] ERASURE_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_thr [Generic] ERASURE_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_run [Generic] ERASURE_MATCH\n" +
 		"lib/JavaSearch15.jar g1.t.s.def.Generic<T> g1.t.s.def.Generic.foo() EXACT_MATCH"
 	);
 }
@@ -1851,13 +1851,13 @@ public void testBug83304_TypeStringPattern() throws CoreException {
 	setUpBug83304_TypeParameterizedElementPattern();
 	search("Generic<? super Exception>", TYPE, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
-		"src/b83304/Types.java [Generic] EQUIVALENT_RAW_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen [Generic] EQUIVALENT_RAW_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_thr [Generic] ERASURE_MATCH\n" + 
-		"src/b83304/Types.java b83304.Types.gen_run [Generic] ERASURE_MATCH\n" + 
+		"src/b83304/Types.java [Generic] EQUIVALENT_RAW_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen [Generic] EQUIVALENT_RAW_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_obj [Generic] EQUIVALENT_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_exc [Generic] EQUIVALENT_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_wld [Generic] EQUIVALENT_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_thr [Generic] ERASURE_MATCH\n" +
+		"src/b83304/Types.java b83304.Types.gen_run [Generic] ERASURE_MATCH\n" +
 		"lib/JavaSearch15.jar g1.t.s.def.Generic<T> g1.t.s.def.Generic.foo() ERASURE_MATCH"
 	);
 }
@@ -1865,16 +1865,16 @@ private void setUpBug83304_MethodParameterizedElementPattern() throws CoreExcept
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Methods.java",
-		"package b83304;\n" + 
-		"import g5.m.def.Single;\n" + 
-		"public class Methods {\n" + 
-		"	void test() {\n" + 
-		"		Single<Exception> gs = new Single<Exception>();\n" + 
-		"		Exception exc = new Exception();\n" + 
-		"		gs.<Throwable>generic(exc);\n" + 
-		"		gs.<Exception>generic(exc);\n" + 
-		"		gs.<String>generic(\"\");\n" + 
-		"	}\n" + 
+		"package b83304;\n" +
+		"import g5.m.def.Single;\n" +
+		"public class Methods {\n" +
+		"	void test() {\n" +
+		"		Single<Exception> gs = new Single<Exception>();\n" +
+		"		Exception exc = new Exception();\n" +
+		"		gs.<Throwable>generic(exc);\n" +
+		"		gs.<Exception>generic(exc);\n" +
+		"		gs.<String>generic(\"\");\n" +
+		"	}\n" +
 		"}\n"
 	);
 }
@@ -1884,8 +1884,8 @@ public void testBug83304_MethodParameterizedElementPattern() throws CoreExceptio
 	IMethod method = selectMethod(workingCopies[0], "generic", 2);
 	search(method, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
-		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
-		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] EXACT_MATCH\n" + 
+		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" +
+		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] EXACT_MATCH\n" +
 		"src/b83304/Methods.java void b83304.Methods.test() [generic(\"\")] ERASURE_MATCH"
 	);
 }
@@ -1896,8 +1896,8 @@ public void testBug83304_MethodGenericElementPattern() throws CoreException {
 	IMethod method = type.getMethod("generic", new String[] { "TU;" });
 	search(method, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
-		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
-		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
+		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" +
+		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" +
 		"src/b83304/Methods.java void b83304.Methods.test() [generic(\"\")] ERASURE_MATCH"
 	);
 }
@@ -1906,8 +1906,8 @@ public void testBug83304_MethodStringPattern() throws CoreException {
 	setUpBug83304_MethodParameterizedElementPattern();
 	search("<Exception>generic", METHOD, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
-		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
-		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] EXACT_MATCH\n" + 
+		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" +
+		"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] EXACT_MATCH\n" +
 		"src/b83304/Methods.java void b83304.Methods.test() [generic(\"\")] ERASURE_MATCH"
 	);
 }
@@ -1915,15 +1915,15 @@ private void setUpBug83304_ConstructorGenericElementPattern() throws CoreExcepti
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Constructors.java",
-		"package b83304;\n" + 
-		"import g5.c.def.Single;\n" + 
-		"public class Constructors {\n" + 
-		"	void test() {\n" + 
-		"		Exception exc= new Exception();\n" + 
-		"		new <Throwable>Single<String>(\"\", exc);\n" + 
-		"		new <Exception>Single<String>(\"\", exc);\n" + 
-		"		new <String>Single<String>(\"\", \"\");\n" + 
-		"	}\n" + 
+		"package b83304;\n" +
+		"import g5.c.def.Single;\n" +
+		"public class Constructors {\n" +
+		"	void test() {\n" +
+		"		Exception exc= new Exception();\n" +
+		"		new <Throwable>Single<String>(\"\", exc);\n" +
+		"		new <Exception>Single<String>(\"\", exc);\n" +
+		"		new <String>Single<String>(\"\", \"\");\n" +
+		"	}\n" +
 		"}\n"
 	);
 }
@@ -1933,8 +1933,8 @@ public void testBug83304_ConstructorGenericElementPattern() throws CoreException
 	IMethod method = selectMethod(workingCopies[0], "Single", 3);
 	search(method, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
-		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
-		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] EXACT_MATCH\n" + 
+		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" +
+		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] EXACT_MATCH\n" +
 		"src/b83304/Constructors.java void b83304.Constructors.test() [new <String>Single<String>(\"\", \"\")] ERASURE_MATCH"
 	);
 }
@@ -1945,8 +1945,8 @@ public void testBug83304_ConstructorParameterizedElementPattern() throws CoreExc
 	IMethod method = type.getMethod("Single", new String[] { "TT;", "TU;" });
 	search(method, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
-		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
-		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
+		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" +
+		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] ERASURE_MATCH\n" +
 		"src/b83304/Constructors.java void b83304.Constructors.test() [new <String>Single<String>(\"\", \"\")] ERASURE_MATCH"
 	);
 }
@@ -1955,10 +1955,10 @@ public void testBug83304_ConstructorStringPattern() throws CoreException {
 	setUpBug83304_ConstructorGenericElementPattern();
 	search("<Exception>Single", CONSTRUCTOR, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
-		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
-		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] EXACT_MATCH\n" + 
-		"src/b83304/Constructors.java void b83304.Constructors.test() [new <String>Single<String>(\"\", \"\")] ERASURE_MATCH\n" + 
-		"lib/JavaSearch15.jar g5.m.def.Single<T> g5.m.def.Single.returnParamType() ERASURE_MATCH\n" + 
+		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" +
+		"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] EXACT_MATCH\n" +
+		"src/b83304/Constructors.java void b83304.Constructors.test() [new <String>Single<String>(\"\", \"\")] ERASURE_MATCH\n" +
+		"lib/JavaSearch15.jar g5.m.def.Single<T> g5.m.def.Single.returnParamType() ERASURE_MATCH\n" +
 		"lib/JavaSearch15.jar g5.m.def.Single<T> g5.m.def.Single.complete(U, g5.m.def.Single<T>) ERASURE_MATCH"
 	);
 }
@@ -1970,28 +1970,28 @@ public void testBug83304_ConstructorStringPattern() throws CoreException {
 private void setUpBug83804_Type() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83804/package-info.java",
-		"/**\n" + 
-		" * Valid javadoc.\n" + 
-		" * @see Test\n" + 
-		" * @see Unknown\n" + 
-		" * @see Test#foo()\n" + 
-		" * @see Test#unknown()\n" + 
-		" * @see Test#field\n" + 
-		" * @see Test#unknown\n" + 
-		" * @param unexpected\n" + 
-		" * @throws unexpected\n" + 
-		" * @return unexpected \n" + 
-		" */\n" + 
+		"/**\n" +
+		" * Valid javadoc.\n" +
+		" * @see Test\n" +
+		" * @see Unknown\n" +
+		" * @see Test#foo()\n" +
+		" * @see Test#unknown()\n" +
+		" * @see Test#field\n" +
+		" * @see Test#unknown\n" +
+		" * @param unexpected\n" +
+		" * @throws unexpected\n" +
+		" * @return unexpected \n" +
+		" */\n" +
 		"package b83804;\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b83804/Test.java",
-		"/**\n" + 
-		" * Invalid javadoc\n" + 
-		" */\n" + 
-		"package b83804;\n" + 
-		"public class Test {\n" + 
-		"	public int field;\n" + 
-		"	public void foo() {}\n" + 
+		"/**\n" +
+		" * Invalid javadoc\n" +
+		" */\n" +
+		"package b83804;\n" +
+		"public class Test {\n" +
+		"	public int field;\n" +
+		"	public void foo() {}\n" +
 		"}\n"
 	);
 }
@@ -2001,10 +2001,10 @@ public void testBug83804_Type() throws CoreException {
 	IType type = workingCopies[1].getType("Test");
 	search(type, REFERENCES);
 	assertSearchResults(
-		"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
-		"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
-		"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
-		"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+		"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC\n" +
+		"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC\n" +
+		"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC\n" +
+		"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC\n" +
 		"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC"
 	);
 }
@@ -2037,16 +2037,16 @@ public void testBug83388() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83388/R.java",
-		"package b83388;\n" + 
-		"import b83388.*;\n" + 
+		"package b83388;\n" +
+		"import b83388.*;\n" +
 		"public class R {}\n"
 	);
 	IImportDeclaration importDeclaration = workingCopies[0].getImport("pack");
 	assertNotNull("Cannot find \"pack\" import declaration for "+workingCopies[0].getElementName(), importDeclaration);
 	SearchPattern pattern = SearchPattern.createPattern(
-		"pack", 
+		"pack",
 		PACKAGE,
-		DECLARATIONS, 
+		DECLARATIONS,
 		EXACT_RULE);
 	assertNotNull("Pattern should not be null", pattern);
 	MatchLocator.setFocus(pattern, importDeclaration);
@@ -2065,16 +2065,16 @@ public void testBug83388b() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83388/R.java",
-		"package b83388;\n" + 
-		"import b83388.*;\n" + 
+		"package b83388;\n" +
+		"import b83388.*;\n" +
 		"public class R {}\n"
 	);
 	IPackageDeclaration packageDeclaration = workingCopies[0].getPackageDeclaration("pack");
 	assertNotNull("Cannot find \"pack\" import declaration for "+workingCopies[0].getElementName(), packageDeclaration);
 	SearchPattern pattern = SearchPattern.createPattern(
-		"pack", 
+		"pack",
 		PACKAGE,
-		DECLARATIONS, 
+		DECLARATIONS,
 		EXACT_RULE);
 	assertNotNull("Pattern should not be null", pattern);
 	MatchLocator.setFocus(pattern, packageDeclaration);
@@ -2099,23 +2099,23 @@ public void testBug83693() throws CoreException {
 	resultCollector.showInsideDoc = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83693/A.java",
-		"package b83693;\n" + 
-		"import static b83693.A.m;\n" + 
-		"/**\n" + 
-		" * @see A#m(int)\n" + 
-		" */\n" + 
-		"class A {\n" + 
-		"    static void m(int i) {\n" + 
-		"        b83693.A.m(i);\n" + 
-		"    }\n" + 
+		"package b83693;\n" +
+		"import static b83693.A.m;\n" +
+		"/**\n" +
+		" * @see A#m(int)\n" +
+		" */\n" +
+		"class A {\n" +
+		"    static void m(int i) {\n" +
+		"        b83693.A.m(i);\n" +
+		"    }\n" +
 		"}"
 	);
 	IMethod[] methods = workingCopies[0].getType("A").getMethods();
 	assertEquals("Invalid number of methods", 1, methods.length);
 	search(methods[0], REFERENCES);
 	assertSearchResults(
-		"src/b83693/A.java [b83693.A.m] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
-		"src/b83693/A.java b83693.A [m(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
+		"src/b83693/A.java [b83693.A.m] EXACT_MATCH OUTSIDE_JAVADOC\n" +
+		"src/b83693/A.java b83693.A [m(int)] EXACT_MATCH INSIDE_JAVADOC\n" +
 		"src/b83693/A.java void b83693.A.m(int) [m(i)] EXACT_MATCH OUTSIDE_JAVADOC"
 	);
 }
@@ -2123,7 +2123,7 @@ public void testBug83693() throws CoreException {
 /**
  * Bug 83716: [search] refs to 2-arg constructor on Action found unexpected matches
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83716"
- * 
+ *
  * Note that this test does verify that bug is really fixed, but only that it has no impact
  * on existing behavior. It was not really possible to put a test in this suite to verify that
  * bug is effectively fixed as it appears only to potential match found in plugin dependencies...
@@ -2131,14 +2131,14 @@ public void testBug83693() throws CoreException {
 public void testBug83716() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83716/X.java",
-		"package b83716;\n" + 
-		"public class X {\n" + 
-		"	X() {}\n" + 
-		"	X(int x) {}\n" + 
-		"}\n" + 
-		"class Y extends X {\n" + 
-		"	Y(int y) {\n" + 
-		"	}\n" + 
+		"package b83716;\n" +
+		"public class X {\n" +
+		"	X() {}\n" +
+		"	X(int x) {}\n" +
+		"}\n" +
+		"class Y extends X {\n" +
+		"	Y(int y) {\n" +
+		"	}\n" +
 		"}"
 	);
 	search("X", CONSTRUCTOR, REFERENCES);
@@ -2155,27 +2155,27 @@ private void setUpBug84100() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84100/X.java",
-		"package b84100;\n" + 
-		"public class X {\n" + 
-		"	void foo() {}\n" + 
-		"	void foo(String s) {}\n" + 
-		"	void foo(String... xs) {}\n" + 
-		"	void foo(int x, String... xs) {}\n" + 
-		"	void foo(String s, int x, String... xs) {}\n" + 
+		"package b84100;\n" +
+		"public class X {\n" +
+		"	void foo() {}\n" +
+		"	void foo(String s) {}\n" +
+		"	void foo(String... xs) {}\n" +
+		"	void foo(int x, String... xs) {}\n" +
+		"	void foo(String s, int x, String... xs) {}\n" +
 		"}\n"
 		);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b84100/Z.java",
-		"package b84100;\n" + 
-		"public class Z {\n" + 
-		"	X x;\n" + 
-		"	void foo() {\n" + 
-		"		x.foo();\n" + 
-		"		x.foo(\"\");\n" + 
-		"		x.foo(\"\", \"\");\n" + 
-		"	 	x.foo(\"\", \"\", null);\n" + 
-		"		x.foo(3, \"\", \"\");\n" + 
-		"		x.foo(\"\", 3, \"\", \"\");\n" + 
-		"	}\n" + 
+		"package b84100;\n" +
+		"public class Z {\n" +
+		"	X x;\n" +
+		"	void foo() {\n" +
+		"		x.foo();\n" +
+		"		x.foo(\"\");\n" +
+		"		x.foo(\"\", \"\");\n" +
+		"	 	x.foo(\"\", \"\", null);\n" +
+		"		x.foo(3, \"\", \"\");\n" +
+		"		x.foo(\"\", 3, \"\", \"\");\n" +
+		"	}\n" +
 		"}\n"
 	);
 }
@@ -2203,7 +2203,7 @@ public void testBug84100c() throws CoreException {
 	IMethod method = selectMethod(workingCopies[0], "foo", 3);
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/b84100/Z.java void b84100.Z.foo() [foo(\"\", \"\")] EXACT_MATCH\n" + 
+		"src/b84100/Z.java void b84100.Z.foo() [foo(\"\", \"\")] EXACT_MATCH\n" +
 		"src/b84100/Z.java void b84100.Z.foo() [foo(\"\", \"\", null)] EXACT_MATCH"
 	);
 }
@@ -2234,19 +2234,19 @@ public void testBug84121() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84121/Test.java",
-		"package b84121;\n" + 
-		"public class Test {\n" + 
-		"	void foo(Test... t) {}\n" + 
-		"	void foo(int x, Test... t) {}\n" + 
-		"	void foo(Test[] t1, Test... t2) {}\n" + 
+		"package b84121;\n" +
+		"public class Test {\n" +
+		"	void foo(Test... t) {}\n" +
+		"	void foo(int x, Test... t) {}\n" +
+		"	void foo(Test[] t1, Test... t2) {}\n" +
 		"}\n"
 	);
 	IType type = workingCopies[0].getType("Test");
 	search(type, REFERENCES);
 	assertSearchResults(
-		"src/b84121/Test.java void b84121.Test.foo(Test ...) [Test] EXACT_MATCH\n" + 
-		"src/b84121/Test.java void b84121.Test.foo(int, Test ...) [Test] EXACT_MATCH\n" + 
-		"src/b84121/Test.java void b84121.Test.foo(Test[], Test ...) [Test] EXACT_MATCH\n" + 
+		"src/b84121/Test.java void b84121.Test.foo(Test ...) [Test] EXACT_MATCH\n" +
+		"src/b84121/Test.java void b84121.Test.foo(int, Test ...) [Test] EXACT_MATCH\n" +
+		"src/b84121/Test.java void b84121.Test.foo(Test[], Test ...) [Test] EXACT_MATCH\n" +
 		"src/b84121/Test.java void b84121.Test.foo(Test[], Test ...) [Test] EXACT_MATCH"
 	);
 }
@@ -2259,25 +2259,25 @@ private void setUpBug84724() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84724/X.java",
-		"package b84724;\n" + 
-		"public class X {\n" + 
-		"	X(String s) {}\n" + 
-		"	X(String... v) {}\n" + 
-		"	X(int x, String... v) {}\n" + 
-		"	X(String s, int x, String... v) {}\n" + 
+		"package b84724;\n" +
+		"public class X {\n" +
+		"	X(String s) {}\n" +
+		"	X(String... v) {}\n" +
+		"	X(int x, String... v) {}\n" +
+		"	X(String s, int x, String... v) {}\n" +
 		"}\n"
 		);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b84724/Z.java",
-		"package b84724;\n" + 
-		"public class Z {\n" + 
-		"	void foo() {\n" + 
-		"		new X();\n" + 
-		"		new X(\"\");\n" + 
-		"		new X(\"\", \"\");\n" + 
-		"		new X(\"\", \"\", null);\n" + 
-		"		new X(3, \"\", \"\");\n" + 
-		"		new X(\"\", 3, \"\", \"\");\n" + 
-		"	}\n" + 
+		"package b84724;\n" +
+		"public class Z {\n" +
+		"	void foo() {\n" +
+		"		new X();\n" +
+		"		new X(\"\");\n" +
+		"		new X(\"\", \"\");\n" +
+		"		new X(\"\", \"\", null);\n" +
+		"		new X(3, \"\", \"\");\n" +
+		"		new X(\"\", 3, \"\", \"\");\n" +
+		"	}\n" +
 		"}\n"
 	);
 }
@@ -2296,8 +2296,8 @@ public void testBug84724b() throws CoreException {
 	IMethod method = selectMethod(workingCopies[0], "X", 3);
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/b84724/Z.java void b84724.Z.foo() [new X()] EXACT_MATCH\n" + 
-		"src/b84724/Z.java void b84724.Z.foo() [new X(\"\", \"\")] EXACT_MATCH\n" + 
+		"src/b84724/Z.java void b84724.Z.foo() [new X()] EXACT_MATCH\n" +
+		"src/b84724/Z.java void b84724.Z.foo() [new X(\"\", \"\")] EXACT_MATCH\n" +
 		"src/b84724/Z.java void b84724.Z.foo() [new X(\"\", \"\", null)] EXACT_MATCH"
 	);
 }
@@ -2328,26 +2328,26 @@ private void setUpBug84727() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b84727/A.java",
-		"package b84727;\n" + 
-		"public interface A {\n" + 
-		"	Set<Set<Exception>> getXYZ(List<Set<Exception>> arg);\n" + 
-		"	void getXYZ(String s);\n" + 
+		"package b84727;\n" +
+		"public interface A {\n" +
+		"	Set<Set<Exception>> getXYZ(List<Set<Exception>> arg);\n" +
+		"	void getXYZ(String s);\n" +
 		"}\n"
 		);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b84727/X.java",
-		"package b84727;\n" + 
-		"public class X {\n" + 
-		"	A a;\n" + 
-		"	void foo() {\n" + 
-		"		a.getXYZ(new ArrayList());\n" + 
-		"		a.getXYZ(\"\");\n" + 
-		"	}\n" + 
+		"package b84727;\n" +
+		"public class X {\n" +
+		"	A a;\n" +
+		"	void foo() {\n" +
+		"		a.getXYZ(new ArrayList());\n" +
+		"		a.getXYZ(\"\");\n" +
+		"	}\n" +
 		"}\n"
 		);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b84727/List.java",
-		"package b84727;\n" + 
-		"public interface List<E> {}\n" + 
-		"interface Set<E> {}\n" + 
+		"package b84727;\n" +
+		"public interface List<E> {}\n" +
+		"interface Set<E> {}\n" +
 		"class ArrayList<E> implements List<E> {}"
 	);
 }
@@ -2380,16 +2380,16 @@ public void testBug85810() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b85810/Test.java",
-		"package b85810;\n" + 
-		"public class Test<E> implements In<Test<E>> {\n" + 
-		"	E e;\n" + 
+		"package b85810;\n" +
+		"public class Test<E> implements In<Test<E>> {\n" +
+		"	E e;\n" +
 		"}\n" +
 		"interface In<T> {}\n"
 		);
 	ITypeParameter param = selectTypeParameter(workingCopies[0], "E");
 	search(param, REFERENCES);
 	assertSearchResults(
-		"src/b85810/Test.java b85810.Test [E] EXACT_MATCH\n" + 
+		"src/b85810/Test.java b85810.Test [E] EXACT_MATCH\n" +
 		"src/b85810/Test.java b85810.Test.e [E] EXACT_MATCH"
 	);
 }
@@ -2402,25 +2402,25 @@ public void testBug86596() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86596/aa/link/A.java",
-		"package b86596.aa.link;\n" + 
+		"package b86596.aa.link;\n" +
 		"public interface A {}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b86596/bb/Link.java",
-		"package b86596.bb;\n" + 
+		"package b86596.bb;\n" +
 		"public class Link{}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b86596/cc/X.java",
-		"package b86596.cc;\n" + 
-		"import b86596.aa.link.A;\n" + 
-		"import b86596.bb.Link;\n" + 
-		"public class X {\n" + 
-		"	A a;\n" + 
-		"	Link l;\n" + 
+		"package b86596.cc;\n" +
+		"import b86596.aa.link.A;\n" +
+		"import b86596.bb.Link;\n" +
+		"public class X {\n" +
+		"	A a;\n" +
+		"	Link l;\n" +
 		"}\n"
 	);
 	search("Link", TYPE, REFERENCES, SearchPattern.R_EXACT_MATCH);
 	assertSearchResults(
-		"src/b86596/cc/X.java [Link] EXACT_RAW_MATCH\n" + 
+		"src/b86596/cc/X.java [Link] EXACT_RAW_MATCH\n" +
 		"src/b86596/cc/X.java b86596.cc.X.l [Link] EXACT_MATCH"
 	);
 }
@@ -2433,25 +2433,25 @@ public void testBug86642() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86642/A.java",
-		"package b86642;\n" + 
-		"class A {\n" + 
-		"	public void m() {}\n" + 
-		"	protected void f(A a){}\n" + 
+		"package b86642;\n" +
+		"class A {\n" +
+		"	public void m() {}\n" +
+		"	protected void f(A a){}\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b86642/B.java",
-		"package b86642;\n" + 
-		"public class B extends A{\n" + 
-		"	protected void f(A a){\n" + 
-		"		a.m();\n" + 
-		"	}\n" + 
+		"package b86642;\n" +
+		"public class B extends A{\n" +
+		"	protected void f(A a){\n" +
+		"		a.m();\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IType type = workingCopies[0].getType("A");
 	search(type, REFERENCES);
 	assertSearchResults(
-		"src/b86642/A.java void b86642.A.f(A) [A] EXACT_MATCH\n" + 
-		"src/b86642/B.java b86642.B [A] EXACT_MATCH\n" + 
+		"src/b86642/A.java void b86642.A.f(A) [A] EXACT_MATCH\n" +
+		"src/b86642/B.java b86642.B [A] EXACT_MATCH\n" +
 		"src/b86642/B.java void b86642.B.f(A) [A] EXACT_MATCH"
 	);
 }
@@ -2464,7 +2464,7 @@ public void testBug86293() throws CoreException {
 	IMethod method = type.getMethod("m86293", new String[0]);
 	search(method, DECLARATIONS);
 	assertSearchResults(
-		"lib/b86293.jar void <anonymous>.m86293() EXACT_MATCH\n" + 
+		"lib/b86293.jar void <anonymous>.m86293() EXACT_MATCH\n" +
 		"lib/b86293.jar void I86293.m86293() EXACT_MATCH"
 	);
 }
@@ -2477,17 +2477,17 @@ private void setUpBug86380() throws CoreException {
 	resultCollector.showInsideDoc = true;
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86380/package-info.java",
-		"/**\n" + 
-		" * @see Annot#field\n" + 
-		" */\n" + 
-		"@Annot(value=11)\n" + 
+		"/**\n" +
+		" * @see Annot#field\n" +
+		" */\n" +
+		"@Annot(value=11)\n" +
 		"package b86380;\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b86380/Test.java",
-		"package b86380;\n" + 
-		"@Annot(12) public class Test {\n" + 
-		"	public int field = Annot.field;\n" + 
-		"	public void foo() {}\n" + 
+		"package b86380;\n" +
+		"@Annot(12) public class Test {\n" +
+		"	public int field = Annot.field;\n" +
+		"	public void foo() {}\n" +
 		"}\n"
 	);
 }
@@ -2498,9 +2498,9 @@ public void testBug86380_Type() throws CoreException {
 	IType type = unit.getType("Annot");
 	search(type, REFERENCES);
 	assertSearchResults(
-		"src/b86380/Test.java b86380.Test [Annot] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
-		"src/b86380/Test.java b86380.Test.field [Annot] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
-		"src/b86380/package-info.java [Annot] EXACT_MATCH INSIDE_JAVADOC\n" + 
+		"src/b86380/Test.java b86380.Test [Annot] EXACT_MATCH OUTSIDE_JAVADOC\n" +
+		"src/b86380/Test.java b86380.Test.field [Annot] EXACT_MATCH OUTSIDE_JAVADOC\n" +
+		"src/b86380/package-info.java [Annot] EXACT_MATCH INSIDE_JAVADOC\n" +
 		"src/b86380/package-info.java [Annot] EXACT_MATCH OUTSIDE_JAVADOC"
 	);
 }
@@ -2512,7 +2512,7 @@ public void testBug86380_Method() throws CoreException {
 	assertEquals("Invalid number of methods", 1, methods.length);
 	search(methods[0], REFERENCES);
 	assertSearchResults(
-		"src/b86380/Test.java b86380.Test [12] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
+		"src/b86380/Test.java b86380.Test [12] EXACT_MATCH OUTSIDE_JAVADOC\n" +
 		"src/b86380/package-info.java [value] EXACT_MATCH OUTSIDE_JAVADOC"
 	);
 }
@@ -2524,7 +2524,7 @@ public void testBug86380_Field() throws CoreException {
 	assertEquals("Invalid number of fields", 1, fields.length);
 	search(fields[0], REFERENCES);
 	assertSearchResults(
-		"src/b86380/Test.java b86380.Test.field [field] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
+		"src/b86380/Test.java b86380.Test.field [field] EXACT_MATCH OUTSIDE_JAVADOC\n" +
 		"src/b86380/package-info.java [field] EXACT_MATCH INSIDE_JAVADOC"
 	);
 }
@@ -2537,33 +2537,33 @@ public void testBug88174() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b88174/Test.java",
-		"package b88174;\n" + 
-		"public enum Test {\n" + 
-		"  a {\n" + 
-		"    int getTheValue() { // not found\n" + 
-		"      return 0;\n" + 
-		"    }\n" + 
-		"  };\n" + 
-		"  abstract int getTheValue();\n" + 
+		"package b88174;\n" +
+		"public enum Test {\n" +
+		"  a {\n" +
+		"    int getTheValue() { // not found\n" +
+		"      return 0;\n" +
+		"    }\n" +
+		"  };\n" +
+		"  abstract int getTheValue();\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b88174/X.java",
-		"package b88174;\n" + 
-		"public class X {\n" + 
-		"  X x = new X() {\n" + 
-		"    int getTheValue() {\n" + 
-		"      return 0;\n" + 
-		"    }\n" + 
-		"  };\n" + 
-		"  int getTheValue() { return 0; }\n" + 
+		"package b88174;\n" +
+		"public class X {\n" +
+		"  X x = new X() {\n" +
+		"    int getTheValue() {\n" +
+		"      return 0;\n" +
+		"    }\n" +
+		"  };\n" +
+		"  int getTheValue() { return 0; }\n" +
 		"}\n"
 	);
 	IMethod method = workingCopies[0].getType("Test").getMethod("getTheValue", new String[0]);
 	search(method, DECLARATIONS | IGNORE_DECLARING_TYPE);
 	assertSearchResults(
-		"src/b88174/Test.java int b88174.Test.a:<anonymous>#1.getTheValue() [getTheValue] EXACT_MATCH\n" + 
-		"src/b88174/Test.java int b88174.Test.getTheValue() [getTheValue] EXACT_MATCH\n" + 
-		"src/b88174/X.java int b88174.X.x:<anonymous>#1.getTheValue() [getTheValue] EXACT_MATCH\n" + 
+		"src/b88174/Test.java int b88174.Test.a:<anonymous>#1.getTheValue() [getTheValue] EXACT_MATCH\n" +
+		"src/b88174/Test.java int b88174.Test.getTheValue() [getTheValue] EXACT_MATCH\n" +
+		"src/b88174/X.java int b88174.X.x:<anonymous>#1.getTheValue() [getTheValue] EXACT_MATCH\n" +
 		"src/b88174/X.java int b88174.X.getTheValue() [getTheValue] EXACT_MATCH"
 	);
 }
@@ -2579,7 +2579,7 @@ public void testBug87627() throws CoreException {
 	assertEquals("Wrong number of parameters", 1, parameters.length);
 	search(parameters[0], REFERENCES);
 	assertSearchResults(
-		"lib/b87627.jar b87627.List EXACT_MATCH\n" + 
+		"lib/b87627.jar b87627.List EXACT_MATCH\n" +
 		"lib/b87627.jar boolean b87627.List.addAll(b87627.Collection<? extends E>) EXACT_MATCH"
 	);
 }
@@ -2591,28 +2591,28 @@ public void testBug87627() throws CoreException {
 public void testBug88300() throws CoreException {
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b88300/SubClass.java",
-		"package b88300;\n" + 
-		"public class SubClass extends SuperClass {\n" + 
-		"	private void aMethod(String x) {\n" + 
-		"	}\n" + 
-		"	public void aMethod(Object x) {\n" + 
-		"	}\n" + 
+		"package b88300;\n" +
+		"public class SubClass extends SuperClass {\n" +
+		"	private void aMethod(String x) {\n" +
+		"	}\n" +
+		"	public void aMethod(Object x) {\n" +
+		"	}\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b88300/SuperClass.java",
-		"package b88300;\n" + 
-		"public class SuperClass {\n" + 
-		"    public void aMethod(Object x) {\n" + 
-		"    }\n" + 
+		"package b88300;\n" +
+		"public class SuperClass {\n" +
+		"    public void aMethod(Object x) {\n" +
+		"    }\n" +
 		"}\n"
 		);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b88300/User.java",
-		"package b88300;\n" + 
-		"public class User {\n" + 
-		"    public void methodUsingSubClassMethod() {\n" + 
-		"        SuperClass user = new SubClass();\n" + 
-		"        user.aMethod(new Object());\n" + 
-		"    }\n" + 
+		"package b88300;\n" +
+		"public class User {\n" +
+		"    public void methodUsingSubClassMethod() {\n" +
+		"        SuperClass user = new SubClass();\n" +
+		"        user.aMethod(new Object());\n" +
+		"    }\n" +
 		"}\n"
 	);
 	IType type = workingCopies[0].getType("SubClass");
@@ -2624,28 +2624,28 @@ public void testBug88300() throws CoreException {
 public void testBug88300b() throws CoreException {
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b88300/SubClass.java",
-		"package b88300;\n" + 
-		"public class SubClass extends SuperClass {\n" + 
-		"	public void aMethod(Object x) {\n" + 
-		"	}\n" + 
-		"	private void aMethod(String x) {\n" + 
-		"	}\n" + 
+		"package b88300;\n" +
+		"public class SubClass extends SuperClass {\n" +
+		"	public void aMethod(Object x) {\n" +
+		"	}\n" +
+		"	private void aMethod(String x) {\n" +
+		"	}\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b88300/SuperClass.java",
-		"package b88300;\n" + 
-		"public class SuperClass {\n" + 
-		"    public void aMethod(Object x) {\n" + 
-		"    }\n" + 
+		"package b88300;\n" +
+		"public class SuperClass {\n" +
+		"    public void aMethod(Object x) {\n" +
+		"    }\n" +
 		"}\n"
 		);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b88300/User.java",
-		"package b88300;\n" + 
-		"public class User {\n" + 
-		"    public void methodUsingSubClassMethod() {\n" + 
-		"        SuperClass user = new SubClass();\n" + 
-		"        user.aMethod(new Object());\n" + 
-		"    }\n" + 
+		"package b88300;\n" +
+		"public class User {\n" +
+		"    public void methodUsingSubClassMethod() {\n" +
+		"        SuperClass user = new SubClass();\n" +
+		"        user.aMethod(new Object());\n" +
+		"    }\n" +
 		"}\n"
 	);
 	IType type = workingCopies[0].getType("SubClass");
@@ -2657,43 +2657,43 @@ public void testBug88300b() throws CoreException {
 public void testBug88300c() throws CoreException {
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b88300/not/fixed/ConditionalFlowInfo.java",
-		"package b88300.not.fixed;\n" + 
-		"public class ConditionalFlowInfo extends FlowInfo {\n" + 
-		"	public FlowInfo info;\n" + 
-		"	ConditionalFlowInfo(FlowInfo info){\n" + 
-		"		this.info = info;\n" + 
-		"	}\n" + 
-		"	public void markAsDefinitelyNull(FieldBinding field) {\n" + 
-		"		info.markAsDefinitelyNull(field);\n" + 
-		"	}\n" + 
-		"	public void markAsDefinitelyNull(LocalVariableBinding local) {\n" + 
-		"		info.markAsDefinitelyNull(local);\n" + 
-		"	}\n" + 
+		"package b88300.not.fixed;\n" +
+		"public class ConditionalFlowInfo extends FlowInfo {\n" +
+		"	public FlowInfo info;\n" +
+		"	ConditionalFlowInfo(FlowInfo info){\n" +
+		"		this.info = info;\n" +
+		"	}\n" +
+		"	public void markAsDefinitelyNull(FieldBinding field) {\n" +
+		"		info.markAsDefinitelyNull(field);\n" +
+		"	}\n" +
+		"	public void markAsDefinitelyNull(LocalVariableBinding local) {\n" +
+		"		info.markAsDefinitelyNull(local);\n" +
+		"	}\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b88300/not/fixed/FlowInfo.java",
-		"package b88300.not.fixed;\n" + 
-		"\n" + 
-		"class FieldBinding {\n" + 
-		"	int id;\n" + 
-		"}\n" + 
-		"class LocalVariableBinding extends FieldBinding {}\n" + 
-		"\n" + 
-		"public abstract class FlowInfo {\n" + 
-		"	abstract public void markAsDefinitelyNull(LocalVariableBinding local);\n" + 
-		"	abstract public void markAsDefinitelyNull(FieldBinding field);\n" + 
+		"package b88300.not.fixed;\n" +
+		"\n" +
+		"class FieldBinding {\n" +
+		"	int id;\n" +
+		"}\n" +
+		"class LocalVariableBinding extends FieldBinding {}\n" +
+		"\n" +
+		"public abstract class FlowInfo {\n" +
+		"	abstract public void markAsDefinitelyNull(LocalVariableBinding local);\n" +
+		"	abstract public void markAsDefinitelyNull(FieldBinding field);\n" +
 		"}\n"
 		);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b88300/not/fixed/UnconditionalFlowInfo.java",
-		"package b88300.not.fixed;\n" + 
-		"public class UnconditionalFlowInfo extends FlowInfo {\n" + 
-		"	final private void markAsDefinitelyNull(int position) {}\n" + 
-		"	public void markAsDefinitelyNull(FieldBinding field) {\n" + 
-		"		markAsDefinitelyNull(field.id);\n" + 
-		"	}\n" + 
-		"	public void markAsDefinitelyNull(LocalVariableBinding local) {\n" + 
-		"		markAsDefinitelyNull(local.id + 1);\n" + 
-		"	}\n" + 
+		"package b88300.not.fixed;\n" +
+		"public class UnconditionalFlowInfo extends FlowInfo {\n" +
+		"	final private void markAsDefinitelyNull(int position) {}\n" +
+		"	public void markAsDefinitelyNull(FieldBinding field) {\n" +
+		"		markAsDefinitelyNull(field.id);\n" +
+		"	}\n" +
+		"	public void markAsDefinitelyNull(LocalVariableBinding local) {\n" +
+		"		markAsDefinitelyNull(local.id + 1);\n" +
+		"	}\n" +
 		"}\n"
 		);
 	IType type = workingCopies[2].getType("UnconditionalFlowInfo");
@@ -2710,36 +2710,36 @@ public void testBug88300c() throws CoreException {
 public void testBug89686() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b89686/A.java",
-		"package b89686;\n" + 
-		"public enum Color {\n" + 
-		"    RED, GREEN(), BLUE(17), PINK((1+(1+1))) {/*anon*/};\n" + 
-		"    Color() {}\n" + 
-		"    Color(int i) {}\n" + 
+		"package b89686;\n" +
+		"public enum Color {\n" +
+		"    RED, GREEN(), BLUE(17), PINK((1+(1+1))) {/*anon*/};\n" +
+		"    Color() {}\n" +
+		"    Color(int i) {}\n" +
 		"}"
 	);
 	IType type = workingCopies[0].getType("Color");
 	IMethod method = type.getMethod("Color", new String[0]);
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/b89686/A.java b89686.Color.RED [RED] EXACT_MATCH\n" + 
+		"src/b89686/A.java b89686.Color.RED [RED] EXACT_MATCH\n" +
 		"src/b89686/A.java b89686.Color.GREEN [GREEN()] EXACT_MATCH"
 	);
 }
 public void testBug89686b() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b89686/A.java",
-		"package b89686;\n" + 
-		"public enum Color {\n" + 
-		"    RED, GREEN(), BLUE(17), PINK((1+(1+1))) {/*anon*/};\n" + 
-		"    Color() {}\n" + 
-		"    Color(int i) {}\n" + 
+		"package b89686;\n" +
+		"public enum Color {\n" +
+		"    RED, GREEN(), BLUE(17), PINK((1+(1+1))) {/*anon*/};\n" +
+		"    Color() {}\n" +
+		"    Color(int i) {}\n" +
 		"}"
 	);
 	IType type = workingCopies[0].getType("Color");
 	IMethod method = type.getMethod("Color", new String[] { "I"} );
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/b89686/A.java b89686.Color.BLUE [BLUE(17)] EXACT_MATCH\n" + 
+		"src/b89686/A.java b89686.Color.BLUE [BLUE(17)] EXACT_MATCH\n" +
 		"src/b89686/A.java b89686.Color.PINK [PINK((1+(1+1)))] EXACT_MATCH"
 	);
 }
@@ -2753,7 +2753,7 @@ public void testBug89848() throws CoreException {
 	IMethod method = classFile.getMethod("foo", new String[0]);
 	search(method, ALL_OCCURRENCES);
 	assertSearchResults(
-		"lib/b89848/Test.class void b89848.Test.foo() EXACT_MATCH\n" + 
+		"lib/b89848/Test.class void b89848.Test.foo() EXACT_MATCH\n" +
 		"lib/b89848/X.class void b89848.X.foo() EXACT_MATCH"
 	);
 }
@@ -2766,20 +2766,20 @@ public void testBug90779() throws CoreException {
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b90779/A.java",
 		"package b90779;\n" +
-		"public class A {\n" + 
-		"	public A() {}\n" + 
+		"public class A {\n" +
+		"	public A() {}\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b90779/B.java",
 		"package b90779;\n" +
-		"public class B {\n" + 
-		"	public B() {}\n" + 
+		"public class B {\n" +
+		"	public B() {}\n" +
 		"}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b90779/C.java",
 		"package b90779;\n" +
-		"public class C {\n" + 
-		"	public C() {}\n" + 
+		"public class C {\n" +
+		"	public C() {}\n" +
 		"}\n"
 	);
 	IType type = workingCopies[0].getType("A");
@@ -2799,15 +2799,15 @@ public void testBug90915() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b90915/X.java",
 		"package b90915;\n" +
-		"import g5.m.def.Single;\n" + 
-		"public class X<T> {\n" + 
-		"	void foo() {\n" + 
-		"		Single<String> single = new Single<String>() {\n" + 
-		"			public <U> String generic(U u) { return \"\"; }\n" + 
-		"			public void paramTypesArgs(Single<String> gs) {}\n" + 
-		"		};\n" + 
-		"		single.paramTypesArgs(null);\n" + 
-		"	}\n" + 
+		"import g5.m.def.Single;\n" +
+		"public class X<T> {\n" +
+		"	void foo() {\n" +
+		"		Single<String> single = new Single<String>() {\n" +
+		"			public <U> String generic(U u) { return \"\"; }\n" +
+		"			public void paramTypesArgs(Single<String> gs) {}\n" +
+		"		};\n" +
+		"		single.paramTypesArgs(null);\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IType type = workingCopies[0].getType("X");
@@ -2830,16 +2830,16 @@ public void testBug90915() throws CoreException {
 public void testBug91542() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b91542/A.java",
-		"package b91542;\n" + 
-		"\n" + 
-		"class A<T> {\n" + 
-		"	void a(A<T> a){}\n" + 
-		"}\n" + 
-		"\n" + 
-		"class B<T> extends A<T> {\n" + 
-		"	protected void foo() { \n" + 
-		"		a(this);\n" + 
-		"	}\n" + 
+		"package b91542;\n" +
+		"\n" +
+		"class A<T> {\n" +
+		"	void a(A<T> a){}\n" +
+		"}\n" +
+		"\n" +
+		"class B<T> extends A<T> {\n" +
+		"	protected void foo() { \n" +
+		"		a(this);\n" +
+		"	}\n" +
 		"}"
 	);
 	IType type = workingCopies[0].getType("B");
@@ -2857,40 +2857,40 @@ public void testBug91542() throws CoreException {
 public void testBug91078() throws CoreException {
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b91078/test/Example.java",
-		"package b91078.test;\n" + 
-		"import b91078.util.HashMap;\n" + 
-		"import b91078.util.Map;\n" + 
-		"public class Example {\n" + 
-		"    public Map.Entry logAll(Object obj) {\n" + 
-		"    	if (obj instanceof b91078.util.HashMap) {\n" + 
-		"    		HashMap map = (HashMap) obj;\n" + 
-		"            return map.entry;\n" + 
-		"    	}\n" + 
-		"    	if (obj instanceof b91078.util.HashMap.Entry) {\n" + 
-		"            Map.Entry entry = (Map.Entry) obj;\n" + 
-		"            return entry;\n" + 
-		"    	}\n" + 
-		"    	return null;\n" + 
-		"    }\n" + 
+		"package b91078.test;\n" +
+		"import b91078.util.HashMap;\n" +
+		"import b91078.util.Map;\n" +
+		"public class Example {\n" +
+		"    public Map.Entry logAll(Object obj) {\n" +
+		"    	if (obj instanceof b91078.util.HashMap) {\n" +
+		"    		HashMap map = (HashMap) obj;\n" +
+		"            return map.entry;\n" +
+		"    	}\n" +
+		"    	if (obj instanceof b91078.util.HashMap.Entry) {\n" +
+		"            Map.Entry entry = (Map.Entry) obj;\n" +
+		"            return entry;\n" +
+		"    	}\n" +
+		"    	return null;\n" +
+		"    }\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b91078/util/HashMap.java",
-		"package b91078.util;\n" + 
-		"public class HashMap implements Map {\n" + 
-		"	public Entry entry;\n" + 
+		"package b91078.util;\n" +
+		"public class HashMap implements Map {\n" +
+		"	public Entry entry;\n" +
 		"}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b91078/util/Map.java",
-		"package b91078.util;\n" + 
-		"public interface Map {\n" + 
-		"	class Entry{}\n" + 
+		"package b91078.util;\n" +
+		"public interface Map {\n" +
+		"	class Entry{}\n" +
 		"}\n"
 	);
 	search("*", PACKAGE, REFERENCES, getJavaSearchWorkingCopiesScope(workingCopies[0]));
 	assertSearchResults(
-		"src/b91078/test/Example.java [b91078.util] EXACT_MATCH\n" + 
-		"src/b91078/test/Example.java [b91078.util] EXACT_MATCH\n" + 
-		"src/b91078/test/Example.java Map.Entry b91078.test.Example.logAll(Object) [b91078.util] EXACT_MATCH\n" + 
+		"src/b91078/test/Example.java [b91078.util] EXACT_MATCH\n" +
+		"src/b91078/test/Example.java [b91078.util] EXACT_MATCH\n" +
+		"src/b91078/test/Example.java Map.Entry b91078.test.Example.logAll(Object) [b91078.util] EXACT_MATCH\n" +
 		"src/b91078/test/Example.java Map.Entry b91078.test.Example.logAll(Object) [b91078.util] EXACT_MATCH"
 	);
 }
@@ -2914,18 +2914,18 @@ public void testBug92264a() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"java.lang.CharSequence\n" + 
-		"java.lang.Class\n" + 
-		"java.lang.CloneNotSupportedException\n" + 
-		"java.lang.Comparable\n" + 
-		"java.lang.Enum\n" + 
-		"java.lang.Error\n" + 
-		"java.lang.Exception\n" + 
-		"java.lang.IllegalMonitorStateException\n" + 
-		"java.lang.InterruptedException\n" + 
-		"java.lang.Object\n" + 
-		"java.lang.RuntimeException\n" + 
-		"java.lang.String\n" + 
+		"java.lang.CharSequence\n" +
+		"java.lang.Class\n" +
+		"java.lang.CloneNotSupportedException\n" +
+		"java.lang.Comparable\n" +
+		"java.lang.Enum\n" +
+		"java.lang.Error\n" +
+		"java.lang.Exception\n" +
+		"java.lang.IllegalMonitorStateException\n" +
+		"java.lang.InterruptedException\n" +
+		"java.lang.Object\n" +
+		"java.lang.RuntimeException\n" +
+		"java.lang.String\n" +
 		"java.lang.Throwable",
 		requestor);
 }
@@ -2944,12 +2944,12 @@ public void testBug92264b() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"java.lang.CloneNotSupportedException\n" + 
-		"java.lang.Exception\n" + 
-		"java.lang.IllegalMonitorStateException\n" + 
-		"java.lang.InterruptedException\n" + 
-		"java.lang.RuntimeException\n" + 
-		"java.lang.annotation.Annotation\n" + 
+		"java.lang.CloneNotSupportedException\n" +
+		"java.lang.Exception\n" +
+		"java.lang.IllegalMonitorStateException\n" +
+		"java.lang.InterruptedException\n" +
+		"java.lang.RuntimeException\n" +
+		"java.lang.annotation.Annotation\n" +
 		"java.lang.annotation.Retention",
 		requestor);
 }
@@ -2968,16 +2968,16 @@ public void testBug92264c() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"Test$Inner\n" + 
-		"b123679.test.Test\n" + 
-		"b123679.test.Test$StaticClass\n" + 
-		"b123679.test.Test$StaticClass$Member\n" + 
-		"b124645.test.A_124645\n" + 
-		"b124645.test.X_124645\n" + 
-		"b127628.Test127628$Member127628\n" + 
-		"b95794.Test$Color\n" + 
-		"pack.age.Test$Member\n" + 
-		"test.Test$StaticClass\n" + 
+		"Test$Inner\n" +
+		"b123679.test.Test\n" +
+		"b123679.test.Test$StaticClass\n" +
+		"b123679.test.Test$StaticClass$Member\n" +
+		"b124645.test.A_124645\n" +
+		"b124645.test.X_124645\n" +
+		"b127628.Test127628$Member127628\n" +
+		"b95794.Test$Color\n" +
+		"pack.age.Test$Member\n" +
+		"test.Test$StaticClass\n" +
 		"test.Test$StaticClass$Member",
 		requestor);
 }
@@ -2996,7 +2996,7 @@ public void testBug92264d() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b124645.test.X_124645\n" + 
+		"b124645.test.X_124645\n" +
 		"b124645.xy.X_124645",
 		requestor);
 }
@@ -3009,10 +3009,10 @@ private void setUpBug92944() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b92944/Test.java",
-		"package b92944;\n" + 
-		"interface B92944_I {}\n" + 
-		"enum B92944_E {}\n" + 
-		"@interface B92944_A {}\n" + 
+		"package b92944;\n" +
+		"interface B92944_I {}\n" +
+		"enum B92944_E {}\n" +
+		"@interface B92944_A {}\n" +
 		"public class B92944 {}\n"
 	);
 }
@@ -3033,9 +3033,9 @@ public void testBug92944_TYPE() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b92944.B92944\n" + 
-		"b92944.B92944_A\n" + 
-		"b92944.B92944_E\n" + 
+		"b92944.B92944\n" +
+		"b92944.B92944_A\n" +
+		"b92944.B92944_E\n" +
 		"b92944.B92944_I",
 		requestor);
 }
@@ -3078,7 +3078,7 @@ public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
 	// Remove enum and annotation
 	assertSearchResults(
 		"Unexpected all type names",
-		"b92944.B92944\n" + 
+		"b92944.B92944\n" +
 		"b92944.B92944_I",  // Annotation is an interface in java.lang
 		requestor);
 }
@@ -3100,7 +3100,7 @@ public void testBug92944_CLASS_AND_ENUM() throws CoreException {
 	// Remove interface and annotation
 	assertSearchResults(
 		"Unexpected all type names",
-		"b92944.B92944\n" + 
+		"b92944.B92944\n" +
 		"b92944.B92944_E",
 		requestor);
 }
@@ -3168,7 +3168,7 @@ public void testBug92944_ANNOTATION_TYPE() throws CoreException {
 /**
  * Bug 93392: [1.5][search][annot] search for annotation elements does not seem to be implemented yet
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=93392"
- * 
+ *
  * Note that this test valid also:
  * Bug 94062: [1.5][search][annot] search for annotation elements incorrect match range
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94062"
@@ -3178,24 +3178,24 @@ public void testBug93392() throws CoreException {
 	collector.showAccuracy = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b93392/Test.java",
-		"package b93392;\n" + 
-		"@interface Annot {\n" + 
+		"package b93392;\n" +
+		"@interface Annot {\n" +
 		"	int value();\n" +
 		"}\n" +
-		"@Annot(41)\n" + 
-		"public class Test {\n" + 
-		"	@Annot(21)\n" + 
-		"	int bar;\n" + 
-		"	@Annot(10)\n" + 
-		"	public void foo() {}\n" + 
+		"@Annot(41)\n" +
+		"public class Test {\n" +
+		"	@Annot(21)\n" +
+		"	int bar;\n" +
+		"	@Annot(10)\n" +
+		"	public void foo() {}\n" +
 		"}\n"
 	);
 	IType type = selectType(workingCopies[0], "Annot");
 	IMethod method = type.getMethod("value", new String[0]);
 	search(method, REFERENCES, getJavaSearchScopeBugs(), collector);
 	assertSearchResults(
-		"src/b93392/Test.java b93392.Test [41] EXACT_MATCH\n" + 
-		"src/b93392/Test.java b93392.Test.bar [21] EXACT_MATCH\n" + 
+		"src/b93392/Test.java b93392.Test [41] EXACT_MATCH\n" +
+		"src/b93392/Test.java b93392.Test.bar [21] EXACT_MATCH\n" +
 		"src/b93392/Test.java void b93392.Test.foo() [10] EXACT_MATCH",
 		collector
 	);
@@ -3224,19 +3224,19 @@ public void testBug93392() throws CoreException {
 public void testBug94160() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b94160/Test.java",
-		"package b94160;\n" + 
-		"public class Test {\n" + 
-		"	<T> List<T> generateList(Class<T> clazz) {\n" + 
-		"		return new ArrayList<T>();\n" + 
-		"	}\n" + 
-		"}\n" + 
-		"class CTest extends Test {\n" + 
-		"	private List<String> myList = generateList(String.class);\n" + 
-		"	CTest() {\n" + 
-		"		myList = new ArrayList<String>();\n" + 
-		"	}\n" + 
-		"}\n" + 
-		"interface List<E> {}\n" + 
+		"package b94160;\n" +
+		"public class Test {\n" +
+		"	<T> List<T> generateList(Class<T> clazz) {\n" +
+		"		return new ArrayList<T>();\n" +
+		"	}\n" +
+		"}\n" +
+		"class CTest extends Test {\n" +
+		"	private List<String> myList = generateList(String.class);\n" +
+		"	CTest() {\n" +
+		"		myList = new ArrayList<String>();\n" +
+		"	}\n" +
+		"}\n" +
+		"interface List<E> {}\n" +
 		"class ArrayList<E> implements List<E> {}"
 	);
 	IType type = workingCopies[0].getType("CTest");
@@ -3254,12 +3254,12 @@ public void testBug94160() throws CoreException {
 public void testBug94389() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b94389/Test.java",
-		"package b94389;\n" + 
-		"public class Test {\n" + 
-		"	public void foo() {}\n" + 
-		"	public void foo() {}\n" + 
-		"	public void foo() {}\n" + 
-		"	public void foo() {}\n" + 
+		"package b94389;\n" +
+		"public class Test {\n" +
+		"	public void foo() {}\n" +
+		"	public void foo() {}\n" +
+		"	public void foo() {}\n" +
+		"	public void foo() {}\n" +
 		"}\n"
 	);
 	IType type = workingCopies[0].getType("Test");
@@ -3269,18 +3269,18 @@ public void testBug94389() throws CoreException {
 	// Perform search on each duplicate method
 	IJavaSearchScope scope = getJavaSearchScopeBugs();
 	for (int m=0; m<methodsLength; m++) {
-		
+
 		// Search method declaration
 		TestCollector collector = new TestCollector();
 		search(methods[m], DECLARATIONS, scope, collector);
 		assertSearchResults(
-			"src/b94389/Test.java void b94389.Test.foo() [foo]\n" + 
-			"src/b94389/Test.java void b94389.Test.foo() [foo]\n" + 
-			"src/b94389/Test.java void b94389.Test.foo() [foo]\n" + 
+			"src/b94389/Test.java void b94389.Test.foo() [foo]\n" +
+			"src/b94389/Test.java void b94389.Test.foo() [foo]\n" +
+			"src/b94389/Test.java void b94389.Test.foo() [foo]\n" +
 			"src/b94389/Test.java void b94389.Test.foo() [foo]",
 			collector
 		);
-	
+
 		// Verify that all matches have correct occurence count
 		int size = collector.matches.size();
 		for (int i=0; i<size; i++) {
@@ -3296,15 +3296,15 @@ public void testBug94389() throws CoreException {
 public void testBug94718() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b94718/SetUp.java",
-		"package b94718;\n" + 
-		"public @interface SetUp {\n" + 
-		"	String value() {}\n" + 
+		"package b94718;\n" +
+		"public @interface SetUp {\n" +
+		"	String value() {}\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b94718/Test.java",
-		"package b94718;\n" + 
-		"@SetUp(\"howdy\")\n" + 
-		"public class Test {\n" + 
+		"package b94718;\n" +
+		"@SetUp(\"howdy\")\n" +
+		"public class Test {\n" +
 		"}\n"
 	);
 	IType type = workingCopies[1].getType("SetUp");
@@ -3326,7 +3326,7 @@ public void testBug95152_jar01() throws CoreException {
 	// search constructor second level member
 	search(type.getMethods()[0], REFERENCES);
 	assertSearchResults(
-		"lib/b95152.jar b95152.T1() EXACT_MATCH\n" + 
+		"lib/b95152.jar b95152.T1() EXACT_MATCH\n" +
 		"lib/b95152.jar b95152.T1() EXACT_MATCH"
 	);
 }
@@ -3338,7 +3338,7 @@ public void testBug95152_jar02() throws CoreException {
 	// search constructor second level member
 	search(type.getMethods()[0], REFERENCES);
 	assertSearchResults(
-		"lib/b95152.jar b95152.T2(int) EXACT_MATCH\n" + 
+		"lib/b95152.jar b95152.T2(int) EXACT_MATCH\n" +
 		"lib/b95152.jar b95152.T2(int) EXACT_MATCH"
 	);
 }
@@ -3350,7 +3350,7 @@ public void testBug95152_jar03() throws CoreException {
 	// search constructor second level member
 	search(type.getMethods()[0], REFERENCES);
 	assertSearchResults(
-		"lib/b95152.jar b95152.T3(b95152.T3) EXACT_MATCH\n" + 
+		"lib/b95152.jar b95152.T3(b95152.T3) EXACT_MATCH\n" +
 		"lib/b95152.jar b95152.T3(b95152.T3) EXACT_MATCH"
 	);
 }
@@ -3362,27 +3362,27 @@ public void testBug95152_jar04() throws CoreException {
 	// search constructor second level member
 	search(type.getMethods()[0], REFERENCES);
 	assertSearchResults(
-		"lib/b95152.jar b95152.T4(b95152.T4, java.lang.String) EXACT_MATCH\n" + 
+		"lib/b95152.jar b95152.T4(b95152.T4, java.lang.String) EXACT_MATCH\n" +
 		"lib/b95152.jar b95152.T4(b95152.T4, java.lang.String) EXACT_MATCH"
 	);
 }
 public void testBug95152_wc01() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b95152/T.java",
-		"package b95152;\n" + 
-		"public class T {\n" + 
-		"	T2 c2;\n" + 
-		"	T2.T3 c3;\n" + 
-		"	T() {\n" + 
-		"		c2 = new T2();\n" + 
-		"		c3 = c2.new T3();\n" + 
-		"	}\n" + 
-		"	class T2 {\n" + 
-		"		T2() {}\n" + 
-		"		class T3 {\n" + 
-		"			T3() {}\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"package b95152;\n" +
+		"public class T {\n" +
+		"	T2 c2;\n" +
+		"	T2.T3 c3;\n" +
+		"	T() {\n" +
+		"		c2 = new T2();\n" +
+		"		c3 = c2.new T3();\n" +
+		"	}\n" +
+		"	class T2 {\n" +
+		"		T2() {}\n" +
+		"		class T3 {\n" +
+		"			T3() {}\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 	);
 	// search constructor first level member
@@ -3400,20 +3400,20 @@ public void testBug95152_wc01() throws CoreException {
 public void testBug95152_wc02() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b95152/T.java",
-		"package b95152;\n" + 
-		"public class T {\n" + 
-		"	T2 c2;\n" + 
-		"	T2.T3 c3;\n" + 
-		"	T(int c) {\n" + 
-		"		c2 = new T2(c);\n" + 
-		"		c3 = c2.new T3(c);\n" + 
-		"	}\n" + 
-		"	class T2 {\n" + 
-		"		T2(int x) {}\n" + 
-		"		class T3 {\n" + 
-		"			T3(int x) {}\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"package b95152;\n" +
+		"public class T {\n" +
+		"	T2 c2;\n" +
+		"	T2.T3 c3;\n" +
+		"	T(int c) {\n" +
+		"		c2 = new T2(c);\n" +
+		"		c3 = c2.new T3(c);\n" +
+		"	}\n" +
+		"	class T2 {\n" +
+		"		T2(int x) {}\n" +
+		"		class T3 {\n" +
+		"			T3(int x) {}\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 	);
 	// search constructor first level member
@@ -3431,20 +3431,20 @@ public void testBug95152_wc02() throws CoreException {
 public void testBug95152_wc03() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b95152/T.java",
-		"package b95152;\n" + 
-		"public class T {\n" + 
-		"	T2 c2;\n" + 
-		"	T2.T3 c3;\n" + 
-		"	T(T c) {\n" + 
-		"		c2 = new T2(c);\n" + 
-		"		c3 = c2.new T3(c2);\n" + 
-		"	}\n" + 
-		"	class T2 {\n" + 
-		"		T2(T c) {}\n" + 
-		"		class T3 {\n" + 
-		"			T3(T2 c) {}\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"package b95152;\n" +
+		"public class T {\n" +
+		"	T2 c2;\n" +
+		"	T2.T3 c3;\n" +
+		"	T(T c) {\n" +
+		"		c2 = new T2(c);\n" +
+		"		c3 = c2.new T3(c2);\n" +
+		"	}\n" +
+		"	class T2 {\n" +
+		"		T2(T c) {}\n" +
+		"		class T3 {\n" +
+		"			T3(T2 c) {}\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 	);
 	// search constructor first level member
@@ -3462,20 +3462,20 @@ public void testBug95152_wc03() throws CoreException {
 public void testBug95152_wc04() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b95152/T.java",
-		"package b95152;\n" + 
-		"public class T {\n" + 
-		"	T2 c2;\n" + 
-		"	T2.T3 c3;\n" + 
-		"	T(T c, String str) {\n" + 
-		"		c2 = new T2(c, str);\n" + 
-		"		c3 = c2.new T3(c2, str);\n" + 
-		"	}\n" + 
-		"	class T2 {\n" + 
-		"		T2(T c, String str) {}\n" + 
-		"		class T3 {\n" + 
-		"			T3(T2 c, String str) {}\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"package b95152;\n" +
+		"public class T {\n" +
+		"	T2 c2;\n" +
+		"	T2.T3 c3;\n" +
+		"	T(T c, String str) {\n" +
+		"		c2 = new T2(c, str);\n" +
+		"		c3 = c2.new T3(c2, str);\n" +
+		"	}\n" +
+		"	class T2 {\n" +
+		"		T2(T c, String str) {}\n" +
+		"		class T3 {\n" +
+		"			T3(T2 c, String str) {}\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 	);
 	// search constructor first level member
@@ -3486,7 +3486,7 @@ public void testBug95152_wc04() throws CoreException {
 	search(type.getMethods()[0], REFERENCES);
 	// verify searches results
 	assertSearchResults(
-		"src/b95152/T.java b95152.T(T, String) [new T2(c, str)] EXACT_MATCH\n" + 
+		"src/b95152/T.java b95152.T(T, String) [new T2(c, str)] EXACT_MATCH\n" +
 		"src/b95152/T.java b95152.T(T, String) [c2.new T3(c2, str)] EXACT_MATCH"
 	);
 }
@@ -3498,19 +3498,19 @@ public void testBug95152_wc04() throws CoreException {
 public void testBug95794() throws CoreException {
 	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95794", "Test.java");
 	IType type = unit.getType("Test");
-	
+
 	// Verify matches
 	TestCollector occurencesCollector = new TestCollector();
 	occurencesCollector.showAccuracy = true;
 	search(type, ALL_OCCURRENCES, getJavaSearchScopeBugs(), occurencesCollector);
 	assertSearchResults(
-		"src/b95794/Test.java [b95794.Test] EXACT_MATCH\n" + 
-		"src/b95794/Test.java [b95794.Test] EXACT_MATCH\n" + 
-		"src/b95794/Test.java b95794.Test [Test] EXACT_MATCH\n" + 
+		"src/b95794/Test.java [b95794.Test] EXACT_MATCH\n" +
+		"src/b95794/Test.java [b95794.Test] EXACT_MATCH\n" +
+		"src/b95794/Test.java b95794.Test [Test] EXACT_MATCH\n" +
 		"src/b95794/Test.java b95794.Test.there [Test] EXACT_MATCH",
 		occurencesCollector
 	);
-	
+
 	// Verify with references matches
 	TestCollector referencesCollector = new TestCollector();
 	search(type, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
@@ -3520,19 +3520,19 @@ public void testBug95794b() throws CoreException {
 	resultCollector.showRule = true;
 	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95794", "Test.java");
 	IType type = unit.getType("Test").getType("Color");
-	
+
 	// Verify matches
 	TestCollector occurencesCollector = new TestCollector();
 	occurencesCollector.showAccuracy = true;
 	search(type, ALL_OCCURRENCES, getJavaSearchScopeBugs(), occurencesCollector);
 	assertSearchResults(
-		"src/b95794/Test.java [b95794.Test.Color] EXACT_MATCH\n" + 
-		"src/b95794/Test.java [b95794.Test.Color] EXACT_MATCH\n" + 
-		"src/b95794/Test.java void b95794.Test.main(String[]) [Color] EXACT_MATCH\n" + 
+		"src/b95794/Test.java [b95794.Test.Color] EXACT_MATCH\n" +
+		"src/b95794/Test.java [b95794.Test.Color] EXACT_MATCH\n" +
+		"src/b95794/Test.java void b95794.Test.main(String[]) [Color] EXACT_MATCH\n" +
 		"src/b95794/Test.java b95794.Test$Color [Color] EXACT_MATCH",
 		occurencesCollector
 	);
-	
+
 	// Verify with references matches
 	TestCollector referencesCollector = new TestCollector();
 	search(type, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
@@ -3542,18 +3542,18 @@ public void testBug95794c() throws CoreException {
 	resultCollector.showRule = true;
 	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95794", "Test.java");
 	IField field = unit.getType("Test").getType("Color").getField("WHITE");
-	
+
 	// Verify matches
 	TestCollector occurencesCollector = new TestCollector();
 	occurencesCollector.showAccuracy = true;
 	search(field, ALL_OCCURRENCES, getJavaSearchScopeBugs(), occurencesCollector);
 	assertSearchResults(
-		"src/b95794/Test.java [WHITE] EXACT_MATCH\n" + 
-		"src/b95794/Test.java void b95794.Test.main(String[]) [WHITE] EXACT_MATCH\n" + 
+		"src/b95794/Test.java [WHITE] EXACT_MATCH\n" +
+		"src/b95794/Test.java void b95794.Test.main(String[]) [WHITE] EXACT_MATCH\n" +
 		"src/b95794/Test.java b95794.Test$Color.WHITE [WHITE] EXACT_MATCH",
 		occurencesCollector
 	);
-	
+
 	// Verify with references matches
 	TestCollector referencesCollector = new TestCollector();
 	search(field, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
@@ -3567,16 +3567,16 @@ public void testBug95794c() throws CoreException {
 public void testBug96761() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b96761/Generic.java",
-		"package b96761;\n" + 
-		"public class Generic<G> {\n" + 
-		"	void take(G g) {\n" + 
-		"	}\n" + 
-		"}\n" + 
-		"class Impl extends Generic<RuntimeException> {\n" + 
-		"	void take(InterruptedException g) {\n" + 
-		"	}\n" + 
-		"	void take(RuntimeException g) {\n" + 
-		"	}\n" + 
+		"package b96761;\n" +
+		"public class Generic<G> {\n" +
+		"	void take(G g) {\n" +
+		"	}\n" +
+		"}\n" +
+		"class Impl extends Generic<RuntimeException> {\n" +
+		"	void take(InterruptedException g) {\n" +
+		"	}\n" +
+		"	void take(RuntimeException g) {\n" +
+		"	}\n" +
 		"}"
 	);
 	IType type = workingCopies[0].getType("Generic");
@@ -3592,58 +3592,58 @@ public void testBug96761() throws CoreException {
 public void testBug96763() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b96763/Test.java",
-		"package b96763;\n" + 
-		"class Test<T> {\n" + 
-		"    public void first(Exception num) {}\n" + 
-		"    public void second(T t) {}\n" + 
-		"}\n" + 
-		"class Sub extends Test<Exception> {\n" + 
-		"    public void first(Exception num) {}\n" + 
-		"    public void second(Exception t) {}\n" + 
+		"package b96763;\n" +
+		"class Test<T> {\n" +
+		"    public void first(Exception num) {}\n" +
+		"    public void second(T t) {}\n" +
+		"}\n" +
+		"class Sub extends Test<Exception> {\n" +
+		"    public void first(Exception num) {}\n" +
+		"    public void second(Exception t) {}\n" +
 		"}\n"
 	);
 	IMethod method = workingCopies[0].getType("Sub").getMethods()[0];
 	search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
 	assertSearchResults(
-		"src/b96763/Test.java void b96763.Test.first(Exception) [first] EXACT_MATCH\n" + 
+		"src/b96763/Test.java void b96763.Test.first(Exception) [first] EXACT_MATCH\n" +
 		"src/b96763/Test.java void b96763.Sub.first(Exception) [first] EXACT_MATCH"
 	);
 }
 public void testBug96763b() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b96763/Test.java",
-		"package b96763;\n" + 
-		"class Test<T> {\n" + 
-		"    public void first(Exception num) {}\n" + 
-		"    public void second(T t) {}\n" + 
-		"}\n" + 
-		"class Sub extends Test<Exception> {\n" + 
-		"    public void first(Exception num) {}\n" + 
-		"    public void second(Exception t) {}\n" + 
+		"package b96763;\n" +
+		"class Test<T> {\n" +
+		"    public void first(Exception num) {}\n" +
+		"    public void second(T t) {}\n" +
+		"}\n" +
+		"class Sub extends Test<Exception> {\n" +
+		"    public void first(Exception num) {}\n" +
+		"    public void second(Exception t) {}\n" +
 		"}\n"
 	);
 	IMethod method = workingCopies[0].getType("Sub").getMethods()[1];
 	search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
 	assertSearchResults(
-		"src/b96763/Test.java void b96763.Test.second(T) [second] EXACT_MATCH\n" + 
+		"src/b96763/Test.java void b96763.Test.second(T) [second] EXACT_MATCH\n" +
 		"src/b96763/Test.java void b96763.Sub.second(Exception) [second] EXACT_MATCH"
 	);
 }
 public void testBug96763c() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b96763/Test.java",
-		"package b96763;\n" + 
-		"public class Test<T> {\n" + 
-		"	void methodT(T t) {}\n" + 
-		"}\n" + 
-		"class Sub<X> extends Test<X> {\n" + 
-		"	void methodT(X x) {} // overrides Super#methodT(T)\n" + 
+		"package b96763;\n" +
+		"public class Test<T> {\n" +
+		"	void methodT(T t) {}\n" +
+		"}\n" +
+		"class Sub<X> extends Test<X> {\n" +
+		"	void methodT(X x) {} // overrides Super#methodT(T)\n" +
 		"}\n"
 	);
 	IMethod method = workingCopies[0].getType("Sub").getMethods()[0];
 	search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
 	assertSearchResults(
-		"src/b96763/Test.java void b96763.Test.methodT(T) [methodT] EXACT_MATCH\n" + 
+		"src/b96763/Test.java void b96763.Test.methodT(T) [methodT] EXACT_MATCH\n" +
 		"src/b96763/Test.java void b96763.Sub.methodT(X) [methodT] EXACT_MATCH"
 	);
 }
@@ -3656,28 +3656,28 @@ public void testBug97087() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	this.resultCollector.showRule = true;
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97087/Bug.java",
-		"package b97087;\n" + 
-		"public class Bug<Type> {\n" + 
-		"    Bug(){}\n" + 
-		"}\n" + 
-		"class Foo extends Bug<String>{\n" + 
-		"    Foo(){}\n" + 
+		"package b97087;\n" +
+		"public class Bug<Type> {\n" +
+		"    Bug(){}\n" +
 		"}\n" +
-		"class Bar extends Bug<Exception>{\n" + 
-		"    Bar(){super();}\n" + 
+		"class Foo extends Bug<String>{\n" +
+		"    Foo(){}\n" +
+		"}\n" +
+		"class Bar extends Bug<Exception>{\n" +
+		"    Bar(){super();}\n" +
 		"}"
 	);
 	IType type = workingCopies[0].getType("Bug");
 	IMethod method= type.getMethods()[0];
 	search(method, REFERENCES, SearchPattern.R_ERASURE_MATCH);
 	assertSearchResults(
-		"src/b97087/Bug.java b97087.Foo() [Foo] EXACT_MATCH\n" + 
+		"src/b97087/Bug.java b97087.Foo() [Foo] EXACT_MATCH\n" +
 		"src/b97087/Bug.java b97087.Bar() [super();] ERASURE_MATCH"
 	);
 }
 
 /**
- * Bug 97120: 
+ * Bug 97120:
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97120"
  */
 public void testBug97120() throws CoreException {
@@ -3697,7 +3697,7 @@ public void testBug97120() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"java.lang.Error\n" + 
+		"java.lang.Error\n" +
 		"java.lang.Exception",
 		requestor
 	);
@@ -3710,12 +3710,12 @@ public void testBug97120() throws CoreException {
 public void testBug97322() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97322/Test.java",
-		"package b97322;\n" + 
-		"class Test {\n" + 
-		"	static void myMethod(int a, String b) {}\n" + 
-		"	void call() {\n" + 
-		"		myMethod(12);\n" + 
-		"	}\n" + 
+		"package b97322;\n" +
+		"class Test {\n" +
+		"	static void myMethod(int a, String b) {}\n" +
+		"	void call() {\n" +
+		"		myMethod(12);\n" +
+		"	}\n" +
 		"}"
 	);
 	IType type = workingCopies[0].getType("Test");
@@ -3731,16 +3731,16 @@ public void testBug97322() throws CoreException {
 public void testBug97547() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97547/IX.java",
-		"package b97547;\n" + 
-		"public interface IX {\n" + 
-		"	public interface IX1 {}\n" + 
+		"package b97547;\n" +
+		"public interface IX {\n" +
+		"	public interface IX1 {}\n" +
 		"}"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b97547/X.java",
-		"package b97547;\n" + 
-		"import b97547.IX.*;\n" + 
-		"class X {\n" + 
-		"	IX x;\n" + 
+		"package b97547;\n" +
+		"import b97547.IX.*;\n" +
+		"class X {\n" +
+		"	IX x;\n" +
 		"}"
 	);
 	IPackageDeclaration[] packages = workingCopies[0].getPackageDeclarations();
@@ -3758,30 +3758,30 @@ public void testBug97547() throws CoreException {
 public void testBug97606() throws CoreException {
 	workingCopies = new ICompilationUnit[4];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/def/L.java",
-		"package b97606.pack.def;\n" + 
+		"package b97606.pack.def;\n" +
 		"public interface L<E> {}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/def/LL.java",
-		"package b97606.pack.def;\n" + 
-		"public class LL<E> implements L<E> {\n" + 
-		"	public Object clone() {\n" + 
-		"		return null;\n" + 
-		"	}\n" + 
+		"package b97606.pack.def;\n" +
+		"public class LL<E> implements L<E> {\n" +
+		"	public Object clone() {\n" +
+		"		return null;\n" +
+		"	}\n" +
 		"}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/ref/K.java",
-		"package b97606.pack.ref;\n" + 
+		"package b97606.pack.ref;\n" +
 		"public interface K {}\n"
 	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/ref/X.java",
-		"package b97606.pack.ref;\n" + 
-		"public class X implements K {\n" + 
-		"	private b97606.pack.def.LL sg;\n" + 
-		"	protected synchronized b97606.pack.def.L<K> getSG() {\n" + 
-		"		return (sg != null) \n" + 
-		"			? (b97606.pack.def.L) sg.clone()\n" + 
-		"			: null;\n" + 
-		"	}\n" + 
+		"package b97606.pack.ref;\n" +
+		"public class X implements K {\n" +
+		"	private b97606.pack.def.LL sg;\n" +
+		"	protected synchronized b97606.pack.def.L<K> getSG() {\n" +
+		"		return (sg != null) \n" +
+		"			? (b97606.pack.def.L) sg.clone()\n" +
+		"			: null;\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IPath rootPath = new Path("/JavaSearchBugs/src/b97606");
@@ -3798,8 +3798,8 @@ public void testBug97606() throws CoreException {
 		IType type = workingCopies[0].getType("L");
 		search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH);
 		assertSearchResults(
-			"src/b97606/pack/def/LL.java b97606.pack.def.LL [L] ERASURE_MATCH\n" + 
-			"src/b97606/pack/ref/X.java b97606.pack.def.L<K> b97606.pack.ref.X.getSG() [b97606.pack.def.L] ERASURE_MATCH\n" + 
+			"src/b97606/pack/def/LL.java b97606.pack.def.LL [L] ERASURE_MATCH\n" +
+			"src/b97606/pack/ref/X.java b97606.pack.def.L<K> b97606.pack.ref.X.getSG() [b97606.pack.def.L] ERASURE_MATCH\n" +
 			"src/b97606/pack/ref/X.java b97606.pack.def.L<K> b97606.pack.ref.X.getSG() [b97606.pack.def.L] ERASURE_RAW_MATCH"
 		);
 	}
@@ -3810,31 +3810,31 @@ public void testBug97606() throws CoreException {
 public void testBug97606b() throws CoreException {
 	workingCopies = new ICompilationUnit[4];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/def/L.java",
-		"package b97606.pack.def;\n" + 
+		"package b97606.pack.def;\n" +
 		"public interface L<E> {}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/def/LL.java",
-		"package b97606.pack.def;\n" + 
-		"public class LL<E> implements L<E> {\n" + 
-		"	public Object clone() {\n" + 
-		"		return null;\n" + 
-		"	}\n" + 
+		"package b97606.pack.def;\n" +
+		"public class LL<E> implements L<E> {\n" +
+		"	public Object clone() {\n" +
+		"		return null;\n" +
+		"	}\n" +
 		"}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/ref/K.java",
-		"package b97606.pack.ref;\n" + 
+		"package b97606.pack.ref;\n" +
 		"public interface K {}\n"
 	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/ref/X.java",
-		"package b97606.pack.ref;\n" + 
-		"import b97606.pack.def.*;\n" + 
-		"public class X implements K {\n" + 
-		"	private LL sg;\n" + 
-		"	protected synchronized L<K> getSG() {\n" + 
-		"		return (sg != null) \n" + 
-		"			? (L) sg.clone()\n" + 
-		"			: null;\n" + 
-		"	}\n" + 
+		"package b97606.pack.ref;\n" +
+		"import b97606.pack.def.*;\n" +
+		"public class X implements K {\n" +
+		"	private LL sg;\n" +
+		"	protected synchronized L<K> getSG() {\n" +
+		"		return (sg != null) \n" +
+		"			? (L) sg.clone()\n" +
+		"			: null;\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IPath rootPath = new Path("/JavaSearchBugs/src/b97606");
@@ -3851,8 +3851,8 @@ public void testBug97606b() throws CoreException {
 		IType type = workingCopies[0].getType("L");
 		search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH);
 		assertSearchResults(
-			"src/b97606/pack/def/LL.java b97606.pack.def.LL [L] ERASURE_MATCH\n" + 
-			"src/b97606/pack/ref/X.java L<K> b97606.pack.ref.X.getSG() [L] ERASURE_MATCH\n" + 
+			"src/b97606/pack/def/LL.java b97606.pack.def.LL [L] ERASURE_MATCH\n" +
+			"src/b97606/pack/ref/X.java L<K> b97606.pack.ref.X.getSG() [L] ERASURE_MATCH\n" +
 			"src/b97606/pack/ref/X.java L<K> b97606.pack.ref.X.getSG() [L] ERASURE_RAW_MATCH"
 		);
 	}
@@ -3868,34 +3868,34 @@ public void testBug97606b() throws CoreException {
 public void testBug97614() throws CoreException {
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97614/W.java",
-		"package b97614;\n" + 
-		"public class W {\n" + 
-		"	private final Map<String, Y<?, ? extends b97614.X.XX<?, ?>, ? >> m1 = null;     // (a)\n" + 
-		"	public void getStore(final Object o) {\n" + 
-		"		m1.get(o);     // (b)\n" + 
-		"	}\n" + 
-		"}\n" + 
-		"interface Map<K, V> {\n" + 
-		"	V get(Object k);\n" + 
+		"package b97614;\n" +
+		"public class W {\n" +
+		"	private final Map<String, Y<?, ? extends b97614.X.XX<?, ?>, ? >> m1 = null;     // (a)\n" +
+		"	public void getStore(final Object o) {\n" +
+		"		m1.get(o);     // (b)\n" +
+		"	}\n" +
+		"}\n" +
+		"interface Map<K, V> {\n" +
+		"	V get(Object k);\n" +
 		"}"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b97614/X.java",
-		"package b97614;\n" + 
-		"import java.io.Serializable;\n" + 
-		"public interface X<T extends X<T, U, V>, \n" + 
-		"				   U extends X.XX<T, V>, \n" + 
-		"				   V extends X.XY> {\n" + 
-		"	public interface XX<TT extends X<TT, ?, UU>, \n" + 
-		"	                   UU extends X.XY> \n" + 
-		"			extends	Serializable {\n" + 
-		"	}\n" + 
-		"	public interface XY extends Serializable {\n" + 
-		"	}\n" + 
+		"package b97614;\n" +
+		"import java.io.Serializable;\n" +
+		"public interface X<T extends X<T, U, V>, \n" +
+		"				   U extends X.XX<T, V>, \n" +
+		"				   V extends X.XY> {\n" +
+		"	public interface XX<TT extends X<TT, ?, UU>, \n" +
+		"	                   UU extends X.XY> \n" +
+		"			extends	Serializable {\n" +
+		"	}\n" +
+		"	public interface XY extends Serializable {\n" +
+		"	}\n" +
 		"}"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b97614/Y.java",
-		"package b97614;\n" + 
-		"public class Y<T extends X<T, U, V>, U extends X.XX<T, V>, V extends X.XY> {\n" + 
+		"package b97614;\n" +
+		"public class Y<T extends X<T, U, V>, U extends X.XX<T, V>, V extends X.XY> {\n" +
 		"}\n"
 	);
 	IField field = workingCopies[0].getType("W").getField("m1");
@@ -3912,19 +3912,19 @@ public void testBug97614() throws CoreException {
 public void testBug98378() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b98378/X.java",
-		"package b98378;\n" + 
-		"public class  X implements java.lang.CharSequence {\n" + 
-		"	public int length() {\n" + 
-		"		return 1;\n" + 
-		"	}\n" + 
+		"package b98378;\n" +
+		"public class  X implements java.lang.CharSequence {\n" +
+		"	public int length() {\n" +
+		"		return 1;\n" +
+		"	}\n" +
 		"}"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b98378/Y.java",
-		"package b98378;\n" + 
-		"public class Y {\n" + 
-		"	public int length() {\n" + 
-		"		return -1;\n" + 
-		"	}\n" + 
+		"package b98378;\n" +
+		"public class Y {\n" +
+		"	public int length() {\n" +
+		"		return -1;\n" +
+		"	}\n" +
 		"}\n"
 	);
 	String jclPath = getExternalJCLPathString("1.5");
@@ -3932,26 +3932,26 @@ public void testBug98378() throws CoreException {
 	IMethod method = type.getMethod("length", new String[] {});
 	search(method, DECLARATIONS, SearchEngine.createHierarchyScope(type, this.wcOwner));
 	assertSearchResults(
-		jclPath + " int java.lang.CharSequence.length() EXACT_MATCH\n" + 
+		jclPath + " int java.lang.CharSequence.length() EXACT_MATCH\n" +
 		jclPath + " int java.lang.String.length() EXACT_MATCH"
 	);
 }
 public void testBug98378b() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b98378/X.java",
-		"package b98378;\n" + 
-		"public class  X implements java.lang.CharSequence {\n" + 
-		"	public int length() {\n" + 
-		"		return 1;\n" + 
-		"	}\n" + 
+		"package b98378;\n" +
+		"public class  X implements java.lang.CharSequence {\n" +
+		"	public int length() {\n" +
+		"		return 1;\n" +
+		"	}\n" +
 		"}"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b98378/Y.java",
-		"package b98378;\n" + 
-		"public class Y {\n" + 
-		"	public int length() {\n" + 
-		"		return -1;\n" + 
-		"	}\n" + 
+		"package b98378;\n" +
+		"public class Y {\n" +
+		"	public int length() {\n" +
+		"		return -1;\n" +
+		"	}\n" +
 		"}\n"
 	);
 	String jclPath = getExternalJCLPathString("1.5");
@@ -3959,8 +3959,8 @@ public void testBug98378b() throws CoreException {
 	IMethod method = type.getMethod("length", new String[] {});
 	search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchEngine.createHierarchyScope(type, this.wcOwner));
 	assertSearchResults(
-		"src/b98378/X.java int b98378.X.length() [length] EXACT_MATCH\n" + 
-		jclPath + " int java.lang.CharSequence.length() EXACT_MATCH\n" + 
+		"src/b98378/X.java int b98378.X.length() [length] EXACT_MATCH\n" +
+		jclPath + " int java.lang.CharSequence.length() EXACT_MATCH\n" +
 		jclPath + " int java.lang.String.length() EXACT_MATCH"
 	);
 }
@@ -3972,17 +3972,17 @@ public void testBug98378b() throws CoreException {
 public void testBug99600() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b99600/Test.java",
-		"package b99600;\n" + 
-		"public class Test {\n" + 
-		"	public class C1 {}\n" + 
-		"	public class C2 {\n" + 
-		"		class C3 {\n" + 
-		"			int foo(C1 c) { return 0; }\n" + 
-		"		}\n" + 
-		"		public void foo(C1 c, int i) {\n" + 
-		"			new C3().foo(c);\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"package b99600;\n" +
+		"public class Test {\n" +
+		"	public class C1 {}\n" +
+		"	public class C2 {\n" +
+		"		class C3 {\n" +
+		"			int foo(C1 c) { return 0; }\n" +
+		"		}\n" +
+		"		public void foo(C1 c, int i) {\n" +
+		"			new C3().foo(c);\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IType type = workingCopies[0].getType("Test").getType("C2");
@@ -3999,20 +3999,20 @@ public void testBug99600() throws CoreException {
 public void testBug99903_annotation() throws CoreException {
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b99903/package-info.java",
-		"/**\n" + 
-		" * @see Test\n" + 
-		" */\n" + 
-		"@Annot\n" + 
+		"/**\n" +
+		" * @see Test\n" +
+		" */\n" +
+		"@Annot\n" +
 		"package b99903;\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b99903/Test.java",
-		"package b99903;\n" + 
-		"public class Test {\n" + 
+		"package b99903;\n" +
+		"public class Test {\n" +
 		"}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b99903/Annot.java",
-		"package b99903;\n" + 
-		"public @interface Annot {\n" + 
+		"package b99903;\n" +
+		"public @interface Annot {\n" +
 		"}\n"
 	);
 	IType type = workingCopies[2].getType("Annot");
@@ -4024,20 +4024,20 @@ public void testBug99903_annotation() throws CoreException {
 public void testBug99903_javadoc() throws CoreException {
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b99903/package-info.java",
-		"/**\n" + 
-		" * @see Test\n" + 
-		" */\n" + 
-		"@Annot\n" + 
+		"/**\n" +
+		" * @see Test\n" +
+		" */\n" +
+		"@Annot\n" +
 		"package b99903;\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b99903/Test.java",
-		"package b99903;\n" + 
-		"public class Test {\n" + 
+		"package b99903;\n" +
+		"public class Test {\n" +
 		"}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b99903/Annot.java",
-		"package b99903;\n" + 
-		"public @interface Annot {\n" + 
+		"package b99903;\n" +
+		"public @interface Annot {\n" +
 		"}\n"
 	);
 	resultCollector.showInsideDoc = true;
@@ -4055,139 +4055,139 @@ public void testBug99903_javadoc() throws CoreException {
 public void testBug100695() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100695/Test.java",
-		"package b100695;\n" + 
-		"public class Test {\n" + 
-		"	Class<Class>[] foo;\n" + 
-		"	Class<Class>[] bar = foo;\n" + 
-		"	Test() {\n" + 
-		"		foo = null;\n" + 
-		"	}\n" + 
+		"package b100695;\n" +
+		"public class Test {\n" +
+		"	Class<Class>[] foo;\n" +
+		"	Class<Class>[] bar = foo;\n" +
+		"	Test() {\n" +
+		"		foo = null;\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IField field = workingCopies[0].getType("Test").getField("foo");
 	search(field, REFERENCES);
 	assertSearchResults(
-		"src/b100695/Test.java b100695.Test.bar [foo] EXACT_MATCH\n" + 
+		"src/b100695/Test.java b100695.Test.bar [foo] EXACT_MATCH\n" +
 		"src/b100695/Test.java b100695.Test() [foo] EXACT_MATCH"
 	);
 }
 public void testBug100695a() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100695/Test.java",
-		"package b100695;\n" + 
-		"public class Test {\n" + 
-		"	Class<Class>[] foo;\n" + 
-		"	Class<Class>[] bar = foo;\n" + 
-		"	Test() {\n" + 
-		"		foo = null;\n" + 
-		"	}\n" + 
+		"package b100695;\n" +
+		"public class Test {\n" +
+		"	Class<Class>[] foo;\n" +
+		"	Class<Class>[] bar = foo;\n" +
+		"	Test() {\n" +
+		"		foo = null;\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IField field = workingCopies[0].getType("Test").getField("foo");
 	search(field, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b100695/Test.java b100695.Test.foo [foo] EXACT_MATCH\n" + 
-		"src/b100695/Test.java b100695.Test.bar [foo] EXACT_MATCH\n" + 
+		"src/b100695/Test.java b100695.Test.foo [foo] EXACT_MATCH\n" +
+		"src/b100695/Test.java b100695.Test.bar [foo] EXACT_MATCH\n" +
 		"src/b100695/Test.java b100695.Test() [foo] EXACT_MATCH"
 	);
 }
 public void testBug100695b() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100695/Test.java",
-		"package b100695;\n" + 
-		"public class Test {\n" + 
-		"	Class<Class> foo;\n" + 
-		"	Class<Class> bar = foo;\n" + 
-		"	Test() {\n" + 
-		"		foo = null;\n" + 
-		"	}\n" + 
+		"package b100695;\n" +
+		"public class Test {\n" +
+		"	Class<Class> foo;\n" +
+		"	Class<Class> bar = foo;\n" +
+		"	Test() {\n" +
+		"		foo = null;\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IField field = workingCopies[0].getType("Test").getField("foo");
 	search(field, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b100695/Test.java b100695.Test.foo [foo] EXACT_MATCH\n" + 
-		"src/b100695/Test.java b100695.Test.bar [foo] EXACT_MATCH\n" + 
+		"src/b100695/Test.java b100695.Test.foo [foo] EXACT_MATCH\n" +
+		"src/b100695/Test.java b100695.Test.bar [foo] EXACT_MATCH\n" +
 		"src/b100695/Test.java b100695.Test() [foo] EXACT_MATCH"
 	);
 }
 public void testBug100695c() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100695/Test.java",
-		"package b100695;\n" + 
-		"public class Test {\n" + 
-		"	Class[] foo;\n" + 
-		"	Class[] bar = foo;\n" + 
-		"	Test() {\n" + 
-		"		foo = null;\n" + 
-		"	}\n" + 
+		"package b100695;\n" +
+		"public class Test {\n" +
+		"	Class[] foo;\n" +
+		"	Class[] bar = foo;\n" +
+		"	Test() {\n" +
+		"		foo = null;\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IField field = workingCopies[0].getType("Test").getField("foo");
 	search(field, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b100695/Test.java b100695.Test.foo [foo] EXACT_MATCH\n" + 
-		"src/b100695/Test.java b100695.Test.bar [foo] EXACT_MATCH\n" + 
+		"src/b100695/Test.java b100695.Test.foo [foo] EXACT_MATCH\n" +
+		"src/b100695/Test.java b100695.Test.bar [foo] EXACT_MATCH\n" +
 		"src/b100695/Test.java b100695.Test() [foo] EXACT_MATCH"
 	);
 }
 public void testBug100695d() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100695/Test.java",
-		"package b100695;\n" + 
-		"public class Test {\n" + 
-		"	  public Class<Class>[] foo(Class<Class>[] a) {\n" + 
-		"		  return a;\n" + 
-		"	  }\n" + 
-		"	  void bar() {\n" + 
-		"		  foo(new Class[0]);\n" + 
-		"	  }\n" + 
+		"package b100695;\n" +
+		"public class Test {\n" +
+		"	  public Class<Class>[] foo(Class<Class>[] a) {\n" +
+		"		  return a;\n" +
+		"	  }\n" +
+		"	  void bar() {\n" +
+		"		  foo(new Class[0]);\n" +
+		"	  }\n" +
 		"}\n"
 	);
 	IMethod method = workingCopies[0].getType("Test").getMethods()[0];
 	search(method, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b100695/Test.java Class<Class>[] b100695.Test.foo(Class<Class>[]) [foo] EXACT_MATCH\n" + 
+		"src/b100695/Test.java Class<Class>[] b100695.Test.foo(Class<Class>[]) [foo] EXACT_MATCH\n" +
 		"src/b100695/Test.java void b100695.Test.bar() [foo(new Class[0])] EXACT_MATCH"
 	);
 }
 public void testBug100695e() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100695/Test.java",
-		"package b100695;\n" + 
-		"public class Test {\n" + 
-		"	  public Class<Class> foo(Class<Class> a) {\n" + 
-		"		  return a;\n" + 
-		"	  }\n" + 
-		"	  void bar() {\n" + 
-		"		  foo(null);\n" + 
-		"	  }\n" + 
+		"package b100695;\n" +
+		"public class Test {\n" +
+		"	  public Class<Class> foo(Class<Class> a) {\n" +
+		"		  return a;\n" +
+		"	  }\n" +
+		"	  void bar() {\n" +
+		"		  foo(null);\n" +
+		"	  }\n" +
 		"}\n"
 	);
 	IMethod method = workingCopies[0].getType("Test").getMethods()[0];
 	search(method, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b100695/Test.java Class<Class> b100695.Test.foo(Class<Class>) [foo] EXACT_MATCH\n" + 
+		"src/b100695/Test.java Class<Class> b100695.Test.foo(Class<Class>) [foo] EXACT_MATCH\n" +
 		"src/b100695/Test.java void b100695.Test.bar() [foo(null)] EXACT_MATCH"
 	);
 }
 public void testBug100695f() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100695/Test.java",
-		"package b100695;\n" + 
-		"public class Test {\n" + 
-		"	  public Class[] foo(Class[] a) {\n" + 
-		"		  return a;\n" + 
-		"	  }\n" + 
-		"	  void bar() {\n" + 
-		"		  foo(new Class[0]);\n" + 
-		"	  }\n" + 
+		"package b100695;\n" +
+		"public class Test {\n" +
+		"	  public Class[] foo(Class[] a) {\n" +
+		"		  return a;\n" +
+		"	  }\n" +
+		"	  void bar() {\n" +
+		"		  foo(new Class[0]);\n" +
+		"	  }\n" +
 		"}\n"
 	);
 	IMethod method = workingCopies[0].getType("Test").getMethods()[0];
 	search(method, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b100695/Test.java Class[] b100695.Test.foo(Class[]) [foo] EXACT_MATCH\n" + 
+		"src/b100695/Test.java Class[] b100695.Test.foo(Class[]) [foo] EXACT_MATCH\n" +
 		"src/b100695/Test.java void b100695.Test.bar() [foo(new Class[0])] EXACT_MATCH"
 	);
 }
@@ -4199,14 +4199,14 @@ public void testBug100695f() throws CoreException {
 private void setUpBug100772_HierarchyScope_ClassAndSubclass() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
-		"package b100772;\n" + 
-		"class Test<T> {\n" + 
-		"    public void foo(T t) {}\n" + 
-		"    public void foo(Class c) {}\n" + 
-		"}\n" + 
-		"class Sub extends Test<String> {\n" + 
-		"    public void foo(String str) {}\n" + 
-		"    public void foo(Exception e) {}\n" + 
+		"package b100772;\n" +
+		"class Test<T> {\n" +
+		"    public void foo(T t) {}\n" +
+		"    public void foo(Class c) {}\n" +
+		"}\n" +
+		"class Sub extends Test<String> {\n" +
+		"    public void foo(String str) {}\n" +
+		"    public void foo(Exception e) {}\n" +
 		"}\n"
 	);
 }
@@ -4216,7 +4216,7 @@ public void testBug100772_HierarchyScope_ClassAndSubclass01() throws CoreExcepti
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4226,7 +4226,7 @@ public void testBug100772_HierarchyScope_ClassAndSubclass02() throws CoreExcepti
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, DECLARATIONS, SearchEngine.createHierarchyScope(type));
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4245,7 +4245,7 @@ public void testBug100772_HierarchyScope_ClassAndSubclass04() throws CoreExcepti
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4261,19 +4261,19 @@ public void testBug100772_HierarchyScope_ClassAndSubclass05() throws CoreExcepti
 private void setUpBug100772_HierarchyScope_InterfacesAndClass() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
-		"package b100772;\n" + 
-		"interface Test<T> {\n" + 
-		"    public void foo(T t);\n" + 
-		"    public void foo(Class c);\n" + 
-		"}\n" + 
-		"interface Sub extends Test<String> {\n" + 
-		"    public void foo(String str);\n" + 
-		"    public void foo(Exception e);\n" + 
+		"package b100772;\n" +
+		"interface Test<T> {\n" +
+		"    public void foo(T t);\n" +
+		"    public void foo(Class c);\n" +
 		"}\n" +
-		"class X implements Test<String> {\n" + 
-		"    public void foo(String str) {}\n" + 
-		"    public void foo(Class c) {}\n" + 
-		"    public void foo(Exception e) {}\n" + 
+		"interface Sub extends Test<String> {\n" +
+		"    public void foo(String str);\n" +
+		"    public void foo(Exception e);\n" +
+		"}\n" +
+		"class X implements Test<String> {\n" +
+		"    public void foo(String str) {}\n" +
+		"    public void foo(Class c) {}\n" +
+		"    public void foo(Exception e) {}\n" +
 		"}\n"
 	);
 }
@@ -4283,8 +4283,8 @@ public void testBug100772_HierarchyScope_InterfacesAndClass01() throws CoreExcep
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" +
+		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.X.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4294,8 +4294,8 @@ public void testBug100772_HierarchyScope_InterfacesAndClass02() throws CoreExcep
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, DECLARATIONS, SearchEngine.createHierarchyScope(type));
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" +
+		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.X.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4305,7 +4305,7 @@ public void testBug100772_HierarchyScope_InterfacesAndClass03() throws CoreExcep
 	IMethod method = type.getMethod("foo", new String[] { "QClass;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.X.foo(Class) [foo] EXACT_MATCH"
 	);
 }
@@ -4315,7 +4315,7 @@ public void testBug100772_HierarchyScope_InterfacesAndClass04() throws CoreExcep
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4334,7 +4334,7 @@ public void testBug100772_HierarchyScope_InterfacesAndClass06() throws CoreExcep
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.X.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4344,7 +4344,7 @@ public void testBug100772_HierarchyScope_InterfacesAndClass07() throws CoreExcep
 	IMethod method = type.getMethod("foo", new String[] { "QClass;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.X.foo(Class) [foo] EXACT_MATCH"
 	);
 }
@@ -4360,27 +4360,27 @@ public void testBug100772_HierarchyScope_InterfacesAndClass08() throws CoreExcep
 private void setUpBug100772_HierarchyScope_Complex() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
-		"package b100772;\n" + 
-		"public class X<T> implements IX<T> {\n" + 
-		"	public void foo(T t) {}\n" + 
-		"}\n" + 
-		"class XX extends X<String> {\n" + 
-		"	public void foo(String s) {}\n" + 
-		"	public void foo(Exception e) {}\n" + 
-		"}\n" + 
-		"interface IX<U> {\n" + 
-		"	public void foo(U u);\n" + 
-		"}\n" + 
-		"class Y implements IX<String> {\n" + 
-		"	public void foo(String s) {}\n" + 
-		"	public void foo(Exception e) {}\n" + 
-		"}\n" + 
-		"interface IXX<V extends Exception> {\n" + 
-		"	public void foo(V v);\n" + 
-		"}\n" + 
-		"class Z extends Y implements IXX<Exception> {\n" + 
-		"	public void foo(String s) {}\n" + 
-		"	public void foo(Exception e) {}\n" + 
+		"package b100772;\n" +
+		"public class X<T> implements IX<T> {\n" +
+		"	public void foo(T t) {}\n" +
+		"}\n" +
+		"class XX extends X<String> {\n" +
+		"	public void foo(String s) {}\n" +
+		"	public void foo(Exception e) {}\n" +
+		"}\n" +
+		"interface IX<U> {\n" +
+		"	public void foo(U u);\n" +
+		"}\n" +
+		"class Y implements IX<String> {\n" +
+		"	public void foo(String s) {}\n" +
+		"	public void foo(Exception e) {}\n" +
+		"}\n" +
+		"interface IXX<V extends Exception> {\n" +
+		"	public void foo(V v);\n" +
+		"}\n" +
+		"class Z extends Y implements IXX<Exception> {\n" +
+		"	public void foo(String s) {}\n" +
+		"	public void foo(Exception e) {}\n" +
 		"}\n"
 	);
 }
@@ -4390,10 +4390,10 @@ public void testBug100772_HierarchyScope_Complex01() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] { "QU;" });
 	search(method, DECLARATIONS, SearchEngine.createHierarchyScope(type));
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Test.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Test.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Test.java void b100772.Y.foo(String) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" +
+		"src/b100772/Test.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" +
+		"src/b100772/Test.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" +
+		"src/b100772/Test.java void b100772.Y.foo(String) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.Z.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4403,8 +4403,8 @@ public void testBug100772_HierarchyScope_Complex02() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Test.java void b100772.Y.foo(String) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" +
+		"src/b100772/Test.java void b100772.Y.foo(String) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.Z.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4414,8 +4414,8 @@ public void testBug100772_HierarchyScope_Complex03() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] { "QException;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.Y.foo(Exception) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Test.java void b100772.IXX.foo(V) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.Y.foo(Exception) [foo] EXACT_MATCH\n" +
+		"src/b100772/Test.java void b100772.IXX.foo(V) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.Z.foo(Exception) [foo] EXACT_MATCH"
 	);
 }
@@ -4425,25 +4425,25 @@ public void testBug100772_HierarchyScope_Complex04() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Test.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" +
+		"src/b100772/Test.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.IX.foo(U) [foo] EXACT_MATCH"
 	);
 }
 private void setUpBug100772_ProjectScope_ClassAndSubclass() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
-		"package b100772;\n" + 
-		"class Test<T> {\n" + 
-		"    public void foo(T t) {}\n" + 
-		"    public void foo(Class c) {}\n" + 
+		"package b100772;\n" +
+		"class Test<T> {\n" +
+		"    public void foo(T t) {}\n" +
+		"    public void foo(Class c) {}\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b100772/Sub.java",
-		"package b100772;\n" + 
-		"class Sub extends Test<String> {\n" + 
-		"    public void foo(String str) {}\n" + 
-		"    public void foo(Exception e) {}\n" + 
+		"package b100772;\n" +
+		"class Sub extends Test<String> {\n" +
+		"    public void foo(String str) {}\n" +
+		"    public void foo(Exception e) {}\n" +
 		"}\n"
 	);
 }
@@ -4453,7 +4453,7 @@ public void testBug100772_ProjectScope_ClassAndSubclass01() throws CoreException
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, UI_DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH"
 	);
 }
@@ -4463,7 +4463,7 @@ public void testBug100772_ProjectScope_ClassAndSubclass02() throws CoreException
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH"
 	);
 }
@@ -4482,7 +4482,7 @@ public void testBug100772_ProjectScope_ClassAndSubclass04() throws CoreException
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" +
 		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH"
 	);
 }
@@ -4498,25 +4498,25 @@ public void testBug100772_ProjectScope_ClassAndSubclass05() throws CoreException
 private void setUpBug100772_ProjectScope_InterfacesAndClass() throws CoreException {
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
-		"package b100772;\n" + 
-		"interface Test<T> {\n" + 
-		"    public void foo(T t);\n" + 
-		"    public void foo(Class c);\n" + 
+		"package b100772;\n" +
+		"interface Test<T> {\n" +
+		"    public void foo(T t);\n" +
+		"    public void foo(Class c);\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b100772/Sub.java",
-		"package b100772;\n" + 
-		"interface Sub extends Test<String> {\n" + 
-		"    public void foo(String str);\n" + 
-		"    public void foo(Exception e);\n" + 
+		"package b100772;\n" +
+		"interface Sub extends Test<String> {\n" +
+		"    public void foo(String str);\n" +
+		"    public void foo(Exception e);\n" +
 		"}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b100772/X.java",
-		"package b100772;\n" + 
-		"class X implements Test<String> {\n" + 
-		"    public void foo(String str) {}\n" + 
-		"    public void foo(Class c) {}\n" + 
-		"    public void foo(Exception e) {}\n" + 
+		"package b100772;\n" +
+		"class X implements Test<String> {\n" +
+		"    public void foo(String str) {}\n" +
+		"    public void foo(Class c) {}\n" +
+		"    public void foo(Exception e) {}\n" +
 		"}\n"
 	);
 }
@@ -4526,8 +4526,8 @@ public void testBug100772_ProjectScope_InterfacesAndClass01() throws CoreExcepti
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, UI_DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" +
+		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" +
 		"src/b100772/X.java void b100772.X.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4537,8 +4537,8 @@ public void testBug100772_ProjectScope_InterfacesAndClass02() throws CoreExcepti
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" +
+		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" +
 		"src/b100772/X.java void b100772.X.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4548,7 +4548,7 @@ public void testBug100772_ProjectScope_InterfacesAndClass03() throws CoreExcepti
 	IMethod method = type.getMethod("foo", new String[] { "QClass;" });
 	search(method, UI_DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" +
 		"src/b100772/X.java void b100772.X.foo(Class) [foo] EXACT_MATCH"
 	);
 }
@@ -4558,8 +4558,8 @@ public void testBug100772_ProjectScope_InterfacesAndClass04() throws CoreExcepti
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" +
+		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" +
 		"src/b100772/X.java void b100772.X.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4569,7 +4569,7 @@ public void testBug100772_ProjectScope_InterfacesAndClass05() throws CoreExcepti
 	IMethod method = type.getMethod("foo", new String[] { "QException;" });
 	search(method, UI_DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/Sub.java void b100772.Sub.foo(Exception) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Sub.java void b100772.Sub.foo(Exception) [foo] EXACT_MATCH\n" +
 		"src/b100772/X.java void b100772.X.foo(Exception) [foo] EXACT_MATCH"
 	);
 }
@@ -4579,8 +4579,8 @@ public void testBug100772_ProjectScope_InterfacesAndClass06() throws CoreExcepti
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" +
+		"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" +
 		"src/b100772/X.java void b100772.X.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4590,7 +4590,7 @@ public void testBug100772_ProjectScope_InterfacesAndClass07() throws CoreExcepti
 	IMethod method = type.getMethod("foo", new String[] { "QClass;" });
 	search(method, UI_DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" +
 		"src/b100772/X.java void b100772.X.foo(Class) [foo] EXACT_MATCH"
 	);
 }
@@ -4600,49 +4600,49 @@ public void testBug100772_ProjectScope_InterfacesAndClass08() throws CoreExcepti
 	IMethod method = type.getMethod("foo", new String[] { "QException;" });
 	search(method, UI_DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/Sub.java void b100772.Sub.foo(Exception) [foo] EXACT_MATCH\n" + 
+		"src/b100772/Sub.java void b100772.Sub.foo(Exception) [foo] EXACT_MATCH\n" +
 		"src/b100772/X.java void b100772.X.foo(Exception) [foo] EXACT_MATCH"
 	);
 }
 private void setUpBug100772_ProjectScope_Complex() throws CoreException {
 	workingCopies = new ICompilationUnit[6];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/X.java",
-		"package b100772;\n" + 
-		"public class X<T> implements IX<T> {\n" + 
-		"	public void foo(T t) {}\n" + 
+		"package b100772;\n" +
+		"public class X<T> implements IX<T> {\n" +
+		"	public void foo(T t) {}\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b100772/XX.java",
-		"package b100772;\n" + 
-		"class XX extends X<String> {\n" + 
-		"	public void foo(String s) {}\n" + 
-		"	public void foo(Exception e) {}\n" + 
+		"package b100772;\n" +
+		"class XX extends X<String> {\n" +
+		"	public void foo(String s) {}\n" +
+		"	public void foo(Exception e) {}\n" +
 		"}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b100772/IX.java",
-		"package b100772;\n" + 
-		"interface IX<U> {\n" + 
-		"	public void foo(U u);\n" + 
+		"package b100772;\n" +
+		"interface IX<U> {\n" +
+		"	public void foo(U u);\n" +
 		"}\n"
 	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b100772/Y.java",
-		"package b100772;\n" + 
-		"class Y implements IX<String> {\n" + 
-		"	public void foo(String s) {}\n" + 
-		"	public void foo(Exception e) {}\n" + 
+		"package b100772;\n" +
+		"class Y implements IX<String> {\n" +
+		"	public void foo(String s) {}\n" +
+		"	public void foo(Exception e) {}\n" +
 		"}\n"
 	);
 	workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/b100772/IXX.java",
-		"package b100772;\n" + 
-		"interface IXX<V extends Exception> {\n" + 
-		"	public void foo(V v);\n" + 
+		"package b100772;\n" +
+		"interface IXX<V extends Exception> {\n" +
+		"	public void foo(V v);\n" +
 		"}\n"
 	);
 	workingCopies[5] = getWorkingCopy("/JavaSearchBugs/src/b100772/Z.java",
-		"package b100772;\n" + 
-		"class Z extends Y implements IXX<Exception> {\n" + 
-		"	public void foo(String s) {}\n" + 
-		"	public void foo(Exception e) {}\n" + 
+		"package b100772;\n" +
+		"class Z extends Y implements IXX<Exception> {\n" +
+		"	public void foo(String s) {}\n" +
+		"	public void foo(Exception e) {}\n" +
 		"}\n"
 	);
 }
@@ -4652,10 +4652,10 @@ public void testBug100772_ProjectScope_Complex01() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] { "QU;" });
 	search(method, DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/IX.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
-		"src/b100772/X.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" + 
-		"src/b100772/XX.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Y.java void b100772.Y.foo(String) [foo] EXACT_MATCH\n" + 
+		"src/b100772/IX.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" +
+		"src/b100772/X.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" +
+		"src/b100772/XX.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" +
+		"src/b100772/Y.java void b100772.Y.foo(String) [foo] EXACT_MATCH\n" +
 		"src/b100772/Z.java void b100772.Z.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4665,9 +4665,9 @@ public void testBug100772_ProjectScope_Complex02() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] { "QString;" });
 	search(method, UI_DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/IX.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
-		"src/b100772/XX.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Y.java void b100772.Y.foo(String) [foo] EXACT_MATCH\n" + 
+		"src/b100772/IX.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" +
+		"src/b100772/XX.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" +
+		"src/b100772/Y.java void b100772.Y.foo(String) [foo] EXACT_MATCH\n" +
 		"src/b100772/Z.java void b100772.Z.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4677,9 +4677,9 @@ public void testBug100772_ProjectScope_Complex03() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] { "QException;" });
 	search(method, UI_DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/IXX.java void b100772.IXX.foo(V) [foo] EXACT_MATCH\n" + 
-		"src/b100772/XX.java void b100772.XX.foo(Exception) [foo] EXACT_MATCH\n" + 
-		"src/b100772/Y.java void b100772.Y.foo(Exception) [foo] EXACT_MATCH\n" + 
+		"src/b100772/IXX.java void b100772.IXX.foo(V) [foo] EXACT_MATCH\n" +
+		"src/b100772/XX.java void b100772.XX.foo(Exception) [foo] EXACT_MATCH\n" +
+		"src/b100772/Y.java void b100772.Y.foo(Exception) [foo] EXACT_MATCH\n" +
 		"src/b100772/Z.java void b100772.Z.foo(Exception) [foo] EXACT_MATCH"
 	);
 }
@@ -4689,8 +4689,8 @@ public void testBug100772_ProjectScope_Complex04() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] { "QT;" });
 	search(method, UI_DECLARATIONS);
 	assertSearchResults(
-		"src/b100772/X.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" + 
-		"src/b100772/IX.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
+		"src/b100772/X.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" +
+		"src/b100772/IX.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" +
 		"src/b100772/XX.java void b100772.XX.foo(String) [foo] EXACT_MATCH"
 	);
 }
@@ -4722,32 +4722,32 @@ public void testBug108088() throws CoreException {
 private void setUpBug110060_TypePattern() throws CoreException {
 	workingCopies = new ICompilationUnit[5];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/AA.java",
-		"package b110060;\n" + 
+		"package b110060;\n" +
 		"public class AA {\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b110060/AAxx.java",
-		"package b110060;\n" + 
+		"package b110060;\n" +
 		"public class AAxx {\n" +
 		"}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b110060/AxxAyy.java",
-		"package b110060;\n" + 
+		"package b110060;\n" +
 		"public class AxxAyy {\n" +
 		"}\n"
 	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b110060/AxA.java",
-		"package b110060;\n" + 
+		"package b110060;\n" +
 		"public class AxA {\n" +
 		"}\n"
 	);
 	workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/b110060/Test.java",
-		"package b110060;\n" + 
+		"package b110060;\n" +
 		"public class Test {\n" +
-		"	AA aa;\n" + 
-		"	AAxx aaxx;\n" + 
-		"	AxA axa;\n" + 
-		"	AxxAyy axxayy;\n" + 
+		"	AA aa;\n" +
+		"	AAxx aaxx;\n" +
+		"	AxA axa;\n" +
+		"	AxxAyy axxayy;\n" +
 		"}\n"
 	);
 }
@@ -4755,9 +4755,9 @@ public void testBug110060_TypePattern01() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("AA", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" + 
+		"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
 	);
 }
@@ -4766,13 +4766,13 @@ public void testBug110060_TypePattern02() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("AA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" + 
-		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
-		"src/b110060/AxA.java b110060.AxA [AxA] EXACT_MATCH\n" + 
-		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" + 
+		"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" +
+		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" +
+		"src/b110060/AxA.java b110060.AxA [AxA] EXACT_MATCH\n" +
+		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
 	);
 }
@@ -4781,7 +4781,7 @@ public void testBug110060_TypePattern03() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("AAx", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
+		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH"
 	);
 }
@@ -4790,7 +4790,7 @@ public void testBug110060_TypePattern04() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("Axx", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
+		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
 	);
 }
@@ -4799,9 +4799,9 @@ public void testBug110060_TypePattern05() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("Ax", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/AxA.java b110060.AxA [AxA] EXACT_MATCH\n" + 
-		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" + 
+		"src/b110060/AxA.java b110060.AxA [AxA] EXACT_MATCH\n" +
+		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
 	);
 }
@@ -4810,14 +4810,14 @@ public void testBug110060_TypePattern06() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("A*A*", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" + 
-		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
-		"src/b110060/AxA.java b110060.AxA [AxA] EXACT_MATCH\n" + 
-		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH\n" + 
+		"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" +
+		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" +
+		"src/b110060/AxA.java b110060.AxA [AxA] EXACT_MATCH\n" +
+		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH\n" +
 		""+ getExternalJCLPathString("1.5") + " java.lang.annotation.Annotation EXACT_MATCH"
 	);
 }
@@ -4832,9 +4832,9 @@ public void testBug110060_TypePattern08() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("aa", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH);
 	assertSearchResults(
-		"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" + 
-		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" + 
+		"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" +
+		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH"
 	);
 }
@@ -4843,13 +4843,13 @@ public void testBug110060_TypePattern09() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("AA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	assertSearchResults(
-		"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" + 
-		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
-		"src/b110060/AxA.java b110060.AxA [AxA] EXACT_MATCH\n" + 
-		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" + 
+		"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" +
+		"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" +
+		"src/b110060/AxA.java b110060.AxA [AxA] EXACT_MATCH\n" +
+		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
 	);
 }
@@ -4864,7 +4864,7 @@ public void testBug110060_TypePattern11() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("AxxA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
+		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
 	);
 }
@@ -4873,7 +4873,7 @@ public void testBug110060_TypePattern12() throws CoreException {
 	setUpBug110060_TypePattern();
 	search("AxXA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
+		"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
 	);
 }
@@ -4894,9 +4894,9 @@ public void testBug110060_AllTypeNames01() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b110060.AA\n" + 
-		"b110060.AAxx\n" + 
-		"b110060.AxA\n" + 
+		"b110060.AA\n" +
+		"b110060.AAxx\n" +
+		"b110060.AxA\n" +
 		"b110060.AxxAyy",
 		requestor);
 }
@@ -4917,9 +4917,9 @@ public void testBug110060_AllTypeNames02() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b110060.AA\n" + 
-		"b110060.AAxx\n" + 
-		"b110060.AxA\n" + 
+		"b110060.AA\n" +
+		"b110060.AAxx\n" +
+		"b110060.AxA\n" +
 		"b110060.AxxAyy",
 		requestor);
 }
@@ -4940,9 +4940,9 @@ public void testBug110060_AllTypeNames03() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b110060.AA\n" + 
-		"b110060.AAxx\n" + 
-		"b110060.AxA\n" + 
+		"b110060.AA\n" +
+		"b110060.AAxx\n" +
+		"b110060.AxA\n" +
 		"b110060.AxxAyy",
 		requestor);
 }
@@ -4963,9 +4963,9 @@ public void testBug110060_AllTypeNames04() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b110060.AA\n" + 
-		"b110060.AAxx\n" + 
-		"b110060.AxA\n" + 
+		"b110060.AA\n" +
+		"b110060.AAxx\n" +
+		"b110060.AxA\n" +
 		"b110060.AxxAyy",
 		requestor);
 }
@@ -4986,7 +4986,7 @@ public void testBug110060_AllTypeNames05() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b110060.AA\n" + 
+		"b110060.AA\n" +
 		"b110060.AAxx",
 		requestor);
 }
@@ -5027,7 +5027,7 @@ public void testBug110060_AllTypeNames07() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b110060.AA\n" + 
+		"b110060.AA\n" +
 		"b110060.AAxx",
 		requestor);
 }
@@ -5048,7 +5048,7 @@ public void testBug110060_AllTypeNames08() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b110060.AA\n" + 
+		"b110060.AA\n" +
 		"b110060.AAxx",
 		requestor);
 }
@@ -5069,7 +5069,7 @@ public void testBug110060_AllTypeNames09() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b110060.AA\n" + 
+		"b110060.AA\n" +
 		"b110060.AAxx",
 		requestor);
 }
@@ -5130,7 +5130,7 @@ public void testBug110060_AllTypeNames12() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b110060.AA\n" + 
+		"b110060.AA\n" +
 		"b110060.AAxx",
 		requestor);
 }
@@ -5179,36 +5179,36 @@ public void testBug110060_AllTypeNames14() throws CoreException {
 private void setUpBug110060_ConstructorPattern() throws CoreException {
 	workingCopies = new ICompilationUnit[5];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/AA.java",
-		"package b110060;\n" + 
+		"package b110060;\n" +
 		"public class AA {\n" +
 		"	AA() {}\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b110060/AAxx.java",
-		"package b110060;\n" + 
+		"package b110060;\n" +
 		"public class AAxx {\n" +
 		"	AAxx() {}\n" +
 		"}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b110060/AxxAyy.java",
-		"package b110060;\n" + 
+		"package b110060;\n" +
 		"public class AxxAyy {\n" +
 		"	AxxAyy() {}\n" +
 		"}\n"
 	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b110060/AxA.java",
-		"package b110060;\n" + 
+		"package b110060;\n" +
 		"public class AxA {\n" +
 		"	AxA() {}\n" +
 		"}\n"
 	);
 	workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/b110060/Test.java",
-		"package b110060;\n" + 
+		"package b110060;\n" +
 		"public class Test {\n" +
-		"	AA aa = new AA();\n" + 
-		"	AAxx aaxx = new AAxx();\n" + 
-		"	AxA axa = new AxA();\n" + 
-		"	AxxAyy axxayy = new AxxAyy();\n" + 
+		"	AA aa = new AA();\n" +
+		"	AAxx aaxx = new AAxx();\n" +
+		"	AxA axa = new AxA();\n" +
+		"	AxxAyy axxayy = new AxxAyy();\n" +
 		"}\n"
 	);
 }
@@ -5216,9 +5216,9 @@ public void testBug110060_ConstructorPattern01() throws CoreException {
 	setUpBug110060_ConstructorPattern();
 	search("AA", CONSTRUCTOR, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/Test.java b110060.Test.aa [new AA()] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" + 
+		"src/b110060/Test.java b110060.Test.aa [new AA()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
 	);
 }
@@ -5227,13 +5227,13 @@ public void testBug110060_ConstructorPattern02() throws CoreException {
 	setUpBug110060_ConstructorPattern();
 	search("AA", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/AA.java b110060.AA() [AA] EXACT_MATCH\n" + 
-		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" + 
-		"src/b110060/AxA.java b110060.AxA() [AxA] EXACT_MATCH\n" + 
-		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aa [new AA()] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" + 
+		"src/b110060/AA.java b110060.AA() [AA] EXACT_MATCH\n" +
+		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" +
+		"src/b110060/AxA.java b110060.AxA() [AxA] EXACT_MATCH\n" +
+		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aa [new AA()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
 	);
 }
@@ -5242,7 +5242,7 @@ public void testBug110060_ConstructorPattern03() throws CoreException {
 	setUpBug110060_ConstructorPattern();
 	search("AAx", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" + 
+		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH"
 	);
 }
@@ -5251,7 +5251,7 @@ public void testBug110060_ConstructorPattern04() throws CoreException {
 	setUpBug110060_ConstructorPattern();
 	search("Axx", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" + 
+		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
 	);
 }
@@ -5260,9 +5260,9 @@ public void testBug110060_ConstructorPattern05() throws CoreException {
 	setUpBug110060_ConstructorPattern();
 	search("Ax", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/AxA.java b110060.AxA() [AxA] EXACT_MATCH\n" + 
-		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" + 
+		"src/b110060/AxA.java b110060.AxA() [AxA] EXACT_MATCH\n" +
+		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
 	);
 }
@@ -5271,13 +5271,13 @@ public void testBug110060_ConstructorPattern06() throws CoreException {
 	setUpBug110060_ConstructorPattern();
 	search("A*A*", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/AA.java b110060.AA() [AA] EXACT_MATCH\n" + 
-		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" + 
-		"src/b110060/AxA.java b110060.AxA() [AxA] EXACT_MATCH\n" + 
-		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aa [new AA()] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" + 
+		"src/b110060/AA.java b110060.AA() [AA] EXACT_MATCH\n" +
+		"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" +
+		"src/b110060/AxA.java b110060.AxA() [AxA] EXACT_MATCH\n" +
+		"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aa [new AA()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
 	);
 }
@@ -5286,20 +5286,20 @@ public void testBug110060_ConstructorPattern06() throws CoreException {
 private void setUpBug110060_MethodPattern() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/Test.java",
-		"package b110060;\n" + 
+		"package b110060;\n" +
 		"public class Test {\n" +
-		"	void aMethodWithNothingSpecial() {}\n" + 
-		"	void aMethodWith1Digit() {}\n" + 
-		"	void aMethodWith1DigitAnd_AnUnderscore() {}\n" + 
-		"	void aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() {}\n" + 
-		"	void otherMethodWhichStartsWithAnotherLetter() {}\n" + 
-		"	void testReferences() {\n" + 
-		"		aMethodWith1Digit();\n" + 
-		"		aMethodWith1DigitAnd_AnUnderscore();\n" + 
-		"		aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores();\n" + 
-		"		aMethodWithNothingSpecial();\n" + 
-		"		otherMethodWhichStartsWithAnotherLetter();\n" + 
-		"	}\n" + 
+		"	void aMethodWithNothingSpecial() {}\n" +
+		"	void aMethodWith1Digit() {}\n" +
+		"	void aMethodWith1DigitAnd_AnUnderscore() {}\n" +
+		"	void aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() {}\n" +
+		"	void otherMethodWhichStartsWithAnotherLetter() {}\n" +
+		"	void testReferences() {\n" +
+		"		aMethodWith1Digit();\n" +
+		"		aMethodWith1DigitAnd_AnUnderscore();\n" +
+		"		aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores();\n" +
+		"		aMethodWithNothingSpecial();\n" +
+		"		otherMethodWhichStartsWithAnotherLetter();\n" +
+		"	}\n" +
 		"}\n"
 	);
 }
@@ -5319,9 +5319,9 @@ public void testBug110060_MethodPattern03() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("aMWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH\n" + 
+		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH\n" +
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH"
 	);
 }
@@ -5330,13 +5330,13 @@ public void testBug110060_MethodPattern04() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("aMW", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH\n" + 
+		"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH\n" +
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWithNothingSpecial()] EXACT_MATCH"
 	);
 }
@@ -5345,13 +5345,13 @@ public void testBug110060_MethodPattern05() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("aMethod", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH\n" + 
+		"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH\n" +
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWithNothingSpecial()] EXACT_MATCH"
 	);
 }
@@ -5360,11 +5360,11 @@ public void testBug110060_MethodPattern06() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("aMethodWith1", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH\n" + 
+		"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH\n" +
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH"
 	);
 }
@@ -5373,13 +5373,13 @@ public void testBug110060_MethodPattern07() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("*Method*With*A*", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.otherMethodWhichStartsWithAnotherLetter() [otherMethodWhichStartsWithAnotherLetter] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWithNothingSpecial()] EXACT_MATCH\n" + 
+		"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.otherMethodWhichStartsWithAnotherLetter() [otherMethodWhichStartsWithAnotherLetter] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWithNothingSpecial()] EXACT_MATCH\n" +
 		"src/b110060/Test.java void b110060.Test.testReferences() [otherMethodWhichStartsWithAnotherLetter()] EXACT_MATCH"
 	);
 }
@@ -5394,7 +5394,7 @@ public void testBug110060_MethodPattern09() throws CoreException {
 	setUpBug110060_MethodPattern();
 	search("aMWOOODASU", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" + 
+		"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" +
 		"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH"
 	);
 }
@@ -5403,20 +5403,20 @@ public void testBug110060_MethodPattern09() throws CoreException {
 private void setUpBug110060_FieldPattern() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/Test.java",
-		"package b110060;\n" + 
+		"package b110060;\n" +
 		"public class Test {\n" +
-		"	Object aFieldWithNothingSpecial;\n" + 
-		"	Object aFieldWithS$Dollar;\n" + 
-		"	Object aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore;\n" + 
-		"	Object aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars;\n" + 
-		"	Object otherFieldWhichStartsWithAnotherLetter;\n" + 
-		"	void testReferences() {\n" + 
-		"		Object o0 = aFieldWithNothingSpecial;\n" + 
-		"		Object o1 = aFieldWithS$Dollar;\n" + 
-		"		Object o2 = aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore;\n" + 
-		"		Object o3 = aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars;\n" + 
-		"	}\n" + 
-		"	Object oF = otherFieldWhichStartsWithAnotherLetter;\n" + 
+		"	Object aFieldWithNothingSpecial;\n" +
+		"	Object aFieldWithS$Dollar;\n" +
+		"	Object aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore;\n" +
+		"	Object aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars;\n" +
+		"	Object otherFieldWhichStartsWithAnotherLetter;\n" +
+		"	void testReferences() {\n" +
+		"		Object o0 = aFieldWithNothingSpecial;\n" +
+		"		Object o1 = aFieldWithS$Dollar;\n" +
+		"		Object o2 = aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore;\n" +
+		"		Object o3 = aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars;\n" +
+		"	}\n" +
+		"	Object oF = otherFieldWhichStartsWithAnotherLetter;\n" +
 		"}\n"
 	);
 }
@@ -5424,9 +5424,9 @@ public void testBug110060_FieldPattern01() throws CoreException {
 	setUpBug110060_FieldPattern();
 	search("aFWSD", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/Test.java b110060.Test.aFieldWithS$Dollar [aFieldWithS$Dollar] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore [aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore] EXACT_MATCH\n" + 
-		"src/b110060/Test.java void b110060.Test.testReferences() [aFieldWithS$Dollar] EXACT_MATCH\n" + 
+		"src/b110060/Test.java b110060.Test.aFieldWithS$Dollar [aFieldWithS$Dollar] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore [aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore] EXACT_MATCH\n" +
+		"src/b110060/Test.java void b110060.Test.testReferences() [aFieldWithS$Dollar] EXACT_MATCH\n" +
 		"src/b110060/Test.java void b110060.Test.testReferences() [aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore] EXACT_MATCH"
 	);
 }
@@ -5441,7 +5441,7 @@ public void testBug110060_FieldPattern03() throws CoreException {
 	setUpBug110060_FieldPattern();
 	search("aFWS$", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/Test.java b110060.Test.aFieldWithS$Dollar [aFieldWithS$Dollar] EXACT_MATCH\n" + 
+		"src/b110060/Test.java b110060.Test.aFieldWithS$Dollar [aFieldWithS$Dollar] EXACT_MATCH\n" +
 		"src/b110060/Test.java void b110060.Test.testReferences() [aFieldWithS$Dollar] EXACT_MATCH"
 	);
 }
@@ -5450,7 +5450,7 @@ public void testBug110060_FieldPattern04() throws CoreException {
 	setUpBug110060_FieldPattern();
 	search("aSFWSCD", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/Test.java b110060.Test.aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars [aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars] EXACT_MATCH\n" + 
+		"src/b110060/Test.java b110060.Test.aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars [aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars] EXACT_MATCH\n" +
 		"src/b110060/Test.java void b110060.Test.testReferences() [aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars] EXACT_MATCH"
 	);
 }
@@ -5459,8 +5459,8 @@ public void testBug110060_FieldPattern05() throws CoreException {
 	setUpBug110060_FieldPattern();
 	search("oF", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b110060/Test.java b110060.Test.otherFieldWhichStartsWithAnotherLetter [otherFieldWhichStartsWithAnotherLetter] EXACT_MATCH\n" + 
-		"src/b110060/Test.java b110060.Test.oF [oF] EXACT_MATCH\n" + 
+		"src/b110060/Test.java b110060.Test.otherFieldWhichStartsWithAnotherLetter [otherFieldWhichStartsWithAnotherLetter] EXACT_MATCH\n" +
+		"src/b110060/Test.java b110060.Test.oF [oF] EXACT_MATCH\n" +
 		"src/b110060/Test.java b110060.Test.oF [otherFieldWhichStartsWithAnotherLetter] EXACT_MATCH"
 	);
 }
@@ -5472,8 +5472,8 @@ public void testBug110060_FieldPattern05() throws CoreException {
 public void testBug110291() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110291/Test110291XX.java",
-		"package b110291;\n" + 
-		"public class Test110291XX {\n" + 
+		"package b110291;\n" +
+		"public class Test110291XX {\n" +
 		"	class Test110291YY {}" +
 		"}\n"
 	);
@@ -5490,24 +5490,24 @@ public void testBug110291() throws CoreException {
 public void testBug110336a() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
-		"package b110336;\n" + 
-		"public class Test {\n" + 
-		"	<TP extends Test> void method(Class<Test> clazz) {\n" + 
-		"		Test localVar1 = new Test();\n" + 
-		"		Class<Test> localVar2 = new Class<Test>();\n" + 
-		"		localVar1.method(localVar2);\n" + 
-		"	}\n" + 
+		"package b110336;\n" +
+		"public class Test {\n" +
+		"	<TP extends Test> void method(Class<Test> clazz) {\n" +
+		"		Test localVar1 = new Test();\n" +
+		"		Class<Test> localVar2 = new Class<Test>();\n" +
+		"		localVar1.method(localVar2);\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>).TP [Test]\n" + 
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>).clazz [Test]\n" + 
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar1 [Test]\n" + 
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar1 [Test]\n" + 
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar2 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).TP [Test]\n" +
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).clazz [Test]\n" +
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar1 [Test]\n" +
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar1 [Test]\n" +
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar2 [Test]\n" +
 		"src/b110336/Test.java void b110336.Test.method(Class<Test>).localVar2 [Test]",
 		collector
 	);
@@ -5515,28 +5515,28 @@ public void testBug110336a() throws CoreException {
 public void testBug110336b() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
-		"package b110336;\n" + 
-		"public class Test {\n" + 
-		"	void method1(Test methodParam) {\n" + 
-		"		Test localVar1 = new Test(){\n" + 
-		"			Class c = Test.class;\n" + 
-		"			<TP extends Test> void foo(){\n" + 
-		"				Test o = (Test) null;\n" + 
-		"			}\n" + 
-		"		};\n" + 
-		"	}	\n" + 
+		"package b110336;\n" +
+		"public class Test {\n" +
+		"	void method1(Test methodParam) {\n" +
+		"		Test localVar1 = new Test(){\n" +
+		"			Class c = Test.class;\n" +
+		"			<TP extends Test> void foo(){\n" +
+		"				Test o = (Test) null;\n" +
+		"			}\n" +
+		"		};\n" +
+		"	}	\n" +
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1 [Test]\n" + 
-		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1.c [Test]\n" + 
-		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().TP [Test]\n" + 
-		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().o [Test]\n" + 
-		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().o [Test]\n" + 
-		"src/b110336/Test.java void b110336.Test.method1(Test).methodParam [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1 [Test]\n" +
+		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1.c [Test]\n" +
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().TP [Test]\n" +
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().o [Test]\n" +
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo().o [Test]\n" +
+		"src/b110336/Test.java void b110336.Test.method1(Test).methodParam [Test]\n" +
 		"src/b110336/Test.java void b110336.Test.method1(Test).localVar1 [Test]",
 		collector
 	);
@@ -5544,18 +5544,18 @@ public void testBug110336b() throws CoreException {
 public void testBug110336c() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
-		"package b110336;\n" + 
-		"public class Test<TP extends X> {\n" + 
-		"	X x;\n" + 
-		"\n" + 
-		"}\n" + 
+		"package b110336;\n" +
+		"public class Test<TP extends X> {\n" +
+		"	X x;\n" +
+		"\n" +
+		"}\n" +
 		"class X {}\n"
 	);
 	IType type = this.workingCopies[0].getType("X");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java b110336.Test.TP [X]\n" + 
+		"src/b110336/Test.java b110336.Test.TP [X]\n" +
 		"src/b110336/Test.java b110336.Test.x [X]",
 		collector
 	);
@@ -5563,22 +5563,22 @@ public void testBug110336c() throws CoreException {
 public void testBug110336d() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
-		"package b110336;\n" + 
-		"public class Test {\n" + 
-		"	Test a1Test = null, b1Test = new Test(), c1Test;\n" + 
-		"	Test a2Test = new Test(), b2Test, c2Test = null;\n" + 
-		"	Test a3Test, b3Test = null, c3Test = new Test();\n" + 
+		"package b110336;\n" +
+		"public class Test {\n" +
+		"	Test a1Test = null, b1Test = new Test(), c1Test;\n" +
+		"	Test a2Test = new Test(), b2Test, c2Test = null;\n" +
+		"	Test a3Test, b3Test = null, c3Test = new Test();\n" +
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java b110336.Test.a1Test [Test]+[b1Test,c1Test]\n" + 
-		"src/b110336/Test.java b110336.Test.b1Test [Test]\n" + 
-		"src/b110336/Test.java b110336.Test.a2Test [Test]+[b2Test,c2Test]\n" + 
-		"src/b110336/Test.java b110336.Test.a2Test [Test]\n" + 
-		"src/b110336/Test.java b110336.Test.a3Test [Test]+[b3Test,c3Test]\n" + 
+		"src/b110336/Test.java b110336.Test.a1Test [Test]+[b1Test,c1Test]\n" +
+		"src/b110336/Test.java b110336.Test.b1Test [Test]\n" +
+		"src/b110336/Test.java b110336.Test.a2Test [Test]+[b2Test,c2Test]\n" +
+		"src/b110336/Test.java b110336.Test.a2Test [Test]\n" +
+		"src/b110336/Test.java b110336.Test.a3Test [Test]+[b3Test,c3Test]\n" +
 		"src/b110336/Test.java b110336.Test.c3Test [Test]",
 		collector
 	);
@@ -5586,24 +5586,24 @@ public void testBug110336d() throws CoreException {
 public void testBug110336e() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
-		"package b110336;\n" + 
-		"public class Test {\n" + 
-		"	void foo() {\n" + 
-		"		Test lv1 = null, lv2 = new Test(), lv3;\n" + 
-		"		Test lv4 = new Test(), lv5, lv6 = null;\n" + 
-		"		Test lv7, lv8 = null, lv9 = new Test();\n" + 
-		"	}\n" + 
+		"package b110336;\n" +
+		"public class Test {\n" +
+		"	void foo() {\n" +
+		"		Test lv1 = null, lv2 = new Test(), lv3;\n" +
+		"		Test lv4 = new Test(), lv5, lv6 = null;\n" +
+		"		Test lv7, lv8 = null, lv9 = new Test();\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java void b110336.Test.foo().lv1 [Test]+[lv2,lv3]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo().lv2 [Test]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo().lv4 [Test]+[lv5,lv6]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo().lv4 [Test]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo().lv7 [Test]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo().lv1 [Test]+[lv2,lv3]\n" +
+		"src/b110336/Test.java void b110336.Test.foo().lv2 [Test]\n" +
+		"src/b110336/Test.java void b110336.Test.foo().lv4 [Test]+[lv5,lv6]\n" +
+		"src/b110336/Test.java void b110336.Test.foo().lv4 [Test]\n" +
+		"src/b110336/Test.java void b110336.Test.foo().lv7 [Test]+[lv8,lv9]\n" +
 		"src/b110336/Test.java void b110336.Test.foo().lv9 [Test]",
 		collector
 	);
@@ -5611,28 +5611,28 @@ public void testBug110336e() throws CoreException {
 public void testBug110336f() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
-		"package b110336;\n" + 
-		"public class Test extends Exception {\n" + 
-		"        void foo(Test test1) { // <- no local element\n" + 
-		"                Test test2; // <- local element\n" + 
-		"                try {\n" + 
-		"                        throw new Test();\n" + 
-		"                }\n" + 
-		"                catch (Test test4) { // <- no local element\n" + 
-		"                }\n" + 
-		"                for(Test test3;;) {} // <- local element\n" + 
-		"        }\n" + 
-		"\n" + 
+		"package b110336;\n" +
+		"public class Test extends Exception {\n" +
+		"        void foo(Test test1) { // <- no local element\n" +
+		"                Test test2; // <- local element\n" +
+		"                try {\n" +
+		"                        throw new Test();\n" +
+		"                }\n" +
+		"                catch (Test test4) { // <- no local element\n" +
+		"                }\n" +
+		"                for(Test test3;;) {} // <- local element\n" +
+		"        }\n" +
+		"\n" +
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java void b110336.Test.foo(Test).test1 [Test]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo(Test).test2 [Test]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo(Test).test4 [Test]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test).test1 [Test]\n" +
+		"src/b110336/Test.java void b110336.Test.foo(Test).test2 [Test]\n" +
+		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]\n" +
+		"src/b110336/Test.java void b110336.Test.foo(Test).test4 [Test]\n" +
 		"src/b110336/Test.java void b110336.Test.foo(Test).test3 [Test]",
 		collector
 	);
@@ -5640,24 +5640,24 @@ public void testBug110336f() throws CoreException {
 public void testBug110336g() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
-		"package b110336;\n" + 
-		"public class Test {\n" + 
-		"	{\n" + 
-		"		Test lv1 = null, lv2 = new Test(), lv3;\n" + 
-		"		Test lv4 = new Test(), lv5, lv6 = null;\n" + 
-		"		Test lv7, lv8 = null, lv9 = new Test();\n" + 
-		"	}\n" + 
+		"package b110336;\n" +
+		"public class Test {\n" +
+		"	{\n" +
+		"		Test lv1 = null, lv2 = new Test(), lv3;\n" +
+		"		Test lv4 = new Test(), lv5, lv6 = null;\n" +
+		"		Test lv7, lv8 = null, lv9 = new Test();\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java b110336.Test.{}.lv1 [Test]+[lv2,lv3]\n" + 
-		"src/b110336/Test.java b110336.Test.{}.lv2 [Test]\n" + 
-		"src/b110336/Test.java b110336.Test.{}.lv4 [Test]+[lv5,lv6]\n" + 
-		"src/b110336/Test.java b110336.Test.{}.lv4 [Test]\n" + 
-		"src/b110336/Test.java b110336.Test.{}.lv7 [Test]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java b110336.Test.{}.lv1 [Test]+[lv2,lv3]\n" +
+		"src/b110336/Test.java b110336.Test.{}.lv2 [Test]\n" +
+		"src/b110336/Test.java b110336.Test.{}.lv4 [Test]+[lv5,lv6]\n" +
+		"src/b110336/Test.java b110336.Test.{}.lv4 [Test]\n" +
+		"src/b110336/Test.java b110336.Test.{}.lv7 [Test]+[lv8,lv9]\n" +
 		"src/b110336/Test.java b110336.Test.{}.lv9 [Test]",
 		collector
 	);
@@ -5665,24 +5665,24 @@ public void testBug110336g() throws CoreException {
 public void testBug110336h() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110336/Test.java",
-		"package b110336;\n" + 
-		"public class Test {\n" + 
-		"	static {\n" + 
-		"		Test lv1 = null, lv2 = new Test(), lv3;\n" + 
-		"		Test lv4 = new Test(), lv5, lv6 = null;\n" + 
-		"		Test lv7, lv8 = null, lv9 = new Test();\n" + 
-		"	}\n" + 
+		"package b110336;\n" +
+		"public class Test {\n" +
+		"	static {\n" +
+		"		Test lv1 = null, lv2 = new Test(), lv3;\n" +
+		"		Test lv4 = new Test(), lv5, lv6 = null;\n" +
+		"		Test lv7, lv8 = null, lv9 = new Test();\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
 	TypeReferencesCollector collector = new TypeReferencesCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScopeBugs(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java b110336.Test.static {}.lv1 [Test]+[lv2,lv3]\n" + 
-		"src/b110336/Test.java b110336.Test.static {}.lv2 [Test]\n" + 
-		"src/b110336/Test.java b110336.Test.static {}.lv4 [Test]+[lv5,lv6]\n" + 
-		"src/b110336/Test.java b110336.Test.static {}.lv4 [Test]\n" + 
-		"src/b110336/Test.java b110336.Test.static {}.lv7 [Test]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java b110336.Test.static {}.lv1 [Test]+[lv2,lv3]\n" +
+		"src/b110336/Test.java b110336.Test.static {}.lv2 [Test]\n" +
+		"src/b110336/Test.java b110336.Test.static {}.lv4 [Test]+[lv5,lv6]\n" +
+		"src/b110336/Test.java b110336.Test.static {}.lv4 [Test]\n" +
+		"src/b110336/Test.java b110336.Test.static {}.lv7 [Test]+[lv8,lv9]\n" +
 		"src/b110336/Test.java b110336.Test.static {}.lv9 [Test]",
 		collector
 	);
@@ -5724,18 +5724,18 @@ public void testBug113671() throws CoreException {
    );
 	assertSearchResults(
 		"Unexpected all type names",
-		"java.lang.CharSequence\n" + 
-		"java.lang.Class\n" + 
-		"java.lang.CloneNotSupportedException\n" + 
-		"java.lang.Comparable\n" + 
-		"java.lang.Enum\n" + 
-		"java.lang.Error\n" + 
-		"java.lang.Exception\n" + 
-		"java.lang.IllegalMonitorStateException\n" + 
-		"java.lang.InterruptedException\n" + 
-		"java.lang.Object\n" + 
-		"java.lang.RuntimeException\n" + 
-		"java.lang.String\n" + 
+		"java.lang.CharSequence\n" +
+		"java.lang.Class\n" +
+		"java.lang.CloneNotSupportedException\n" +
+		"java.lang.Comparable\n" +
+		"java.lang.Enum\n" +
+		"java.lang.Error\n" +
+		"java.lang.Exception\n" +
+		"java.lang.IllegalMonitorStateException\n" +
+		"java.lang.InterruptedException\n" +
+		"java.lang.Object\n" +
+		"java.lang.RuntimeException\n" +
+		"java.lang.String\n" +
 		"java.lang.Throwable",
 		requestor);
 }
@@ -5747,15 +5747,15 @@ public void testBug113671() throws CoreException {
 public void testBug114539() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b114539/Foo.java",
-		"package b114539;\n" + 
-		"public class Foo {\n" + 
-		"	int bar=Bar.FOO;\n" + 
+		"package b114539;\n" +
+		"public class Foo {\n" +
+		"	int bar=Bar.FOO;\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b114539/Bar.java",
-		"package b114539;\n" + 
-		"public class Bar {\n" + 
-		"	private static final int FOO=0;\n" + 
+		"package b114539;\n" +
+		"public class Bar {\n" +
+		"	private static final int FOO=0;\n" +
 		"}\n"
 	);
 	IField field = this.workingCopies[1].getType("Bar").getField("FOO");
@@ -5772,19 +5772,19 @@ public void testBug114539() throws CoreException {
 public void testBug116459() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p1/X.java",
-		"package p1;\n" + 
-		"class X<T> {\n" + 
-		"	X<T> gen;\n" + 
-		"	X<String> param;\n" + 
-		"	X raw;\n" + 
+		"package p1;\n" +
+		"class X<T> {\n" +
+		"	X<T> gen;\n" +
+		"	X<String> param;\n" +
+		"	X raw;\n" +
 		"}"
 	);
 	IType type = workingCopies[0].getType("X");
 	this.resultCollector.showRule = true;
 	search(type, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
-		"src/p1/X.java p1.X.gen [X] EXACT_MATCH\n" + 
-		"src/p1/X.java p1.X.param [X] ERASURE_MATCH\n" + 
+		"src/p1/X.java p1.X.gen [X] EXACT_MATCH\n" +
+		"src/p1/X.java p1.X.param [X] ERASURE_MATCH\n" +
 		"src/p1/X.java p1.X.raw [X] ERASURE_RAW_MATCH"
 	);
 }
@@ -5796,11 +5796,11 @@ public void testBug116459() throws CoreException {
 public void testBug119545() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b119545/Test.java",
-		"package b119545;\n" + 
-		"class Test {\n" + 
-		"	void foo(Object o1, Object o2){\n" + 
-		"		if (o1.equals(o2)) {}\n" + 
-		"	}\n" + 
+		"package b119545;\n" +
+		"class Test {\n" +
+		"	void foo(Object o1, Object o2){\n" +
+		"		if (o1.equals(o2)) {}\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IType type = workingCopies[0].getType("Test");
@@ -5818,18 +5818,18 @@ public void testBug119545() throws CoreException {
 public void testBug120816a() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b120816/Test.java",
-		"package b120816;\n" + 
-		"public class Test<E> {\n" + 
-		"	String foo(E e) { return \"\"; }\n" + 
+		"package b120816;\n" +
+		"public class Test<E> {\n" +
+		"	String foo(E e) { return \"\"; }\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b120816/Sub.java",
-		"package b120816;\n" + 
+		"package b120816;\n" +
 		"public class Sub extends Test<Exception> {\n" +
-		"	String foo(RuntimeException e) { return \"\"; }\n" + 
-		"	String foo(Exception e) {\n" + 
-		"		return super.foo(e);\n" + 
-		"	}\n" + 
+		"	String foo(RuntimeException e) { return \"\"; }\n" +
+		"	String foo(Exception e) {\n" +
+		"		return super.foo(e);\n" +
+		"	}\n" +
 		"}\n"
 	);
 	search("* String (Exception)", METHOD, DECLARATIONS);
@@ -5840,15 +5840,15 @@ public void testBug120816a() throws CoreException {
 public void testBug120816b() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b120816/Test.java",
-		"package b120816;\n" + 
-		"public class Test<E> {\n" + 
-		"	String foo(E e) { return \"\"; }\n" + 
+		"package b120816;\n" +
+		"public class Test<E> {\n" +
+		"	String foo(E e) { return \"\"; }\n" +
 		"}\n" +
 		"class Sub extends Test<Exception> {\n" +
-		"	String foo(RuntimeException e) { return \"\"; }\n" + 
-		"	String foo(Exception e) {\n" + 
-		"		return super.foo(e);\n" + 
-		"	}\n" + 
+		"	String foo(RuntimeException e) { return \"\"; }\n" +
+		"	String foo(Exception e) {\n" +
+		"		return super.foo(e);\n" +
+		"	}\n" +
 		"}\n"
 	);
 	search("* String (Exception)", METHOD, DECLARATIONS);
@@ -5864,15 +5864,15 @@ public void testBug120816b() throws CoreException {
 private void setUpBug122442a() throws CoreException {
 	workingCopies = new ICompilationUnit[3];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b122442/I.java",
-		"package b122442;\n" + 
+		"package b122442;\n" +
 		"public interface I {}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b122442/II.java",
-		"package b122442;\n" + 
+		"package b122442;\n" +
 		"public interface II extends I {}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b122442/X.java",
-		"package b122442;\n" + 
+		"package b122442;\n" +
 		"public class X implements I {}\n"
 	);
 }
@@ -5880,7 +5880,7 @@ public void testBug122442a() throws CoreException {
 	setUpBug122442a();
 	search("I", TYPE, IMPLEMENTORS);
 	assertSearchResults(
-		"src/b122442/II.java b122442.II [I] EXACT_MATCH\n" + 
+		"src/b122442/II.java b122442.II [I] EXACT_MATCH\n" +
 		"src/b122442/X.java b122442.X [I] EXACT_MATCH"
 	);
 }
@@ -5901,14 +5901,14 @@ public void testBug122442c() throws CoreException {
 private void setUpBug122442d() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b122442/User.java",
-		"class Klass {}\n" + 
-		"interface Interface {}\n" + 
-		"class User {\n" + 
-		"    void m() {\n" + 
-		"        new Klass() {};\n" + 
-		"        new Interface() {};\n" + 
-		"    }\n" + 
-		"}\n" + 
+		"class Klass {}\n" +
+		"interface Interface {}\n" +
+		"class User {\n" +
+		"    void m() {\n" +
+		"        new Klass() {};\n" +
+		"        new Interface() {};\n" +
+		"    }\n" +
+		"}\n" +
 		"class Sub extends Klass {}"
 	);
 }
@@ -5937,7 +5937,7 @@ public void testBug122442g() throws CoreException {
 	setUpBug122442d();
 	search("Klass", TYPE, IMPLEMENTORS);
 	assertSearchResults(
-		"src/b122442/User.java void b122442.User.m():<anonymous>#1 [Klass] EXACT_MATCH\n" + 
+		"src/b122442/User.java void b122442.User.m():<anonymous>#1 [Klass] EXACT_MATCH\n" +
 		"src/b122442/User.java b122442.Sub [Klass] EXACT_MATCH"
 	);
 }
@@ -5952,7 +5952,7 @@ public void testBug122442i() throws CoreException {
 	setUpBug122442d();
 	search("Klass", CLASS, IMPLEMENTORS);
 	assertSearchResults(
-		"src/b122442/User.java void b122442.User.m():<anonymous>#1 [Klass] EXACT_MATCH\n" + 
+		"src/b122442/User.java void b122442.User.m():<anonymous>#1 [Klass] EXACT_MATCH\n" +
 		"src/b122442/User.java b122442.Sub [Klass] EXACT_MATCH"
 	);
 }
@@ -5965,11 +5965,11 @@ public void testBug123679() throws CoreException {
 	IType type = getPackageFragment("JavaSearchBugs", "lib/b123679.jar", "pack").getClassFile("I123679.class").getType();
 	search(type, REFERENCES);
 	assertSearchResults(
-		"lib/b123679.jar test.<anonymous> EXACT_MATCH\n" + 
-		"lib/b123679.jar test.Test$StaticClass$Member.parent EXACT_MATCH\n" + 
-		"lib/b123679.jar test.<anonymous> EXACT_MATCH\n" + 
-		"lib/b123679.jar test.Test$StaticClass$Member(test.Test.StaticClass, java.lang.Object) EXACT_MATCH\n" + 
-		"lib/b123679.jar test.Test$StaticClass$Member(test.Test.StaticClass, java.lang.Object) EXACT_MATCH\n" + 
+		"lib/b123679.jar test.<anonymous> EXACT_MATCH\n" +
+		"lib/b123679.jar test.Test$StaticClass$Member.parent EXACT_MATCH\n" +
+		"lib/b123679.jar test.<anonymous> EXACT_MATCH\n" +
+		"lib/b123679.jar test.Test$StaticClass$Member(test.Test.StaticClass, java.lang.Object) EXACT_MATCH\n" +
+		"lib/b123679.jar test.Test$StaticClass$Member(test.Test.StaticClass, java.lang.Object) EXACT_MATCH\n" +
 		"lib/b123679.jar pack.I123679 test.Test$StaticClass$Member.getParent() EXACT_MATCH"
 	);
 }
@@ -5978,40 +5978,40 @@ public void testBug123679_cu() throws CoreException {
 	IType type = unit.getType("I123679");
 	search(type, REFERENCES);
 	assertSearchResults(
-		"src/b123679/test/Test.java [b123679.pack.I123679] EXACT_MATCH\n" + 
-		"src/b123679/test/Test.java b123679.test.Test$StaticClass$Member.parent [I123679] EXACT_MATCH\n" + 
-		"src/b123679/test/Test.java b123679.test.Test$StaticClass$Member(Object):<anonymous>#1 [I123679] EXACT_MATCH\n" + 
-		"src/b123679/test/Test.java b123679.test.Test$StaticClass$Member(Object) [I123679] EXACT_MATCH\n" + 
-		"src/b123679/test/Test.java b123679.test.Test$StaticClass$Member(Object) [I123679] EXACT_MATCH\n" + 
+		"src/b123679/test/Test.java [b123679.pack.I123679] EXACT_MATCH\n" +
+		"src/b123679/test/Test.java b123679.test.Test$StaticClass$Member.parent [I123679] EXACT_MATCH\n" +
+		"src/b123679/test/Test.java b123679.test.Test$StaticClass$Member(Object):<anonymous>#1 [I123679] EXACT_MATCH\n" +
+		"src/b123679/test/Test.java b123679.test.Test$StaticClass$Member(Object) [I123679] EXACT_MATCH\n" +
+		"src/b123679/test/Test.java b123679.test.Test$StaticClass$Member(Object) [I123679] EXACT_MATCH\n" +
 		"src/b123679/test/Test.java I123679 b123679.test.Test$StaticClass$Member.getParent() [I123679] EXACT_MATCH"
 	);
 }
 public void testBug123679_wc() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/I122679.java",
-		"package pack;\n" + 
-		"public interface I123679 {\n" + 
+		"package pack;\n" +
+		"public interface I123679 {\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-		"package test;\n" + 
-		"import pack.I123679;\n" + 
-		"public class Test {\n" + 
-		"	static class StaticClass {\n" + 
-		"		class Member {\n" + 
-		"			private I123679 parent;\n" + 
-		"			Member(Object obj) {\n" + 
-		"				if (obj instanceof I123679) {\n" + 
-		"					parent = (I123679) obj;\n" + 
-		"				} else {\n" + 
-		"					parent = new I123679() {};\n" + 
-		"				}\n" + 
-		"			}\n" + 
-		"			I123679 getParent() {\n" + 
-		"				return parent;\n" + 
-		"			}\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"package test;\n" +
+		"import pack.I123679;\n" +
+		"public class Test {\n" +
+		"	static class StaticClass {\n" +
+		"		class Member {\n" +
+		"			private I123679 parent;\n" +
+		"			Member(Object obj) {\n" +
+		"				if (obj instanceof I123679) {\n" +
+		"					parent = (I123679) obj;\n" +
+		"				} else {\n" +
+		"					parent = new I123679() {};\n" +
+		"				}\n" +
+		"			}\n" +
+		"			I123679 getParent() {\n" +
+		"				return parent;\n" +
+		"			}\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IType type = workingCopies[0].getType("I123679");
@@ -6019,10 +6019,10 @@ public void testBug123679_wc() throws CoreException {
 	assertSearchResults(
 		// import reference is not found because package fragment and CU do not exist on disk
 		// So, PackageReferenceLocator.isDeclaringPackageFragment(...) returns false and S.E. misses this match
-		"src/test/Test.java test.Test$StaticClass$Member.parent [I123679] EXACT_MATCH\n" + 
-		"src/test/Test.java test.Test$StaticClass$Member(Object):<anonymous>#1 [I123679] EXACT_MATCH\n" + 
-		"src/test/Test.java test.Test$StaticClass$Member(Object) [I123679] EXACT_MATCH\n" + 
-		"src/test/Test.java test.Test$StaticClass$Member(Object) [I123679] EXACT_MATCH\n" + 
+		"src/test/Test.java test.Test$StaticClass$Member.parent [I123679] EXACT_MATCH\n" +
+		"src/test/Test.java test.Test$StaticClass$Member(Object):<anonymous>#1 [I123679] EXACT_MATCH\n" +
+		"src/test/Test.java test.Test$StaticClass$Member(Object) [I123679] EXACT_MATCH\n" +
+		"src/test/Test.java test.Test$StaticClass$Member(Object) [I123679] EXACT_MATCH\n" +
 		"src/test/Test.java I123679 test.Test$StaticClass$Member.getParent() [I123679] EXACT_MATCH"
 	);
 }
@@ -6035,48 +6035,48 @@ public void testBug124469a() throws CoreException {
 	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "E.class").getType();
 	search(type, REFERENCES);
 	assertSearchResults(
-		"lib/b124469.jar pack.E pack.A1.value() EXACT_MATCH\n" + 
-		"lib/b124469.jar pack.E[] pack.A1.list() EXACT_MATCH\n" + 
-		"lib/b124469.jar pack.E pack.A2.value() EXACT_MATCH\n" + 
-		"lib/b124469.jar pack.E[] pack.A2.list() EXACT_MATCH\n" + 
-		"lib/b124469.jar pack.E pack.A3.value() EXACT_MATCH\n" + 
-		"lib/b124469.jar pack.E[] pack.A3.list() EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar pack.E pack.A1.value() EXACT_MATCH\n" +
+		"lib/b124469.jar pack.E[] pack.A1.list() EXACT_MATCH\n" +
+		"lib/b124469.jar pack.E pack.A2.value() EXACT_MATCH\n" +
+		"lib/b124469.jar pack.E[] pack.A2.list() EXACT_MATCH\n" +
+		"lib/b124469.jar pack.E pack.A3.value() EXACT_MATCH\n" +
+		"lib/b124469.jar pack.E[] pack.A3.list() EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
 		"lib/b124469.jar void test.M.foo() EXACT_MATCH"
 	);
 }
@@ -6084,10 +6084,10 @@ public void testBug124469b() throws CoreException {
 	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "A1.class").getType();
 	search(type, REFERENCES);
 	assertSearchResults(
-		"lib/b124469.jar pack.A1 pack.A2.annot() EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar pack.A1 pack.A2.annot() EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
 		"lib/b124469.jar void test.M.foo() EXACT_MATCH"
 	);
 }
@@ -6095,10 +6095,10 @@ public void testBug124469c() throws CoreException {
 	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "A2.class").getType();
 	search(type, REFERENCES);
 	assertSearchResults(
-		"lib/b124469.jar pack.A2 pack.A3.annot() EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar pack.A2 pack.A3.annot() EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
 		"lib/b124469.jar void test.M.foo() EXACT_MATCH"
 	);
 }
@@ -6106,9 +6106,9 @@ public void testBug124469d() throws CoreException {
 	IType type = getClassFile("JavaSearchBugs", "lib/b124469.jar", "pack", "A3.class").getType();
 	search(type, REFERENCES);
 	assertSearchResults(
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
 		"lib/b124469.jar void test.M.foo() EXACT_MATCH"
 	);
 }
@@ -6117,8 +6117,8 @@ public void testBug124469e() throws CoreException {
 	IField field = type.getField("CC");
 	search(field, REFERENCES);
 	assertSearchResults(
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
 		"lib/b124469.jar test.C EXACT_MATCH"
 	);
 }
@@ -6127,8 +6127,8 @@ public void testBug124469f() throws CoreException {
 	IField field = type.getField("CF");
 	search(field, REFERENCES);
 	assertSearchResults(
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
 		"lib/b124469.jar test.F.field EXACT_MATCH"
 	);
 }
@@ -6137,8 +6137,8 @@ public void testBug124469g() throws CoreException {
 	IField field = type.getField("CM");
 	search(field, REFERENCES);
 	assertSearchResults(
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
 		"lib/b124469.jar void test.M.foo() EXACT_MATCH"
 	);
 }
@@ -6163,11 +6163,11 @@ public void testBug124469j() throws CoreException {
 	IField field = type.getField("CAC");
 	search(field, REFERENCES);
 	assertSearchResults(
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
-		"lib/b124469.jar test.C EXACT_MATCH\n" + 
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
+		"lib/b124469.jar test.C EXACT_MATCH\n" +
 		"lib/b124469.jar test.C EXACT_MATCH"
 	);
 }
@@ -6176,11 +6176,11 @@ public void testBug124469k() throws CoreException {
 	IField field = type.getField("CAF");
 	search(field, REFERENCES);
 	assertSearchResults(
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
-		"lib/b124469.jar test.F.field EXACT_MATCH\n" + 
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
+		"lib/b124469.jar test.F.field EXACT_MATCH\n" +
 		"lib/b124469.jar test.F.field EXACT_MATCH"
 	);
 }
@@ -6189,11 +6189,11 @@ public void testBug124469l() throws CoreException {
 	IField field = type.getField("CAM");
 	search(field, REFERENCES);
 	assertSearchResults(
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
-		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" + 
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
+		"lib/b124469.jar void test.M.foo() EXACT_MATCH\n" +
 		"lib/b124469.jar void test.M.foo() EXACT_MATCH"
 	);
 }
@@ -6224,9 +6224,9 @@ public void testBug124489() throws CoreException {
 		"public class Foo<T> {}"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/Bar.java",
-		"public class Bar {\n" + 
-		"    Foo<String> f = new Foo<String>();\n" + 
-		"    Foo f2 = new Foo();\n" + 
+		"public class Bar {\n" +
+		"    Foo<String> f = new Foo<String>();\n" +
+		"    Foo f2 = new Foo();\n" +
 		"}"
 	);
 	IType type = workingCopies[0].getType("Foo");
@@ -6239,9 +6239,9 @@ public void testBug124489() throws CoreException {
 		null
 	);
 	assertSearchResults(
-		"src/Bar.java Bar.f [Foo] ERASURE_MATCH\n" + 
-		"src/Bar.java Bar.f [Foo] ERASURE_MATCH\n" + 
-		"src/Bar.java Bar.f2 [Foo] ERASURE_RAW_MATCH\n" + 
+		"src/Bar.java Bar.f [Foo] ERASURE_MATCH\n" +
+		"src/Bar.java Bar.f [Foo] ERASURE_MATCH\n" +
+		"src/Bar.java Bar.f2 [Foo] ERASURE_RAW_MATCH\n" +
 		"src/Bar.java Bar.f2 [Foo] ERASURE_RAW_MATCH"
 	);
 }
@@ -6255,9 +6255,9 @@ public void testBug124645a() throws CoreException {
 	IType type = classFile.getType();
 	search(type, IMPLEMENTORS);
 	assertSearchResults(
-		"src/b124645/xy/X_124645.java b124645.xy.X_124645$Y [BE_124645] EXACT_MATCH\n" + 
-		"src/b124645/xy/Y_124645.java b124645.xy.Y_124645 [BE_124645] EXACT_MATCH\n" + 
-		"lib/b124645.jar xy.BX_124645$Y EXACT_MATCH\n" + 
+		"src/b124645/xy/X_124645.java b124645.xy.X_124645$Y [BE_124645] EXACT_MATCH\n" +
+		"src/b124645/xy/Y_124645.java b124645.xy.Y_124645 [BE_124645] EXACT_MATCH\n" +
+		"lib/b124645.jar xy.BX_124645$Y EXACT_MATCH\n" +
 		"lib/b124645.jar xy.BY_124645 EXACT_MATCH"
 	);
 }
@@ -6266,13 +6266,13 @@ public void testBug124645b() throws CoreException {
 	IType type = classFile.getType();
 	search(type, IMPLEMENTORS);
 	assertSearchResults(
-		"src/b124645/test/A_124645.java b124645.test.A_124645 [BE_124645] EXACT_MATCH\n" + 
-		"src/b124645/test/A_124645.java void b124645.test.A_124645.m():<anonymous>#1 [BE_124645] EXACT_MATCH\n" + 
-		"src/b124645/test/X_124645.java b124645.test.X_124645 [BE_124645] EXACT_MATCH\n" + 
-		"src/b124645/test/X_124645.java void b124645.test.X_124645.m():Y_124645#1 [BE_124645] EXACT_MATCH\n" + 
-		"lib/b124645.jar test.BA_124645 EXACT_MATCH\n" + 
-		"lib/b124645.jar test.<anonymous> EXACT_MATCH\n" + 
-		"lib/b124645.jar test.BX_124645 EXACT_MATCH\n" + 
+		"src/b124645/test/A_124645.java b124645.test.A_124645 [BE_124645] EXACT_MATCH\n" +
+		"src/b124645/test/A_124645.java void b124645.test.A_124645.m():<anonymous>#1 [BE_124645] EXACT_MATCH\n" +
+		"src/b124645/test/X_124645.java b124645.test.X_124645 [BE_124645] EXACT_MATCH\n" +
+		"src/b124645/test/X_124645.java void b124645.test.X_124645.m():Y_124645#1 [BE_124645] EXACT_MATCH\n" +
+		"lib/b124645.jar test.BA_124645 EXACT_MATCH\n" +
+		"lib/b124645.jar test.<anonymous> EXACT_MATCH\n" +
+		"lib/b124645.jar test.BX_124645 EXACT_MATCH\n" +
 		"lib/b124645.jar test.Y EXACT_MATCH"
 	);
 }
@@ -6302,12 +6302,12 @@ public void testBug125178() throws CoreException {
 	ProblemRequestor problemRequestor = new ProblemRequestor();
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b125178/X.java",
-		"package b125178;\n" + 
-		"import pack.age.Test;\n" + 
-		"public class X {\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		new Test().foo(100);\n" + 
-		"	}\n" + 
+		"package b125178;\n" +
+		"import pack.age.Test;\n" +
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		new Test().foo(100);\n" +
+		"	}\n" +
 		"}\n",
 		newWorkingCopyOwner(problemRequestor)
 	);
@@ -6316,7 +6316,7 @@ public void testBug125178() throws CoreException {
 		"----------\n",
 		problemRequestor.problems.toString()
 	);
-	
+
 	// Get anonymous from
 	IPackageFragment jar = getPackageFragment("JavaSearchBugs", "lib/b125178.jar", "pack.age");
 	IJavaElement[] children = jar.getChildren();
@@ -6353,9 +6353,9 @@ public void testBug127628() throws CoreException {
 	class DeprecatedTypesRequestor extends SearchTests.SearchTypeNameRequestor {
 		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
 			if ((modifiers & ClassFileConstants.AccDeprecated) != 0) {
-				char[] typeName = 
+				char[] typeName =
 					CharOperation.concat(
-						CharOperation.concatWith(enclosingTypeNames, '$'), 
+						CharOperation.concatWith(enclosingTypeNames, '$'),
 						simpleTypeName,
 						'$');
 				results.addElement(new String(CharOperation.concat(packageName, typeName, '.')));
@@ -6419,22 +6419,22 @@ public void testBug128877c() throws CoreException {
 private void setUpBug130390() throws CoreException {
 	workingCopies = new ICompilationUnit[4];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b130390/TZ.java",
-		"package b130390;\n" + 
+		"package b130390;\n" +
 		"public class TZ {\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b130390/TimeZone.java",
-		"package b130390;\n" + 
+		"package b130390;\n" +
 		"public class TimeZone{\n" +
 		"}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b130390/Npe.java",
-		"package b130390;\n" + 
+		"package b130390;\n" +
 		"public class Npe {\n" +
 		"}\n"
 	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b130390/NullPointerException.java",
-		"package b130390;\n" + 
+		"package b130390;\n" +
 		"public class NullPointerException {\n" +
 		"}\n"
 	);
@@ -6450,7 +6450,7 @@ public void testBug130390b() throws CoreException {
 	setUpBug130390();
 	search("NPE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
-		"src/b130390/Npe.java b130390.Npe [Npe] EXACT_MATCH\n" + 
+		"src/b130390/Npe.java b130390.Npe [Npe] EXACT_MATCH\n" +
 		"src/b130390/NullPointerException.java b130390.NullPointerException [NullPointerException] EXACT_MATCH"
 	);
 }
@@ -6486,7 +6486,7 @@ public void testBug130390g() throws CoreException {
 	setUpBug130390();
 	search("TZ", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	assertSearchResults(
-		"src/b130390/TZ.java b130390.TZ [TZ] EXACT_MATCH\n" + 
+		"src/b130390/TZ.java b130390.TZ [TZ] EXACT_MATCH\n" +
 		"src/b130390/TimeZone.java b130390.TimeZone [TimeZone] EXACT_MATCH"
 	);
 }
@@ -6770,19 +6770,19 @@ public void testBug137984_cu() throws CoreException {
 public void testBug137984_wc() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/CW.java",
-		"public class CW {\n" + 
-		"	CW2 c2;\n" + 
-		"	CW2.CW3 c3;\n" + 
-		"	CW(int c) {\n" + 
-		"		c2 = new CW2(c);\n" + 
-		"		c3 = c2.new CW3(c);\n" + 
-		"	}\n" + 
-		"	class CW2 {\n" + 
-		"		CW2(int x) {}\n" + 
-		"		class CW3 {\n" + 
-		"			CW3(int x) {}\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class CW {\n" +
+		"	CW2 c2;\n" +
+		"	CW2.CW3 c3;\n" +
+		"	CW(int c) {\n" +
+		"		c2 = new CW2(c);\n" +
+		"		c3 = c2.new CW3(c);\n" +
+		"	}\n" +
+		"	class CW2 {\n" +
+		"		CW2(int x) {}\n" +
+		"		class CW3 {\n" +
+		"			CW3(int x) {}\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IField field = workingCopies[0].getType("CW").getField("c3");
@@ -6813,18 +6813,18 @@ public void testBug140156() throws CoreException {
 public void testBug144044() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test1/p/Test.java",
-		"package test1.p;\n" + 
-		"import test1.q.X;\n" + 
-		"public class Test {\n" + 
-		"	String foo(X val) {\n" + 
-		"		return val.str;\n" + 
-		"	}\n" + 
+		"package test1.p;\n" +
+		"import test1.q.X;\n" +
+		"public class Test {\n" +
+		"	String foo(X val) {\n" +
+		"		return val.str;\n" +
+		"	}\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test1/q/X.java",
-		"package test1.q;\n" + 
-		"public class X {\n" + 
-		"	String str;\n" + 
+		"package test1.q;\n" +
+		"public class X {\n" +
+		"	String str;\n" +
 		"}\n"
 	);
 	IType type = this.workingCopies[1].getType("X");
@@ -6837,37 +6837,37 @@ public void testBug144044() throws CoreException {
 public void testBug144044b() throws CoreException {
 	workingCopies = new ICompilationUnit[4];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test2/p/Test.java",
-		"package test2.p;\n" + 
-		"import test2.q.X;\n" + 
-		"public class Test {\n" + 
-		"	X foo() {\n" + 
-		"		return X.y_field.z_field.x_field.y_field.z_field.x_field;\n" + 
-		"	}\n" + 
+		"package test2.p;\n" +
+		"import test2.q.X;\n" +
+		"public class Test {\n" +
+		"	X foo() {\n" +
+		"		return X.y_field.z_field.x_field.y_field.z_field.x_field;\n" +
+		"	}\n" +
 		"}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test2/q/X.java",
-		"package test2.q;\n" + 
-		"public class X {\n" + 
-		"	public static Y y_field;\n" + 
+		"package test2.q;\n" +
+		"public class X {\n" +
+		"	public static Y y_field;\n" +
 		"}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/test2/q/Y.java",
-		"package test2.q;\n" + 
-		"public class Y {\n" + 
-		"	public static Z z_field;\n" + 
+		"package test2.q;\n" +
+		"public class Y {\n" +
+		"	public static Z z_field;\n" +
 		"}\n"
 	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/test2/q/Z.java",
-		"package test2.q;\n" + 
-		"public class Z {\n" + 
-		"	static X x_field;\n" + 
+		"package test2.q;\n" +
+		"public class Z {\n" +
+		"	static X x_field;\n" +
 		"}\n"
 	);
 	IType type = this.workingCopies[3].getType("Z");
 	IField field = type.getField("x_field");
 	search(field, REFERENCES);
 	assertSearchResults(
-		"src/test2/p/Test.java X test2.p.Test.foo() [x_field] POTENTIAL_MATCH\n" + 
+		"src/test2/p/Test.java X test2.p.Test.foo() [x_field] POTENTIAL_MATCH\n" +
 		"src/test2/p/Test.java X test2.p.Test.foo() [x_field] POTENTIAL_MATCH"
 	);
 }
@@ -6883,8 +6883,8 @@ public void testBug148215_Types() throws CoreException {
 		IMethod method = type.getMethods()[1];
 		searchDeclarationsOfReferencedTypes(method, this.resultCollector);
 		assertSearchResults(
-			""+ getExternalJCLPathString("1.5") + " java.lang.Object EXACT_MATCH\n" + 
-			""+ getExternalJCLPathString("1.5") + " java.lang.String EXACT_MATCH\n" + 
+			""+ getExternalJCLPathString("1.5") + " java.lang.Object EXACT_MATCH\n" +
+			""+ getExternalJCLPathString("1.5") + " java.lang.String EXACT_MATCH\n" +
 			"lib/b148215.jar test.def.Reference EXACT_MATCH"
 		);
 	}
@@ -6899,7 +6899,7 @@ public void testBug148215_Messages() throws CoreException {
 		IMethod method = type.getMethods()[1];
 		searchDeclarationsOfSentMessages(method, this.resultCollector);
 		assertSearchResults(
-			"lib/b148215.jar void test.pack.Test.bar(java.lang.String) EXACT_MATCH\n" + 
+			"lib/b148215.jar void test.pack.Test.bar(java.lang.String) EXACT_MATCH\n" +
 			"lib/b148215.jar void test.pack.Test.bar(test.def.Reference) EXACT_MATCH"
 		);
 	}
@@ -6914,7 +6914,7 @@ public void testBug148215_Fields() throws CoreException {
 		IMethod method = type.getMethods()[1];
 		searchDeclarationsOfAccessedFields(method, this.resultCollector);
 		assertSearchResults(
-			"lib/b148215.jar test.pack.Test.sField EXACT_MATCH\n" + 
+			"lib/b148215.jar test.pack.Test.sField EXACT_MATCH\n" +
 			"lib/b148215.jar test.pack.Test.rField EXACT_MATCH"
 		);
 	}
@@ -6933,19 +6933,19 @@ public void testBug148380_SearchAllTypes_wc() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[4];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b148380/I.java",
-		"package b148380;\n" + 
+		"package b148380;\n" +
 		"public interface I {}\n"
 	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b148380/X.java",
-		"package b148380;\n" + 
+		"package b148380;\n" +
 		"public class X {}\n"
 	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b148380/Sub.java",
-		"package b148380;\n" + 
+		"package b148380;\n" +
 		"public class Sub extends X {}\n"
 	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b148380/Y.java",
-		"package b148380;\n" + 
+		"package b148380;\n" +
 		"public class Y {}\n"
 	);
 	IJavaSearchScope scope = getJavaSearchScopeBugs();
@@ -6960,9 +6960,9 @@ public void testBug148380_SearchAllTypes_wc() throws CoreException {
 		requestor1,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
-	String expected = "class Sub [in [Working copy] Sub.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
-		"class X [in [Working copy] X.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
-		"class Y [in [Working copy] Y.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
+	String expected = "class Sub [in [Working copy] Sub.java [in b148380 [in src [in JavaSearchBugs]]]]\n" +
+		"class X [in [Working copy] X.java [in b148380 [in src [in JavaSearchBugs]]]]\n" +
+		"class Y [in [Working copy] Y.java [in b148380 [in src [in JavaSearchBugs]]]]\n" +
 		"interface I [in [Working copy] I.java [in b148380 [in src [in JavaSearchBugs]]]]";
 	assertSearchResults(expected, requestor1);
 	//  Expected same result with the wc owner
@@ -7037,15 +7037,15 @@ public void testBug156340() throws CoreException {
    );
 	assertSearchResults(
 		"Unexpected all type names",
-		"java.lang.Class\n" + 
-		"java.lang.CloneNotSupportedException\n" + 
-		"java.lang.Error\n" + 
-		"java.lang.Exception\n" + 
-		"java.lang.IllegalMonitorStateException\n" + 
-		"java.lang.InterruptedException\n" + 
-		"java.lang.Object\n" + 
-		"java.lang.RuntimeException\n" + 
-		"java.lang.String\n" + 
+		"java.lang.Class\n" +
+		"java.lang.CloneNotSupportedException\n" +
+		"java.lang.Error\n" +
+		"java.lang.Exception\n" +
+		"java.lang.IllegalMonitorStateException\n" +
+		"java.lang.InterruptedException\n" +
+		"java.lang.Object\n" +
+		"java.lang.RuntimeException\n" +
+		"java.lang.String\n" +
 		"java.lang.Throwable",
 		requestor);
 }
@@ -7058,10 +7058,10 @@ public void testBug156177() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b156177/Test.java",
-		"package b156177;\n" + 
-		"interface B156177_I {}\n" + 
-		"enum B156177_E {}\n" + 
-		"@interface B156177_A {}\n" + 
+		"package b156177;\n" +
+		"interface B156177_I {}\n" +
+		"enum B156177_E {}\n" +
+		"@interface B156177_A {}\n" +
 		"public class B156177 {}\n"
 	);
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
@@ -7078,7 +7078,7 @@ public void testBug156177() throws CoreException {
 	);
 	assertSearchResults(
 		"Unexpected all type names",
-		"b156177.B156177_A\n" + 
+		"b156177.B156177_A\n" +
 		"b156177.B156177_I",
 		requestor);
 }
@@ -7091,70 +7091,70 @@ public void testBug156491() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/Test.java",
-		"package pack;\n" + 
-		"public class Test {\n" + 
-		"	void noMatch(Y y) {\n" + 
-		"		y.toString();\n" + 
-		"		toString();\n" + 
-		"	}\n" + 
-		"	void validMatches(X x) {\n" + 
-		"		x.toString();\n" + 
-		"	}\n" + 
-		"	void superInvocationMatches(Object o) {\n" + 
-		"		o.toString();\n" + 
-		"	}\n" + 
-		"	void interfaceMatches(I i) {\n" + 
-		"		i.toString();\n" + 
-		"	}\n" + 
-		"	void subtypeMatches(Sub s) {\n" + 
-		"		s.toString();\n" + 
-		"	}\n" + 
+		"package pack;\n" +
+		"public class Test {\n" +
+		"	void noMatch(Y y) {\n" +
+		"		y.toString();\n" +
+		"		toString();\n" +
+		"	}\n" +
+		"	void validMatches(X x) {\n" +
+		"		x.toString();\n" +
+		"	}\n" +
+		"	void superInvocationMatches(Object o) {\n" +
+		"		o.toString();\n" +
+		"	}\n" +
+		"	void interfaceMatches(I i) {\n" +
+		"		i.toString();\n" +
+		"	}\n" +
+		"	void subtypeMatches(Sub s) {\n" +
+		"		s.toString();\n" +
+		"	}\n" +
 		"}\n" +
 		"interface I {}\n" +
-		"class X {\n" + 
-		"	public String toString() {\n" + 
-		"		return \"X\";\n" + 
-		"	}\n" + 
+		"class X {\n" +
+		"	public String toString() {\n" +
+		"		return \"X\";\n" +
+		"	}\n" +
 		"}\n" +
 		"class Sub extends X {}\n" +
-		"class Y {\n" + 
-		"	public String toString() {\n" + 
-		"		return \"Y\";\n" + 
-		"	}\n" + 
+		"class Y {\n" +
+		"	public String toString() {\n" +
+		"		return \"Y\";\n" +
+		"	}\n" +
 		"}\n"
 	);
 	IMethod method = workingCopies[0].getType("X").getMethod("toString", new String[0]);
 	this.resultCollector.showFlavors = PatternLocator.SUPER_INVOCATION_FLAVOR;
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/pack/Test.java void pack.Test.validMatches(X) [toString()] EXACT_MATCH\n" + 
-		"src/pack/Test.java void pack.Test.superInvocationMatches(Object) [toString()] EXACT_MATCH SUPER INVOCATION\n" + 
+		"src/pack/Test.java void pack.Test.validMatches(X) [toString()] EXACT_MATCH\n" +
+		"src/pack/Test.java void pack.Test.superInvocationMatches(Object) [toString()] EXACT_MATCH SUPER INVOCATION\n" +
 		"src/pack/Test.java void pack.Test.subtypeMatches(Sub) [toString()] EXACT_MATCH"
 	);
 }
 private void setUpBug156491() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/other/Test.java",
-		"package other;\n" + 
-		"public class Test {\n" + 
-		"	void testInterface(I i) {\n" + 
-		"		i.test();\n" + 
-		"	}\n" + 
-		"	void testSuperInvocation(L1 l) {\n" + 
-		"		l.test();\n" + 
-		"	}\n" + 
-		"	void testInvocation(L2 l) {\n" + 
-		"		l.test();\n" + 
-		"	}\n" + 
-		"}\n" + 
-		"class L1 implements I {\n" + 
-		"	public void test() {}\n" + 
-		"}\n" + 
-		"interface I {\n" + 
-		"	void test();\n" + 
-		"}\n" + 
-		"class L2 extends L1 {\n" + 
-		"	public void test() {}\n" + 
+		"package other;\n" +
+		"public class Test {\n" +
+		"	void testInterface(I i) {\n" +
+		"		i.test();\n" +
+		"	}\n" +
+		"	void testSuperInvocation(L1 l) {\n" +
+		"		l.test();\n" +
+		"	}\n" +
+		"	void testInvocation(L2 l) {\n" +
+		"		l.test();\n" +
+		"	}\n" +
+		"}\n" +
+		"class L1 implements I {\n" +
+		"	public void test() {}\n" +
+		"}\n" +
+		"interface I {\n" +
+		"	void test();\n" +
+		"}\n" +
+		"class L2 extends L1 {\n" +
+		"	public void test() {}\n" +
 		"}"
 	);
 }
@@ -7165,8 +7165,8 @@ public void testBug156491a() throws CoreException {
 	this.resultCollector.showFlavors = PatternLocator.SUPER_INVOCATION_FLAVOR;
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/other/Test.java void other.Test.testInterface(I) [test()] EXACT_MATCH SUPER INVOCATION\n" + 
-		"src/other/Test.java void other.Test.testSuperInvocation(L1) [test()] EXACT_MATCH SUPER INVOCATION\n" + 
+		"src/other/Test.java void other.Test.testInterface(I) [test()] EXACT_MATCH SUPER INVOCATION\n" +
+		"src/other/Test.java void other.Test.testSuperInvocation(L1) [test()] EXACT_MATCH SUPER INVOCATION\n" +
 		"src/other/Test.java void other.Test.testInvocation(L2) [test()] EXACT_MATCH"
 	);
 }
@@ -7177,7 +7177,7 @@ public void testBug156491b() throws CoreException {
 	this.resultCollector.showFlavors = PatternLocator.SUPER_INVOCATION_FLAVOR;
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/other/Test.java void other.Test.testInterface(I) [test()] EXACT_MATCH SUPER INVOCATION\n" + 
+		"src/other/Test.java void other.Test.testInterface(I) [test()] EXACT_MATCH SUPER INVOCATION\n" +
 		"src/other/Test.java void other.Test.testSuperInvocation(L1) [test()] EXACT_MATCH"
 		// since bug 160301 fix, subclass overridden method calls are not reported
 		//"src/other/Test.java void other.Test.testInvocation(L2) [test()] EXACT_MATCH"
@@ -7192,24 +7192,24 @@ public void testBug160301() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"public class Test {\n" + 
-		"	class A {\n" + 
-		"		void foo() {}\n" + 
-		"		void bar() {\n" + 
-		"			foo();\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	class B extends A {\n" + 
-		"		void foo() {}\n" + 
-		"		void bar() {\n" + 
-		"			foo();\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	class C extends B {\n" + 
-		"		void method() {\n" + 
-		"			foo();\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class Test {\n" +
+		"	class A {\n" +
+		"		void foo() {}\n" +
+		"		void bar() {\n" +
+		"			foo();\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class B extends A {\n" +
+		"		void foo() {}\n" +
+		"		void bar() {\n" +
+		"			foo();\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class C extends B {\n" +
+		"		void method() {\n" +
+		"			foo();\n" +
+		"		}\n" +
+		"	}\n" +
 		"}"
 	);
 	IMethod method = workingCopies[0].getType("Test").getType("A").getMethod("foo", new String[0]);
@@ -7222,35 +7222,35 @@ public void testBug160301b() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-		"package test;\n" + 
-		"public class Test {\n" + 
-		"	class A {\n" + 
-		"		void foo() {}\n" + 
-		"	}\n" + 
-		"	class B extends A {}\n" + 
-		"	class C extends B {\n" + 
-		"		void foo() {}\n" + 
-		"	}\n" + 
-		"	class D extends C {}\n" + 
-		"	void a() {\n" + 
-		"		new A().foo();\n" + 
-		"	}\n" + 
-		"	void b() {\n" + 
-		"		new B().foo();\n" + 
-		"	}\n" + 
-		"	void c() {\n" + 
-		"		new C().foo();\n" + 
-		"	}\n" + 
-		"	void d() {\n" + 
-		"		new D().foo();\n" + 
-		"	}\n" + 
-		"	\n" + 
+		"package test;\n" +
+		"public class Test {\n" +
+		"	class A {\n" +
+		"		void foo() {}\n" +
+		"	}\n" +
+		"	class B extends A {}\n" +
+		"	class C extends B {\n" +
+		"		void foo() {}\n" +
+		"	}\n" +
+		"	class D extends C {}\n" +
+		"	void a() {\n" +
+		"		new A().foo();\n" +
+		"	}\n" +
+		"	void b() {\n" +
+		"		new B().foo();\n" +
+		"	}\n" +
+		"	void c() {\n" +
+		"		new C().foo();\n" +
+		"	}\n" +
+		"	void d() {\n" +
+		"		new D().foo();\n" +
+		"	}\n" +
+		"	\n" +
 		"}"
 	);
 	IMethod method = workingCopies[0].getType("Test").getType("A").getMethod("foo", new String[0]);
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/test/Test.java void test.Test.a() [foo()] EXACT_MATCH\n" + 
+		"src/test/Test.java void test.Test.a() [foo()] EXACT_MATCH\n" +
 		"src/test/Test.java void test.Test.b() [foo()] EXACT_MATCH"
 	);
 }
@@ -7258,53 +7258,53 @@ public void testBug160301_Interface() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"public class Test {\n" + 
-		"	interface I {\n" + 
-		"		void foo();\n" + 
-		"	}\n" + 
-		"	class A1 implements I {\n" + 
-		"		public void foo() {}\n" + 
-		"		void a1() {\n" + 
-		"			foo();\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	class B1 extends A1 {\n" + 
-		"		void b1() {\n" + 
-		"			foo();\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	class C1 extends B1 {\n" + 
-		"		public void foo() {}\n" + 
-		"		void c1() {\n" + 
-		"			foo();\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	abstract class A2 implements I {\n" + 
-		"		void a2() {\n" + 
-		"			foo();\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	class B2 extends A2 {\n" + 
-		"		public void foo() {}\n" + 
-		"		void b2() {\n" + 
-		"			foo();\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	class A3 implements I {\n" + 
-		"		public void foo() {}\n" + 
-		"		void a3() {\n" + 
-		"			foo();\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class Test {\n" +
+		"	interface I {\n" +
+		"		void foo();\n" +
+		"	}\n" +
+		"	class A1 implements I {\n" +
+		"		public void foo() {}\n" +
+		"		void a1() {\n" +
+		"			foo();\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class B1 extends A1 {\n" +
+		"		void b1() {\n" +
+		"			foo();\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class C1 extends B1 {\n" +
+		"		public void foo() {}\n" +
+		"		void c1() {\n" +
+		"			foo();\n" +
+		"		}\n" +
+		"	}\n" +
+		"	abstract class A2 implements I {\n" +
+		"		void a2() {\n" +
+		"			foo();\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class B2 extends A2 {\n" +
+		"		public void foo() {}\n" +
+		"		void b2() {\n" +
+		"			foo();\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class A3 implements I {\n" +
+		"		public void foo() {}\n" +
+		"		void a3() {\n" +
+		"			foo();\n" +
+		"		}\n" +
+		"	}\n" +
 		"}"
 	);
 	IMethod method = workingCopies[0].getType("Test").getType("I").getMethod("foo", new String[0]);
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/Test.java void Test$A1.a1() [foo()] EXACT_MATCH\n" + 
-		"src/Test.java void Test$B1.b1() [foo()] EXACT_MATCH\n" + 
-		"src/Test.java void Test$A2.a2() [foo()] EXACT_MATCH\n" + 
-		"src/Test.java void Test$B2.b2() [foo()] EXACT_MATCH\n" + 
+		"src/Test.java void Test$A1.a1() [foo()] EXACT_MATCH\n" +
+		"src/Test.java void Test$B1.b1() [foo()] EXACT_MATCH\n" +
+		"src/Test.java void Test$A2.a2() [foo()] EXACT_MATCH\n" +
+		"src/Test.java void Test$B2.b2() [foo()] EXACT_MATCH\n" +
 		"src/Test.java void Test$A3.a3() [foo()] EXACT_MATCH"
 	);
 }
@@ -7312,46 +7312,46 @@ public void testBug160301_Abstract() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"public class Test {\n" + 
-		"	abstract class Abstract {\n" + 
-		"		abstract void foo();\n" + 
-		"	}\n" + 
-		"	class A1 extends Abstract {\n" + 
-		"		public void foo() {}\n" + 
-		"		void a1() {\n" + 
-		"			foo(); // valid match as A1.foo() is the first override in sub-class\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	class B1 extends A1 {\n" + 
-		"		void b1() {\n" + 
-		"			foo(); // valid match as B1 does not override A.foo()\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	class C1 extends B1 {\n" + 
-		"		public void foo() {}\n" + 
-		"		void c1() {\n" + 
-		"			foo(); // invalid match as C1 does override A.foo()\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	abstract class A2 extends Abstract {\n" + 
-		"		void a2() {\n" + 
-		"			foo(); // valid match as A2 does not override Abstract.foo()\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	class B2 extends A2 {\n" + 
-		"		public void foo() {}\n" + 
-		"		void b2() {\n" + 
-		"			foo(); // valid match as B2.foo() is the first override in sub-class\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class Test {\n" +
+		"	abstract class Abstract {\n" +
+		"		abstract void foo();\n" +
+		"	}\n" +
+		"	class A1 extends Abstract {\n" +
+		"		public void foo() {}\n" +
+		"		void a1() {\n" +
+		"			foo(); // valid match as A1.foo() is the first override in sub-class\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class B1 extends A1 {\n" +
+		"		void b1() {\n" +
+		"			foo(); // valid match as B1 does not override A.foo()\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class C1 extends B1 {\n" +
+		"		public void foo() {}\n" +
+		"		void c1() {\n" +
+		"			foo(); // invalid match as C1 does override A.foo()\n" +
+		"		}\n" +
+		"	}\n" +
+		"	abstract class A2 extends Abstract {\n" +
+		"		void a2() {\n" +
+		"			foo(); // valid match as A2 does not override Abstract.foo()\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class B2 extends A2 {\n" +
+		"		public void foo() {}\n" +
+		"		void b2() {\n" +
+		"			foo(); // valid match as B2.foo() is the first override in sub-class\n" +
+		"		}\n" +
+		"	}\n" +
 		"}"
 	);
 	IMethod method = workingCopies[0].getType("Test").getType("Abstract").getMethod("foo", new String[0]);
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/Test.java void Test$A1.a1() [foo()] EXACT_MATCH\n" + 
-		"src/Test.java void Test$B1.b1() [foo()] EXACT_MATCH\n" + 
-		"src/Test.java void Test$A2.a2() [foo()] EXACT_MATCH\n" + 
+		"src/Test.java void Test$A1.a1() [foo()] EXACT_MATCH\n" +
+		"src/Test.java void Test$B1.b1() [foo()] EXACT_MATCH\n" +
+		"src/Test.java void Test$A2.a2() [foo()] EXACT_MATCH\n" +
 		"src/Test.java void Test$B2.b2() [foo()] EXACT_MATCH"
 	);
 }
@@ -7359,34 +7359,34 @@ public void testBug160301_Abstract2() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"public class Test {\n" + 
-		"	abstract class Abstract {\n" + 
-		"		public abstract void foo();\n" + 
-		"	}\n" + 
-		"	abstract class A extends Abstract {\n" + 
-		"		public abstract void foo();\n" + 
-		"		void a() {\n" + 
-		"			foo(); // valid match as A is abstract => does not override Abstract.foo()\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	class B extends A {\n" + 
-		"		public void foo() {}\n" + 
-		"		void b() {\n" + 
-		"			foo(); // valid match as B.foo() is the first override in sub-class\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	class C extends B {\n" + 
-		"		public void foo() {}\n" + 
-		"		void c() {\n" + 
-		"			foo(); // invalid match as C.foo() overrides Abstract.foo() \n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class Test {\n" +
+		"	abstract class Abstract {\n" +
+		"		public abstract void foo();\n" +
+		"	}\n" +
+		"	abstract class A extends Abstract {\n" +
+		"		public abstract void foo();\n" +
+		"		void a() {\n" +
+		"			foo(); // valid match as A is abstract => does not override Abstract.foo()\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class B extends A {\n" +
+		"		public void foo() {}\n" +
+		"		void b() {\n" +
+		"			foo(); // valid match as B.foo() is the first override in sub-class\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class C extends B {\n" +
+		"		public void foo() {}\n" +
+		"		void c() {\n" +
+		"			foo(); // invalid match as C.foo() overrides Abstract.foo() \n" +
+		"		}\n" +
+		"	}\n" +
 		"}"
 	);
 	IMethod method = workingCopies[0].getType("Test").getType("Abstract").getMethod("foo", new String[0]);
 	search(method, REFERENCES);
 	assertSearchResults(
-		"src/Test.java void Test$A.a() [foo()] EXACT_MATCH\n" + 
+		"src/Test.java void Test$A.a() [foo()] EXACT_MATCH\n" +
 		"src/Test.java void Test$B.b() [foo()] EXACT_MATCH"
 	);
 }
@@ -7394,28 +7394,28 @@ public void testBug160301_Abstract3() throws CoreException {
 	resultCollector.showRule = true;
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"public class Test {\n" + 
-		"	abstract class Abstract {\n" + 
-		"		public abstract void foo();\n" + 
-		"	}\n" + 
-		"	class A extends Abstract {\n" + 
-		"		public void foo() {}\n" + 
-		"		void a() {\n" + 
-		"			foo(); // valid match as A.foo() is the first override in sub-class\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	abstract class B extends A {\n" + 
-		"		public abstract void foo();\n" + 
-		"		void b() {\n" + 
-		"			foo(); // invalid match as B.foo() is hidden by the override A.foo()\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"	class C extends B {\n" + 
-		"		public void foo() {}\n" + 
-		"		void c() {\n" + 
-		"			foo(); // invalid match as C.foo() overrides A.foo()\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class Test {\n" +
+		"	abstract class Abstract {\n" +
+		"		public abstract void foo();\n" +
+		"	}\n" +
+		"	class A extends Abstract {\n" +
+		"		public void foo() {}\n" +
+		"		void a() {\n" +
+		"			foo(); // valid match as A.foo() is the first override in sub-class\n" +
+		"		}\n" +
+		"	}\n" +
+		"	abstract class B extends A {\n" +
+		"		public abstract void foo();\n" +
+		"		void b() {\n" +
+		"			foo(); // invalid match as B.foo() is hidden by the override A.foo()\n" +
+		"		}\n" +
+		"	}\n" +
+		"	class C extends B {\n" +
+		"		public void foo() {}\n" +
+		"		void c() {\n" +
+		"			foo(); // invalid match as C.foo() overrides A.foo()\n" +
+		"		}\n" +
+		"	}\n" +
 		"}"
 	);
 	IMethod method = workingCopies[0].getType("Test").getType("Abstract").getMethod("foo", new String[0]);
@@ -7609,18 +7609,18 @@ public void testBug160854() throws CoreException {
 		null);
 	// Should have same types with these 2 searches
 	assertSearchResults("Wrong types found!",
-		"java.lang.CharSequence\n" + 
-		"java.lang.Class\n" + 
-		"java.lang.CloneNotSupportedException\n" + 
-		"java.lang.Comparable\n" + 
-		"java.lang.Enum\n" + 
-		"java.lang.Error\n" + 
-		"java.lang.Exception\n" + 
-		"java.lang.IllegalMonitorStateException\n" + 
-		"java.lang.InterruptedException\n" + 
-		"java.lang.Object\n" + 
-		"java.lang.RuntimeException\n" + 
-		"java.lang.String\n" + 
+		"java.lang.CharSequence\n" +
+		"java.lang.Class\n" +
+		"java.lang.CloneNotSupportedException\n" +
+		"java.lang.Comparable\n" +
+		"java.lang.Enum\n" +
+		"java.lang.Error\n" +
+		"java.lang.Exception\n" +
+		"java.lang.IllegalMonitorStateException\n" +
+		"java.lang.InterruptedException\n" +
+		"java.lang.Object\n" +
+		"java.lang.RuntimeException\n" +
+		"java.lang.String\n" +
 		"java.lang.Throwable",
 		requestor
 	);
@@ -7677,8 +7677,8 @@ public void testBug161190() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
 	assertSearchResults("Wrong types found!",
-		"xy.BE_124645\n" + 
-		"xy.BX_124645\n" + 
+		"xy.BE_124645\n" +
+		"xy.BX_124645\n" +
 		"xy.BY_124645",
 		requestor
 	);
@@ -7735,12 +7735,12 @@ public void testBug163984() throws CoreException {
 private void setUpBug164121() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/A.java",
-		"class A {\n" + 
-		"     int x(int param) {\n" + 
-		"         param = 2 + 2;\n" + 
-		"         int x = param + 2;\n" + 
-		"         return param - x;\n" + 
-		"     }\n" + 
+		"class A {\n" +
+		"     int x(int param) {\n" +
+		"         param = 2 + 2;\n" +
+		"         int x = param + 2;\n" +
+		"         return param - x;\n" +
+		"     }\n" +
 		"}\n"
 	);
 }
@@ -7759,9 +7759,9 @@ public void testBug164121b() throws CoreException {
 	ILocalVariable param = getLocalVariable(this.workingCopies[0], "param", "param");
 	search(param, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/A.java int A.x(int).param [param] EXACT_MATCH\n" + 
-		"src/A.java int A.x(int) [param] EXACT_MATCH\n" + 
-		"src/A.java int A.x(int) [param] EXACT_MATCH\n" + 
+		"src/A.java int A.x(int).param [param] EXACT_MATCH\n" +
+		"src/A.java int A.x(int) [param] EXACT_MATCH\n" +
+		"src/A.java int A.x(int) [param] EXACT_MATCH\n" +
 		"src/A.java int A.x(int) [param] EXACT_MATCH"
 	);
 }
@@ -7783,7 +7783,7 @@ public void testBug164791() throws CoreException {
 	collector.showAccuracy = true;
 	search(type, REFERENCES, getJavaSearchScopeBugs(), collector);
 	assertSearchResults(
-		"lib/b164791.jar test.<anonymous> EXACT_MATCH\n" + 
+		"lib/b164791.jar test.<anonymous> EXACT_MATCH\n" +
 		"lib/b164791.jar test.<anonymous> EXACT_MATCH",
 		collector
 	);
@@ -7797,7 +7797,7 @@ public void testBug164791() throws CoreException {
 public void testBug166348() throws CoreException {
 	search("Test166348", TYPE, DECLARATIONS);
 	assertSearchResults(
-		"lib/b166348.jar pack.Test166348 [No source] EXACT_MATCH\n" + 
+		"lib/b166348.jar pack.Test166348 [No source] EXACT_MATCH\n" +
 		"lib/b166348.jar test.Test166348 [No source] EXACT_MATCH"
 	);
 }
@@ -7862,6 +7862,57 @@ public void testBug167190() throws CoreException, JavaModelException {
 }
 
 /**
+ * @bug 178596: [search] Search for method references does not find references to interface method
+ * @test Ensure that searching method reference finds the interface method reference
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=178596"
+ */
+public void testBug178596() throws CoreException {
+	workingCopies = new ICompilationUnit[5];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/ClassA.java",
+		"public class ClassA implements InterfaceA {\n" +
+		"    public void setValue(int aValue) {\n" +
+		"    }\n" +
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/ClassB.java",
+		"public class ClassB extends ClassA implements InterfaceB {}\n"
+	);
+	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/InterfaceA.java",
+		"public interface InterfaceA {\n" +
+		"    public void setValue(int aValue);\n" +
+		"}\n"
+	);
+	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/InterfaceB.java",
+		"public interface InterfaceB extends InterfaceA {}\n"
+	);
+	workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/Main.java",
+		"public class Main {\n" +
+		"    public static void main(String[] args) {\n" +
+		"        new Main().run();\n" +
+		"    }\n" +
+		"    private void run() {\n" +
+		"        InterfaceB anB = new ClassB();\n" +
+		"        anB.setValue(123);\n" +
+		"    }\n" +
+		"}\n"
+	);
+	JavaSearchResultCollector testCollector = new JavaSearchResultCollector() {
+		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+	        super.acceptSearchMatch(searchMatch);
+	        assertTrue("Method reference match should be super invocation one!", ((MethodReferenceMatch)searchMatch).isSuperInvocation());
+        }
+
+	};
+	testCollector.showAccuracy = true;
+	IMethod method = workingCopies[0].getType("ClassA").getMethod("setValue", new String[] { "I" });
+	search(method, REFERENCES, getJavaSearchScopeBugs(), testCollector);
+	assertSearchResults(
+		"src/Main.java void Main.run() [setValue(123)] EXACT_MATCH",
+		testCollector
+	);
+}
+
+/**
  * @bug 178847 [search] Potential matches found when searching references to IJavaElement#getResource()
  * @test Ensure that accurate matches are found
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=178847"
@@ -7888,15 +7939,15 @@ public void testBug178847() throws CoreException {
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB", "/P1/bin"}, "");
 		workingCopies = new ICompilationUnit[2];
 		workingCopies[0] = getWorkingCopy("/P2/Test1.java",
-			"public class Test1 {\n" + 
-			"  void bar() {\n" + 
-			"    p.Y.foo();\n" + 
+			"public class Test1 {\n" +
+			"  void bar() {\n" +
+			"    p.Y.foo();\n" +
 			"    new p.X();\n" + // cause AbortCompilation here
-			"  }\n" + 
+			"  }\n" +
 			"}"
 		);
 		workingCopies[1] = getWorkingCopy("/P2/Test2.java",
-			"public class Test2 {\n" + 
+			"public class Test2 {\n" +
 			"  void foo() {}\n" +
 			"  void bar() {\n" +
 			"    foo();\n" +
@@ -7921,93 +7972,93 @@ public void testBug178847() throws CoreException {
 public void testBug185452() throws CoreException {
 	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
 	search(
-		"*", 
+		"*",
 		PACKAGE,
-		DECLARATIONS, 
-		SearchEngine.createWorkspaceScope(), 
+		DECLARATIONS,
+		SearchEngine.createWorkspaceScope(),
 		packageCollector);
 	assertSearchResults(
-		""+ getExternalJCLPathString("1.5") + " \n" + 
-		""+ getExternalJCLPathString("1.5") + " java\n" + 
-		""+ getExternalJCLPathString("1.5") + " java.io\n" + 
-		""+ getExternalJCLPathString("1.5") + " java.lang\n" + 
-		""+ getExternalJCLPathString("1.5") + " java.lang.annotation\n" + 
-		"lib \n" + 
-		"lib/JavaSearch15.jar  [No source]\n" + 
-		"lib/JavaSearch15.jar g1 [No source]\n" + 
-		"lib/JavaSearch15.jar g1.t [No source]\n" + 
-		"lib/JavaSearch15.jar g1.t.s [No source]\n" + 
-		"lib/JavaSearch15.jar g1.t.s.def [No source]\n" + 
-		"lib/JavaSearch15.jar g5 [No source]\n" + 
-		"lib/JavaSearch15.jar g5.c [No source]\n" + 
-		"lib/JavaSearch15.jar g5.c.def [No source]\n" + 
-		"lib/JavaSearch15.jar g5.m [No source]\n" + 
-		"lib/JavaSearch15.jar g5.m.def [No source]\n" + 
-		"lib/b110422.jar  [No source]\n" + 
-		"lib/b110422.jar b110422 [No source]\n" + 
-		"lib/b123679.jar  [No source]\n" + 
-		"lib/b123679.jar pack [No source]\n" + 
-		"lib/b123679.jar test [No source]\n" + 
-		"lib/b124469.jar  [No source]\n" + 
-		"lib/b124469.jar pack [No source]\n" + 
-		"lib/b124469.jar test [No source]\n" + 
-		"lib/b124645.jar  [No source]\n" + 
-		"lib/b124645.jar test [No source]\n" + 
-		"lib/b124645.jar xy [No source]\n" + 
-		"lib/b125178.jar  [No source]\n" + 
-		"lib/b125178.jar pack [No source]\n" + 
-		"lib/b125178.jar pack.age [No source]\n" + 
-		"lib/b126330.jar  [No source]\n" + 
-		"lib/b128877.jar  [No source]\n" + 
-		"lib/b128877.jar pack [No source]\n" + 
-		"lib/b137984.jar  [No source]\n" + 
-		"lib/b140156.jar  [No source]\n" + 
-		"lib/b164791.jar  [No source]\n" + 
-		"lib/b164791.jar pack [No source]\n" + 
-		"lib/b164791.jar test [No source]\n" + 
-		"lib/b166348.jar  [No source]\n" + 
-		"lib/b166348.jar pack [No source]\n" + 
-		"lib/b166348.jar test [No source]\n" + 
-		"lib/b86293.jar  [No source]\n" + 
-		"lib/b87627.jar  [No source]\n" + 
-		"lib/b87627.jar b87627 [No source]\n" + 
-		"lib/b89848 b89848\n" + 
-		"lib/b95152.jar  [No source]\n" + 
-		"lib/b95152.jar b95152 [No source]\n" + 
-		"lib/test75816.jar  [No source]\n" + 
-		"lib/test81556.jar  [No source]\n" + 
-		"lib/test81556.jar b81556 [No source]\n" + 
-		"lib/test81556.jar b81556.b [No source]\n" + 
-		"src \n" + 
-		"src/b108088 b108088\n" + 
-		"src/b123679 b123679\n" + 
-		"src/b123679/pack b123679.pack\n" + 
-		"src/b123679/test b123679.test\n" + 
-		"src/b124645 b124645\n" + 
-		"src/b124645/test b124645.test\n" + 
-		"src/b124645/xy b124645.xy\n" + 
-		"src/b127628 b127628\n" + 
-		"src/b137984 b137984\n" + 
-		"src/b163984 b163984\n" + 
-		"src/b81556 b81556\n" + 
-		"src/b81556/a b81556.a\n" + 
-		"src/b86380 b86380\n" + 
+		""+ getExternalJCLPathString("1.5") + " \n" +
+		""+ getExternalJCLPathString("1.5") + " java\n" +
+		""+ getExternalJCLPathString("1.5") + " java.io\n" +
+		""+ getExternalJCLPathString("1.5") + " java.lang\n" +
+		""+ getExternalJCLPathString("1.5") + " java.lang.annotation\n" +
+		"lib \n" +
+		"lib/JavaSearch15.jar  [No source]\n" +
+		"lib/JavaSearch15.jar g1 [No source]\n" +
+		"lib/JavaSearch15.jar g1.t [No source]\n" +
+		"lib/JavaSearch15.jar g1.t.s [No source]\n" +
+		"lib/JavaSearch15.jar g1.t.s.def [No source]\n" +
+		"lib/JavaSearch15.jar g5 [No source]\n" +
+		"lib/JavaSearch15.jar g5.c [No source]\n" +
+		"lib/JavaSearch15.jar g5.c.def [No source]\n" +
+		"lib/JavaSearch15.jar g5.m [No source]\n" +
+		"lib/JavaSearch15.jar g5.m.def [No source]\n" +
+		"lib/b110422.jar  [No source]\n" +
+		"lib/b110422.jar b110422 [No source]\n" +
+		"lib/b123679.jar  [No source]\n" +
+		"lib/b123679.jar pack [No source]\n" +
+		"lib/b123679.jar test [No source]\n" +
+		"lib/b124469.jar  [No source]\n" +
+		"lib/b124469.jar pack [No source]\n" +
+		"lib/b124469.jar test [No source]\n" +
+		"lib/b124645.jar  [No source]\n" +
+		"lib/b124645.jar test [No source]\n" +
+		"lib/b124645.jar xy [No source]\n" +
+		"lib/b125178.jar  [No source]\n" +
+		"lib/b125178.jar pack [No source]\n" +
+		"lib/b125178.jar pack.age [No source]\n" +
+		"lib/b126330.jar  [No source]\n" +
+		"lib/b128877.jar  [No source]\n" +
+		"lib/b128877.jar pack [No source]\n" +
+		"lib/b137984.jar  [No source]\n" +
+		"lib/b140156.jar  [No source]\n" +
+		"lib/b164791.jar  [No source]\n" +
+		"lib/b164791.jar pack [No source]\n" +
+		"lib/b164791.jar test [No source]\n" +
+		"lib/b166348.jar  [No source]\n" +
+		"lib/b166348.jar pack [No source]\n" +
+		"lib/b166348.jar test [No source]\n" +
+		"lib/b86293.jar  [No source]\n" +
+		"lib/b87627.jar  [No source]\n" +
+		"lib/b87627.jar b87627 [No source]\n" +
+		"lib/b89848 b89848\n" +
+		"lib/b95152.jar  [No source]\n" +
+		"lib/b95152.jar b95152 [No source]\n" +
+		"lib/test75816.jar  [No source]\n" +
+		"lib/test81556.jar  [No source]\n" +
+		"lib/test81556.jar b81556 [No source]\n" +
+		"lib/test81556.jar b81556.b [No source]\n" +
+		"src \n" +
+		"src/b108088 b108088\n" +
+		"src/b123679 b123679\n" +
+		"src/b123679/pack b123679.pack\n" +
+		"src/b123679/test b123679.test\n" +
+		"src/b124645 b124645\n" +
+		"src/b124645/test b124645.test\n" +
+		"src/b124645/xy b124645.xy\n" +
+		"src/b127628 b127628\n" +
+		"src/b137984 b137984\n" +
+		"src/b163984 b163984\n" +
+		"src/b81556 b81556\n" +
+		"src/b81556/a b81556.a\n" +
+		"src/b86380 b86380\n" +
 		"src/b95794 b95794",
 		packageCollector);
 }
 
 /**
  * @bug 194185 [search] for package declarations finds also subpackages
- * @test Ensure that exact package is found when no 
+ * @test Ensure that exact package is found when no
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=194185"
  */
 public void testBug194185() throws CoreException {
 	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
 	search(
-		"java", 
+		"java",
 		PACKAGE,
-		DECLARATIONS, 
-		SearchEngine.createWorkspaceScope(), 
+		DECLARATIONS,
+		SearchEngine.createWorkspaceScope(),
 		packageCollector);
 	assertSearchResults(
 		""+ getExternalJCLPathString("1.5") + " java",
@@ -8016,7 +8067,7 @@ public void testBug194185() throws CoreException {
 
 /**
  * @bug 204652 "Open Type": ClassCastException in conjunction with a class folder
- * @test Ensure that no ClassCastException is thrown for a library folder with a jar like name 
+ * @test Ensure that no ClassCastException is thrown for a library folder with a jar like name
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=204652"
  */
 public void testBug204652() throws CoreException {
@@ -8042,6 +8093,31 @@ public void testBug204652() throws CoreException {
 	} finally {
 		javaProject.setRawClasspath(originalRawClasspath, null);
 	}
+}
+
+/**
+ * @bug 209054: [search] for references to method finds wrong interface call
+ * @test Ensure that searching method reference does not find wrong interface call
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=209054"
+ */
+public void testBug209054() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/xy/Try.java",
+		"package xy;\n" +
+		"public class Try implements IReferenceUpdating {\n" +
+		"        IMovePolicy fInter;\n" +
+		"        boolean canDo() { // find references\n" +
+		"                return fInter.canDo(); // not a reference\n" +
+		"        }\n" +
+		"}\n" +
+		"interface IMovePolicy extends IReferenceUpdating {\n" +
+		"        boolean canDo();\n" +
+		"}\n" +
+		"interface IReferenceUpdating {}"
+	);
+	IMethod method = workingCopies[0].getType("Try").getMethod("canDo", new String[0]);
+	search(method, REFERENCES);
+	assertSearchResults("");
 }
 
 }

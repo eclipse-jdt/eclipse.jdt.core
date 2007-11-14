@@ -635,21 +635,10 @@ protected int resolveLevel(MessageSend messageSend) {
 			if (method.declaringClass == null || this.allSuperDeclaringTypeNames == null) {
 				declaringLevel = INACCURATE_MATCH;
 			} else {
-				char[][] compoundName = methodReceiverType.compoundName;
-				for (int i = 0, max = this.allSuperDeclaringTypeNames.length; i < max; i++) {
-					if (CharOperation.equals(this.allSuperDeclaringTypeNames[i], compoundName)) {
-						return methodLevel // since this is an ACCURATE_MATCH so return the possibly weaker match
-							| SUPER_INVOCATION_FLAVOR; // this is an overridden method => add flavor to returned level
-					}
+				if (resolveLevelAsSuperInvocation(methodReceiverType, method.parameters, false)) {
+					declaringLevel = methodLevel // since this is an ACCURATE_MATCH so return the possibly weaker match
+						| SUPER_INVOCATION_FLAVOR; // this is an overridden method => add flavor to returned level
 				}
-				/* Do not return interfaces potential matches
-				 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=157814#c8"
-				if (methodReceiverType.isInterface()) {
-					// all methods interface with same name and parameters are potential matches
-					// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=156491
-					return INACCURATE_MATCH | POLYMORPHIC_FLAVOR;
-				}
-				*/
 			}
 		}
 		if ((declaringLevel & FLAVORS_MASK) != 0) {
@@ -661,6 +650,7 @@ protected int resolveLevel(MessageSend messageSend) {
 	}
 	return methodLevel > declaringLevel ? declaringLevel : methodLevel; // return the weaker match
 }
+
 /**
  * Returns whether the given reference type binding matches or is a subtype of a type
  * that matches the given qualified pattern.
@@ -727,6 +717,50 @@ protected int resolveLevelAsSubtype(char[] qualifiedPattern, ReferenceBinding ty
 		}
 	}
 	return IMPOSSIBLE_MATCH;
+}
+
+/*
+ * Return whether the given type binding or one of its possible super interfaces
+ * matches a type in the declaring type names hierarchy.
+ */
+protected boolean resolveLevelAsSuperInvocation(ReferenceBinding type, TypeBinding[] argumentTypes, boolean verifyMethod) {
+	char[][] compoundName = type.compoundName;
+	for (int i = 0, max = this.allSuperDeclaringTypeNames.length; i < max; i++) {
+		if (CharOperation.equals(this.allSuperDeclaringTypeNames[i], compoundName)) {
+			if (!verifyMethod) return true;
+			// need to verify if the type implements the pattern method
+			MethodBinding[] methods = type.getMethods(this.pattern.selector);
+			for (int j=0, length=methods.length; j<length; j++) {
+				MethodBinding method = methods[j];
+				TypeBinding[] parameters = method.parameters;
+				if (argumentTypes.length == parameters.length) {
+					boolean found = true;
+					for (int k=0,l=parameters.length; k<l; k++) {
+						if (parameters[k].erasure() != argumentTypes[k].erasure()) {
+							found = false;
+							break;
+						}
+					}
+					if (found) {
+						return true;
+					}
+				}
+			}
+			break;
+		}
+	}
+
+	// maybe super interfaces?
+	if (type.isInterface()) {
+		ReferenceBinding[] interfaces = type.superInterfaces();
+		if (interfaces == null) return false;
+		for (int i = 0; i < interfaces.length; i++) {
+			if (resolveLevelAsSuperInvocation(interfaces[i], argumentTypes, true)) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 public String toString() {
 	return "Locator for " + this.pattern.toString(); //$NON-NLS-1$
