@@ -657,16 +657,8 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 			} else {
 				// cache binary type binding
 				ClassFile classFile = (ClassFile)openable;
-				IBinaryType binaryType = null;
-				if (classFile.isOpen()) {
-					// create binary type from info
-					IType type = classFile.getType();
-					try {
-						binaryType = (IBinaryType)((JavaElement)type).getElementInfo();
-					} catch (JavaModelException e) {
-						// type exists since class file is opened
-					}
-				} else {
+				IBinaryType binaryType = (IBinaryType) JavaModelManager.getJavaModelManager().getInfo(classFile.getType());
+				if (binaryType == null) {
 					// create binary type from file
 					if (classFile.getPackageFragmentRoot().isArchive()) {
 						binaryType = this.builder.createInfoFromClassFileInJar(classFile);
