@@ -40856,5 +40856,68 @@ public void test1218() {
 		"The type A.P is not visible\n" + 
 		"----------\n");
 }	
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209779
+public void test1219() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		final List<String> stringList = new ArrayList<String>();\n" + 
+			"		stringList.add(\"test1\");\n" + 
+			"		stringList.add(\"test2\");\n" + 
+			"		((List) stringList).add(new Integer(1000));\n" + 
+			"		try {\n" + 
+			"			Object o = stringList.get(2);\n" + 
+			"		} catch (ClassCastException e) {\n" + 
+			"			System.out.print(\"[ClassCastException1]\");\n" + 
+			"		}\n" + 
+			"		try {\n" + 
+			"			String s = stringList.get(2);\n" + 
+			"		} catch (ClassCastException e) {\n" + 
+			"			System.out.print(\"[ClassCastException2]\");\n" + 
+			"		}		\n" + 
+			"		try {\n" + 
+			"			for (Object obj : stringList) {\n" + 
+			"				System.out.print(obj);\n" + 
+			"			}\n" + 
+			"		} catch (ClassCastException e) {\n" + 
+			"			System.out.print(\"[ClassCastException3]\");\n" + 
+			"		}		\n" + 
+			"		try {\n" + 
+			"			for (String str : stringList) {\n" + 
+			"				System.out.print(str);\n" + 
+			"			}\n" + 
+			"		} catch (ClassCastException e) {\n" + 
+			"			System.out.print(\"[ClassCastException4]\");\n" + 
+			"		}\n" + 
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"[ClassCastException2]test1test21000test1test2[ClassCastException4]");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209152
+public void test1220() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"        public static void doIt(List<?> list) {\n" + 
+			"                list.add(list.remove(0));\n" + 
+			"        }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	list.add(list.remove(0));\n" + 
+		"	     ^^^\n" + 
+		"The method add(capture#1-of ?) in the type List<capture#1-of ?> is not applicable for the arguments (capture#2-of ?)\n" + 
+		"----------\n");
+}	
 }
