@@ -38,7 +38,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX = "testBug95521";
-//		TESTS_NAMES = new String[] { "testBug83127a" };
+//		TESTS_NAMES = new String[] { "testBug209936" };
 //		TESTS_NUMBERS = new int[] { 101283 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
@@ -3092,5 +3092,47 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	spades\n" +
 				"}\n"
 			});
+	}
+	/**
+	 * Bug 209936  Missing code implementation in the compiler on inner classes
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936"
+	 * disabled for now
+	 */
+	public void _testBug209936() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		reportMissingJavadocCommentsVisibility = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"\n" + 
+				"public abstract class X extends Y {\n" + 
+				"	protected class A extends Member {\n" + 
+				"		/**\n" + 
+				"		 * @see Member#foo(Object, Object)\n" + 
+				"		 */\n" + 
+				"		public void foo(Object source, Object data) {}\n" + 
+				"	}\n" + 
+				"}",
+				"p/Y.java",
+				"package p;\n" + 
+				"\n" + 
+				"import p1.Z;\n" + 
+				"\n" + 
+				"public abstract class Y extends Z<Object> {\n" + 
+				"}",
+				"p1/Z.java",
+				"package p1;\n" + 
+				"\n" + 
+				"public abstract class Z<T> {\n" + 
+				"	protected class Member {\n" + 
+				"		protected void foo(Object source, Object data) {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"TBD\n"
+		);
 	}
 }
