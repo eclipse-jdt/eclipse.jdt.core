@@ -193,6 +193,10 @@ public class BatchTestUtils {
 		return _tmpSrcFolderName;
 	}
 
+	public static String getResourceFolderName() {
+		return RESOURCES_DIR;
+	}
+
 	/**
 	 * Load Eclipse compiler and create temporary directories on disk
 	 */

@@ -645,7 +645,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		int newUnitSize = 0;
 		int newClassFilesSize = 0;
 		int bottom = 0;
-		int top = this.unitsToProcess.length;
+		int top = this.totalUnits;
 		ReferenceBinding[] binaryTypeBindingsTemp = this.referenceBindings;
 		if (top == 0 && binaryTypeBindingsTemp == null) return;
 		this.referenceBindings = null;

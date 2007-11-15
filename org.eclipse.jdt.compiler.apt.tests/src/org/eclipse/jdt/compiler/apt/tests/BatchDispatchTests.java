@@ -219,6 +219,28 @@ public class BatchDispatchTests extends TestCase {
 		assertEquals("succeeded", System.getProperty(processorClass));
 	}
 
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=209961
+	 */
+	public void test209961() throws IOException {
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "dispatch");
+		File inputFile = BatchTestUtils.copyResource("targets/dispatch/X.java", targetFolder);
+		assertNotNull("No input file", inputFile);
+		File classpathEntry =TestUtils.concatPath(
+			new File(BatchTestUtils.getPluginDirectoryPath(), BatchTestUtils.getResourceFolderName()).getAbsolutePath(),
+			"targets",
+			"dispatch");
+		
+		List<String> options = new ArrayList<String>();
+		// See corresponding list in CheckArgsProc processor.
+		// Processor will throw IllegalStateException if it detects a mismatch.
+		options.add("-classpath");
+		options.add(classpathEntry.getAbsolutePath());
+		options.add("-verbose");
+	
+		BatchTestUtils.compileOneClass(BatchTestUtils.getEclipseCompiler(), options, inputFile);
+	}
+
 	@Override
 	protected void tearDown() throws Exception {
 		BatchTestUtils.tearDown();

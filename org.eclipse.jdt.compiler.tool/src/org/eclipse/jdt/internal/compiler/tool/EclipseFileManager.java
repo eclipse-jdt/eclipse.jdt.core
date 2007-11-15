@@ -634,7 +634,13 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> classpaths = getPathsFrom(remaining.next());
 					if (classpaths != null) {
-						setLocation(StandardLocation.CLASS_PATH, classpaths);
+						Iterable<? extends File> iterable = getLocation(StandardLocation.CLASS_PATH);
+						if (iterable != null) {
+							setLocation(StandardLocation.CLASS_PATH,
+								concatFiles(iterable, classpaths));
+						} else {
+							setLocation(StandardLocation.CLASS_PATH, classpaths);
+						}
 						if ((this.flags & HAS_PROCESSORPATH) == 0) {
 							setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, classpaths);
 						}
