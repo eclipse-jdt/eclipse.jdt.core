@@ -143,7 +143,7 @@ public MethodPattern(
 	String genericDeclaringTypeSignature = null;
 //	String genericSignature = null;
 	String key;
-	if (method.isResolved() && (new BindingKey(key = method.getKey())).isParameterizedType()) {
+	if (method.isResolved() && (new BindingKey(key = method.getKey())).isParameterizedMethod()) {
 		genericDeclaringTypeSignature = Util.getDeclaringTypeSignature(key);
 	} else {
 		methodParameters = true;

@@ -116,7 +116,7 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	char[][] extractMethodArguments(IMethod method) {
 		String[] argumentsSignatures = null;
 		BindingKey key;
-		if (method.isResolved() && (key = new BindingKey(method.getKey())).isParameterizedType()) {
+		if (method.isResolved() && (key = new BindingKey(method.getKey())).isParameterizedMethod()) {
 			argumentsSignatures = key.getTypeArguments();
 		} else {
 			try {
@@ -312,7 +312,7 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	 */
 	void storeTypeSignaturesAndArguments(IType type) {
 		BindingKey key;
-		if (type.isResolved() && (key = new BindingKey(type.getKey())).isParameterizedType()) {
+		if (type.isResolved() && ((key = new BindingKey(type.getKey())).isParameterizedType() || key.isRawType())) {
 			String signature = key.toSignature();
 			this.typeSignatures = Util.splitTypeLevelsSignature(signature);
 			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));

@@ -561,4 +561,12 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		);
 	}
 	
+	/*
+	 * Ensures that the binding key of a parameterized type is not a raw type
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=209475)
+	 */
+	public void test051() {
+		assertFalse("Should not be a raw type", new BindingKey("Ltest/ZZ<Ljava/lang/Object;>;").isRawType());
+	}
+	
 }
