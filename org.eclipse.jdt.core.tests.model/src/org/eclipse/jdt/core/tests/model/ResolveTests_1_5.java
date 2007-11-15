@@ -2489,4 +2489,68 @@ public void test0110() throws CoreException {
 			elements
 		);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209661
+public void test0111() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"public class T {" +
+			"	void m(@MyAnnot(\"unuse\") int arg) {\n" +
+			"		@MyAnnot(\"unused\") int local; \n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Resolve/src/test/MyAnnot.java",
+			"package test;\n" +
+			"\n" +
+			"public @inteface MyAnnot {\n" +
+			"	String value();\n" +
+			"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("local");
+	int length = "local".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"local [in m(int) [in T [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
+			elements
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209661
+public void test0112() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"public class T {" +
+			"	void m(@MyAnnot(\"unuse\") int arg) {\n" +
+			"		@MyAnnot(\"unused\") int local; \n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Resolve/src/test/MyAnnot.java",
+			"package test;\n" +
+			"\n" +
+			"public @inteface MyAnnot {\n" +
+			"	String value();\n" +
+			"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("arg");
+	int length = "arg".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"arg [in m(int) [in T [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
+			elements
+		);
+}
 }

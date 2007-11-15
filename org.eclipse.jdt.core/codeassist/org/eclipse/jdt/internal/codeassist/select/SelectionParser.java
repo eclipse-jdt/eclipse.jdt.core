@@ -520,6 +520,18 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 				type, 
 				intStack[intPtr + 1] & ~ClassFileConstants.AccDeprecated); // modifiers
 		arg.declarationSourceStart = modifierPositions;
+		
+		// consume annotations
+		int length;
+		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+			System.arraycopy(
+				this.expressionStack, 
+				(this.expressionPtr -= length) + 1, 
+				arg.annotations = new Annotation[length], 
+				0, 
+				length); 
+		}
+		
 		pushOnAstStack(arg);
 		
 		assistNode = arg;

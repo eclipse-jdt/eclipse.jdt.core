@@ -627,6 +627,24 @@ public void testAnnotations23() throws CoreException {
 }
 
 /*
+ * Ensure that the annotations for a method parameter are correct.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=209661)
+ */
+public void testAnnotations24() throws JavaModelException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Y {\n" +
+		"  void foo(@MyAnnot int arg1) {\n" +
+		"  }\n" +
+		"}"
+	);
+	IAnnotation[] annotations = getLocalVariable(this.workingCopy, "arg1", "arg1").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot\n",
+		annotations);
+}
+
+/*
  * Ensures that the categories for a class are correct.
  */
 public void testGetCategories01() throws CoreException {
