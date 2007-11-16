@@ -238,6 +238,54 @@ public class GetSourceTests extends ModifyingResourceTests {
 	}
 
 	/*
+	 * Ensures that the name range for an annotation on a local variable is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=209823)
+	 */
+	public void testAnnotationNameRange3() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"    @MyAnnot int local;\n" +
+				"  }\n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			IAnnotation annotation = getLocalVariable(getCompilationUnit("/P/p/Y.java"), "local", "local").getAnnotation("MyAnnot");
+			assertSourceEquals(
+				"Unexpected source'", 
+				"MyAnnot",
+				getNameSource(cuSource, annotation));
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
+
+	/*
+	 * Ensures that the source range for an annotation on a local variable is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=209823)
+	 */
+	public void testAnnotationSourceRange() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"    @MyAnnot int local;\n" +
+				"  }\n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			IAnnotation annotation = getLocalVariable(getCompilationUnit("/P/p/Y.java"), "local", "local").getAnnotation("MyAnnot");
+			assertSourceEquals(
+				"Unexpected source'", 
+				"@MyAnnot",
+				getSource(cuSource, annotation.getSourceRange()));
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
+
+	/*
 	 * Ensures the name range for an anonymous class is correct.
 	 * (regression test for bug 44450 Strange name range for anonymous classes)
 	 */

@@ -1672,8 +1672,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				nameRange = ((IMember) element).getNameRange();
 				break;
 		}
-		int start = nameRange.getOffset();
-		int end = start+nameRange.getLength();
+		return getSource(cuSource, nameRange);
+	}
+	protected String getSource(String cuSource, ISourceRange sourceRange) throws JavaModelException {
+		int start = sourceRange.getOffset();
+		int end = start+sourceRange.getLength();
 		String actualSource = start >= 0 && end >= start ? cuSource.substring(start, end) : "";
 		return actualSource;
 	}

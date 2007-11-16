@@ -107,6 +107,10 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	}
 	
 	private IAnnotation getAnnotation(final org.eclipse.jdt.internal.compiler.ast.Annotation annotation, JavaElement parentElement) {
+		final int typeStart = annotation.type.sourceStart();
+		final int typeEnd = annotation.type.sourceEnd();
+		final int sourceStart = annotation.sourceStart();
+		final int sourceEnd = annotation.declarationSourceEnd;
 		class LocalVarAnnotation extends Annotation {
 			IMemberValuePair[] memberValuePairs;
 			public LocalVarAnnotation(JavaElement localVar, String elementName) {
@@ -114,6 +118,12 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 			}
 			public IMemberValuePair[] getMemberValuePairs() throws JavaModelException {
 				return this.memberValuePairs;
+			}
+			public ISourceRange getNameRange() throws JavaModelException {
+				return new SourceRange(typeStart, typeEnd - typeStart + 1);
+			}
+			public ISourceRange getSourceRange() throws JavaModelException {
+				return new SourceRange(sourceStart, sourceEnd - sourceStart + 1);
 			}
 			public boolean exists() {
 				return this.parent.exists();
