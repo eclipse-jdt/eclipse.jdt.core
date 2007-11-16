@@ -65,7 +65,7 @@ public void generateCode(
 			Object[] path = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
 			if (path == null) {
 				// emulation was not possible (should not happen per construction)
-				currentScope.problemReporter().needImplementation();
+				currentScope.problemReporter().needImplementation(this);
 			} else {
 				codeStream.generateOuterAccess(path, this, targetType, currentScope);
 			}
@@ -98,7 +98,7 @@ public void generateCode(
 		// outer access ?
 		if (!isStatic && ((this.bits & DepthMASK) != 0)) {
 			// not supported yet
-			currentScope.problemReporter().needImplementation();
+			currentScope.problemReporter().needImplementation(this);
 		} else {
 			this.receiver.generateCode(currentScope, codeStream, !isStatic);
 			if (this.receiverGenericCast != null) 

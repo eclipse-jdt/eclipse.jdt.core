@@ -2216,7 +2216,7 @@ public void generateInlinedValue(short inlinedValue) {
 public void generateOuterAccess(Object[] mappingSequence, ASTNode invocationSite, Binding target, Scope scope) {
 	if (mappingSequence == null) {
 		if (target instanceof LocalVariableBinding) {
-			scope.problemReporter().needImplementation(); //TODO (philippe) should improve local emulation failure reporting
+			scope.problemReporter().needImplementation(invocationSite); //TODO (philippe) should improve local emulation failure reporting
 		} else {
 			scope.problemReporter().noSuchEnclosingInstance((ReferenceBinding)target, invocationSite, false);
 		}

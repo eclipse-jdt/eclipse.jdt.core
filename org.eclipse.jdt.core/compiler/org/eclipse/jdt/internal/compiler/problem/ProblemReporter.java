@@ -2884,7 +2884,7 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 			return;
 		case ProblemReasons.NoError : // 0
 		default :
-			needImplementation(); // want to fail to see why we were here...
+			needImplementation(statement); // want to fail to see why we were here...
 			break;
 	}
 
@@ -2924,7 +2924,7 @@ public void invalidEnclosingType(Expression expression, TypeBinding type, Refere
 			break;
 		case ProblemReasons.NoError : // 0
 		default :
-			needImplementation(); // want to fail to see why we were here...
+			needImplementation(expression); // want to fail to see why we were here...
 			break;
 	}
 
@@ -2996,7 +2996,7 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 			
 		case ProblemReasons.NoError : // 0
 		default :
-			needImplementation(); // want to fail to see why we were here...
+			needImplementation(fieldRef); // want to fail to see why we were here...
 			break;
 	}
 
@@ -3053,7 +3053,7 @@ public void invalidField(NameReference nameRef, FieldBinding field) {
 			return;
 		case ProblemReasons.NoError : // 0
 		default :
-			needImplementation(); // want to fail to see why we were here...
+			needImplementation(nameRef); // want to fail to see why we were here...
 			break;
 	}
 	String[] arguments = new String[] {new String(field.readableName())};
@@ -3131,7 +3131,7 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 			return;
 		case ProblemReasons.NoError : // 0
 		default :
-			needImplementation(); // want to fail to see why we were here...
+			needImplementation(nameRef); // want to fail to see why we were here...
 			break;
 	}
 	String[] arguments = new String[] {CharOperation.toString(CharOperation.subarray(nameRef.tokens, 0, index + 1))};
@@ -3319,7 +3319,7 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 			return;
 		case ProblemReasons.NoError : // 0
 		default :
-			needImplementation(); // want to fail to see why we were here...
+			needImplementation(messageSend); // want to fail to see why we were here...
 			break;
 	}
 
@@ -3443,7 +3443,7 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		    break;
 		case ProblemReasons.NoError : // 0
 		default :
-			needImplementation(); // want to fail to see why we were here...
+			needImplementation(location); // want to fail to see why we were here...
 			break;
 	}
 	
@@ -4035,7 +4035,7 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
 			return;
 		case ProblemReasons.NoError : // 0
 		default :
-			needImplementation(); // want to fail to see why we were here...
+			needImplementation(statement); // want to fail to see why we were here...
 			break;
 	}
 	int severity = computeSeverity(id);
@@ -4055,7 +4055,7 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
  * 	- NonStaticReferenceInConstructorInvocation :
  * 	- ReceiverTypeNotVisible :
  */
-public void javadocInvalidField(int sourceStart, int sourceEnd, Binding fieldBinding, TypeBinding searchedType, int modifiers) {
+public void javadocInvalidField(FieldReference fieldRef, Binding fieldBinding, TypeBinding searchedType, int modifiers) {
 	int id = IProblem.JavadocUndefinedField;
 	switch (fieldBinding.problemId()) {
 		case ProblemReasons.NotFound :
@@ -4069,7 +4069,7 @@ public void javadocInvalidField(int sourceStart, int sourceEnd, Binding fieldBin
 			break;
 		case ProblemReasons.NoError : // 0
 		default :
-			needImplementation(); // want to fail to see why we were here...
+			needImplementation(fieldRef); // want to fail to see why we were here...
 			break;
 	}
 	int severity = computeSeverity(id);
@@ -4082,8 +4082,8 @@ public void javadocInvalidField(int sourceStart, int sourceEnd, Binding fieldBin
 			arguments,
 			arguments,
 			severity,
-			sourceStart,
-			sourceEnd);
+			fieldRef.sourceStart,
+			fieldRef.sourceEnd);
 	}
 }
 public void javadocInvalidMemberTypeQualification(int sourceStart, int sourceEnd, int modifiers){
@@ -4266,7 +4266,7 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 			return;
 		case ProblemReasons.NoError : // 0
 		default :
-			needImplementation(); // want to fail to see why we were here...
+			needImplementation(messageSend); // want to fail to see why we were here...
 			break;
 	}
 	int severity = computeSeverity(id);
@@ -4354,7 +4354,7 @@ public void javadocInvalidType(ASTNode location, TypeBinding type, int modifiers
 			    break;
 			case ProblemReasons.NoError : // 0
 			default :
-				needImplementation(); // want to fail to see why we were here...
+				needImplementation(location); // want to fail to see why we were here...
 				break;
 		}
 		int severity = computeSeverity(id);
@@ -4855,8 +4855,8 @@ public void nativeMethodsCannotBeStrictfp(ReferenceBinding type, AbstractMethodD
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void needImplementation() {
-	this.abortDueToInternalError(Messages.abort_missingCode); 
+public void needImplementation(ASTNode location) {
+	this.abortDueToInternalError(Messages.abort_missingCode, location); 
 }
 
 public void needToEmulateFieldAccess(FieldBinding field, ASTNode location, boolean isReadAccess) {

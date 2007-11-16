@@ -157,7 +157,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 					if ((this.bits & DepthMASK) != 0) {
 						// internal error, per construction we should have found it
 						// not yet supported
-						currentScope.problemReporter().needImplementation();
+						currentScope.problemReporter().needImplementation(this);
 					} else {
 						this.generateReceiver(codeStream);
 					}
@@ -253,7 +253,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 							if ((this.bits & DepthMASK) != 0) {
 								// internal error, per construction we should have found it
 								// not yet supported
-								currentScope.problemReporter().needImplementation();
+								currentScope.problemReporter().needImplementation(this);
 							} else {
 								generateReceiver(codeStream);
 							}
@@ -322,7 +322,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 					if ((this.bits & DepthMASK) != 0) {
 						// internal error, per construction we should have found it
 						// not yet supported
-						currentScope.problemReporter().needImplementation();
+						currentScope.problemReporter().needImplementation(this);
 					}
 					// used to store the value
 					codeStream.generateEmulationForField(fieldBinding);
@@ -470,7 +470,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 					if ((this.bits & DepthMASK) != 0) {
 						// internal error, per construction we should have found it
 						// not yet supported
-						currentScope.problemReporter().needImplementation();
+						currentScope.problemReporter().needImplementation(this);
 					} else {
 						generateReceiver(codeStream);
 					}

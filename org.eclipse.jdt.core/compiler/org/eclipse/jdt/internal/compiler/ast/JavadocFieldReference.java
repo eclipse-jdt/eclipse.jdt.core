@@ -72,12 +72,12 @@ public class JavadocFieldReference extends FieldReference {
 				ReferenceBinding refBinding = (ReferenceBinding) this.receiverType;
 				MethodBinding[] methodBindings = refBinding.getMethods(this.token);
 				if (methodBindings == null) {
-					scope.problemReporter().javadocInvalidField(this.sourceStart, this.sourceEnd, fieldBinding, this.receiverType, scope.getDeclarationModifiers());
+					scope.problemReporter().javadocInvalidField(this, fieldBinding, this.receiverType, scope.getDeclarationModifiers());
 				} else {
 					switch (methodBindings.length) {
 						case 0:
 							// no method was found: report problem
-							scope.problemReporter().javadocInvalidField(this.sourceStart, this.sourceEnd, fieldBinding, this.receiverType, scope.getDeclarationModifiers());
+							scope.problemReporter().javadocInvalidField(this, fieldBinding, this.receiverType, scope.getDeclarationModifiers());
 							break;
 						case 1:
 							// one method binding was found: store binding in specific field

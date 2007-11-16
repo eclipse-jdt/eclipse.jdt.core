@@ -313,7 +313,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 						if ((this.bits & DepthMASK) != 0) {
 							// internal error, per construction we should have found it
 							// not yet supported
-							currentScope.problemReporter().needImplementation();
+							currentScope.problemReporter().needImplementation(this);
 						} else {
 							generateReceiver(codeStream);
 						}
