@@ -111,6 +111,53 @@ public class Scribe {
 		reset();
 	}
 	
+	/**
+	 * This method will adapt the selected regions if needed.
+	 * If a region should be adapted (see isAdaptableRegion(IRegion))
+	 * retrieve correct upper and lower bounds and replace the region.
+	 */
+	private void adaptSelectedRegions() {
+		for (int i = 0, max = this.regions.length; i < max; i++) {
+			IRegion aRegion = this.regions[i];
+			int offset = aRegion.getOffset();
+			if (offset > 0) {
+				int length = aRegion.getLength();
+				if (isAdaptableRegion(offset, length)) {
+					// if we have a selection, search for overlapping edits
+					int upperBound = offset;
+					int lowerBound = 0;
+					boolean upperFound = false;
+					int regionEnd = offset + length;
+					for (int j = 0, max2 = this.editsIndex; j < max2; j++) {
+						// search for lower bound
+						int editOffset = this.edits[j].offset;
+						if (upperFound) {
+							int editLength = this.edits[j].length;
+							if (lowerBound == 0  && editOffset + editLength < regionEnd) {
+								continue;
+							} else {
+								lowerBound = editOffset + editLength;
+								break; // found both bonds - leave the loop
+							}
+						// search for upper bound
+						} else {
+							if (this.edits[j+1].offset < offset) {
+								continue;
+							} else {
+								upperBound = editOffset;
+								upperFound = true;
+							}
+						}
+					}
+					if (lowerBound != 0) {
+						// store result if any
+						this.regions[i] = new Region(upperBound , lowerBound - upperBound);
+					}
+				}
+			}
+		}
+	}
+
 	private final void addDeleteEdit(int start, int end) {
 		if (this.edits.length == this.editsIndex) {
 			// resize
@@ -558,6 +605,9 @@ public class Scribe {
 	}
 	
 	public TextEdit getRootEdit() {
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
+		adaptSelectedRegions();
+		
 		MultiTextEdit edit = null;
 		int regionsLength = this.regions.length;
 		int textRegionStart;
@@ -661,8 +711,33 @@ public class Scribe {
 		this.scannerEndPosition = compilationUnitSource.length;
 		this.scanner.resetTo(0, this.scannerEndPosition - 1);
 		this.edits = new OptimizedReplaceEdit[INITIAL_SIZE];
-	}	
-
+	}
+	
+	/**
+	 * Returns whether the given region should be adpated of not.
+	 * A region should be adapted only if:
+	 * - region does not exceed the page width
+	 * - on a single line when more than one line in CU
+	 * @param offset the offset of the region to consider
+	 * @param length the length of the region to consider
+	 * @return boolean true if line should be adapted, false otherwhise
+	 */
+	private boolean isAdaptableRegion(int offset, int length) {
+		int span = offset + length;
+		// first check region width
+		if (span > this.pageWidth) {
+			return false;
+		}
+		// more than one line selected
+		if (span > this.getLineEnd(this.scanner.getLineNumber(offset) + 1)) {
+			return false;
+		// region is on a single line and CU has more than one line
+		} else if (this.lineEnds != null && this.lineEnds.length > 1) {
+			return true;
+		}
+		return false;
+	}
+	
 	private boolean isOnFirstColumn(int start) {
 		if (this.lineEnds == null) return start == 0;
 		int index = Arrays.binarySearch(this.lineEnds, start);
