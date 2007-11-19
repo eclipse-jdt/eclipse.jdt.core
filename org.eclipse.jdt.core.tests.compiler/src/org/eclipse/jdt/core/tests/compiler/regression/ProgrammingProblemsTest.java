@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -636,6 +638,52 @@ public void test0016_unread_parameters_constructor() {
 		null /* vmArguments */, 
 		null /* customOptions */,
 		null /* clientRequestor */,
+		true /* skipJavac */);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208001
+public void test0017_shadowing_package_visible_methods() {
+	runTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" +
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"  }\n" + 
+			"}\n",
+			"q/Y.java",
+			"package q;\n" +
+			"public class Y extends p.X {\n" + 
+			"  void foo() {\n" + 
+			"  }\n" + 
+			"}\n",
+			},
+		null /* errorOptions */,
+		new String[] {
+			CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod
+			} /* warningOptions */,
+		null /* ignoreOptions */,
+		false /* expectingCompilerErrors */,
+		"----------\n" + 
+		"1. WARNING in q\\Y.java (at line 3)\n" + 
+		"	void foo() {\n" + 
+		"	     ^^^^^\n" + 
+		"The method Y.foo() does not override the inherited method from X since it is private to a different package\n" + 
+		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
+		new ICompilerRequestor() {
+			public void acceptResult(CompilationResult result) {
+				if (result.compilationUnit.getFileName()[0] == 'Y') {
+					assertEquals("unexpected problems count", 1, result.problemCount);
+					assertEquals("unexpected category", CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT, result.problems[0].getCategoryID());
+				}
+			}
+		} /* clientRequestor */,
 		true /* skipJavac */);
 }
 }
