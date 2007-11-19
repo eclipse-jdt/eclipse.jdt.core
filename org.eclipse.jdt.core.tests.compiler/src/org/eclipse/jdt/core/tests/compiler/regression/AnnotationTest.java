@@ -7966,4 +7966,34 @@ public void test240() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213
+public void test241() {
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	@SuppressWarnings(\"unchecked\")\n" + 
+				"	public static <T> T asClassUnchecked(Object object, T requiredClassObject) {\n" + 
+				"		return (T) object;\n" + 
+				"	}\n" + 
+				"	public static void main(String... args) {\n" + 
+				"		try {\n" + 
+				"			X[] xs = X.asClassUnchecked(\"abc\", (X[])null);\n" + 
+				"			System.out.println(xs.length);\n" + 
+				"		} catch(ClassCastException e) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+		},
+		"SUCCESS",
+		null,
+		false,
+		null,
+		options,
+		null);
+}
 }
