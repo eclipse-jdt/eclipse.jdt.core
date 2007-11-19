@@ -149,7 +149,7 @@ protected void acceptBinaryMethod(
 	if (method.exists()) {
 		if (typeParameterNames != null && typeParameterNames.length != 0) {
 			IMethod[] methods = type.findMethods(method);
-			if (methods.length > 1) {
+			if (methods != null && methods.length > 1) {
 				for (int i = 0; i < methods.length; i++) {
 					if (areTypeParametersCompatible(methods[i], typeParameterNames, typeParameterBoundNames)) {
 						acceptBinaryMethod(type, method, uniqueKey, isConstructor);
