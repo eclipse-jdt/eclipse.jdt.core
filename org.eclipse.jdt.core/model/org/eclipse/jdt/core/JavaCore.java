@@ -2280,8 +2280,8 @@ public final class JavaCore extends Plugin {
 	 *     - default:           "ignore"
 	 *
 	 * COMPILER / Reporting Unused Declared Thrown Exception in Overriding Method
-	 *    When disabled, the compiler will not include overriding methods in its diagnosis for unused declared
-	 *    thrown exceptions.
+	 *    When disabled, the compiler will report unused declared thrown
+	 *    exceptions neither on overriding methods nor on implementing methods.
 	 *    <br>
 	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding"
