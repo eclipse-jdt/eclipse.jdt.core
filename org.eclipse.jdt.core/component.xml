@@ -228,7 +228,7 @@
    <type name="IGlobalVariable" implement="false"/>   
  </package>
  <package name="org.eclipse.jdt.core.formatter">
-   <type name="CodeFormatter"/>
+   <type name="CodeFormatter" subclass="false" instantiate="false"/>
    <type name="CodeFormatterApplication" subclass="false" instantiate="false"/>
    <type name="DefaultCodeFormatterConstants" subclass="false" instantiate="false"/>
    <type name="IndentManipulation" subclass="false" instantiate="false"/>
