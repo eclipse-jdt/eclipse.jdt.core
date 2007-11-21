@@ -291,12 +291,26 @@ private IType[] findSuperInterfaces(IGenericType type, ReferenceBinding typeBind
 		System.arraycopy(superinterfaces, 0, superinterfaces = new IType[index], 0, index);
 	return superinterfaces;
 }
+/*
+ * For all type bindings that have hierarchy problems, artificially fix their superclass/superInterfaces so that the connection
+ * can be made.
+ */
 private void fixSupertypeBindings() {
 	for (int current = this.typeIndex; current >= 0; current--) {
 		ReferenceBinding typeBinding = this.typeBindings[current];
+		if ((typeBinding.tagBits & TagBits.HierarchyHasProblems) == 0)
+			continue;
 	
-		
 		if (typeBinding instanceof SourceTypeBinding) {
+			if (typeBinding instanceof LocalTypeBinding) {
+				LocalTypeBinding localTypeBinding = (LocalTypeBinding) typeBinding;
+				QualifiedAllocationExpression allocationExpression = localTypeBinding.scope.referenceContext.allocation;
+				TypeReference type;
+				if (allocationExpression != null && (type = allocationExpression.type) != null && type.resolvedType != null) {
+					localTypeBinding.superclass = (ReferenceBinding) type.resolvedType;
+					continue;
+				}
+			}
 			ClassScope scope = ((SourceTypeBinding) typeBinding).scope;
 			if (scope != null) {
 				TypeDeclaration typeDeclaration = scope.referenceContext;

@@ -333,7 +333,39 @@ public void testAnonymousType10() throws CoreException {
 		"  <anonymous #1> [in foo(X) [in Y [in X.java [in q7 [in src [in TypeHierarchy]]]]]]\n",
 		hierarchy);
 }
-/**
+/*
+ * Ensure that hierarchy contains an anonymous type as a subclass of the focus type,
+ * if the anonymous type is created with a message send to a third type as an argument to
+ * the constructor.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=210070)
+ */
+public void testAnonymousType11() throws CoreException {
+	IType type = getCompilationUnit("TypeHierarchy/src/q8/Y210070.java").getType("Y210070");
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Y210070 [in Y210070.java [in q8 [in src [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+		"Sub types:\n" + 
+		"  <anonymous #1> [in foo(X210070) [in Z210070 [in Z210070.java [in q8 [in src [in TypeHierarchy]]]]]]\n",
+		hierarchy);
+}
+/*
+ * Ensure that hierarchy contains an anonymous type as a subclass of the focus type,
+ * if the anonymous type is created with a problem in its constructor call.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=210070)
+ */
+public void testAnonymousType12() throws CoreException {
+	IType type = getCompilationUnit("TypeHierarchy/src/q8/A210070.java").getType("A210070");
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: A210070 [in A210070.java [in q8 [in src [in TypeHierarchy]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+		"Sub types:\n" + 
+		"  <anonymous #1> [in foo() [in A210070 [in A210070.java [in q8 [in src [in TypeHierarchy]]]]]]\n",
+		hierarchy);
+}/**
  * Ensures that the superclass can be retrieved for a binary inner type.
  */
 public void testBinaryInnerTypeGetSuperclass() throws JavaModelException {
