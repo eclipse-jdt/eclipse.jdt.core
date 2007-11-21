@@ -39,7 +39,6 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 //	TESTS_NAMES = new String[] { "test000" };
 //	TESTS_NUMBERS = new int[] { 152 };
 //	TESTS_RANGE = new int[] { 107, -1 };
-			TESTS_RANGE = new int[] { 174, -1 };
 	}
 public BatchCompilerTest(String name) {
 	super(name);
@@ -6649,6 +6648,193 @@ public void test183_warn_options() {
 		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
 		"----------\n" + 
 		"3 problems (3 warnings)",
+		false);
+}
+// -warn option - regression tests
+public void test184_warn_options() {
+	// check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends Y {\n" + 
+			"  public static int i;\n" + 
+			"  void foo() {\n" + 
+			"    if (this.i > X.j) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  static int j;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	if (this.i > X.j) {\n" + 
+		"	         ^\n" + 
+		"The static field X.i should be accessed in a static way\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+	// observe -warn options variations
+	this.runConformTest(
+		new String[] { },
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -nowarn -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		false);
+}
+// -warn option - regression tests
+public void test185_warn_options() {
+	// same source as 184, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends Y {\n" + 
+			"  public static int i;\n" + 
+			"  void foo() {\n" + 
+			"    if (this.i > X.j) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  static int j;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:staticReceiver -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	if (this.i > X.j) {\n" + 
+		"	         ^\n" + 
+		"The static field X.i should be accessed in a static way\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+}
+// -warn option - regression tests
+public void test186_warn_options() {
+	// same source as 184, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends Y {\n" + 
+			"  public static int i;\n" + 
+			"  void foo() {\n" + 
+			"    if (this.i > X.j) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  static int j;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:indirectStatic -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	if (this.i > X.j) {\n" + 
+		"	               ^\n" + 
+		"The static field Y.j should be accessed directly\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+}
+// -warn option - regression tests
+public void test187_warn_options() {
+	// same source as 184, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends Y {\n" + 
+			"  public static int i;\n" + 
+			"  void foo() {\n" + 
+			"    if (this.i > X.j) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  static int j;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:static-access -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	if (this.i > X.j) {\n" + 
+		"	         ^\n" + 
+		"The static field X.i should be accessed in a static way\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	if (this.i > X.j) {\n" + 
+		"	               ^\n" + 
+		"The static field Y.j should be accessed directly\n" + 
+		"----------\n" + 
+		"2 problems (2 warnings)",
+		false);
+}
+// -warn option - regression tests
+public void test188_warn_options() {
+	// same source as 184, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends Y {\n" + 
+			"  public static int i;\n" + 
+			"  void foo() {\n" + 
+			"    if (this.i > X.j) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  static int j;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:static-access -warn:-staticReceiver -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	if (this.i > X.j) {\n" + 
+		"	               ^\n" + 
+		"The static field Y.j should be accessed directly\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+}
+// -warn option - regression tests
+public void test190_warn_options() {
+	// same source as 184, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends Y {\n" + 
+			"  public static int i;\n" + 
+			"  void foo() {\n" + 
+			"    if (this.i > X.j) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  static int j;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:static-access -warn:-indirectStatic -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	if (this.i > X.j) {\n" + 
+		"	         ^\n" + 
+		"The static field X.i should be accessed in a static way\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
 		false);
 }
 public static Class testClass() {
