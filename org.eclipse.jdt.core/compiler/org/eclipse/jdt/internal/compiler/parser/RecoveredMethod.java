@@ -371,7 +371,7 @@ public void updateFromParserState(){
 				
 				// remove unfinished annotation nodes
 				MemberValuePair[] memberValuePairs = null;
-				if (argLength > 0 && parser.astStack[parser.astPtr] instanceof MemberValuePair) {
+				while (argLength > 0 && parser.astStack[parser.astPtr] instanceof MemberValuePair) {
 					System.arraycopy(parser.astStack, argStart, memberValuePairs = new MemberValuePair[argLength], 0, argLength);
 					parser.astLengthPtr--;
 					parser.astPtr -= argLength;
