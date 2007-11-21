@@ -54,8 +54,8 @@ public void checkParse(
 	
 	CompilationUnitDeclaration computedUnit = parser.dietParse(sourceUnit, compilationResult);
 	if (computedUnit.types != null) {
-		for (int i = computedUnit.types.length; --i >= 0;){
-			computedUnit.types[i].parseMethod(parser, computedUnit);
+		for (int i = 0, length = computedUnit.types.length; i < length; i++){
+			computedUnit.types[i].parseMethods(parser, computedUnit);
 		}
 	}
 

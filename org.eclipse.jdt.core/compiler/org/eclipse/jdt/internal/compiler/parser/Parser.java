@@ -8432,8 +8432,8 @@ public int[] getJavaDocPositions() {
 			this.javadocParser.scanner.setSource(contents);
 		}
 		if (unit.types != null) {
-			for (int i = unit.types.length; --i >= 0;)
-				unit.types[i].parseMethod(this, unit);
+			for (int i = 0, length = unit.types.length; i < length; i++)
+				unit.types[i].parseMethods(this, unit);
 		}
 		
 		// tag unit has having read bodies

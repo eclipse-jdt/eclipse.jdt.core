@@ -783,7 +783,7 @@ public final boolean needClassInitMethod() {
 	return false;
 }
 
-public void parseMethod(Parser parser, CompilationUnitDeclaration unit) {
+public void parseMethods(Parser parser, CompilationUnitDeclaration unit) {
 	//connect method bodies
 	if (unit.ignoreMethodBodies)
 		return;
@@ -792,7 +792,7 @@ public void parseMethod(Parser parser, CompilationUnitDeclaration unit) {
 	if (this.memberTypes != null) {
 		int length = this.memberTypes.length;
 		for (int i = 0; i < length; i++)
-			this.memberTypes[i].parseMethod(parser, unit);
+			this.memberTypes[i].parseMethods(parser, unit);
 	}
 
 	//methods

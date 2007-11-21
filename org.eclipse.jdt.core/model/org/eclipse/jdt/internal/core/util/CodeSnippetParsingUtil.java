@@ -117,8 +117,8 @@ public class CodeSnippetParsingUtil {
 		parser.scanner.setSource(compilationResult);
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
 		if (types != null) {
-			for (int i = types.length; --i >= 0;) {
-				types[i].parseMethod(parser, compilationUnitDeclaration);
+			for (int i = 0, length = types.length; i < length; i++) {
+				types[i].parseMethods(parser, compilationUnitDeclaration);
 			}
 		}
 		

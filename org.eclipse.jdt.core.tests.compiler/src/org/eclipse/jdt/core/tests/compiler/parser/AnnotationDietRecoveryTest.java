@@ -104,8 +104,8 @@ public void checkParse(
 			expectedDietUnitToString,
 			computedUnitToString);
 		if (computedUnit.types != null) {
-			for (int i = computedUnit.types.length; --i >= 0;){
-				computedUnit.types[i].parseMethod(parser, computedUnit);
+			for (int i = 0, length = computedUnit.types.length; i < length; i++){
+				computedUnit.types[i].parseMethods(parser, computedUnit);
 			}
 		}
 		computedUnitToString = computedUnit.toString();

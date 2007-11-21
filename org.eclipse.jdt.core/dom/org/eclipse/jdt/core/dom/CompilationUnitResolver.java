@@ -342,9 +342,9 @@ class CompilationUnitResolver extends Compiler {
 						compilerOptions,
 						new DefaultProblemFactory()),
 				false);
-			int length = compilationUnits.length;
-			if (monitor != null) monitor.beginTask("", length); //$NON-NLS-1$
-			for (int i = 0; i < length; i++) {
+			int unitLength = compilationUnits.length;
+			if (monitor != null) monitor.beginTask("", unitLength); //$NON-NLS-1$
+			for (int i = 0; i < unitLength; i++) {
 				org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) compilationUnits[i];
 				CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
 				CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, compilationResult);
@@ -359,8 +359,8 @@ class CompilationUnitResolver extends Compiler {
 				//real parse of the method....
 				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
 				if (types != null) {
-					for (int j = types.length; --j >= 0;)
-						types[j].parseMethod(parser, compilationUnitDeclaration);
+					for (int j = 0, typeLength = types.length; j < typeLength; j++)
+						types[j].parseMethods(parser, compilationUnitDeclaration);
 				}
 
 				// convert AST
@@ -427,7 +427,7 @@ class CompilationUnitResolver extends Compiler {
 				if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(parser, enclosingTypeDeclaration, compilationUnitDeclaration);
 				} else {
-					((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(parser, compilationUnitDeclaration);
+					((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethods(parser, compilationUnitDeclaration);
 				}
 			}
 		} else {
@@ -435,8 +435,8 @@ class CompilationUnitResolver extends Compiler {
 			//real parse of the method....
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
 			if (types != null) {
-				for (int i = types.length; --i >= 0;)
-					types[i].parseMethod(parser, compilationUnitDeclaration);
+				for (int i = 0, length = types.length; i < length; i++)
+					types[i].parseMethods(parser, compilationUnitDeclaration);
 			}
 		}
 		return compilationUnitDeclaration;
@@ -837,7 +837,7 @@ class CompilationUnitResolver extends Compiler {
 							if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
 			 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(this.parser, enclosingTypeDeclaration, unit);
 		 					} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
-								((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(this.parser, unit);
+								((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethods(this.parser, unit);
 							}
 		 				}
 		 			}
