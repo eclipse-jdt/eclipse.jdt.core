@@ -5516,7 +5516,7 @@ public void test152() {
 		true);
 }
 // -warn option - regression tests
-public void test152_warn_options() {
+public void test153_warn_options() {
 	// check defaults
 	this.runConformTest(
 		new String[] {
@@ -5556,8 +5556,8 @@ public void test152_warn_options() {
 		false);
 }
 // -warn option - regression tests
-public void test153_warn_options() {
-	// same source as 152, skip default checks
+public void test154_warn_options() {
+	// same source as 153, skip default checks
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -5582,8 +5582,8 @@ public void test153_warn_options() {
 		true);
 }
 // -warn option - regression tests
-public void test154_warn_options() {
-	// same source as 152, skip default checks
+public void test155_warn_options() {
+	// same source as 153, skip default checks
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -5607,36 +5607,10 @@ public void test154_warn_options() {
 		"1 problem (1 warning)",
 		true);
 }
-// -warn option - regression tests
-public void test155_warn_options() {
-	// same source as 152, skip default checks
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"     String u;\n" +
-			"   }\n" + 
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:unused -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
-		"	String u;\n" + 
-		"	       ^\n" + 
-		"The local variable u is never read\n" + 
-		"----------\n" + 
-		"1 problem (1 warning)",
-		true);
-}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
 // bad behavior for -warn:null -warn:unused
 public void _test156_warn_options() {
-	// same source as 152, skip default checks
+	// same source as 153, skip default checks
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -5663,7 +5637,7 @@ public void _test156_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
 // variant
 public void test157_warn_options() {
-	// same source as 152, skip default checks
+	// same source as 153, skip default checks
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -5695,7 +5669,7 @@ public void test157_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
 // variant
 public void test158_warn_options() {
-	// same source as 152, skip default checks
+	// same source as 153, skip default checks
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -5718,6 +5692,359 @@ public void test158_warn_options() {
 		"----------\n" + 
 		"1 problem (1 warning)",
 		true);
+}
+// -warn option - regression tests
+public void test159_warn_options() {
+	// same source as 153, skip default checks
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"     String u;\n" +
+			"   }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	String u;\n" + 
+		"	       ^\n" + 
+		"The local variable u is never read\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// -warn option - regression tests
+public void test160_warn_options() {
+	// same source as 153, skip default checks
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"     String u;\n" +
+			"   }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:none -warn:+unused,null -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	s.toString();\n" + 
+		"	^\n" + 
+		"Null pointer access: The variable s can only be null at this location\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	String u;\n" + 
+		"	       ^\n" + 
+		"The local variable u is never read\n" + 
+		"----------\n" + 
+		"2 problems (2 warnings)",
+		true);
+}
+// -warn option - regression tests
+// this one is undocumented but makes some sense
+public void test161_warn_options() {
+	// same source as 153, skip default checks
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"     String u;\n" +
+			"   }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:-null,unused,+unused,null -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	s.toString();\n" + 
+		"	^\n" + 
+		"Null pointer access: The variable s can only be null at this location\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	String u;\n" + 
+		"	       ^\n" + 
+		"The local variable u is never read\n" + 
+		"----------\n" + 
+		"2 problems (2 warnings)",
+		true);
+}
+// -warn option - regression tests
+// this one is undocumented but makes some sense
+public void test162_warn_options() {
+	// same source as 153, skip default checks
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"     String u;\n" +
+			"   }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -nowarn -warn:+null,unused,-unused,null -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+// -warn option - regression tests
+public void test163_warn_options() {
+	// check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  Y f;\n" +
+			"}",
+			"Y.java",
+			"/** @deprecated */\n" +
+			"public class Y {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	Y f;\n" + 
+		"	^\n" + 
+		"The type Y is deprecated\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+	// observe -warn options variations
+	this.runConformTest(
+		new String[] { },
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:none -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		false);
+}
+// -warn option - regression tests
+public void test164_warn_options() {
+	// same source as 163, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  Y f;\n" +
+			"}",
+			"Y.java",
+			"/** @deprecated */\n" +
+			"public class Y {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -nowarn -deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	Y f;\n" + 
+		"	^\n" + 
+		"The type Y is deprecated\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+}
+// -warn option - regression tests
+public void test165_warn_options() {
+	// same source as 163, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  Y f;\n" +
+			"}",
+			"Y.java",
+			"/** @deprecated */\n" +
+			"public class Y {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -nowarn -deprecation -warn:-deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		false);
+}
+// -warn option - regression tests
+public void test166_warn_options() {
+	// same source as 163, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  Y f;\n" +
+			"}",
+			"Y.java",
+			"/** @deprecated */\n" +
+			"public class Y {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -nowarn -deprecation -warn:-allDeprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		false);
+}
+// -warn option - regression tests
+public void test167_warn_options() {
+	// same source as 163, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  Y f;\n" +
+			"}",
+			"Y.java",
+			"/** @deprecated */\n" +
+			"public class Y {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:allDeprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	Y f;\n" + 
+		"	^\n" + 
+		"The type Y is deprecated\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+}
+// -warn option - regression tests
+public void test168_warn_options() {
+	// check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  /**\n" +
+			"    @param\n" +
+			"  */\n" +
+			"  public void foo() {\n" +
+			"  }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+	// observe -warn options variations
+	this.runConformTest(
+		new String[] { },
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:javadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	@param\n" + 
+		"	 ^^^^^\n" + 
+		"Javadoc: Missing parameter name\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+}
+// -warn option - regression tests
+public void test169_warn_options() {
+	// same source as 168, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  /**\n" +
+			"    @param\n" +
+			"  */\n" +
+			"  public void foo() {\n" +
+			"  }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		"	public class X {\n" + 
+		"	             ^\n" + 
+		"Javadoc: Missing comment for public declaration\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	@param\n" + 
+		"	 ^^^^^\n" + 
+		"Javadoc: Missing parameter name\n" + 
+		"----------\n" + 
+		"2 problems (2 warnings)",
+		false);
+}
+// -warn option - regression tests
+public void test170_warn_options() {
+	// same source as 168, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  /**\n" +
+			"    @param\n" +
+			"  */\n" +
+			"  public void foo() {\n" +
+			"  }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:javadoc -warn:-allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		false);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210521
+// -warn option - regression tests
+public void _test171_warn_options() {
+	// same source as 168, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  /**\n" +
+			"    @param\n" +
+			"  */\n" +
+			"  public void foo() {\n" +
+			"  }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:allJavadoc -warn:-javadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		"	public class X {\n" + 
+		"	             ^\n" + 
+		"Javadoc: Missing comment for public declaration\n" + 
+		"1 problem (1 warnings)",
+		false);
 }
 public static Class testClass() {
 	return BatchCompilerTest.class;
