@@ -7725,12 +7725,7 @@ public void test231() {
 		"	                           ^^^^^^^^\n" + 
 		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	@SuppressWarnings({\"all\"})\n" + 
-		"	                   ^^^^^\n" + 
-		"Unnecessary @SuppressWarnings(\"all\")\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 8)\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
 		"	@SuppressWarnings(\"unused\")\n" + 
 		"	                  ^^^^^^^^\n" + 
 		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
@@ -8041,5 +8036,108 @@ public void test242() {
 		"	^^^^^^^^^^^^^^\n" + 
 		"ZorkAnonymous1 cannot be resolved to a type\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
+public void test243() {
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	\n" + 
+				"	@SuppressWarnings(\"unchecked\")\n" + 
+				"	void foo() {\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"}	\n",
+		},
+		"",
+		null,
+		false,
+		null,
+		options,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
+public void test244() {
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.WARNING);
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	\n" + 
+				"	@SuppressWarnings(\"unchecked\")\n" + 
+				"	void foo() {\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"}	\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	@SuppressWarnings(\"unchecked\")\n" + 
+		"	                  ^^^^^^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"unchecked\")\n" + 
+		"----------\n",
+		null,
+		false,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
+public void test245() {
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);	
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	\n" + 
+				"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" + 
+				"	void foo() {\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"}	\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" + 
+		"	                               ^^^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
+		"----------\n",
+		null,
+		false,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
+public void test246() {
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.WARNING);
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	\n" + 
+				"	@SuppressWarnings(\"all\")\n" + 
+				"	void foo() {\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"}	\n",
+		},
+		"",
+		null,
+		false,
+		null,
+		options,
+		null);
 }
 }

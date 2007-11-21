@@ -46,9 +46,17 @@ Eclipse SDK 3.4M4 - %date% - 3.4 MILESTONE 4
 <br>Project org.eclipse.jdt.core v_826
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_826">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Tuned the compiler diagnosis for unused <code>@SuppressWarnings</code> to only complain if the relevant warnings were effectively
+enabled when compiling. So if you turn off certain warnings, then the compiler is not going to suggest getting rid of existing <code>@SuppressWarnings</code>
+in your code, until you will have enabled these back, and the compiler will have proved that there is no occurrence of them.
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=210070">210070</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=210213">210213</a>
+[1.5][compiler] Unused SuppressWarnings shouldn't complain if warnings are not even enabled
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=210070">210070</a>
 Type hierarchy unpredictable
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=210404">210404</a>
 Method parameters are not recovered when followed by an annotation with a syntax error

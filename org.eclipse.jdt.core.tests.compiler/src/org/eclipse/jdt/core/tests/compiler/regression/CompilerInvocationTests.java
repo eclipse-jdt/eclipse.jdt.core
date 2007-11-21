@@ -66,7 +66,7 @@ public void test001_irritant_warning_token() {
 	for (int i = 0; i < 64; i++) {
 		if ((token = tokens[i] = CompilerOptions.warningTokenFromIrritant(irritant = 1L << i)) != null) {
 			matcher.put(token, token);
-			assertTrue((irritant & CompilerOptions.warningTokenToIrritant(token)) != 0);
+			assertTrue((irritant & CompilerOptions.warningTokenToIrritants(token)) != 0);
 		}
 	}
 	String [] allTokens = CompilerOptions.warningTokens;

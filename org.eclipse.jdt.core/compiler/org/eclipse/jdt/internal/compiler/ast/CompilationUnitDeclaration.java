@@ -277,8 +277,11 @@ public class CompilationUnitDeclaration
 										for (int iToken = 0, tokenCount = inits.length; iToken < tokenCount; iToken++) {
 											Constant cst = inits[iToken].constant;
 											if (cst != Constant.NotAConstant && cst.typeID() == TypeIds.T_JavaLangString) {
-												long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
-												if (irritant != 0 && (foundIrritants[iSuppress] & irritant) == 0) {
+												long tokenIrritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
+												if (tokenIrritants != 0 
+														&& ~tokenIrritants != 0 // no complaint against @SuppressWarnings("all")
+														&& options.getSeverity(tokenIrritants) != ProblemSeverities.Ignore // if irritant is effectevely enabled
+														&& (foundIrritants[iSuppress] & tokenIrritants) == 0) { // if irritant had no matching problem
 													if (unusedWarningTokenIsWarning) {
 														int start = value.sourceStart, end = value.sourceEnd;
 														nextSuppress: for (int jSuppress = iSuppress - 1; jSuppress >= 0; jSuppress--) {
@@ -298,8 +301,11 @@ public class CompilationUnitDeclaration
 								} else {
 									Constant cst = value.constant;
 									if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
-										long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
-										if (irritant != 0 && (foundIrritants[iSuppress] & irritant) == 0) {
+										long tokenIrritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
+										if (tokenIrritants != 0 
+												&& ~tokenIrritants != 0 // no complaint against @SuppressWarnings("all")
+												&& options.getSeverity(tokenIrritants) != ProblemSeverities.Ignore // if irritant is effectevely enabled
+												&& (foundIrritants[iSuppress] & tokenIrritants) == 0) { // if irritant had no matching problem
 											if (unusedWarningTokenIsWarning) {
 												int start = value.sourceStart, end = value.sourceEnd;
 												nextSuppress: for (int jSuppress = iSuppress - 1; jSuppress >= 0; jSuppress--) {

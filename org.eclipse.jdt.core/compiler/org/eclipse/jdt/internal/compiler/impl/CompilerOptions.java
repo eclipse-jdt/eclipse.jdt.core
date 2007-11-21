@@ -607,7 +607,7 @@ public class CompilerOptions {
 
 	public int getSeverity(long irritant) {
 		if((this.errorThreshold & irritant) != 0) {
-			if (irritant == UnusedWarningToken) {
+			if ((irritant & UnusedWarningToken) != 0) {
 				return ProblemSeverities.Error | ProblemSeverities.Optional; // cannot be treated as fatal - codegen already occurred
 			}
 			return this.treatOptionalErrorAsFatal
@@ -620,10 +620,10 @@ public class CompilerOptions {
 	}
 
 	public String getSeverityString(long irritant) {
-		if((this.warningThreshold & irritant) != 0)
-			return WARNING;
 		if((this.errorThreshold & irritant) != 0)
 			return ERROR;
+		if((this.warningThreshold & irritant) != 0)
+			return WARNING;
 		return IGNORE;
 	}
 
@@ -641,7 +641,6 @@ public class CompilerOptions {
 	}
 
 	public void set(Map optionsMap) {
-
 		Object optionValue;
 		if ((optionValue = optionsMap.get(OPTION_LocalVariableAttribute)) != null) {
 			if (GENERATE.equals(optionValue)) {
@@ -1303,7 +1302,7 @@ public class CompilerOptions {
 		"unqualified-field-access", //$NON-NLS-1$
 		"unused", //$NON-NLS-1$
 	};
-	public static long warningTokenToIrritant(String warningToken) {
+	public static long warningTokenToIrritants(String warningToken) {
 		// keep in sync with warningTokens and warningTokenFromIrritant
 		if (warningToken == null || warningToken.length() == 0) return 0;
 		switch (warningToken.charAt(0)) {

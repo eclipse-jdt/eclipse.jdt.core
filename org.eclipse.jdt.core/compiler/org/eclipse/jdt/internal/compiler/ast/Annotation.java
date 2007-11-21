@@ -190,12 +190,12 @@ public abstract class Annotation extends Expression {
 						for (int j = 0, initsLength = inits.length; j < initsLength; j++) {
 							Constant cst = inits[j].constant;
 							if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
-								long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
-								if (irritant != 0) {
-									if ((suppressWarningIrritants & irritant) == irritant) {
+								long irritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
+								if (irritants != 0) {
+									if ((suppressWarningIrritants & irritants) == irritants) {
 										scope.problemReporter().unusedWarningToken(inits[j]);
 									} else {
-										suppressWarningIrritants |= irritant;
+										suppressWarningIrritants |= irritants;
 									}
 								} else {
 									scope.problemReporter().unhandledWarningToken(inits[j]);
@@ -206,9 +206,9 @@ public abstract class Annotation extends Expression {
 				} else {
 					Constant cst = value.constant;
 					if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
-						long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
-						if (irritant != 0) {
-							suppressWarningIrritants |= irritant;
+						long irritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
+						if (irritants != 0) {
+							suppressWarningIrritants |= irritants;
 						} else {
 							scope.problemReporter().unhandledWarningToken(value);
 						}
