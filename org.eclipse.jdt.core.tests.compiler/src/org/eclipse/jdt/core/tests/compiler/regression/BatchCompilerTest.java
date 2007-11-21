@@ -5864,7 +5864,7 @@ public void test164_warn_options() {
 		"The type Y is deprecated\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test165_warn_options() {
@@ -5885,7 +5885,7 @@ public void test165_warn_options() {
 		+ " -nowarn -deprecation -warn:-deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test166_warn_options() {
@@ -5906,7 +5906,7 @@ public void test166_warn_options() {
 		+ " -nowarn -deprecation -warn:-allDeprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test167_warn_options() {
@@ -5933,7 +5933,7 @@ public void test167_warn_options() {
 		"The type Y is deprecated\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test168_warn_options() {
@@ -5998,7 +5998,7 @@ public void test169_warn_options() {
 		"Javadoc: Missing parameter name\n" + 
 		"----------\n" + 
 		"2 problems (2 warnings)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test170_warn_options() {
@@ -6018,7 +6018,7 @@ public void test170_warn_options() {
 		+ " -warn:javadoc -warn:-allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
-		false);
+		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210521
 // -warn option - regression tests
@@ -6044,7 +6044,7 @@ public void _test171_warn_options() {
 		"	             ^\n" + 
 		"Javadoc: Missing comment for public declaration\n" + 
 		"1 problem (1 warnings)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test172_warn_options() {
@@ -6125,7 +6125,7 @@ public void _test173_warn_options() {
 		"The type Y is deprecated\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test174_warn_options() {
@@ -6248,7 +6248,7 @@ public void test175_warn_options() {
 		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
 		"----------\n" + 
 		"4 problems (4 warnings)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test176_warn_options() {
@@ -6293,7 +6293,7 @@ public void test176_warn_options() {
 		"The field X.XX.i is hiding a field from type X\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test177_warn_options() {
@@ -6338,7 +6338,7 @@ public void test177_warn_options() {
 		"The parameter i is hiding a field from type X\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test178_warn_options() {
@@ -6383,7 +6383,7 @@ public void test178_warn_options() {
 		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test179_warn_options() {
@@ -6428,7 +6428,7 @@ public void test179_warn_options() {
 		"The type XX is hiding the type X.XX\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test180_warn_options() {
@@ -6483,7 +6483,7 @@ public void test180_warn_options() {
 		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
 		"----------\n" + 
 		"3 problems (3 warnings)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test181_warn_options() {
@@ -6538,7 +6538,7 @@ public void test181_warn_options() {
 		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
 		"----------\n" + 
 		"3 problems (3 warnings)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test182_warn_options() {
@@ -6593,7 +6593,7 @@ public void test182_warn_options() {
 		"The type XX is hiding the type X.XX\n" + 
 		"----------\n" + 
 		"3 problems (3 warnings)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test183_warn_options() {
@@ -6648,7 +6648,7 @@ public void test183_warn_options() {
 		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
 		"----------\n" + 
 		"3 problems (3 warnings)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test184_warn_options() {
@@ -6714,7 +6714,7 @@ public void test185_warn_options() {
 		"The static field X.i should be accessed in a static way\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test186_warn_options() {
@@ -6743,7 +6743,7 @@ public void test186_warn_options() {
 		"The static field Y.j should be accessed directly\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test187_warn_options() {
@@ -6777,7 +6777,7 @@ public void test187_warn_options() {
 		"The static field Y.j should be accessed directly\n" + 
 		"----------\n" + 
 		"2 problems (2 warnings)",
-		false);
+		true);
 }
 // -warn option - regression tests
 public void test188_warn_options() {
@@ -6806,10 +6806,10 @@ public void test188_warn_options() {
 		"The static field Y.j should be accessed directly\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)",
-		false);
+		true);
 }
 // -warn option - regression tests
-public void test190_warn_options() {
+public void test189_warn_options() {
 	// same source as 184, skip check defaults
 	this.runConformTest(
 		new String[] {
@@ -6835,7 +6835,800 @@ public void test190_warn_options() {
 		"The static field X.i should be accessed in a static way\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)",
+		true);
+}
+// -warn option - regression tests
+public void test190_warn_options() {
+	// check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		"	import java.util.ArrayList;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The import java.util.ArrayList is never used\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int j;\n" + 
+		"	    ^\n" + 
+		"The local variable j is never read\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	this.<String>bar();\n" + 
+		"	      ^^^^^^\n" + 
+		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" + 
+		"----------\n" + 
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	next: for (;;) {\n" + 
+		"	^^^^\n" + 
+		"The label next is never explicitly referenced\n" + 
+		"----------\n" + 
+		"5 problems (5 warnings)",
+		true);
+	// observe -warn options variations
+	this.runConformTest(
+		new String[] { },
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -nowarn -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
 		false);
+}
+// -warn option - regression tests
+public void test191_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		"	import java.util.ArrayList;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The import java.util.ArrayList is never used\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                     ^\n" + 
+		"The parameter i is never read\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" + 
+		"----------\n" + 
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int j;\n" + 
+		"	    ^\n" + 
+		"The local variable j is never read\n" + 
+		"----------\n" + 
+		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	this.<String>bar();\n" + 
+		"	      ^^^^^^\n" + 
+		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" + 
+		"----------\n" + 
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	next: for (;;) {\n" + 
+		"	^^^^\n" + 
+		"The label next is never explicitly referenced\n" + 
+		"----------\n" + 
+		"7 problems (7 warnings)",
+		true);
+}
+// -warn option - regression tests
+public void test192_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unusedArgument -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                     ^\n" + 
+		"The parameter i is never read\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// -warn option - regression tests
+public void test193_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unusedImport -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		"	import java.util.ArrayList;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The import java.util.ArrayList is never used\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// -warn option - regression tests
+public void test194_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unusedLabel -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	next: for (;;) {\n" + 
+		"	^^^^\n" + 
+		"The label next is never explicitly referenced\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// -warn option - regression tests
+public void test195_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unusedLocal -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int j;\n" + 
+		"	    ^\n" + 
+		"The local variable j is never read\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// -warn option - regression tests
+public void test196_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unusedPrivate -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X is never used locally\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// -warn option - regression tests
+public void test197_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unusedTypeArgs -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	this.<String>bar();\n" + 
+		"	      ^^^^^^\n" + 
+		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// -warn option - regression tests
+public void test198_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unusedThrown -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// -warn option - regression tests
+public void test199_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -warn:-unusedArgument -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		"	import java.util.ArrayList;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The import java.util.ArrayList is never used\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int j;\n" + 
+		"	    ^\n" + 
+		"The local variable j is never read\n" + 
+		"----------\n" + 
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	this.<String>bar();\n" + 
+		"	      ^^^^^^\n" + 
+		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" + 
+		"----------\n" + 
+		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	next: for (;;) {\n" + 
+		"	^^^^\n" + 
+		"The label next is never explicitly referenced\n" + 
+		"----------\n" + 
+		"6 problems (6 warnings)",
+		true);
+}
+// -warn option - regression tests
+public void test200_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -warn:-unusedImport -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X is never used locally\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                     ^\n" + 
+		"The parameter i is never read\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int j;\n" + 
+		"	    ^\n" + 
+		"The local variable j is never read\n" + 
+		"----------\n" + 
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	this.<String>bar();\n" + 
+		"	      ^^^^^^\n" + 
+		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" + 
+		"----------\n" + 
+		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	next: for (;;) {\n" + 
+		"	^^^^\n" + 
+		"The label next is never explicitly referenced\n" + 
+		"----------\n" + 
+		"6 problems (6 warnings)",
+		true);
+}
+// -warn option - regression tests
+public void test201_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -warn:-unusedLabel -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		"	import java.util.ArrayList;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The import java.util.ArrayList is never used\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                     ^\n" + 
+		"The parameter i is never read\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" + 
+		"----------\n" + 
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int j;\n" + 
+		"	    ^\n" + 
+		"The local variable j is never read\n" + 
+		"----------\n" + 
+		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	this.<String>bar();\n" + 
+		"	      ^^^^^^\n" + 
+		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" + 
+		"----------\n" + 
+		"6 problems (6 warnings)",
+		true);
+}
+// -warn option - regression tests
+public void test202_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -warn:-unusedLocal -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		"	import java.util.ArrayList;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The import java.util.ArrayList is never used\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                     ^\n" + 
+		"The parameter i is never read\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" + 
+		"----------\n" + 
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	this.<String>bar();\n" + 
+		"	      ^^^^^^\n" + 
+		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" + 
+		"----------\n" + 
+		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	next: for (;;) {\n" + 
+		"	^^^^\n" + 
+		"The label next is never explicitly referenced\n" + 
+		"----------\n" + 
+		"6 problems (6 warnings)",
+		true);
+}
+// -warn option - regression tests
+public void test203_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -warn:-unusedPrivate -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		"	import java.util.ArrayList;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The import java.util.ArrayList is never used\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                     ^\n" + 
+		"The parameter i is never read\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int j;\n" + 
+		"	    ^\n" + 
+		"The local variable j is never read\n" + 
+		"----------\n" + 
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	this.<String>bar();\n" + 
+		"	      ^^^^^^\n" + 
+		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" + 
+		"----------\n" + 
+		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	next: for (;;) {\n" + 
+		"	^^^^\n" + 
+		"The label next is never explicitly referenced\n" + 
+		"----------\n" + 
+		"6 problems (6 warnings)",
+		true);
+}
+// -warn option - regression tests
+public void test204_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -warn:-unusedThrown -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		"	import java.util.ArrayList;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The import java.util.ArrayList is never used\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                     ^\n" + 
+		"The parameter i is never read\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int j;\n" + 
+		"	    ^\n" + 
+		"The local variable j is never read\n" + 
+		"----------\n" + 
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	this.<String>bar();\n" + 
+		"	      ^^^^^^\n" + 
+		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" + 
+		"----------\n" + 
+		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	next: for (;;) {\n" + 
+		"	^^^^\n" + 
+		"The label next is never explicitly referenced\n" + 
+		"----------\n" + 
+		"6 problems (6 warnings)",
+		true);
+}
+// -warn option - regression tests
+public void test205_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X extends Y {\n" + 
+			"  private void foo(int i) throws java.io.IOException {\n" + 
+			"    int j;\n" + 
+			"    this.<String>bar();\n" + 
+			"    next: for (;;) {\n" + 
+			"      return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  <T> void bar() {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -warn:-unusedTypeArgs -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		"	import java.util.ArrayList;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The import java.util.ArrayList is never used\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                     ^\n" + 
+		"The parameter i is never read\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private void foo(int i) throws java.io.IOException {\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The declared exception IOException is not actually thrown by the method foo(int) from type X\n" + 
+		"----------\n" + 
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int j;\n" + 
+		"	    ^\n" + 
+		"The local variable j is never read\n" + 
+		"----------\n" + 
+		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	next: for (;;) {\n" + 
+		"	^^^^\n" + 
+		"The label next is never explicitly referenced\n" + 
+		"----------\n" + 
+		"6 problems (6 warnings)",
+		true);
 }
 public static Class testClass() {
 	return BatchCompilerTest.class;
