@@ -372,7 +372,7 @@ protected void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit
 					methodDeclaration.traverse(localDeclarationVisitor, (ClassScope) null);
 				} else if (method instanceof ConstructorDeclaration) {
 					ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) method;
-					this.parse(constructorDeclaration, unit);
+					this.parse(constructorDeclaration, unit, false);
 					constructorDeclaration.traverse(localDeclarationVisitor, (ClassScope) null);
 				}
 			} else if (method.isDefaultConstructor()) {
