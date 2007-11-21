@@ -9239,9 +9239,6 @@ protected void parse() {
 	
 	if (DEBUG) System.out.println("-- EXIT FROM PARSE METHOD --");  //$NON-NLS-1$
 }
-public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
-	parse(cd, unit, false);
-}
 public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, boolean recordLineSeparator) {
 	//only parse the method body of cd
 	//fill out its statements

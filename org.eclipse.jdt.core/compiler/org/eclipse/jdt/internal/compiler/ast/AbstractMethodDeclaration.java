@@ -320,9 +320,7 @@ public abstract class AbstractMethodDeclaration
 	 * @param parser
 	 * @param unit
 	 */
-	public abstract void parseStatements(
-		Parser parser,
-		CompilationUnitDeclaration unit);
+	public abstract void parseStatements(Parser parser, CompilationUnitDeclaration unit);
 
 	public StringBuffer print(int tab, StringBuffer output) {
 
@@ -446,7 +444,6 @@ public abstract class AbstractMethodDeclaration
 	}
 
 	public void tagAsHavingErrors() {
-
 		this.ignoreFurtherInvestigation = true;
 	}
 

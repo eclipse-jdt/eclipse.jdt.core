@@ -382,15 +382,13 @@ public boolean isRecursive(ArrayList visited) {
 
 public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 	//fill up the constructor body with its statements
-	if (this.ignoreFurtherInvestigation)
-		return;
 	if (((this.bits & ASTNode.IsDefaultConstructor) != 0) && this.constructorCall == null){
 		this.constructorCall = SuperReference.implicitSuperConstructorCall();
 		this.constructorCall.sourceStart = this.sourceStart;
 		this.constructorCall.sourceEnd = this.sourceEnd; 
 		return;
 	}
-	parser.parse(this, unit);
+	parser.parse(this, unit, false);
 
 }
 

@@ -45,34 +45,34 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		FlowInfo flowInfo) {
 
 		// starting of the code analysis for methods
-		if (ignoreFurtherInvestigation)
+		if (this.ignoreFurtherInvestigation)
 			return;
 		try {
-			if (binding == null)
+			if (this.binding == null)
 				return;
 				
 			if (!this.binding.isUsed() && 
 					(this.binding.isPrivate() 
 						|| (((this.binding.modifiers & (ExtraCompilerModifiers.AccOverriding|ExtraCompilerModifiers.AccImplementing)) == 0) && this.binding.declaringClass.isLocalType()))) {
 				if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
-					scope.problemReporter().unusedPrivateMethod(this);
+					this.scope.problemReporter().unusedPrivateMethod(this);
 				}
 			}
 				
 			// skip enum implicit methods
-			if (binding.declaringClass.isEnum() && (this.selector == TypeConstants.VALUES || this.selector == TypeConstants.VALUEOF))
+			if (this.binding.declaringClass.isEnum() && (this.selector == TypeConstants.VALUES || this.selector == TypeConstants.VALUEOF))
 				return;
 
 			// may be in a non necessary <clinit> for innerclass with static final constant fields
-			if (binding.isAbstract() || binding.isNative())
+			if (this.binding.isAbstract() || this.binding.isNative())
 				return;
 			
 			ExceptionHandlingFlowContext methodContext =
 				new ExceptionHandlingFlowContext(
 					initializationContext,
 					this,
-					binding.thrownExceptions,
-					scope,
+					this.binding.thrownExceptions,
+					this.scope,
 					FlowInfo.DEAD_END);
 
 			// tag parameters as being set
@@ -82,65 +82,59 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				}
 			}
 			// propagate to statements
-			if (statements != null) {
+			if (this.statements != null) {
 				boolean didAlreadyComplain = false;
-				for (int i = 0, count = statements.length; i < count; i++) {
-					Statement stat = statements[i];
-					if (!stat.complainIfUnreachable(flowInfo, scope, didAlreadyComplain)) {
-						flowInfo = stat.analyseCode(scope, methodContext, flowInfo);
+				for (int i = 0, count = this.statements.length; i < count; i++) {
+					Statement stat = this.statements[i];
+					if (!stat.complainIfUnreachable(flowInfo, this.scope, didAlreadyComplain)) {
+						flowInfo = stat.analyseCode(this.scope, methodContext, flowInfo);
 					} else {
 						didAlreadyComplain = true;
 					}
 				}
 			}
 			// check for missing returning path
-			TypeBinding returnTypeBinding = binding.returnType;
+			TypeBinding returnTypeBinding = this.binding.returnType;
 			if ((returnTypeBinding == TypeBinding.VOID) || isAbstract()) {
 				if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 					this.bits |= ASTNode.NeedFreeReturn;
 				}
 			} else {
 				if (flowInfo != FlowInfo.DEAD_END) { 
-					scope.problemReporter().shouldReturn(returnTypeBinding, this);
+					this.scope.problemReporter().shouldReturn(returnTypeBinding, this);
 				}
 			}
 			// check unreachable catch blocks
 			methodContext.complainIfUnusedExceptionHandlers(this);
 			// check unused parameters
-			scope.checkUnusedParameters(binding);
+			this.scope.checkUnusedParameters(this.binding);
 		} catch (AbortMethod e) {
 			this.ignoreFurtherInvestigation = true;
 		}
 	}
 
 	public boolean isMethod() {
-
 		return true;
 	}
 
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
-
 		//fill up the method body with statement
-		if (ignoreFurtherInvestigation)
-			return;
 		parser.parse(this, unit);
 	}
 
 	public StringBuffer printReturnType(int indent, StringBuffer output) {
-
-		if (returnType == null) return output;
-		return returnType.printExpression(0, output).append(' ');
+		if (this.returnType == null) return output;
+		return this.returnType.printExpression(0, output).append(' ');
 	}
 
 	public void resolveStatements() {
-
 		// ========= abort on fatal error =============
 		if (this.returnType != null && this.binding != null) {
 			this.returnType.resolvedType = this.binding.returnType;
 			// record the return type binding
 		}
 		// check if method with constructor name
-		if (CharOperation.equals(this.scope.enclosingSourceType().sourceName, selector)) {
+		if (CharOperation.equals(this.scope.enclosingSourceType().sourceName, this.selector)) {
 			this.scope.problemReporter().methodWithConstructorName(this);
 		}
 		
@@ -215,35 +209,35 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 
 		if (visitor.visit(this, classScope)) {
 			if (this.javadoc != null) {
-				this.javadoc.traverse(visitor, scope);
+				this.javadoc.traverse(visitor, this.scope);
 			}
 			if (this.annotations != null) {
 				int annotationsLength = this.annotations.length;
 				for (int i = 0; i < annotationsLength; i++)
-					this.annotations[i].traverse(visitor, scope);
+					this.annotations[i].traverse(visitor, this.scope);
 			}
 			if (this.typeParameters != null) {
 				int typeParametersLength = this.typeParameters.length;
 				for (int i = 0; i < typeParametersLength; i++) {
-					this.typeParameters[i].traverse(visitor, scope);
+					this.typeParameters[i].traverse(visitor, this.scope);
 				}
 			}			
-			if (returnType != null)
-				returnType.traverse(visitor, scope);
-			if (arguments != null) {
-				int argumentLength = arguments.length;
+			if (this.returnType != null)
+				this.returnType.traverse(visitor, this.scope);
+			if (this.arguments != null) {
+				int argumentLength = this.arguments.length;
 				for (int i = 0; i < argumentLength; i++)
-					arguments[i].traverse(visitor, scope);
+					this.arguments[i].traverse(visitor, this.scope);
 			}
-			if (thrownExceptions != null) {
-				int thrownExceptionsLength = thrownExceptions.length;
+			if (this.thrownExceptions != null) {
+				int thrownExceptionsLength = this.thrownExceptions.length;
 				for (int i = 0; i < thrownExceptionsLength; i++)
-					thrownExceptions[i].traverse(visitor, scope);
+					this.thrownExceptions[i].traverse(visitor, this.scope);
 			}
-			if (statements != null) {
-				int statementsLength = statements.length;
+			if (this.statements != null) {
+				int statementsLength = this.statements.length;
 				for (int i = 0; i < statementsLength; i++)
-					statements[i].traverse(visitor, scope);
+					this.statements[i].traverse(visitor, this.scope);
 			}
 		}
 		visitor.endVisit(this, classScope);
