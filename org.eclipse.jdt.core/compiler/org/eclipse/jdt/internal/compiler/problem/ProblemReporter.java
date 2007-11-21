@@ -680,13 +680,13 @@ public void annotationValueMustBeConstant(TypeBinding annotationType, char[] nam
     		value.sourceEnd);
     }
 }
-public void anonymousClassCannotExtendFinalClass(Expression expression, TypeBinding type) {
+public void anonymousClassCannotExtendFinalClass(TypeReference reference, TypeBinding type) {
 	this.handle(
 		IProblem.AnonymousClassCannotExtendFinalClass,
 		new String[] {new String(type.readableName())},
 		new String[] {new String(type.shortReadableName())},
-		expression.sourceStart,
-		expression.sourceEnd);
+		reference.sourceStart,
+		reference.sourceEnd);
 }
 public void argumentTypeCannotBeVoid(SourceTypeBinding type, AbstractMethodDeclaration methodDecl, Argument arg) {
 	String[] arguments = new String[] {new String(methodDecl.selector), new String(arg.name)};

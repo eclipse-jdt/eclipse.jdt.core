@@ -58,8 +58,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 }
 
 public void checkCapturedLocalInitializationIfNecessary(ReferenceBinding checkedType, BlockScope currentScope, FlowInfo flowInfo) {
-	if (checkedType.isLocalType() 
-			&& !checkedType.isAnonymousType()
+	if (((checkedType.tagBits & ( TagBits.AnonymousTypeMask|TagBits.LocalTypeMask)) == TagBits.LocalTypeMask)
 			&& !currentScope.isDefinedInType(checkedType)) { // only check external allocations
 		NestedTypeBinding nestedType = (NestedTypeBinding) checkedType;
 		SyntheticArgumentBinding[] syntheticArguments = nestedType.syntheticOuterLocalVariables();

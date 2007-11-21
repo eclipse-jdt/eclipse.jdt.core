@@ -42,7 +42,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 	//qualification may be on both side
 	public Expression enclosingInstance;
 	public TypeDeclaration anonymousType;
-	public ReferenceBinding superTypeBinding;
 	
 	public QualifiedAllocationExpression() {
 		// for subtypes
@@ -53,20 +52,17 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		anonymousType.allocation = this;
 	}
 
-	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
-
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		// analyse the enclosing instance
 		if (this.enclosingInstance != null) {
 			flowInfo = this.enclosingInstance.analyseCode(currentScope, flowContext, flowInfo);
 		}
 		
 		// check captured variables are initialized in current context (26134)
-		ReferenceBinding allocatedType = this.superTypeBinding == null ? this.binding.declaringClass : this.superTypeBinding;
 		checkCapturedLocalInitializationIfNecessary(
-			(ReferenceBinding) allocatedType.erasure(),
+			(ReferenceBinding)(this.anonymousType == null 
+				? this.binding.declaringClass.erasure()
+				: this.binding.declaringClass.superclass().erasure()),
 			currentScope, 
 			flowInfo);
 		
@@ -188,7 +184,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 	 * exact need.
 	 */
 	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
-
 		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
 		ReferenceBinding allocatedTypeErasure = (ReferenceBinding) this.binding.declaringClass.erasure();
 
@@ -207,7 +202,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
-
 		if (this.enclosingInstance != null)
 			this.enclosingInstance.printExpression(0, output).append('.'); 
 		super.printExpression(0, output);
@@ -218,7 +212,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 	}
 	
 	public TypeBinding resolveType(BlockScope scope) {
-
 		// added for code assist...cannot occur with 'normal' code
 		if (this.anonymousType == null && this.enclosingInstance == null) {
 			return super.resolveType(scope);
@@ -284,16 +277,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 		if (receiverType == null) {
 			hasError = true;
-		} else if (((ReferenceBinding) receiverType).isFinal()) {
-			if (this.anonymousType != null) {
-				if (!receiverType.isEnum()) {
-					scope.problemReporter().anonymousClassCannotExtendFinalClass(this.type, receiverType);
-					hasError = true;
-				}
-			} else if (!receiverType.canBeInstantiated()) {
-				scope.problemReporter().cannotInstantiate(this.type, receiverType);
-				return this.resolvedType = receiverType;
-			}
 		}
 		// resolve type arguments (for generic constructor call)
 		if (this.typeArguments != null) {
@@ -331,13 +314,14 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		// limit of fault-tolerance
 		if (hasError) {
 			if (receiverType instanceof ReferenceBinding) {
+				ReferenceBinding referenceReceiver = (ReferenceBinding) receiverType;
 				// record a best guess, for clients who need hint about possible contructor match
 				int length = this.arguments  == null ? 0 : this.arguments.length;
 				TypeBinding[] pseudoArgs = new TypeBinding[length];
 				for (int i = length; --i >= 0;) {
 					pseudoArgs[i] = argumentTypes[i] == null ? TypeBinding.NULL : argumentTypes[i]; // replace args with errors with null type
 				}
-				this.binding = scope.findMethod((ReferenceBinding) receiverType, TypeConstants.INIT, pseudoArgs, this);
+				this.binding = scope.findMethod(referenceReceiver, TypeConstants.INIT, pseudoArgs, this);
 				if (this.binding != null && !this.binding.isValidBinding()) {
 					MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
 					// record the closest match, for clients who may still need hint about possible method match
@@ -354,7 +338,12 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 						}
 					}
 				}
-				
+				if (this.anonymousType != null) {
+					// insert anonymous type in scope (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=210070)
+					scope.addAnonymousType(this.anonymousType, referenceReceiver);
+					this.anonymousType.resolve(scope);
+					return this.resolvedType = this.anonymousType.binding;
+				}
 			}
 			return this.resolvedType = receiverType;
 		}
@@ -392,61 +381,58 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			scope.problemReporter().typeMismatchError(enclosingInstanceType, expectedType, this.enclosingInstance);
 			return this.resolvedType = receiverType;
 		}
-
-		if (receiverType.isTypeVariable()) {
-			receiverType = new ProblemReferenceBinding(receiverType.sourceName(), (ReferenceBinding)receiverType, ProblemReasons.IllegalSuperTypeVariable);
-			scope.problemReporter().invalidType(this, receiverType);
+		ReferenceBinding superType = (ReferenceBinding) receiverType;
+		if (superType.isTypeVariable()) {
+			superType = new ProblemReferenceBinding(superType.sourceName(), superType, ProblemReasons.IllegalSuperTypeVariable);
+			scope.problemReporter().invalidType(this, superType);
 			return null;
-		} else if (this.type != null && receiverType.isEnum()) { // tolerate enum constant body
-			scope.problemReporter().cannotInstantiate(this.type, receiverType);
-			return this.resolvedType = receiverType;
+		} else if (this.type != null && superType.isEnum()) { // tolerate enum constant body
+			scope.problemReporter().cannotInstantiate(this.type, superType);
+			return this.resolvedType = superType;
 		}
 		// anonymous type scenario
 		// an anonymous class inherits from java.lang.Object when declared "after" an interface
-		this.superTypeBinding = receiverType.isInterface() ? scope.getJavaLangObject() : (ReferenceBinding) receiverType;
+		ReferenceBinding anonymousSuperclass = superType.isInterface() ? scope.getJavaLangObject() : superType;
 		// insert anonymous type in scope
-		scope.addAnonymousType(this.anonymousType, (ReferenceBinding) receiverType);
-		this.anonymousType.resolve(scope);		
-		if (this.superTypeBinding.erasure().id == TypeIds.T_JavaLangEnum) {
-			scope.problemReporter().cannotExtendEnum(this.anonymousType.binding, this.type, this.superTypeBinding);
-		}
-		
-		if ((receiverType.tagBits & TagBits.HasDirectWildcard) != 0) {
-			scope.problemReporter().superTypeCannotUseWildcard(this.anonymousType.binding, this.type, receiverType);
-		}		
+		scope.addAnonymousType(this.anonymousType, superType);
+		this.anonymousType.resolve(scope);	
+			
 		// find anonymous super constructor
-		MethodBinding inheritedBinding = scope.getConstructor(this.superTypeBinding, argumentTypes, this);
+		this.resolvedType = this.anonymousType.binding; // 1.2 change
+		if ((this.resolvedType.tagBits & TagBits.HierarchyHasProblems) != 0) {
+			return null; // stop secondary errors
+		}
+		MethodBinding inheritedBinding = scope.getConstructor(anonymousSuperclass, argumentTypes, this);
 		if (!inheritedBinding.isValidBinding()) {
 			if (inheritedBinding.declaringClass == null) {
-				inheritedBinding.declaringClass = this.superTypeBinding;
+				inheritedBinding.declaringClass = anonymousSuperclass;
 			}
 			scope.problemReporter().invalidConstructor(this, inheritedBinding);
-			return this.resolvedType = this.anonymousType.binding;
+			return this.resolvedType;
 		}
 		if (this.enclosingInstance != null) {
 			ReferenceBinding targetEnclosing = inheritedBinding.declaringClass.enclosingType();
 			if (targetEnclosing == null) {
-				scope.problemReporter().unnecessaryEnclosingInstanceSpecification(this.enclosingInstance, (ReferenceBinding)receiverType);
-				return this.resolvedType = this.anonymousType.binding;
+				scope.problemReporter().unnecessaryEnclosingInstanceSpecification(this.enclosingInstance, superType);
+				return this.resolvedType;
 			} else if (!enclosingInstanceType.isCompatibleWith(targetEnclosing) && !scope.isBoxingCompatibleWith(enclosingInstanceType, targetEnclosing)) {
 				scope.problemReporter().typeMismatchError(enclosingInstanceType, targetEnclosing, this.enclosingInstance);
-				return this.resolvedType = this.anonymousType.binding;
+				return this.resolvedType;
 			}
 			this.enclosingInstance.computeConversion(scope, targetEnclosing, enclosingInstanceType);
 		}
-		if (this.arguments != null)
-			checkInvocationArguments(scope, null, this.superTypeBinding, inheritedBinding, this.arguments, argumentTypes, argsContainCast, this);
-
+		if (this.arguments != null) {
+			checkInvocationArguments(scope, null, anonymousSuperclass, inheritedBinding, this.arguments, argumentTypes, argsContainCast, this);
+		}
 		if (this.typeArguments != null && inheritedBinding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
 			scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(inheritedBinding, this.genericTypeArguments, this.typeArguments);
 		}		
 		// Update the anonymous inner class : superclass, interface  
 		this.binding = this.anonymousType.createDefaultConstructorWithBinding(inheritedBinding);
-		return this.resolvedType = this.anonymousType.binding; // 1.2 change
+		return this.resolvedType;
 	}
 	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-
 		if (visitor.visit(this, scope)) {
 			if (this.enclosingInstance != null)
 				this.enclosingInstance.traverse(visitor, scope);

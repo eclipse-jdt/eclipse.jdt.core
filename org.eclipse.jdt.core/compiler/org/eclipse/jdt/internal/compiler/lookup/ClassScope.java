@@ -38,19 +38,34 @@ public class ClassScope extends Scope {
 	}
 	
 	void buildAnonymousTypeBinding(SourceTypeBinding enclosingType, ReferenceBinding supertype) {
-		LocalTypeBinding anonymousType = buildLocalType(enclosingType, enclosingType.fPackage);
-		SourceTypeBinding sourceType = referenceContext.binding;
+		LocalTypeBinding anonymousType = buildLocalType(enclosingType, supertype, enclosingType.fPackage);
 		if (supertype.isInterface()) {
-			sourceType.superclass = getJavaLangObject();
-			sourceType.superInterfaces = new ReferenceBinding[] { supertype };
+			anonymousType.superclass = getJavaLangObject();
+			anonymousType.superInterfaces = new ReferenceBinding[] { supertype };
 		} else {
-			sourceType.superclass = supertype;
-			sourceType.superInterfaces = Binding.NO_SUPERINTERFACES;
+			anonymousType.superclass = supertype;
+			anonymousType.superInterfaces = Binding.NO_SUPERINTERFACES;
+			TypeReference typeReference = referenceContext.allocation.type;
+			if (typeReference != null) { // no check for enum constant body
+				if (supertype.erasure().id == TypeIds.T_JavaLangEnum) {
+					problemReporter().cannotExtendEnum(anonymousType, typeReference, supertype);
+					anonymousType.tagBits |= TagBits.HierarchyHasProblems;		
+					anonymousType.superclass = getJavaLangObject();
+				} else if (supertype.isFinal()) {
+					problemReporter().anonymousClassCannotExtendFinalClass(typeReference, supertype);
+					anonymousType.tagBits |= TagBits.HierarchyHasProblems;		
+					anonymousType.superclass = getJavaLangObject();
+				} else if ((supertype.tagBits & TagBits.HasDirectWildcard) != 0) {
+					problemReporter().superTypeCannotUseWildcard(anonymousType, typeReference, supertype);
+					anonymousType.tagBits |= TagBits.HierarchyHasProblems;		
+					anonymousType.superclass = getJavaLangObject();
+				}
+			} 
 		}
 		connectMemberTypes();
 		buildFieldsAndMethods();
 		anonymousType.faultInTypesForFieldsAndMethods();
-		sourceType.verifyMethods(environment().methodVerifier());
+		anonymousType.verifyMethods(environment().methodVerifier());
 	}
 	
 	private void buildFields() {
@@ -144,14 +159,14 @@ public class ClassScope extends Scope {
 			 ((SourceTypeBinding) memberTypes[i]).scope.buildFieldsAndMethods();
 	}
 	
-	private LocalTypeBinding buildLocalType(SourceTypeBinding enclosingType, PackageBinding packageBinding) {
+	private LocalTypeBinding buildLocalType(SourceTypeBinding enclosingType, ReferenceBinding anonymousOriginalSuperType, PackageBinding packageBinding) {
 	    
 		referenceContext.scope = this;
 		referenceContext.staticInitializerScope = new MethodScope(this, referenceContext, true);
 		referenceContext.initializerScope = new MethodScope(this, referenceContext, false);
 
 		// build the binding or the local type
-		LocalTypeBinding localType = new LocalTypeBinding(this, enclosingType, this.innermostSwitchCase());
+		LocalTypeBinding localType = new LocalTypeBinding(this, enclosingType, this.innermostSwitchCase(), anonymousOriginalSuperType);
 		referenceContext.binding = localType;
 		checkAndSetModifiers();
 		buildTypeVariables();
@@ -187,7 +202,7 @@ public class ClassScope extends Scope {
 					}
 				}
 				ClassScope memberScope = new ClassScope(this, referenceContext.memberTypes[i]);
-				LocalTypeBinding memberBinding = memberScope.buildLocalType(localType, packageBinding);
+				LocalTypeBinding memberBinding = memberScope.buildLocalType(localType, null /* anonymous super type*/, packageBinding);
 				memberBinding.setAsMemberType();
 				memberTypeBindings[count++] = memberBinding;
 			}
@@ -200,7 +215,7 @@ public class ClassScope extends Scope {
 	
 	void buildLocalTypeBinding(SourceTypeBinding enclosingType) {
 
-		LocalTypeBinding localType = buildLocalType(enclosingType, enclosingType.fPackage);
+		LocalTypeBinding localType = buildLocalType(enclosingType, null /* anonymous super type*/, enclosingType.fPackage);
 		connectTypeHierarchy();
 		buildFieldsAndMethods();
 		localType.faultInTypesForFieldsAndMethods();

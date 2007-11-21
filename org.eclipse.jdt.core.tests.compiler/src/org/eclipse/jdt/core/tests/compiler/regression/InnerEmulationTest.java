@@ -5927,6 +5927,124 @@ public void test149() {
 		"     inner name: #56 Foo6, accessflags: 9 public static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210422
+public void test150() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" + 
+				"\n" + 
+				"public final class X implements Serializable {\n" + 
+				"\n" + 
+				"        void bar() {}\n" + 
+				"\n" + 
+				"        interface IM {}\n" + 
+				"        class SMember extends String {}\n" + 
+				"\n" + 
+				"        class Member extends X {  \n" + 
+				"                ZorkMember z;\n" + 
+				"                void foo() {\n" + 
+				"                        this.bar();\n" + 
+				"                        Zork1 z;\n" + 
+				"                } \n" + 
+				"        }\n" + 
+				"\n" + 
+				"        void foo() {\n" + 
+				"                new X().new IM();\n" + 
+				"                class Local extends X { \n" + 
+				"                        ZorkLocal z;\n" + 
+				"                        void foo() {\n" + 
+				"                                this.bar();\n" + 
+				"                                Zork3 z;\n" + 
+				"                        }\n" + 
+				"                }\n" + 
+				"                new X() {\n" + 
+				"                        ZorkAnonymous2 z;                       \n" + 
+				"                        void foo() {\n" + 
+				"                                this.bar();\n" + 
+				"                                Zork4 z;\n" + 
+				"                        }\n" + 
+				"                };\n" + 
+				"        }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	public final class X implements Serializable {\n" + 
+			"	                   ^\n" + 
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	class SMember extends String {}\n" + 
+			"	                      ^^^^^^\n" + 
+			"The type SMember cannot subclass the final class String\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	class Member extends X {  \n" + 
+			"	                     ^\n" + 
+			"The type Member cannot subclass the final class X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 11)\n" + 
+			"	ZorkMember z;\n" + 
+			"	^^^^^^^^^^\n" + 
+			"ZorkMember cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 13)\n" + 
+			"	this.bar();\n" + 
+			"	     ^^^\n" + 
+			"The method bar() is undefined for the type X.Member\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 14)\n" + 
+			"	Zork1 z;\n" + 
+			"	^^^^^\n" + 
+			"Zork1 cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 19)\n" + 
+			"	new X().new IM();\n" + 
+			"	            ^^\n" + 
+			"Cannot instantiate the type X.IM\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 20)\n" + 
+			"	class Local extends X { \n" + 
+			"	                    ^\n" + 
+			"The type Local cannot subclass the final class X\n" + 
+			"----------\n" + 
+			"9. ERROR in X.java (at line 21)\n" + 
+			"	ZorkLocal z;\n" + 
+			"	^^^^^^^^^\n" + 
+			"ZorkLocal cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"10. ERROR in X.java (at line 23)\n" + 
+			"	this.bar();\n" + 
+			"	     ^^^\n" + 
+			"The method bar() is undefined for the type Local\n" + 
+			"----------\n" + 
+			"11. ERROR in X.java (at line 24)\n" + 
+			"	Zork3 z;\n" + 
+			"	^^^^^\n" + 
+			"Zork3 cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"12. ERROR in X.java (at line 27)\n" + 
+			"	new X() {\n" + 
+			"	    ^\n" + 
+			"An anonymous class cannot subclass the final class X\n" + 
+			"----------\n" + 
+			"13. ERROR in X.java (at line 28)\n" + 
+			"	ZorkAnonymous2 z;                       \n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"ZorkAnonymous2 cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"14. ERROR in X.java (at line 30)\n" + 
+			"	this.bar();\n" + 
+			"	     ^^^\n" + 
+			"The method bar() is undefined for the type new X(){}\n" + 
+			"----------\n" + 
+			"15. ERROR in X.java (at line 31)\n" + 
+			"	Zork4 z;\n" + 
+			"	^^^^^\n" + 
+			"Zork4 cannot be resolved to a type\n" + 
+			"----------\n");	
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }

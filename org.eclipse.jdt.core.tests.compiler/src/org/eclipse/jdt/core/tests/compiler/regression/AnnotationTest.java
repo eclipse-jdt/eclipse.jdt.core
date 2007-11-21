@@ -3583,17 +3583,12 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	\n" + 
 				"}\n",
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	@Annot( foo = new String(){} )\n" + 
-			"	              ^^^^^^^^^^^^^^\n" + 
-			"The value for annotation attribute Annot.foo must be a constant expression\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	@Annot( foo = new String(){} )\n" + 
-			"	                  ^^^^^^\n" + 
-			"An anonymous class cannot subclass the final class String\n" + 
-			"----------\n");
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 4)\n" + 
+    		"	@Annot( foo = new String(){} )\n" + 
+    		"	                  ^^^^^^\n" + 
+    		"An anonymous class cannot subclass the final class String\n" + 
+    		"----------\n");
     }     	
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291 - variation
     public void test114() {
@@ -7995,5 +7990,56 @@ public void test241() {
 		null,
 		options,
 		null);
+}
+///https://bugs.eclipse.org/bugs/show_bug.cgi?id=210422 - variation
+public void test242() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" + 
+				"public final class X implements Serializable {\n" + 
+				"    class SMember extends String {}  \n" + 
+				"    @Annot(value = new SMember())\n" + 
+				"     void bar() {}\n" + 
+				"    @Annot(value = \n" + 
+				"            new X(){\n" + 
+				"                    ZorkAnonymous1 z;\n" + 
+				"                    void foo() {\n" + 
+				"                            this.bar();\n" + 
+				"                            Zork2 z;\n" + 
+				"                    }\n" + 
+				"            })\n" + 
+				"	void foo() {}\n" + 
+				"}\n" + 
+				"@interface Annot {\n" + 
+				"        String value();\n" + 
+				"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	public final class X implements Serializable {\n" + 
+		"	                   ^\n" + 
+		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	class SMember extends String {}  \n" + 
+		"	                      ^^^^^^\n" + 
+		"The type SMember cannot subclass the final class String\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	@Annot(value = new SMember())\n" + 
+		"	               ^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X.SMember to String\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 7)\n" + 
+		"	new X(){\n" + 
+		"	    ^\n" + 
+		"An anonymous class cannot subclass the final class X\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 8)\n" + 
+		"	ZorkAnonymous1 z;\n" + 
+		"	^^^^^^^^^^^^^^\n" + 
+		"ZorkAnonymous1 cannot be resolved to a type\n" + 
+		"----------\n");
 }
 }

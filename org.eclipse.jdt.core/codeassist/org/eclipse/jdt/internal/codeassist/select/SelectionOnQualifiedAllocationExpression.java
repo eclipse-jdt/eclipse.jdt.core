@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  
@@ -88,14 +89,17 @@ public class SelectionOnQualifiedAllocationExpression extends QualifiedAllocatio
 		// find its target super constructor (if extending a class) or its target 
 		// super interface (if extending an interface)
 		if (anonymousType.binding != null) {
-			if (anonymousType.binding.superInterfaces == Binding.NO_SUPERINTERFACES) {
+			LocalTypeBinding localType = (LocalTypeBinding) anonymousType.binding;
+			if (localType.superInterfaces == Binding.NO_SUPERINTERFACES) {
 				// find the constructor binding inside the super constructor call
 				ConstructorDeclaration constructor = (ConstructorDeclaration) anonymousType.declarationOf(binding.original());
-				throw new SelectionNodeFound(constructor.constructorCall.binding);
-			} else {
-				// open on the only superinterface
-				throw new SelectionNodeFound(anonymousType.binding.superInterfaces[0]);
+				if (constructor != null) {
+					throw new SelectionNodeFound(constructor.constructorCall.binding);
+				}
+				throw new SelectionNodeFound(binding);
 			}
+			// open on the only super interface
+			throw new SelectionNodeFound(localType.superInterfaces[0]);
 		} else {
 			if (this.resolvedType.isInterface()) {
 				throw new SelectionNodeFound(resolvedType);
