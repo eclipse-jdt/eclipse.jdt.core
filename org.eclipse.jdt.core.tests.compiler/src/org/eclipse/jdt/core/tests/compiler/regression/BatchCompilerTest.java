@@ -5515,6 +5515,210 @@ public void test152() {
 		"1 problem (1 warning)",
 		true);
 }
+// -warn option - regression tests
+public void test152_warn_options() {
+	// check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"     String u;\n" +
+			"   }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+//		+ " -warn:none -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	s.toString();\n" + 
+		"	^\n" + 
+		"Null pointer access: The variable s can only be null at this location\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	String u;\n" + 
+		"	       ^\n" + 
+		"The local variable u is never read\n" + 
+		"----------\n" + 
+		"2 problems (2 warnings)",
+		true);
+	// observe -warn options variations
+	this.runConformTest(
+		new String[] { },
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:none -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		false);
+}
+// -warn option - regression tests
+public void test153_warn_options() {
+	// same source as 152, skip default checks
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"     String u;\n" +
+			"   }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:null -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	s.toString();\n" + 
+		"	^\n" + 
+		"Null pointer access: The variable s can only be null at this location\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// -warn option - regression tests
+public void test154_warn_options() {
+	// same source as 152, skip default checks
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"     String u;\n" +
+			"   }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:none -warn:null -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	s.toString();\n" + 
+		"	^\n" + 
+		"Null pointer access: The variable s can only be null at this location\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// -warn option - regression tests
+public void test155_warn_options() {
+	// same source as 152, skip default checks
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"     String u;\n" +
+			"   }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	String u;\n" + 
+		"	       ^\n" + 
+		"The local variable u is never read\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
+// bad behavior for -warn:null -warn:unused
+public void _test156_warn_options() {
+	// same source as 152, skip default checks
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"     String u;\n" +
+			"   }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:null -warn:unused -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	String u;\n" + 
+		"	       ^\n" + 
+		"The local variable u is never read\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
+// variant
+public void test157_warn_options() {
+	// same source as 152, skip default checks
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"     String u;\n" +
+			"   }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:null -warn:+unused -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	s.toString();\n" + 
+		"	^\n" + 
+		"Null pointer access: The variable s can only be null at this location\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	String u;\n" + 
+		"	       ^\n" + 
+		"The local variable u is never read\n" + 
+		"----------\n" + 
+		"2 problems (2 warnings)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
+// variant
+public void test158_warn_options() {
+	// same source as 152, skip default checks
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"     String u;\n" +
+			"   }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:null -warn:+unused -warn:-null -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	String u;\n" + 
+		"	       ^\n" + 
+		"The local variable u is never read\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
