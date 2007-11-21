@@ -6046,6 +6046,87 @@ public void _test171_warn_options() {
 		"1 problem (1 warnings)",
 		false);
 }
+// -warn option - regression tests
+public void test172_warn_options() {
+	// check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  Y f;\n" +
+			"  /** @deprecated */\n" +
+			"  void foo(Y p) {\n" +
+			"  }\n" +
+			"}",
+			"Y.java",
+			"/** @deprecated */\n" +
+			"public class Y {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	Y f;\n" + 
+		"	^\n" + 
+		"The type Y is deprecated\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+	// observe -warn options variations
+	this.runConformTest(
+		new String[] { },
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:allDeprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	Y f;\n" + 
+		"	^\n" + 
+		"The type Y is deprecated\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	void foo(Y p) {\n" + 
+		"	         ^\n" + 
+		"The type Y is deprecated\n" + 
+		"----------\n" + 
+		"2 problems (2 warnings)",
+		false);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
+// -warn option - regression tests
+public void _test173_warn_options() {
+	// same source as 172, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  Y f;\n" +
+			"  /** @deprecated */\n" +
+			"  void foo(Y p) {\n" +
+			"  }\n" +
+			"}",
+			"Y.java",
+			"/** @deprecated */\n" +
+			"public class Y {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:allDeprecation -warn:-deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	void foo(Y p) {\n" + 
+		"	         ^\n" + 
+		"The type Y is deprecated\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
