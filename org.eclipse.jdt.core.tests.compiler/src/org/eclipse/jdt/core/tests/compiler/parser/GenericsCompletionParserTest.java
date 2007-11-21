@@ -10873,4 +10873,74 @@ public void test0214_Method() {
 			expectedReplacedSource,
 			"full ast");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210273
+public void test0215_Diet() {
+
+	String str = 
+		"public class X {\n" +
+		"	void foo() {\n" +
+		"      this.<X>bar();\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "bar(";
+	int cursorLocation = str.lastIndexOf("bar(") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210273
+public void test0215_Method() {
+
+	String str = 
+		"public class X {\n" +
+		"	void foo() {\n" +
+		"      this.<X>bar();\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "bar(";
+	int cursorLocation = str.lastIndexOf("bar(") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnMessageSend:this.bar()>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "bar(";
+	// we are not in a constructor then the completion node isn't attached to the ast
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    <CompleteOnMessageSend:this.bar()>;\n" + 
+			"  }\n" + 
+			"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }

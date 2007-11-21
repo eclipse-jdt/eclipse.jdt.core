@@ -3037,6 +3037,18 @@ protected void consumeToken(int token) {
 						this.qualifier = this.expressionPtr;
 					}
 				}
+				if (previous == TokenNameGREATER) { // eg. foo().<X>[fred]()
+					if (this.invocationType != SUPER_RECEIVER // eg. not super.<X>[fred]()
+						&& this.invocationType != NAME_RECEIVER // eg. not bar.<X>[fred]()
+						&& this.invocationType != ALLOCATION // eg. not new foo.<X>[Bar]()
+						&& this.invocationType != QUALIFIED_ALLOCATION) { // eg. not fred().new foo.<X>[Bar]()
+
+						if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_METHOD_INVOCATION) {
+							this.invocationType = EXPLICIT_RECEIVER;
+							this.qualifier = this.expressionPtr;
+						}
+					}
+				}
 				break;
 			case TokenNamenew:
 				pushOnElementStack(K_BETWEEN_NEW_AND_LEFT_BRACKET);
