@@ -2137,8 +2137,9 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 					? unitScope.getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, importRef.isStatic())
 					: unitScope.getImport(importRef.tokens, false, importRef.isStatic());
 				this.patternLocator.matchLevelAndReportImportRef(importRef, binding, this);
+			} else {
+				nodeSet.addMatch(node, this.patternLocator.resolveLevel(node));
 			}
-			nodeSet.addMatch(node, this.patternLocator.resolveLevel(node));
 		}
 		nodeSet.possibleMatchingNodesSet = new SimpleSet(3);
 		if (BasicSearchEngine.VERBOSE) {
