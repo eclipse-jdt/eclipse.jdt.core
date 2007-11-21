@@ -39,6 +39,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 //	TESTS_NAMES = new String[] { "test000" };
 //	TESTS_NUMBERS = new int[] { 152 };
 //	TESTS_RANGE = new int[] { 107, -1 };
+			TESTS_RANGE = new int[] { 174, -1 };
 	}
 public BatchCompilerTest(String name) {
 	super(name);
@@ -6125,6 +6126,529 @@ public void _test173_warn_options() {
 		"The type Y is deprecated\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)",
+		false);
+}
+// -warn option - regression tests
+public void test174_warn_options() {
+	// check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  int i;\n" + 
+			"  class XX {\n" + 
+			"    int i;\n" + 
+			"  }\n" + 
+			"  void foo(int i) {\n" + 
+			"    class XX {\n" + 
+			"    }\n" + 
+			"    if (i > 0) {\n" + 
+			"      try {\n" + 
+			"        bar();\n" + 
+			"      } catch (E2 e2) {\n" + 
+			"      } catch (E1 e1) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() throws E2 {\n" + 
+			"    throw new E2();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class E1 extends Exception {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}\n" + 
+			"class E2 extends E1 {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+		"	class XX {\n" + 
+		"	      ^^\n" + 
+		"The type XX is hiding the type X.XX\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+		"	class XX {\n" + 
+		"	      ^^\n" + 
+		"The type XX is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" + 
+		"	} catch (E1 e1) {\n" + 
+		"	         ^^\n" + 
+		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
+		"----------\n" + 
+		"3 problems (3 warnings)",
+		true);
+	// observe -warn options variations
+	this.runConformTest(
+		new String[] { },
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -nowarn -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		false);
+}
+// -warn option - regression tests
+public void test175_warn_options() {
+	// same source as 174, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  int i;\n" + 
+			"  class XX {\n" + 
+			"    int i;\n" + 
+			"  }\n" + 
+			"  void foo(int i) {\n" + 
+			"    class XX {\n" + 
+			"    }\n" + 
+			"    if (i > 0) {\n" + 
+			"      try {\n" + 
+			"        bar();\n" + 
+			"      } catch (E2 e2) {\n" + 
+			"      } catch (E1 e1) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() throws E2 {\n" + 
+			"    throw new E2();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class E1 extends Exception {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}\n" + 
+			"class E2 extends E1 {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:hiding -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int i;\n" + 
+		"	    ^\n" + 
+		"The field X.XX.i is hiding a field from type X\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	void foo(int i) {\n" + 
+		"	             ^\n" + 
+		"The parameter i is hiding a field from type X\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+		"	class XX {\n" + 
+		"	      ^^\n" + 
+		"The type XX is hiding the type X.XX\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" + 
+		"	} catch (E1 e1) {\n" + 
+		"	         ^^\n" + 
+		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
+		"----------\n" + 
+		"4 problems (4 warnings)",
+		false);
+}
+// -warn option - regression tests
+public void test176_warn_options() {
+	// same source as 174, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  int i;\n" + 
+			"  class XX {\n" + 
+			"    int i;\n" + 
+			"  }\n" + 
+			"  void foo(int i) {\n" + 
+			"    class XX {\n" + 
+			"    }\n" + 
+			"    if (i > 0) {\n" + 
+			"      try {\n" + 
+			"        bar();\n" + 
+			"      } catch (E2 e2) {\n" + 
+			"      } catch (E1 e1) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() throws E2 {\n" + 
+			"    throw new E2();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class E1 extends Exception {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}\n" + 
+			"class E2 extends E1 {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:fieldHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int i;\n" + 
+		"	    ^\n" + 
+		"The field X.XX.i is hiding a field from type X\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+}
+// -warn option - regression tests
+public void test177_warn_options() {
+	// same source as 174, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  int i;\n" + 
+			"  class XX {\n" + 
+			"    int i;\n" + 
+			"  }\n" + 
+			"  void foo(int i) {\n" + 
+			"    class XX {\n" + 
+			"    }\n" + 
+			"    if (i > 0) {\n" + 
+			"      try {\n" + 
+			"        bar();\n" + 
+			"      } catch (E2 e2) {\n" + 
+			"      } catch (E1 e1) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() throws E2 {\n" + 
+			"    throw new E2();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class E1 extends Exception {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}\n" + 
+			"class E2 extends E1 {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:localHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	void foo(int i) {\n" + 
+		"	             ^\n" + 
+		"The parameter i is hiding a field from type X\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+}
+// -warn option - regression tests
+public void test178_warn_options() {
+	// same source as 174, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  int i;\n" + 
+			"  class XX {\n" + 
+			"    int i;\n" + 
+			"  }\n" + 
+			"  void foo(int i) {\n" + 
+			"    class XX {\n" + 
+			"    }\n" + 
+			"    if (i > 0) {\n" + 
+			"      try {\n" + 
+			"        bar();\n" + 
+			"      } catch (E2 e2) {\n" + 
+			"      } catch (E1 e1) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() throws E2 {\n" + 
+			"    throw new E2();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class E1 extends Exception {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}\n" + 
+			"class E2 extends E1 {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:maskedCatchBlock -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" + 
+		"	} catch (E1 e1) {\n" + 
+		"	         ^^\n" + 
+		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+}
+// -warn option - regression tests
+public void test179_warn_options() {
+	// same source as 174, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  int i;\n" + 
+			"  class XX {\n" + 
+			"    int i;\n" + 
+			"  }\n" + 
+			"  void foo(int i) {\n" + 
+			"    class XX {\n" + 
+			"    }\n" + 
+			"    if (i > 0) {\n" + 
+			"      try {\n" + 
+			"        bar();\n" + 
+			"      } catch (E2 e2) {\n" + 
+			"      } catch (E1 e1) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() throws E2 {\n" + 
+			"    throw new E2();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class E1 extends Exception {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}\n" + 
+			"class E2 extends E1 {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:typeHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+		"	class XX {\n" + 
+		"	      ^^\n" + 
+		"The type XX is hiding the type X.XX\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+}
+// -warn option - regression tests
+public void test180_warn_options() {
+	// same source as 174, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  int i;\n" + 
+			"  class XX {\n" + 
+			"    int i;\n" + 
+			"  }\n" + 
+			"  void foo(int i) {\n" + 
+			"    class XX {\n" + 
+			"    }\n" + 
+			"    if (i > 0) {\n" + 
+			"      try {\n" + 
+			"        bar();\n" + 
+			"      } catch (E2 e2) {\n" + 
+			"      } catch (E1 e1) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() throws E2 {\n" + 
+			"    throw new E2();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class E1 extends Exception {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}\n" + 
+			"class E2 extends E1 {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:hiding -warn:-fieldHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	void foo(int i) {\n" + 
+		"	             ^\n" + 
+		"The parameter i is hiding a field from type X\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+		"	class XX {\n" + 
+		"	      ^^\n" + 
+		"The type XX is hiding the type X.XX\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" + 
+		"	} catch (E1 e1) {\n" + 
+		"	         ^^\n" + 
+		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
+		"----------\n" + 
+		"3 problems (3 warnings)",
+		false);
+}
+// -warn option - regression tests
+public void test181_warn_options() {
+	// same source as 174, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  int i;\n" + 
+			"  class XX {\n" + 
+			"    int i;\n" + 
+			"  }\n" + 
+			"  void foo(int i) {\n" + 
+			"    class XX {\n" + 
+			"    }\n" + 
+			"    if (i > 0) {\n" + 
+			"      try {\n" + 
+			"        bar();\n" + 
+			"      } catch (E2 e2) {\n" + 
+			"      } catch (E1 e1) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() throws E2 {\n" + 
+			"    throw new E2();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class E1 extends Exception {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}\n" + 
+			"class E2 extends E1 {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:hiding -warn:-localHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int i;\n" + 
+		"	    ^\n" + 
+		"The field X.XX.i is hiding a field from type X\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+		"	class XX {\n" + 
+		"	      ^^\n" + 
+		"The type XX is hiding the type X.XX\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" + 
+		"	} catch (E1 e1) {\n" + 
+		"	         ^^\n" + 
+		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
+		"----------\n" + 
+		"3 problems (3 warnings)",
+		false);
+}
+// -warn option - regression tests
+public void test182_warn_options() {
+	// same source as 174, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  int i;\n" + 
+			"  class XX {\n" + 
+			"    int i;\n" + 
+			"  }\n" + 
+			"  void foo(int i) {\n" + 
+			"    class XX {\n" + 
+			"    }\n" + 
+			"    if (i > 0) {\n" + 
+			"      try {\n" + 
+			"        bar();\n" + 
+			"      } catch (E2 e2) {\n" + 
+			"      } catch (E1 e1) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() throws E2 {\n" + 
+			"    throw new E2();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class E1 extends Exception {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}\n" + 
+			"class E2 extends E1 {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:hiding -warn:-maskedCatchBlock -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int i;\n" + 
+		"	    ^\n" + 
+		"The field X.XX.i is hiding a field from type X\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	void foo(int i) {\n" + 
+		"	             ^\n" + 
+		"The parameter i is hiding a field from type X\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+		"	class XX {\n" + 
+		"	      ^^\n" + 
+		"The type XX is hiding the type X.XX\n" + 
+		"----------\n" + 
+		"3 problems (3 warnings)",
+		false);
+}
+// -warn option - regression tests
+public void test183_warn_options() {
+	// same source as 174, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  int i;\n" + 
+			"  class XX {\n" + 
+			"    int i;\n" + 
+			"  }\n" + 
+			"  void foo(int i) {\n" + 
+			"    class XX {\n" + 
+			"    }\n" + 
+			"    if (i > 0) {\n" + 
+			"      try {\n" + 
+			"        bar();\n" + 
+			"      } catch (E2 e2) {\n" + 
+			"      } catch (E1 e1) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void bar() throws E2 {\n" + 
+			"    throw new E2();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class E1 extends Exception {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}\n" + 
+			"class E2 extends E1 {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:hiding -warn:-typeHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	int i;\n" + 
+		"	    ^\n" + 
+		"The field X.XX.i is hiding a field from type X\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+		"	void foo(int i) {\n" + 
+		"	             ^\n" + 
+		"The parameter i is hiding a field from type X\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" + 
+		"	} catch (E1 e1) {\n" + 
+		"	         ^^\n" + 
+		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" + 
+		"----------\n" + 
+		"3 problems (3 warnings)",
 		false);
 }
 public static Class testClass() {
