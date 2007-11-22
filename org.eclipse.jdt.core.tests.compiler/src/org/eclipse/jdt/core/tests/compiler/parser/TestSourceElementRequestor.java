@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 
 public class TestSourceElementRequestor implements ISourceElementRequestor {
@@ -100,7 +101,7 @@ public void exitField(int initializationStart, int declarationEnd, int declarati
 /**
  * exitMethod method comment.
  */
-public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {}
+public void exitMethod(int declarationEnd, Expression defaultValue) {}
 
 /**
  * enterInitializer method comment.

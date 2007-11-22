@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 
 public class SourceElementRequestorAdapter implements ISourceElementRequestor {
@@ -171,9 +172,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 
 	/**
-	 * @see ISourceElementRequestor#exitMethod(int, int, int)
+	 * @see ISourceElementRequestor#exitMethod(int, Expression)
 	 */
-	public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
+	public void exitMethod(int declarationEnd, Expression defaultValue) {
 		// default implementation: do nothing
 	}
 	

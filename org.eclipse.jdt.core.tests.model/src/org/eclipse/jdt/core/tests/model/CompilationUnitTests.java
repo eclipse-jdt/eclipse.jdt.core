@@ -152,6 +152,106 @@ public void testCommitWorkingCopy() {
 }
 
 /*
+ * Ensures that the default value for an annotation method is correct.
+ */
+public void testDefaultValue1() throws CoreException {
+	try {
+		String cuSource = 
+			"package p;\n" +
+			"public @interface Y {\n" +
+			"  public String member() default \"abc\";\n" +
+			"}";
+		createFile("/P/src/p/Y.java", cuSource);
+		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
+		assertMemberValuePairEquals(
+			"member=\"abc\"",
+			method.getDefaultValue());
+	} finally {
+		deleteFile("/P/src/p/Y.java");
+	}
+}
+
+/*
+ * Ensures that the default value for an annotation method is correct.
+ */
+public void testDefaultValue2() throws CoreException {
+	try {
+		String cuSource = 
+			"package p;\n" +
+			"public @interface Y {\n" +
+			"  public int member() default 1;\n" +
+			"}";
+		createFile("/P/src/p/Y.java", cuSource);
+		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
+		assertMemberValuePairEquals(
+			"member=(int)1",
+			method.getDefaultValue());
+	} finally {
+		deleteFile("/P/src/p/Y.java");
+	}
+}
+
+/*
+ * Ensures that the default value for an annotation method is correct.
+ */
+public void testDefaultValue3() throws CoreException {
+	try {
+		String cuSource = 
+			"package p;\n" +
+			"public @interface Y {\n" +
+			"  public int member();\n" +
+			"}";
+		createFile("/P/src/p/Y.java", cuSource);
+		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
+		assertMemberValuePairEquals(
+			"<null>",
+			method.getDefaultValue());
+	} finally {
+		deleteFile("/P/src/p/Y.java");
+	}
+}
+
+/*
+ * Ensures that the default value for a non annotation method is correct.
+ */
+public void testDefaultValue4() throws CoreException {
+	try {
+		String cuSource = 
+			"package p;\n" +
+			"public class Y {\n" +
+			"  public int member() {}\n" +
+			"}";
+		createFile("/P/src/p/Y.java", cuSource);
+		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
+		assertMemberValuePairEquals(
+			"<null>",
+			method.getDefaultValue());
+	} finally {
+		deleteFile("/P/src/p/Y.java");
+	}
+}
+
+/*
+ * Ensures that the default value for an annotation method is correct.
+ */
+public void testDefaultValue5() throws CoreException {
+	try {
+		String cuSource = 
+			"package p;\n" +
+			"public @interface Y {\n" +
+			"  public String member() default \"abc\" + 1;\n" +
+			"}";
+		createFile("/P/src/p/Y.java", cuSource);
+		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("member", new String[0]);
+		assertMemberValuePairEquals(
+			"member=<null>",
+			method.getDefaultValue());
+	} finally {
+		deleteFile("/P/src/p/Y.java");
+	}
+}
+
+/*
  * Ensure that the deprecated flag is correctly reported
  * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work)
  */

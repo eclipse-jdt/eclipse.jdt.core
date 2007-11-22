@@ -50,6 +50,13 @@ public boolean equals(Object o) {
 	if (!(o instanceof SourceMethod)) return false;
 	return super.equals(o) && Util.equalArraysOrNull(this.parameterTypes, ((SourceMethod)o).parameterTypes);
 }
+public IMemberValuePair getDefaultValue() throws JavaModelException {
+	SourceMethodInfo sourceMethodInfo = (SourceMethodInfo) getElementInfo();
+	if (sourceMethodInfo.isAnnotationMethod()) {
+		return ((SourceAnnotationMethodInfo) sourceMethodInfo).defaultValue;
+	}
+	return null;
+}
 /**
  * @see IJavaElement
  */

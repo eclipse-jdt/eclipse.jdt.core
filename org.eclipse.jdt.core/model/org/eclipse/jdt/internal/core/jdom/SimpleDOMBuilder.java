@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -171,7 +172,7 @@ protected void exitMember(int declarationEnd) {
 }
 /**
  */
-public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
+public void exitMethod(int declarationEnd, Expression defaultValue) {
 	exitMember(declarationEnd);
 }
 /**

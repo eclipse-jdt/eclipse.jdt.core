@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 
 /*
@@ -159,7 +160,7 @@ public interface ISourceElementRequestor {
 	
 	void exitInitializer(int declarationEnd);
 	
-	void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd);
+	void exitMethod(int declarationEnd, Expression defaultValue);
 	
 	void exitType(int declarationEnd);
 }

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.IMemberValuePair;
+
 /*
  * Element info for annotation method from source.
  */
@@ -20,8 +22,10 @@ public class SourceAnnotationMethodInfo extends SourceMethodInfo {
 	 * These are {-1, -1} if the method is an annotation method with no default value.
 	 * Otherwise these are the start and end (inclusive) of the expression representing the default value.
 	 */
- public int defaultValueStart;
- public int defaultValueEnd;
+	public int defaultValueStart;
+	public int defaultValueEnd;
+	
+	public IMemberValuePair defaultValue;
 
 	public boolean isAnnotationMethod() {
 		return true;

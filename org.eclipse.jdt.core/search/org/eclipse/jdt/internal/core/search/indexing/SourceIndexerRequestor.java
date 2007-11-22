@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search.indexing;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -294,9 +295,9 @@ public void exitInitializer(int declarationEnd) {
 	this.methodDepth--;
 }
 /**
- * @see ISourceElementRequestor#exitMethod(int, int, int)
+ * @see ISourceElementRequestor#exitMethod(int, Expression)
  */
-public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
+public void exitMethod(int declarationEnd, Expression defaultValue) {
 	this.methodDepth--;
 }
 /**

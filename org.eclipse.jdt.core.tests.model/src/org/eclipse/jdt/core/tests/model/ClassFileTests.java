@@ -675,6 +675,51 @@ public void testGetChildrenForCategory02() throws CoreException, IOException {
 }
 
 /*
+ * Ensures that the default value for an annotation method is correct.
+ */
+public void testDefaultValue1() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("MyAnnot.class").getType();
+	IMethod method = type.getMethod("_int", new String[0]);
+	assertMemberValuePairEquals(
+		"_int=(int)0",
+		method.getDefaultValue());
+}
+
+/*
+ * Ensures that the default value for an annotation method is correct.
+ */
+public void testDefaultValue2() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("MyAnnot.class").getType();
+	IMethod method = type.getMethod("_annot", new String[0]);
+	assertMemberValuePairEquals(
+		"_annot=@annotated.MyOtherAnnot",
+		method.getDefaultValue());
+}
+
+/*
+ * Ensures that the default value for an annotation method is correct.
+ */
+public void testDefaultValue3() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("MyAnnot.class").getType();
+	IMethod method = type.getMethod("_array", new String[0]);
+	assertMemberValuePairEquals(
+		"_array=[unknown]{}",
+		method.getDefaultValue());
+}
+
+
+/*
+ * Ensures that the default value for an regular method is correct.
+ */
+public void testDefaultValue4() throws JavaModelException {
+	IType type = getPackageFragmentRoot("P", getExternalJCLPathString()).getPackageFragment("java.lang").getClassFile("Object.class").getType();
+	IMethod method = type.getMethod("toString", new String[0]);
+	assertMemberValuePairEquals(
+		"<null>",
+		method.getDefaultValue());
+}
+
+/*
  * Ensures that IType#getSuperclassTypeSignature() is correct for a binary type.
  * (regression test for bug 78520 [model] IType#getSuperInterfaceTypeSignatures() doesn't include type arguments)
  */

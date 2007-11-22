@@ -516,6 +516,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertEquals(message, expectedMarkers, actual);
 	}
 	
+	protected void assertMemberValuePairEquals(String expected, IMemberValuePair member) throws JavaModelException {
+		StringBuffer buffer = new StringBuffer();
+		appendAnnotationMember(buffer, member);
+		String actual = buffer.toString();
+		if (!expected.equals(actual)) {
+			System.out.println(displayString(actual, 2) + this.endChar);
+		}
+		assertEquals("Unexpected member value pair", expected, actual);
+	}
+	
 	protected void assertProblems(String message, String expected, ProblemRequestor problemRequestor) {
 		String actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(problemRequestor.problems.toString());
 		String independantExpectedString = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(expected);
@@ -566,13 +576,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		if (length > 0) {
 			buffer.append('(');
 			for (int i = 0; i < length; i++) {
-				IMemberValuePair member = members[i];
-				String name = member.getMemberName();
-				if (!"value".equals(name)) {
-					buffer.append(name);
-					buffer.append('=');
-				}
-				appendAnnotationMember(buffer, member);
+				appendAnnotationMember(buffer, members[i]);
 				if (i < length-1)
 					buffer.append(", ");
 			}
@@ -581,6 +585,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	private void appendAnnotationMember(StringBuffer buffer, IMemberValuePair member) throws JavaModelException {
+		if (member == null) {
+			buffer.append("<null>");
+			return;
+		}
+		String name = member.getMemberName();
+		if (!"value".equals(name)) {
+			buffer.append(name);
+			buffer.append('=');
+		}
 		int kind = member.getValueKind();
 		Object value = member.getValue();
 		if (value instanceof Object[]) {

@@ -566,16 +566,20 @@ protected void exitMember(int declarationEnd) {
 /**
  * @see ISourceElementRequestor
  */
-public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
+public void exitMethod(int declarationEnd, Expression defaultValue) {
 	SourceMethodElementInfo info = (SourceMethodElementInfo) this.infoStack.pop();
 	info.setSourceRangeEnd(declarationEnd);
 	setChildren(info);
 	
 	// remember default value of annotation method
-	if (info.isAnnotationMethod()) {
+	if (info.isAnnotationMethod() && defaultValue != null) {
 		SourceAnnotationMethodInfo annotationMethodInfo = (SourceAnnotationMethodInfo) info;
-		annotationMethodInfo.defaultValueStart = defaultValueStart;
-		annotationMethodInfo.defaultValueEnd = defaultValueEnd;
+		annotationMethodInfo.defaultValueStart = defaultValue.sourceStart;
+		annotationMethodInfo.defaultValueEnd = defaultValue.sourceEnd;
+		JavaElement element = (JavaElement) this.handleStack.peek();
+		org.eclipse.jdt.internal.core.MemberValuePair defaultMemberValuePair = new org.eclipse.jdt.internal.core.MemberValuePair(element.getElementName());
+		defaultMemberValuePair.value = getMemberValue(defaultMemberValuePair, defaultValue);
+		annotationMethodInfo.defaultValue = defaultMemberValuePair;
 	}
 	this.handleStack.pop();
 }

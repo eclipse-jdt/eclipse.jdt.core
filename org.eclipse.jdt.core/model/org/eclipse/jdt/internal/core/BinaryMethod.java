@@ -59,6 +59,15 @@ public IAnnotation[] getAnnotations() throws JavaModelException {
 	IBinaryAnnotation[] binaryAnnotations = info.getAnnotations();
 	return getAnnotations(binaryAnnotations);
 }
+public IMemberValuePair getDefaultValue() throws JavaModelException {
+	IBinaryMethod info = (IBinaryMethod) getElementInfo();
+	Object defaultValue = info.getDefaultValue();
+	if (defaultValue == null)
+		return null;
+	MemberValuePair memberValuePair = new MemberValuePair(getElementName());
+	memberValuePair.value = getMemberValue(memberValuePair, defaultValue);
+	return memberValuePair;
+}
 /*
  * @see IMethod
  */

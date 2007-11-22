@@ -1222,11 +1222,11 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			AnnotationMethodDeclaration annotationMethodDeclaration = (AnnotationMethodDeclaration) methodDeclaration;
 			Expression expression = annotationMethodDeclaration.defaultValue;
 			if (expression != null) {
-				requestor.exitMethod(methodDeclaration.declarationSourceEnd, expression.sourceStart, expression.sourceEnd);
+				requestor.exitMethod(methodDeclaration.declarationSourceEnd, expression);
 				return;
 			}
 		} 
-		requestor.exitMethod(methodDeclaration.declarationSourceEnd, -1, -1);
+		requestor.exitMethod(methodDeclaration.declarationSourceEnd, null);
 	}
 }
 

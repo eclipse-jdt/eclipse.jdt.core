@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -299,7 +300,7 @@ public void exitConstructor(int declarationEnd) {
 public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 	currentField.setDeclarationSourceEnd(declarationEnd);
 }
-public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
+public void exitMethod(int declarationEnd, Expression defaultValue) {
 	exitAbstractMethod(declarationEnd);
 }
 protected void exitAbstractMethod(int declarationEnd) {

@@ -54,6 +54,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -841,7 +842,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
-	public void exitMethod(int declarationEnd, int defaultValueStart, int defaultValueEnd) {
+	public void exitMethod(int declarationEnd, Expression defaultValue) {
 		exitAbstractMethod(declarationEnd);
 	}
 	private void exitAbstractMethod(int declarationEnd) {

@@ -74,7 +74,7 @@ private IAnnotation getAnnotation(IBinaryAnnotation binaryAnnotation) {
 		}
 	};
 }
-private Object getMemberValue(MemberValuePair memberValuePair, Object binaryValue) {
+protected Object getMemberValue(MemberValuePair memberValuePair, Object binaryValue) {
 	if (binaryValue instanceof Constant) {
 		return Util.getAnnotationMemberValue(memberValuePair, (Constant) binaryValue);
 	} else if (binaryValue instanceof IBinaryAnnotation) {
