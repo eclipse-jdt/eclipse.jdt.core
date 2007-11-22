@@ -52,10 +52,13 @@ enabled when compiling. So if you turn off certain warnings, then the compiler i
 in your code, until you will have enabled these back, and the compiler will have proved that there is no occurrence of them.
 </li>
 <li>Added API <code>IMethod#getDefaultValue()</code> to retrieve the default value of an annotation method.</li>
+<li>Added API <code>IMemberValuePair#K_SIMPLE_NAME</code> to indicate that the value kind of the value is a simple name reference.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=209958">209958</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=210565">210565</a>
+Null value is obtained from IMemberValuePair, when type is Enum
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=209958">209958</a>
 Support getting default value from IMethod
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=210310">210310</a>
 IJavaElementDelta contains wrong data after APT processor is enabled

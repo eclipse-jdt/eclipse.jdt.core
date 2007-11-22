@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -168,6 +169,10 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 			char[] qualifiedName = CharOperation.concatWith(((QualifiedNameReference) expression).tokens, '.');
 			memberValuePair.valueKind = IMemberValuePair.K_QUALIFIED_NAME;
 			return new String(qualifiedName);		
+		} else if (expression instanceof SingleNameReference) {
+			char[] simpleName = ((SingleNameReference) expression).token;
+			memberValuePair.valueKind = IMemberValuePair.K_SIMPLE_NAME;
+			return new String(simpleName);		
 		} else if (expression instanceof ArrayInitializer) {
 			memberValuePair.valueKind = -1; // modified below by the first call to getMemberValue(...)
 			Expression[] expressions = ((ArrayInitializer) expression).expressions;

@@ -745,6 +745,23 @@ public void testAnnotations24() throws JavaModelException {
 }
 
 /*
+ * Ensure that a simple name member annotation is correct.
+ */
+public void testAnnotations25() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"import static MyEnum.FIRST;\n" +
+		"@MyAnnot(simpleMember=FIRST)\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(simpleMember=FIRST)\n",
+		annotations);
+}
+
+/*
  * Ensures that the categories for a class are correct.
  */
 public void testGetCategories01() throws CoreException {

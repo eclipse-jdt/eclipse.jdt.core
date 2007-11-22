@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
@@ -627,6 +628,10 @@ private Object getMemberValue(org.eclipse.jdt.internal.core.MemberValuePair memb
 		char[] qualifiedName = CharOperation.concatWith(((QualifiedNameReference) expression).tokens, '.');
 		memberValuePair.valueKind = IMemberValuePair.K_QUALIFIED_NAME;
 		return new String(qualifiedName);		
+	} else if (expression instanceof SingleNameReference) {
+		char[] simpleName = ((SingleNameReference) expression).token;
+		memberValuePair.valueKind = IMemberValuePair.K_SIMPLE_NAME;
+		return new String(simpleName);		
 	} else if (expression instanceof ArrayInitializer) {
 		memberValuePair.valueKind = -1; // modified below by the first call to getMemberValue(...)
 		Expression[] expressions = ((ArrayInitializer) expression).expressions;

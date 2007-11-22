@@ -665,6 +665,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		case IMemberValuePair.K_QUALIFIED_NAME:
 			buffer.append(value);
 			break;
+		case IMemberValuePair.K_SIMPLE_NAME:
+			buffer.append(value);
+			break;
 		case IMemberValuePair.K_UNKNOWN:
 			appendAnnotationMemberValue(buffer, value, getValueKind(value));
 			break;

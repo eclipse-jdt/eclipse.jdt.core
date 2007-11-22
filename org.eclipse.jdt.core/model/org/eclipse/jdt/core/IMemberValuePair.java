@@ -105,6 +105,14 @@ public interface IMemberValuePair {
 	int K_QUALIFIED_NAME = 12;
 	
 	/**
+	 * Constant indicating that the value is a simple name represented by a {@link String}.
+	 * This usually represents an enumeration's constant (e.g. "FIRST" when there is a
+	 * static import for "MyEnum.FIRST"), but this would need to be further analyzed to ensure 
+	 * that.
+	 */
+	int K_SIMPLE_NAME = 13;
+	
+	/**
 	 * Constant indicating that the value kind is unknown at this stage. The value is unknown in the
 	 * following cases:
 	 * <ul>
@@ -121,7 +129,7 @@ public interface IMemberValuePair {
 	 * If the value kind is unknown, the returned value is always either <code>null</code>, or an 
 	 * array containing {@link Object}s and/or <code>null</code>s for unknown elements.
 	 */
-	int K_UNKNOWN = 13;
+	int K_UNKNOWN = 14;
 
 	/**
 	 * Returns the member's name of this member-value pair.
@@ -152,7 +160,8 @@ public interface IMemberValuePair {
 	 * is an array. The value kind is one of the following constants:
 	 * {@link #K_ANNOTATION}, {@link #K_BOOLEAN}, {@link #K_BYTE}, {@link #K_CHAR},
 	 * {@link #K_CLASS}, {@link #K_DOUBLE}, {@link #K_FLOAT}, {@link #K_INT}, {@link #K_LONG},
-	 * {@link #K_QUALIFIED_NAME}, {@link #K_SHORT}, {@link #K_STRING}, {@link #K_UNKNOWN}.
+	 * {@link #K_QUALIFIED_NAME}, {@link #K_SIMPLE_NAME}, {@link #K_SHORT}, {@link #K_STRING}, 
+	 * {@link #K_UNKNOWN}.
 	 * 
 	 * @return the value kind of this member-value pair
 	 */
