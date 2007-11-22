@@ -2687,6 +2687,32 @@ public void testReconcileParticipant10() throws CoreException {
 	);
 }
 
+/*
+ * Ensures that the delta is still correct if a participant resets the ast during reconcile
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=210310)
+ */
+public void testReconcileParticipant11() throws CoreException {
+	new ReconcileParticipant() {
+		public void reconcile(ReconcileContext context) {
+			context.resetAST();
+		}
+	};
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  private void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(AST.JLS3, true/*force problem detection*/, null, null);
+	assertDeltas(
+		"Unexpected delta",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	foo()[*]: {MODIFIERS CHANGED}"	
+	);
+}
+
 /**
  * Ensures that the reconciler reconciles the new contents with the current
  * contents, updating the structure of this reconciler's compilation

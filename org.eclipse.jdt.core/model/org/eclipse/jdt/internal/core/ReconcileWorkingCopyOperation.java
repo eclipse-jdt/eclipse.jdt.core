@@ -214,7 +214,9 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 						reconcileFlags,
 						this.progressMonitor);
 				if (this.ast != null) {
-					this.deltaBuilder.delta = new JavaElementDelta(workingCopy);
+					if (this.deltaBuilder.delta == null) {
+						this.deltaBuilder.delta = new JavaElementDelta(workingCopy);
+					}
 					this.deltaBuilder.delta.changedAST(this.ast);
 				}
 				if (this.progressMonitor != null) this.progressMonitor.worked(1);
