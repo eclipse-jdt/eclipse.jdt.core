@@ -40922,4 +40922,59 @@ public void test1220() {
 		"The method add(capture#1-of ?) in the type List<capture#1-of ?> is not applicable for the arguments (capture#2-of ?)\n" + 
 		"----------\n");
 }	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209071
+public void test1221() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		Set<List> listSet = new HashSet<List>();\n" + 
+			"		Set<List> otherListSet = new HashSet<List>();\n" + 
+			"		otherListSet.add((List) listSet);		\n" + 
+			"	}\n" + 
+			"	void bar() {\n" + 
+			"		Set<String> stringSet = new HashSet<String>();\n" + 
+			"		Set<String> otherStringSet = new HashSet<String>();\n" + 
+			"		otherStringSet.add((String) stringSet);		\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X().foo();\n" + 
+			"		new X().bar();\n" + 
+			"	}\n" + 
+			"}	\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	Set<List> listSet = new HashSet<List>();\n" + 
+		"	    ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	Set<List> listSet = new HashSet<List>();\n" + 
+		"	                                ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	Set<List> otherListSet = new HashSet<List>();\n" + 
+		"	    ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 5)\n" + 
+		"	Set<List> otherListSet = new HashSet<List>();\n" + 
+		"	                                     ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 6)\n" + 
+		"	otherListSet.add((List) listSet);		\n" + 
+		"	                  ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 11)\n" + 
+		"	otherStringSet.add((String) stringSet);		\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Set<String> to String\n" + 
+		"----------\n");
+}	
 }
