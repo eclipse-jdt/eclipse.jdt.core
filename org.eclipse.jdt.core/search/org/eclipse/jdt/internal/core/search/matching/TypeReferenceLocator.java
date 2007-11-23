@@ -650,13 +650,6 @@ public int resolveLevel(Binding binding) {
 	if (typeBinding instanceof ProblemReferenceBinding)
 		typeBinding = ((ProblemReferenceBinding) typeBinding).closestMatch();
 
-	if (((InternalSearchPattern) this.pattern).focus instanceof IType && typeBinding instanceof ReferenceBinding) {
-		IPackageFragment pkg = ((IType) ((InternalSearchPattern) this.pattern).focus).getPackageFragment();
-		// check that type is located inside this instance of a package fragment
-		if (!PackageReferenceLocator.isDeclaringPackageFragment(pkg, (ReferenceBinding) typeBinding))
-			return IMPOSSIBLE_MATCH;
-	}
-
 	return resolveLevelForTypeOrEnclosingTypes(this.pattern.simpleName, this.pattern.qualification, typeBinding);
 }
 protected int resolveLevel(NameReference nameRef) {

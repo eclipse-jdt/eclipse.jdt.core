@@ -1068,4 +1068,74 @@ public void testBug199392_Zip_SamePartCount() throws CoreException {
 		deleteProject("Test.zip");
 	}
 }
+
+/**
+ * @bug 48534: [search] Java Search for OR-pattern finds too much in strange project setup
+ * @test Ensure that search does not find illegal references with given projects setup
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=48534"
+ */
+public void testBug210689() throws CoreException {
+	try {
+		// setup project P0
+		createJavaProject("P0");
+		createFolder("/P0/p");
+		createFile(
+			"/P0/p/A.java",
+			"package p;\n" + 
+			"public class A {}\n"
+		);
+
+		// setup project P1
+		createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/A.java",
+			"package p;\n" + 
+			"public class A {}\n"
+		);
+
+		// setup project P2
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "");
+		createFolder("/P2/p");
+		createFile(
+			"/P2/p/B.java",
+			"package p;\n" + 
+			"public class B {}\n"
+		);
+		createFile(
+			"/P2/p/Ref.java",
+			"package p;\n" + 
+			"public class Ref {\n" + 
+			"	A a;\n" + 
+			"	B b;\n" + 
+			"}\n"
+		);
+
+		// Create OR pattern
+		IType typeA0 = getCompilationUnit("/P0/p/A.java").getType("A");
+		IType typeA1 = getCompilationUnit("/P1/p/A.java").getType("A");
+		SearchPattern rightPattern = SearchPattern.createPattern(typeA0, REFERENCES);
+		SearchPattern leftPattern = SearchPattern.createPattern(typeA1, REFERENCES);
+		SearchPattern pattern = SearchPattern.createOrPattern(leftPattern, rightPattern);
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		resultCollector.showAccuracy = true;
+		new SearchEngine().search(
+			pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			SearchEngine.createWorkspaceScope(),
+			resultCollector,
+			null
+		);
+		assertSearchResults(
+			"Unexpected references to /P1/p/A.java",
+			"p/Ref.java [in P2] p.Ref.a [A] EXACT_MATCH",
+			resultCollector);
+	} finally {
+		deleteProject("P0");
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
 }
