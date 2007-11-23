@@ -6263,8 +6263,7 @@ public void testBug123679_wc() throws CoreException {
 	IType type = workingCopies[0].getType("I123679");
 	search(type, REFERENCES);
 	assertSearchResults(
-		// import reference is not found because package fragment and CU do not exist on disk
-		// So, PackageReferenceLocator.isDeclaringPackageFragment(...) returns false and S.E. misses this match
+		"src/test/Test.java [pack.I123679] EXACT_MATCH\n" + 
 		"src/test/Test.java test.Test$StaticClass$Member.parent [I123679] EXACT_MATCH\n" +
 		"src/test/Test.java test.Test$StaticClass$Member(Object):<anonymous>#1 [I123679] EXACT_MATCH\n" +
 		"src/test/Test.java test.Test$StaticClass$Member(Object) [I123679] EXACT_MATCH\n" +
@@ -9165,5 +9164,54 @@ public void testBug209054() throws CoreException {
 	IMethod method = workingCopies[0].getType("Try").getMethod("canDo", new String[0]);
 	search(method, REFERENCES);
 	assertSearchResults("");
+}
+
+/**
+ * @bug 210689: [search] Type references are not found in import declarations when JUnit tests only use working copies
+ * @test Ensure that import references are found when searching on working copies not written on disk
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=210689"
+ */
+public void testBug210689() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/Test210689.java",
+		"package pack;\n" + 
+		"public class Test210689 {}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test/X.java",
+		"package test;\n" + 
+		"import pack.Test210689;\n" + 
+		"public class X extends Test210689 {}\n"
+	);
+	search(workingCopies[0].getType("Test210689"), REFERENCES);
+	assertSearchResults(
+		"src/test/X.java [pack.Test210689] EXACT_MATCH\n" + 
+		"src/test/X.java test.X [Test210689] EXACT_MATCH"
+	);
+}
+
+/**
+ * @bug 210691: [search] Type references position invalid in import references when using "*" pattern
+ * @test Ensure that all qualified type reference in import references is selected when using "*" pattern
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=210691"
+ */
+public void testBug210691() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/Test.java",
+		"package pack;\n" + 
+		"public class Test {}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test/Ref.java",
+		"package test;\n" + 
+		"import pack.Test;\n" + 
+		"public class Ref {\n" + 
+		"	Test test;\n" + 
+		"}\n"
+	);
+	this.resultCollector.showContext = true;
+	search("*", TYPE, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+	assertSearchResults(
+		"src/test/Ref.java [import <pack.Test>;] EXACT_MATCH\n" + 
+		"src/test/Ref.java test.Ref.test [	<Test> test;] EXACT_MATCH"
+	);
 }
 }
