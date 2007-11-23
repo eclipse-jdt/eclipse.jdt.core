@@ -2031,10 +2031,14 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 *
-	 * COMPILER / Reporting Attempt to Override Package-Default Method
-	 *    A package default method is not visible in a different package, and thus
-	 *    cannot be overridden. When enabling this option, the compiler will signal
-	 *    such scenarii either as an error or a warning.
+	 * COMPILER / Reporting Attempt to Override Package Visible Method
+	 *    A package visible method, which is any method that is not explicitly 
+	 *    declared as public, protected or private, is not visible from other 
+	 *    packages, and thus cannot be overridden from another package. 
+	 *    Attempting to override a package visible method from another package 
+	 *    introduces a new method that is unrelated to the original one. When 
+	 *    enabling this option, the compiler will signal such situations as an 
+	 *    error or a warning.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
