@@ -1653,7 +1653,7 @@ public final class JavaCore extends Plugin {
 	 * @since 2.1
 	 */
 	public static ClasspathContainerInitializer getClasspathContainerInitializer(String containerID) {
-		HashMap containerInitializersCache = JavaModelManager.getJavaModelManager().containerInitializersCache;
+		Hashtable containerInitializersCache = JavaModelManager.getJavaModelManager().containerInitializersCache;
 		ClasspathContainerInitializer initializer = (ClasspathContainerInitializer) containerInitializersCache.get(containerID);
 		if (initializer == null) {
 			initializer = computeClasspathContainerInitializer(containerID);

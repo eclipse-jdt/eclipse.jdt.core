@@ -108,7 +108,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public int batchContainerInitializations = NO_BATCH_INITIALIZATION;
 	
 	public BatchInitializationMonitor batchContainerInitializationsProgress = new BatchInitializationMonitor();
-	public HashMap containerInitializersCache = new HashMap(5);
+	public Hashtable containerInitializersCache = new Hashtable(5);
 	
 	/*
 	 * A HashSet that contains the IJavaProject whose classpath is being resolved.
@@ -2188,14 +2188,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			*/
 		}
 		// TODO (frederic) remove following block when JDT/UI dummy project will be thrown away...
-		HashSet containerPaths = (HashSet) allContainerPaths.get(javaProjectToInit);
-		if (containerPaths == null) {
-			containerPaths = new HashSet();
-			allContainerPaths.put(javaProjectToInit, containerPaths);
+		if (javaProjectToInit != null) {
+			HashSet containerPaths = (HashSet) allContainerPaths.get(javaProjectToInit);
+			if (containerPaths == null) {
+				containerPaths = new HashSet();
+				allContainerPaths.put(javaProjectToInit, containerPaths);
+			}
+			containerPaths.add(containerToInit);
+			// mark container as being initialized
+			containerAddInitializationInProgress(javaProjectToInit, containerToInit);
 		}
-		containerPaths.add(containerToInit);
-		// mark container as being initialized
-		containerAddInitializationInProgress(javaProjectToInit, containerToInit);
 		// end block
 		
 		// initialize all containers
