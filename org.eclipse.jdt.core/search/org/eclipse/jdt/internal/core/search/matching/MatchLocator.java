@@ -1685,31 +1685,34 @@ protected void report(SearchMatch match) throws CoreException {
 protected void reportAccurateTypeReference(SearchMatch match, ASTNode typeRef, char[] name) throws CoreException {
 	if (match.getRule() == 0) return;
 	if (!encloses((IJavaElement)match.getElement())) return;
-	
-	// Compute source positions of the qualified reference 
+
 	int sourceStart = typeRef.sourceStart;
 	int sourceEnd = typeRef.sourceEnd;
-	Scanner scanner = this.parser.scanner;
-	scanner.setSource(this.currentPossibleMatch.getContents());
-	scanner.resetTo(sourceStart, sourceEnd);
+	
+	// Compute source positions of the qualified reference 
+	if (name != null) {
+		Scanner scanner = this.parser.scanner;
+		scanner.setSource(this.currentPossibleMatch.getContents());
+		scanner.resetTo(sourceStart, sourceEnd);
 
-	int token = -1;
-	int currentPosition;
-	do {
-		currentPosition = scanner.currentPosition;
-		try {
-			token = scanner.getNextToken();
-		} catch (InvalidInputException e) {
-			// ignore
-		}
-		if (token == TerminalTokens.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
-			int length = scanner.currentPosition-currentPosition;
-			match.setOffset(currentPosition);
-			match.setLength(length);
-			report(match);
-			return;
-		}
-	} while (token != TerminalTokens.TokenNameEOF);
+		int token = -1;
+		int currentPosition;
+		do {
+			currentPosition = scanner.currentPosition;
+			try {
+				token = scanner.getNextToken();
+			} catch (InvalidInputException e) {
+				// ignore
+			}
+			if (token == TerminalTokens.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
+				int length = scanner.currentPosition-currentPosition;
+				match.setOffset(currentPosition);
+				match.setLength(length);
+				report(match);
+				return;
+			}
+		} while (token != TerminalTokens.TokenNameEOF);
+	}
 
 	//	Report match
 	match.setOffset(sourceStart);
