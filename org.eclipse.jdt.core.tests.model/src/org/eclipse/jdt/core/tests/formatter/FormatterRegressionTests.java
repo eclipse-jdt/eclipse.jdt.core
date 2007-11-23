@@ -9627,4 +9627,52 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		};
 		runTest(codeFormatter, "test688", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
+	public void test689() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.line_separator = "\n";//$NON-NLS-1$
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(31, 23)
+		};
+		runTest(codeFormatter, "test689", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
+	public void test690() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.line_separator = "\r";//$NON-NLS-1$
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(31, 23)
+		};
+		runTest(codeFormatter, "test689", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\r");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
+	public void test691() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.line_separator = "\r\n";//$NON-NLS-1$
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(31, 22)
+		};
+		runTest(codeFormatter, "test689", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\r\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
+	public void test692() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.page_width = 999;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(83, 41)
+		};
+		runTest(codeFormatter, "test692", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
 }

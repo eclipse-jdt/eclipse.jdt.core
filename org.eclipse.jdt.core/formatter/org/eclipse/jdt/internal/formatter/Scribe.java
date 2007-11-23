@@ -71,6 +71,7 @@ public class Scribe {
 	public int tabLength;	
 	public int indentationSize;
 	private IRegion[] regions;
+	private IRegion[] adaptedRegions;
 	public int tabChar;
 	public int numberOfIndentations;
 	private boolean useTabsOnlyForLeadingIndents;
@@ -116,7 +117,8 @@ public class Scribe {
 	 * If a region should be adapted (see isAdaptableRegion(IRegion))
 	 * retrieve correct upper and lower bounds and replace the region.
 	 */
-	private void adaptSelectedRegions() {
+	private void adaptRegions() {
+		this.adaptedRegions = new Region[this.regions.length];
 		for (int i = 0, max = this.regions.length; i < max; i++) {
 			IRegion aRegion = this.regions[i];
 			int offset = aRegion.getOffset();
@@ -131,17 +133,20 @@ public class Scribe {
 					for (int j = 0, max2 = this.editsIndex; j < max2; j++) {
 						// search for lower bound
 						int editOffset = this.edits[j].offset;
-						if (upperFound) {
+						if (upperFound && lowerBound == 0) {
 							int editLength = this.edits[j].length;
-							if (lowerBound == 0  && editOffset + editLength < regionEnd) {
+							if (editOffset == regionEnd) { // matching edit found
+								lowerBound = regionEnd;
+								break;
+							} else if (editOffset + editLength < regionEnd) {
 								continue;
 							} else {
-								lowerBound = editOffset + editLength;
-								break; // found both bonds - leave the loop
+								lowerBound = editOffset + editLength; // upper and lower bounds found
+								break;
 							}
-						// search for upper bound
+							// search for upper bound
 						} else {
-							if (this.edits[j+1].offset < offset) {
+							if (this.edits[j + 1].offset < offset) {
 								continue;
 							} else {
 								upperBound = editOffset;
@@ -150,10 +155,19 @@ public class Scribe {
 						}
 					}
 					if (lowerBound != 0) {
-						// store result if any
-						this.regions[i] = new Region(upperBound , lowerBound - upperBound);
+						if (offset != upperBound || regionEnd != lowerBound) { // ensure we found a different region
+							this.adaptedRegions[i] = new Region(upperBound,
+									lowerBound - upperBound);
+						}
+						// keep other unadaptable region
+					} else {
+						this.adaptedRegions[i] = this.regions[i];
 					}
+				} else {
+					this.adaptedRegions[i] = this.regions[i];
 				}
+			} else {
+				this.adaptedRegions[i] = this.regions[i];
 			}
 		}
 	}
@@ -606,19 +620,19 @@ public class Scribe {
 	
 	public TextEdit getRootEdit() {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
-		adaptSelectedRegions();
+		adaptRegions();
 		
 		MultiTextEdit edit = null;
-		int regionsLength = this.regions.length;
+		int regionsLength = this.adaptedRegions.length;
 		int textRegionStart;
 		int textRegionEnd;
 		if (regionsLength == 1) {
-			IRegion lastRegion = this.regions[0];
+			IRegion lastRegion = this.adaptedRegions[0];
 			textRegionStart = lastRegion.getOffset();
 			textRegionEnd = textRegionStart + lastRegion.getLength();
 		} else {
-			textRegionStart = this.regions[0].getOffset();
-			IRegion lastRegion = this.regions[regionsLength - 1];
+			textRegionStart = this.adaptedRegions[0].getOffset();
+			IRegion lastRegion = this.adaptedRegions[regionsLength - 1];
 			textRegionEnd = lastRegion.getOffset() + lastRegion.getLength();
 		}
 		
@@ -723,17 +737,29 @@ public class Scribe {
 	 * @return boolean true if line should be adapted, false otherwhise
 	 */
 	private boolean isAdaptableRegion(int offset, int length) {
-		int span = offset + length;
+		int regionEnd = offset + length + this.lineSeparator.length() - 1;
 		// first check region width
-		if (span > this.pageWidth) {
+		if (regionEnd > this.pageWidth) {
 			return false;
 		}
-		// more than one line selected
-		if (span > this.getLineEnd(this.scanner.getLineNumber(offset) + 1)) {
-			return false;
-		// region is on a single line and CU has more than one line
-		} else if (this.lineEnds != null && this.lineEnds.length > 1) {
-			return true;
+		int numberOfLineEnds = this.lineEnds != null && this.lineEnds.length > 0 ? this.lineEnds.length : 0;
+		if (this.line > 1 && numberOfLineEnds > 0) { // CU has more than one line
+			int lineNumber = Util.getLineNumber(offset, this.lineEnds, 0, this.line);
+			int lineEnd = this.getLineEnd(lineNumber);
+			if (regionEnd > lineEnd) {
+				// if more than one line selected, check whether selection is at line end
+				for (int i = lineNumber + 1 ; i <=  numberOfLineEnds ; i++) {
+					if (regionEnd == this.getLineEnd(i)) {
+						return true;
+					}
+				}
+				return false; // more than one line selected, no need to adapt region
+			} else {
+				if (this.scannerEndPosition - 1 == lineEnd) { // EOF reached?
+					return false;
+				}
+				return true; // a single line was selected
+			}
 		}
 		return false;
 	}
@@ -792,7 +818,7 @@ public class Scribe {
 
 		if (editOffset == this.scannerEndPosition) {
 			int index = Arrays.binarySearch(
-				this.regions,
+				this.adaptedRegions,
 				new Region(editOffset, 0),
 				new Comparator() {
 					public int compare(Object o1, Object o2) {
@@ -833,7 +859,7 @@ public class Scribe {
 			}
 		}
 
-		IRegion region = this.regions[index];
+		IRegion region = this.adaptedRegions[index];
 		if ((region.getOffset() <= offset) && (end <= region.getOffset() + region.getLength() - 1)) {
 			return region;
 		}
@@ -841,14 +867,14 @@ public class Scribe {
 	}
 	
 	private int getIndexOfRegionAt(int offset) {
-		if (this.regions.length == 1) {
-			int offset2 = this.regions[0].getOffset();
+		if (this.adaptedRegions.length == 1) {
+			int offset2 = this.adaptedRegions[0].getOffset();
 			if (offset2 == offset) {
 				return 0;
 			}
 			return offset2 < offset ? -2 : -1; 
 		}
-		return Arrays.binarySearch(this.regions, new Region(offset, 0), new Comparator() {
+		return Arrays.binarySearch(this.adaptedRegions, new Region(offset, 0), new Comparator() {
 			public int compare(Object o1, Object o2) {
 				int r1Offset = ((IRegion)o1).getOffset();
 				int r2Offset = ((IRegion)o2).getOffset();
