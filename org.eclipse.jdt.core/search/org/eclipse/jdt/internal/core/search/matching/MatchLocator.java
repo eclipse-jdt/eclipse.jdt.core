@@ -2193,8 +2193,12 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 			for (int i = 0, l = imports.length; i < l; i++) {
 				ImportReference importRef = imports[i];
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(importRef);
-				if (level != null)
-					this.patternLocator.matchReportImportRef(importRef, null/*no binding*/, createImportHandle(importRef), level.intValue(), this);
+				if (level != null) {
+					Binding binding = (importRef.bits & ASTNode.OnDemand) != 0
+						? unitScope.getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, importRef.isStatic())
+						: unitScope.getImport(importRef.tokens, false, importRef.isStatic());
+					this.patternLocator.matchReportImportRef(importRef, binding, createImportHandle(importRef), level.intValue(), this);
+				}
 			}
 		}
 	}

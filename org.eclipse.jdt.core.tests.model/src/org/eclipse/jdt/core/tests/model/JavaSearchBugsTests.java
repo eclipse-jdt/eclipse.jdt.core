@@ -9210,7 +9210,7 @@ public void testBug210691() throws CoreException {
 	this.resultCollector.showContext = true;
 	search("*", TYPE, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/test/Ref.java [import <pack.Test>;] EXACT_MATCH\n" + 
+		"src/test/Ref.java [import pack.<Test>;] EXACT_MATCH\n" + 
 		"src/test/Ref.java test.Ref.test [	<Test> test;] EXACT_MATCH"
 	);
 }
