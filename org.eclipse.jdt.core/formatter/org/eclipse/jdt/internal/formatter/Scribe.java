@@ -118,7 +118,7 @@ public class Scribe {
 	 * retrieve correct upper and lower bounds and replace the region.
 	 */
 	private void adaptRegions() {
-		this.adaptedRegions = new Region[this.regions.length];
+		this.adaptedRegions = new IRegion[this.regions.length];
 		for (int i = 0, max = this.regions.length; i < max; i++) {
 			IRegion aRegion = this.regions[i];
 			int offset = aRegion.getOffset();

@@ -9675,4 +9675,24 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		};
 		runTest(codeFormatter, "test692", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210922
+	public void test693() {
+		final class MyRegion implements IRegion {
+			public int getLength() {
+				return 0;
+			}
+			public int getOffset() {
+				return 0;
+			}			
+		}
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.line_separator = "\n";//$NON-NLS-1$
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new MyRegion()
+		};
+		runTest(codeFormatter, "test693", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
 }
