@@ -69,6 +69,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.JavaProjectElementInfo.ProjectCache;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
+import org.eclipse.jdt.internal.core.util.JavaElementFinder;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -1023,24 +1024,7 @@ public class JavaProject
 			String extension = path.getFileExtension();
 			if (extension == null) {
 				String packageName = path.toString().replace(IPath.SEPARATOR, '.');
-
-				NameLookup lookup = newNameLookup((WorkingCopyOwner)null/*no need to look at working copies for pkgs*/);
-				IPackageFragment[] pkgFragments = lookup.findPackageFragments(packageName, false);
-				if (pkgFragments == null) {
-					return null;
-
-				} else {
-					// try to return one that is a child of this project
-					for (int i = 0, length = pkgFragments.length; i < length; i++) {
-
-						IPackageFragment pkgFragment = pkgFragments[i];
-						if (this.equals(pkgFragment.getParent().getParent())) {
-							return pkgFragment;
-						}
-					}
-					// default to the first one
-					return pkgFragments[0];
-				}
+				return findPackageFragment(packageName);
 			} else if (Util.isJavaLikeFileName(path.lastSegment())
 					|| extension.equalsIgnoreCase(EXTENSION_class)) {
 				IPath packagePath = path.removeLastSegments(1);
@@ -1084,6 +1068,35 @@ public class JavaProject
 		}
 	}
 
+	public IJavaElement findPackageFragment(String packageName)
+			throws JavaModelException {
+		NameLookup lookup = newNameLookup((WorkingCopyOwner)null/*no need to look at working copies for pkgs*/);
+		IPackageFragment[] pkgFragments = lookup.findPackageFragments(packageName, false);
+		if (pkgFragments == null) {
+			return null;
+
+		} else {
+			// try to return one that is a child of this project
+			for (int i = 0, length = pkgFragments.length; i < length; i++) {
+
+				IPackageFragment pkgFragment = pkgFragments[i];
+				if (this.equals(pkgFragment.getParent().getParent())) {
+					return pkgFragment;
+				}
+			}
+			// default to the first one
+			return pkgFragments[0];
+		}
+	}
+
+	public IJavaElement findElement(String bindingKey, WorkingCopyOwner owner) throws JavaModelException {
+		JavaElementFinder elementFinder = new JavaElementFinder(bindingKey, this, owner);
+		elementFinder.parse();
+		if (elementFinder.exception != null)
+			throw elementFinder.exception;
+		return elementFinder.element;
+	}
+	
 	/**
 	 * @see IJavaProject
 	 */

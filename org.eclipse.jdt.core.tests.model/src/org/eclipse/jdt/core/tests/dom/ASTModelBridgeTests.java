@@ -47,6 +47,15 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
+	private void assertFindElement(String key, String expectedElement) throws JavaModelException {
+		IJavaElement element = getJavaProject("P").findElement(key, this.workingCopy.getOwner());
+		assertElementEquals(
+			"Unexpected found element",
+			expectedElement,
+			element
+		);
+	}
+	
 	/*
 	 * Removes the marker comments "*start*" and "*end*" from the given contents,
 	 * builds an AST from the resulting source, and returns the AST node that was delimited
@@ -54,6 +63,19 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	private ASTNode buildAST(String contents) throws JavaModelException {
 		return buildAST(contents, this.workingCopy);
+	}
+	
+	/*
+	 * Removes the marker comments "*start*" and "*end*" from the given contents,
+	 * builds an AST from the resulting source, gets the binding from the AST node that was delimited
+	 * by "*start*" and "*end*", and returns the binding key.
+	 */
+	private String buildBindingKey(String contents) throws JavaModelException {
+		ASTNode node = buildAST(contents);
+		if (node == null) return null;
+		IBinding binding = resolveBinding(node);
+		if (binding == null) return null;
+		return binding.getKey();
 	}
 	
 	private IBinding[] createBindings(String contents, IJavaElement element) throws JavaModelException {
@@ -145,7 +167,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		tearDownJavaProject();
 		super.tearDownSuite();
 	}
-
+	
 	private void tearDownJavaProject() throws JavaModelException, CoreException {
 		if (this.workingCopy != null)
 			this.workingCopy.discardWorkingCopy();
@@ -1000,6 +1022,198 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			element
 		);
 		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that an IType can be found using its binding key.
+	 */
+	public void testFindElement01() throws JavaModelException {
+		String bindingKey = buildBindingKey(
+			"/*start*/public class X {\n" +
+			"}/*end*/"
+		);
+		assertFindElement(
+			bindingKey,
+			"X [in [Working copy] X.java [in <default> [in src [in P]]]]"
+		);
+	}
+	
+	/*
+	 * Ensures that an IMethod can be found using its binding key.
+	 */
+	public void testFindElement02() throws JavaModelException {
+		String bindingKey = buildBindingKey(
+			"public class X {\n" +
+			"  /*start*/void foo() {\n" +
+			"  }/*end*/\n" +
+			"}"
+		);
+		assertFindElement(
+			bindingKey,
+			"foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]"
+		);
+	}
+	
+	/*
+	 * Ensures that an IField can be found using its binding key.
+	 */
+	public void testFindElement03() throws JavaModelException {
+		String bindingKey = buildBindingKey(
+			"public class X {\n" +
+			"  int /*start*/field/*end*/;\n" +
+			"}"
+		);
+		assertFindElement(
+			bindingKey,
+			"field [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]"
+		);
+	}
+	
+	/*
+	 * Ensures that a member IType can be found using its binding key.
+	 */
+	public void testFindElement04() throws JavaModelException {
+		String bindingKey = buildBindingKey(
+			"public class X {\n" +
+			"  /*start*/class Member {\n" +
+			"  }/*end*/\n" +
+			"}"
+		);
+		assertFindElement(
+			bindingKey,
+			"Member [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]"
+		);
+	}
+	
+	/*
+	 * Ensures that a local IType can be found using its binding key.
+	 */
+	public void testFindElement05() throws JavaModelException {
+		String bindingKey = buildBindingKey(
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    /*start*/class Local {\n" +
+			"    }/*end*/\n" +
+			"  }\n" +
+			"}"
+		);
+		assertFindElement(
+			bindingKey,
+			"Local [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]"
+		);
+	}
+	
+	/*
+	 * Ensures that an anonymous IType can be found using its binding key.
+	 */
+	public void testFindElement06() throws JavaModelException {
+		String bindingKey = buildBindingKey(
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    new X() /*start*/{\n" +
+			"    }/*end*/;\n" +
+			"  }\n" +
+			"}"
+		);
+		assertFindElement(
+			bindingKey,
+			"<anonymous #1> [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]"
+		);
+	}
+	
+	/*
+	 * Ensures that a secondary IType can be found using its binding key.
+	 */
+	public void testFindElement07() throws JavaModelException {
+		String bindingKey = buildBindingKey(
+			"public class X {\n" +
+			"}\n" +
+			"/*start*/class Secondary {\n" +
+			"}/*end*/"
+		);
+		assertFindElement(
+			bindingKey,
+			"Secondary [in [Working copy] X.java [in <default> [in src [in P]]]]"
+		);
+	}
+	
+	/*
+	 * Ensures that an IAnnotation can be found using its binding key.
+	 */
+	public void testFindElement08() throws JavaModelException {
+		String bindingKey = buildBindingKey(
+			"/*start*/@MyAnnot/*end*/\n" +
+			"public class X {\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
+			"}"
+		);
+		assertFindElement(
+			bindingKey,
+			"@MyAnnot [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]"
+		);
+	}
+	
+	/*
+	 * Ensures that an IPackageFragment can be found using its binding key.
+	 */
+	public void testFindElement09() throws JavaModelException {
+		String bindingKey = buildBindingKey(
+			"public class X {\n" +
+			"  /*start*/java.lang/*end*/.String field;\n" +
+			"}"
+		);
+		assertFindElement(
+			bindingKey,
+			"java.lang [in "+ getExternalJCLPathString("1.5") + "]"
+		);
+	}
+
+	/*
+	 * Ensures that an ITypeParameter can be found using its binding key.
+	 */
+	public void testFindElement10() throws JavaModelException {
+		String bindingKey = buildBindingKey(
+			"public class X</*start*/T/*end*/> {\n" +
+			"}"
+		);
+		assertFindElement(
+			bindingKey,
+			"<T> [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]"
+		);
+	}
+
+	/*
+	 * Ensures that a binary top level IType can be found using its binding key.
+	 */
+	public void testFindElement11() throws JavaModelException {
+		String bindingKey = getClassFile("/P/lib.jar/p/Y.class").getType().getKey();
+		assertFindElement(
+			bindingKey,
+			"Y [in Y.class [in p [in lib.jar [in P]]]]"
+		);
+	}
+
+	/*
+	 * Ensures that a binary member IType can be found using its binding key.
+	 */
+	public void testFindElement12() throws JavaModelException {
+		String bindingKey = getClassFile("/P/lib.jar/p/Z$Member.class").getType().getKey();
+		assertFindElement(
+			bindingKey,
+			"Member [in Z$Member.class [in p [in lib.jar [in P]]]]"
+		);
+	}
+
+	/*
+	 * Ensures that a binary anonymous IType can be found using its binding key.
+	 */
+	public void testFindElement13() throws JavaModelException {
+		String bindingKey = getClassFile("/P/lib.jar/p/Z$1.class").getType().getKey();
+		assertFindElement(
+			bindingKey,
+			"Z$1.class [in p [in lib.jar [in P]]]"
+		);
 	}
 
 	/*

@@ -23,6 +23,11 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IPath;
 
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IPackageBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 
 /**
@@ -127,6 +132,43 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	IJavaElement findElement(IPath path, WorkingCopyOwner owner) throws JavaModelException;
 
+	/**
+	 * Finds the Java element corresponding to the given binding key. Elements are 
+	 * looked up using this project's classpath. The first element corresponding to 
+	 * the given key on this project's classpath is returned.
+	 * Returns <code>null</code> if the element is not found. 
+	 * <p>Possible elements are:
+	 * <ul>
+	 * <li>{@link IPackageFragment} for a binding key from an 
+	 * 		{@link IPackageBinding}</li>
+	 * <li>{@link IType} for a binding key from an {@link ITypeBinding}</li>
+	 * <li>{@link IMethod} for a binding key from an {@link IMethodBinding}</li>
+	 * <li>{@link IField} for a binding key from an {@link IVariableBinding} 
+	 * 		representing a {@link IVariableBinding#isField() field}</li>
+	 * <li>{@link ITypeParameter} for a binding key from an {@link ITypeBinding} 
+	 * 		representing a {@link ITypeBinding#isTypeVariable() type 
+	 * 		variable}</li>
+	 * <li>{@link IAnnotation} for a binding key from an 
+	 * 		{@link IAnnotationBinding}</li>
+	 * </ul></p>
+	 * <p>As Java elements are not resolved, if a binding key contains resolved 
+	 * information (see {@link IMethod#isResolved()} for example), this information 
+	 * cannot be used to retrieve the method. Thus the first method with matching 
+	 * simple parameter types (see {@link IType#findMethods(IMethod)} is returned.
+	 * </p>
+	 * 
+	 * @param bindingKey the given binding key
+	 * @param owner the owner of the returned element's compilation unit, 
+	 * 		or <code>null</code> if the default working copy owner must be 
+	 * 		used
+	 * @exception JavaModelException if this project does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @return the Java element corresponding to the given key,
+	 * 		or <code>null</code> if no such Java element is found
+	 * @since 3.4
+	 */
+	IJavaElement findElement(String bindingKey, WorkingCopyOwner owner) throws JavaModelException;
+	
 	/**
 	 * Returns the first existing package fragment on this project's classpath
 	 * whose path matches the given (absolute) path, or <code>null</code> if none

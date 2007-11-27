@@ -50,6 +50,7 @@ import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.WildcardType;
 import org.eclipse.jdt.core.tests.model.ModifyingResourceTests;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -528,6 +529,8 @@ public class AbstractASTTests extends ModifyingResourceTests {
 				return ((NormalAnnotation) node).resolveAnnotationBinding();
 			case ASTNode.SINGLE_MEMBER_ANNOTATION:
 				return ((SingleMemberAnnotation) node).resolveAnnotationBinding();
+			case ASTNode.VARIABLE_DECLARATION_FRAGMENT:
+				return ((VariableDeclarationFragment) node).resolveBinding();
 			default:
 				throw new Error("Not yet implemented for this type of node: " + node);
 		}
