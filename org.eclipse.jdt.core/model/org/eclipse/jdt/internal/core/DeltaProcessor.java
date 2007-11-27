@@ -239,9 +239,6 @@ public class DeltaProcessor {
 	 */
 	public Map oldRoots;
 	
-	/* A set of IJavaProject whose package fragment roots need to be refreshed */
-	private HashSet rootsToRefresh = new HashSet();
-	
 	/*
 	 * Type of event that should be processed no matter what the real event type is.
 	 */
@@ -308,13 +305,6 @@ public class DeltaProcessor {
 		}
 	}
 	/*
-	 * Adds the given project and its dependents to the list of the roots to refresh.
-	 */
-	private void addToRootsToRefreshWithDependents(IJavaProject javaProject) {
-		this.rootsToRefresh.add(javaProject);
-		this.addDependentProjects(javaProject, this.state.projectDependencies, this.rootsToRefresh);
-	}
-	/*
 	 * Process the given delta and look for projects being added, opened, closed or
 	 * with a java nature being added or removed.
 	 * Note that projects being deleted are checked in deleting(IProject).
@@ -341,8 +331,8 @@ public class DeltaProcessor {
 					case IResourceDelta.ADDED :
 						this.manager.forceBatchInitializations(false/*not initAfterLoad*/);
 					
-						// remember project and its dependents
-						addToRootsToRefreshWithDependents(javaProject);
+						// remember that the project's cache must be reset
+						this.projectCachesToReset.add(javaProject);
 						
 						// workaround for bug 15168 circular errors not reported 
 						if (JavaProject.hasJavaNature(project)) {
@@ -359,8 +349,8 @@ public class DeltaProcessor {
 							if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
 								this.manager.forceBatchInitializations(false/*not initAfterLoad*/);
 		
-								// project opened or closed: remember  project and its dependents
-								addToRootsToRefreshWithDependents(javaProject);
+								// remember that the project's cache must be reset
+								this.projectCachesToReset.add(javaProject);
 								
 								// workaround for bug 15168 circular errors not reported 
 								if (project.isOpen()) {
@@ -387,8 +377,8 @@ public class DeltaProcessor {
 								if (wasJavaProject != isJavaProject) {
 									this.manager.forceBatchInitializations(false/*not initAfterLoad*/);
 									
-									// java nature added or removed: remember  project and its dependents
-									this.addToRootsToRefreshWithDependents(javaProject);
+									// java nature added or removed: remember that the project's cache must be reset
+									this.projectCachesToReset.add(javaProject);
 		
 									// workaround for bug 15168 circular errors not reported 
 									if (isJavaProject) {
@@ -1013,8 +1003,7 @@ public class DeltaProcessor {
 				}
 				this.state.updateRoots(element.getPath(), delta, this);
 				
-				// refresh pkg fragment roots and caches of the project (and its dependents)
-				this.rootsToRefresh.add(element);
+				// remember that the project's cache must be reset
 				this.projectCachesToReset.add(element);
 			}
 		} else {			
@@ -1084,8 +1073,7 @@ public class DeltaProcessor {
 					// when a root is added, and is on the classpath, the project must be updated
 					JavaProject project = (JavaProject) element.getJavaProject();
 
-					// refresh pkg fragment roots and caches of the project (and its dependents)
-					this.rootsToRefresh.add(project);
+					// remember that the project's cache must be reset
 					this.projectCachesToReset.add(project);
 					
 					break;
@@ -1173,16 +1161,14 @@ public class DeltaProcessor {
 			case IJavaElement.JAVA_PROJECT :
 				this.state.updateRoots(element.getPath(), delta, this);
 
-				// refresh pkg fragment roots and caches of the project (and its dependents)
-				this.rootsToRefresh.add(element);
+				// remember that the project's cache must be reset
 				this.projectCachesToReset.add(element);
 
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 				JavaProject project = (JavaProject) element.getJavaProject();
 
-				// refresh pkg fragment roots and caches of the project (and its dependents)
-				this.rootsToRefresh.add(project);
+				// remember that the project's cache must be reset
 				this.projectCachesToReset.add(project);				
 
 				break;
@@ -1745,13 +1731,11 @@ public class DeltaProcessor {
 				}
 
 			}
-			refreshPackageFragmentRoots();
 			resetProjectCaches();
 
 			return this.currentDelta;
 		} finally {
 			this.currentDelta = null;
-			this.rootsToRefresh.clear();
 			this.projectCachesToReset.clear();
 		}
 	}
@@ -1778,16 +1762,6 @@ public class DeltaProcessor {
 		while (iterator.hasNext()) {
 			JavaProject project = (JavaProject) iterator.next();
 			project.resetCaches();
-		}
-	}
-	/* 
-	 * Refresh package fragment roots of projects that were affected
-	 */
-	private void refreshPackageFragmentRoots() {
-		Iterator iterator = this.rootsToRefresh.iterator();
-		while (iterator.hasNext()) {
-			JavaProject project = (JavaProject)iterator.next();
-			project.updatePackageFragmentRoots();
 		}
 	}
 	/*
@@ -2319,8 +2293,7 @@ public class DeltaProcessor {
 								currentDelta().opened(element);
 								this.state.updateRoots(element.getPath(), delta, this);
 								
-								// refresh pkg fragment roots and caches of the project (and its dependents)
-								this.rootsToRefresh.add(element);
+								// remember that the project's cache must be reset
 								this.projectCachesToReset.add(element);
 								
 								this.manager.indexManager.indexAll(res);

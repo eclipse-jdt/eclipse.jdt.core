@@ -399,34 +399,6 @@ public class JavaProject
 	}
 
 	/**
-	 * Computes the collection of package fragment roots (local ones) and set it on the given info.
-	 * Need to check *all* package fragment roots in order to reset NameLookup
-	 * @param info JavaProjectElementInfo
-	 * @throws JavaModelException
-	 */
-	public void computeChildren(JavaProjectElementInfo info) throws JavaModelException {
-		IClasspathEntry[] classpath = getResolvedClasspath();
-		JavaProjectElementInfo.ProjectCache projectCache = info.projectCache;
-		if (projectCache != null) {
-			IPackageFragmentRoot[] newRoots = computePackageFragmentRoots(classpath, true, null /*no reverse map*/);
-			checkIdentical: { // compare all pkg fragment root lists
-				IPackageFragmentRoot[] oldRoots = projectCache.allPkgFragmentRootsCache;
-				if (oldRoots.length == newRoots.length){
-					for (int i = 0, length = oldRoots.length; i < length; i++){
-						if (!oldRoots[i].equals(newRoots[i])){
-							break checkIdentical;
-						}
-					}
-					return; // no need to update
-				}	
-			}
-		}
-		info.setNonJavaResources(null);
-		info.setChildren(
-			computePackageFragmentRoots(classpath, false, null /*no reverse map*/));		
-	}
-	
-	/**
 	 * Internal computation of an expanded classpath. It will eliminate duplicates, and produce copies
 	 * of exported or restricted classpath entries to avoid possible side-effects ever after.
 	 */			
@@ -2920,26 +2892,6 @@ public class JavaProject
 			// project doesn't exist: ignore
 		}
 		prereqChain.remove(path);
-	}
-
-	/**
-	 * Reset the collection of package fragment roots (local ones) - only if opened.
-	 */
-	public void updatePackageFragmentRoots(){
-		
-			if (this.isOpen()) {
-				try {
-					JavaProjectElementInfo info = getJavaProjectElementInfo();
-					computeChildren(info);
-					info.resetCaches(); // discard caches (hold onto roots and pkg fragments)
-				} catch(JavaModelException e){
-					try {
-						close(); // could not do better
-					} catch(JavaModelException ex){
-						// ignore
-					}
-				}
-			}
 	}
 
 	/*

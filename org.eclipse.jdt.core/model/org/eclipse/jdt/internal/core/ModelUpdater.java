@@ -150,19 +150,14 @@ public class ModelUpdater {
 	 * relevant <code>JavaModel</code>s.
 	 */
 	public void processJavaDelta(IJavaElementDelta delta) {
-
-//		if (DeltaProcessor.VERBOSE){
-//			System.out.println("UPDATING Model with Delta: ["+Thread.currentThread()+":" + delta + "]:");
-//		}
-
 		try {
 			this.traverseDelta(delta, null, null); // traverse delta
 
-			// update package fragment roots of projects that were affected
+			// reset project caches of projects that were affected
 			Iterator iterator = this.projectsToUpdate.iterator();
 			while (iterator.hasNext()) {
 				JavaProject project = (JavaProject) iterator.next();
-				project.updatePackageFragmentRoots();
+				project.resetCaches();
 			}
 		} finally {
 			this.projectsToUpdate = new HashSet();
