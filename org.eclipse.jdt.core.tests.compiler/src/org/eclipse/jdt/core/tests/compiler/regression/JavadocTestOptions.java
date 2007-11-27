@@ -13,8 +13,10 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import junit.framework.ComparisonFailure;
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
@@ -872,6 +874,50 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n"
 	};
 
+	private String[] errorsForInvalidTagsClassOrField(int visibility) {
+		int length = CLASSES_ERRORS.length;
+		if (reportInvalidJavadocTagsDeprecatedRef == null && reportInvalidJavadocTagsNotVisibleRef == null) {
+			if (visibility == (length-1)) return CLASSES_ERRORS;
+			String[] errors = new String[length];
+			System.arraycopy(CLASSES_ERRORS, 0, errors, 0, length);
+			return errors;
+		}
+		String[] errors = new String[visibility+1];
+		for (int i=0, count=1; i<= visibility; i++) {
+			StringBuffer buffer = new StringBuffer();
+			StringTokenizer tokenizer = new StringTokenizer(CLASSES_ERRORS[i], "\n");
+			while (tokenizer.hasMoreTokens()) {
+				StringBuffer error = new StringBuffer();
+				boolean add = true;
+				for (int j=0; j<5; j++) {
+					String line = tokenizer.nextToken();
+					switch (j) {
+						case 0:
+							error.append(count);
+							error.append(line.substring(line.indexOf('.')));
+							break;
+						case 3:
+							if (CompilerOptions.DISABLED.equals(reportInvalidJavadocTagsDeprecatedRef)) {
+								add = line.indexOf("is deprecated") == -1;
+							}
+							if (add && CompilerOptions.DISABLED.equals(reportInvalidJavadocTagsNotVisibleRef)) {
+								add = line.indexOf("is not visible") == -1 && line.indexOf("visibility for malformed doc comments") == -1;
+							}
+						default:
+							error.append(line);
+					}
+					error.append('\n');
+				}
+				if (add) {
+					count++;
+					buffer.append(error);
+				}
+			}
+			errors[i] = buffer.toString();
+		}
+		return errors;
+	}
+
 	private String resultForInvalidTagsClassOrField(int visibility) {
 		if (reportInvalidJavadocTagsDeprecatedRef == null && reportInvalidJavadocTagsNotVisibleRef == null) {
 			String result = "----------\n";
@@ -914,6 +960,50 @@ public class JavadocTestOptions extends JavadocTest {
 		return result.toString();
 	}
 
+	private String[] errorsForInvalidTagsMethodOrConstructor(int visibility) {
+		int length = METHODS_ERRORS.length;
+		if (reportInvalidJavadocTagsDeprecatedRef == null && reportInvalidJavadocTagsNotVisibleRef == null) {
+			if (visibility == (length-1)) return METHODS_ERRORS;
+			String[] errors = new String[visibility];
+			System.arraycopy(METHODS_ERRORS, 0, errors, 0, length);
+			return errors;
+		}
+		String[] errors = new String[visibility+1];
+		for (int i=0, count=1; i<= visibility; i++) {
+			StringBuffer buffer = new StringBuffer();
+			StringTokenizer tokenizer = new StringTokenizer(METHODS_ERRORS[i], "\n");
+			while (tokenizer.hasMoreTokens()) {
+				StringBuffer error = new StringBuffer();
+				boolean add = true;
+				for (int j=0; j<5; j++) {
+					String line = tokenizer.nextToken();
+					switch (j) {
+						case 0:
+							error.append(count);
+							error.append(line.substring(line.indexOf('.')));
+							break;
+						case 3:
+							if (CompilerOptions.DISABLED.equals(reportInvalidJavadocTagsDeprecatedRef)) {
+								add = line.indexOf("is deprecated") == -1;
+							}
+							if (add && CompilerOptions.DISABLED.equals(reportInvalidJavadocTagsNotVisibleRef)) {
+								add = line.indexOf("is not visible") == -1 && line.indexOf("visibility for malformed doc comments") == -1;
+							}
+						default:
+							error.append(line);
+					}
+					error.append('\n');
+				}
+				if (add) {
+					count++;
+					buffer.append(error);
+				}
+			}
+			errors[i] = buffer.toString();
+		}
+		return errors;
+	}
+	
 	private String resultForInvalidTagsMethodOrConstructor(int visibility) {
 		if (reportInvalidJavadocTagsDeprecatedRef == null && reportInvalidJavadocTagsNotVisibleRef == null) {
 			String result = "----------\n";
@@ -1449,20 +1539,56 @@ public class JavadocTestOptions extends JavadocTest {
 	// Test invalid javadoc "error" + tags "enabled" and visibility "private"
 	public void testInvalidTagsClassErrorTagsPrivate() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
-		runNegativeTest(CLASSES_INVALID_COMMENT, resultForInvalidTagsClassOrField(PRIVATE_VISIBILITY));
+		runErrorsTest(CLASSES_INVALID_COMMENT, PRIVATE_VISIBILITY, false);
 	}
 	public void testInvalidTagsFieldErrorTagsPrivate() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
-		runNegativeTest(FIELDS_INVALID_COMMENT, resultForInvalidTagsClassOrField(PRIVATE_VISIBILITY));
+		runErrorsTest(FIELDS_INVALID_COMMENT, PRIVATE_VISIBILITY, false);
 	}
 	public void testInvalidTagsMethodErrorTagsPrivate() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
-		runNegativeTest(METHODS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(PRIVATE_VISIBILITY));
+		runErrorsTest(METHODS_INVALID_COMMENT, PRIVATE_VISIBILITY, true);
 	}
 	public void testInvalidTagsConstructorErrorTagsPrivate() {
 		reportInvalidJavadoc = CompilerOptions.ERROR;
-		runNegativeTest(CONSTRUCTORS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(PRIVATE_VISIBILITY));
+		runErrorsTest(CONSTRUCTORS_INVALID_COMMENT, PRIVATE_VISIBILITY, true);
 	}
+	private void runErrorsTest(String[] testFiles, int visibility, boolean isMethod) {
+		String[] errors = isMethod
+			? errorsForInvalidTagsMethodOrConstructor(visibility)
+			: errorsForInvalidTagsClassOrField(visibility);
+		int length = errors.length;
+		StringBuffer expectedProblemLog = new StringBuffer("----------\n");
+		for (int i=0; i<length; i++) {
+			expectedProblemLog.append(errors[i]);
+		}
+		try {
+			runNegativeTest(testFiles, expectedProblemLog.toString());
+		}
+		catch (ComparisonFailure failure) {
+			System.out.println("-------------------------------------------------------------");
+			System.out.println("Following static variable should be updated as follow:");
+			System.out.print("	private static String[] ");
+			if (isMethod) {
+				System.out.print("METHODS_ERRORS");
+			} else {
+				System.out.print("CLASSES_ERRORS");
+			}
+			System.out.print(" = {\n");
+			for (int i=0; i<length; i++) {
+				int idx = errors[i].indexOf('\n');
+				System.out.println(Util.displayString(errors[i].substring(0, idx+1), INDENT, SHIFT));
+				System.out.print(Util.displayString(errors[i].substring(idx+1), INDENT+1, SHIFT));
+				if (i == (length-1)) {
+				    for (int k = 0; k < INDENT-1; k++) System.out.print('\t');
+					System.out.println('}');
+				} else {
+					System.out.println(',');
+				}
+			}
+			throw failure;
+		}
+    }
 
 	// Test invalid javadoc "error" + tags "enabled" but invalid deprecated references "disabled" and visibility "public"
 	public void testInvalidTagsDeprecatedRefClassErrorTagsPublic() {
