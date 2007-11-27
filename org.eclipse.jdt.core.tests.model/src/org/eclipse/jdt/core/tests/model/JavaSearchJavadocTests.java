@@ -61,7 +61,6 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		JAVA_PROJECT.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.DISABLED);
 	}
 	public static Test suite() {
-//		return buildTestSuite(JavaSearchJavadocTests.class, "testJavadocMethod", null);
 		return buildModelTestSuite(JavaSearchJavadocTests.class);
 	}
 	// Use this static initializer to specify subset for tests
