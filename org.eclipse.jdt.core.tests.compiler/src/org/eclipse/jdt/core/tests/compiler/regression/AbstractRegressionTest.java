@@ -279,6 +279,29 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
 	}
 
+	/*
+	 * Compute the problem log from given requestor and compare the result to the expected one.
+	 * When there's a difference, display the expected output in the console as code string
+	 * to allow easy copy/paste in the test to fix the failure.
+	 * Also write test files to the console output.
+	 */
+	protected void computeProblemLog(String[] testFiles, Requestor requestor, String platformIndependantExpectedLog, Throwable exception) {
+	    String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
+	    if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
+	    	System.out.println(getClass().getName() + '#' + getName());
+	    	System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
+	    	for (int i = 0; i < testFiles.length; i += 2) {
+	    		System.out.print(testFiles[i]);
+	    		System.out.println(" ["); //$NON-NLS-1$
+	    		System.out.println(testFiles[i + 1]);
+	    		System.out.println("]"); //$NON-NLS-1$
+	    	}
+	    }
+		if (exception == null) {
+			assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
+		}
+    }
+
 	protected void dualPrintln(String message) {
 		System.out.println(message);
 		javacFullLog.println(message);
@@ -1109,20 +1132,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				exception = e;
 				throw e;
 			} finally {
-				String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
 				String platformIndependantExpectedLog = Util.convertToIndependantLineDelimiter(expectedProblemLog);
-				if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
-					System.out.println(getClass().getName() + '#' + getName());
-					System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
-					for (int i = 0; i < testFiles.length; i += 2) {
-						System.out.print(testFiles[i]);
-						System.out.println(" ["); //$NON-NLS-1$
-						System.out.println(testFiles[i + 1]);
-						System.out.println("]"); //$NON-NLS-1$
-					}
-				}
-				if (exception == null)
-					assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
+				computeProblemLog(testFiles, requestor, platformIndependantExpectedLog, exception);
 			}
 		// javac part
 		} catch (AssertionFailedError e) {
