@@ -2501,14 +2501,59 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 					IJavaElement localElement = createHandle(typeParameter, enclosingElement);
 					this.patternLocator.matchReportReference(typeParameter.type, enclosingElement, localElement, null, binding, level.intValue(), this);
 				}
+				if (typeParameter.type instanceof ParameterizedSingleTypeReference) {
+                    ParameterizedSingleTypeReference paramSTR = (ParameterizedSingleTypeReference) typeParameter.type;
+                    if (paramSTR.typeArguments != null) {
+                    	int length = paramSTR.typeArguments.length;
+                    	for (int k=0; k<length; k++) {
+							TypeReference typeArgument = paramSTR.typeArguments[k];
+							level = (Integer) nodeSet.matchingNodes.removeKey(typeArgument);
+							if (level != null) {
+								IJavaElement localElement = createHandle(typeParameter, enclosingElement);
+								this.patternLocator.matchReportReference(typeArgument, enclosingElement, localElement, null, binding, level.intValue(), this);
+							}
+							if (typeArgument instanceof Wildcard) {
+	                            TypeReference wildcardBound = ((Wildcard) typeArgument).bound;
+								level = (Integer) nodeSet.matchingNodes.removeKey(wildcardBound);
+								if (level != null) {
+									IJavaElement localElement = createHandle(typeParameter, enclosingElement);
+									this.patternLocator.matchReportReference(wildcardBound, enclosingElement, localElement, null, binding, level.intValue(), this);
+								}
+                            }
+                    	}
+                    }
+				}
 			}
 			if (typeParameter.bounds != null) {
 				for (int j=0, b=typeParameter.bounds.length; j<b; j++) {
-					level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter.bounds[j]);
+					TypeReference typeParameterBound = typeParameter.bounds[j];
+					level = (Integer) nodeSet.matchingNodes.removeKey(typeParameterBound);
 					if (level != null) {
 						IJavaElement localElement = createHandle(typeParameter, enclosingElement);
-						this.patternLocator.matchReportReference(typeParameter.bounds[j], enclosingElement, localElement, null, binding, level.intValue(), this);
+						this.patternLocator.matchReportReference(typeParameterBound, enclosingElement, localElement, null, binding, level.intValue(), this);
 					}
+					if (typeParameterBound instanceof ParameterizedSingleTypeReference) {
+	                    ParameterizedSingleTypeReference paramSTR = (ParameterizedSingleTypeReference) typeParameterBound;
+	                    if (paramSTR.typeArguments != null) {
+	                    	int length = paramSTR.typeArguments.length;
+	                    	for (int k=0; k<length; k++) {
+								TypeReference typeArgument = paramSTR.typeArguments[k];
+								level = (Integer) nodeSet.matchingNodes.removeKey(typeArgument);
+								if (level != null) {
+									IJavaElement localElement = createHandle(typeParameter, enclosingElement);
+									this.patternLocator.matchReportReference(typeArgument, enclosingElement, localElement, null, binding, level.intValue(), this);
+								}
+								if (typeArgument instanceof Wildcard) {
+		                            TypeReference wildcardBound = ((Wildcard) typeArgument).bound;
+									level = (Integer) nodeSet.matchingNodes.removeKey(wildcardBound);
+									if (level != null) {
+										IJavaElement localElement = createHandle(typeParameter, enclosingElement);
+										this.patternLocator.matchReportReference(wildcardBound, enclosingElement, localElement, null, binding, level.intValue(), this);
+									}
+	                            }
+	                    	}
+	                    }
+                    }
 				}
 			}
 		}

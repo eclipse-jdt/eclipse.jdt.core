@@ -53,7 +53,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 		protected SearchMatch match;
 		public StringBuffer results = new StringBuffer(), line;
 		public boolean showAccuracy;
-		public boolean showContext;
+		public boolean showSelection;
 		public boolean showRule;
 		public boolean showInsideDoc;
 		public boolean showPotential = true;
@@ -161,16 +161,16 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 					if (start == -1 || (contents != null && contents.length > 0)) { // retrieving attached source not implemented here
 						line.append(" [");
 						if (start > -1) {
-							if (this.showContext) {
+							if (this.showSelection) {
 								int lineStart1 = CharOperation.lastIndexOf('\n', contents, 0, start);
 								int lineStart2 = CharOperation.lastIndexOf('\r', contents, 0, start);
 								int lineStart = Math.max(lineStart1, lineStart2) + 1;
 								line.append(CharOperation.subarray(contents, lineStart, start));
-								line.append("<");
+								line.append("§|");
 							}
 							line.append(CharOperation.subarray(contents, start, end));
-							if (this.showContext) {
-								line.append(">");
+							if (this.showSelection) {
+								line.append("|§");
 								int lineEnd1 = CharOperation.indexOf('\n', contents, end);
 								int lineEnd2 = CharOperation.indexOf('\r', contents, end);
 								int lineEnd = lineEnd1 > 0 && lineEnd2 > 0 ? Math.min(lineEnd1, lineEnd2) : Math.max(lineEnd1, lineEnd2);

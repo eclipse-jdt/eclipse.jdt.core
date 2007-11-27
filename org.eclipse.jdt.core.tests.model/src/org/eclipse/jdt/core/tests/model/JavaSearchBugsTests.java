@@ -9190,6 +9190,51 @@ public void testBug210689() throws CoreException {
 }
 
 /**
+ * @bug 210567: [1.5][search] Parameterized type reference not found when used in type parameter bounds
+ * @test Ensure that all type references are found when used in type variables
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=210567"
+ */
+public void testBug210567() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/generics/Generic.java",
+		"package generics;\n" + 
+		"import java.io.Serializable;\n" + 
+		"import type.def.Types;\n" + 
+		"public class Generic<T extends Types, U extends Types & Comparable<Types> & Serializable, V extends A<? super Types>> {\n" + 
+		"	Generic<? extends Types, ?, ?> field;\n" + 
+		"	Comparable<String> comp;\n" + 
+		"	Class<? extends Exception> clazz;\n" + 
+		"}\n" + 
+		"\n" + 
+		"class A<R> {}"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/type/def/Types.java",
+		"package type.def;\n" + 
+		"public class Types {\n" + 
+		"}\n"
+	);
+	this.resultCollector.showSelection = true;
+	search("*", TYPE, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+	assertSearchResults(
+		"src/generics/Generic.java [import java.io.§|Serializable|§;] EXACT_MATCH\n" + 
+		"src/generics/Generic.java [import type.def.§|Types|§;] EXACT_MATCH\n" + 
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends §|Types|§, U extends Types & Comparable<Types> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" + 
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends §|Types|§ & Comparable<Types> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" + 
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & §|Comparable|§<Types> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" + 
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & Comparable<§|Types|§> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" + 
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & Comparable<Types> & §|Serializable|§, V extends A<? super Types>> {] EXACT_MATCH\n" + 
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & Comparable<Types> & Serializable, V extends §|A|§<? super Types>> {] EXACT_MATCH\n" + 
+		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & Comparable<Types> & Serializable, V extends A<? super §|Types|§>> {] EXACT_MATCH\n" + 
+		"src/generics/Generic.java generics.Generic.field [	§|Generic|§<? extends Types, ?, ?> field;] EXACT_MATCH\n" + 
+		"src/generics/Generic.java generics.Generic.field [	Generic<? extends §|Types|§, ?, ?> field;] EXACT_MATCH\n" + 
+		"src/generics/Generic.java generics.Generic.comp [	§|Comparable|§<String> comp;] EXACT_MATCH\n" + 
+		"src/generics/Generic.java generics.Generic.comp [	Comparable<§|String|§> comp;] EXACT_MATCH\n" + 
+		"src/generics/Generic.java generics.Generic.clazz [	§|Class|§<? extends Exception> clazz;] EXACT_MATCH\n" + 
+		"src/generics/Generic.java generics.Generic.clazz [	Class<? extends §|Exception|§> clazz;] EXACT_MATCH"
+	);
+}
+
+/**
  * @bug 210691: [search] Type references position invalid in import references when using "*" pattern
  * @test Ensure that all qualified type reference in import references is selected when using "*" pattern
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=210691"
@@ -9207,11 +9252,11 @@ public void testBug210691() throws CoreException {
 		"	Test test;\n" + 
 		"}\n"
 	);
-	this.resultCollector.showContext = true;
+	this.resultCollector.showSelection = true;
 	search("*", TYPE, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/test/Ref.java [import pack.<Test>;] EXACT_MATCH\n" + 
-		"src/test/Ref.java test.Ref.test [	<Test> test;] EXACT_MATCH"
+		"src/test/Ref.java [import pack.§|Test|§;] EXACT_MATCH\n" + 
+		"src/test/Ref.java test.Ref.test [	§|Test|§ test;] EXACT_MATCH"
 	);
 }
 }

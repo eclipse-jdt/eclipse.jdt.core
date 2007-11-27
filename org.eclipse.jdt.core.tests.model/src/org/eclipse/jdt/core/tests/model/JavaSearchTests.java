@@ -3177,7 +3177,7 @@ public void testTypeReference36() throws CoreException { // was testLocalTypeRef
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "f2");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
 
-	resultCollector.showContext = true;
+	resultCollector.showSelection = true;
 	search(
 		"Y", 
 		TYPE,
@@ -3185,7 +3185,7 @@ public void testTypeReference36() throws CoreException { // was testLocalTypeRef
 		scope, 
 		this.resultCollector);
 	assertSearchResults(
-		"src/f2/X.java Object f2.X.foo1() [		return new <Y>();]",
+		"src/f2/X.java Object f2.X.foo1() [		return new §|Y|§();]",
 		this.resultCollector);
 }
 /*
@@ -3198,14 +3198,14 @@ public void testTypeReference37() throws CoreException { // was testLocalTypeRef
 	
 	IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 
-	resultCollector.showContext = true;
+	resultCollector.showSelection = true;
 	search(
 		localType, 
 		REFERENCES,
 		scope, 
 		this.resultCollector);
 	assertSearchResults(
-		"src/f2/X.java Object f2.X.foo1() [		return new <Y>();]",
+		"src/f2/X.java Object f2.X.foo1() [		return new §|Y|§();]",
 		this.resultCollector);
 }
 /**
