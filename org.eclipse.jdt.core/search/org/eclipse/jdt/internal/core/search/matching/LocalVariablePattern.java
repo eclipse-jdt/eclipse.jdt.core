@@ -27,8 +27,8 @@ public class LocalVariablePattern extends VariablePattern {
 	
 LocalVariable localVariable;
 
-public LocalVariablePattern(boolean findDeclarations, boolean readAccess, boolean writeAccess, LocalVariable localVariable, int matchRule) {
-	super(LOCAL_VAR_PATTERN, findDeclarations, readAccess, writeAccess, localVariable.getElementName().toCharArray(), matchRule);
+public LocalVariablePattern(LocalVariable localVariable, int limitTo, int matchRule) {
+	super(LOCAL_VAR_PATTERN, localVariable.getElementName().toCharArray(), limitTo, matchRule);
 	this.localVariable = localVariable;
 }
 public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) {

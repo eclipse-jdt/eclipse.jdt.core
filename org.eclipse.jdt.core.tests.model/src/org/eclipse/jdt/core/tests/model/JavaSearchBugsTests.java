@@ -9216,8 +9216,8 @@ public void testBug210567() throws CoreException {
 	this.resultCollector.showSelection = true;
 	search("*", TYPE, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/generics/Generic.java [import java.io.§|Serializable|§;] EXACT_MATCH\n" + 
-		"src/generics/Generic.java [import type.def.§|Types|§;] EXACT_MATCH\n" + 
+		"src/generics/Generic.java [import §|java.io.Serializable|§;] EXACT_MATCH\n" + 
+		"src/generics/Generic.java [import §|type.def.Types|§;] EXACT_MATCH\n" + 
 		"src/generics/Generic.java generics.Generic [public class Generic<T extends §|Types|§, U extends Types & Comparable<Types> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" + 
 		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends §|Types|§ & Comparable<Types> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" + 
 		"src/generics/Generic.java generics.Generic [public class Generic<T extends Types, U extends Types & §|Comparable|§<Types> & Serializable, V extends A<? super Types>> {] EXACT_MATCH\n" + 
@@ -9255,8 +9255,9 @@ public void testBug210691() throws CoreException {
 	this.resultCollector.showSelection = true;
 	search("*", TYPE, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
 	assertSearchResults(
-		"src/test/Ref.java [import pack.§|Test|§;] EXACT_MATCH\n" + 
+		"src/test/Ref.java [import §|pack.Test|§;] EXACT_MATCH\n" + 
 		"src/test/Ref.java test.Ref.test [	§|Test|§ test;] EXACT_MATCH"
 	);
 }
+
 }

@@ -30,7 +30,7 @@ public int match(Expression node, MatchingNodeSet nodeSet) { // interested in As
 			if (lhs instanceof Reference)
 				return matchReference((Reference) lhs, nodeSet, true);
 		}
-	} else if (this.pattern.readAccess) {
+	} else if (this.pattern.readAccess || this.pattern.fineGrain != 0) {
 		if (node instanceof Assignment && !(node instanceof CompoundAssignment)) {
 			// the lhs of a simple assignment may be added in match(Reference...) before we reach here
 			// for example, the fieldRef to 'this.x' in the statement this.x = x; is not considered a readAccess
@@ -42,7 +42,7 @@ public int match(Expression node, MatchingNodeSet nodeSet) { // interested in As
 	return IMPOSSIBLE_MATCH;
 }
 public int match(Reference node, MatchingNodeSet nodeSet) { // interested in NameReference & its subtypes
-	return this.pattern.readAccess
+	return (this.pattern.readAccess || this.pattern.fineGrain != 0)
 		? matchReference(node, nodeSet, false)
 		: IMPOSSIBLE_MATCH;
 }

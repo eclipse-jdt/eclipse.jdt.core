@@ -857,38 +857,13 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 			typeSimpleName = null;
 	}
 	// Create field pattern
-	boolean findDeclarations = false;
-	boolean readAccess = false;
-	boolean writeAccess = false;
-	switch (limitTo) {
-		case IJavaSearchConstants.DECLARATIONS :
-			findDeclarations = true;
-			break;
-		case IJavaSearchConstants.REFERENCES :
-			readAccess = true;
-			writeAccess = true;
-			break;
-		case IJavaSearchConstants.READ_ACCESSES :
-			readAccess = true;
-			break;
-		case IJavaSearchConstants.WRITE_ACCESSES :
-			writeAccess = true;
-			break;
-		case IJavaSearchConstants.ALL_OCCURRENCES :
-			findDeclarations = true;
-			readAccess = true;
-			writeAccess = true;
-			break;
-	}
 	return new FieldPattern(
-			findDeclarations,
-			readAccess,
-			writeAccess,
 			fieldNameChars,
 			declaringTypeQualification,
 			declaringTypeSimpleName,
 			typeQualification,
 			typeSimpleName,
+			limitTo,
 			matchRule);
 }
 
@@ -1248,22 +1223,8 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 			returnTypeSimpleName = null;
 	}
 	// Create method/constructor pattern
-	boolean findDeclarations = true;
-	boolean findReferences = true;
-	switch (limitTo) {
-		case IJavaSearchConstants.DECLARATIONS :
-			findReferences = false;
-			break;
-		case IJavaSearchConstants.REFERENCES :
-			findDeclarations = false;
-			break;
-		case IJavaSearchConstants.ALL_OCCURRENCES :
-			break;
-	}
 	if (isConstructor) {
 		return new ConstructorPattern(
-				findDeclarations,
-				findReferences,
 				declaringTypeSimpleName, 
 				declaringTypeQualification,
 				declaringTypeSignature,
@@ -1271,11 +1232,10 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 				parameterTypeSimpleNames,
 				parameterTypeSignatures,
 				typeArguments,
+				limitTo,
 				matchRule);
 	} else {
 		return new MethodPattern(
-				findDeclarations,
-				findReferences,
 				selectorChars,
 				declaringTypeQualification,
 				declaringTypeSimpleName,
@@ -1287,6 +1247,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 				parameterTypeSimpleNames,
 				parameterTypeSignatures,
 				typeArguments,
+				limitTo,
 				matchRule);
 	}
 }
@@ -1365,6 +1326,8 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  *				which directly implement/extend a given interface.
  *				Note that types may be only classes or only interfaces if {@link IJavaSearchConstants#CLASS } or
  *				{@link IJavaSearchConstants#INTERFACE} is respectively used instead of {@link IJavaSearchConstants#TYPE}.
+ *		</li>
+ *		<li>TODO (frederic) add specification for fine grain flags
  *		</li>
  *	</ul>
  * @param matchRule one of the following match rule
@@ -1482,6 +1445,8 @@ public static SearchPattern createPattern(String stringPattern, int searchFor, i
  *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for types, will find all types
  *				which directly implement/extend a given interface.
  *		</li>
+ *		<li>TODO (frederic) add specification for fine grain flags
+ *		</li>
  *	</ul>
  * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
  */
@@ -1528,6 +1493,8 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
  *		</li>
  *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for types, will find all types
  *				which directly implement/extend a given interface.
+ *		</li>
+ *		<li>TODO (frederic) add specification for fine grain flags
  *		</li>
  *	</ul>
  * @param matchRule one of the following match rule
@@ -1612,40 +1579,15 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo, int
 				}
 			}
 			// Create field pattern
-			boolean findDeclarations = false;
-			boolean readAccess = false;
-			boolean writeAccess = false;
-			switch (maskedLimitTo) {
-				case IJavaSearchConstants.DECLARATIONS :
-					findDeclarations = true;
-					break;
-				case IJavaSearchConstants.REFERENCES :
-					readAccess = true;
-					writeAccess = true;
-					break;
-				case IJavaSearchConstants.READ_ACCESSES :
-					readAccess = true;
-					break;
-				case IJavaSearchConstants.WRITE_ACCESSES :
-					writeAccess = true;
-					break;
-				case IJavaSearchConstants.ALL_OCCURRENCES :
-					findDeclarations = true;
-					readAccess = true;
-					writeAccess = true;
-					break;
-			}
 			searchPattern = 
 				new FieldPattern(
-					findDeclarations,
-					readAccess,
-					writeAccess,
 					name, 
 					declaringQualification, 
 					declaringSimpleName, 
 					typeQualification, 
 					typeSimpleName,
 					typeSignature,
+					limitTo,
 					matchRule);
 			break;
 		case IJavaElement.IMPORT_DECLARATION :
@@ -1669,36 +1611,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo, int
 			break;
 		case IJavaElement.LOCAL_VARIABLE :
 			LocalVariable localVar = (LocalVariable) element;
-			boolean findVarDeclarations = false;
-			boolean findVarReadAccess = false;
-			boolean findVarWriteAccess = false;
-			switch (maskedLimitTo) {
-				case IJavaSearchConstants.DECLARATIONS :
-					findVarDeclarations = true;
-					break;
-				case IJavaSearchConstants.REFERENCES :
-					findVarReadAccess = true;
-					findVarWriteAccess = true;
-					break;
-				case IJavaSearchConstants.READ_ACCESSES :
-					findVarReadAccess = true;
-					break;
-				case IJavaSearchConstants.WRITE_ACCESSES :
-					findVarWriteAccess = true;
-					break;
-				case IJavaSearchConstants.ALL_OCCURRENCES :
-					findVarDeclarations = true;
-					findVarReadAccess = true;
-					findVarWriteAccess = true;
-					break;
-			}
-			searchPattern = 
-				new LocalVariablePattern(
-					findVarDeclarations,
-					findVarReadAccess,
-					findVarWriteAccess,
-					localVar,
-					matchRule);
+			searchPattern = new LocalVariablePattern(localVar, limitTo, matchRule);
 			break;
 		case IJavaElement.TYPE_PARAMETER:
 			ITypeParameter typeParam = (ITypeParameter) element;
@@ -1786,35 +1699,20 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo, int
 			}
 
 			// Create method/constructor pattern
-			boolean findMethodDeclarations = true;
-			boolean findMethodReferences = true;
-			switch (maskedLimitTo) {
-				case IJavaSearchConstants.DECLARATIONS :
-					findMethodReferences = false;
-					break;
-				case IJavaSearchConstants.REFERENCES :
-					findMethodDeclarations = false;
-					break;
-				case IJavaSearchConstants.ALL_OCCURRENCES :
-					break;
-			}
 			if (isConstructor) {
 				searchPattern =
 					new ConstructorPattern(
-						findMethodDeclarations,
-						findMethodReferences,
 						declaringSimpleName, 
 						declaringQualification, 
 						parameterQualifications, 
 						parameterSimpleNames,
 						parameterSignatures,
 						method,
+						limitTo,
 						matchRule);
 			} else {
 				searchPattern =
 					new MethodPattern(
-						findMethodDeclarations,
-						findMethodReferences,
 						selector, 
 						declaringQualification, 
 						declaringSimpleName, 
@@ -1825,6 +1723,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo, int
 						parameterSimpleNames,
 						parameterSignatures,
 						method,
+						limitTo,
 						matchRule);
 			}
 			break;
@@ -1897,6 +1796,15 @@ private static SearchPattern createTypePattern(char[] simpleName, char[] package
 						typeSignature,
 						matchRule)
 			);
+		default:
+			if (type != null) {
+				return new TypeReferencePattern(
+					CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
+					simpleName,
+					type,
+					limitTo,
+					matchRule);
+			}
 	}
 	return null;
 }
@@ -2001,9 +1909,10 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 		case IJavaSearchConstants.ALL_OCCURRENCES :
 			return new OrPattern(
 				new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, indexSuffix, matchRule),// cannot search for explicit member types
-				new TypeReferencePattern(qualificationChars, typeChars, matchRule));
+				new TypeReferencePattern(qualificationChars, typeChars, typeSignature, matchRule));
+		default:
+			return new TypeReferencePattern(qualificationChars, typeChars, typeSignature, limitTo, matchRule);
 	}
-	return null;
 }
 /**
  * Returns the enclosing type names of the given type.

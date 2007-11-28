@@ -53,6 +53,11 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	int matchCompatibility;
 
 	/**
+	 * Fine grain limitation
+	 */
+	public int fineGrain = 0;
+	
+	/**
 	 * Mask used on match rule for match mode.
 	 */
 	public static final int MATCH_MODE_MASK = R_EXACT_MATCH
@@ -289,6 +294,7 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 		}
 		return output;
 	}
+
 	/**
 	 * @param typeArguments The typeArguments to set.
 	 */

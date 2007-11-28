@@ -34,66 +34,88 @@ public interface IJavaSearchConstants {
 	/**
 	 * The searched element is a type, which may include classes, interfaces,
 	 * enums, and annotation types.
+	 * 
+	 * @category searchFor
 	 */
 	int TYPE= 0;
 
 	/**
 	 * The searched element is a method.
+	 * 
+	 * @category searchFor
 	 */
 	int METHOD= 1;
 
 	/**
 	 * The searched element is a package.
+	 * 
+	 * @category searchFor
 	 */
 	int PACKAGE= 2;
 
 	/**
 	 * The searched element is a constructor.
+	 * 
+	 * @category searchFor
 	 */
 	int CONSTRUCTOR= 3;
 
 	/**
 	 * The searched element is a field.
+	 * 
+	 * @category searchFor
 	 */
 	int FIELD= 4;
 
 	/**
 	 * The searched element is a class. 
 	 * More selective than using {@link #TYPE}.
+	 * 
+	 * @category searchFor
 	 */
 	int CLASS= 5;
 
 	/**
 	 * The searched element is an interface.
 	 * More selective than using {@link #TYPE}.
+	 * 
+	 * @category searchFor
 	 */
 	int INTERFACE= 6;
 
 	/**
 	 * The searched element is an enum.
 	 * More selective than using {@link #TYPE}.
+	 * 
 	 * @since 3.1
+	 * @category searchFor
 	 */
 	int ENUM= 7;
 
 	/**
 	 * The searched element is an annotation type.
 	 * More selective than using {@link #TYPE}.
+	 * 
 	 * @since 3.1
+	 * @category searchFor
 	 */
 	int ANNOTATION_TYPE= 8;
 
 	/**
 	 * The searched element is a class or enum type.
 	 * More selective than using {@link #TYPE}.
+	 * 
 	 * @since 3.1
+	 * @category searchFor
 	 */
 	int CLASS_AND_ENUM= 9;
 
 	/**
 	 * The searched element is a class or interface type.
 	 * More selective than using {@link #TYPE}.
+	 * 
 	 * @since 3.1
+	 * @category searchFor
 	 */
 	int CLASS_AND_INTERFACE= 10;
 	
@@ -101,6 +123,7 @@ public interface IJavaSearchConstants {
 	 * The searched element is an interface or annotation type.
 	 * More selective than using {@link #TYPE}.
 	 * @since 3.3
+	 * @category searchFor
 	 */
 	int INTERFACE_AND_ANNOTATION= 11;
 
@@ -110,6 +133,8 @@ public interface IJavaSearchConstants {
 	 * The search result is a declaration.
 	 * Can be used in conjunction with any of the nature of searched elements
 	 * so as to better narrow down the search.
+	 * 
+	 * @category limitTo
 	 */
 	int DECLARATIONS= 0;
 
@@ -119,6 +144,8 @@ public interface IJavaSearchConstants {
 	 * respectively search for any type implementing/extending a type,
 	 * or rather exclusively search for classes implementing/extending the type, or
 	 * interfaces extending the type.
+	 * 
+	 * @category limitTo
 	 */
 	int IMPLEMENTORS= 1;
 
@@ -128,6 +155,8 @@ public interface IJavaSearchConstants {
 	 * so as to better narrow down the search.
 	 * References can contain implementers since they are more generic kind
 	 * of matches.
+	 * 
+	 * @category limitTo
 	 */
 	int REFERENCES= 2;
 
@@ -136,6 +165,8 @@ public interface IJavaSearchConstants {
 	 * of an interface.
 	 * Can be used in conjunction with any of the nature of searched elements
 	 * so as to better narrow down the search.
+	 * 
+	 * @category limitTo
 	 */
 	int ALL_OCCURRENCES= 3;
 
@@ -145,6 +176,7 @@ public interface IJavaSearchConstants {
 	 * as field read/write accesses: for example, x++; x+= 1;
 	 * 
 	 * @since 2.0
+	 * @category limitTo
 	 */
 	int READ_ACCESSES = 4;
 	
@@ -154,45 +186,383 @@ public interface IJavaSearchConstants {
 	 * as field read/write accesses: for example,  x++; x+= 1;
 	 * 
 	 * @since 2.0
+	 * @category limitTo
 	 */
 	int WRITE_ACCESSES = 5;
 
 	/**
 	 * Ignore declaring type while searching result.
 	 * Can be used in conjunction with any of the nature of match.
+	 * 
 	 * @since 3.1
+	 * @category limitTo
 	 */
 	int IGNORE_DECLARING_TYPE = 0x10;
 
 	/**
 	 * Ignore return type while searching result.
-	 * Can be used in conjunction with any of the nature of match.
+	 * Can be used in conjunction with any other nature of match.
 	 * Note that:
 	 * <ul>
 	 * 	<li>for fields search, pattern will ignore field type</li>
 	 * 	<li>this flag will have no effect for types search</li>
 	 *	</ul>
+	 *
 	 * @since 3.1
+	 * @category limitTo
 	 */
 	int IGNORE_RETURN_TYPE = 0x20;
+	
+	/**
+	 * Return only references to type used in field type declaration.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int FIELD_TYPE_DECLARATION_TYPE_REFERENCE = 0x40;
+	
+	/**
+	 * Return only references to type used in local variable declaration.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE = 0x80;
+	
+	/**
+	 * Return only references to type used in method parameter declaration.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int PARAMETER_TYPE_DECLARATION_TYPE_REFERENCE = 0x100;
+	
+	/**
+	 * Return only references to type used as super type.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int SUPERTYPE_TYPE_REFERENCE = 0x200;
+	
+	/**
+	 * Return only references to type used as super interface.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int SUPERINTERFACE_TYPE_REFERENCE = 0x400;
+	
+	/**
+	 * Return only references to types used in throws clause.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int THROWS_CLAUSE_TYPE_REFERENCE = 0x800;
+	
+	/**
+	 * Return only reference to types used in a cast expression.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int CAST_TYPE_REFERENCE = 0x1000;
+	
+	/**
+	 * Return only reference to types used in a catch header.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int CATCH_TYPE_REFERENCE = 0x2000;
+	
+	/**
+	 * Return only reference to types used in an allocation expression.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int ALLOCATION_EXPRESSION_TYPE_REFERENCE = 0x4000;
+	
+	/**
+	 * Return only reference to types used as method return type.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int RETURN_TYPE_REFERENCE = 0x8000;
+	
+	/**
+	 * Return only reference to types used in import declaration.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int IMPORT_DECLARATION_TYPE_REFERENCE = 0x10000;
+
+	/**
+	 * Return only reference to types used as annotation.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int ANNOTATION_TYPE_REFERENCE = 0x20000;
+
+	/**
+	 * Return only reference to types used as type variable bound.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int TYPE_VARIABLE_BOUND_TYPE_REFERENCE = 0x40000;
+
+	/**
+	 * Return only reference to types used as parameterized type.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int PARAMETERIZED_TYPE_REFERENCE = 0x80000;
+
+	/**
+	 * Return only reference to types used as wildcard bound.
+	 * <p>
+	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int WILDCARD_BOUND_TYPE_REFERENCE = 0x100000;
+	
+	/**
+	 * Return only super field accesses  or method invocations (e.g. using
+	 * <code>super</code> qualifier).
+	 * <p>
+	 * When this flag is used, the kind of returned matches will depend on the
+	 * specified nature of searched element:
+	 * <ul>
+	 * 	<li>for {@link #FIELD} nature, only {@link FieldReferenceMatch} matches
+	 * 		will be accepted,</li>
+	 * 	<li>for {@link #METHOD} nature, only {@link MethodReferenceMatch}
+	 * 		matches will be returned</li>
+	 * </ul>
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int SUPER_REFERENCE = 0x1000000;
+	
+	/**
+	 * Return only qualified field accesses or method invocations.
+	 * <p>
+	 * When this flag is used, the kind of returned matches will depend on the
+	 * specified nature of searched element:
+	 * <ul>
+	 * 	<li>for {@link #FIELD} nature, only {@link FieldReferenceMatch} matches
+	 * 		will be accepted,</li>
+	 * 	<li>for {@link #METHOD} nature, only {@link MethodReferenceMatch}
+	 * 		matches will be returned</li>
+	 * </ul>
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int QUALIFIED_REFERENCE = 0x2000000;
+	
+	/**
+	 * Return only primary field accesses  or method invocations (e.g. using
+	 * <code>this</code> qualifier).
+	 * <p>
+	 * When this flag is used, the kind of returned matches will depend on the
+	 * specified nature of searched element:
+	 * <ul>
+	 * 	<li>for {@link #FIELD} nature, only {@link FieldReferenceMatch} matches
+	 * 		will be accepted,</li>
+	 * 	<li>for {@link #METHOD} nature, only {@link MethodReferenceMatch}
+	 * 		matches will be returned</li>
+	 * </ul>
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int THIS_REFERENCE = 0x4000000;
+	
+	/**
+	 * Return only field accesses  or method invocations without any qualification.
+	 * <p>
+	 * When this flag is used, the kind of returned matches will depend on the
+	 * specified nature of searched element:
+	 * <ul>
+	 * 	<li>for {@link #FIELD} nature, only {@link FieldReferenceMatch} matches
+	 * 		will be accepted,</li>
+	 * 	<li>for {@link #METHOD} nature, only {@link MethodReferenceMatch}
+	 * 		matches will be returned</li>
+	 * </ul>
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int IMPLICIT_THIS_REFERENCE = 0x8000000;
+//	
+//	/**
+//	 * Return only super field accesses (e.g. using <code>super</code>
+//	 * qualifier).
+//	 * <p>
+//	 * When this flag is used, only {@link FieldReferenceMatch type reference
+//	 * matches} will be returned.
+//	 *</p>
+//	 * @since 3.4
+//	 * @category limitTo
+//	 */
+//	int SUPER_FIELD_REFERENCE = 0x1000000;
+//	
+//	/**
+//	 * Return only qualified field accesses.
+//	 * <p>
+//	 * When this flag is used, only {@link FieldReferenceMatch type reference
+//	 * matches} will be returned.
+//	 *</p>
+//	 * @since 3.4
+//	 * @category limitTo
+//	 */
+//	int QUALIFIED_FIELD_REFERENCE = 0x2000000;
+//	
+//	/**
+//	 * Return only primary field accesses (e.g. using <code>this</code>
+//	 * qualifier).
+//	 * <p>
+//	 * When this flag is used, only {@link FieldReferenceMatch type reference
+//	 * matches} will be returned.
+//	 *</p>
+//	 * @since 3.4
+//	 * @category limitTo
+//	 */
+//	int THIS_FIELD_REFERENCE = 0x4000000;
+//	
+//	/**
+//	 * Return only field accesses without any qualification.
+//	 * <p>
+//	 * When this flag is used, only {@link FieldReferenceMatch type reference
+//	 * matches} will be returned.
+//	 *</p>
+//	 * @since 3.4
+//	 * @category limitTo
+//	 */
+//	int SIMPLE_FIELD_REFERENCE = 0x8000000;
+//	
+//	/**
+//	 * Return only super method invocations (e.g. using <code>super</code>
+//	 * qualifier).
+//	 * <p>
+//	 * When this flag is used, only {@link MethodReferenceMatch type reference
+//	 * matches} will be returned.
+//	 *</p>
+//	 * @since 3.4
+//	 * @category limitTo
+//	 */
+//	int SUPER_METHOD_REFERENCE = 0x10000000;
+//	
+//	/**
+//	 * Return only qualified method invocations.
+//	 * <p>
+//	 * When this flag is used, only {@link MethodReferenceMatch type reference
+//	 * matches} will be returned.
+//	 *</p>
+//	 * @since 3.4
+//	 * @category limitTo
+//	 */
+//	int QUALIFIED_METHOD_REFERENCE = 0x20000000;
+//	
+//	/**
+//	 * Return only primary method invocations (e.g. using <code>this</code>
+//	 * qualifier).
+//	 * <p>
+//	 * When this flag is used, only {@link MethodReferenceMatch type reference
+//	 * matches} will be returned.
+//	 *</p>
+//	 * @since 3.4
+//	 * @category limitTo
+//	 */
+//	int THIS_METHOD_REFERENCE = 0x40000000;
+//	
+//	/**
+//	 * Return only method invocations without any qualification.
+//	 * <p>
+//	 * When this flag is used, only {@link MethodReferenceMatch type reference
+//	 * matches} will be returned.
+//	 *</p>
+//	 * @since 3.4
+//	 * @category limitTo
+//	 */
+//	int SIMPLE_METHOD_REFERENCE = 0x80000000;
 	
 	/* Syntactic match modes */
 	
 	/**
 	 * The search pattern matches exactly the search result,
 	 * that is, the source of the search result equals the search pattern.
+	 * 
 	 * @deprecated Use {@link SearchPattern#R_EXACT_MATCH} instead.
+	 * @category matchRule
 	 */
 	int EXACT_MATCH = 0;
 	/**
 	 * The search pattern is a prefix of the search result.
+	 * 
 	 * @deprecated Use {@link SearchPattern#R_PREFIX_MATCH} instead.
+	 * @category matchRule
 	 */
 	int PREFIX_MATCH = 1;
 	/**
 	 * The search pattern contains one or more wild cards ('*') where a 
 	 * wild-card can replace 0 or more characters in the search result.
+	 * 
 	 * @deprecated Use {@link SearchPattern#R_PATTERN_MATCH} instead.
+	 * @category matchRule
 	 */
 	int PATTERN_MATCH = 2;
 
@@ -202,14 +572,18 @@ public interface IJavaSearchConstants {
 	/**
 	 * The search pattern matches the search result only
 	 * if cases are the same.
+	 * 
 	 * @deprecated Use the methods that take the matchMode
 	 *   with {@link SearchPattern#R_CASE_SENSITIVE} as a matchRule instead.
+	 * @category matchRule
 	 */
 	boolean CASE_SENSITIVE = true;
 	/**
 	 * The search pattern ignores cases in the search result.
+	 * 
 	 * @deprecated Use the methods that take the matchMode
 	 *   without {@link SearchPattern#R_CASE_SENSITIVE} as a matchRule instead.
+	 * @category matchRule
 	 */
 	boolean CASE_INSENSITIVE = false;
 	

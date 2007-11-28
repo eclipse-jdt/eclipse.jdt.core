@@ -59,6 +59,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 		public boolean showPotential = true;
 		public boolean showProject;
 		public boolean showSynthetic;
+		public boolean showOffset = false;
 		public int showFlavors = 0;
 		public int count = 0;
 		List lines = new ArrayList();
@@ -176,6 +177,10 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 								int lineEnd = lineEnd1 > 0 && lineEnd2 > 0 ? Math.min(lineEnd1, lineEnd2) : Math.max(lineEnd1, lineEnd2);
 								if (lineEnd == -1) lineEnd = contents.length;
 								line.append(CharOperation.subarray(contents, end, lineEnd));
+							}
+							if (this.showOffset) {
+								line.append('@');
+								line.append(start);
 							}
 						} else {
 							line.append("No source");

@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 //import java.util.HashSet;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
 public class DeclarationOfReferencedMethodsPattern extends MethodPattern {
@@ -21,7 +22,7 @@ protected IJavaElement enclosingElement;
 protected SimpleSet knownMethods;
 
 public DeclarationOfReferencedMethodsPattern(IJavaElement enclosingElement) {
-	super(false, true, null, null, null, null, null, null, null, null, R_PATTERN_MATCH);
+	super(null, null, null, null, null, null, null, null, IJavaSearchConstants.REFERENCES, R_PATTERN_MATCH);
 
 	this.enclosingElement = enclosingElement;
 	this.knownMethods = new SimpleSet();

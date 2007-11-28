@@ -23,6 +23,8 @@ public class RunJavaSearchTests extends junit.framework.TestCase {
 
 	public final static List TEST_CLASSES = new ArrayList();
 	static {
+		// All test suites put in this list should use the same tests projects
+		// (eg. JavaSearch and JavaSearch15)
 		TEST_CLASSES.add(JavaSearchTests.class);
 		TEST_CLASSES.add(JavaSearchGenericTypeTests.class);
 		TEST_CLASSES.add(JavaSearchGenericTypeEquivalentTests.class);
@@ -36,6 +38,7 @@ public class RunJavaSearchTests extends junit.framework.TestCase {
 		TEST_CLASSES.add(JavaSearchGenericConstructorEquivalentTests.class);
 		TEST_CLASSES.add(WorkingCopySearchTests.class);
 		TEST_CLASSES.add(JavaSearchJavadocTests.class);
+		TEST_CLASSES.add(JavaSearchFineGrainTests.class);
 	}
 
 	public static Class[] getTestClasses() {

@@ -82,7 +82,7 @@ protected int referenceType() {
 	return IJavaElement.LOCAL_VARIABLE;
 }
 public int resolveLevel(ASTNode possiblelMatchingNode) {
-	if (this.pattern.findReferences)
+	if (this.pattern.findReferences || this.pattern.fineGrain != 0)
 		if (possiblelMatchingNode instanceof NameReference)
 			return resolveLevel((NameReference) possiblelMatchingNode);
 	if (possiblelMatchingNode instanceof LocalDeclaration)

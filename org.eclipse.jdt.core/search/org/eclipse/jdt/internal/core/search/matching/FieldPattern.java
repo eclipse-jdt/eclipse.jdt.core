@@ -34,17 +34,15 @@ public static char[] createIndexKey(char[] fieldName) {
 }
 
 public FieldPattern(
-	boolean findDeclarations,
-	boolean readAccess,
-	boolean writeAccess,
 	char[] name, 
 	char[] declaringQualification,
 	char[] declaringSimpleName,	
 	char[] typeQualification, 
 	char[] typeSimpleName,
+	int limitTo,
 	int matchRule) {
 
-	super(FIELD_PATTERN, findDeclarations, readAccess, writeAccess, name, matchRule);
+	super(FIELD_PATTERN, name, limitTo, matchRule);
 
 	this.declaringQualification = this.isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
 	this.declaringSimpleName = this.isCaseSensitive ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
@@ -57,18 +55,16 @@ public FieldPattern(
  * Instantiate a field pattern with additional information for generic search
  */
 public FieldPattern(
-	boolean findDeclarations,
-	boolean readAccess,
-	boolean writeAccess,
 	char[] name, 
 	char[] declaringQualification,
 	char[] declaringSimpleName,	
 	char[] typeQualification, 
 	char[] typeSimpleName,
 	String typeSignature,
+	int limitTo,
 	int matchRule) {
 
-	this(findDeclarations, readAccess, writeAccess, name, declaringQualification, declaringSimpleName, typeQualification, typeSimpleName, matchRule);
+	this(name, declaringQualification, declaringSimpleName, typeQualification, typeSimpleName, limitTo, matchRule);
 
 	// store type signatures and arguments
 	if (typeSignature != null) {
@@ -80,13 +76,13 @@ public void decodeIndexKey(char[] key) {
 	this.name = key;
 }
 public SearchPattern getBlankPattern() {
-	return new FieldPattern(false, false, false, null, null, null, null, null, R_EXACT_MATCH | R_CASE_SENSITIVE);
+	return new FieldPattern(null, null, null, null, null, 0, R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 public char[] getIndexKey() {
 	return this.name;
 }
 public char[][] getIndexCategories() {
-	if (this.findReferences)
+	if (this.findReferences || this.fineGrain != 0)
 		return this.findDeclarations || this.writeAccess ? REF_AND_DECL_CATEGORIES : REF_CATEGORIES;
 	if (this.findDeclarations)
 		return DECL_CATEGORIES;

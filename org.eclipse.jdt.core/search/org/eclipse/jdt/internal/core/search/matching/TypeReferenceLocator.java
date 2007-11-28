@@ -26,11 +26,14 @@ public class TypeReferenceLocator extends PatternLocator {
 protected TypeReferencePattern pattern;
 protected boolean isDeclarationOfReferencedTypesPattern;
 
+private final int fineGrain;
+
 public TypeReferenceLocator(TypeReferencePattern pattern) {
 
 	super(pattern);
 
 	this.pattern = pattern;
+	this.fineGrain = pattern == null ? 0 : pattern.fineGrain;
 	this.isDeclarationOfReferencedTypesPattern = this.pattern instanceof DeclarationOfReferencedTypesPattern;
 }
 protected IJavaElement findElement(IJavaElement element, int accuracy) {
@@ -42,6 +45,9 @@ protected IJavaElement findElement(IJavaElement element, int accuracy) {
 	while (element != null && !declPattern.enclosingElement.equals(element))
 		element = element.getParent();
 	return element;
+}
+protected int fineGrain() {
+	return this.fineGrain;
 }
 public int match(Annotation node, MatchingNodeSet nodeSet) {
 	return match(node.type, nodeSet);
@@ -201,6 +207,11 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 		return;
 	}
 	
+	// Return if fine grain is on and does not concern import reference
+	if ((this.pattern.fineGrain != 0 && (this.pattern.fineGrain & IJavaSearchConstants.IMPORT_DECLARATION_TYPE_REFERENCE) == 0)) {
+		return;
+	}
+
 	// Create search match
 	match = locator.newTypeReferenceMatch(element, binding, accuracy, importRef);
 
@@ -538,6 +549,10 @@ void matchReportReference(Expression expr, int lastIndex, TypeBinding refBinding
 				return;
 			}
 		}
+	}
+	if (this.pattern.simpleName == null) {
+		match.setOffset(expr.sourceStart);
+		match.setLength(expr.sourceEnd-expr.sourceStart+1);
 	}
 	locator.report(match);
 }

@@ -30,6 +30,9 @@ public FieldLocator(FieldPattern pattern) {
 
 	this.isDeclarationOfAccessedFieldsPattern = this.pattern instanceof DeclarationOfAccessedFieldsPattern;
 }
+protected int fineGrain() {
+	return this.pattern.fineGrain;
+}
 public int match(ASTNode node, MatchingNodeSet nodeSet) {
 	int declarationsLevel = IMPOSSIBLE_MATCH;
 	if (this.pattern.findReferences) {
@@ -78,7 +81,7 @@ public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 //public int match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
 
 protected int matchContainer() {
-	if (this.pattern.findReferences) {
+	if (this.pattern.findReferences || this.pattern.fineGrain != 0) {
 		// need to look everywhere to find in javadocs and static import
 		return ALL_CONTAINER;
 	}
@@ -290,7 +293,7 @@ protected int referenceType() {
 	return IJavaElement.FIELD;
 }
 public int resolveLevel(ASTNode possiblelMatchingNode) {
-	if (this.pattern.findReferences) {
+	if (this.pattern.findReferences || this.pattern.fineGrain != 0) {
 		if (possiblelMatchingNode instanceof FieldReference)
 			return matchField(((FieldReference) possiblelMatchingNode).binding, true);
 		else if (possiblelMatchingNode instanceof NameReference)

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 class ImportMatchLocatorParser extends MatchLocatorParser {
@@ -19,19 +20,31 @@ protected ImportMatchLocatorParser(ProblemReporter problemReporter, MatchLocator
 }
 protected void consumeStaticImportOnDemandDeclarationName() {
 	super.consumeStaticImportOnDemandDeclarationName();
-	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & IJavaSearchConstants.IMPORT_DECLARATION_TYPE_REFERENCE) != 0) {
+		this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
+	}
 }
 protected void consumeSingleStaticImportDeclarationName() {
 	super.consumeSingleStaticImportDeclarationName();
-	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & IJavaSearchConstants.IMPORT_DECLARATION_TYPE_REFERENCE) != 0) {
+		this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
+	}
 }
 protected void consumeSingleTypeImportDeclarationName() {
 	super.consumeSingleTypeImportDeclarationName();
-	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & IJavaSearchConstants.IMPORT_DECLARATION_TYPE_REFERENCE) != 0) {
+		this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
+	}
 }
 protected void consumeTypeImportOnDemandDeclarationName() {
 	super.consumeTypeImportOnDemandDeclarationName();
-	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & IJavaSearchConstants.IMPORT_DECLARATION_TYPE_REFERENCE) != 0) {
+		this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
+	}
 }
 
 }

@@ -22,11 +22,6 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 
 	protected SearchPattern[] patterns;
 
-	/*
-	 * Whether this pattern is erasure match.
-	 */
-//	boolean isErasureMatch;
-
 	/**
 	 * One of {@link #R_ERASURE_MATCH}, {@link #R_EQUIVALENT_MATCH}, {@link #R_FULL_MATCH}.
 	 */

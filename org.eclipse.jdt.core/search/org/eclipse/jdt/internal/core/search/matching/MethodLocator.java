@@ -47,6 +47,9 @@ public MethodLocator(MethodPattern pattern) {
 protected void clear() {
 	this.methodDeclarationsWithInvalidParam = new HashMap();
 }
+protected int fineGrain() {
+	return this.pattern.fineGrain;
+}
 public void initializePolymorphicSearch(MatchLocator locator) {
 	long start = 0;
 	if (BasicSearchEngine.VERBOSE) {

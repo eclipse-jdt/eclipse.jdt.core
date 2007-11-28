@@ -144,6 +144,8 @@ SimpleLookupTable bindings;
 // Cache for method handles
 HashSet methodHandles;
 
+private final int patternFineGrain;
+
 /**
  * An ast visitor that visits local type declarations.
  */
@@ -184,7 +186,6 @@ public class LocalDeclarationVisitor extends ASTVisitor {
 		}
 	}
 }
-
 public static class WorkingCopyDocument extends JavaSearchDocument {
 	public org.eclipse.jdt.core.ICompilationUnit workingCopy;
 	WorkingCopyDocument(org.eclipse.jdt.core.ICompilationUnit workingCopy, SearchParticipant participant) {
@@ -328,6 +329,7 @@ public MatchLocator(
 	this.pattern = pattern;
 	this.patternLocator = PatternLocator.patternLocator(this.pattern);
 	this.matchContainer = this.patternLocator == null ? 0 : this.patternLocator.matchContainer();
+	this.patternFineGrain = this.patternLocator == null ? 0 : this.patternLocator.fineGrain();
 	this.requestor = requestor;
 	this.scope = scope;
 	this.progressMonitor = progressMonitor;
@@ -1980,8 +1982,10 @@ protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryM
  * search pattern (ie. the ones in the matching nodes set)
  * Note that the method declaration has already been checked.
  */
-protected void reportMatching(TypeDeclaration type, AbstractMethodDeclaration method, IJavaElement parent, int accuracy, boolean typeInHierarchy, MatchingNodeSet nodeSet) throws CoreException {
+protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration type, IJavaElement parent, int accuracy, boolean typeInHierarchy, MatchingNodeSet nodeSet) throws CoreException {
 	IJavaElement enclosingElement = null;
+
+	// report method declaration itself
 	if (accuracy > -1) {
 		enclosingElement = createHandle(method, parent);
 		if (enclosingElement != null) { // skip if unable to find method
@@ -2049,16 +2053,29 @@ protected void reportMatching(TypeDeclaration type, AbstractMethodDeclaration me
 				if (enclosingElement == null)
 					enclosingElement = createHandle(method, parent);
 				if (encloses(enclosingElement)) {
-					for (int i = 0, l = nodes.length; i < l; i++) {
-						ASTNode node = nodes[i];
-						Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-						this.patternLocator.matchReportReference(node, enclosingElement, method.binding, method.scope, level.intValue(), this);
+					// standard reporting
+					if (this.patternFineGrain == 0) {
+						for (int i = 0, l = nodes.length; i < l; i++) {
+							ASTNode node = nodes[i];
+							Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+							this.patternLocator.matchReportReference(node, enclosingElement, method.binding, method.scope, level.intValue(), this);
+						}
+						return;
 					}
-					return;
+					// finegrain reporting
+					FineGrainVisitor visitor = new FineGrainVisitor(enclosingElement, method.binding, nodeSet, nodes, this.patternLocator, this);
+					try {
+						ClassScope classScope = method.scope == null ? null : method.scope.classScope();
+						method.traverse(visitor, classScope);
+					} catch (WrappedCoreException e) {
+						throw e.coreException;
+					}
 				}
 			}
-			for (int i = 0, l = nodes.length; i < l; i++)
+			// Remove all remaining nodes
+			for (int i = 0, l = nodes.length; i < l; i++) {
 				nodeSet.matchingNodes.removeKey(nodes[i]);
+			}
 		}
 	}
 }
@@ -2072,7 +2089,7 @@ protected void reportMatching(Annotation[] annotations, IJavaElement enclosingEl
 		// Look for annotation type ref
 		TypeReference typeRef = annotationType.type;
 		Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeRef);
-		if (level != null && matchedContainer) {
+		if (level != null && matchedContainer && (this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE) != 0)) {
 			this.patternLocator.matchReportReference(typeRef, enclosingElement, elementBinding, level.intValue(), this);
 		}
 		
@@ -2081,7 +2098,7 @@ protected void reportMatching(Annotation[] annotations, IJavaElement enclosingEl
 		for (int j = 0, pl = pairs.length; j < pl; j++) {
 			MemberValuePair pair = pairs[j];
 			level = (Integer) nodeSet.matchingNodes.removeKey(pair);
-			if (level != null && enclosesElement) {
+			if (level != null && enclosesElement && this.patternFineGrain == 0) {
 				ASTNode reference = (annotationType instanceof SingleMemberAnnotation) ? (ASTNode) annotationType: pair;
 				this.patternLocator.matchReportReference(reference, enclosingElement, pair.binding, level.intValue(), this);
 			}
@@ -2094,7 +2111,7 @@ protected void reportMatching(Annotation[] annotations, IJavaElement enclosingEl
 				for (int j = 0, nl = nodes.length; j < nl; j++) {
 					nodeSet.matchingNodes.removeKey(nodes[j]);
 				}
-			} else {
+			} else if (this.patternFineGrain == 0) {
 				for (int j = 0, nl = nodes.length; j < nl; j++) {
 					ASTNode node = nodes[j];
 					level = (Integer) nodeSet.matchingNodes.removeKey(node);
@@ -2135,11 +2152,13 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 				// import ref cannot be in the hierarchy of a type
 				if (this.hierarchyResolver != null) continue;
 
-				ImportReference importRef = (ImportReference) node;
-				Binding binding = (importRef.bits & ASTNode.OnDemand) != 0
-					? unitScope.getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, importRef.isStatic())
-					: unitScope.getImport(importRef.tokens, false, importRef.isStatic());
-				this.patternLocator.matchLevelAndReportImportRef(importRef, binding, this);
+				if (this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.IMPORT_DECLARATION_TYPE_REFERENCE) != 0) {
+					ImportReference importRef = (ImportReference) node;
+					Binding binding = (importRef.bits & ASTNode.OnDemand) != 0
+						? unitScope.getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, importRef.isStatic())
+						: unitScope.getImport(importRef.tokens, false, importRef.isStatic());
+					this.patternLocator.matchLevelAndReportImportRef(importRef, binding, this);
+				}
 			} else {
 				nodeSet.addMatch(node, this.patternLocator.resolveLevel(node));
 			}
@@ -2161,7 +2180,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	boolean matchedUnitContainer = (this.matchContainer & PatternLocator.COMPILATION_UNIT_CONTAINER) != 0;
 
 	// report references in javadoc
-	if (unit.javadoc != null) {
+	if (unit.javadoc != null && this.patternFineGrain == 0) {
 		ASTNode[] nodes = nodeSet.matchingNodes(unit.javadoc.sourceStart, unit.javadoc.sourceEnd);
 		if (nodes != null) {
 			if (!matchedUnitContainer) {
@@ -2172,8 +2191,9 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 				for (int i = 0, l = nodes.length; i < l; i++) {
 					ASTNode node = nodes[i];
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-					if (encloses(element))
+					if (encloses(element) && this.patternFineGrain == 0) {
 						this.patternLocator.matchReportReference(node, element, null/*no binding*/, level.intValue(), this);
+					}
 				}
 			}
 		}
@@ -2193,11 +2213,8 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 			for (int i = 0, l = imports.length; i < l; i++) {
 				ImportReference importRef = imports[i];
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(importRef);
-				if (level != null) {
-					Binding binding = (importRef.bits & ASTNode.OnDemand) != 0
-						? unitScope.getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, importRef.isStatic())
-						: unitScope.getImport(importRef.tokens, false, importRef.isStatic());
-					this.patternLocator.matchReportImportRef(importRef, binding, createImportHandle(importRef), level.intValue(), this);
+				if (level != null && (this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.IMPORT_DECLARATION_TYPE_REFERENCE) != 0)) {
+					this.patternLocator.matchReportImportRef(importRef, null /*no binding*/, createImportHandle(importRef), level.intValue(), this);
 				}
 			}
 		}
@@ -2270,22 +2287,37 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 					if (enclosingElement == null)
 						enclosingElement = createHandle(field, type, parent);
 					if (encloses(enclosingElement)) {
-						for (int i = 0, l = nodes.length; i < l; i++) {
-							ASTNode node = nodes[i];
-							Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-							IJavaElement[] otherElements = null;
-							if (otherFields != null) {
-								int length = otherFields.length;
-								int size = 0;
-								while (size<length && otherFields[size] != null) {
-									size++;
+						// standard reporting
+						if (this.patternFineGrain == 0) {
+							for (int i = 0, l = nodes.length; i < l; i++) {
+								ASTNode node = nodes[i];
+								Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+								IJavaElement[] otherElements = null;
+								if (otherFields != null) {
+									int length = otherFields.length;
+									int size = 0;
+									while (size<length && otherFields[size] != null) {
+										size++;
+									}
+									otherElements = new IJavaElement[size];
+									for (int j=0; j<size; j++) {
+										otherElements[j] = createHandle(otherFields[j], type, parent);
+									}
 								}
-								otherElements = new IJavaElement[size];
-								for (int j=0; j<size; j++) {
-									otherElements[j] = createHandle(otherFields[j], type, parent);
-								}
+								this.patternLocator.matchReportReference(node, enclosingElement, null, otherElements, field.binding, level.intValue(), this);
 							}
-							this.patternLocator.matchReportReference(node, enclosingElement, null, otherElements, field.binding, level.intValue(), this);
+						 } else {
+							// finegrain reporting
+							FineGrainVisitor visitor = new FineGrainVisitor(enclosingElement, field.binding, nodeSet, nodes, this.patternLocator, this);
+							try {
+								field.traverse(visitor, null);
+							} catch (WrappedCoreException e) {
+								throw e.coreException;
+							}
+							// Remove all remaining nodes
+							for (int i = 0, l = nodes.length; i < l; i++) {
+								nodeSet.matchingNodes.removeKey(nodes[i]);
+							}
 						}
 					}
 				}
@@ -2304,23 +2336,38 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 					enclosingElement = createHandle(field, type, parent);
 				}
 				if (encloses(enclosingElement)) {
-					for (int i = 0, l = nodes.length; i < l; i++) {
-						ASTNode node = nodes[i];
-						Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-						if (node instanceof TypeDeclaration) {
-							// use field declaration to report match (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=88174)
-							AllocationExpression allocation = ((TypeDeclaration)node).allocation;
-							if (allocation != null && allocation.enumConstant != null) {
-								node = field;
+					// standard reporting
+					if (this.patternFineGrain == 0) {
+						for (int i = 0, l = nodes.length; i < l; i++) {
+							ASTNode node = nodes[i];
+							Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+							if (node instanceof TypeDeclaration) {
+								// use field declaration to report match (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=88174)
+								AllocationExpression allocation = ((TypeDeclaration)node).allocation;
+								if (allocation != null && allocation.enumConstant != null) {
+									node = field;
+								}
 							}
+							// Set block scope for initializer in case there would have other local and other elements to report
+							BlockScope blockScope = null;
+							if (field.getKind() == AbstractVariableDeclaration.INITIALIZER) {
+								Block block = ((Initializer)field).block;
+								if (block != null) blockScope = block.scope;
+							}
+							this.patternLocator.matchReportReference(node, enclosingElement, field.binding, blockScope, level.intValue(), this);
 						}
-						// Set block scope for initializer in case there would have other local and other elements to report
-						BlockScope blockScope = null;
-						if (field.getKind() == AbstractVariableDeclaration.INITIALIZER) {
-							Block block = ((Initializer)field).block;
-							if (block != null) blockScope = block.scope;
-						}
-						this.patternLocator.matchReportReference(node, enclosingElement, field.binding, blockScope, level.intValue(), this);
+						return;
+					}
+					// finegrain reporting
+					FineGrainVisitor visitor = new FineGrainVisitor(enclosingElement, field.binding, nodeSet, nodes, this.patternLocator, this);
+					try {
+						field.traverse(visitor, field.isStatic() ? type.staticInitializerScope : type.initializerScope);
+					} catch (WrappedCoreException e) {
+						throw e.coreException;
+					}
+					// Remove all remaining nodes
+					for (int i = 0, l = nodes.length; i < l; i++) {
+						nodeSet.matchingNodes.removeKey(nodes[i]);
 					}
 				}
 			}
@@ -2369,7 +2416,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	}
 
 	// report references in javadoc
-	if (type.javadoc != null) {
+	if (type.javadoc != null && this.patternFineGrain == 0) {
 		ASTNode[] nodes = nodeSet.matchingNodes(type.declarationSourceStart, type.sourceStart);
 		if (nodes != null) {
 			if (!matchedClassContainer) {
@@ -2389,8 +2436,8 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	
 	// super types
 	if ((type.bits & ASTNode.IsAnonymousType) != 0) {
-		TypeReference superType =type.allocation.type;
-		if (superType != null) {
+		TypeReference superType = type.allocation.type;
+		if (superType != null && (this.patternFineGrain == 0 || (this.patternFineGrain & (IJavaSearchConstants.SUPERTYPE_TYPE_REFERENCE | IJavaSearchConstants.SUPERINTERFACE_TYPE_REFERENCE)) != 0)) {
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(superType);
 			if (level != null && matchedClassContainer)
 				this.patternLocator.matchReportReference(superType, enclosingElement, type.binding, level.intValue(), this);
@@ -2398,12 +2445,14 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	} else {
 		TypeReference superClass = type.superclass;
 		if (superClass != null) {
-			reportMatchingSuper(superClass, enclosingElement, type.binding, nodeSet, matchedClassContainer);
+			boolean shouldReportSuper = (this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.SUPERTYPE_TYPE_REFERENCE) != 0);
+			reportMatchingSuper(superClass, enclosingElement, type.binding, nodeSet, matchedClassContainer, shouldReportSuper);
 		}
 		TypeReference[] superInterfaces = type.superInterfaces;
 		if (superInterfaces != null) {
+			boolean shouldReportSuper = (this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.SUPERINTERFACE_TYPE_REFERENCE) != 0);
 			for (int i = 0, l = superInterfaces.length; i < l; i++) {
-				reportMatchingSuper(superInterfaces[i], enclosingElement, type.binding, nodeSet, matchedClassContainer);
+				reportMatchingSuper(superInterfaces[i], enclosingElement, type.binding, nodeSet, matchedClassContainer, shouldReportSuper);
 			}
 		}
 	}
@@ -2463,7 +2512,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 			AbstractMethodDeclaration method = methods[i];
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(method);
 			int value = (level != null && matchedClassContainer) ? level.intValue() : -1;
-			reportMatching(type, method, enclosingElement, value, typeInHierarchy, nodeSet);
+			reportMatching(method, type, enclosingElement, value, typeInHierarchy, nodeSet);
 		}
 	}
 
@@ -2484,11 +2533,20 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
  */
 protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclosingElement, IJavaElement parent, Binding binding, MatchingNodeSet nodeSet) throws CoreException {
 	if (typeParameters == null) return;
+	boolean typeParameterBoundShouldBeReported = this.patternFineGrain == 0 ||
+		(this.patternFineGrain & IJavaSearchConstants.TYPE_VARIABLE_BOUND_TYPE_REFERENCE) != 0;
+	boolean parameterizedTypeShouldBeReported = this.patternFineGrain == 0 ||
+		(this.patternFineGrain & IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE) != 0;
+	boolean wildcardBoundShouldBeReported = this.patternFineGrain == 0 ||
+		(this.patternFineGrain & IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE) != 0;
+	if (!typeParameterBoundShouldBeReported && !parameterizedTypeShouldBeReported && !wildcardBoundShouldBeReported) {
+		return;
+	}
 	for (int i=0, l=typeParameters.length; i<l; i++) {
 		TypeParameter typeParameter = typeParameters[i];
 		if (typeParameter != null) {
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter);
-			if (level != null) {
+			if (level != null && this.patternFineGrain == 0) {
 				if (level.intValue() > -1 && encloses(enclosingElement)) {
 					int offset = typeParameter.sourceStart;
 					SearchMatch match = this.patternLocator.newDeclarationMatch(typeParameter, enclosingElement, binding, level.intValue(), typeParameter.sourceEnd-offset+1, this);
@@ -2497,7 +2555,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 			}
 			if (typeParameter.type != null) {
 				level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter.type);
-				if (level != null) {
+				if (level != null && typeParameterBoundShouldBeReported) {
 					IJavaElement localElement = createHandle(typeParameter, enclosingElement);
 					this.patternLocator.matchReportReference(typeParameter.type, enclosingElement, localElement, null, binding, level.intValue(), this);
 				}
@@ -2508,11 +2566,11 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
                     	for (int k=0; k<length; k++) {
 							TypeReference typeArgument = paramSTR.typeArguments[k];
 							level = (Integer) nodeSet.matchingNodes.removeKey(typeArgument);
-							if (level != null) {
+							if (level != null && parameterizedTypeShouldBeReported) {
 								IJavaElement localElement = createHandle(typeParameter, enclosingElement);
 								this.patternLocator.matchReportReference(typeArgument, enclosingElement, localElement, null, binding, level.intValue(), this);
 							}
-							if (typeArgument instanceof Wildcard) {
+							if (wildcardBoundShouldBeReported && typeArgument instanceof Wildcard) {
 	                            TypeReference wildcardBound = ((Wildcard) typeArgument).bound;
 								level = (Integer) nodeSet.matchingNodes.removeKey(wildcardBound);
 								if (level != null) {
@@ -2528,7 +2586,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 				for (int j=0, b=typeParameter.bounds.length; j<b; j++) {
 					TypeReference typeParameterBound = typeParameter.bounds[j];
 					level = (Integer) nodeSet.matchingNodes.removeKey(typeParameterBound);
-					if (level != null) {
+					if (level != null && typeParameterBoundShouldBeReported) {
 						IJavaElement localElement = createHandle(typeParameter, enclosingElement);
 						this.patternLocator.matchReportReference(typeParameterBound, enclosingElement, localElement, null, binding, level.intValue(), this);
 					}
@@ -2539,11 +2597,11 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 	                    	for (int k=0; k<length; k++) {
 								TypeReference typeArgument = paramSTR.typeArguments[k];
 								level = (Integer) nodeSet.matchingNodes.removeKey(typeArgument);
-								if (level != null) {
+								if (level != null && parameterizedTypeShouldBeReported) {
 									IJavaElement localElement = createHandle(typeParameter, enclosingElement);
 									this.patternLocator.matchReportReference(typeArgument, enclosingElement, localElement, null, binding, level.intValue(), this);
 								}
-								if (typeArgument instanceof Wildcard) {
+								if (wildcardBoundShouldBeReported && typeArgument instanceof Wildcard) {
 		                            TypeReference wildcardBound = ((Wildcard) typeArgument).bound;
 									level = (Integer) nodeSet.matchingNodes.removeKey(wildcardBound);
 									if (level != null) {
@@ -2559,7 +2617,59 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 		}
 	}
 }
-protected void reportMatchingSuper(TypeReference superReference, IJavaElement enclosingElement, Binding elementBinding, MatchingNodeSet nodeSet, boolean matchedClassContainer) throws CoreException {
+protected boolean shouldReportParameterizedSingleTypeReference(ParameterizedSingleTypeReference typeReference, ASTNode node) {
+	TypeReference[] typeArguments = typeReference.typeArguments;
+	if (typeArguments != null) {
+		int length = typeArguments.length;
+		for (int i=0; i<length; i++) {
+			TypeReference typeArgument = typeArguments[i];
+			if (typeArgument == node) return true;
+			if (typeArgument instanceof ParameterizedSingleTypeReference) {
+				ParameterizedSingleTypeReference paramSTR = (ParameterizedSingleTypeReference) typeArgument;
+				if (shouldReportParameterizedSingleTypeReference(paramSTR, node)) {
+					return true;
+				}
+			}
+			if (typeArguments[i] instanceof ParameterizedQualifiedTypeReference) {
+				ParameterizedQualifiedTypeReference paramQTR = (ParameterizedQualifiedTypeReference) typeArguments[i];
+				if (shouldReportParameterizedQualifiedTypeReference(paramQTR, node)) {
+					return true;
+				}
+			}
+		}
+	}
+	return true;
+}
+protected boolean shouldReportParameterizedQualifiedTypeReference(ParameterizedQualifiedTypeReference typeReference, ASTNode node) {
+	TypeReference[][] allTypeArguments = typeReference.typeArguments;
+	if (allTypeArguments != null) {
+		int allLength = allTypeArguments.length;
+		for (int i=0; i<allLength; i++) {
+			TypeReference[] typeArguments = allTypeArguments[i];
+			if (typeArguments != null) {
+				int length = typeArguments.length;
+				for (int j=0; j<length; j++) {
+					TypeReference typeArgument = typeArguments[j];
+					if (typeArgument == node) return true;
+					if (typeArgument instanceof ParameterizedSingleTypeReference) {
+						ParameterizedSingleTypeReference paramSTR = (ParameterizedSingleTypeReference) typeArgument;
+						if (shouldReportParameterizedSingleTypeReference(paramSTR, node)) {
+							return true;
+						}
+					}
+					if (typeArgument instanceof ParameterizedQualifiedTypeReference) {
+						ParameterizedQualifiedTypeReference paramQTR = (ParameterizedQualifiedTypeReference) typeArgument;
+						if (shouldReportParameterizedQualifiedTypeReference(paramQTR, node)) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return true;
+}
+protected void reportMatchingSuper(TypeReference superReference, IJavaElement enclosingElement, Binding elementBinding, MatchingNodeSet nodeSet, boolean matchedClassContainer, boolean shouldReportSuper) throws CoreException {
 	ASTNode[] nodes = null;
 	if (superReference instanceof ParameterizedSingleTypeReference || superReference instanceof ParameterizedQualifiedTypeReference) {
 		long lastTypeArgumentInfo = findLastTypeArgumentInfo(superReference);
@@ -2574,12 +2684,14 @@ protected void reportMatchingSuper(TypeReference superReference, IJavaElement en
 				for (int i = 0, l = nodes.length; i < l; i++) {
 					ASTNode node = nodes[i];
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-					this.patternLocator.matchReportReference(node, enclosingElement, elementBinding, level.intValue(), this);
+					if (this.patternFineGrain == 0 || ((this.patternFineGrain & IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE) != 0)) {
+						this.patternLocator.matchReportReference(node, enclosingElement, elementBinding, level.intValue(), this);
+					}
 				}
 		}
-	} else {
+	} else if (encloses(enclosingElement)) {
 		Integer level = (Integer) nodeSet.matchingNodes.removeKey(superReference);
-		if (level != null && matchedClassContainer)
+		if (level != null && matchedClassContainer&& shouldReportSuper)
 			this.patternLocator.matchReportReference(superReference, enclosingElement, elementBinding, level.intValue(), this);
 	}
 }

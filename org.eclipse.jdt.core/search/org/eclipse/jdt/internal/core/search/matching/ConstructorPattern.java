@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.Index;
@@ -24,8 +25,8 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class ConstructorPattern extends JavaSearchPattern {
 
-protected boolean findDeclarations;
-protected boolean findReferences;
+protected boolean findDeclarations = true;
+protected boolean findReferences = true;
 
 public char[] declaringQualification;
 public char[] declaringSimpleName;
@@ -45,6 +46,12 @@ protected static char[][] REF_CATEGORIES = { CONSTRUCTOR_REF };
 protected static char[][] REF_AND_DECL_CATEGORIES = { CONSTRUCTOR_REF, CONSTRUCTOR_DECL };
 protected static char[][] DECL_CATEGORIES = { CONSTRUCTOR_DECL };
 
+public final static int FINE_GRAIN_MASK =
+	IJavaSearchConstants.SUPER_REFERENCE |
+	IJavaSearchConstants.QUALIFIED_REFERENCE |
+	IJavaSearchConstants.THIS_REFERENCE |
+	IJavaSearchConstants.IMPLICIT_THIS_REFERENCE;
+
 /**
  * Constructor entries are encoded as TypeName '/' Arity:
  * e.g. 'X/0'
@@ -60,18 +67,30 @@ ConstructorPattern(int matchRule) {
 	super(CONSTRUCTOR_PATTERN, matchRule);
 }
 public ConstructorPattern(
-	boolean findDeclarations,
-	boolean findReferences,
 	char[] declaringSimpleName,
 	char[] declaringQualification,
 	char[][] parameterQualifications,
 	char[][] parameterSimpleNames,
+	int limitTo,
 	int matchRule) {
 
 	this(matchRule);
 
-	this.findDeclarations = findDeclarations;
-	this.findReferences = findReferences;
+	this.fineGrain = limitTo & FINE_GRAIN_MASK;
+    if (this.fineGrain == 0) {
+		switch (limitTo) {
+			case IJavaSearchConstants.DECLARATIONS :
+				this.findReferences = false;
+				break;
+			case IJavaSearchConstants.REFERENCES :
+				this.findDeclarations = false;
+				break;
+			case IJavaSearchConstants.ALL_OCCURRENCES :
+				break;
+		}
+    } else {
+		this.findDeclarations = false;
+    }
 
 	this.declaringQualification = this.isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
 	this.declaringSimpleName = (this.isCaseSensitive || this.isCamelCase) ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
@@ -99,23 +118,20 @@ public ConstructorPattern(
  * Instanciate a method pattern with signatures for generics search
  */
 public ConstructorPattern(
-	boolean findDeclarations,
-	boolean findReferences,
 	char[] declaringSimpleName,	
 	char[] declaringQualification,
 	char[][] parameterQualifications, 
 	char[][] parameterSimpleNames,
 	String[] parameterSignatures,
 	IMethod method,
-//	boolean varargs,
+	int limitTo,
 	int matchRule) {
 
-	this(findDeclarations,
-		findReferences,
-		declaringSimpleName,	
+	this(declaringSimpleName,	
 		declaringQualification,
 		parameterQualifications, 
 		parameterSimpleNames,
+		limitTo,
 		matchRule);
 
 	// Set flags
@@ -164,8 +180,6 @@ public ConstructorPattern(
  * Instanciate a method pattern with signatures for generics search
  */
 public ConstructorPattern(
-	boolean findDeclarations,
-	boolean findReferences,
 	char[] declaringSimpleName,	
 	char[] declaringQualification,
 	String declaringSignature,
@@ -173,14 +187,14 @@ public ConstructorPattern(
 	char[][] parameterSimpleNames,
 	String[] parameterSignatures,
 	char[][] arguments,
+	int limitTo,
 	int matchRule) {
 
-	this(findDeclarations,
-		findReferences,
-		declaringSimpleName,	
+	this(declaringSimpleName,	
 		declaringQualification,
 		parameterQualifications, 
 		parameterSimpleNames,
+		limitTo,
 		matchRule);
 
 	// Store type signature and arguments for declaring type

@@ -14,14 +14,15 @@ import java.io.IOException;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class MethodPattern extends JavaSearchPattern {
 
-protected boolean findDeclarations;
-protected boolean findReferences;
+protected boolean findDeclarations = true;
+protected boolean findReferences = true;
 
 public char[] selector;
 
@@ -51,6 +52,12 @@ protected static char[][] REF_CATEGORIES = { METHOD_REF };
 protected static char[][] REF_AND_DECL_CATEGORIES = { METHOD_REF, METHOD_DECL };
 protected static char[][] DECL_CATEGORIES = { METHOD_DECL };
 
+public final static int FINE_GRAIN_MASK =
+	IJavaSearchConstants.SUPER_REFERENCE |
+	IJavaSearchConstants.QUALIFIED_REFERENCE |
+	IJavaSearchConstants.THIS_REFERENCE |
+	IJavaSearchConstants.IMPLICIT_THIS_REFERENCE;
+
 /**
  * Method entries are encoded as selector '/' Arity:
  * e.g. 'foo/0'
@@ -66,8 +73,6 @@ MethodPattern(int matchRule) {
 	super(METHOD_PATTERN, matchRule);
 }
 public MethodPattern(
-	boolean findDeclarations,
-	boolean findReferences,
 	char[] selector, 
 	char[] declaringQualification,
 	char[] declaringSimpleName,	
@@ -76,12 +81,26 @@ public MethodPattern(
 	char[][] parameterQualifications, 
 	char[][] parameterSimpleNames,
 	IType declaringType,
+	int limitTo,
 	int matchRule) {
 
 	this(matchRule);
 
-	this.findDeclarations = findDeclarations;
-	this.findReferences = findReferences;
+	this.fineGrain = limitTo & FINE_GRAIN_MASK;
+    if (this.fineGrain == 0) {
+		switch (limitTo & 0xF) {
+			case IJavaSearchConstants.DECLARATIONS :
+				this.findReferences = false;
+				break;
+			case IJavaSearchConstants.REFERENCES :
+				this.findDeclarations = false;
+				break;
+			case IJavaSearchConstants.ALL_OCCURRENCES :
+				break;
+		}
+    } else {
+		this.findDeclarations = false;
+    }
 
 	this.selector = (this.isCaseSensitive || this.isCamelCase) ? selector : CharOperation.toLowerCase(selector);
 	this.declaringQualification = this.isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
@@ -106,8 +125,6 @@ public MethodPattern(
  * Instanciate a method pattern with signatures for generics search
  */
 public MethodPattern(
-	boolean findDeclarations,
-	boolean findReferences,
 	char[] selector, 
 	char[] declaringQualification,
 	char[] declaringSimpleName,	
@@ -118,11 +135,10 @@ public MethodPattern(
 	char[][] parameterSimpleNames,
 	String[] parameterSignatures,
 	IMethod method,
+	int limitTo,
 	int matchRule) {
 
-	this(findDeclarations,
-		findReferences,
-		selector, 
+	this(selector, 
 		declaringQualification,
 		declaringSimpleName,	
 		returnQualification, 
@@ -130,6 +146,7 @@ public MethodPattern(
 		parameterQualifications, 
 		parameterSimpleNames,
 		method.getDeclaringType(),
+		limitTo,
 		matchRule);
 	
 	// Set flags
@@ -184,8 +201,6 @@ public MethodPattern(
  * Instanciate a method pattern with signatures for generics search
  */
 public MethodPattern(
-	boolean findDeclarations,
-	boolean findReferences,
 	char[] selector, 
 	char[] declaringQualification,
 	char[] declaringSimpleName,	
@@ -197,11 +212,10 @@ public MethodPattern(
 	char[][] parameterSimpleNames,
 	String[] parameterSignatures,
 	char[][] arguments,
+	int limitTo,
 	int matchRule) {
 
-	this(findDeclarations,
-		findReferences,
-		selector, 
+	this(selector, 
 		declaringQualification,
 		declaringSimpleName,	
 		returnQualification, 
@@ -209,6 +223,7 @@ public MethodPattern(
 		parameterQualifications, 
 		parameterSimpleNames,
 		null,
+		limitTo,
 		matchRule);
 
 	// Store type signature and arguments for declaring type

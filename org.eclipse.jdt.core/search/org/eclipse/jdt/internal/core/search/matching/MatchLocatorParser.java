@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -21,13 +22,28 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
  */
 public class MatchLocatorParser extends Parser {
 
-MatchingNodeSet nodeSet;
-PatternLocator patternLocator;
-private ASTVisitor localDeclarationVisitor;
+	static final int UNSPECIFIED_REFERENCE_FINE_GRAIN_MASK =
+		IJavaSearchConstants.CAST_TYPE_REFERENCE |
+		IJavaSearchConstants.QUALIFIED_REFERENCE |
+		IJavaSearchConstants.IMPLICIT_THIS_REFERENCE |
+		IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE |
+		IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+	static final int FORMAL_PARAMETER_FINE_GRAIN_MASK = 
+		IJavaSearchConstants.PARAMETER_TYPE_DECLARATION_TYPE_REFERENCE |
+		IJavaSearchConstants.CATCH_TYPE_REFERENCE;
+	static final int GENERIC_FINE_GRAIN_MASK = 
+		IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE |
+		IJavaSearchConstants.TYPE_VARIABLE_BOUND_TYPE_REFERENCE |
+		IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+	MatchingNodeSet nodeSet;
+	PatternLocator patternLocator;
+	private ASTVisitor localDeclarationVisitor;
+	int typeRefFineGrain;
 
 public static MatchLocatorParser createParser(ProblemReporter problemReporter, MatchLocator locator) {
-	if ((locator.matchContainer & PatternLocator.COMPILATION_UNIT_CONTAINER) != 0)
+	if ((locator.matchContainer & PatternLocator.COMPILATION_UNIT_CONTAINER) != 0) {
 		return new ImportMatchLocatorParser(problemReporter, locator);
+	}
 	return new MatchLocatorParser(problemReporter, locator);
 }
 
@@ -60,7 +76,10 @@ public class ClassButNoMethodDeclarationVisitor extends ASTVisitor {
 		return (constructorDeclaration.bits & ASTNode.HasLocalType) != 0; // continue only if it has local type
 	}
 	public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
-		patternLocator.match(fieldDeclaration, nodeSet);
+		int patternFineGrain = patternLocator.fineGrain();
+		if (patternFineGrain == 0 || (patternFineGrain & IJavaSearchConstants.FIELD_TYPE_DECLARATION_TYPE_REFERENCE) != 0) {
+			patternLocator.match(fieldDeclaration, nodeSet);
+		}
 		return (fieldDeclaration.bits & ASTNode.HasLocalType) != 0; // continue only if it has local type;
 	}
 	public boolean visit(Initializer initializer, MethodScope scope) {
@@ -183,6 +202,12 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 	super.classInstanceCreation(alwaysQualified);
 	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
 }
+protected void consumeAnnotationAsModifier() {
+	super.consumeAnnotationAsModifier();
+}
+protected void consumeAnnotationName() {
+	super.consumeAnnotationName();
+}
 protected void consumeAssignment() {
 	super.consumeAssignment();
 	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
@@ -206,15 +231,20 @@ protected void consumeExplicitConstructorInvocationWithTypeArguments(int flag, i
 protected void consumeFieldAccess(boolean isSuperAccess) {
 	super.consumeFieldAccess(isSuperAccess);
 
-	// this is always a Reference
-	this.patternLocator.match((Reference) this.expressionStack[this.expressionPtr], this.nodeSet);
+	int fineGrain = isSuperAccess ? IJavaSearchConstants.SUPER_REFERENCE : IJavaSearchConstants.THIS_REFERENCE;
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & fineGrain) != 0) {
+		// this is always a Reference
+		this.patternLocator.match((Reference) this.expressionStack[this.expressionPtr], this.nodeSet);
+	}
 }
 protected void consumeFormalParameter(boolean isVarArgs) {
+	this.typeRefFineGrain |= FORMAL_PARAMETER_FINE_GRAIN_MASK;
 	super.consumeFormalParameter(isVarArgs);
-
-	// this is always a LocalDeclaration
 	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
+	this.typeRefFineGrain &= ~FORMAL_PARAMETER_FINE_GRAIN_MASK;
 }
+
 protected void consumeLocalVariableDeclaration() {
 	super.consumeLocalVariableDeclaration();
 
@@ -223,57 +253,83 @@ protected void consumeLocalVariableDeclaration() {
 }
 protected void consumeMarkerAnnotation() {
 	super.consumeMarkerAnnotation();
-	// this is always an Annotation
-	Annotation annotation = (Annotation) expressionStack[expressionPtr];
-	this.patternLocator.match(annotation, nodeSet);
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE) != 0) {
+		// this is always an Annotation
+		Annotation annotation = (Annotation) expressionStack[expressionPtr];
+		this.patternLocator.match(annotation, nodeSet);
+	}
 }
 protected void consumeMemberValuePair() {
+//	this.validFineGrain |= IJavaSearchConstants.MEMBER_PAIR_VALUE_REFERENCE;
 	super.consumeMemberValuePair();
 
 	// this is always a MemberValuePair
 	this.patternLocator.match((MemberValuePair) this.astStack[this.astPtr], this.nodeSet);
+//	this.validFineGrain &= ~IJavaSearchConstants.MEMBER_PAIR_VALUE_REFERENCE;
 }
 protected void consumeMethodInvocationName() {
 	super.consumeMethodInvocationName();
-
-	// this is always a MessageSend
-	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+	
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & (IJavaSearchConstants.IMPLICIT_THIS_REFERENCE | IJavaSearchConstants.QUALIFIED_REFERENCE)) != 0) {
+		// this is always a MessageSend
+		this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+	}
 }
 protected void consumeMethodInvocationNameWithTypeArguments() {
 	super.consumeMethodInvocationNameWithTypeArguments();
 
-	// this is always a MessageSend
-	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & (IJavaSearchConstants.IMPLICIT_THIS_REFERENCE | IJavaSearchConstants.QUALIFIED_REFERENCE)) != 0) {
+		// this is always a MessageSend
+		this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+	}
 }
 protected void consumeMethodInvocationPrimary() {
 	super.consumeMethodInvocationPrimary(); 
 
-	// this is always a MessageSend
-	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & IJavaSearchConstants.THIS_REFERENCE) != 0) {
+		// this is always a MessageSend
+		this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+	}
 }
 protected void consumeMethodInvocationPrimaryWithTypeArguments() {
 	super.consumeMethodInvocationPrimaryWithTypeArguments();
 
-	// this is always a MessageSend
-	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & IJavaSearchConstants.THIS_REFERENCE) != 0) {
+		// this is always a MessageSend
+		this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+	}
 }
 protected void consumeMethodInvocationSuper() {
 	super.consumeMethodInvocationSuper();
 
-	// this is always a MessageSend
-	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & IJavaSearchConstants.SUPER_REFERENCE) != 0) {
+		// this is always a MessageSend
+		this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+	}
 }
 protected void consumeMethodInvocationSuperWithTypeArguments() {
 	super.consumeMethodInvocationSuperWithTypeArguments();
 
-	// this is always a MessageSend
-	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & IJavaSearchConstants.SUPER_REFERENCE) != 0) {
+		// this is always a MessageSend
+		this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
+	}
 }
 protected void consumeNormalAnnotation() {
 	super.consumeNormalAnnotation();
-	// this is always an Annotation
-	Annotation annotation = (Annotation) expressionStack[expressionPtr];
-	this.patternLocator.match(annotation, nodeSet);
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE) != 0) {
+		// this is always an Annotation
+		Annotation annotation = (Annotation) expressionStack[expressionPtr];
+		this.patternLocator.match(annotation, nodeSet);
+	}
 }
 protected void consumePrimaryNoNewArray() {
 	// pop parenthesis positions (and don't update expression positions
@@ -297,8 +353,22 @@ protected void consumeSingleMemberAnnotation() {
 	this.patternLocator.match(annotation, nodeSet);
 }
 protected void consumeTypeArgument() {
+	this.typeRefFineGrain |= IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE;
 	super.consumeTypeArgument();
 	patternLocator.match((TypeReference)genericsStack[genericsPtr], nodeSet);
+	this.typeRefFineGrain &= ~IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE;
+}
+protected void consumeTypeArgumentReferenceType1() {
+	this.typeRefFineGrain |= IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE;
+	super.consumeTypeArgumentReferenceType1();
+	patternLocator.match((TypeReference)genericsStack[genericsPtr], nodeSet);
+	this.typeRefFineGrain &= ~IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE;
+}
+protected void consumeTypeArgumentReferenceType2() {
+	this.typeRefFineGrain |= IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE;
+	super.consumeTypeArgumentReferenceType2();
+	patternLocator.match((TypeReference)genericsStack[genericsPtr], nodeSet);
+	this.typeRefFineGrain &= ~IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE;
 }
 protected void consumeTypeParameterHeader() {
 	super.consumeTypeParameterHeader();
@@ -318,17 +388,26 @@ protected TypeReference copyDims(TypeReference typeRef, int dim) {
 }
 protected TypeReference getTypeReference(int dim) {
 	TypeReference typeRef = super.getTypeReference(dim);
-	this.patternLocator.match(typeRef, this.nodeSet); // NB: Don't check container since type reference can happen anywhere
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (this.typeRefFineGrain & patternFineGrain) != 0) {
+		this.patternLocator.match(typeRef, this.nodeSet); // NB: Don't check container since type reference can happen anywhere
+	}
 	return typeRef;
 }
 protected NameReference getUnspecifiedReference() {
 	NameReference nameRef = super.getUnspecifiedReference();
-	this.patternLocator.match(nameRef, this.nodeSet); // NB: Don't check container since unspecified reference can happen anywhere
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & UNSPECIFIED_REFERENCE_FINE_GRAIN_MASK) != 0) {
+		this.patternLocator.match(nameRef, this.nodeSet); // NB: Don't check container since unspecified reference can happen anywhere
+	}
 	return nameRef;
 }
 protected NameReference getUnspecifiedReferenceOptimized() {
 	NameReference nameRef = super.getUnspecifiedReferenceOptimized();
-	this.patternLocator.match(nameRef, this.nodeSet); // NB: Don't check container since unspecified reference can happen anywhere
+	int patternFineGrain = this.patternLocator.fineGrain();
+	if (patternFineGrain == 0 || (patternFineGrain & UNSPECIFIED_REFERENCE_FINE_GRAIN_MASK) != 0) {
+		this.patternLocator.match(nameRef, this.nodeSet); // NB: Don't check container since unspecified reference can happen anywhere
+	}
 	return nameRef;
 }
 /**
@@ -390,5 +469,139 @@ protected void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit
 		}
 	}
 }
+
+protected void consumeClassHeaderExtends() {
+	this.typeRefFineGrain |= IJavaSearchConstants.SUPERTYPE_TYPE_REFERENCE;
+	super.consumeClassHeaderExtends();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.SUPERTYPE_TYPE_REFERENCE;
+}
+
+protected void consumeInterfaceType() {
+	this.typeRefFineGrain |= IJavaSearchConstants.SUPERINTERFACE_TYPE_REFERENCE;
+	super.consumeInterfaceType();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.SUPERINTERFACE_TYPE_REFERENCE;
+}
+
+protected void consumeClassTypeElt() {
+	this.typeRefFineGrain |= IJavaSearchConstants.THROWS_CLAUSE_TYPE_REFERENCE;
+	super.consumeClassTypeElt();
+	this.typeRefFineGrain  &= ~IJavaSearchConstants.THROWS_CLAUSE_TYPE_REFERENCE;
+}
+
+protected void consumeClassInstanceCreationExpression() {
+	this.typeRefFineGrain |= IJavaSearchConstants.ALLOCATION_EXPRESSION_TYPE_REFERENCE;
+	super.consumeClassInstanceCreationExpression();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.ALLOCATION_EXPRESSION_TYPE_REFERENCE;
+}
+
+protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
+	this.typeRefFineGrain |= IJavaSearchConstants.RETURN_TYPE_REFERENCE;
+	super.consumeMethodHeaderName(isAnnotationMethod);
+	this.typeRefFineGrain &= ~IJavaSearchConstants.RETURN_TYPE_REFERENCE;
+}
+
+protected void consumeEnterVariable() {
+	int grain = IJavaSearchConstants.FIELD_TYPE_DECLARATION_TYPE_REFERENCE | IJavaSearchConstants.LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE;
+	this.typeRefFineGrain |= grain;
+	super.consumeEnterVariable();
+	this.typeRefFineGrain &= ~grain;
+}
+
+protected void consumeAllocationHeader() {
+	this.typeRefFineGrain |= IJavaSearchConstants.ALLOCATION_EXPRESSION_TYPE_REFERENCE;
+	super.consumeAllocationHeader();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.ALLOCATION_EXPRESSION_TYPE_REFERENCE;
+}
+
+protected void consumeStatementCatch() {
+	this.typeRefFineGrain |= IJavaSearchConstants.CATCH_TYPE_REFERENCE;
+	super.consumeStatementCatch();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.CATCH_TYPE_REFERENCE;
+}
+
+protected void consumeTypeParameterWithExtends() {
+	this.typeRefFineGrain |= IJavaSearchConstants.TYPE_VARIABLE_BOUND_TYPE_REFERENCE;
+	super.consumeTypeParameterWithExtends();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.TYPE_VARIABLE_BOUND_TYPE_REFERENCE;
+}
+
+protected void consumeReferenceType1() {
+	this.typeRefFineGrain |= GENERIC_FINE_GRAIN_MASK;
+	super.consumeReferenceType1();
+	this.typeRefFineGrain &= ~GENERIC_FINE_GRAIN_MASK;
+}
+
+protected void consumeReferenceType2() {
+	this.typeRefFineGrain |= GENERIC_FINE_GRAIN_MASK;
+	super.consumeReferenceType2();
+	this.typeRefFineGrain &= ~GENERIC_FINE_GRAIN_MASK;
+}
+
+protected void consumeReferenceType3() {
+	this.typeRefFineGrain |= GENERIC_FINE_GRAIN_MASK;
+	super.consumeReferenceType3();
+	this.typeRefFineGrain &= ~GENERIC_FINE_GRAIN_MASK;
+}
+
+protected void consumeAdditionalBound() {
+	this.typeRefFineGrain |= GENERIC_FINE_GRAIN_MASK;
+	super.consumeAdditionalBound();
+	this.typeRefFineGrain &= ~GENERIC_FINE_GRAIN_MASK;
+}
+
+protected void consumeTypeParameter1WithExtendsAndBounds() {
+	this.typeRefFineGrain |= GENERIC_FINE_GRAIN_MASK;
+	super.consumeTypeParameter1WithExtendsAndBounds();
+	this.typeRefFineGrain &= ~GENERIC_FINE_GRAIN_MASK;
+}
+
+protected void consumeTypeParameterWithExtendsAndBounds() {
+	this.typeRefFineGrain |= GENERIC_FINE_GRAIN_MASK;
+	super.consumeTypeParameterWithExtendsAndBounds();
+	this.typeRefFineGrain &= ~GENERIC_FINE_GRAIN_MASK;
+}
+
+protected void consumeWildcardBoundsExtends() {
+	this.typeRefFineGrain |= IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+	super.consumeWildcardBoundsExtends();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+}
+
+protected void consumeWildcardBoundsSuper() {
+	this.typeRefFineGrain |= IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+	super.consumeWildcardBoundsSuper();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+}
+protected void consumeWildcardBounds1Extends() {
+	this.typeRefFineGrain |= IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+	super.consumeWildcardBounds1Extends();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+}
+protected void consumeWildcardBounds1Super() {
+	this.typeRefFineGrain |= IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+	super.consumeWildcardBounds1Super();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+}
+protected void consumeWildcardBounds2Extends() {
+	this.typeRefFineGrain |= IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+	super.consumeWildcardBounds2Extends();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+}
+protected void consumeWildcardBounds2Super() {
+	this.typeRefFineGrain |= IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+	super.consumeWildcardBounds2Super();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+}
+protected void consumeWildcardBounds3Extends() {
+	this.typeRefFineGrain |= IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+	super.consumeWildcardBounds3Extends();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+}
+protected void consumeWildcardBounds3Super() {
+	this.typeRefFineGrain |= IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+	super.consumeWildcardBounds3Super();
+	this.typeRefFineGrain &= ~IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
+}
+
 }
 
