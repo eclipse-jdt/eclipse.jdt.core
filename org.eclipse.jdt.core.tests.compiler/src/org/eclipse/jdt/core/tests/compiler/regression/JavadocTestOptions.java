@@ -22,10 +22,27 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
  * Tests to verify that Compiler options work well for Javadoc.
  * This class does not tests syntax error option as it's considered already
  * tested by other JavadocTest* classes.
- * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46854">46854</a>
- * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=46976">46976</a>
+ * 
+ * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=46854"
+ * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=46976"
  */
 public class JavadocTestOptions extends JavadocTest {
+
+	/**
+	 * When failures occur in this file due to changes in error messages,
+	 * then uncomment following static initializer.
+	 * This will output in the console the changes which must be done
+	 * on {@link #CLASSES_ERRORS} and/or {@link #METHODS_ERRORS}
+	 * arrays to make the failing tests pass.
+	 */
+//	static {
+//		TESTS_NAMES = new String[] {
+//			"testInvalidTagsClassErrorTagsPrivate",
+//			"testInvalidTagsFieldErrorTagsPrivate",
+//			"testInvalidTagsMethodErrorTagsPrivate",
+//			"testInvalidTagsConstructorErrorTagsPrivate",
+//		};
+//	}
 
 	String docCommentSupport = null;
 	String reportInvalidJavadoc = null;
@@ -45,7 +62,7 @@ public class JavadocTestOptions extends JavadocTest {
 	private final int DEFAULT_VISIBILITY = 2;
 	private final int PRIVATE_VISIBILITY = 3;
 
-	private static String INVALID_CLASS_JAVADOC_REF = "	/**\n" + 
+	private static final String INVALID_CLASS_JAVADOC_REF = "	/**\n" + 
 		"	 * @see X_dep\n" + 
 		"	 * @see X.X_priv\n" + 
 		"	 * @see X.Unknown\n" + 
@@ -60,7 +77,7 @@ public class JavadocTestOptions extends JavadocTest {
 		"	 * @see X#foo_dep(String)\n" + 
 		"	 * @see X#unknown()\n" + 
 		"	 */\n";
-	private static String INVALID_METHOD_JAVADOC_REF = "	/**\n" + 
+	private static final String INVALID_METHOD_JAVADOC_REF = "	/**\n" + 
 		"	 * @param str\n" + 
 		"	 * @param str\n" + 
 		"	 * @param xxx\n" + 
@@ -82,10 +99,10 @@ public class JavadocTestOptions extends JavadocTest {
 		"	 * @see X#foo_dep(String)\n" + 
 		"	 * @see X#unknown()\n" + 
 		"	 */\n";
-	private static String DEP_CLASS =
+	private static final String DEP_CLASS =
 		"/** @deprecated */\n" + 
 		"public class X_dep {}\n";
-	private static String REF_CLASS =
+	private static final String REF_CLASS =
 		"public class X {\n" + 
 // Deprecated class must be a top level to avoid visibility issue
 //		"	/** @deprecated */\n" + 
@@ -101,7 +118,7 @@ public class JavadocTestOptions extends JavadocTest {
 		"	public void foo_dep() {}\n" + 
 		"	private void foo_priv() {}\n" + 
 		"	}\n";
-	private static String[] CLASSES_INVALID_COMMENT = {
+	private static final String[] CLASSES_INVALID_COMMENT = {
 		"X.java",
 		REF_CLASS,
 		"X_dep.java",
@@ -119,7 +136,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"}\n" + 
 			"\n"
 	};
-	private static String[] FIELDS_INVALID_COMMENT = {
+	private static final String[] FIELDS_INVALID_COMMENT = {
 		"X.java",
 		REF_CLASS,
 		"X_dep.java",
@@ -137,7 +154,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"}\n" + 
 			"\n"
 	};
-	private static String[] METHODS_INVALID_COMMENT = {
+	private static final String[] METHODS_INVALID_COMMENT = {
 		"X.java",
 		REF_CLASS,
 		"X_dep.java",
@@ -155,7 +172,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"}\n" + 
 			"\n"
 	};
-	private static String[] CONSTRUCTORS_INVALID_COMMENT = {
+	private static final String[] CONSTRUCTORS_INVALID_COMMENT = {
 		"X.java",
 		REF_CLASS,
 		"X_dep.java",
@@ -173,7 +190,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"}\n" + 
 			"\n"
 	};
-	private static String[] MISSING_TAGS = {
+	private static final String[] MISSING_TAGS = {
 		"X.java",
 		"public class X {\n" + 
 			"	// public\n" + 
@@ -229,7 +246,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"	private int privateMethod(long l) { return 0;}\n" + 
 			"}\n"
 	};
-	private static String[] MISSING_COMMENTS = {
+	private static final String[] MISSING_COMMENTS = {
 		"X.java",
 		"/** */\n" + 
 			"public class X {\n" + 
@@ -267,7 +284,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"}\n"
 	};
 
-	private static String[] CLASSES_ERRORS = {
+	private static final String[] CLASSES_ERRORS = {
 		"1. ERROR in Y.java (at line 3)\n" + 
 			"	* @see X_dep\n" + 
 			"	       ^^^^^\n" + 
@@ -530,7 +547,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n"
 	};
 
-	private static String[] METHODS_ERRORS = {
+	private static final String[] METHODS_ERRORS = {
 			"1. ERROR in Y.java (at line 4)\n" + 
 				"	* @param str\n" + 
 				"	         ^^^\n" + 
@@ -1020,7 +1037,7 @@ public class JavadocTestOptions extends JavadocTest {
 	    if (!expectedLog.equals(computedProblemLog)) {
 	    	System.out.println(getClass().getName() + '#' + getName());
 			System.out.println("Following static variable should be updated as follow to make this test green:");
-			System.out.print("	private static String[] ");
+			System.out.print("	private static final String[] ");
 			if (isMethod) {
 				System.out.print("METHODS_ERRORS");
 			} else {
@@ -1050,7 +1067,7 @@ public class JavadocTestOptions extends JavadocTest {
 		}
     }
 
-	private static String[] X_ResultForMissingTags = {
+	private static final String[] X_MISSING_TAGS_ERRORS = {
 		"1. ERROR in X.java (at line 8)\n" + 
 			"	public X(int i) {}\n" + 
 			"	             ^\n" + 
@@ -1112,7 +1129,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"Javadoc: Missing tag for parameter l\n" + 
 			"----------\n"
 	};
-	private static String[] Y_ResultForMissingTags = {
+	private static final String[] Y_MISSING_TAGS_ERRORS = {
 		"1. ERROR in Y.java (at line 6)\n" + 
 			"	public int publicMethod(long l) { return 0;}\n" + 
 			"	       ^^^\n" + 
@@ -1165,58 +1182,33 @@ public class JavadocTestOptions extends JavadocTest {
 			"Javadoc: Missing tag for parameter l\n" + 
 			"----------\n"
 	};
-//
-//	private String[] errorsForMissingTags(int visibility) {
-//		StringBuffer result = new StringBuffer("----------\n");
-//		for (int i=0; i<=visibility; i++) {
-//			result.append(X_ResultForMissingTags[i]);
-//		}
-//		if (CompilerOptions.ENABLED.equals(reportMissingJavadocTagsOverriding)) {
-//			result.append("----------\n");
-//			result.append(Y_ResultForMissingTags[PUBLIC_VISIBILITY]);
-//			if (visibility >= PROTECTED_VISIBILITY) {
-//				result.append(Y_ResultForMissingTags[PROTECTED_VISIBILITY]);
-//				if (visibility >= DEFAULT_VISIBILITY) {
-//					result.append(Y_ResultForMissingTags[DEFAULT_VISIBILITY]);
-//					if (visibility == PRIVATE_VISIBILITY) {
-//						result.append(Y_ResultForMissingTags[PRIVATE_VISIBILITY]);
-//					}
-//				}
-//			}
-//		}
-//		// Private level is always reported as it never overrides...
-//		else if (visibility == PRIVATE_VISIBILITY) {
-//			result.append(Y_ResultForMissingTags[PRIVATE_VISIBILITY+1]);
-//		}
-//		return result.toString();
-//	}
 
 	private String resultForMissingTags(int visibility) {
 		StringBuffer result = new StringBuffer("----------\n");
 		for (int i=0; i<=visibility; i++) {
-			result.append(X_ResultForMissingTags[i]);
+			result.append(X_MISSING_TAGS_ERRORS[i]);
 		}
 		if (CompilerOptions.ENABLED.equals(reportMissingJavadocTagsOverriding)) {
 			result.append("----------\n");
-			result.append(Y_ResultForMissingTags[PUBLIC_VISIBILITY]);
+			result.append(Y_MISSING_TAGS_ERRORS[PUBLIC_VISIBILITY]);
 			if (visibility >= PROTECTED_VISIBILITY) {
-				result.append(Y_ResultForMissingTags[PROTECTED_VISIBILITY]);
+				result.append(Y_MISSING_TAGS_ERRORS[PROTECTED_VISIBILITY]);
 				if (visibility >= DEFAULT_VISIBILITY) {
-					result.append(Y_ResultForMissingTags[DEFAULT_VISIBILITY]);
+					result.append(Y_MISSING_TAGS_ERRORS[DEFAULT_VISIBILITY]);
 					if (visibility == PRIVATE_VISIBILITY) {
-						result.append(Y_ResultForMissingTags[PRIVATE_VISIBILITY]);
+						result.append(Y_MISSING_TAGS_ERRORS[PRIVATE_VISIBILITY]);
 					}
 				}
 			}
 		}
 		// Private level is always reported as it never overrides...
 		else if (visibility == PRIVATE_VISIBILITY) {
-			result.append(Y_ResultForMissingTags[PRIVATE_VISIBILITY+1]);
+			result.append(Y_MISSING_TAGS_ERRORS[PRIVATE_VISIBILITY+1]);
 		}
 		return result.toString();
 	}
 	
-	private static String[] X_ResultForMissingComments = {
+	private static final String[] X_MISSING_COMMENTS_ERRORS = {
 		"1. ERROR in X.java (at line 4)\n" + 
 			"	public class PublicClass {}\n" + 
 			"	             ^^^^^^^^^^^\n" + 
@@ -1298,7 +1290,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"Javadoc: Missing comment for private declaration\n" + 
 			"----------\n"
 	};
-	private static String[] Y_ResultForMissingComments = {
+	private static final String[] Y_MISSING_COMMENTS_ERRORS = {
 		"1. ERROR in Y.java (at line 5)\n" + 
 			"	public int publicMethod(long l) { return 0;}\n" + 
 			"	           ^^^^^^^^^^^^^^^^^^^^\n" + 
@@ -1330,24 +1322,24 @@ public class JavadocTestOptions extends JavadocTest {
 	private String resultForMissingComments(int visibility) {
 		StringBuffer result = new StringBuffer("----------\n");
 		for (int i=0; i<=visibility; i++) {
-			result.append(X_ResultForMissingComments[i]);
+			result.append(X_MISSING_COMMENTS_ERRORS[i]);
 		}
 		if (CompilerOptions.ENABLED.equals(reportMissingJavadocCommentsOverriding)) {
 			result.append("----------\n");
-			result.append(Y_ResultForMissingComments[PUBLIC_VISIBILITY]);
+			result.append(Y_MISSING_COMMENTS_ERRORS[PUBLIC_VISIBILITY]);
 			if (visibility >= PROTECTED_VISIBILITY) {
-				result.append(Y_ResultForMissingComments[PROTECTED_VISIBILITY]);
+				result.append(Y_MISSING_COMMENTS_ERRORS[PROTECTED_VISIBILITY]);
 				if (visibility >= DEFAULT_VISIBILITY) {
-					result.append(Y_ResultForMissingComments[DEFAULT_VISIBILITY]);
+					result.append(Y_MISSING_COMMENTS_ERRORS[DEFAULT_VISIBILITY]);
 					if (visibility == PRIVATE_VISIBILITY) {
-						result.append(Y_ResultForMissingComments[PRIVATE_VISIBILITY]);
+						result.append(Y_MISSING_COMMENTS_ERRORS[PRIVATE_VISIBILITY]);
 					}
 				}
 			}
 		}
 		// Private level is always reported for as it never overrides...
 		else if (visibility == PRIVATE_VISIBILITY) {
-			result.append(Y_ResultForMissingComments[PRIVATE_VISIBILITY+1]);
+			result.append(Y_MISSING_COMMENTS_ERRORS[PRIVATE_VISIBILITY+1]);
 		}
 		return result.toString();
 	}
@@ -1564,15 +1556,6 @@ public class JavadocTestOptions extends JavadocTest {
 		reportInvalidJavadocTagsVisibility = CompilerOptions.DEFAULT;
 		runNegativeTest(CONSTRUCTORS_INVALID_COMMENT, resultForInvalidTagsMethodOrConstructor(DEFAULT_VISIBILITY));
 	}
-
-//	static {
-//		TESTS_NAMES = new String[] {
-//			"testInvalidTagsClassErrorTagsPrivate",
-//			"testInvalidTagsFieldErrorTagsPrivate",
-//			"testInvalidTagsMethodErrorTagsPrivate",
-//			"testInvalidTagsConstructorErrorTagsPrivate",
-//		};
-//	}
 	
 	// Test invalid javadoc "error" + tags "enabled" and visibility "private"
 	public void testInvalidTagsClassErrorTagsPrivate() {
