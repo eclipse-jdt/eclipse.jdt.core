@@ -2199,6 +2199,7 @@ MemberValue -> Annotation
 /:$compliance 1.5:/
 MemberValue -> MemberValueArrayInitializer
 /:$readableName MemberValue:/
+/:$recovery_template Identifier:/
 /:$compliance 1.5:/
 
 MemberValueArrayInitializer ::= EnterMemberValueArrayInitializer '{' PushLeftBrace MemberValues ',' '}'

@@ -316,4 +316,67 @@ public void test0001() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=211180
+public void test0002() {
+
+	String s = 
+		"package a;											\n"
+			+ "public class X {								\n"
+			+ "  void foo() {								\n"
+			+ "    #										\n"
+			+ "    @MyAnnot(value=)							\n"
+			+ "    int i;			`						\n"
+			+ "  }											\n"
+			+ "}											\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+			
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    @MyAnnot(value = $missing$) int i;\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedFullUnitToString;
+	
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
 }
