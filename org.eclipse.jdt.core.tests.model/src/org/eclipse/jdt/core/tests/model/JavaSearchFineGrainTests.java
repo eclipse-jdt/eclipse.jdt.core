@@ -240,9 +240,9 @@ public void testMethodRef_This() throws CoreException {
 }
 
 private final static int ALL_TYPE_FINE_GRAIN_FLAGS =
-	FIELD_TYPE_DECLARATION_TYPE_REFERENCE |
+	FIELD_DECLARATION_TYPE_REFERENCE |
 	LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE |
-	PARAMETER_TYPE_DECLARATION_TYPE_REFERENCE |
+	PARAMETER_DECLARATION_TYPE_REFERENCE |
 	SUPERTYPE_TYPE_REFERENCE |
 	SUPERINTERFACE_TYPE_REFERENCE |
 	THROWS_CLAUSE_TYPE_REFERENCE |
@@ -253,7 +253,7 @@ private final static int ALL_TYPE_FINE_GRAIN_FLAGS =
 	IMPORT_DECLARATION_TYPE_REFERENCE |
 	ANNOTATION_TYPE_REFERENCE |
 	TYPE_VARIABLE_BOUND_TYPE_REFERENCE |
-	PARAMETERIZED_TYPE_REFERENCE |
+	TYPE_ARGUMENT_TYPE_REFERENCE |
 	WILDCARD_BOUND_TYPE_REFERENCE;
 
 /*
@@ -386,7 +386,7 @@ public void testTypeRef_Catch() throws CoreException {
 	);
 }
 public void testTypeRef_Field() throws CoreException {
-	search(setUpTypeRef(0), FIELD_TYPE_DECLARATION_TYPE_REFERENCE);
+	search(setUpTypeRef(0), FIELD_DECLARATION_TYPE_REFERENCE);
 	assertSearchResults(
 		"src/type/ref/TestTypes.java type.ref.TestTypes.field [	§|Types|§ field;@143] EXACT_MATCH"
 	);
@@ -398,7 +398,7 @@ public void testTypeRef_Import() throws CoreException {
 	);
 }
 public void testTypeRef_MethodParameter() throws CoreException {
-	search(setUpTypeRef(0), PARAMETER_TYPE_DECLARATION_TYPE_REFERENCE);
+	search(setUpTypeRef(0), PARAMETER_DECLARATION_TYPE_REFERENCE);
 	assertSearchResults(
 		"src/type/ref/TestTypes.java Types type.ref.TestTypes.method(Types) [	Types method(§|Types|§ param) throws Types {@206] EXACT_MATCH"
 	);
@@ -581,7 +581,7 @@ public void testTypeRefAll_Catch() throws CoreException {
 }
 public void testTypeRefAll_Field() throws CoreException {
 	setUpTypeRefAll();
-	search("*", TYPE, FIELD_TYPE_DECLARATION_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
+	search("*", TYPE, FIELD_DECLARATION_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/all/types/ref/TestTypes.java all.types.ref.TestTypes.field [	§|Types|§ field = new Types(), local, other = new Types();@149] EXACT_MATCH\n" + 
 		"src/all/types/ref/TestTypes.java all.types.ref.TestTypes.object [	§|Object|§ object;@719] EXACT_MATCH\n" + 
@@ -600,7 +600,7 @@ public void testTypeRefAll_Import() throws CoreException {
 }
 public void testTypeRefAll_MethodParameter() throws CoreException {
 	setUpTypeRefAll();
-	search("*", TYPE, PARAMETER_TYPE_DECLARATION_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
+	search("*", TYPE, PARAMETER_DECLARATION_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/all/types/ref/TestTypes.java Types all.types.ref.TestTypes.method(Types) [	Types method(§|Types|§ param) throws Types {@472] EXACT_MATCH\n" + 
 		"src/all/types/ref/TestTypes.java Bug all.types.ref.TestTypes.bar(Bug) [	Bug bar(§|Bug|§ bug) {@585] EXACT_MATCH"
@@ -653,7 +653,7 @@ public void testTypeRefAll_Variable() throws CoreException {
 
 private final static int ALL_GENERIC_TYPE_FINE_GRAIN_FLAGS =
 	TYPE_VARIABLE_BOUND_TYPE_REFERENCE |
-	PARAMETERIZED_TYPE_REFERENCE |
+	TYPE_ARGUMENT_TYPE_REFERENCE |
 	WILDCARD_BOUND_TYPE_REFERENCE;
 
 /*
@@ -753,7 +753,7 @@ public void testTypeRefGeneric01_AllFlags() throws CoreException {
 	);
 }
 public void testTypeRefGeneric01_Parameterized() throws CoreException {
-	search(setUpTypeRefGeneric01(), PARAMETERIZED_TYPE_REFERENCE);
+	search(setUpTypeRefGeneric01(), TYPE_ARGUMENT_TYPE_REFERENCE);
 	assertSearchResults(
 		"src/test01/Generic.java test01.Generic [public class Generic<T extends Types, U extends Types & Comparable<§|Types|§> & Serializable, V extends A<? super Types>> {@135] EXACT_MATCH\n" + 
 		"src/test01/TestGeneric.java test01.TestGeneric [public class TestGeneric<T> extends Generic<§|Types|§, UClass, VClass> {@112] EXACT_MATCH\n" + 
@@ -854,7 +854,7 @@ public void testTypeRefGenericAll01_AllGenericFlags() throws CoreException {
 }
 public void testTypeRefGenericAll01_Parameterized() throws CoreException {
 	setUpTypeRefGeneric01();
-	search("*", TYPE, PARAMETERIZED_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
+	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/test01/Generic.java test01.Generic [public class Generic<T extends Types, U extends Types & Comparable<§|Types|§> & Serializable, V extends A<? super Types>> {@135] EXACT_MATCH\n" + 
 		"src/test01/Generic.java test01.Generic.comp [	Comparable<§|String|§> comp;@239] EXACT_MATCH\n" + 
@@ -1032,7 +1032,7 @@ public void testTypeRefGenericAll02_AllGenericFlags() throws CoreException {
 }
 public void testTypeRefGenericAll02_Parameterizedl() throws CoreException {
 	setUpTypeRefGeneric02();
-	search("*", TYPE, PARAMETERIZED_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
+	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/test02/Test.java test02.Test.field:<anonymous>#1.x [		X<§|String|§> x;@130] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field:<anonymous>#1.t [		Test<§|A|§, B, C> t;@148] EXACT_MATCH\n" + 
@@ -1128,7 +1128,7 @@ public void testTypeRefGenericMethod_AllGenericFlags() throws CoreException {
 }
 public void testTypeRefGenericMethod_Parameterized() throws CoreException {
 	setUpTypeRefGenericMethod();
-	search("*", TYPE, PARAMETERIZED_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
+	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/test/Test.java void test.Test.foo(A<String>) [	void foo(A<§|String|§> a) {@46] EXACT_MATCH\n" + 
 		"src/test/Test.java void test.Test.foo(A<String>) [		a.<§|String|§>foo();@64] EXACT_MATCH\n" + 
@@ -1290,7 +1290,7 @@ public void testTypeRefQualifiedAll_Catch() throws CoreException {
 }
 public void testTypeRefQualifiedAll_Field() throws CoreException {
 	setUpTypeRefQualifiedAll();
-	search("*", TYPE, FIELD_TYPE_DECLARATION_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
+	search("*", TYPE, FIELD_DECLARATION_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/all/types/ref/TestTypes.java all.types.ref.TestTypes.field [	§|type.def.Types|§ field = new type.def.Types(), local, other = new type.def.Types();@131] EXACT_MATCH\n" + 
 		"src/all/types/ref/TestTypes.java all.types.ref.TestTypes.object [	§|Object|§ object;@845] EXACT_MATCH\n" + 
@@ -1306,7 +1306,7 @@ public void testTypeRefQualifiedAll_Import() throws CoreException {
 }
 public void testTypeRefQualifiedAll_MethodParameter() throws CoreException {
 	setUpTypeRefQualifiedAll();
-	search("*", TYPE, PARAMETER_TYPE_DECLARATION_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
+	search("*", TYPE, PARAMETER_DECLARATION_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/all/types/ref/TestTypes.java type.def.Types all.types.ref.TestTypes.method(type.def.Types) [	type.def.Types method(§|type.def.Types|§ param) throws type.def.Types {@526] EXACT_MATCH\n" + 
 		"src/all/types/ref/TestTypes.java type.def.Bug all.types.ref.TestTypes.bar(type.def.Bug) [	type.def.Bug bar(§|type.def.Bug|§ bug) {@693] EXACT_MATCH"
@@ -1363,7 +1363,7 @@ public void testTypeRefQualifiedAll_Variable() throws CoreException {
 public void testTypeRefGenericAllG1_Parameterized() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R3.java").getType("R3");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
-	search("*", TYPE, PARAMETERIZED_TYPE_REFERENCE, scope);
+	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, scope);
 	assertSearchResults(
 		"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [	public Generic<§|Object|§>.MemberGeneric<Object> gen_obj;@393] EXACT_MATCH\n" + 
 		"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.gen_obj [	public Generic<Object>.MemberGeneric<§|Object|§> gen_obj;@415] EXACT_MATCH\n" + 
@@ -1394,7 +1394,7 @@ public void testTypeRefGenericAllG2_Parameterized() throws CoreException {
 	// TODO The JavaSearch15/src/g2/f/s/def/R3.java should be updated as it contains compilation errors!
 	IType type = getCompilationUnit("JavaSearch15/src/g2/f/s/def/R3.java").getType("R3");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
-	search("*", TYPE, PARAMETERIZED_TYPE_REFERENCE, scope);
+	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, scope);
 	assertSearchResults(
 		"src/g2/f/s/def/R3.java g2.f.s.def.R3.{} [		Generic<§|Object|§>.MemberGeneric<Object> member = new Generic<Object>().new MemberGeneric<Object>();@177] EXACT_MATCH\n" + 
 		"src/g2/f/s/def/R3.java g2.f.s.def.R3.{} [		Generic<Object>.MemberGeneric<§|Object|§> member = new Generic<Object>().new MemberGeneric<Object>();@199] EXACT_MATCH\n" + 
@@ -1449,7 +1449,7 @@ public void testTypeRefGenericAllG2_WildcardBounds() throws CoreException {
 public void testTypeRefGenericAllG3R1_Parameterized() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15/src/g3/t/ref/R1.java").getType("R1");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
-	search("*", TYPE, PARAMETERIZED_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
 	assertSearchResults(
 		"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_wld [	public GS<§|GM|§<?, ?, ?>> sgsm_wld;@321] EXACT_MATCH\n" + 
 		"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_www [	public GS<§|GM|§<GM<?, ?, ?>,GM<?, ?, ?>,GM<?, ?, ?>>> sgsm_www;@355] EXACT_MATCH\n" + 
@@ -1517,7 +1517,7 @@ public void testTypeRefGenericAllG3R1_TypeVariableBounds() throws CoreException 
 public void testTypeRefGenericAllG5_Parameterized() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15/src/g5/m/ref/RefMultiple.java").getType("RefMultiple");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
-	search("*", TYPE, PARAMETERIZED_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
 	assertSearchResults(
 		"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [		Multiple<§|Object|§, Exception, RuntimeException> gm = new Multiple<Object, Exception, RuntimeException>();@115] EXACT_MATCH\n" + 
 		"src/g5/m/ref/RefMultiple.java void g5.m.ref.RefMultiple.test() [		Multiple<Object, §|Exception|§, RuntimeException> gm = new Multiple<Object, Exception, RuntimeException>();@123] EXACT_MATCH\n" + 
@@ -1585,7 +1585,7 @@ public void testTypeRefGenericAllG5_TypeVariableBounds() throws CoreException {
 public void testTypeRefGenericAllG6_Parameterized() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15/src/g6/t/ref/QualifMultiple.java").getType("QualifMultiple");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
-	search("*", TYPE, PARAMETERIZED_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
 	assertSearchResults(
 		"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.entryException [	g6.t.def.Table<§|String|§, Exception>.Entry<String, Exception> entryException;@64] EXACT_MATCH\n" + 
 		"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.entryException [	g6.t.def.Table<String, §|Exception|§>.Entry<String, Exception> entryException;@72] EXACT_MATCH\n" + 
@@ -1612,7 +1612,7 @@ public void testTypeRefGenericAllG6_Parameterized() throws CoreException {
 public void testTypeRefGenericAllG6_WildcardBounds() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15/src/g6/t/ref/QualifMultiple.java").getType("QualifMultiple");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
-	search("*", TYPE, FIELD_TYPE_DECLARATION_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	search("*", TYPE, FIELD_DECLARATION_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
 	assertSearchResults(
 		"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.entryException [	§|g6.t.def.Table<String, Exception>.Entry|§<String, Exception> entryException;@49] EXACT_MATCH\n" + 
 		"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.entryExceptionArray [	§|g6.t.def.Table<String, Exception>.Entry<String, Exception>[]|§ entryExceptionArray;@125] EXACT_MATCH\n" + 

@@ -2536,7 +2536,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 	boolean typeParameterBoundShouldBeReported = this.patternFineGrain == 0 ||
 		(this.patternFineGrain & IJavaSearchConstants.TYPE_VARIABLE_BOUND_TYPE_REFERENCE) != 0;
 	boolean parameterizedTypeShouldBeReported = this.patternFineGrain == 0 ||
-		(this.patternFineGrain & IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE) != 0;
+		(this.patternFineGrain & IJavaSearchConstants.TYPE_ARGUMENT_TYPE_REFERENCE) != 0;
 	boolean wildcardBoundShouldBeReported = this.patternFineGrain == 0 ||
 		(this.patternFineGrain & IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE) != 0;
 	if (!typeParameterBoundShouldBeReported && !parameterizedTypeShouldBeReported && !wildcardBoundShouldBeReported) {
@@ -2684,7 +2684,7 @@ protected void reportMatchingSuper(TypeReference superReference, IJavaElement en
 				for (int i = 0, l = nodes.length; i < l; i++) {
 					ASTNode node = nodes[i];
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-					if (this.patternFineGrain == 0 || ((this.patternFineGrain & IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE) != 0)) {
+					if (this.patternFineGrain == 0 || ((this.patternFineGrain & IJavaSearchConstants.TYPE_ARGUMENT_TYPE_REFERENCE) != 0)) {
 						this.patternLocator.matchReportReference(node, enclosingElement, elementBinding, level.intValue(), this);
 					}
 				}

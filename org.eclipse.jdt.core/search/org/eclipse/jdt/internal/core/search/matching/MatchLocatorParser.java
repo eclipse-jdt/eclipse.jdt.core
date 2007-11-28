@@ -26,13 +26,13 @@ public class MatchLocatorParser extends Parser {
 		IJavaSearchConstants.CAST_TYPE_REFERENCE |
 		IJavaSearchConstants.QUALIFIED_REFERENCE |
 		IJavaSearchConstants.IMPLICIT_THIS_REFERENCE |
-		IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE |
+		IJavaSearchConstants.TYPE_ARGUMENT_TYPE_REFERENCE |
 		IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
 	static final int FORMAL_PARAMETER_FINE_GRAIN_MASK = 
-		IJavaSearchConstants.PARAMETER_TYPE_DECLARATION_TYPE_REFERENCE |
+		IJavaSearchConstants.PARAMETER_DECLARATION_TYPE_REFERENCE |
 		IJavaSearchConstants.CATCH_TYPE_REFERENCE;
 	static final int GENERIC_FINE_GRAIN_MASK = 
-		IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE |
+		IJavaSearchConstants.TYPE_ARGUMENT_TYPE_REFERENCE |
 		IJavaSearchConstants.TYPE_VARIABLE_BOUND_TYPE_REFERENCE |
 		IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE;
 	MatchingNodeSet nodeSet;
@@ -77,7 +77,7 @@ public class ClassButNoMethodDeclarationVisitor extends ASTVisitor {
 	}
 	public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
 		int patternFineGrain = patternLocator.fineGrain();
-		if (patternFineGrain == 0 || (patternFineGrain & IJavaSearchConstants.FIELD_TYPE_DECLARATION_TYPE_REFERENCE) != 0) {
+		if (patternFineGrain == 0 || (patternFineGrain & IJavaSearchConstants.FIELD_DECLARATION_TYPE_REFERENCE) != 0) {
 			patternLocator.match(fieldDeclaration, nodeSet);
 		}
 		return (fieldDeclaration.bits & ASTNode.HasLocalType) != 0; // continue only if it has local type;
@@ -353,22 +353,22 @@ protected void consumeSingleMemberAnnotation() {
 	this.patternLocator.match(annotation, nodeSet);
 }
 protected void consumeTypeArgument() {
-	this.typeRefFineGrain |= IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE;
+	this.typeRefFineGrain |= IJavaSearchConstants.TYPE_ARGUMENT_TYPE_REFERENCE;
 	super.consumeTypeArgument();
 	patternLocator.match((TypeReference)genericsStack[genericsPtr], nodeSet);
-	this.typeRefFineGrain &= ~IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE;
+	this.typeRefFineGrain &= ~IJavaSearchConstants.TYPE_ARGUMENT_TYPE_REFERENCE;
 }
 protected void consumeTypeArgumentReferenceType1() {
-	this.typeRefFineGrain |= IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE;
+	this.typeRefFineGrain |= IJavaSearchConstants.TYPE_ARGUMENT_TYPE_REFERENCE;
 	super.consumeTypeArgumentReferenceType1();
 	patternLocator.match((TypeReference)genericsStack[genericsPtr], nodeSet);
-	this.typeRefFineGrain &= ~IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE;
+	this.typeRefFineGrain &= ~IJavaSearchConstants.TYPE_ARGUMENT_TYPE_REFERENCE;
 }
 protected void consumeTypeArgumentReferenceType2() {
-	this.typeRefFineGrain |= IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE;
+	this.typeRefFineGrain |= IJavaSearchConstants.TYPE_ARGUMENT_TYPE_REFERENCE;
 	super.consumeTypeArgumentReferenceType2();
 	patternLocator.match((TypeReference)genericsStack[genericsPtr], nodeSet);
-	this.typeRefFineGrain &= ~IJavaSearchConstants.PARAMETERIZED_TYPE_REFERENCE;
+	this.typeRefFineGrain &= ~IJavaSearchConstants.TYPE_ARGUMENT_TYPE_REFERENCE;
 }
 protected void consumeTypeParameterHeader() {
 	super.consumeTypeParameterHeader();
@@ -501,7 +501,7 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 }
 
 protected void consumeEnterVariable() {
-	int grain = IJavaSearchConstants.FIELD_TYPE_DECLARATION_TYPE_REFERENCE | IJavaSearchConstants.LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE;
+	int grain = IJavaSearchConstants.FIELD_DECLARATION_TYPE_REFERENCE | IJavaSearchConstants.LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE;
 	this.typeRefFineGrain |= grain;
 	super.consumeEnterVariable();
 	this.typeRefFineGrain &= ~grain;

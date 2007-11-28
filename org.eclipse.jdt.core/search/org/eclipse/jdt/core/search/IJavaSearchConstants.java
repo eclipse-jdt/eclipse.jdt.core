@@ -214,20 +214,20 @@ public interface IJavaSearchConstants {
 	int IGNORE_RETURN_TYPE = 0x20;
 	
 	/**
-	 * Return only references to type used in field type declaration.
+	 * Return only type references used as the type of a field declaration.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int FIELD_TYPE_DECLARATION_TYPE_REFERENCE = 0x40;
+	int FIELD_DECLARATION_TYPE_REFERENCE = 0x40;
 	
 	/**
-	 * Return only references to type used in local variable declaration.
+	 * Return only type references used as the type of a local variable declaration.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
@@ -236,20 +236,21 @@ public interface IJavaSearchConstants {
 	int LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE = 0x80;
 	
 	/**
-	 * Return only references to type used in method parameter declaration.
+	 * Return only type references used as the type of a method parameter
+	 * declaration.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int PARAMETER_TYPE_DECLARATION_TYPE_REFERENCE = 0x100;
+	int PARAMETER_DECLARATION_TYPE_REFERENCE = 0x100;
 	
 	/**
-	 * Return only references to type used as super type.
+	 * Return only type references used as a super type.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
@@ -258,9 +259,9 @@ public interface IJavaSearchConstants {
 	int SUPERTYPE_TYPE_REFERENCE = 0x200;
 	
 	/**
-	 * Return only references to type used as super interface.
+	 * Return only type references used as a super interface.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
@@ -269,9 +270,9 @@ public interface IJavaSearchConstants {
 	int SUPERINTERFACE_TYPE_REFERENCE = 0x400;
 	
 	/**
-	 * Return only references to types used in throws clause.
+	 * Return only type references used in a throws clause.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
@@ -280,9 +281,9 @@ public interface IJavaSearchConstants {
 	int THROWS_CLAUSE_TYPE_REFERENCE = 0x800;
 	
 	/**
-	 * Return only reference to types used in a cast expression.
+	 * Return only type references used in a cast expression.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
@@ -291,9 +292,9 @@ public interface IJavaSearchConstants {
 	int CAST_TYPE_REFERENCE = 0x1000;
 	
 	/**
-	 * Return only reference to types used in a catch header.
+	 * Return only type references used in a catch header.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
@@ -302,9 +303,9 @@ public interface IJavaSearchConstants {
 	int CATCH_TYPE_REFERENCE = 0x2000;
 	
 	/**
-	 * Return only reference to types used in an allocation expression.
+	 * Return only type references used in an allocation expression.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
@@ -313,9 +314,9 @@ public interface IJavaSearchConstants {
 	int ALLOCATION_EXPRESSION_TYPE_REFERENCE = 0x4000;
 	
 	/**
-	 * Return only reference to types used as method return type.
+	 * Return only type references used as a method return type.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
@@ -324,9 +325,9 @@ public interface IJavaSearchConstants {
 	int RETURN_TYPE_REFERENCE = 0x8000;
 	
 	/**
-	 * Return only reference to types used in import declaration.
+	 * Return only type references used in an import declaration.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
@@ -335,9 +336,9 @@ public interface IJavaSearchConstants {
 	int IMPORT_DECLARATION_TYPE_REFERENCE = 0x10000;
 
 	/**
-	 * Return only reference to types used as annotation.
+	 * Return only type references used as an annotation.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
@@ -346,31 +347,32 @@ public interface IJavaSearchConstants {
 	int ANNOTATION_TYPE_REFERENCE = 0x20000;
 
 	/**
-	 * Return only reference to types used as type variable bound.
+	 * Return only type references used as a type argument in a parameterized
+	 * type or a parameterized method.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int TYPE_VARIABLE_BOUND_TYPE_REFERENCE = 0x40000;
+	int TYPE_ARGUMENT_TYPE_REFERENCE = 0x40000;
 
 	/**
-	 * Return only reference to types used as parameterized type.
+	 * Return only type references used as a type variable bound.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int PARAMETERIZED_TYPE_REFERENCE = 0x80000;
+	int TYPE_VARIABLE_BOUND_TYPE_REFERENCE = 0x80000;
 
 	/**
-	 * Return only reference to types used as wildcard bound.
+	 * Return only type references used as a wildcard bound.
 	 * <p>
-	 * When this flag is used, only {@link TypeReferenceMatch} matches will be
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
 	 * @since 3.4
@@ -379,16 +381,16 @@ public interface IJavaSearchConstants {
 	int WILDCARD_BOUND_TYPE_REFERENCE = 0x100000;
 	
 	/**
-	 * Return only super field accesses  or method invocations (e.g. using
+	 * Return only super field accesses or super method invocations (e.g. using the
 	 * <code>super</code> qualifier).
 	 * <p>
-	 * When this flag is used, the kind of returned matches will depend on the
-	 * specified nature of searched element:
+	 * When this flag is set, the kind of returned matches will depend on the
+	 * specified nature of the searched element:
 	 * <ul>
-	 * 	<li>for {@link #FIELD} nature, only {@link FieldReferenceMatch} matches
-	 * 		will be accepted,</li>
-	 * 	<li>for {@link #METHOD} nature, only {@link MethodReferenceMatch}
-	 * 		matches will be returned</li>
+	 * 	<li>for the {@link #FIELD} nature, only {@link FieldReferenceMatch}
+	 * 		matches will be returned,</li>
+	 * 	<li>for the {@link #METHOD} nature, only {@link MethodReferenceMatch}
+	 * 		matches will be returned.</li>
 	 * </ul>
 	 *</p>
 	 * @since 3.4
@@ -397,15 +399,15 @@ public interface IJavaSearchConstants {
 	int SUPER_REFERENCE = 0x1000000;
 	
 	/**
-	 * Return only qualified field accesses or method invocations.
+	 * Return only qualified field accesses or qualified method invocations.
 	 * <p>
-	 * When this flag is used, the kind of returned matches will depend on the
-	 * specified nature of searched element:
+	 * When this flag is set, the kind of returned matches will depend on the
+	 * specified nature of the searched element:
 	 * <ul>
-	 * 	<li>for {@link #FIELD} nature, only {@link FieldReferenceMatch} matches
-	 * 		will be accepted,</li>
-	 * 	<li>for {@link #METHOD} nature, only {@link MethodReferenceMatch}
-	 * 		matches will be returned</li>
+	 * 	<li>for the {@link #FIELD} nature, only {@link FieldReferenceMatch}
+	 * 		matches will be returned,</li>
+	 * 	<li>for the {@link #METHOD} nature, only {@link MethodReferenceMatch}
+	 * 		matches will be returned.</li>
 	 * </ul>
 	 *</p>
 	 * @since 3.4
@@ -414,16 +416,16 @@ public interface IJavaSearchConstants {
 	int QUALIFIED_REFERENCE = 0x2000000;
 	
 	/**
-	 * Return only primary field accesses  or method invocations (e.g. using
-	 * <code>this</code> qualifier).
+	 * Return only primary field accesses or primary method invocations (e.g. using
+	 * the <code>this</code> qualifier).
 	 * <p>
-	 * When this flag is used, the kind of returned matches will depend on the
-	 * specified nature of searched element:
+	 * When this flag is set, the kind of returned matches will depend on the
+	 * specified nature of the searched element:
 	 * <ul>
-	 * 	<li>for {@link #FIELD} nature, only {@link FieldReferenceMatch} matches
-	 * 		will be accepted,</li>
-	 * 	<li>for {@link #METHOD} nature, only {@link MethodReferenceMatch}
-	 * 		matches will be returned</li>
+	 * 	<li>for the {@link #FIELD} nature, only {@link FieldReferenceMatch}
+	 * 		matches will be returned,</li>
+	 * 	<li>for the {@link #METHOD} nature, only {@link MethodReferenceMatch}
+	 * 		matches will be returned.</li>
 	 * </ul>
 	 *</p>
 	 * @since 3.4
@@ -432,113 +434,21 @@ public interface IJavaSearchConstants {
 	int THIS_REFERENCE = 0x4000000;
 	
 	/**
-	 * Return only field accesses  or method invocations without any qualification.
+	 * Return only field accesses or method invocations without any qualification.
 	 * <p>
-	 * When this flag is used, the kind of returned matches will depend on the
-	 * specified nature of searched element:
+	 * When this flag is set, the kind of returned matches will depend on the
+	 * specified nature of the searched element:
 	 * <ul>
-	 * 	<li>for {@link #FIELD} nature, only {@link FieldReferenceMatch} matches
-	 * 		will be accepted,</li>
-	 * 	<li>for {@link #METHOD} nature, only {@link MethodReferenceMatch}
-	 * 		matches will be returned</li>
+	 * 	<li>for the {@link #FIELD} nature, only {@link FieldReferenceMatch}
+	 * 		matches will be returned,</li>
+	 * 	<li>for the {@link #METHOD} nature, only {@link MethodReferenceMatch}
+	 * 		matches will be returned.</li>
 	 * </ul>
 	 *</p>
 	 * @since 3.4
 	 * @category limitTo
 	 */
 	int IMPLICIT_THIS_REFERENCE = 0x8000000;
-//	
-//	/**
-//	 * Return only super field accesses (e.g. using <code>super</code>
-//	 * qualifier).
-//	 * <p>
-//	 * When this flag is used, only {@link FieldReferenceMatch type reference
-//	 * matches} will be returned.
-//	 *</p>
-//	 * @since 3.4
-//	 * @category limitTo
-//	 */
-//	int SUPER_FIELD_REFERENCE = 0x1000000;
-//	
-//	/**
-//	 * Return only qualified field accesses.
-//	 * <p>
-//	 * When this flag is used, only {@link FieldReferenceMatch type reference
-//	 * matches} will be returned.
-//	 *</p>
-//	 * @since 3.4
-//	 * @category limitTo
-//	 */
-//	int QUALIFIED_FIELD_REFERENCE = 0x2000000;
-//	
-//	/**
-//	 * Return only primary field accesses (e.g. using <code>this</code>
-//	 * qualifier).
-//	 * <p>
-//	 * When this flag is used, only {@link FieldReferenceMatch type reference
-//	 * matches} will be returned.
-//	 *</p>
-//	 * @since 3.4
-//	 * @category limitTo
-//	 */
-//	int THIS_FIELD_REFERENCE = 0x4000000;
-//	
-//	/**
-//	 * Return only field accesses without any qualification.
-//	 * <p>
-//	 * When this flag is used, only {@link FieldReferenceMatch type reference
-//	 * matches} will be returned.
-//	 *</p>
-//	 * @since 3.4
-//	 * @category limitTo
-//	 */
-//	int SIMPLE_FIELD_REFERENCE = 0x8000000;
-//	
-//	/**
-//	 * Return only super method invocations (e.g. using <code>super</code>
-//	 * qualifier).
-//	 * <p>
-//	 * When this flag is used, only {@link MethodReferenceMatch type reference
-//	 * matches} will be returned.
-//	 *</p>
-//	 * @since 3.4
-//	 * @category limitTo
-//	 */
-//	int SUPER_METHOD_REFERENCE = 0x10000000;
-//	
-//	/**
-//	 * Return only qualified method invocations.
-//	 * <p>
-//	 * When this flag is used, only {@link MethodReferenceMatch type reference
-//	 * matches} will be returned.
-//	 *</p>
-//	 * @since 3.4
-//	 * @category limitTo
-//	 */
-//	int QUALIFIED_METHOD_REFERENCE = 0x20000000;
-//	
-//	/**
-//	 * Return only primary method invocations (e.g. using <code>this</code>
-//	 * qualifier).
-//	 * <p>
-//	 * When this flag is used, only {@link MethodReferenceMatch type reference
-//	 * matches} will be returned.
-//	 *</p>
-//	 * @since 3.4
-//	 * @category limitTo
-//	 */
-//	int THIS_METHOD_REFERENCE = 0x40000000;
-//	
-//	/**
-//	 * Return only method invocations without any qualification.
-//	 * <p>
-//	 * When this flag is used, only {@link MethodReferenceMatch type reference
-//	 * matches} will be returned.
-//	 *</p>
-//	 * @since 3.4
-//	 * @category limitTo
-//	 */
-//	int SIMPLE_METHOD_REFERENCE = 0x80000000;
 	
 	/* Syntactic match modes */
 	

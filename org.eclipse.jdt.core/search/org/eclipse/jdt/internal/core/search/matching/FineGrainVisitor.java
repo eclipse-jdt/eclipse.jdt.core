@@ -31,7 +31,7 @@ class FineGrainVisitor extends ASTVisitor implements IJavaSearchConstants {
 		MatchLocatorParser.FORMAL_PARAMETER_FINE_GRAIN_MASK |
 		MatchLocatorParser.GENERIC_FINE_GRAIN_MASK |
 		ALLOCATION_EXPRESSION_TYPE_REFERENCE |
-		FIELD_TYPE_DECLARATION_TYPE_REFERENCE |
+		FIELD_DECLARATION_TYPE_REFERENCE |
 		LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE |
 		IMPORT_DECLARATION_TYPE_REFERENCE |
 		THROWS_CLAUSE_TYPE_REFERENCE |
@@ -126,7 +126,7 @@ public boolean visit(SingleNameReference singleNameReference, BlockScope scope) 
 
 public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
 	if (this.completed) return false;
-	if ((this.fineGrain & PARAMETER_TYPE_DECLARATION_TYPE_REFERENCE) != 0) {
+	if ((this.fineGrain & PARAMETER_DECLARATION_TYPE_REFERENCE) != 0) {
 		Argument[] arguments = methodDeclaration.arguments;
 		if (arguments != null) {
 			int argLength = arguments.length;
@@ -153,7 +153,7 @@ public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
 
 public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
 	if (this.completed) return false;
-	if ((this.fineGrain & PARAMETER_TYPE_DECLARATION_TYPE_REFERENCE) != 0) {
+	if ((this.fineGrain & PARAMETER_DECLARATION_TYPE_REFERENCE) != 0) {
 		Argument[] arguments = constructorDeclaration.arguments;
 		if (arguments != null) {
 			int argLength = arguments.length;
@@ -232,7 +232,7 @@ public boolean visit(TryStatement tryStatement, BlockScope scope) {
 }
 
 public boolean visit(ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference, BlockScope scope) {
-	if ((this.fineGrain & PARAMETERIZED_TYPE_REFERENCE) != 0) {
+	if ((this.fineGrain & TYPE_ARGUMENT_TYPE_REFERENCE) != 0) {
 		report(parameterizedQualifiedTypeReference, scope);
 	}
 	this.parameterizedTypeRef++;
@@ -240,7 +240,7 @@ public boolean visit(ParameterizedQualifiedTypeReference parameterizedQualifiedT
 }
 
 public boolean visit(ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference, ClassScope scope) {
-	if ((this.fineGrain & PARAMETERIZED_TYPE_REFERENCE) != 0) {
+	if ((this.fineGrain & TYPE_ARGUMENT_TYPE_REFERENCE) != 0) {
 		report(parameterizedQualifiedTypeReference, scope);
 	}
 	this.parameterizedTypeRef++;
@@ -248,7 +248,7 @@ public boolean visit(ParameterizedQualifiedTypeReference parameterizedQualifiedT
 }
 
 public boolean visit(ParameterizedSingleTypeReference parameterizedSingleTypeReference, BlockScope scope) {
-	if ((this.fineGrain & PARAMETERIZED_TYPE_REFERENCE) != 0) {
+	if ((this.fineGrain & TYPE_ARGUMENT_TYPE_REFERENCE) != 0) {
 		report(parameterizedSingleTypeReference, scope);
 	}
 	this.parameterizedTypeRef++;
@@ -256,7 +256,7 @@ public boolean visit(ParameterizedSingleTypeReference parameterizedSingleTypeRef
 }
 
 public boolean visit(ParameterizedSingleTypeReference parameterizedSingleTypeReference, ClassScope scope) {
-	if ((this.fineGrain & PARAMETERIZED_TYPE_REFERENCE) != 0) {
+	if ((this.fineGrain & TYPE_ARGUMENT_TYPE_REFERENCE) != 0) {
 		report(parameterizedSingleTypeReference, scope);
 	}
 	this.parameterizedTypeRef++;
@@ -280,7 +280,7 @@ public void endVisit(ParameterizedSingleTypeReference parameterizedSingleTypeRef
 }
 
 public boolean visit(SingleTypeReference singleTypeReference, BlockScope scope) {
-	if (((this.fineGrain & PARAMETERIZED_TYPE_REFERENCE) != 0 && this.parameterizedTypeRef > 0 && this.wildcardTypeRef == 0) ||
+	if (((this.fineGrain & TYPE_ARGUMENT_TYPE_REFERENCE) != 0 && this.parameterizedTypeRef > 0 && this.wildcardTypeRef == 0) ||
 		((this.fineGrain & WILDCARD_BOUND_TYPE_REFERENCE) != 0 && this.wildcardTypeRef > 0)) {
 		report(singleTypeReference, scope);
 	}
@@ -307,7 +307,7 @@ public void endVisit(Wildcard wildcard, ClassScope scope) {
 
 public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
 	if (this.completed) return false;
-	if ((this.fineGrain & FIELD_TYPE_DECLARATION_TYPE_REFERENCE) != 0) {
+	if ((this.fineGrain & FIELD_DECLARATION_TYPE_REFERENCE) != 0) {
         report(fieldDeclaration.type, scope);
 	}
 	return !this.completed;
@@ -326,7 +326,7 @@ public boolean visit(FieldReference fieldReference, BlockScope scope) {
 }
 
 public boolean visit(QualifiedTypeReference qualifiedTypeReference, BlockScope scope) {
-	if (((this.fineGrain & PARAMETERIZED_TYPE_REFERENCE) != 0 && this.parameterizedTypeRef > 0 && this.wildcardTypeRef == 0) ||
+	if (((this.fineGrain & TYPE_ARGUMENT_TYPE_REFERENCE) != 0 && this.parameterizedTypeRef > 0 && this.wildcardTypeRef == 0) ||
 		((this.fineGrain & WILDCARD_BOUND_TYPE_REFERENCE) != 0 && this.wildcardTypeRef > 0)) {
 		report(qualifiedTypeReference, scope);
 	}
