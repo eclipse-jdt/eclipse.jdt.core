@@ -18,6 +18,18 @@ public abstract class ReferenceInfoAdapter {
 /**
  * Does nothing.
  */
+public void acceptAnnotationTypeReference(char[][] typeName, int sourceStart, int sourceEnd) {
+	// Does nothing
+}
+/**
+ * Does nothing.
+ */
+public void acceptAnnotationTypeReference(char[] typeName, int sourcePosition) {
+	// Does nothing
+}
+/**
+ * Does nothing.
+ */
 public void acceptConstructorReference(char[] typeName, int argCount, int sourcePosition) {
 	// Does nothing
 }

@@ -46,7 +46,7 @@ private int bufferIndex, bufferEnd; // used when reading from the file into the 
 private int streamEnd; // used when writing data from the streamBuffer to the file
 char separator = Index.DEFAULT_SEPARATOR;
 
-public static final String SIGNATURE= "INDEX VERSION 1.124"; //$NON-NLS-1$
+public static final String SIGNATURE= "INDEX VERSION 1.125"; //$NON-NLS-1$
 private static final char[] SIGNATURE_CHARS = SIGNATURE.toCharArray();
 public static boolean DEBUG = false;
 

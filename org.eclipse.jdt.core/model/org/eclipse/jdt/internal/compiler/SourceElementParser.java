@@ -263,7 +263,7 @@ protected void consumeAnnotationAsModifier() {
 	super.consumeAnnotationAsModifier();
 	Annotation annotation = (Annotation)expressionStack[expressionPtr];
 	if (reportReferenceInfo) { // accept annotation type reference
-		this.requestor.acceptTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
+		this.requestor.acceptAnnotationTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
 	}
 }
 protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() {
@@ -424,7 +424,7 @@ protected void consumeMarkerAnnotation() {
 	super.consumeMarkerAnnotation();
 	Annotation annotation = (Annotation)expressionStack[expressionPtr];
 	if (reportReferenceInfo) { // accept annotation type reference
-		this.requestor.acceptTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
+		this.requestor.acceptAnnotationTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
 	}
 }
 protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
@@ -541,7 +541,7 @@ protected void consumeNormalAnnotation() {
 	super.consumeNormalAnnotation();
 	Annotation annotation = (Annotation)expressionStack[expressionPtr];
 	if (reportReferenceInfo) { // accept annotation type reference
-		this.requestor.acceptTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
+		this.requestor.acceptAnnotationTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
 	}
 }
 protected void consumeSingleMemberAnnotation() {

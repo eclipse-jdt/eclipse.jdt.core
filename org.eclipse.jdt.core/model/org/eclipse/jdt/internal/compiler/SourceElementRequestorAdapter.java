@@ -17,6 +17,23 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 
 	/**
+	 * @see ISourceElementRequestor#acceptAnnotationTypeReference(char[][], int, int)
+	 */
+	public void acceptAnnotationTypeReference(
+		char[][] typeName,
+		int sourceStart,
+		int sourceEnd) {
+		// default implementation: do nothing
+	}
+
+	/**
+	 * @see ISourceElementRequestor#acceptAnnotationTypeReference(char[], int)
+	 */
+	public void acceptAnnotationTypeReference(char[] typeName, int sourcePosition) {
+		// default implementation: do nothing
+	}
+
+	/**
 	 * @see ISourceElementRequestor#acceptConstructorReference(char[], int, int)
 	 */
 	public void acceptConstructorReference(

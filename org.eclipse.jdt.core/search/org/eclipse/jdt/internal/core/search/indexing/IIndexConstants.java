@@ -16,6 +16,7 @@ public interface IIndexConstants {
 
 	/* index encoding */
 	char[] REF= "ref".toCharArray(); //$NON-NLS-1$
+	char[] ANNOTATION_REF= "annotationRef".toCharArray(); //$NON-NLS-1$
 	char[] METHOD_REF= "methodRef".toCharArray(); //$NON-NLS-1$
 	char[] CONSTRUCTOR_REF= "constructorRef".toCharArray(); //$NON-NLS-1$
 	char[] SUPER_REF = "superRef".toCharArray(); //$NON-NLS-1$
@@ -59,4 +60,5 @@ public interface IIndexConstants {
 	int LOCAL_VAR_PATTERN = 0x0200;
 	int TYPE_PARAM_PATTERN = 0x0400;
 	int AND_PATTERN = 0x0800;
+	int ANNOT_REF_PATTERN = 0x1000;
 }

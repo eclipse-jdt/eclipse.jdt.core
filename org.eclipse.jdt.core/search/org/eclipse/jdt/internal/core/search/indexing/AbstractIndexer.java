@@ -31,7 +31,10 @@ public abstract class AbstractIndexer implements IIndexConstants {
 			SUPER_REF, 
 			SuperTypeReferencePattern.createIndexKey(
 				modifiers, packageName, name, enclosingTypeNames, null, ANNOTATION_TYPE_SUFFIX, CharOperation.concatWith(TypeConstants.JAVA_LANG_ANNOTATION_ANNOTATION, '.'), ANNOTATION_TYPE_SUFFIX));
-	}	
+	}
+	public void addAnnotationTypeReference(char[] typeName) {
+		addIndexEntry(ANNOTATION_REF, CharOperation.lastSegment(typeName, '.'));
+	}
 	public void addClassDeclaration(
 			int modifiers, 
 			char[] packageName,

@@ -23,6 +23,14 @@ public TestSourceElementRequestor() {
 	super();
 }
 /**
+ * acceptAnnotationTypeReference method comment.
+ */
+public void acceptAnnotationTypeReference(char[][] typeName, int sourceStart, int sourceEnd) {}
+/**
+ * acceptAnnotationTypeReference method comment.
+ */
+public void acceptAnnotationTypeReference(char[] typeName, int sourcePosition) {}
+/**
  * acceptConstructorReference method comment.
  */
 public void acceptConstructorReference(char[] typeName, int argCount, int sourcePosition) {}

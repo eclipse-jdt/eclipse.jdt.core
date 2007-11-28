@@ -47,33 +47,33 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 	private void addBinaryStandardAnnotations(long annotationTagBits) {
 		if ((annotationTagBits & TagBits.AnnotationTargetMASK) != 0) {
 			char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_TARGET;
-			addTypeReference(compoundName[compoundName.length-1]);
+			addAnnotationTypeReference(compoundName[compoundName.length-1]);
 			addBinaryTargetAnnotation(annotationTagBits);
 		}
 		if ((annotationTagBits & TagBits.AnnotationRetentionMASK) != 0) {
 			char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_RETENTION;
-			addTypeReference(compoundName[compoundName.length-1]);
+			addAnnotationTypeReference(compoundName[compoundName.length-1]);
 			addBinaryRetentionAnnotation(annotationTagBits);
 		}
 		if ((annotationTagBits & TagBits.AnnotationDeprecated) != 0) {
 			char[][] compoundName = TypeConstants.JAVA_LANG_DEPRECATED;
-			addTypeReference(compoundName[compoundName.length-1]);
+			addAnnotationTypeReference(compoundName[compoundName.length-1]);
 		}
 		if ((annotationTagBits & TagBits.AnnotationDocumented) != 0) {
 			char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_DOCUMENTED;
-			addTypeReference(compoundName[compoundName.length-1]);
+			addAnnotationTypeReference(compoundName[compoundName.length-1]);
 		}
 		if ((annotationTagBits & TagBits.AnnotationInherited) != 0) {
 			char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_INHERITED;
-			addTypeReference(compoundName[compoundName.length-1]);
+			addAnnotationTypeReference(compoundName[compoundName.length-1]);
 		}
 		if ((annotationTagBits & TagBits.AnnotationOverride) != 0) {
 			char[][] compoundName = TypeConstants.JAVA_LANG_OVERRIDE;
-			addTypeReference(compoundName[compoundName.length-1]);
+			addAnnotationTypeReference(compoundName[compoundName.length-1]);
 		}
 		if ((annotationTagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 			char[][] compoundName = TypeConstants.JAVA_LANG_SUPPRESSWARNINGS;
-			addTypeReference(compoundName[compoundName.length-1]);
+			addAnnotationTypeReference(compoundName[compoundName.length-1]);
 		}
 	}
 	private void addBinaryTargetAnnotation(long bits) {
@@ -147,7 +147,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 		}
 	}
 	private void addBinaryAnnotation(IBinaryAnnotation annotation) {
-		addTypeReference(replace('/', '.', Signature.toCharArray(annotation.getTypeName())));
+		addAnnotationTypeReference(replace('/', '.', Signature.toCharArray(annotation.getTypeName())));
 		IBinaryElementValuePair[] valuePairs = annotation.getElementValuePairs();
 		if (valuePairs != null) {
 			for (int j=0, vpLength=valuePairs.length; j<vpLength; j++) {

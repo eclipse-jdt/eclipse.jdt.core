@@ -92,6 +92,10 @@ public interface ISourceElementRequestor {
 		public char[][] categories;
 		public Annotation[] annotations;
 	}
+
+	void acceptAnnotationTypeReference(char[][] annotation, int sourceStart, int sourceEnd);
+
+	void acceptAnnotationTypeReference(char[] annotation, int sourcePosition);
 	
 	void acceptConstructorReference(char[] typeName, int argCount, int sourcePosition);
 	

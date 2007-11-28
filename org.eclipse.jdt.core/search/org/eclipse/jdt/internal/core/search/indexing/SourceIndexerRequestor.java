@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 /**
  * This class is used by the JavaParserIndexer. When parsing the java file, the requestor
- * recognises the java elements (methods, fields, ...) and add them to an index.
+ * recognizes the java elements (methods, fields, ...) and add them to an index.
  */
 public class SourceIndexerRequestor implements ISourceElementRequestor, IIndexConstants {
 	SourceIndexer indexer;
@@ -33,6 +33,21 @@ public class SourceIndexerRequestor implements ISourceElementRequestor, IIndexCo
 	
 public SourceIndexerRequestor(SourceIndexer indexer) {
 	this.indexer = indexer;
+}
+/**
+ * @see ISourceElementRequestor#acceptAnnotationTypeReference(char[][], int, int)
+ */
+public void acceptAnnotationTypeReference(char[][] typeName, int sourceStart, int sourceEnd) {
+	int length = typeName.length;
+	for (int i = 0; i < length - 1; i++)
+		acceptUnknownReference(typeName[i], 0);
+	acceptAnnotationTypeReference(typeName[length - 1], 0);
+}
+/**
+ * @see ISourceElementRequestor#acceptAnnotationTypeReference(char[], int)
+ */
+public void acceptAnnotationTypeReference(char[] simpleTypeName, int sourcePosition) {
+	this.indexer.addAnnotationTypeReference(simpleTypeName);
 }
 /**
  * @see ISourceElementRequestor#acceptConstructorReference(char[], int, int)
