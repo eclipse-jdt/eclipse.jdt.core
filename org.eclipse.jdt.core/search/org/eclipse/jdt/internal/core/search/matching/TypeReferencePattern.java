@@ -12,10 +12,11 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.util.Util;
 
-	public class TypeReferencePattern extends IntersectingPattern {
+public class TypeReferencePattern extends IntersectingPattern {
 	
 	protected char[] qualification;
 	protected char[] simpleName;
@@ -26,8 +27,11 @@ import org.eclipse.jdt.internal.core.util.Util;
 	public int segmentsSize;
 	protected char[][] segments;
 	protected int currentSegment;
-
-	protected static char[][] CATEGORIES = { REF };
+	
+	private final static char[][]
+		CATEGORIES = { REF, ANNOTATION_REF },
+		CATEGORIES_ANNOT_REF = { ANNOTATION_REF };
+	private char[][] categories;
 	
 	public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRule) {
 		this(matchRule);
@@ -54,6 +58,13 @@ import org.eclipse.jdt.internal.core.util.Util;
 	 * Instantiate a type reference pattern with additional information for generics search
 	 */
 	public TypeReferencePattern(char[] qualification, char[] simpleName, String typeSignature, int matchRule) {
+		this(qualification, simpleName, typeSignature, 0, matchRule);
+	}
+
+	/*
+	 * Instanciate a type reference pattern with additional information for generics search and fine grain information
+	 */
+	public TypeReferencePattern(char[] qualification, char[] simpleName, String typeSignature, int limitTo, int matchRule) {
 		this(qualification, simpleName,matchRule);
 		if (typeSignature != null) {
 			// store type signatures and arguments
@@ -63,16 +74,31 @@ import org.eclipse.jdt.internal.core.util.Util;
 				this.segmentsSize = getTypeArguments().length + CharOperation.occurencesOf('/', this.typeSignatures[0]) - 1;
 			}
 		}
+	    this.fineGrain = limitTo & 0xFFFFFFF0;
+	    if (this.fineGrain == IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE) {
+	    	categories =CATEGORIES_ANNOT_REF;
+	    }
 	}
+
 	/*
 	 * Instantiate a type reference pattern with additional information for generics search
 	 */
 	public TypeReferencePattern(char[] qualification, char[] simpleName, IType type, int matchRule) {
+		this(qualification, simpleName, type, 0, matchRule);
+	}
+
+	/*
+	 * Instanciate a type reference pattern with additional information for generics search
+	 */
+	public TypeReferencePattern(char[] qualification, char[] simpleName, IType type, int limitTo, int matchRule) {
 		this(qualification, simpleName,matchRule);
 		storeTypeSignaturesAndArguments(type);
+	    this.fineGrain = limitTo & 0xFFFFFFF0;
 	}
+
 	TypeReferencePattern(int matchRule) {
 		super(TYPE_REF_PATTERN, matchRule);
+		this.categories = CATEGORIES;
 	}
 	public void decodeIndexKey(char[] key) {
 		this.simpleName = key;
@@ -90,7 +116,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 		return null;
 	}
 	public char[][] getIndexCategories() {
-		return CATEGORIES;
+		return this.categories;
 	}
 	protected boolean hasNextQuery() {
 		if (this.segments == null) return false;
@@ -105,13 +131,22 @@ import org.eclipse.jdt.internal.core.util.Util;
 		return true; // index key is not encoded so query results all match
 	}
 
+	protected void setFineGrain(int limitTo) {
+	    this.fineGrain = limitTo & 0xFFFFFFF0;
+//		if (this.fineGrain == IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE) {
+//			this.categories = new char[][] { ANNOTATION_REF };
+//		}
+    }
+
 	protected void resetQuery() {
 		/* walk the segments from end to start as it will find less potential references using 'lang' than 'java' */
 		if (this.segments != null)
 			this.currentSegment = this.segments.length - 1;
 	}
 	protected StringBuffer print(StringBuffer output) {
-		output.append("TypeReferencePattern: qualification<"); //$NON-NLS-1$
+		String patternClassName = getClass().getName();
+		output.append(patternClassName.substring(patternClassName.lastIndexOf('.')+1));
+		output.append(": qualification<"); //$NON-NLS-1$
 		if (qualification != null) 
 			output.append(qualification);
 		else
