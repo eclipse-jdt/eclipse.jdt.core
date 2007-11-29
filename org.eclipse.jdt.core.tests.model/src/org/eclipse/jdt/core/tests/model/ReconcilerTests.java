@@ -2713,6 +2713,57 @@ public void testReconcileParticipant11() throws CoreException {
 	);
 }
 
+/*
+ * Ensures that errors are fixed if renaming the .classpath file causes the missing type to be visible.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=207890)
+ */
+public void testRenameClasspathFile() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		createJavaProject("P1");
+		deleteFile("/P1/.classpath");
+		createFile(
+			"/P1/.classpath2",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"    <classpathentry kind=\"src\" path=\"src1\"/>\n" +
+			"	<classpathentry kind=\"var\" path=\"JCL_LIB\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>"
+		);
+		createFolder("/P1/src1/p1");
+		createFile(
+			"/P1/src1/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "bin");
+		createFolder("/P2/src/p2");
+		copy = getWorkingCopy(
+			"/P2/src/p2/Y.java",
+			"package p2;\n" +
+			"import p1.X;\n" +
+			"public class Y extends X {\n" +
+			"}",
+			true/*compute problems*/
+		);
+		moveFile("/P1/.classpath2", "/P1/.classpath");
+		this.problemRequestor.reset();
+		copy.reconcile(ICompilationUnit.NO_AST, true/*for pb detection*/, null/*default owner*/, null/*no progress*/);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (copy != null)
+			copy.discardWorkingCopy();
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
 /**
  * Ensures that the reconciler reconciles the new contents with the current
  * contents, updating the structure of this reconciler's compilation

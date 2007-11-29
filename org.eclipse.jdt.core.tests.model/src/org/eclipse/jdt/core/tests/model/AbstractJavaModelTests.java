@@ -89,9 +89,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			return this.isActive;
 		}
 		public void initialize(char[] source) {
+			reset();
+			this.unitSource = source;
+		}
+		public void reset() {
 			this.problems = new StringBuffer();
 			this.problemCount = 0;
-			this.unitSource = source;
 		}
 	}
 	

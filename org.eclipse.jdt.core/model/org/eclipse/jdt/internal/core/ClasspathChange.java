@@ -245,6 +245,9 @@ public class ClasspathChange {
 			
 			// close cached info
 			this.project.close();
+			
+			// ensure caches of dependent projects are reset as well (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=207890)
+			deltaProcessor.projectCachesToReset.add(this.project);
 		} catch (JavaModelException e) {	
 			if (DeltaProcessor.VERBOSE) {
 				e.printStackTrace();
