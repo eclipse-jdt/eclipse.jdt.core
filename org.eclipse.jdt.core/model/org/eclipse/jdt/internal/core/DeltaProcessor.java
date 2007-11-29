@@ -445,9 +445,12 @@ public class DeltaProcessor {
 							}
 						// fall through
 						case IResourceDelta.ADDED :
+						case IResourceDelta.REMOVED :
 							javaProject = (JavaProject)JavaCore.create(file.getProject());
 							
 							// force to (re)read the .classpath file
+							// in case of removal (IResourceDelta.REMOVED) this will reset the classpath to its default and create the right delta
+							// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=211290)
 							try {
 								javaProject.getPerProjectInfo().readAndCacheClasspath(javaProject);
 							} catch (JavaModelException e) {

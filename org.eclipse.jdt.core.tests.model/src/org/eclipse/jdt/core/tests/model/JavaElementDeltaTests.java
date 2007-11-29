@@ -2036,6 +2036,29 @@ public void testRemoveCPEntryAndRoot3() throws CoreException {
 	}
 }
 
+/*
+ * Removes the .classpath file from a Java project.
+ * (regression test https://bugs.eclipse.org/bugs/show_bug.cgi?id=211290 )
+ */
+public void testRemoveDotClasspathFile() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, "bin");
+		startDeltas();
+		moveFile("P/.classpath", "P/.classpath2");
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	<project root>[*]: {CHILDREN | ADDED TO CLASSPATH}\n" + 
+			"		bin[+]: {}\n" + 
+			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[-]\n" +
+			"	ResourceDelta(/P/.classpath2)[+]"
+			);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
 
 /*
  * Remove the java nature of an existing java project.
