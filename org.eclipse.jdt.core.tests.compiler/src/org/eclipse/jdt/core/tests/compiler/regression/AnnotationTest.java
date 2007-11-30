@@ -39,7 +39,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 219 };
+//		TESTS_NUMBERS = new int[] { 247, 248 };
 //		TESTS_RANGE = new int[] { 219, -1 };
 	}
 
@@ -8139,5 +8139,52 @@ public void test246() {
 		null,
 		options,
 		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=211609
+public void test247() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_6) {
+		return;
+	}
+	// only enable in 1.6 mode
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	this.runConformTest(
+			new String[] {
+				"TestAnnotation.java",
+				"public @interface TestAnnotation {\n" +
+				"	Class targetItem() default void.class;\n" + 
+				"}"
+			},
+			"");
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@TestAnnotation\n" + 
+				"	private String foo;\n" + 
+				"}",
+		},
+		"",
+		null,
+		false,
+		null,
+		options,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=211609
+public void test248() {
+	this.runNegativeTest(
+			new String[] {
+				"TestAnnotation.java",
+				"public @interface TestAnnotation {\n" +
+				"	String targetItem() default void.class;\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in TestAnnotation.java (at line 2)\r\n" + 
+			"	String targetItem() default void.class;\r\n" + 
+			"	                            ^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Class<Void> to String\n" + 
+			"----------\n");
 }
 }

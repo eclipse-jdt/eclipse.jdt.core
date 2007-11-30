@@ -51,9 +51,11 @@ static Object convertMemberValue(Object binaryValue, LookupEnvironment env) {
 	if (binaryValue instanceof Constant)
 		return binaryValue;
 	if (binaryValue instanceof ClassSignature) {
-		ReferenceBinding type = (ReferenceBinding) env.getTypeFromSignature(((ClassSignature) binaryValue).getTypeName(), 0, -1, false, null);
-		type = resolveType(type, env, false);
-		return type;
+		TypeBinding typeFromSignature = env.getTypeFromSignature(((ClassSignature) binaryValue).getTypeName(), 0, -1, false, null);
+		if (typeFromSignature.isBaseType()) {
+			return typeFromSignature;
+		}
+		return resolveType((ReferenceBinding) typeFromSignature, env, false);
 	}
 	if (binaryValue instanceof IBinaryAnnotation)
 		return createAnnotation((IBinaryAnnotation) binaryValue, env);
