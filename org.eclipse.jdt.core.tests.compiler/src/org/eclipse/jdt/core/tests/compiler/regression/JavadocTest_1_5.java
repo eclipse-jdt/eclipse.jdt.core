@@ -3096,9 +3096,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	/**
 	 * Bug 209936  Missing code implementation in the compiler on inner classes
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936"
-	 * disabled for now
 	 */
-	public void _testBug209936() {
+	public void testBug209936a() {
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
 		reportMissingJavadocCommentsVisibility = CompilerOptions.IGNORE;
 		runNegativeTest(
@@ -3132,7 +3131,64 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"}"
 			},
 			"----------\n" + 
-			"TBD\n"
+			"1. ERROR in p\\X.java (at line 6)\n" + 
+			"	* @see Member#foo(Object, Object)\n" + 
+			"	              ^^^\n" + 
+			"Javadoc: The method foo(Object, Object) from the type Z<T>.Member is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in p\\X.java (at line 8)\n" + 
+			"	public void foo(Object source, Object data) {}\n" + 
+			"	                       ^^^^^^\n" + 
+			"Javadoc: Missing tag for parameter source\n" + 
+			"----------\n" + 
+			"3. ERROR in p\\X.java (at line 8)\n" + 
+			"	public void foo(Object source, Object data) {}\n" + 
+			"	                                      ^^^^\n" + 
+			"Javadoc: Missing tag for parameter data\n" + 
+			"----------\n"
+		);
+	}
+	
+	public void testBug209936b() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		reportMissingJavadocCommentsVisibility = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"\n" + 
+				"public abstract class X extends Y {\n" + 
+				"	protected class A extends Member {\n" + 
+				"		/**\n" + 
+				"		 * @see Member#foo(Object, Object)\n" + 
+				"		 */\n" + 
+				"		public void foo(Object source, Object data) {}\n" + 
+				"	}\n" + 
+				"}",
+				"p/Y.java",
+				"package p;\n" + 
+				"\n" + 
+				"import p1.Z;\n" + 
+				"\n" + 
+				"public abstract class Y extends Z<Object> {\n" + 
+				"}",
+				"p1/Z.java",
+				"package p1;\n" + 
+				"\n" + 
+				"public abstract class Z<T> {\n" + 
+				"	protected class Member {\n" + 
+				"		protected void foo(Object source, Object data) {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 6)\n" + 
+			"	* @see Member#foo(Object, Object)\n" + 
+			"	              ^^^\n" + 
+			"Javadoc: The method foo(Object, Object) from the type Z<T>.Member is not visible\n" + 
+			"----------\n"
 		);
 	}
 }

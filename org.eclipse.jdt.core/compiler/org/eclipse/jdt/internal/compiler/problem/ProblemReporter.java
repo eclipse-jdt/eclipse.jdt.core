@@ -4139,6 +4139,7 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 				return;
 			}
 			break;
+		case ProblemReasons.ReceiverTypeNotVisible:
 		case ProblemReasons.NotVisible :
 			id = IProblem.JavadocNotVisibleMethod;
 			break;
