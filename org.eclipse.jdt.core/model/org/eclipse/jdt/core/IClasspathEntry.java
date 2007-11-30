@@ -397,7 +397,7 @@ public interface IClasspathEntry {
 	 * Only library and variable classpath entries may have source attachments.
 	 * For library classpath entries, the result path (if present) locates a source
 	 * archive or folder. This archive or folder can be located in a project of the 
-	 * workspace or outside thr workspace. For variable classpath entries, the 
+	 * workspace or outside the workspace. For variable classpath entries, the 
 	 * result path (if present) has an analogous form and meaning as the 
 	 * variable path, namely the first segment is the name of a classpath variable.
 	 * </p>
