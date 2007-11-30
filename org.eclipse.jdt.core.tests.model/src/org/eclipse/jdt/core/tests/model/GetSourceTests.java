@@ -196,6 +196,30 @@ public class GetSourceTests extends ModifyingResourceTests {
 	}
 	
 	/*
+	 * Ensures that the source range for an anonymous type is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=207775)
+	 */
+	public void testAnonymousSourceRange() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"    new Object() {};\n" +
+				"  }\n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			IType type = getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("foo", new String[0]).getType("", 1);
+			assertSourceEquals(
+				"Unexpected source'", 
+				"new Object() {}",
+				getSource(cuSource, type.getSourceRange()));
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
+
+	/*
 	 * Ensures that the name range for an annotation is correct.
 	 */
 	public void testAnnotationNameRange1() throws CoreException {

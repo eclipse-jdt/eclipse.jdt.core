@@ -493,7 +493,7 @@ public void testInnerClass2() throws JavaModelException {
 	IType type = this.innerClasses.getClassFile("X$1.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
-		"X() {}",
+		"new X() {}",
 		type.getSource());
 }
 /*
@@ -503,7 +503,7 @@ public void testInnerClass3() throws JavaModelException {
 	IType type = this.innerClasses.getClassFile("X$2.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
-		"Y() {\n" + 
+		"new Y() {\n" + 
 		"      class Z {}\n" + 
 		"    }",
 		type.getSource());
@@ -515,7 +515,7 @@ public void testInnerClass4() throws JavaModelException {
 	IType type = this.innerClasses.getClassFile("X$3.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
-		"W() {}",
+		"new W() {}",
 		type.getSource());
 }
 /*

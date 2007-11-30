@@ -1390,7 +1390,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 				superclassName = superclass != null ? CharOperation.concatWith(superclass.getParameterizedTypeName(), '.') : null;
 			}
 			ISourceElementRequestor.TypeInfo typeInfo = new ISourceElementRequestor.TypeInfo();
-			typeInfo.declarationStart = typeDeclaration.declarationSourceStart;
+			typeInfo.declarationStart = typeDeclaration.allocation == null ? typeDeclaration.declarationSourceStart : typeDeclaration.allocation.sourceStart;
 			typeInfo.modifiers = deprecated ? (currentModifiers & ExtraCompilerModifiers.AccJustFlag) | ClassFileConstants.AccDeprecated : currentModifiers & ExtraCompilerModifiers.AccJustFlag;
 			typeInfo.name = typeDeclaration.name;
 			typeInfo.nameSourceStart = typeDeclaration.sourceStart;
