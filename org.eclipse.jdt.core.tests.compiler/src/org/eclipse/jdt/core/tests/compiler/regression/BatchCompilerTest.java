@@ -7630,6 +7630,48 @@ public void test205_warn_options() {
 		"6 problems (6 warnings)",
 		true);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// -warn option - regression tests
+public void _test206_warn_options() {
+	// same source as 168, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  /**\n" +
+			"    @param\n" +
+			"  */\n" +
+			"  public void foo() {\n" +
+			"  }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:allJavadoc -enableJavadoc -warn:-allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// -warn option - regression tests
+public void _test207_warn_options() {
+	// same source as 168, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  /**\n" +
+			"    @param\n" +
+			"  */\n" +
+			"  public void foo() {\n" +
+			"  }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:javadoc -enableJavadoc -warn:-javadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
