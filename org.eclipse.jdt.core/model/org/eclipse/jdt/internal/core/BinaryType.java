@@ -900,20 +900,6 @@ public JavaElement resolved(Binding binding) {
 	return resolvedHandle;
 }
 /*
- * @see IType#resolveType(String)
- */
-public String[][] resolveType(String typeName) {
-	// not implemented for binary types
-	return null;
-}
-/*
- * @see IType#resolveType(String, WorkingCopyOwner)
- */
-public String[][] resolveType(String typeName, WorkingCopyOwner owner) {
-	// not implemented for binary types
-	return null;
-}
-/*
  * Returns the source file name as defined in the given info.
  * If not present in the info, infers it from this type.
  */

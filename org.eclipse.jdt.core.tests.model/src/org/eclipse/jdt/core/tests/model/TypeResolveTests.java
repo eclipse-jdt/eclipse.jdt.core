@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
 
@@ -39,31 +40,58 @@ private String[][] resolveType(String typeName, String sourceTypeName) throws Ja
 	assertTrue("Type " + sourceTypeName + " was not found", sourceType != null);
 	return sourceType.resolveType(typeName);
 }
-private String resultToString(String[][] result) {
-	StringBuffer toString = new StringBuffer();
-	if(result != null) {
-		for (int i = 0; i < result.length; i++) {
-			String[] qualifiedName = result[i];
+protected void assertTypesEqual(String expected, String[][] types) {
+	StringBuffer buffer = new StringBuffer();
+	if(types != null) {
+		for (int i = 0, length = types.length; i < length; i++) {
+			String[] qualifiedName = types[i];
 			String packageName = qualifiedName[0];
 			if (packageName.length() > 0) {
-				toString.append(packageName);
-				toString.append(".");
+				buffer.append(packageName);
+				buffer.append(".");
 			}
-			toString.append(qualifiedName[1]);
-			if (i < result.length-1) {
-				toString.append("\n");
+			buffer.append(qualifiedName[1]);
+			if (i < length-1) {
+				buffer.append("\n");
 			}
 		}
+	} else {
+		buffer.append("<null>");
 	}
-	return toString.toString();
+	String actual = buffer.toString();
+	if (!expected.equals(actual)) {
+	 	System.out.print(Util.displayString(actual, 2));
+	 	System.out.println(",");
+	}
+	assertEquals(
+		"Unexpected types",
+		expected, 
+		actual);
 }
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#setUpSuite()
  */
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	this.setUpJavaProject("TypeResolve");
+	setUpJavaProject("TypeResolve");
 	this.cu = this.getCompilationUnit("TypeResolve", "src", "p", "TypeResolve.java");
+	addLibrary("myLib.jar", "myLibsrc.zip", new String[] {
+			"p1/X.java",
+			"package p1;\n" + 
+			"public class X {\n" + 
+			"}",
+			"p2/Y.java",
+			"package p2;\n" + 
+			"import p1.X;\n" +
+			"public class Y {\n" + 
+			"  class Member {\n" +
+			"    X field;\n" +
+			"  }\n" +
+			"  X foo() {\n" +
+			"   return new X() {};" +
+			"  }\n" +
+			"}",
+		}, JavaCore.VERSION_1_4);
 }
 	static {
 //		TESTS_NUMBERS = new int[] { 182, 183 };
@@ -76,7 +104,7 @@ public void setUpSuite() throws Exception {
  * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
  */
 public void tearDownSuite() throws Exception {
-	this.deleteProject("TypeResolve");
+	deleteProject("TypeResolve");
 	super.tearDownSuite();
 }
 /**
@@ -84,22 +112,20 @@ public void tearDownSuite() throws Exception {
  * (regression test for bug 23829 IType::resolveType incorrectly returns null)
  */
 public void testResolveInSecondaryType() throws JavaModelException {
-	IType type = this.getCompilationUnit("/TypeResolve/src/p3/B.java").getType("Test");
+	IType type = getCompilationUnit("/TypeResolve/src/p3/B.java").getType("Test");
 	String[][] types = type.resolveType("B");
-	assertEquals(
-		"Unexpected result", 
+	assertTypesEqual(
 		"p3.B",
-		this.resultToString(types));	
+		types);	
 }
 /**
  * Resolve the type "B" within one of its inner classes.
  */
 public void testResolveMemberTypeInInner() throws JavaModelException {
-	String[][] types = this.resolveType("B", "TypeResolve$A$B$D");
-	assertEquals(
-		"Unexpected result", 
+	String[][] types = resolveType("B", "TypeResolve$A$B$D");
+	assertTypesEqual(
 		"p.TypeResolve.A.B",
-		this.resultToString(types));	
+		types);	
 }
 /*
  * Resolve a parameterized type
@@ -116,10 +142,9 @@ public void testResolveParameterizedType() throws CoreException {
 		);
 		IType type = getCompilationUnit("/P/src/X.java").getType("X");
 		String[][] types = type.resolveType("X<String>");
-		assertEquals(
-			"Unexpected result", 
+		assertTypesEqual(
 			"X",
-			this.resultToString(types));	
+			types);	
 	} finally {
 		deleteProject("P");
 	}
@@ -128,106 +153,126 @@ public void testResolveParameterizedType() throws CoreException {
  * Resolve the type "C" within one of its sibling classes.
  */
 public void testResolveSiblingTypeInInner() throws JavaModelException {
-	String[][] types = this.resolveType("C", "TypeResolve$A$B");
-	assertEquals(
-		"Unexpected result", 
+	String[][] types = resolveType("C", "TypeResolve$A$B");
+	assertTypesEqual(
 		"p.TypeResolve.A.C",
-		this.resultToString(types));	
+		types);	
+}
+/*
+ * Resolve the type "X" within a top level binary type.
+ */
+public void testResolveTypeInBinary1() throws JavaModelException {
+	IType type = getPackageFragmentRoot("/TypeResolve/myLib.jar").getPackageFragment("p2").getClassFile("Y.class").getType();
+	String[][] types = type.resolveType("X");
+	assertTypesEqual(
+		"p1.X",
+		types);		
+}
+/*
+ * Resolve the type "X" within a member binary type.
+ */
+public void testResolveTypeInBinary2() throws JavaModelException {
+	IType type = getPackageFragmentRoot("/TypeResolve/myLib.jar").getPackageFragment("p2").getClassFile("Y$Member.class").getType();
+	String[][] types = type.resolveType("X");
+	assertTypesEqual(
+		"p1.X",
+		types);		
+}
+/*
+ * Resolve the type "X" within an anonymous binary type.
+ */
+public void testResolveTypeInBinary3() throws JavaModelException {
+	IType type = getPackageFragmentRoot("/TypeResolve/myLib.jar").getPackageFragment("p2").getClassFile("Y$1.class").getType();
+	String[][] types = type.resolveType("X");
+	assertTypesEqual(
+		"p1.X",
+		types);		
 }
 /**
  * Resolve the type "X" with a type import for it
  * within an inner class
  */
 public void testResolveTypeInInner() throws JavaModelException {
-	String[][] types = this.resolveType("X", "TypeResolve$A");
-	assertEquals(
-		"Unexpected result", 
+	String[][] types = resolveType("X", "TypeResolve$A");
+	assertTypesEqual(
 		"p1.X",
-		this.resultToString(types));	
+		types);	
 }
 /**
  * Resolve the type "Object" within a local class.
  * (regression test for bug 48350 IType#resolveType(String) fails on local types)
  */
 public void testResolveTypeInInner2() throws JavaModelException {
-	IType type = this.getCompilationUnit("/TypeResolve/src/p5/A.java").getType("A").getMethod("foo", new String[] {}).getType("Local", 1);
+	IType type = getCompilationUnit("/TypeResolve/src/p5/A.java").getType("A").getMethod("foo", new String[] {}).getType("Local", 1);
 	
 	String[][] types = type.resolveType("Object");
-	assertEquals(
-		"Unexpected result", 
+	assertTypesEqual(
 		"java.lang.Object",
-		this.resultToString(types));		
+		types);		
 }
 /**
  * Resolve the type "String".
  */
 public void testResolveTypeInJavaLang() throws JavaModelException {
-	String[][] types = this.resolveType("String", "TypeResolve");
-	assertEquals(
-		"Unexpected result", 
+	String[][] types = resolveType("String", "TypeResolve");
+	assertTypesEqual(
 		"java.lang.String",
-		this.resultToString(types));	
+		types);	
 }
 /**
  * Resolve the type "Vector" with no imports.
  */
 public void testResolveTypeWithNoImports() throws JavaModelException {
-	String[][] types = this.resolveType("Vector", "TypeResolve");
-	assertEquals(
-		"Unexpected result", 
-		"",
-		this.resultToString(types));	
+	String[][] types = resolveType("Vector", "TypeResolve");
+	assertTypesEqual(
+		"<null>",
+		types);	
 }
 /**
  * Resolve the type "Y" with an on-demand import.
  */
 public void testResolveTypeWithOnDemandImport() throws JavaModelException {
-	String[][] types = this.resolveType("Y", "TypeResolve");
-	assertEquals(
-		"Unexpected result", 
+	String[][] types = resolveType("Y", "TypeResolve");
+	assertTypesEqual(
 		"p2.Y",
-		this.resultToString(types));	
+		types);	
 }
 /**
  * Resolve the type "X" with a type import for it.
  */
 public void testResolveTypeWithTypeImport() throws JavaModelException {
-	String[][] types = this.resolveType("X", "TypeResolve");
-	assertEquals(
-		"Unexpected result", 
+	String[][] types = resolveType("X", "TypeResolve");
+	assertTypesEqual(
 		"p1.X",
-		this.resultToString(types));	
+		types);	
 }
 /**
  * Resolve the type "String".
  */
 public void testResolveString() throws JavaModelException {
-	String[][] types = this.resolveType("String", "TypeResolve");
-	assertEquals(
-		"Unexpected result", 
+	String[][] types = resolveType("String", "TypeResolve");
+	assertTypesEqual(
 		"java.lang.String",
-		this.resultToString(types));	
+		types);	
 }
 /**
  * Resolve the type "A.Inner".
  */
 public void testResolveInnerType1() throws JavaModelException {
-	IType type = this.getCompilationUnit("/TypeResolve/src/p4/B.java").getType("B");
+	IType type = getCompilationUnit("/TypeResolve/src/p4/B.java").getType("B");
 	String[][] types = type.resolveType("A.Inner");
-	assertEquals(
-		"Unexpected result", 
+	assertTypesEqual(
 		"p4.A.Inner",
-		this.resultToString(types));		
+		types);		
 }
 /**
  * Resolve the type "p4.A.Inner".
  */
 public void testResolveInnerType2() throws JavaModelException {
-	IType type = this.getCompilationUnit("/TypeResolve/src/p4/B.java").getType("B");
+	IType type = getCompilationUnit("/TypeResolve/src/p4/B.java").getType("B");
 	String[][] types = type.resolveType("p4.A.Inner");
-	assertEquals(
-		"Unexpected result", 
+	assertTypesEqual(
 		"p4.A.Inner",
-		this.resultToString(types));		
+		types);		
 }
 }

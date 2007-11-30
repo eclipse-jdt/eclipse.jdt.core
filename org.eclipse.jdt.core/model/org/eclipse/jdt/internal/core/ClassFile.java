@@ -193,7 +193,7 @@ public boolean existsUsingJarTypeCache() {
 			return false;
 		}
 		try {
-			info = getJarBinaryTypeInfo((PackageFragment) getParent());
+			info = getJarBinaryTypeInfo((PackageFragment) getParent(), true/*fully initialize so as to not keep a reference to the byte array*/);
 		} catch (CoreException e) {
 			// leave info null
 		} catch (IOException e) {
@@ -259,10 +259,13 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
  * or when this class file is not present in the JAR
  */
 public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
+	return getBinaryTypeInfo(file, true/*fully initialize so as to not keep a reference to the byte array*/);
+}
+public IBinaryType getBinaryTypeInfo(IFile file, boolean fullyInitialize) throws JavaModelException {
 	JavaElement pkg = (JavaElement) getParent();
 	if (pkg instanceof JarPackageFragment) {
 		try {
-			IBinaryType info = getJarBinaryTypeInfo((PackageFragment) pkg);
+			IBinaryType info = getJarBinaryTypeInfo((PackageFragment) pkg, fullyInitialize);
 			if (info == null) {
 				throw newNotPresentException();
 			}
@@ -285,7 +288,7 @@ public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 	} else {
 		byte[] contents = Util.getResourceContentsAsByteArray(file);
 		try {
-			return new ClassFileReader(contents, file.getFullPath().toString().toCharArray(), true/*fully initialize so as to not keep a reference to the byte array*/);
+			return new ClassFileReader(contents, file.getFullPath().toString().toCharArray(), fullyInitialize);
 		} catch (ClassFormatException cfe) {
 			//the structure remains unknown
 			return null;
@@ -322,7 +325,7 @@ public byte[] getBytes() throws JavaModelException {
 		return Util.getResourceContentsAsByteArray(file);
 	}
 }
-private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg) throws CoreException, IOException, ClassFormatException {
+private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg, boolean fullyInitialize) throws CoreException, IOException, ClassFormatException {
 	JarPackageFragmentRoot root = (JarPackageFragmentRoot) pkg.getParent();
 	ZipFile zip = null;
 	try {
@@ -332,7 +335,7 @@ private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg) throws CoreExcepti
 		if (ze != null) {
 			byte contents[] = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
 			String fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
-			return new ClassFileReader(contents, fileName.toCharArray(), true/*fully initialize so as to not keep a reference to the byte array*/);
+			return new ClassFileReader(contents, fileName.toCharArray(), fullyInitialize);
 		}
 	} finally {
 		JavaModelManager.getJavaModelManager().closeZipFile(zip);

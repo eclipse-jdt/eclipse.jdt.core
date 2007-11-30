@@ -20,10 +20,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
-import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
-import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -799,71 +796,6 @@ public JavaElement resolved(Binding binding) {
 	SourceRefElement resolvedHandle = new ResolvedSourceType(this.parent, this.name, new String(binding.computeUniqueKey()));
 	resolvedHandle.occurrenceCount = this.occurrenceCount;
 	return resolvedHandle;
-}
-/**
- * @see IType#resolveType(String)
- */
-public String[][] resolveType(String typeName) throws JavaModelException {
-	return resolveType(typeName, DefaultWorkingCopyOwner.PRIMARY);
-}
-/**
- * @see IType#resolveType(String, WorkingCopyOwner)
- */
-public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws JavaModelException {
-	ISourceType info = (ISourceType) getElementInfo();
-	JavaProject project = (JavaProject) getJavaProject();
-	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
-
-	class TypeResolveRequestor implements ISelectionRequestor {
-		String[][] answers = null;
-		public void acceptType(char[] packageName, char[] tName, int modifiers, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-			String[] answer = new String[]  {new String(packageName), new String(tName) };
-			if (this.answers == null) {
-				this.answers = new String[][]{ answer };
-			} else {
-				// grow
-				int length = this.answers.length;
-				System.arraycopy(this.answers, 0, this.answers = new String[length+1][], 0, length);
-				this.answers[length] = answer;
-			}
-		}
-		public void acceptError(CategorizedProblem error) {
-			// ignore
-		}
-		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-			// ignore
-		}
-		public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, String enclosingDeclaringTypeSignature, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, char[][] typeParameterNames, char[][][] typeParameterBoundNames, boolean isConstructor, boolean isDeclaration, char[] uniqueKey, int start, int end) {
-			// ignore
-		}
-		public void acceptPackage(char[] packageName){
-			// ignore
-		}
-		public void acceptTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] typeParameterName, boolean isDeclaration, int start, int end) {
-			// ignore
-		}
-		public void acceptMethodTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, int selectorStart, int selcetorEnd, char[] typeParameterName, boolean isDeclaration, int start, int end) {
-			// ignore
-		}
-
-	}
-	TypeResolveRequestor requestor = new TypeResolveRequestor();
-	SelectionEngine engine = 
-		new SelectionEngine(environment, requestor, project.getOptions(true));
-		
- 	IType[] topLevelTypes = getCompilationUnit().getTypes();
- 	int length = topLevelTypes.length;
- 	SourceTypeElementInfo[] topLevelInfos = new SourceTypeElementInfo[length];
- 	for (int i = 0; i < length; i++) {
-		topLevelInfos[i] = (SourceTypeElementInfo) ((SourceType)topLevelTypes[i]).getElementInfo();
-	}
-		
-	engine.selectType(info, typeName.toCharArray(), topLevelInfos, false);
-	if (NameLookup.VERBOSE) {
-		System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
-		System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment.nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
-	}
-	return requestor.answers;
 }
 /**
  * @private Debugging purposes

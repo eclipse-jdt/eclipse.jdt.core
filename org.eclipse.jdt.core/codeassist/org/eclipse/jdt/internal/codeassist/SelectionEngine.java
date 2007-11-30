@@ -13,6 +13,9 @@ package org.eclipse.jdt.internal.codeassist;
 import java.util.Locale;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -20,16 +23,20 @@ import org.eclipse.jdt.internal.codeassist.impl.*;
 import org.eclipse.jdt.internal.codeassist.select.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.core.BinaryTypeConverter;
+import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SelectionRequestor;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
+import org.eclipse.jdt.internal.core.util.HashSetOfCharArrayArray;
 
 /**
  * The selection engine is intended to infer the nature of a selected name in some
@@ -1061,22 +1068,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 	/**
 	 * Asks the engine to compute the selection of the given type
-	 * from the source type.
-	 *
-	 *  @param sourceType org.eclipse.jdt.internal.compiler.env.ISourceType
-	 *      a source form of the current type in which code assist is invoked.
+	 * from the given context
 	 *
 	 *  @param typeName char[]
 	 *      a type name which is to be resolved in the context of a compilation unit.
 	 *		NOTE: the type name is supposed to be correctly reduced (no whitespaces, no unicodes left)
-	 * 
-	 * @param topLevelTypes SourceTypeElementInfo[]
-	 *      a source form of the top level types of the compilation unit in which code assist is invoked.
-
-	 *  @param searchInEnvironment
-	 * 	if <code>true</code> and no selection could be found in context then search type in environment.
+	 *
+	 *  @param context org.eclipse.jdt.core.IType
+	 *      the context in which code assist is invoked.
 	 */
-	public void selectType(ISourceType sourceType, char[] typeName, SourceTypeElementInfo[] topLevelTypes, boolean searchInEnvironment) {
+	public void selectType(char[] typeName, IType context) throws JavaModelException {
 		try {
 			this.acceptedAnswer = false;
 			
@@ -1088,91 +1089,97 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 
 			// find the outer most type
-			ISourceType outerType = sourceType;
-			ISourceType parent = sourceType.getEnclosingType();
+			IType outerType = context;
+			IType parent = context.getDeclaringType();
 			while (parent != null) {
 				outerType = parent;
-				parent = parent.getEnclosingType();
+				parent = parent.getDeclaringType();
 			}
+			
 			// compute parse tree for this most outer type
-			CompilationResult result = new CompilationResult(outerType.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
-			if (!(sourceType instanceof SourceTypeElementInfo)) return;
-			SourceType typeHandle = (SourceType) ((SourceTypeElementInfo)sourceType).getHandle();
-			int flags = SourceTypeConverter.FIELD_AND_METHOD | SourceTypeConverter.MEMBER_TYPE;
-			if (typeHandle.isAnonymous() || typeHandle.isLocal()) 
-				flags |= SourceTypeConverter.LOCAL_TYPE;
-			CompilationUnitDeclaration parsedUnit =
-				SourceTypeConverter.buildCompilationUnit(
-						topLevelTypes,
-						flags,
-						this.parser.problemReporter(), 
-						result);
-
-			if (parsedUnit != null && parsedUnit.types != null) {
-				if(DEBUG) {
-					System.out.println("SELECTION - Diet AST :"); //$NON-NLS-1$
-					System.out.println(parsedUnit.toString());
+			CompilationUnitDeclaration parsedUnit = null;
+			TypeDeclaration typeDeclaration = null;
+			org.eclipse.jdt.core.ICompilationUnit cu = context.getCompilationUnit();
+			if (cu != null) {
+			 	IType[] topLevelTypes = cu.getTypes();
+			 	int length = topLevelTypes.length;
+			 	SourceTypeElementInfo[] topLevelInfos = new SourceTypeElementInfo[length];
+			 	for (int i = 0; i < length; i++) {
+					topLevelInfos[i] = (SourceTypeElementInfo) ((SourceType)topLevelTypes[i]).getElementInfo();
 				}
-				// find the type declaration that corresponds to the original source type
-				TypeDeclaration typeDecl = new ASTNodeFinder(parsedUnit).findType(typeHandle);
-
-				if (typeDecl != null) {
-
-					// add fake field with the type we're looking for
-					// note: since we didn't ask for fields above, there is no field defined yet
-					FieldDeclaration field = new FieldDeclaration();
-					int dot;
-					if ((dot = CharOperation.lastIndexOf('.', typeName)) == -1) {
-						this.selectedIdentifier = typeName;
-						field.type = new SelectionOnSingleTypeReference(typeName, -1);
-						// position not used
-					} else {
-						char[][] previousIdentifiers = CharOperation.splitOn('.', typeName, 0, dot);
-						char[] selectionIdentifier =
-							CharOperation.subarray(typeName, dot + 1, typeName.length);
-						this.selectedIdentifier = selectionIdentifier;
-						field.type =
-							new SelectionOnQualifiedTypeReference(
-								previousIdentifiers,
-								selectionIdentifier,
-								new long[previousIdentifiers.length + 1]);
+				ISourceType outerTypeInfo = (ISourceType) ((SourceType) outerType).getElementInfo();
+				CompilationResult result = new CompilationResult(outerTypeInfo.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
+				int flags = SourceTypeConverter.FIELD_AND_METHOD | SourceTypeConverter.MEMBER_TYPE;
+				if (context.isAnonymous() || context.isLocal()) 
+					flags |= SourceTypeConverter.LOCAL_TYPE;
+				parsedUnit =
+					SourceTypeConverter.buildCompilationUnit(
+							topLevelInfos,
+							flags,
+							this.parser.problemReporter(), 
+							result);
+				if (parsedUnit != null && parsedUnit.types != null) {
+					if(DEBUG) {
+						System.out.println("SELECTION - Diet AST :"); //$NON-NLS-1$
+						System.out.println(parsedUnit.toString());
 					}
-					field.name = "<fakeField>".toCharArray(); //$NON-NLS-1$
-					typeDecl.fields = new FieldDeclaration[] { field };
-
-					// build bindings
-					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
-					if ((this.unitScope = parsedUnit.scope) != null) {
-						try {
-							// build fields
-							// note: this builds fields only in the parsed unit (the buildFieldsAndMethods flag is not passed along)
-							this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
-
-							// resolve
-							parsedUnit.scope.faultInTypes();
-							parsedUnit.resolve();
-						} catch (SelectionNodeFound e) {
-							if (e.binding != null) {
-								if(DEBUG) {
-									System.out.println("SELECTION - Selection binding :"); //$NON-NLS-1$
-									System.out.println(e.binding.toString());
-								}
-								// if null then we found a problem in the selection node
-								selectFrom(e.binding, parsedUnit, e.isDeclaration);
-							}
-						}
-					}
-				}
+					// find the type declaration that corresponds to the original source type
+					typeDeclaration = new ASTNodeFinder(parsedUnit).findType(context);
+				} 
+			} else { // binary type
+				ClassFile classFile = (ClassFile) context.getClassFile();
+				ClassFileReader reader = (ClassFileReader) classFile.getBinaryTypeInfo((IFile) classFile.getResource(), false/*don't fully initialize so as to keep constant pool (used below)*/);
+				CompilationResult result = new CompilationResult(reader.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
+				parsedUnit = new CompilationUnitDeclaration(this.parser.problemReporter(), result, 0);
+				HashSetOfCharArrayArray typeNames = new HashSetOfCharArrayArray();
+				typeDeclaration = BinaryTypeConverter.buildTypeDeclaration(context, parsedUnit, result, typeNames);
+				parsedUnit.imports = BinaryTypeConverter.buildImports(typeNames, reader);
 			}
-			// only reaches here if no selection could be derived from the parsed tree
-			// thus use the selected source and perform a textual type search
-			if (!this.acceptedAnswer && searchInEnvironment) {
-				if (this.selectedIdentifier != null) {
-					this.nameEnvironment.findTypes(typeName, false, false, IJavaSearchConstants.TYPE, this);
-					
-					// accept qualified types only if no unqualified type was accepted
-					if(!this.acceptedAnswer) {
-						acceptQualifiedTypes();
+
+			if (typeDeclaration != null) {
+
+				// add fake field with the type we're looking for
+				// note: since we didn't ask for fields above, there is no field defined yet
+				FieldDeclaration field = new FieldDeclaration();
+				int dot;
+				if ((dot = CharOperation.lastIndexOf('.', typeName)) == -1) {
+					this.selectedIdentifier = typeName;
+					field.type = new SelectionOnSingleTypeReference(typeName, -1);
+					// position not used
+				} else {
+					char[][] previousIdentifiers = CharOperation.splitOn('.', typeName, 0, dot);
+					char[] selectionIdentifier =
+						CharOperation.subarray(typeName, dot + 1, typeName.length);
+					this.selectedIdentifier = selectionIdentifier;
+					field.type =
+						new SelectionOnQualifiedTypeReference(
+							previousIdentifiers,
+							selectionIdentifier,
+							new long[previousIdentifiers.length + 1]);
+				}
+				field.name = "<fakeField>".toCharArray(); //$NON-NLS-1$
+				typeDeclaration.fields = new FieldDeclaration[] { field };
+
+				// build bindings
+				this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+				if ((this.unitScope = parsedUnit.scope) != null) {
+					try {
+						// build fields
+						// note: this builds fields only in the parsed unit (the buildFieldsAndMethods flag is not passed along)
+						this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
+
+						// resolve
+						parsedUnit.scope.faultInTypes();
+						parsedUnit.resolve();
+					} catch (SelectionNodeFound e) {
+						if (e.binding != null) {
+							if(DEBUG) {
+								System.out.println("SELECTION - Selection binding :"); //$NON-NLS-1$
+								System.out.println(e.binding.toString());
+							}
+							// if null then we found a problem in the selection node
+							selectFrom(e.binding, parsedUnit, e.isDeclaration);
+						}
 					}
 				}
 			}
