@@ -7672,6 +7672,149 @@ public void _test207_warn_options() {
 		"",
 		true);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// variant
+public void test208_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  /**\n" +
+			"    @param i explained\n" +
+			"  */\n" +
+			"  public void foo(int i) {\n" +
+			"  }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	public void foo(int i) {\n" + 
+		"	                    ^\n" + 
+		"The parameter i is never read\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// variant
+public void test209_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  /**\n" +
+			"    @param i explained\n" +
+			"  */\n" +
+			"  public void foo(int i) {\n" +
+			"  }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -enableJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// variant
+public void test210_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  /**\n" +
+			"    @param i explained\n" +
+			"  */\n" +
+			"  public void foo(int i) {\n" +
+			"  }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -warn:-allJavadoc -enableJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// variant
+public void test211_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  /**\n" +
+			"    @param i explained\n" +
+			"  */\n" +
+			"  public void foo(int i) {\n" +
+			"  }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -enableJavadoc -warn:-allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// variant - javadoc and allJavadoc mistakenly imply enableJavadoc
+public void _test212_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  /**\n" +
+			"    @param i explained\n" +
+			"  */\n" +
+			"  public void foo(int i) {\n" +
+			"  }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused,allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		"	public class X {\n" + 
+		"	             ^\n" + 
+		"Javadoc: Missing comment for public declaration\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	public void foo(int i) {\n" + 
+		"	                    ^\n" + 
+		"The parameter i is never read\n" + 
+		"----------\n" + 
+		"2 problems (2 warnings)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// variant - javadoc and allJavadoc mistakenly imply enableJavadoc
+public void _test213_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  /**\n" +
+			"    @param i explained\n" +
+			"  */\n" +
+			"  public void foo(int i) {\n" +
+			"  }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused,javadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	public void foo(int i) {\n" + 
+		"	                    ^\n" + 
+		"The parameter i is never read\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
