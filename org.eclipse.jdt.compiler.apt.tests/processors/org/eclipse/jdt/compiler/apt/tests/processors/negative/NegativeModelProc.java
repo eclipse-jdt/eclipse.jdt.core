@@ -45,6 +45,9 @@ public class NegativeModelProc extends AbstractProcessor
 {
 
 	private static final String CLASSNAME = NegativeModelProc.class.getName();
+
+	private static final boolean testNegative1 = false;
+	private static final boolean testNegative2 = true;
 	
 	/**
 	 * Report an error to the test case code.  
@@ -69,6 +72,7 @@ public class NegativeModelProc extends AbstractProcessor
 	
 	// Initialized in collectElements()
 	private TypeElement _elementN1;
+	private TypeElement _elementN2;
 
 	// Report failures on tests that are already known to be unsupported
 	private boolean _reportFailingCases = true;
@@ -101,7 +105,11 @@ public class NegativeModelProc extends AbstractProcessor
 			return false;
 		}
 		
-		if (!checkAnnotations()) {
+		if (testNegative1 && !checkNegative1()) {
+			return false;
+		}
+		
+		if (testNegative2 && !checkNegative2()) {
 			return false;
 		}
 		
@@ -119,6 +127,11 @@ public class NegativeModelProc extends AbstractProcessor
 			reportError("Element Negative1 was not found or was not a class");
 			return false;
 		}
+		_elementN2 = _elementUtils.getTypeElement("targets.negative.pa.Negative2");
+		if (null == _elementN2 || _elementN2.getKind() != ElementKind.CLASS) {
+			reportError("Element Negative2 was not found or was not a class");
+			return false;
+		}
 		// TODO: try collecting a nested or secondary type that extends a missing type
 		return true;
 	}
@@ -127,7 +140,7 @@ public class NegativeModelProc extends AbstractProcessor
 	 * Check the annotations in the model of targets.negative.pa.Negative1
 	 * @return true if all tests passed
 	 */
-	private boolean checkAnnotations() {
+	private boolean checkNegative1() {
 		AnnotationMirror am3 = findAnnotation(_elementN1, "A3");
 		if (_reportFailingCases && null == am3) {
 			reportError("Couldn't find annotation A3 on class Negative1");
@@ -184,6 +197,66 @@ public class NegativeModelProc extends AbstractProcessor
 		if (_reportFailingCases && !foundM1) {
 			reportError("Couldn't find field Negative1.m1, presumably because its type is missing");
 			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Check the annotations in the model of targets.negative.pa.Negative2
+	 * @return true if all tests passed
+	 */
+	private boolean checkNegative2() {
+		List<? extends Element> enclosedElements = _elementN2.getEnclosedElements();
+		for (Element element : enclosedElements) {
+			String name = element.getSimpleName().toString();
+			if ("m1".equals(name)) {
+				AnnotationMirror am2 = findAnnotation(element, "Anno2");
+				if (_reportFailingCases && null == am2) {
+					reportError("Couldn't find annotation Anno2 on method Negative2.m1");
+					return false;
+				}
+			}
+			else if ("m2".equals(name)) {
+				AnnotationMirror am1 = findAnnotation(element, "Anno1");
+				if (_reportFailingCases && null == am1) {
+					reportError("Couldn't find annotation Anno1 on method Negative2.m2");
+					return false;
+				}
+				AnnotationMirror am3 = findAnnotation(element, "FakeAnno3");
+				if (_reportFailingCases && null == am3) {
+					reportError("Couldn't find annotation FakeAnno3 on method Negative2.m2");
+					return false;
+				}
+			}
+			else if ("m3".equals(name)) {
+				AnnotationMirror am2 = findAnnotation(element, "Anno2");
+				if (_reportFailingCases && null == am2) {
+					reportError("Couldn't find annotation Anno2 on method Negative2.m3");
+					return false;
+				}
+				AnnotationMirror am3 = findAnnotation(element, "FakeAnno3");
+				if (_reportFailingCases && null == am3) {
+					reportError("Couldn't find annotation FakeAnno3 on method Negative2.m3");
+					return false;
+				}
+			}
+			else if ("m4".equals(name)) {
+				AnnotationMirror am4 = findAnnotation(element, "Anno4");
+				if (_reportFailingCases && null == am4) {
+					reportError("Couldn't find annotation Anno4 on method Negative2.m4");
+					return false;
+				}
+				Map<? extends ExecutableElement, ? extends AnnotationValue> values = am4.getElementValues();
+				for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
+					if ("value".equals(entry.getKey().getSimpleName().toString())) {
+						String value = entry.getValue().getValue().toString();
+						if (!"123".equals(value) && !"<error>".equals(value)) {
+							reportError("Unexpected value for Anno4 on Negative1.s1: " + value);
+							return false;
+						}
+					}
+				}
+			}
 		}
 		return true;
 	}
