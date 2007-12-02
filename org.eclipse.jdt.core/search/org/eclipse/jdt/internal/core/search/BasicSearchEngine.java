@@ -237,7 +237,6 @@ public class BasicSearchEngine {
 		return new JavaSearchParticipant();
 	}
 
-
 	/**
 	 * @param matchRule
 	 */
