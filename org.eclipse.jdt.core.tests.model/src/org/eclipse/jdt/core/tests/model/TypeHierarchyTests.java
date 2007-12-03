@@ -1443,6 +1443,21 @@ public void testLocalType4() throws JavaModelException {
 		hierarchy);
 }
 /*
+ * Ensures that a super type hierarchy on a local type in a method declaration with an error is correct.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=210498 )
+ */
+public void testLocalType5() throws JavaModelException {
+	IType typeX = getCompilationUnit("TypeHierarchy", "src", "q9", "X.java").getType("X");
+	IType type = typeX.getMethod("foo", new String[] {}).getType("Local", 1);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertTypesEqual(
+		"Unexpected types in hierarchy",
+		"java.lang.Object\n" + 
+		"q9.X\n" + 
+		"q9.X$Local\n",
+		hierarchy.getAllTypes());
+}
+/*
  * Ensures that a type hierarchy on a member type with subtypes in another project is correct
  * (regression test for bug 101019 RC3: Type Hierarchy does not find implementers/extenders of inner class/interface in other project)
  */

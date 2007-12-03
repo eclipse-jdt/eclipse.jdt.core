@@ -457,7 +457,7 @@ private void rememberWithMemberTypes(TypeDeclaration typeDecl, IType typeHandle)
  * Reports the hierarchy from the remembered bindings.
  * Note that 'binaryTypeBinding' is null if focus type is a source type.
  */
-private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit, ReferenceBinding binaryTypeBinding) {
+private void reportHierarchy(IType focus, TypeDeclaration focusLocalType, ReferenceBinding binaryTypeBinding) {
 	
 	// set focus type binding
 	if (focus != null) {
@@ -466,19 +466,13 @@ private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit,
 			this.focusType = binaryTypeBinding;
 		} else {
 			// source type
-			Member declaringMember = ((Member)focus).getOuterMostLocalContext();
-			if (declaringMember == null) {
+			if (focusLocalType != null) {
+				// anonymous or local type
+				this.focusType = focusLocalType.binding;
+			} else {
 				// top level or member type
 				char[] fullyQualifiedName = focus.getFullyQualifiedName().toCharArray();
 				setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
-			} else {
-				// anonymous or local type
-				if (parsedUnit != null) {
-					TypeDeclaration typeDecl = new ASTNodeFinder(parsedUnit).findType(focus);
-					if (typeDecl != null) {
-						this.focusType = typeDecl.binding;
-					}
-				} 
 			}
 		}
 	}
@@ -695,6 +689,13 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 			}
 		}
 		
+		// remember type declaration of focus if local/anonymous early (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=210498)
+		TypeDeclaration focusLocalType = null;
+		if (focus != null && focusBinaryBinding == null && focusUnit != null && ((Member)focus).getOuterMostLocalContext() != null) {
+			focusLocalType = new ASTNodeFinder(focusUnit).findType(focus);
+		}
+		
+		
 		for (int i = 0; i <= this.typeIndex; i++) {
 			IGenericType suppliedType = this.typeModels[i];
 			if (suppliedType != null && suppliedType.isBinaryType()) {
@@ -753,7 +754,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 				return;
 		}
 
-		reportHierarchy(focus, focusUnit, focusBinaryBinding);
+		reportHierarchy(focus, focusLocalType, focusBinaryBinding);
 		
 	} catch (ClassCastException e){ // work-around for 1GF5W1S - can happen in case duplicates are fed to the hierarchy with binaries hiding sources
 	} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
