@@ -1788,10 +1788,6 @@ protected void reportAccurateParameterizedTypeReference(SearchMatch match, TypeR
 	// If there's type arguments, look for end (ie. char '>') of last one.
 	int end = typeRef.sourceEnd;
 	if (typeArguments != null) {
-		// Initialize scanner
-		Scanner scanner = this.parser.scanner;
-		char[] source = this.currentPossibleMatch.getContents();
-		scanner.setSource(source);
 
 		boolean shouldMatchErasure= (pattern instanceof OrPattern) ? ((OrPattern)pattern).isErasureMatch() : ((JavaSearchPattern)pattern).isErasureMatch();
 		boolean hasSignatures = (pattern instanceof OrPattern) ? ((OrPattern)pattern).hasSignatures() : ((JavaSearchPattern)pattern).hasSignatures();
@@ -1804,6 +1800,11 @@ protected void reportAccurateParameterizedTypeReference(SearchMatch match, TypeR
 				end = ((ArrayTypeReference) typeRef).originalSourceEnd;
 			}
 		}  else {
+			// Initialize scanner
+			Scanner scanner = this.parser.scanner;
+			char[] source = this.currentPossibleMatch.getContents();
+			scanner.setSource(source);
+
 			// Set scanner position at end of last type argument
 			scanner.resetTo(end, source.length-1);
 			int depth = 0;
