@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.TypeNameMatchCollector;
 import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -518,7 +517,7 @@ public void testSearchPatternCreation01() {
 			true); // case sensitive
 	
 	assertPattern(
-		"MethodReferencePattern: main(*), pattern match, case sensitive",
+		"MethodReferencePattern: main(*), pattern match, case sensitive, generic full match, fine grain: none",
 		searchPattern);
 }
 
@@ -534,7 +533,7 @@ public void testSearchPatternCreation02() {
 			true); // case sensitive
 	
 	assertPattern(
-		"MethodReferencePattern: main(*) --> void, pattern match, case sensitive",
+		"MethodReferencePattern: main(*) --> void, pattern match, case sensitive, generic full match, fine grain: none",
 		searchPattern);
 }
 
@@ -550,7 +549,7 @@ public void testSearchPatternCreation03() {
 			true); // case sensitive
 	
 	assertPattern(
-		"MethodReferencePattern: main(String*) --> void, pattern match, case sensitive",
+		"MethodReferencePattern: main(String*) --> void, pattern match, case sensitive, generic full match, fine grain: none",
 		searchPattern);
 }
 
@@ -566,7 +565,7 @@ public void testSearchPatternCreation04() {
 			true); // case sensitive
 	
 	assertPattern(
-		"MethodReferencePattern: main(*[]), pattern match, case sensitive",
+		"MethodReferencePattern: main(*[]), pattern match, case sensitive, generic full match, fine grain: none",
 		searchPattern);
 }
 
@@ -582,7 +581,7 @@ public void testSearchPatternCreation05() {
 			true); // case sensitive
 	
 	assertPattern(
-		"MethodReferencePattern: java.lang.*.main(...), pattern match, case sensitive",
+		"MethodReferencePattern: java.lang.*.main(...), pattern match, case sensitive, generic full match, fine grain: none",
 		searchPattern);
 }
 
@@ -598,7 +597,7 @@ public void testSearchPatternCreation06() {
 			true); // case sensitive
 	
 	assertPattern(
-		"ConstructorReferencePattern: java.lang.*(...), pattern match, case sensitive",
+		"ConstructorReferencePattern: java.lang.*(...), pattern match, case sensitive, generic full match, fine grain: none",
 		searchPattern);
 }
 
@@ -614,7 +613,7 @@ public void testSearchPatternCreation07() {
 			true); // case sensitive
 	
 	assertPattern(
-		"ConstructorReferencePattern: X(*, *), pattern match, case sensitive",
+		"ConstructorReferencePattern: X(*, *), pattern match, case sensitive, generic full match, fine grain: none",
 		searchPattern);
 }
 
@@ -630,7 +629,7 @@ public void testSearchPatternCreation08() {
 			true); // case sensitive
 	
 	assertPattern(
-		"MethodReferencePattern: main(String*, *) --> void, pattern match, case sensitive",
+		"MethodReferencePattern: main(String*, *) --> void, pattern match, case sensitive, generic full match, fine grain: none",
 		searchPattern);
 }
 
@@ -646,7 +645,7 @@ public void testSearchPatternCreation10() {
 			true); // case sensitive
 	
 	assertPattern(
-		"FieldDeclarationPattern: x.y.z.Bar.field --> Foo, exact match, case sensitive",
+		"FieldDeclarationPattern: x.y.z.Bar.field --> Foo, exact match, case sensitive, generic full match, fine grain: none",
 		searchPattern);
 }
 
@@ -660,7 +659,7 @@ public void testSearchPatternCreation12() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"FieldReferencePattern: x.y.z.Foo.field --> int, exact match, case sensitive, erasure only",
+		"FieldReferencePattern: x.y.z.Foo.field --> int, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -674,7 +673,7 @@ public void testSearchPatternCreation13() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"FieldDeclarationPattern: x.y.z.Foo.field --> int, exact match, case sensitive, erasure only",
+		"FieldDeclarationPattern: x.y.z.Foo.field --> int, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -688,7 +687,7 @@ public void testSearchPatternCreation14() {
 			IJavaSearchConstants.ALL_OCCURRENCES);
 	
 	assertPattern(
-		"FieldCombinedPattern: x.y.z.Foo.field --> int, exact match, case sensitive, erasure only",
+		"FieldCombinedPattern: x.y.z.Foo.field --> int, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -702,7 +701,7 @@ public void testSearchPatternCreation15() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"PackageReferencePattern: <x.y>, exact match, case sensitive, erasure only",
+		"PackageReferencePattern: <x.y>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -716,7 +715,7 @@ public void testSearchPatternCreation16() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"MethodDeclarationPattern: x.y.z.Foo.bar() --> void, exact match, case sensitive, erasure only",
+		"MethodDeclarationPattern: x.y.z.Foo.bar() --> void, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -730,7 +729,7 @@ public void testSearchPatternCreation17() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"MethodReferencePattern: x.y.z.Foo.bar() --> void, exact match, case sensitive, erasure only",
+		"MethodReferencePattern: x.y.z.Foo.bar() --> void, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -744,7 +743,7 @@ public void testSearchPatternCreation18() {
 			IJavaSearchConstants.ALL_OCCURRENCES);
 	
 	assertPattern(
-		"MethodCombinedPattern: x.y.z.Foo.bar() --> void, exact match, case sensitive, erasure only",
+		"MethodCombinedPattern: x.y.z.Foo.bar() --> void, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -758,7 +757,7 @@ public void testSearchPatternCreation19() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"TypeDeclarationPattern: pkg<x.y.z>, enclosing<>, type<Foo>, exact match, case sensitive, erasure only",
+		"TypeDeclarationPattern: pkg<x.y.z>, enclosing<>, type<Foo>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -772,7 +771,7 @@ public void testSearchPatternCreation20() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"TypeReferencePattern: qualification<x.y.z>, type<Foo>, exact match, case sensitive, erasure only",
+		"TypeReferencePattern: qualification<x.y.z>, type<Foo>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -786,7 +785,7 @@ public void testSearchPatternCreation21() {
 			IJavaSearchConstants.IMPLEMENTORS);
 	
 	assertPattern(
-		"SuperInterfaceReferencePattern: <I>, exact match, case sensitive, erasure only",
+		"SuperInterfaceReferencePattern: <I>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -800,8 +799,8 @@ public void testSearchPatternCreation22() {
 			IJavaSearchConstants.ALL_OCCURRENCES);
 	
 	assertPattern(
-		"TypeDeclarationPattern: pkg<x.y.z>, enclosing<>, type<Foo>, exact match, case sensitive, erasure only\n" + 
-		"| TypeReferencePattern: qualification<x.y.z>, type<Foo>, exact match, case sensitive, erasure only",
+		"TypeDeclarationPattern: pkg<x.y.z>, enclosing<>, type<Foo>, exact match, case sensitive, generic erasure match, fine grain: none\n" + 
+		"| TypeReferencePattern: qualification<x.y.z>, type<Foo>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -815,7 +814,7 @@ public void testSearchPatternCreation23() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"PackageReferencePattern: <x.y.z>, exact match, case sensitive, erasure only",
+		"PackageReferencePattern: <x.y.z>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -829,7 +828,7 @@ public void testSearchPatternCreation24() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"PackageReferencePattern: <x.y.z>, exact match, case sensitive, erasure only",
+		"PackageReferencePattern: <x.y.z>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -843,7 +842,7 @@ public void testSearchPatternCreation25() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"TypeReferencePattern: qualification<java.util>, type<Vector>, exact match, case sensitive, erasure only",
+		"TypeReferencePattern: qualification<java.util>, type<Vector>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -857,7 +856,7 @@ public void testSearchPatternCreation26() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"PackageDeclarationPattern: <x.y.z>, exact match, case sensitive, erasure only",
+		"PackageDeclarationPattern: <x.y.z>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -871,7 +870,7 @@ public void testSearchPatternCreation27() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"PackageDeclarationPattern: <x.y.z>, exact match, case sensitive, erasure only",
+		"PackageDeclarationPattern: <x.y.z>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -885,7 +884,7 @@ public void testSearchPatternCreation28() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"PackageDeclarationPattern: <x.y>, exact match, case sensitive, erasure only",
+		"PackageDeclarationPattern: <x.y>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -899,8 +898,8 @@ public void testSearchPatternCreation29() {
 			IJavaSearchConstants.ALL_OCCURRENCES);
 	
 	assertPattern(
-		"PackageDeclarationPattern: <x.y.z>, exact match, case sensitive, erasure only\n" +
-		"| PackageReferencePattern: <x.y.z>, exact match, case sensitive, erasure only",
+		"PackageDeclarationPattern: <x.y.z>, exact match, case sensitive, generic erasure match, fine grain: none\n" +
+		"| PackageReferencePattern: <x.y.z>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -914,7 +913,7 @@ public void testSearchPatternCreation30() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"LocalVarDeclarationPattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive, erasure only",
+		"LocalVarDeclarationPattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -928,7 +927,7 @@ public void testSearchPatternCreation31() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"LocalVarReferencePattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive, erasure only",
+		"LocalVarReferencePattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -942,7 +941,7 @@ public void testSearchPatternCreation32() {
 			IJavaSearchConstants.ALL_OCCURRENCES);
 	
 	assertPattern(
-		"LocalVarCombinedPattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive, erasure only",
+		"LocalVarCombinedPattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -956,7 +955,7 @@ public void testSearchPatternCreation33() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"TypeDeclarationPattern: pkg<>, enclosing<X.*>, type<Y>, exact match, case sensitive, erasure only",
+		"TypeDeclarationPattern: pkg<>, enclosing<X.*>, type<Y>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -970,7 +969,7 @@ public void testSearchPatternCreation34() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"TypeReferencePattern: qualification<X.*>, type<Y>, exact match, case sensitive, erasure only",
+		"TypeReferencePattern: qualification<X.*>, type<Y>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -984,7 +983,7 @@ public void testSearchPatternCreation35() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"TypeDeclarationPattern: pkg<>, enclosing<X.*>, type<Y>, exact match, case sensitive, erasure only",
+		"TypeDeclarationPattern: pkg<>, enclosing<X.*>, type<Y>, exact match, case sensitive, generic erasure match, fine grain: none",
 		searchPattern);
 }
 
@@ -998,7 +997,37 @@ public void testSearchPatternCreation36() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"TypeReferencePattern: qualification<X.*>, type<Y>, exact match, case sensitive, erasure only",
+		"TypeReferencePattern: qualification<X.*>, type<Y>, exact match, case sensitive, generic erasure match, fine grain: none",
+		searchPattern);
+}
+
+/**
+ * Fine grain patterns
+ */
+public void testSearchPatternCreation37() {
+	int allFlags = 0x0F1FFFF0;
+	SearchPattern searchPattern = createPattern("*", TYPE, allFlags, true);
+	assertPattern(
+		"TypeReferencePattern: qualification<*>, type<*>, pattern match, case sensitive, generic full match, " +
+		"fine grain: FIELD_DECLARATION_TYPE_REFERENCE | " +
+		"LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE | " +
+		"PARAMETER_DECLARATION_TYPE_REFERENCE | " +
+		"SUPERTYPE_TYPE_REFERENCE | " +
+		"SUPERINTERFACE_TYPE_REFERENCE | " +
+		"THROWS_CLAUSE_TYPE_REFERENCE | " +
+		"CAST_TYPE_REFERENCE | " +
+		"CATCH_TYPE_REFERENCE | " +
+		"ALLOCATION_EXPRESSION_TYPE_REFERENCE | " +
+		"RETURN_TYPE_REFERENCE | " +
+		"IMPORT_DECLARATION_TYPE_REFERENCE | " +
+		"ANNOTATION_TYPE_REFERENCE | " +
+		"TYPE_ARGUMENT_TYPE_REFERENCE | " +
+		"TYPE_VARIABLE_BOUND_TYPE_REFERENCE | " +
+		"WILDCARD_BOUND_TYPE_REFERENCE | " +
+		"SUPER_REFERENCE | " +
+		"QUALIFIED_REFERENCE | " +
+		"THIS_REFERENCE | " +
+		"IMPLICIT_THIS_REFERENCE",
 		searchPattern);
 }
 
@@ -1154,79 +1183,4 @@ public void testSearchPatternValidMatchRule47() {
 		SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH,
 		SearchPattern.R_EXACT_MATCH);
 }
-
-/**
- * @bug 195228: [search] Invalid path in open type dialog
- * @test Verify that correct types are found even with project and source folders in the classpath
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=195228"
- */
-public void testBug195228() throws CoreException {
-	try {
-		// Create projects and files
-		final IJavaProject project = createJavaProject("P1", new String[] {"src"}, "bin");
-		createFolder("/P1/src/pack1/pack2");
-		createFile(
-			"/P1/src/pack1/pack2/X.java",
-			"package pack1.pack2;\n" +
-			"public class X {}"
-		);
-		createFile(
-			"/P1/src/pack1/Y.java",
-			"package pack1;\n" +
-			"public class Y {}"
-		);
-		createFile(
-			"/P1/test.properties",
-			"bug=195228"
-		);
-		// Create additional projects to force the rehash of the workspace scope while creating it
-		createJavaProject("P2", new String[] {"src"}, "bin");
-		createJavaProject("P3", new String[] {"src"}, "bin");
-		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
-		
-		// Store all types found in project
-		TypeNameMatchCollector requestor = new TypeNameMatchCollector();
-		new SearchEngine().searchAllTypeNames(
-			null,
-			SearchPattern.R_EXACT_MATCH,
-			null,
-			SearchPattern.R_PREFIX_MATCH,
-			IJavaSearchConstants.TYPE,
-			scope,
-			requestor,
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null);
-		String allTypes = requestor.toString();
-		
-		// Add project folder to classpath with inclusion and exclusion patterns
-		getWorkspace().run(new IWorkspaceRunnable() {
-			public void run(IProgressMonitor monitor) throws CoreException {
-				IClasspathEntry[] entries = project.getRawClasspath();
-				int length = entries.length;
-				System.arraycopy(entries, 0, entries = new IClasspathEntry[length+1], 0, length);
-				entries[length] = JavaCore.newSourceEntry(new Path("/P1"), new IPath[] { new Path("test.properties") }, new IPath[] { new Path("src/") }, null);
-				project.setRawClasspath(entries, null);
-			}
-		}, null);
-		
-		// Search for all types and verify that same are found
-		requestor = new TypeNameMatchCollector();
-		new SearchEngine().searchAllTypeNames(
-			null,
-			SearchPattern.R_EXACT_MATCH,
-			null,
-			SearchPattern.R_PREFIX_MATCH,
-			IJavaSearchConstants.TYPE,
-			scope,
-			requestor,
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null);
-		assertEquals("Should found same types!", allTypes, requestor.toString());
-	} finally {
-		deleteProject("P1");
-		deleteProject("P2");
-		deleteProject("P3");
-	}
-}
-
 }

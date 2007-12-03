@@ -41,6 +41,7 @@ public class JavaSearchFineGrainTests extends JavaSearchTests {
 
 public JavaSearchFineGrainTests(String name) {
 	super(name);
+	this.endChar = "";
 }
 public static Test suite() {
 	return buildModelTestSuite(JavaSearchFineGrainTests.class);
@@ -346,9 +347,9 @@ public void testTypeRef_AllFlags() throws CoreException {
 		"src/type/ref/TestTypes.java [import §|type.def.Types|§;@25] EXACT_MATCH\n" + 
 		"src/type/ref/TestTypes.java type.ref.TestTypes [public class TestTypes extends §|Types|§ {@111] EXACT_MATCH\n" + 
 		"src/type/ref/TestTypes.java type.ref.TestTypes.field [	§|Types|§ field;@143] EXACT_MATCH\n" + 
+		"src/type/ref/TestTypes.java Types type.ref.TestTypes.method(Types) [	§|Types|§ method(Types param) throws Types {@193] EXACT_MATCH\n" + 
 		"src/type/ref/TestTypes.java Types type.ref.TestTypes.method(Types) [	Types method(§|Types|§ param) throws Types {@206] EXACT_MATCH\n" + 
 		"src/type/ref/TestTypes.java Types type.ref.TestTypes.method(Types) [	Types method(Types param) throws §|Types|§ {@226] EXACT_MATCH\n" + 
-		"src/type/ref/TestTypes.java Types type.ref.TestTypes.method(Types) [	§|Types|§ method(Types param) throws Types {@193] EXACT_MATCH\n" + 
 		"src/type/ref/TestTypes.java Types type.ref.TestTypes.method(Types) [		Object obj = new §|Types|§();@253] EXACT_MATCH\n" + 
 		"src/type/ref/TestTypes.java Types type.ref.TestTypes.method(Types) [		§|Types|§ local = (Types) obj;@264] EXACT_MATCH\n" + 
 		"src/type/ref/TestTypes.java Types type.ref.TestTypes.method(Types) [		Types local = (§|Types|§) obj;@279] EXACT_MATCH\n" + 
@@ -611,7 +612,9 @@ public void testTypeRefAll_Return() throws CoreException {
 	search("*", TYPE, RETURN_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/all/types/ref/TestTypes.java Types all.types.ref.TestTypes.method(Types) [	§|Types|§ method(Types param) throws Types {@459] EXACT_MATCH\n" + 
-		"src/all/types/ref/TestTypes.java Bug all.types.ref.TestTypes.bar(Bug) [	§|Bug|§ bar(Bug bug) {@577] EXACT_MATCH"
+		"src/all/types/ref/TestTypes.java Bug all.types.ref.TestTypes.bar(Bug) [	§|Bug|§ bar(Bug bug) {@577] EXACT_MATCH\n" + 
+		"src/type/def/Bug.java int type.def.Bug.num() [	§|int|§ num() default 0;@43] EXACT_MATCH\n" + 
+		"src/type/def/Bug.java String type.def.Bug.comment() [	§|String|§ comment() default \"\";@65] EXACT_MATCH"
 	);
 }
 public void testTypeRefAll_Superinterface() throws CoreException {
@@ -752,7 +755,7 @@ public void testTypeRefGeneric01_AllFlags() throws CoreException {
 		"src/test01/TestGeneric.java test01.VClass [class VClass extends A<§|Types|§> {}@519] EXACT_MATCH"
 	);
 }
-public void testTypeRefGeneric01_Parameterized() throws CoreException {
+public void testTypeRefGeneric01_TypeArgument() throws CoreException {
 	search(setUpTypeRefGeneric01(), TYPE_ARGUMENT_TYPE_REFERENCE);
 	assertSearchResults(
 		"src/test01/Generic.java test01.Generic [public class Generic<T extends Types, U extends Types & Comparable<§|Types|§> & Serializable, V extends A<? super Types>> {@135] EXACT_MATCH\n" + 
@@ -852,7 +855,7 @@ public void testTypeRefGenericAll01_AllGenericFlags() throws CoreException {
 		"src/test01/TestGeneric.java test01.VClass [class VClass extends A<§|Types|§> {}@519] EXACT_MATCH"
 	);
 }
-public void testTypeRefGenericAll01_Parameterized() throws CoreException {
+public void testTypeRefGenericAll01_TypeArgument() throws CoreException {
 	setUpTypeRefGeneric01();
 	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
@@ -1030,7 +1033,7 @@ public void testTypeRefGenericAll02_AllGenericFlags() throws CoreException {
 		"src/test02/Test.java test02.C [class C extends X<§|String|§> {}@428] EXACT_MATCH"
 	);
 }
-public void testTypeRefGenericAll02_Parameterizedl() throws CoreException {
+public void testTypeRefGenericAll02_TypeArgumentl() throws CoreException {
 	setUpTypeRefGeneric02();
 	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
@@ -1126,7 +1129,7 @@ public void testTypeRefGenericMethod_AllGenericFlags() throws CoreException {
 		"src/test/Test.java void test.Test.foo(A<String>) [		a.<A<? extends §|Exception|§>>foo();@95] EXACT_MATCH"
 	);
 }
-public void testTypeRefGenericMethod_Parameterized() throws CoreException {
+public void testTypeRefGenericMethod_TypeArgument() throws CoreException {
 	setUpTypeRefGenericMethod();
 	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
@@ -1317,7 +1320,9 @@ public void testTypeRefQualifiedAll_Return() throws CoreException {
 	search("*", TYPE, RETURN_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/all/types/ref/TestTypes.java type.def.Types all.types.ref.TestTypes.method(type.def.Types) [	§|type.def.Types|§ method(type.def.Types param) throws type.def.Types {@504] EXACT_MATCH\n" + 
-		"src/all/types/ref/TestTypes.java type.def.Bug all.types.ref.TestTypes.bar(type.def.Bug) [	§|type.def.Bug|§ bar(type.def.Bug bug) {@676] EXACT_MATCH"
+		"src/all/types/ref/TestTypes.java type.def.Bug all.types.ref.TestTypes.bar(type.def.Bug) [	§|type.def.Bug|§ bar(type.def.Bug bug) {@676] EXACT_MATCH\n" + 
+		"src/type/def/Bug.java int type.def.Bug.num() [	§|int|§ num() default 0;@43] EXACT_MATCH\n" + 
+		"src/type/def/Bug.java String type.def.Bug.comment() [	§|String|§ comment() default \"\";@65] EXACT_MATCH"
 	);
 }
 public void testTypeRefQualifiedAll_Superinterface() throws CoreException {
@@ -1360,7 +1365,7 @@ public void testTypeRefQualifiedAll_Variable() throws CoreException {
 /*
  * Tests using classes defined in JavaSearch15 project
  */
-public void testTypeRefGenericAllG1_Parameterized() throws CoreException {
+public void testTypeRefGenericAllG1_TypeArgument() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R3.java").getType("R3");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
 	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, scope);
@@ -1390,7 +1395,7 @@ public void testTypeRefGenericAllG1_WildcardBounds() throws CoreException {
 		"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [	public g1.t.s.def.Generic<? super RuntimeException>.MemberGeneric<? extends §|Throwable|§> qgen_run;@1148] EXACT_MATCH"
 	);
 }
-public void testTypeRefGenericAllG2_Parameterized() throws CoreException {
+public void testTypeRefGenericAllG2_TypeArgument() throws CoreException {
 	// TODO The JavaSearch15/src/g2/f/s/def/R3.java should be updated as it contains compilation errors!
 	IType type = getCompilationUnit("JavaSearch15/src/g2/f/s/def/R3.java").getType("R3");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
@@ -1446,75 +1451,83 @@ public void testTypeRefGenericAllG2_WildcardBounds() throws CoreException {
 		"src/g2/f/s/def/R3.java g2.f.s.def.R3.{} [		Generic<? super RuntimeException>.MemberGeneric<? super RuntimeException> member = new Generic<? super RuntimeException>().new MemberGeneric<? super §|RuntimeException|§>();@1924] EXACT_MATCH"
 	);
 }
-public void testTypeRefGenericAllG3R1_Parameterized() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch15/src/g3/t/ref/R1.java").getType("R1");
+public void testTypeRefGenericAllG3R3_TypeArgument() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15/src/g3/t/ref/R3.java").getType("R3");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
 	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
 	assertSearchResults(
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_wld [	public GS<§|GM|§<?, ?, ?>> sgsm_wld;@321] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_www [	public GS<§|GM|§<GM<?, ?, ?>,GM<?, ?, ?>,GM<?, ?, ?>>> sgsm_www;@355] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_www [	public GS<GM<§|GM|§<?, ?, ?>,GM<?, ?, ?>,GM<?, ?, ?>>> sgsm_www;@358] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_www [	public GS<GM<GM<?, ?, ?>,§|GM|§<?, ?, ?>,GM<?, ?, ?>>> sgsm_www;@370] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_www [	public GS<GM<GM<?, ?, ?>,GM<?, ?, ?>,§|GM|§<?, ?, ?>>> sgsm_www;@382] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_obj [	public GS<§|GM|§<Object, Exception, RuntimeException>> sgsm_obj;@417] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_obj [	public GS<GM<§|Object|§, Exception, RuntimeException>> sgsm_obj;@420] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_obj [	public GS<GM<Object, §|Exception|§, RuntimeException>> sgsm_obj;@428] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgsm_obj [	public GS<GM<Object, Exception, §|RuntimeException|§>> sgsm_obj;@439] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_wld [	public GM<§|GS|§<?>, GS<?>, GS<?>> sgms_wld;@479] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_wld [	public GM<GS<?>, §|GS|§<?>, GS<?>> sgms_wld;@486] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_wld [	public GM<GS<?>, GS<?>, §|GS|§<?>> sgms_wld;@493] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_www [	public GM<§|GS|§<?>, GS<GS<?>>, GS<GS<GS<?>>>> sgms_www;@521] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_www [	public GM<GS<?>, §|GS|§<GS<?>>, GS<GS<GS<?>>>> sgms_www;@528] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_www [	public GM<GS<?>, GS<§|GS|§<?>>, GS<GS<GS<?>>>> sgms_www;@531] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_www [	public GM<GS<?>, GS<GS<?>>, §|GS|§<GS<GS<?>>>> sgms_www;@539] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_www [	public GM<GS<?>, GS<GS<?>>, GS<§|GS|§<GS<?>>>> sgms_www;@542] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_www [	public GM<GS<?>, GS<GS<?>>, GS<GS<§|GS|§<?>>>> sgms_www;@545] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_obj [	public GM<§|GS|§<Object>, GS<? extends Throwable>, GS<? super RuntimeException>> sgms_obj;@575] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_obj [	public GM<GS<§|Object|§>, GS<? extends Throwable>, GS<? super RuntimeException>> sgms_obj;@578] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_obj [	public GM<GS<Object>, §|GS|§<? extends Throwable>, GS<? super RuntimeException>> sgms_obj;@587] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_obj [	public GM<GS<Object>, GS<? extends Throwable>, §|GS|§<? super RuntimeException>> sgms_obj;@612] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgsm_wld [	public g3.t.def.GS<§|g3.t.def.GM|§<?, ?, ?>> qgsm_wld;@691] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgsm_www [	public g3.t.def.GS<§|g3.t.def.GM|§<g3.t.def.GM<?, ?, ?>, g3.t.def.GM<?, ?, ?>, g3.t.def.GM<?, ?, ?>>> qgsm_www;@743] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgsm_www [	public g3.t.def.GS<g3.t.def.GM<§|g3.t.def.GM|§<?, ?, ?>, g3.t.def.GM<?, ?, ?>, g3.t.def.GM<?, ?, ?>>> qgsm_www;@755] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgsm_www [	public g3.t.def.GS<g3.t.def.GM<g3.t.def.GM<?, ?, ?>, §|g3.t.def.GM|§<?, ?, ?>, g3.t.def.GM<?, ?, ?>>> qgsm_www;@777] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgsm_www [	public g3.t.def.GS<g3.t.def.GM<g3.t.def.GM<?, ?, ?>, g3.t.def.GM<?, ?, ?>, §|g3.t.def.GM|§<?, ?, ?>>> qgsm_www;@799] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgsm_obj [	public g3.t.def.GS<§|g3.t.def.GM|§<java.lang.Object, java.lang.Exception, java.lang.RuntimeException>> qgsm_obj;@852] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgsm_obj [	public g3.t.def.GS<g3.t.def.GM<§|java.lang.Object|§, java.lang.Exception, java.lang.RuntimeException>> qgsm_obj;@864] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgsm_obj [	public g3.t.def.GS<g3.t.def.GM<java.lang.Object, §|java.lang.Exception|§, java.lang.RuntimeException>> qgsm_obj;@882] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgsm_obj [	public g3.t.def.GS<g3.t.def.GM<java.lang.Object, java.lang.Exception, §|java.lang.RuntimeException|§>> qgsm_obj;@903] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_wld [	public g3.t.def.GM<§|g3.t.def.GS|§<?>, g3.t.def.GS<?>, g3.t.def.GS<?>> qgms_wld;@962] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_wld [	public g3.t.def.GM<g3.t.def.GS<?>, §|g3.t.def.GS|§<?>, g3.t.def.GS<?>> qgms_wld;@978] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_wld [	public g3.t.def.GM<g3.t.def.GS<?>, g3.t.def.GS<?>, §|g3.t.def.GS|§<?>> qgms_wld;@994] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_www [	public g3.t.def.GM<§|g3.t.def.GS|§<?>, g3.t.def.GS<g3.t.def.GS<?>>, g3.t.def.GS<g3.t.def.GS<g3.t.def.GS<?>>>> qgms_www;@1040] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_www [	public g3.t.def.GM<g3.t.def.GS<?>, §|g3.t.def.GS|§<g3.t.def.GS<?>>, g3.t.def.GS<g3.t.def.GS<g3.t.def.GS<?>>>> qgms_www;@1056] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_www [	public g3.t.def.GM<g3.t.def.GS<?>, g3.t.def.GS<§|g3.t.def.GS|§<?>>, g3.t.def.GS<g3.t.def.GS<g3.t.def.GS<?>>>> qgms_www;@1068] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_www [	public g3.t.def.GM<g3.t.def.GS<?>, g3.t.def.GS<g3.t.def.GS<?>>, §|g3.t.def.GS|§<g3.t.def.GS<g3.t.def.GS<?>>>> qgms_www;@1085] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_www [	public g3.t.def.GM<g3.t.def.GS<?>, g3.t.def.GS<g3.t.def.GS<?>>, g3.t.def.GS<§|g3.t.def.GS|§<g3.t.def.GS<?>>>> qgms_www;@1097] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_www [	public g3.t.def.GM<g3.t.def.GS<?>, g3.t.def.GS<g3.t.def.GS<?>>, g3.t.def.GS<g3.t.def.GS<§|g3.t.def.GS|§<?>>>> qgms_www;@1109] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_obj [	public g3.t.def.GM<§|g3.t.def.GS|§<java.lang.Object>, g3.t.def.GS<? extends java.lang.Throwable>, g3.t.def.GS<? super java.lang.RuntimeException>> qgms_obj;@1157] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_obj [	public g3.t.def.GM<g3.t.def.GS<§|java.lang.Object|§>, g3.t.def.GS<? extends java.lang.Throwable>, g3.t.def.GS<? super java.lang.RuntimeException>> qgms_obj;@1169] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_obj [	public g3.t.def.GM<g3.t.def.GS<java.lang.Object>, §|g3.t.def.GS|§<? extends java.lang.Throwable>, g3.t.def.GS<? super java.lang.RuntimeException>> qgms_obj;@1188] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_obj [	public g3.t.def.GM<g3.t.def.GS<java.lang.Object>, g3.t.def.GS<? extends java.lang.Throwable>, §|g3.t.def.GS|§<? super java.lang.RuntimeException>> qgms_obj;@1232] EXACT_MATCH"
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_wld [	public GS<§|GM<?, ?, ?>.Generic|§<?, ?, ?>>.Generic<?> sgsm_wld;@321] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_www [	public GS<§|GM<GM<?, ?, ?>.Generic<?,?,?>,GM<?, ?, ?>.Generic<?,?,?>,GM<?, ?, ?>.Generic<?,?,?>>.Generic|§<?,?,?>>.Generic<?> sgsm_www;@383] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_www [	public GS<GM<§|GM<?, ?, ?>.Generic|§<?,?,?>,GM<?, ?, ?>.Generic<?,?,?>,GM<?, ?, ?>.Generic<?,?,?>>.Generic<?,?,?>>.Generic<?> sgsm_www;@386] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_www [	public GS<GM<GM<?, ?, ?>.Generic<?,?,?>,§|GM<?, ?, ?>.Generic|§<?,?,?>,GM<?, ?, ?>.Generic<?,?,?>>.Generic<?,?,?>>.Generic<?> sgsm_www;@413] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_www [	public GS<GM<GM<?, ?, ?>.Generic<?,?,?>,GM<?, ?, ?>.Generic<?,?,?>,§|GM<?, ?, ?>.Generic|§<?,?,?>>.Generic<?,?,?>>.Generic<?> sgsm_www;@440] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_obj [	public GS<§|GM<Object, Exception, RuntimeException>.Generic|§<Object, Exception, RuntimeException>>.Generic<Exception> sgsm_obj;@516] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_obj [	public GS<GM<§|Object|§, Exception, RuntimeException>.Generic<Object, Exception, RuntimeException>>.Generic<Exception> sgsm_obj;@519] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_obj [	public GS<GM<Object, §|Exception|§, RuntimeException>.Generic<Object, Exception, RuntimeException>>.Generic<Exception> sgsm_obj;@527] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_obj [	public GS<GM<Object, Exception, §|RuntimeException|§>.Generic<Object, Exception, RuntimeException>>.Generic<Exception> sgsm_obj;@538] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_obj [	public GS<GM<Object, Exception, RuntimeException>.Generic<§|Object|§, Exception, RuntimeException>>.Generic<Exception> sgsm_obj;@564] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_obj [	public GS<GM<Object, Exception, RuntimeException>.Generic<Object, §|Exception|§, RuntimeException>>.Generic<Exception> sgsm_obj;@572] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_obj [	public GS<GM<Object, Exception, RuntimeException>.Generic<Object, Exception, §|RuntimeException|§>>.Generic<Exception> sgsm_obj;@583] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgsm_obj [	public GS<GM<Object, Exception, RuntimeException>.Generic<Object, Exception, RuntimeException>>.Generic<§|Exception|§> sgsm_obj;@610] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_wld [	public GM<§|GS<?>.Generic|§<?>, GS<?>.Generic<?>, GS<?>.Generic<?>>.Generic<?,?,?> sgms_wld;@642] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_wld [	public GM<GS<?>.Generic<?>, §|GS<?>.Generic|§<?>, GS<?>.Generic<?>>.Generic<?,?,?> sgms_wld;@660] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_wld [	public GM<GS<?>.Generic<?>, GS<?>.Generic<?>, §|GS<?>.Generic|§<?>>.Generic<?,?,?> sgms_wld;@678] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_www [	public GM<§|GS<?>.Generic|§<?>, GS<GS<?>.Generic<?>>.Generic<?>, GS<GS<GS<?>.Generic<?>>.Generic<?>>.Generic<?>>.Generic<?,?,?> sgms_www;@732] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_www [	public GM<GS<?>.Generic<?>, §|GS<GS<?>.Generic<?>>.Generic|§<?>, GS<GS<GS<?>.Generic<?>>.Generic<?>>.Generic<?>>.Generic<?,?,?> sgms_www;@750] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_www [	public GM<GS<?>.Generic<?>, GS<§|GS<?>.Generic|§<?>>.Generic<?>, GS<GS<GS<?>.Generic<?>>.Generic<?>>.Generic<?>>.Generic<?,?,?> sgms_www;@753] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_www [	public GM<GS<?>.Generic<?>, GS<GS<?>.Generic<?>>.Generic<?>, §|GS<GS<GS<?>.Generic<?>>.Generic<?>>.Generic|§<?>>.Generic<?,?,?> sgms_www;@783] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_www [	public GM<GS<?>.Generic<?>, GS<GS<?>.Generic<?>>.Generic<?>, GS<§|GS<GS<?>.Generic<?>>.Generic|§<?>>.Generic<?>>.Generic<?,?,?> sgms_www;@786] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_www [	public GM<GS<?>.Generic<?>, GS<GS<?>.Generic<?>>.Generic<?>, GS<GS<§|GS<?>.Generic|§<?>>.Generic<?>>.Generic<?>>.Generic<?,?,?> sgms_www;@789] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_obj [	public GM<§|GS<Object>.Generic|§<?>, GS<? extends Throwable>.Generic<?>, GS<? super RuntimeException>.Generic<?>>.Generic<?,?,?> sgms_obj;@867] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_obj [	public GM<GS<§|Object|§>.Generic<?>, GS<? extends Throwable>.Generic<?>, GS<? super RuntimeException>.Generic<?>>.Generic<?,?,?> sgms_obj;@870] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_obj [	public GM<GS<Object>.Generic<?>, §|GS<? extends Throwable>.Generic|§<?>, GS<? super RuntimeException>.Generic<?>>.Generic<?,?,?> sgms_obj;@890] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_obj [	public GM<GS<Object>.Generic<?>, GS<? extends Throwable>.Generic<?>, §|GS<? super RuntimeException>.Generic|§<?>>.Generic<?,?,?> sgms_obj;@926] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_wld [	public g3.t.def.GS<§|g3.t.def.GM<?, ?, ?>.Generic|§<?, ?, ?>>.Generic<?> qgsm_wld;@1031] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_www [	public g3.t.def.GS<§|g3.t.def.GM<g3.t.def.GM<?, ?, ?>.Generic<?,?,?>,g3.t.def.GM<?, ?, ?>.Generic<?,?,?>,g3.t.def.GM<?, ?, ?>.Generic<?,?,?>>.Generic|§<?,?,?>>.Generic<?> qgsm_www;@1111] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_www [	public g3.t.def.GS<g3.t.def.GM<§|g3.t.def.GM<?, ?, ?>.Generic|§<?,?,?>,g3.t.def.GM<?, ?, ?>.Generic<?,?,?>,g3.t.def.GM<?, ?, ?>.Generic<?,?,?>>.Generic<?,?,?>>.Generic<?> qgsm_www;@1123] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_www [	public g3.t.def.GS<g3.t.def.GM<g3.t.def.GM<?, ?, ?>.Generic<?,?,?>,§|g3.t.def.GM<?, ?, ?>.Generic|§<?,?,?>,g3.t.def.GM<?, ?, ?>.Generic<?,?,?>>.Generic<?,?,?>>.Generic<?> qgsm_www;@1159] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_www [	public g3.t.def.GS<g3.t.def.GM<g3.t.def.GM<?, ?, ?>.Generic<?,?,?>,g3.t.def.GM<?, ?, ?>.Generic<?,?,?>,§|g3.t.def.GM<?, ?, ?>.Generic|§<?,?,?>>.Generic<?,?,?>>.Generic<?> qgsm_www;@1195] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_obj [	public g3.t.def.GS<§|g3.t.def.GM<Object, Exception, RuntimeException>.Generic|§<Object, Exception, RuntimeException>>.Generic<Exception> qgsm_obj;@1289] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_obj [	public g3.t.def.GS<g3.t.def.GM<§|Object|§, Exception, RuntimeException>.Generic<Object, Exception, RuntimeException>>.Generic<Exception> qgsm_obj;@1301] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_obj [	public g3.t.def.GS<g3.t.def.GM<Object, §|Exception|§, RuntimeException>.Generic<Object, Exception, RuntimeException>>.Generic<Exception> qgsm_obj;@1309] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_obj [	public g3.t.def.GS<g3.t.def.GM<Object, Exception, §|RuntimeException|§>.Generic<Object, Exception, RuntimeException>>.Generic<Exception> qgsm_obj;@1320] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_obj [	public g3.t.def.GS<g3.t.def.GM<Object, Exception, RuntimeException>.Generic<§|Object|§, Exception, RuntimeException>>.Generic<Exception> qgsm_obj;@1346] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_obj [	public g3.t.def.GS<g3.t.def.GM<Object, Exception, RuntimeException>.Generic<Object, §|Exception|§, RuntimeException>>.Generic<Exception> qgsm_obj;@1354] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_obj [	public g3.t.def.GS<g3.t.def.GM<Object, Exception, RuntimeException>.Generic<Object, Exception, §|RuntimeException|§>>.Generic<Exception> qgsm_obj;@1365] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgsm_obj [	public g3.t.def.GS<g3.t.def.GM<Object, Exception, RuntimeException>.Generic<Object, Exception, RuntimeException>>.Generic<§|Exception|§> qgsm_obj;@1392] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_wld [	public g3.t.def.GM<§|g3.t.def.GS<?>.Generic|§<?>, g3.t.def.GS<?>.Generic<?>, g3.t.def.GS<?>.Generic<?>>.Generic<?,?,?> qgms_wld;@1433] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_wld [	public g3.t.def.GM<g3.t.def.GS<?>.Generic<?>, §|g3.t.def.GS<?>.Generic|§<?>, g3.t.def.GS<?>.Generic<?>>.Generic<?,?,?> qgms_wld;@1460] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_wld [	public g3.t.def.GM<g3.t.def.GS<?>.Generic<?>, g3.t.def.GS<?>.Generic<?>, §|g3.t.def.GS<?>.Generic|§<?>>.Generic<?,?,?> qgms_wld;@1487] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_www [	public g3.t.def.GM<§|g3.t.def.GS<?>.Generic|§<?>, g3.t.def.GS<g3.t.def.GS<?>.Generic<?>>.Generic<?>, g3.t.def.GS<g3.t.def.GS<g3.t.def.GS<?>.Generic<?>>.Generic<?>>.Generic<?>>.Generic<?,?,?> qgms_www;@1559] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_www [	public g3.t.def.GM<g3.t.def.GS<?>.Generic<?>, §|g3.t.def.GS<g3.t.def.GS<?>.Generic<?>>.Generic|§<?>, g3.t.def.GS<g3.t.def.GS<g3.t.def.GS<?>.Generic<?>>.Generic<?>>.Generic<?>>.Generic<?,?,?> qgms_www;@1586] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_www [	public g3.t.def.GM<g3.t.def.GS<?>.Generic<?>, g3.t.def.GS<§|g3.t.def.GS<?>.Generic|§<?>>.Generic<?>, g3.t.def.GS<g3.t.def.GS<g3.t.def.GS<?>.Generic<?>>.Generic<?>>.Generic<?>>.Generic<?,?,?> qgms_www;@1598] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_www [	public g3.t.def.GM<g3.t.def.GS<?>.Generic<?>, g3.t.def.GS<g3.t.def.GS<?>.Generic<?>>.Generic<?>, §|g3.t.def.GS<g3.t.def.GS<g3.t.def.GS<?>.Generic<?>>.Generic<?>>.Generic|§<?>>.Generic<?,?,?> qgms_www;@1637] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_www [	public g3.t.def.GM<g3.t.def.GS<?>.Generic<?>, g3.t.def.GS<g3.t.def.GS<?>.Generic<?>>.Generic<?>, g3.t.def.GS<§|g3.t.def.GS<g3.t.def.GS<?>.Generic<?>>.Generic|§<?>>.Generic<?>>.Generic<?,?,?> qgms_www;@1649] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_www [	public g3.t.def.GM<g3.t.def.GS<?>.Generic<?>, g3.t.def.GS<g3.t.def.GS<?>.Generic<?>>.Generic<?>, g3.t.def.GS<g3.t.def.GS<§|g3.t.def.GS<?>.Generic|§<?>>.Generic<?>>.Generic<?>>.Generic<?,?,?> qgms_www;@1661] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_obj [	public g3.t.def.GM<§|g3.t.def.GS<Object>.Generic|§<?>, g3.t.def.GS<? extends Throwable>.Generic<?>, g3.t.def.GS<? super RuntimeException>.Generic<?>>.Generic<?,?,?> qgms_obj;@1757] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_obj [	public g3.t.def.GM<g3.t.def.GS<§|Object|§>.Generic<?>, g3.t.def.GS<? extends Throwable>.Generic<?>, g3.t.def.GS<? super RuntimeException>.Generic<?>>.Generic<?,?,?> qgms_obj;@1769] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_obj [	public g3.t.def.GM<g3.t.def.GS<Object>.Generic<?>, §|g3.t.def.GS<? extends Throwable>.Generic|§<?>, g3.t.def.GS<? super RuntimeException>.Generic<?>>.Generic<?,?,?> qgms_obj;@1789] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_obj [	public g3.t.def.GM<g3.t.def.GS<Object>.Generic<?>, g3.t.def.GS<? extends Throwable>.Generic<?>, §|g3.t.def.GS<? super RuntimeException>.Generic|§<?>>.Generic<?,?,?> qgms_obj;@1834] EXACT_MATCH"
 	);
 }
-public void testTypeRefGenericAllG3R1_WildcardBounds() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch15/src/g3/t/ref/R1.java").getType("R1");
+public void testTypeRefGenericAllG3R3_WildcardBounds() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15/src/g3/t/ref/R3.java").getType("R3");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
 	search("*", TYPE, WILDCARD_BOUND_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
 	assertSearchResults(
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_obj [	public GM<GS<Object>, GS<? extends §|Throwable|§>, GS<? super RuntimeException>> sgms_obj;@600] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.sgms_obj [	public GM<GS<Object>, GS<? extends Throwable>, GS<? super §|RuntimeException|§>> sgms_obj;@623] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_obj [	public g3.t.def.GM<g3.t.def.GS<java.lang.Object>, g3.t.def.GS<? extends §|java.lang.Throwable|§>, g3.t.def.GS<? super java.lang.RuntimeException>> qgms_obj;@1210] EXACT_MATCH\n" + 
-		"src/g3/t/ref/R1.java g3.t.ref.R1.qgms_obj [	public g3.t.def.GM<g3.t.def.GS<java.lang.Object>, g3.t.def.GS<? extends java.lang.Throwable>, g3.t.def.GS<? super §|java.lang.RuntimeException|§>> qgms_obj;@1252] EXACT_MATCH"
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_obj [	public GM<GS<Object>.Generic<?>, GS<? extends §|Throwable|§>.Generic<?>, GS<? super RuntimeException>.Generic<?>>.Generic<?,?,?> sgms_obj;@903] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.sgms_obj [	public GM<GS<Object>.Generic<?>, GS<? extends Throwable>.Generic<?>, GS<? super §|RuntimeException|§>.Generic<?>>.Generic<?,?,?> sgms_obj;@937] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_obj [	public g3.t.def.GM<g3.t.def.GS<Object>.Generic<?>, g3.t.def.GS<? extends §|Throwable|§>.Generic<?>, g3.t.def.GS<? super RuntimeException>.Generic<?>>.Generic<?,?,?> qgms_obj;@1811] EXACT_MATCH\n" + 
+		"src/g3/t/ref/R3.java g3.t.ref.R3.qgms_obj [	public g3.t.def.GM<g3.t.def.GS<Object>.Generic<?>, g3.t.def.GS<? extends Throwable>.Generic<?>, g3.t.def.GS<? super §|RuntimeException|§>.Generic<?>>.Generic<?,?,?> qgms_obj;@1854] EXACT_MATCH"
 	);
 }
-public void testTypeRefGenericAllG3R1_TypeVariableBounds() throws CoreException {
-	IType type = getCompilationUnit("JavaSearch15/src/g3/t/ref/R1.java").getType("R1");
+public void testTypeRefGenericAllG3R3_TypeVariableBounds() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15/src/g3/t/ref/R3.java").getType("R3");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
 	search("*", TYPE, TYPE_VARIABLE_BOUND_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
 	assertSearchResults("");
 }
-public void testTypeRefGenericAllG5_Parameterized() throws CoreException {
+public void testTypeRefGenericAllG5_TypeArgument() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15/src/g5/m/ref/RefMultiple.java").getType("RefMultiple");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
 	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
@@ -1582,7 +1595,7 @@ public void testTypeRefGenericAllG5_TypeVariableBounds() throws CoreException {
 	search("*", TYPE, TYPE_VARIABLE_BOUND_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
 	assertSearchResults("");
 }
-public void testTypeRefGenericAllG6_Parameterized() throws CoreException {
+public void testTypeRefGenericAllG6_TypeArgument() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15/src/g6/t/ref/QualifMultiple.java").getType("QualifMultiple");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
 	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
@@ -1624,5 +1637,383 @@ public void testTypeRefGenericAllG6_TypeVariableBounds() throws CoreException {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
 	search("*", TYPE, TYPE_VARIABLE_BOUND_TYPE_REFERENCE | WILDCARD_BOUND_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
 	assertSearchResults("");
+}
+
+// Additional tests
+public void testTypeRefGenericsTest06_TypeArgument() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/test06/Test.java",
+		"package test06;\n" + 
+		"public class Test {\n" + 
+		"	X<Exception> x; \n" + 
+		"	Y<Object, String, Exception> y; \n" + 
+		"}\n" + 
+		"class X<T> {}\n" + 
+		"class Y<R, S, T> {}\n"
+	);
+	IType type = workingCopies[0].getType("Test");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
+	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	assertSearchResults(
+		"src/test06/Test.java test06.Test.x [	X<§|Exception|§> x; @39] EXACT_MATCH\n" + 
+		"src/test06/Test.java test06.Test.y [	Y<§|Object|§, String, Exception> y; @57] EXACT_MATCH\n" + 
+		"src/test06/Test.java test06.Test.y [	Y<Object, §|String|§, Exception> y; @65] EXACT_MATCH\n" + 
+		"src/test06/Test.java test06.Test.y [	Y<Object, String, §|Exception|§> y; @73] EXACT_MATCH"
+	);
+}
+public void testTypeRefGenericsTest07_TypeArgument() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/test07/Test.java",
+		"package test07;\n" + 
+		"public class Test {\n" + 
+		"	Y<Y<Exception>> y1;\n" + 
+		"	Y<X<Object, String, Exception>> y2;\n" + 
+		"	X<Y<Object>, Y<String>, Y<Exception>> x1;\n" + 
+		"	X<X<Object, Object, Object>, X<String, String, String>, X<Exception, Exception, Exception>> x2;\n" + 
+		"}\n" + 
+		"class X<R, S, T> {}\n" + 
+		"class Y<U> {}"
+	);
+	IType type = workingCopies[0].getType("Test");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
+	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	assertSearchResults(
+		"src/test07/Test.java test07.Test.y1 [	Y<§|Y|§<Exception>> y1;@39] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.y1 [	Y<Y<§|Exception|§>> y1;@41] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.y2 [	Y<§|X|§<Object, String, Exception>> y2;@60] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.y2 [	Y<X<§|Object|§, String, Exception>> y2;@62] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.y2 [	Y<X<Object, §|String|§, Exception>> y2;@70] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.y2 [	Y<X<Object, String, §|Exception|§>> y2;@78] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x1 [	X<§|Y|§<Object>, Y<String>, Y<Exception>> x1;@97] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x1 [	X<Y<§|Object|§>, Y<String>, Y<Exception>> x1;@99] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x1 [	X<Y<Object>, §|Y|§<String>, Y<Exception>> x1;@108] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x1 [	X<Y<Object>, Y<§|String|§>, Y<Exception>> x1;@110] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x1 [	X<Y<Object>, Y<String>, §|Y|§<Exception>> x1;@119] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x1 [	X<Y<Object>, Y<String>, Y<§|Exception|§>> x1;@121] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x2 [	X<§|X|§<Object, Object, Object>, X<String, String, String>, X<Exception, Exception, Exception>> x2;@140] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x2 [	X<X<§|Object|§, Object, Object>, X<String, String, String>, X<Exception, Exception, Exception>> x2;@142] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x2 [	X<X<Object, §|Object|§, Object>, X<String, String, String>, X<Exception, Exception, Exception>> x2;@150] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x2 [	X<X<Object, Object, §|Object|§>, X<String, String, String>, X<Exception, Exception, Exception>> x2;@158] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x2 [	X<X<Object, Object, Object>, §|X|§<String, String, String>, X<Exception, Exception, Exception>> x2;@167] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x2 [	X<X<Object, Object, Object>, X<§|String|§, String, String>, X<Exception, Exception, Exception>> x2;@169] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x2 [	X<X<Object, Object, Object>, X<String, §|String|§, String>, X<Exception, Exception, Exception>> x2;@177] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x2 [	X<X<Object, Object, Object>, X<String, String, §|String|§>, X<Exception, Exception, Exception>> x2;@185] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x2 [	X<X<Object, Object, Object>, X<String, String, String>, §|X|§<Exception, Exception, Exception>> x2;@194] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x2 [	X<X<Object, Object, Object>, X<String, String, String>, X<§|Exception|§, Exception, Exception>> x2;@196] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x2 [	X<X<Object, Object, Object>, X<String, String, String>, X<Exception, §|Exception|§, Exception>> x2;@207] EXACT_MATCH\n" + 
+		"src/test07/Test.java test07.Test.x2 [	X<X<Object, Object, Object>, X<String, String, String>, X<Exception, Exception, §|Exception|§>> x2;@218] EXACT_MATCH"
+	);
+}
+public void testTypeRefGenericsTest08_TypeArgument() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/test08/Test.java",
+		"package test08;\n" + 
+		"public class Test {\n" + 
+		"	Z<\n" + 
+		"		Y<X<Object>, X<String>, X<Exception>>,\n" + 
+		"		X<Y<Object, String, X<Exception>>>,\n" + 
+		"		Z<Object, X<String>, X<X<Exception>>, X<X<X<java.io.Serializable>>>>,\n" + 
+		"		X<X<X<X<String>>>>> z;\n" + 
+		"}\n" + 
+		"class X<R> {}\n" + 
+		"class Y<S, T, U> {}\n" + 
+		"class Z<A, B, C, D> {}\n"
+	);
+	IType type = workingCopies[0].getType("Test");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
+	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	assertSearchResults(
+		"src/test08/Test.java test08.Test.z [		§|Y|§<X<Object>, X<String>, X<Exception>>,@42] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Y<§|X|§<Object>, X<String>, X<Exception>>,@44] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Y<X<§|Object|§>, X<String>, X<Exception>>,@46] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Y<X<Object>, §|X|§<String>, X<Exception>>,@55] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Y<X<Object>, X<§|String|§>, X<Exception>>,@57] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Y<X<Object>, X<String>, §|X|§<Exception>>,@66] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Y<X<Object>, X<String>, X<§|Exception|§>>,@68] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		§|X|§<Y<Object, String, X<Exception>>>,@83] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		X<§|Y|§<Object, String, X<Exception>>>,@85] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		X<Y<§|Object|§, String, X<Exception>>>,@87] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		X<Y<Object, §|String|§, X<Exception>>>,@95] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		X<Y<Object, String, §|X|§<Exception>>>,@103] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		X<Y<Object, String, X<§|Exception|§>>>,@105] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		§|Z|§<Object, X<String>, X<X<Exception>>, X<X<X<java.io.Serializable>>>>,@121] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Z<§|Object|§, X<String>, X<X<Exception>>, X<X<X<java.io.Serializable>>>>,@123] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Z<Object, §|X|§<String>, X<X<Exception>>, X<X<X<java.io.Serializable>>>>,@131] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Z<Object, X<§|String|§>, X<X<Exception>>, X<X<X<java.io.Serializable>>>>,@133] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Z<Object, X<String>, §|X|§<X<Exception>>, X<X<X<java.io.Serializable>>>>,@142] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Z<Object, X<String>, X<§|X|§<Exception>>, X<X<X<java.io.Serializable>>>>,@144] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Z<Object, X<String>, X<X<§|Exception|§>>, X<X<X<java.io.Serializable>>>>,@146] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Z<Object, X<String>, X<X<Exception>>, §|X|§<X<X<java.io.Serializable>>>>,@159] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Z<Object, X<String>, X<X<Exception>>, X<§|X|§<X<java.io.Serializable>>>>,@161] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Z<Object, X<String>, X<X<Exception>>, X<X<§|X|§<java.io.Serializable>>>>,@163] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		Z<Object, X<String>, X<X<Exception>>, X<X<X<§|java.io.Serializable|§>>>>,@165] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		§|X|§<X<X<X<String>>>>> z;@193] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		X<§|X|§<X<X<String>>>>> z;@195] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		X<X<§|X|§<X<String>>>>> z;@197] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		X<X<X<§|X|§<String>>>>> z;@199] EXACT_MATCH\n" + 
+		"src/test08/Test.java test08.Test.z [		X<X<X<X<§|String|§>>>>> z;@201] EXACT_MATCH"
+	);
+}
+public void testTypeRefGenericsTest09_TypeArgument() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/test09/Test.java",
+		"package test09;\n" + 
+		"public class Test {\n" + 
+		"	X<? extends Exception> x; \n" + 
+		"	Y<? extends Object, ? super String, ? extends Exception> y; \n" + 
+		"}\n" + 
+		"class X< R> {}\n" + 
+		"class Y<S, T, U> {}\n"
+	);
+	IType type = workingCopies[0].getType("Test");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
+	search("*", TYPE, WILDCARD_BOUND_TYPE_REFERENCE | TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	assertSearchResults(
+		"src/test09/Test.java test09.Test.x [	X<? extends §|Exception|§> x; @49] EXACT_MATCH\n" + 
+		"src/test09/Test.java test09.Test.y [	Y<? extends §|Object|§, ? super String, ? extends Exception> y; @77] EXACT_MATCH\n" + 
+		"src/test09/Test.java test09.Test.y [	Y<? extends Object, ? super §|String|§, ? extends Exception> y; @93] EXACT_MATCH\n" + 
+		"src/test09/Test.java test09.Test.y [	Y<? extends Object, ? super String, ? extends §|Exception|§> y; @111] EXACT_MATCH"
+	);
+}
+public void testTypeRefGenericsTest10_TypeArgument() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/test10/Test.java",
+		"package test10;\n" + 
+		"public class Test {\n" + 
+		"	Y<Y<? extends Exception>> y1;\n" + 
+		"	Y<X<? extends Object, ? super String, ? extends Exception>> y2;\n" + 
+		"	X<Y<? super Object>, Y<? extends String>, Y<? super Exception>> x1;\n" + 
+		"	X<X<? extends Object, ? extends Object, ? extends Object>, X<? super String, ? super String, ? super String>, X<? extends Exception, ? super Exception, ? extends Exception>> x2;\n" + 
+		"}\n" + 
+		"class X<R, S, T> {}\n" + 
+		"class Y<U> {}"
+	);
+	IType type = workingCopies[0].getType("Test");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
+	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	assertSearchResults(
+		"src/test10/Test.java test10.Test.y1 [	Y<§|Y|§<? extends Exception>> y1;@39] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.y2 [	Y<§|X|§<? extends Object, ? super String, ? extends Exception>> y2;@70] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x1 [	X<§|Y|§<? super Object>, Y<? extends String>, Y<? super Exception>> x1;@135] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x1 [	X<Y<? super Object>, §|Y|§<? extends String>, Y<? super Exception>> x1;@154] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x1 [	X<Y<? super Object>, Y<? extends String>, §|Y|§<? super Exception>> x1;@175] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x2 [	X<§|X|§<? extends Object, ? extends Object, ? extends Object>, X<? super String, ? super String, ? super String>, X<? extends Exception, ? super Exception, ? extends Exception>> x2;@204] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x2 [	X<X<? extends Object, ? extends Object, ? extends Object>, §|X|§<? super String, ? super String, ? super String>, X<? extends Exception, ? super Exception, ? extends Exception>> x2;@261] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x2 [	X<X<? extends Object, ? extends Object, ? extends Object>, X<? super String, ? super String, ? super String>, §|X|§<? extends Exception, ? super Exception, ? extends Exception>> x2;@312] EXACT_MATCH"
+	);
+}
+public void testTypeRefGenericsTest10_WildcardBound() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/test10/Test.java",
+		"package test10;\n" + 
+		"public class Test {\n" + 
+		"	Y<Y<? extends Exception>> y1;\n" + 
+		"	Y<X<? extends Object, ? super String, ? extends Exception>> y2;\n" + 
+		"	X<Y<? super Object>, Y<? extends String>, Y<? super Exception>> x1;\n" + 
+		"	X<X<? extends Object, ? extends Object, ? extends Object>, X<? super String, ? super String, ? super String>, X<? extends Exception, ? super Exception, ? extends Exception>> x2;\n" + 
+		"}\n" + 
+		"class X<R, S, T> {}\n" + 
+		"class Y<U> {}"
+	);
+	IType type = workingCopies[0].getType("Test");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
+	search("*", TYPE, WILDCARD_BOUND_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	assertSearchResults(
+		"src/test10/Test.java test10.Test.y1 [	Y<Y<? extends §|Exception|§>> y1;@51] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.y2 [	Y<X<? extends §|Object|§, ? super String, ? extends Exception>> y2;@82] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.y2 [	Y<X<? extends Object, ? super §|String|§, ? extends Exception>> y2;@98] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.y2 [	Y<X<? extends Object, ? super String, ? extends §|Exception|§>> y2;@116] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x1 [	X<Y<? super §|Object|§>, Y<? extends String>, Y<? super Exception>> x1;@145] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x1 [	X<Y<? super Object>, Y<? extends §|String|§>, Y<? super Exception>> x1;@166] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x1 [	X<Y<? super Object>, Y<? extends String>, Y<? super §|Exception|§>> x1;@185] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x2 [	X<X<? extends §|Object|§, ? extends Object, ? extends Object>, X<? super String, ? super String, ? super String>, X<? extends Exception, ? super Exception, ? extends Exception>> x2;@216] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x2 [	X<X<? extends Object, ? extends §|Object|§, ? extends Object>, X<? super String, ? super String, ? super String>, X<? extends Exception, ? super Exception, ? extends Exception>> x2;@234] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x2 [	X<X<? extends Object, ? extends Object, ? extends §|Object|§>, X<? super String, ? super String, ? super String>, X<? extends Exception, ? super Exception, ? extends Exception>> x2;@252] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x2 [	X<X<? extends Object, ? extends Object, ? extends Object>, X<? super §|String|§, ? super String, ? super String>, X<? extends Exception, ? super Exception, ? extends Exception>> x2;@271] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x2 [	X<X<? extends Object, ? extends Object, ? extends Object>, X<? super String, ? super §|String|§, ? super String>, X<? extends Exception, ? super Exception, ? extends Exception>> x2;@287] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x2 [	X<X<? extends Object, ? extends Object, ? extends Object>, X<? super String, ? super String, ? super §|String|§>, X<? extends Exception, ? super Exception, ? extends Exception>> x2;@303] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x2 [	X<X<? extends Object, ? extends Object, ? extends Object>, X<? super String, ? super String, ? super String>, X<? extends §|Exception|§, ? super Exception, ? extends Exception>> x2;@324] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x2 [	X<X<? extends Object, ? extends Object, ? extends Object>, X<? super String, ? super String, ? super String>, X<? extends Exception, ? super §|Exception|§, ? extends Exception>> x2;@343] EXACT_MATCH\n" + 
+		"src/test10/Test.java test10.Test.x2 [	X<X<? extends Object, ? extends Object, ? extends Object>, X<? super String, ? super String, ? super String>, X<? extends Exception, ? super Exception, ? extends §|Exception|§>> x2;@364] EXACT_MATCH"
+	);
+}
+public void testTypeRefGenericsTest11_TypeArgument() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/test11/Test.java",
+		"package test11;\n" + 
+		"public class Test {\n" + 
+		"	Z<\n" + 
+		"		Y<X<? extends Object>, X<? super String>, X<? extends Exception>>,\n" + 
+		"		X<Y<? extends Object, ? super String, X<? extends Exception>>>,\n" + 
+		"		Z<? extends Object, X<? super String>, X<X<? extends Exception>>, X<X<X<? extends java.io.Serializable>>>>,\n" + 
+		"		X<X<X<X<? super String>>>>> z;\n" + 
+		"}\n" + 
+		"class X<R> {}\n" + 
+		"class Y<S, T, U> {}\n" + 
+		"class Z<A, B, C, D> {}\n"
+	);
+	IType type = workingCopies[0].getType("Test");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
+	search("*", TYPE, TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	assertSearchResults(
+		"src/test11/Test.java test11.Test.z [		§|Y|§<X<? extends Object>, X<? super String>, X<? extends Exception>>,@42] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Y<§|X|§<? extends Object>, X<? super String>, X<? extends Exception>>,@44] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Y<X<? extends Object>, §|X|§<? super String>, X<? extends Exception>>,@65] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Y<X<? extends Object>, X<? super String>, §|X|§<? extends Exception>>,@84] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		§|X|§<Y<? extends Object, ? super String, X<? extends Exception>>>,@111] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		X<§|Y|§<? extends Object, ? super String, X<? extends Exception>>>,@113] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		X<Y<? extends Object, ? super String, §|X|§<? extends Exception>>>,@149] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		§|Z|§<? extends Object, X<? super String>, X<X<? extends Exception>>, X<X<X<? extends java.io.Serializable>>>>,@177] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Z<? extends Object, §|X|§<? super String>, X<X<? extends Exception>>, X<X<X<? extends java.io.Serializable>>>>,@197] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Z<? extends Object, X<? super String>, §|X|§<X<? extends Exception>>, X<X<X<? extends java.io.Serializable>>>>,@216] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Z<? extends Object, X<? super String>, X<§|X|§<? extends Exception>>, X<X<X<? extends java.io.Serializable>>>>,@218] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Z<? extends Object, X<? super String>, X<X<? extends Exception>>, §|X|§<X<X<? extends java.io.Serializable>>>>,@243] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Z<? extends Object, X<? super String>, X<X<? extends Exception>>, X<§|X|§<X<? extends java.io.Serializable>>>>,@245] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Z<? extends Object, X<? super String>, X<X<? extends Exception>>, X<X<§|X|§<? extends java.io.Serializable>>>>,@247] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		§|X|§<X<X<X<? super String>>>>> z;@287] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		X<§|X|§<X<X<? super String>>>>> z;@289] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		X<X<§|X|§<X<? super String>>>>> z;@291] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		X<X<X<§|X|§<? super String>>>>> z;@293] EXACT_MATCH"
+	);
+}
+public void testTypeRefGenericsTest11_WildcardBound() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/test11/Test.java",
+		"package test11;\n" + 
+		"public class Test {\n" + 
+		"	Z<\n" + 
+		"		Y<X<? extends Object>, X<? super String>, X<? extends Exception>>,\n" + 
+		"		X<Y<? extends Object, ? super String, X<? extends Exception>>>,\n" + 
+		"		Z<? extends Object, X<? super String>, X<X<? extends Exception>>, X<X<X<? extends java.io.Serializable>>>>,\n" + 
+		"		X<X<X<X<? super String>>>>> z;\n" + 
+		"}\n" + 
+		"class X<R> {}\n" + 
+		"class Y<S, T, U> {}\n" + 
+		"class Z<A, B, C, D> {}\n"
+	);
+	IType type = workingCopies[0].getType("Test");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
+	search("*", TYPE, WILDCARD_BOUND_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	assertSearchResults(
+		"src/test11/Test.java test11.Test.z [		Y<X<? extends §|Object|§>, X<? super String>, X<? extends Exception>>,@56] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Y<X<? extends Object>, X<? super §|String|§>, X<? extends Exception>>,@75] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Y<X<? extends Object>, X<? super String>, X<? extends §|Exception|§>>,@96] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		X<Y<? extends §|Object|§, ? super String, X<? extends Exception>>>,@125] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		X<Y<? extends Object, ? super §|String|§, X<? extends Exception>>>,@141] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		X<Y<? extends Object, ? super String, X<? extends §|Exception|§>>>,@161] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Z<? extends §|Object|§, X<? super String>, X<X<? extends Exception>>, X<X<X<? extends java.io.Serializable>>>>,@189] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Z<? extends Object, X<? super §|String|§>, X<X<? extends Exception>>, X<X<X<? extends java.io.Serializable>>>>,@207] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Z<? extends Object, X<? super String>, X<X<? extends §|Exception|§>>, X<X<X<? extends java.io.Serializable>>>>,@230] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		Z<? extends Object, X<? super String>, X<X<? extends Exception>>, X<X<X<? extends §|java.io.Serializable|§>>>>,@259] EXACT_MATCH\n" + 
+		"src/test11/Test.java test11.Test.z [		X<X<X<X<? super §|String|§>>>>> z;@303] EXACT_MATCH"
+	);
+}
+public void testTypeRefGenericsTest12_TypeArgument() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/test12/Test.java",
+		"package test12;\n" + 
+		"public class Test extends S<Exception> {\n" + 
+		"	void foo(Test test) {\n" + 
+		"		this.<Exception>foo(null);\n" + 
+		"		super.<Exception>foo(null);\n" + 
+		"		foo(null);\n" + 
+		"		test.<RuntimeException>foo(null);\n" + 
+		"	}\n" + 
+		"	void bar(Test test) {\n" + 
+		"		this.<Object, RuntimeException, Test>bar(null);\n" + 
+		"		super.<Object, RuntimeException, Test>bar(null);\n" + 
+		"		bar(null);\n" + 
+		"		test.<Object, RuntimeException, Test>bar(null);\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"class S<R> {\n" + 
+		"	<T> T foo(T t) { return t; }\n" + 
+		"	<T, U extends Exception, V extends S<R>>void bar(S s) {}\n" + 
+		"}\n" + 
+		"class X<T> {}\n"
+	);
+	IType type = workingCopies[0].getType("Test");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
+	search("*", TYPE, WILDCARD_BOUND_TYPE_REFERENCE | TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	assertSearchResults(
+		"src/test12/Test.java test12.Test [public class Test extends S<§|Exception|§> {@44] EXACT_MATCH\n" + 
+		"src/test12/Test.java void test12.Test.foo(Test) [		this.<§|Exception|§>foo(null);@88] EXACT_MATCH\n" + 
+		"src/test12/Test.java void test12.Test.foo(Test) [		super.<§|Exception|§>foo(null);@118] EXACT_MATCH\n" + 
+		"src/test12/Test.java void test12.Test.foo(Test) [		test.<§|RuntimeException|§>foo(null);@160] EXACT_MATCH\n" + 
+		"src/test12/Test.java void test12.Test.bar(Test) [		this.<§|Object|§, RuntimeException, Test>bar(null);@222] EXACT_MATCH\n" + 
+		"src/test12/Test.java void test12.Test.bar(Test) [		this.<Object, §|RuntimeException|§, Test>bar(null);@230] EXACT_MATCH\n" + 
+		"src/test12/Test.java void test12.Test.bar(Test) [		this.<Object, RuntimeException, §|Test|§>bar(null);@248] EXACT_MATCH\n" + 
+		"src/test12/Test.java void test12.Test.bar(Test) [		super.<§|Object|§, RuntimeException, Test>bar(null);@273] EXACT_MATCH\n" + 
+		"src/test12/Test.java void test12.Test.bar(Test) [		super.<Object, §|RuntimeException|§, Test>bar(null);@281] EXACT_MATCH\n" + 
+		"src/test12/Test.java void test12.Test.bar(Test) [		super.<Object, RuntimeException, §|Test|§>bar(null);@299] EXACT_MATCH\n" + 
+		"src/test12/Test.java void test12.Test.bar(Test) [		test.<§|Object|§, RuntimeException, Test>bar(null);@336] EXACT_MATCH\n" + 
+		"src/test12/Test.java void test12.Test.bar(Test) [		test.<Object, §|RuntimeException|§, Test>bar(null);@344] EXACT_MATCH\n" + 
+		"src/test12/Test.java void test12.Test.bar(Test) [		test.<Object, RuntimeException, §|Test|§>bar(null);@362] EXACT_MATCH\n" + 
+		"src/test12/Test.java void test12.S.bar(S) [	<T, U extends Exception, V extends S<§|R|§>>void bar(S s) {}@464] EXACT_MATCH"
+	);
+}
+public void testTypeRefGenericsTest13_TypeArgument() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/test13/Test.java",
+		"package test13;\n" + 
+		"public class Test<T> extends S<Exception> {\n" + 
+		"	void foo(Test<Exception> test) {\n" + 
+		"		this.<X<Exception>>foo(null);\n" + 
+		"		super.<X<X<Exception>>>foo(null);\n" + 
+		"		foo(null);\n" + 
+		"		test.<X<X<X<RuntimeException>>>>foo(null);\n" + 
+		"	}\n" + 
+		"	void fred(Test<String> test) {\n" + 
+		"		this.<X<Object>, Exception, Test<Exception>>bar(null);\n" + 
+		"		super.<X<X<Object>>, RuntimeException, Test<X<Exception>>>bar(null);\n" + 
+		"		bar(null);\n" + 
+		"		test.<X<X<X<Object>>>, RuntimeException, Test<X<X<Exception>>>>bar(null);\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"class S<R> {\n" + 
+		"	<T> T foo(T t) { return t; }\n" + 
+		"	<T, U extends Exception, V extends S<R>>void bar(S s) {}\n" + 
+		"}\n" + 
+		"class X<T> {}\n"
+	);
+	IType type = workingCopies[0].getType("Test");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
+	search("*", TYPE, WILDCARD_BOUND_TYPE_REFERENCE | TYPE_ARGUMENT_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	assertSearchResults(
+		"src/test13/Test.java test13.Test [public class Test<T> extends S<§|Exception|§> {@47] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.foo(Test<Exception>) [	void foo(Test<§|Exception|§> test) {@75] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.foo(Test<Exception>) [		this.<§|X|§<Exception>>foo(null);@102] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.foo(Test<Exception>) [		this.<X<§|Exception|§>>foo(null);@104] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.foo(Test<Exception>) [		super.<§|X|§<X<Exception>>>foo(null);@135] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.foo(Test<Exception>) [		super.<X<§|X|§<Exception>>>foo(null);@137] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.foo(Test<Exception>) [		super.<X<X<§|Exception|§>>>foo(null);@139] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.foo(Test<Exception>) [		test.<§|X|§<X<X<RuntimeException>>>>foo(null);@183] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.foo(Test<Exception>) [		test.<X<§|X|§<X<RuntimeException>>>>foo(null);@185] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.foo(Test<Exception>) [		test.<X<X<§|X|§<RuntimeException>>>>foo(null);@187] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.foo(Test<Exception>) [		test.<X<X<X<§|RuntimeException|§>>>>foo(null);@189] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [	void fred(Test<§|String|§> test) {@239] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		this.<§|X|§<Object>, Exception, Test<Exception>>bar(null);@263] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		this.<X<§|Object|§>, Exception, Test<Exception>>bar(null);@265] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		this.<X<Object>, §|Exception|§, Test<Exception>>bar(null);@274] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		this.<X<Object>, Exception, §|Test|§<Exception>>bar(null);@285] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		this.<X<Object>, Exception, Test<§|Exception|§>>bar(null);@290] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		super.<§|X|§<X<Object>>, RuntimeException, Test<X<Exception>>>bar(null);@321] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		super.<X<§|X|§<Object>>, RuntimeException, Test<X<Exception>>>bar(null);@323] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		super.<X<X<§|Object|§>>, RuntimeException, Test<X<Exception>>>bar(null);@325] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		super.<X<X<Object>>, §|RuntimeException|§, Test<X<Exception>>>bar(null);@335] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		super.<X<X<Object>>, RuntimeException, §|Test|§<X<Exception>>>bar(null);@353] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		super.<X<X<Object>>, RuntimeException, Test<§|X|§<Exception>>>bar(null);@358] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		super.<X<X<Object>>, RuntimeException, Test<X<§|Exception|§>>>bar(null);@360] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		test.<§|X|§<X<X<Object>>>, RuntimeException, Test<X<X<Exception>>>>bar(null);@404] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		test.<X<§|X|§<X<Object>>>, RuntimeException, Test<X<X<Exception>>>>bar(null);@406] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		test.<X<X<§|X|§<Object>>>, RuntimeException, Test<X<X<Exception>>>>bar(null);@408] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		test.<X<X<X<§|Object|§>>>, RuntimeException, Test<X<X<Exception>>>>bar(null);@410] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		test.<X<X<X<Object>>>, §|RuntimeException|§, Test<X<X<Exception>>>>bar(null);@421] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		test.<X<X<X<Object>>>, RuntimeException, §|Test|§<X<X<Exception>>>>bar(null);@439] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		test.<X<X<X<Object>>>, RuntimeException, Test<§|X|§<X<Exception>>>>bar(null);@444] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		test.<X<X<X<Object>>>, RuntimeException, Test<X<§|X|§<Exception>>>>bar(null);@446] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.Test.fred(Test<String>) [		test.<X<X<X<Object>>>, RuntimeException, Test<X<X<§|Exception|§>>>>bar(null);@448] EXACT_MATCH\n" + 
+		"src/test13/Test.java void test13.S.bar(S) [	<T, U extends Exception, V extends S<§|R|§>>void bar(S s) {}@558] EXACT_MATCH"
+	);
 }
 }

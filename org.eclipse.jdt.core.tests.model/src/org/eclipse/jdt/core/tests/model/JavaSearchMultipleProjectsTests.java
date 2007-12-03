@@ -14,11 +14,15 @@ import java.io.IOException;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
+import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.TypeNameMatchCollector;
 
 /**
  * Tests the Java search engine accross multiple projects.
@@ -916,6 +920,80 @@ public void testBug167743() throws CoreException {
 		assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
 	} finally {
 		deleteProject("P");
+	}
+}
+
+/**
+ * @bug 195228: [search] Invalid path in open type dialog
+ * @test Verify that correct types are found even with project and source folders in the classpath
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=195228"
+ */
+public void testBug195228() throws CoreException {
+	try {
+		// Create projects and files
+		final IJavaProject project = createJavaProject("P1", new String[] {"src"}, "bin");
+		createFolder("/P1/src/pack1/pack2");
+		createFile(
+			"/P1/src/pack1/pack2/X.java",
+			"package pack1.pack2;\n" +
+			"public class X {}"
+		);
+		createFile(
+			"/P1/src/pack1/Y.java",
+			"package pack1;\n" +
+			"public class Y {}"
+		);
+		createFile(
+			"/P1/test.properties",
+			"bug=195228"
+		);
+		// Create additional projects to force the rehash of the workspace scope while creating it
+		createJavaProject("P2", new String[] {"src"}, "bin");
+		createJavaProject("P3", new String[] {"src"}, "bin");
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+		
+		// Store all types found in project
+		TypeNameMatchCollector requestor = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			null,
+			SearchPattern.R_PREFIX_MATCH,
+			IJavaSearchConstants.TYPE,
+			scope,
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		String allTypes = requestor.toString();
+		
+		// Add project folder to classpath with inclusion and exclusion patterns
+		getWorkspace().run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				IClasspathEntry[] entries = project.getRawClasspath();
+				int length = entries.length;
+				System.arraycopy(entries, 0, entries = new IClasspathEntry[length+1], 0, length);
+				entries[length] = JavaCore.newSourceEntry(new Path("/P1"), new IPath[] { new Path("test.properties") }, new IPath[] { new Path("src/") }, null);
+				project.setRawClasspath(entries, null);
+			}
+		}, null);
+		
+		// Search for all types and verify that same are found
+		requestor = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			null,
+			SearchPattern.R_PREFIX_MATCH,
+			IJavaSearchConstants.TYPE,
+			scope,
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		assertEquals("Should found same types!", allTypes, requestor.toString());
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+		deleteProject("P3");
 	}
 }
 

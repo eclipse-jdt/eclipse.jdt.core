@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2006 IBM Corporation and others.
+ * Copyright (c) 2004, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -89,7 +90,81 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 		this.matchCompatibility = rule & MATCH_COMPATIBILITY_MASK;
 		this.matchMode = rule & MATCH_MODE_MASK;
 	}
-	
+
+	/**
+	 * @param fineGrain
+	 */
+	public static String getFineGrainFlagString(final int fineGrain) {
+		if (fineGrain == 0) {
+			return "none"; //$NON-NLS-1$
+		}
+		StringBuffer buffer = new StringBuffer();
+		for (int i=1; i<=32; i++) {
+			int bit = fineGrain & (1<<(i-1));
+			if (bit != 0 && buffer.length()>0) buffer.append(" | "); //$NON-NLS-1$
+			switch (bit) {
+				case IJavaSearchConstants.FIELD_DECLARATION_TYPE_REFERENCE:
+					buffer.append("FIELD_DECLARATION_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE:
+					buffer.append("LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.PARAMETER_DECLARATION_TYPE_REFERENCE:
+					buffer.append("PARAMETER_DECLARATION_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.SUPERTYPE_TYPE_REFERENCE:
+					buffer.append("SUPERTYPE_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.SUPERINTERFACE_TYPE_REFERENCE:
+					buffer.append("SUPERINTERFACE_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.THROWS_CLAUSE_TYPE_REFERENCE:
+					buffer.append("THROWS_CLAUSE_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.CAST_TYPE_REFERENCE:
+					buffer.append("CAST_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.CATCH_TYPE_REFERENCE:
+					buffer.append("CATCH_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.ALLOCATION_EXPRESSION_TYPE_REFERENCE:
+					buffer.append("ALLOCATION_EXPRESSION_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.RETURN_TYPE_REFERENCE:
+					buffer.append("RETURN_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.IMPORT_DECLARATION_TYPE_REFERENCE:
+					buffer.append("IMPORT_DECLARATION_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE:
+					buffer.append("ANNOTATION_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.TYPE_ARGUMENT_TYPE_REFERENCE:
+					buffer.append("TYPE_ARGUMENT_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.TYPE_VARIABLE_BOUND_TYPE_REFERENCE:
+					buffer.append("TYPE_VARIABLE_BOUND_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE:
+					buffer.append("WILDCARD_BOUND_TYPE_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.SUPER_REFERENCE:
+					buffer.append("SUPER_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.QUALIFIED_REFERENCE:
+					buffer.append("QUALIFIED_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.THIS_REFERENCE:
+					buffer.append("THIS_REFERENCE"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.IMPLICIT_THIS_REFERENCE:
+					buffer.append("IMPLICIT_THIS_REFERENCE"); //$NON-NLS-1$
+					break;
+			}
+		}
+		return buffer.toString();
+	}
+
 	public SearchPattern getBlankPattern() {
 		return null;
 	}
@@ -264,13 +339,13 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 		}
 		switch(getMatchMode()) {
 			case R_EXACT_MATCH : 
-				output.append("exact match,"); //$NON-NLS-1$
+				output.append("exact match, "); //$NON-NLS-1$
 				break;
 			case R_PREFIX_MATCH :
-				output.append("prefix match,"); //$NON-NLS-1$
+				output.append("prefix match, "); //$NON-NLS-1$
 				break;
 			case R_PATTERN_MATCH :
-				output.append("pattern match,"); //$NON-NLS-1$
+				output.append("pattern match, "); //$NON-NLS-1$
 				break;
 			case R_REGEXP_MATCH :
 				output.append("regexp match, "); //$NON-NLS-1$
@@ -283,15 +358,20 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 				break;
 		}
 		if (isCaseSensitive())
-			output.append(" case sensitive"); //$NON-NLS-1$
+			output.append("case sensitive, "); //$NON-NLS-1$
 		else
-			output.append(" case insensitive"); //$NON-NLS-1$
+			output.append("case insensitive, "); //$NON-NLS-1$
+		if ((this.matchCompatibility & R_FULL_MATCH) != 0) {
+			output.append("generic full match, "); //$NON-NLS-1$
+		}
 		if ((this.matchCompatibility & R_ERASURE_MATCH) != 0) {
-			output.append(", erasure only"); //$NON-NLS-1$
+			output.append("generic erasure match, "); //$NON-NLS-1$
 		}
 		if ((this.matchCompatibility & R_EQUIVALENT_MATCH) != 0) {
-			output.append(", equivalent oronly"); //$NON-NLS-1$
+			output.append("generic equivalent match, "); //$NON-NLS-1$
 		}
+		output.append("fine grain: "); //$NON-NLS-1$
+		output.append(getFineGrainFlagString(this.fineGrain));
 		return output;
 	}
 
