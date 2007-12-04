@@ -554,7 +554,9 @@ class TypeBinding implements ITypeBinding {
 			// must use getElementAt(...) as there is no back pointer to the defining method (scope is null after resolution has ended)
 			try {
 				int sourceStart = ((LocalTypeBinding) referenceBinding).sourceStart;
-				return (JavaElement) cu.getElementAt(sourceStart);
+				IJavaElement element =cu.getElementAt(sourceStart);
+				// workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=208013
+				return (JavaElement) element.getAncestor(IJavaElement.TYPE);
 			} catch (JavaModelException e) {
 				// does not exist
 				return null;

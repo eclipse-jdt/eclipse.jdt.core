@@ -1225,6 +1225,35 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	/*
+	 * Ensures that no ClassCastException is thrown if the method is in an anonymous 
+	 * which is inside the initializer of another anonymous.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=208013)
+	 */
+	public void testMethod11() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" + 
+			"  public void foo() {\n" + 
+			"    new Object() {\n" +
+			"      Object o;\n" +
+			"      {\n"+
+			"        new Object() {\n" + 
+			"          /*start*/void bar() {\n" +
+			"          }/*end*/\n" +
+			"		  };\n" + 
+			"      }\n" +
+			"    };\n"+
+			"  }\n" + 
+			"}"
+		);
+		IBinding binding = ((MethodDeclaration) node).resolveBinding();
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"bar() [in <anonymous #1> [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]]",
+			element
+		);
+	}
+	/*
 	 * Ensures that the IJavaElement of an IBinding representing a package is correct.
 	 */
 	public void testPackage1() throws CoreException {
