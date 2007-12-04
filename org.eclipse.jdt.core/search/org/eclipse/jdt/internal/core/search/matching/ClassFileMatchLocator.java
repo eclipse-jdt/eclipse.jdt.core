@@ -15,6 +15,8 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.FieldInfo;
+import org.eclipse.jdt.internal.compiler.classfmt.MethodInfo;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.*;
@@ -22,10 +24,55 @@ import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class ClassFileMatchLocator implements IIndexConstants {
 
+private static final long TARGET_ANNOTATION_BITS = 
+	TagBits.AnnotationForType |
+	TagBits.AnnotationForParameter |
+	TagBits.AnnotationForPackage |
+	TagBits.AnnotationForMethod |
+	TagBits.AnnotationForLocalVariable |
+	TagBits.AnnotationForField |
+	TagBits.AnnotationForConstructor |
+	TagBits.AnnotationForAnnotationType;
+private static final char[] JAVA_LANG_ANNOTATION_ELEMENTTYPE = CharOperation.concatWith(TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE, '.');
 public static char[] convertClassFileFormat(char[] name) {
 	return CharOperation.replaceOnCopy(name, '/', '.');
 }
 
+private  boolean checkAnnotation(IBinaryAnnotation annotation, TypeReferencePattern pattern) {
+	if (checkTypeName(pattern.simpleName, pattern.qualification, convertClassFileFormat(Signature.toCharArray(annotation.getTypeName())), pattern.isCaseSensitive, pattern.isCamelCase)) {
+		return true;
+	}
+	IBinaryElementValuePair[] valuePairs = annotation.getElementValuePairs();
+	if (valuePairs != null) {
+		for (int j=0, vpLength=valuePairs.length; j<vpLength; j++) {
+			IBinaryElementValuePair valuePair = valuePairs[j];
+			Object pairValue = valuePair.getValue();
+			if (pairValue instanceof IBinaryAnnotation) {
+				if (checkAnnotation((IBinaryAnnotation) pairValue, pattern)) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+private boolean checkAnnotations(TypeReferencePattern pattern, IBinaryAnnotation[] annotations, long tagBits) {
+	if (annotations != null) {
+		for (int a=0, length=annotations.length; a<length; a++) {
+			IBinaryAnnotation annotation = annotations[a];
+			if (checkAnnotation(annotation, pattern)) {
+				return true;
+			}
+		}
+	}
+	if ((tagBits & TagBits.AllStandardAnnotationsMask) != 0 && checkStandardAnnotations(tagBits, pattern)) {
+		return true;
+	}
+	return false;
+}
+private boolean checkAnnotationTypeReference(char[] fullyQualifiedName, TypeReferencePattern pattern) {
+	return checkTypeName(pattern.simpleName, pattern.qualification, fullyQualifiedName, pattern.isCaseSensitive, pattern.isCamelCase);
+}
 private boolean checkDeclaringType(IBinaryType enclosingBinaryType, char[] simpleName, char[] qualification, boolean isCaseSensitive, boolean isCamelCase) {
 	if (simpleName == null && qualification == null) return true;
 	if (enclosingBinaryType == null) return true;
@@ -42,6 +89,53 @@ private boolean checkParameters(char[] methodDescriptor, char[][] parameterSimpl
 			return false;
 	return true;
 }
+private boolean checkStandardAnnotations(long annotationTagBits, TypeReferencePattern pattern) {
+	if ((annotationTagBits & TagBits.AnnotationTargetMASK) != 0) {
+		char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_TARGET;
+		if (checkAnnotationTypeReference(CharOperation.concatWith(compoundName, '.'), pattern) ||
+			((annotationTagBits & TARGET_ANNOTATION_BITS) != 0 && checkAnnotationTypeReference(JAVA_LANG_ANNOTATION_ELEMENTTYPE, pattern))) {
+			return true;
+		}
+	}
+	if ((annotationTagBits & TagBits.AnnotationRetentionMASK) != 0) {
+		char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_RETENTION;
+		if (checkAnnotationTypeReference(CharOperation.concatWith(compoundName, '.'), pattern) ||
+			checkAnnotationTypeReference(CharOperation.concatWith(TypeConstants.JAVA_LANG_ANNOTATION_RETENTIONPOLICY, '.'), pattern)) {
+			return true;
+		}
+	}
+	if ((annotationTagBits & TagBits.AnnotationDeprecated) != 0) {
+		char[][] compoundName = TypeConstants.JAVA_LANG_DEPRECATED;
+		if (checkAnnotationTypeReference(CharOperation.concatWith(compoundName, '.'), pattern)) {
+			return true;
+		}
+	}
+	if ((annotationTagBits & TagBits.AnnotationDocumented) != 0) {
+		char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_DOCUMENTED;
+		if (checkAnnotationTypeReference(CharOperation.concatWith(compoundName, '.'), pattern)) {
+			return true;
+		}
+	}
+	if ((annotationTagBits & TagBits.AnnotationInherited) != 0) {
+		char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_INHERITED;
+		if (checkAnnotationTypeReference(CharOperation.concatWith(compoundName, '.'), pattern)) {
+			return true;
+		}
+	}
+	if ((annotationTagBits & TagBits.AnnotationOverride) != 0) {
+		char[][] compoundName = TypeConstants.JAVA_LANG_OVERRIDE;
+		if (checkAnnotationTypeReference(CharOperation.concatWith(compoundName, '.'), pattern)) {
+			return true;
+		}
+	}
+	if ((annotationTagBits & TagBits.AnnotationSuppressWarnings) != 0) {
+		char[][] compoundName = TypeConstants.JAVA_LANG_SUPPRESSWARNINGS;
+		if (checkAnnotationTypeReference(CharOperation.concatWith(compoundName, '.'), pattern)) {
+			return true;
+		}
+	}
+	return false;
+}
 private boolean checkTypeName(char[] simpleName, char[] qualification, char[] fullyQualifiedTypeName, boolean isCaseSensitive, boolean isCamelCase) {
 	// NOTE: if case insensitive then simpleName & qualification are assumed to be lowercase
 	char[] wildcardPattern = PatternLocator.qualifiedPattern(simpleName, qualification);
@@ -52,8 +146,13 @@ private boolean checkTypeName(char[] simpleName, char[] qualification, char[] fu
  * Locate declaration in the current class file. This class file is always in a jar.
  */
 public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType info) throws CoreException {
-	// check class definition
 	SearchPattern pattern = locator.pattern;
+	// check annotations references
+	if (((InternalSearchPattern)pattern).kind == TYPE_REF_PATTERN) {
+		matchAnnotations((TypeReferencePattern)pattern, locator, classFile, info);
+	}
+
+	// check class definition
 	BinaryType binaryType = (BinaryType) classFile.getType();
 	if (matchBinary(pattern, info, null)) {
 		binaryType = new ResolvedBinaryType((JavaElement) binaryType.getParent(), binaryType.getElementName(), binaryType.getKey());
@@ -203,6 +302,47 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 			IField fieldHandle = binaryType.getField(fieldName);
 			fieldHandle = new ResolvedBinaryField(binaryType, fieldName, fieldHandle.getKey());
 			locator.reportBinaryMemberDeclaration(null, fieldHandle, null, info, accuracy);
+		}
+	}
+}
+/*
+ * Look for annotations references
+ */
+void matchAnnotations(TypeReferencePattern pattern, MatchLocator locator, ClassFile classFile, IBinaryType binaryType) throws CoreException {
+
+	// Look for references in class annotations
+	IBinaryAnnotation[] annotations = binaryType.getAnnotations();
+	BinaryType classFileBinaryType = (BinaryType) classFile.getType();
+	BinaryTypeBinding binaryTypeBinding = null;
+	if (checkAnnotations(pattern, annotations, binaryType.getTagBits())) {
+		classFileBinaryType = new ResolvedBinaryType((JavaElement) classFileBinaryType.getParent(), classFileBinaryType.getElementName(), classFileBinaryType.getKey());
+		locator.reportBinaryMemberDeclaration(null, classFileBinaryType, null, binaryType, SearchMatch.A_ACCURATE);
+	}
+
+	// Look for references in methods annotations
+	MethodInfo[] methods = (MethodInfo[]) binaryType.getMethods();
+	if (methods != null) {
+		for (int i = 0, max = methods.length; i < max; i++) {
+			MethodInfo method = methods[i];
+			if (checkAnnotations(pattern, method.getAnnotations(), method.getTagBits())) {
+					binaryTypeBinding = locator.cacheBinaryType(classFileBinaryType, binaryType);
+					IMethod methodHandle = classFileBinaryType.getMethod(
+						new String(method.isConstructor() ? binaryTypeBinding.compoundName[binaryTypeBinding.compoundName.length-1] : method.getSelector()),
+						CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(method.getMethodDescriptor()))));
+					locator.reportBinaryMemberDeclaration(null, methodHandle, null, binaryType, SearchMatch.A_ACCURATE);
+			}
+		}
+	}
+	
+	// Look for references in fields annotations
+	FieldInfo[] fields = (FieldInfo[]) binaryType.getFields();
+	if (fields != null) {
+		for (int i = 0, max = fields.length; i < max; i++) {
+			FieldInfo field = fields[i];
+			if (checkAnnotations(pattern, field.getAnnotations(), field.getTagBits())) {
+					IField fieldHandle = classFileBinaryType.getField(new String(field.getName()));
+					locator.reportBinaryMemberDeclaration(null, fieldHandle, null, binaryType, SearchMatch.A_ACCURATE);
+			}
 		}
 	}
 }
