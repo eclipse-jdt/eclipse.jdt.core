@@ -1112,7 +1112,11 @@ public class Util {
 	}
 
 	public static void setSourceAttachmentProperty(IPath path, String property) {
-		JavaModelManager.getJavaModelManager().rootPathToAttachments.put(path, property);
+		if (property == null) {
+			JavaModelManager.getJavaModelManager().rootPathToAttachments.put(path, PackageFragmentRoot.NO_SOURCE_ATTACHMENT);
+		} else {
+			JavaModelManager.getJavaModelManager().rootPathToAttachments.put(path, property);
+		}
 		try {
 			ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(getSourceAttachmentPropertyName(path), property);
 		} catch (CoreException e) {

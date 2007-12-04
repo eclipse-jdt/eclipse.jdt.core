@@ -135,7 +135,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/* 
 	 * Map from a package fragment root's path to a source attachment property (source path + ATTACHMENT_PROPERTY_DELIMITER + source root path)
 	 */
-	public Map rootPathToAttachments = new HashMap();
+	public Map rootPathToAttachments = new Hashtable();
 
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
