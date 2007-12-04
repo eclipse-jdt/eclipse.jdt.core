@@ -726,6 +726,10 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 							addBinaryAnnotation(annotation);
 						}
 					}
+					tagBits = method.getTagBits() & TagBits.AllStandardAnnotationsMask;
+					if (tagBits != 0) {
+						addBinaryStandardAnnotations(tagBits);
+					}
 				}
 			}
 			FieldInfo[] fields = (FieldInfo[]) reader.getFields();
@@ -742,6 +746,10 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 							IBinaryAnnotation annotation = annotations[a];
 							addBinaryAnnotation(annotation);
 						}
+					}
+					tagBits = field.getTagBits() & TagBits.AllStandardAnnotationsMask;
+					if (tagBits != 0) {
+						addBinaryStandardAnnotations(tagBits);
 					}
 				}
 			}
