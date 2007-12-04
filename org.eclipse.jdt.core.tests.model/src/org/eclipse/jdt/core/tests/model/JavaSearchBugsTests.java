@@ -2911,6 +2911,7 @@ public void testBug92264a() throws CoreException {
 		"java.lang.Class\n" +
 		"java.lang.CloneNotSupportedException\n" +
 		"java.lang.Comparable\n" +
+		"java.lang.Deprecated\n" +
 		"java.lang.Enum\n" +
 		"java.lang.Error\n" +
 		"java.lang.Exception\n" +
@@ -5974,6 +5975,7 @@ public void testBug113671() throws CoreException {
 		"java.lang.Class\n" +
 		"java.lang.CloneNotSupportedException\n" +
 		"java.lang.Comparable\n" +
+		"java.lang.Deprecated\n" +
 		"java.lang.Enum\n" +
 		"java.lang.Error\n" +
 		"java.lang.Exception\n" +
@@ -8122,6 +8124,7 @@ public void testBug160854() throws CoreException {
 		"java.lang.Class\n" +
 		"java.lang.CloneNotSupportedException\n" +
 		"java.lang.Comparable\n" +
+		"java.lang.Deprecated\n" +
 		"java.lang.Enum\n" +
 		"java.lang.Error\n" +
 		"java.lang.Exception\n" +
@@ -9258,6 +9261,49 @@ public void testBug210691() throws CoreException {
 		"src/test/Ref.java [import §|pack.Test|§;] EXACT_MATCH\n" + 
 		"src/test/Ref.java test.Ref.test [	§|Test|§ test;] EXACT_MATCH"
 	);
+}
+
+/**
+ * @bug 211366: [search] does not return references to types in binary classes
+ * @test Ensure that annotations references are found in a class file without source
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=211366"
+ */
+public void testBug211366() throws CoreException {
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b211366.jar", false);
+	try {
+		IType type = getClassFile("JavaSearchBugs", "lib/b211366.jar", "test", "Bug.class").getType();
+		search(type, REFERENCES);
+		assertSearchResults(
+			"lib/b211366.jar pack.Test [No source] EXACT_MATCH\n" + 
+			"lib/b211366.jar pack.TestInner$Member [No source] EXACT_MATCH\n" + 
+			"lib/b211366.jar void pack.TestMembers.method(java.lang.Object, java.lang.String) [No source] EXACT_MATCH\n" + 
+			"lib/b211366.jar pack.TestMembers.field [No source] EXACT_MATCH"
+		);
+	}
+	finally {
+		removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b211366.jar"));
+	}
+}
+
+/**
+ * @bug 211857: [search] Standard annotations references not found on binary fields and methods when no source is attached
+ * @test Ensure that annotations references on fields and methods are found in a class file without source
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=211857"
+ */
+public void testBug211857() throws CoreException {
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b211857.jar", false);
+	try {
+		IType type = getClassFile("JavaSearchBugs", getExternalJCLPathString("1.5"), "java.lang", "Deprecated.class").getType();
+		search(type, REFERENCES);
+		assertSearchResults(
+			"lib/b211857.jar pack.Test [No source] EXACT_MATCH\n" + 
+			"lib/b211857.jar void pack.TestMembers.method(java.lang.Object, java.lang.String) [No source] EXACT_MATCH\n" + 
+			"lib/b211857.jar pack.TestMembers.field [No source] EXACT_MATCH"
+		);
+	}
+	finally {
+		removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b211857.jar"));
+	}
 }
 
 }
