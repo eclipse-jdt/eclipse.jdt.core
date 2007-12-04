@@ -28,8 +28,10 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 
 /**
@@ -46,8 +48,13 @@ public class NegativeModelProc extends AbstractProcessor
 
 	private static final String CLASSNAME = NegativeModelProc.class.getName();
 
-	private static final boolean testNegative1 = false;
+	/*
+	 * Sometimes it's necessary to work on one test at a time, while
+	 * ignoring failures in earlier tests. 
+	 */
+	private static final boolean testNegative1 = true;
 	private static final boolean testNegative2 = true;
+	private static final boolean testNegative3 = true;
 	
 	/**
 	 * Report an error to the test case code.  
@@ -73,6 +80,7 @@ public class NegativeModelProc extends AbstractProcessor
 	// Initialized in collectElements()
 	private TypeElement _elementN1;
 	private TypeElement _elementN2;
+	private TypeElement _elementN3;
 
 	// Report failures on tests that are already known to be unsupported
 	private boolean _reportFailingCases = true;
@@ -113,6 +121,10 @@ public class NegativeModelProc extends AbstractProcessor
 			return false;
 		}
 		
+		if (testNegative3 && !checkNegative3()) {
+			return false;
+		}
+		
 		reportSuccess();
 		return false;
 	}
@@ -130,6 +142,11 @@ public class NegativeModelProc extends AbstractProcessor
 		_elementN2 = _elementUtils.getTypeElement("targets.negative.pa.Negative2");
 		if (null == _elementN2 || _elementN2.getKind() != ElementKind.CLASS) {
 			reportError("Element Negative2 was not found or was not a class");
+			return false;
+		}
+		_elementN3 = _elementUtils.getTypeElement("targets.negative.pa.Negative3");
+		if (null == _elementN3 || _elementN3.getKind() != ElementKind.CLASS) {
+			reportError("Element Negative3 was not found or was not a class");
 			return false;
 		}
 		// TODO: try collecting a nested or secondary type that extends a missing type
@@ -255,6 +272,45 @@ public class NegativeModelProc extends AbstractProcessor
 							return false;
 						}
 					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Check the model of targets.negative.pa.Negative3
+	 * @return true if all tests passed
+	 */
+	private boolean checkNegative3() {
+		List<? extends Element> enclosedElements = _elementN3.getEnclosedElements();
+		for (Element element : enclosedElements) {
+			String name = element.getSimpleName().toString();
+			if ("foo".equals(name)) {
+				ElementKind kind = element.getKind();
+				if (_reportFailingCases && ElementKind.METHOD != kind) {
+					reportError("Element 'foo' was expected to be a METHOD but was a " + kind);
+					return false;
+				}
+				List<? extends VariableElement> params = ((ExecutableElement)element).getParameters();
+				if (_reportFailingCases && (params == null || params.size() != 1)) {
+					reportError("Expected method Negative3.foo() to have one param, but found " +
+							(params == null ? 0 : params.size()));
+					return false;
+				}
+				VariableElement param1 = params.iterator().next();
+				TypeMirror param1Type = param1.asType();
+				TypeKind tkind = param1Type.getKind();
+				if (_reportFailingCases && TypeKind.ERROR != tkind && TypeKind.DECLARED != tkind) {
+					reportError("Expected the TypeKind of Negative3.foo() param to be ERROR or DECLARED, but found " + tkind);
+					return false;
+				}
+				// The behavior of TypeMirror.toString() is suggested, not required, by its javadoc. 
+				// So, this is a test of whether we behave like javac, rather than whether we meet the spec.
+				String pname = param1Type.toString();
+				if (_reportFailingCases && !"M2.M3.M4".equals(pname)) {
+					reportError("Expected toString() of the type of Negative3.foo() param to be M2.M3.M4, but found " + pname);
+					return false;
 				}
 			}
 		}
