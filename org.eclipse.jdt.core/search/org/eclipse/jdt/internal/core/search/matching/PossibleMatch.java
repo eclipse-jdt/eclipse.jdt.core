@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class PossibleMatch implements ICompilationUnit {
 
 public static final String NO_SOURCE_FILE_NAME = "NO SOURCE FILE NAME"; //$NON-NLS-1$
+public static final char[] NO_SOURCE_FILE = new char[0];
 
 public IResource resource;
 public Openable openable;
@@ -32,7 +33,7 @@ CompilationUnitDeclaration parsedUnit;
 public SearchDocument document;
 private String sourceFileName;
 private char[] source;
-PossibleMatch similarMatch;
+private PossibleMatch similarMatch;
 
 public PossibleMatch(MatchLocator locator, IResource resource, Openable openable, SearchDocument document, boolean mustResolve) {
 	this.resource = resource;
@@ -60,17 +61,21 @@ public boolean equals(Object obj) {
 	return CharOperation.equals(this.compoundName, ((PossibleMatch) obj).compoundName);
 }
 public char[] getContents() {
-	if (this.source != null) return this.source;
-
-	if (this.openable instanceof ClassFile) {
-		String fileName = getSourceFileName();
-		if (fileName == NO_SOURCE_FILE_NAME) return CharOperation.NO_CHAR;
-
-		SourceMapper sourceMapper = this.openable.getSourceMapper();
-		IType type = ((ClassFile) this.openable).getType();
-		return this.source = sourceMapper.findSource(type, fileName);
+	char[] contents = (this.source == NO_SOURCE_FILE) ? null : this.source;
+	if (this.source == null) {
+		if (this.openable instanceof ClassFile) {
+			String fileName = getSourceFileName();
+			if (fileName == NO_SOURCE_FILE_NAME) return CharOperation.NO_CHAR;
+	
+			SourceMapper sourceMapper = this.openable.getSourceMapper();
+			IType type = ((ClassFile) this.openable).getType();
+			contents = sourceMapper.findSource(type, fileName);
+		} else {
+			contents = this.document.getCharContents();
+		}
+		this.source = (contents == null) ? NO_SOURCE_FILE : contents;
 	}
-	return this.source = this.document.getCharContents();
+	return contents;
 }
 /**
  * The exact openable file name. In particular, will be the originating .class file for binary openable with attached
@@ -115,6 +120,9 @@ private char[] getQualifiedName() {
 	}
 	return null;
 }
+PossibleMatch getSimilarMatch() {
+	return this.similarMatch;
+}
 /*
  * Returns the source file name of the class file.
  * Returns NO_SOURCE_FILE_NAME if not found.
@@ -133,8 +141,8 @@ private String getSourceFileName() {
 	}
 	return this.sourceFileName;
 }	
-boolean hasContents() {
-	return this.source != null;
+boolean hasSimilarMatch() {
+	return this.similarMatch != null && this.source == NO_SOURCE_FILE;
 }
 public int hashCode() {
 	if (this.compoundName == null) return super.hashCode();
@@ -143,6 +151,12 @@ public int hashCode() {
 	for (int i = 0, length = this.compoundName.length; i < length; i++)
 		hashCode += CharOperation.hashCode(this.compoundName[i]);
 	return hashCode;
+}
+void setSimilarMatch(PossibleMatch possibleMatch) {
+	// source does not matter on similar match as it is read on
+	// the first stored possible match
+	possibleMatch.source = NO_SOURCE_FILE;
+	this.similarMatch = possibleMatch;
 }
 public String toString() {
 	return this.openable == null ? "Fake PossibleMatch" : this.openable.toString(); //$NON-NLS-1$

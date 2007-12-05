@@ -29,10 +29,10 @@ public void add(PossibleMatch possibleMatch) {
 	if (possibleMatches != null) {
 		PossibleMatch storedMatch = (PossibleMatch) possibleMatches.find(possibleMatch);
 		if (storedMatch != null) {
-			while (storedMatch.similarMatch != null) {
-				storedMatch = storedMatch.similarMatch;
+			while (storedMatch.getSimilarMatch() != null) {
+				storedMatch = storedMatch.getSimilarMatch();
 			}
-			storedMatch.similarMatch = possibleMatch;
+			storedMatch.setSimilarMatch(possibleMatch);
 			return;
 		}
 	} else{

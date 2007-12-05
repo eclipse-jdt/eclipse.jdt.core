@@ -988,8 +988,10 @@ protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMa
 					}
 				}
 			} finally {
-				if (possibleMatch.similarMatch != null && !possibleMatch.hasContents()) {
-					possibleMatches[i] = possibleMatch.similarMatch;
+				if (possibleMatch.hasSimilarMatch()) {
+					// If there is similar match, then also process it
+					// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=211872
+					possibleMatches[i] = possibleMatch.getSimilarMatch();
 					i--;
 				}
 				if (!possibleMatch.nodeSet.mustResolve)
