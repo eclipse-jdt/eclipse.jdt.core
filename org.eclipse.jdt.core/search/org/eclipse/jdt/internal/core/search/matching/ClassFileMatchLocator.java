@@ -147,10 +147,9 @@ private boolean checkTypeName(char[] simpleName, char[] qualification, char[] fu
  */
 public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType info) throws CoreException {
 	SearchPattern pattern = locator.pattern;
+
 	// check annotations references
-	if (((InternalSearchPattern)pattern).kind == TYPE_REF_PATTERN) {
-		matchAnnotations((TypeReferencePattern)pattern, locator, classFile, info);
-	}
+	matchAnnotations(pattern, locator, classFile, info);
 
 	// check class definition
 	BinaryType binaryType = (BinaryType) classFile.getType();
@@ -308,13 +307,27 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 /*
  * Look for annotations references
  */
-void matchAnnotations(TypeReferencePattern pattern, MatchLocator locator, ClassFile classFile, IBinaryType binaryType) throws CoreException {
+void matchAnnotations(SearchPattern pattern, MatchLocator locator, ClassFile classFile, IBinaryType binaryType) throws CoreException {
+	// Only process TypeReference patterns
+	switch (((InternalSearchPattern)pattern).kind) {
+		case TYPE_REF_PATTERN:
+			break;
+		case OR_PATTERN:
+			SearchPattern[] patterns = ((OrPattern) pattern).patterns;
+			for (int i = 0, length = patterns.length; i < length; i++) {
+				matchAnnotations(patterns[i], locator, classFile, binaryType);
+			}
+			// fall through default to return
+		default:
+			return;
+	}
+	TypeReferencePattern typeReferencePattern  = (TypeReferencePattern) pattern;
 
 	// Look for references in class annotations
 	IBinaryAnnotation[] annotations = binaryType.getAnnotations();
 	BinaryType classFileBinaryType = (BinaryType) classFile.getType();
 	BinaryTypeBinding binaryTypeBinding = null;
-	if (checkAnnotations(pattern, annotations, binaryType.getTagBits())) {
+	if (checkAnnotations(typeReferencePattern, annotations, binaryType.getTagBits())) {
 		classFileBinaryType = new ResolvedBinaryType((JavaElement) classFileBinaryType.getParent(), classFileBinaryType.getElementName(), classFileBinaryType.getKey());
 		locator.reportBinaryMemberDeclaration(null, classFileBinaryType, null, binaryType, SearchMatch.A_ACCURATE);
 	}
@@ -324,7 +337,7 @@ void matchAnnotations(TypeReferencePattern pattern, MatchLocator locator, ClassF
 	if (methods != null) {
 		for (int i = 0, max = methods.length; i < max; i++) {
 			MethodInfo method = methods[i];
-			if (checkAnnotations(pattern, method.getAnnotations(), method.getTagBits())) {
+			if (checkAnnotations(typeReferencePattern, method.getAnnotations(), method.getTagBits())) {
 					binaryTypeBinding = locator.cacheBinaryType(classFileBinaryType, binaryType);
 					IMethod methodHandle = classFileBinaryType.getMethod(
 						new String(method.isConstructor() ? binaryTypeBinding.compoundName[binaryTypeBinding.compoundName.length-1] : method.getSelector()),
@@ -339,7 +352,7 @@ void matchAnnotations(TypeReferencePattern pattern, MatchLocator locator, ClassF
 	if (fields != null) {
 		for (int i = 0, max = fields.length; i < max; i++) {
 			FieldInfo field = fields[i];
-			if (checkAnnotations(pattern, field.getAnnotations(), field.getTagBits())) {
+			if (checkAnnotations(typeReferencePattern, field.getAnnotations(), field.getTagBits())) {
 					IField fieldHandle = classFileBinaryType.getField(new String(field.getName()));
 					locator.reportBinaryMemberDeclaration(null, fieldHandle, null, binaryType, SearchMatch.A_ACCURATE);
 			}

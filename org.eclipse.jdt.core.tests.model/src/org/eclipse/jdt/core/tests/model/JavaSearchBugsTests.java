@@ -9285,6 +9285,32 @@ public void testBug211366() throws CoreException {
 		removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b211366.jar"));
 	}
 }
+public void testBug211366_OrPattern() throws CoreException {
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b211366.jar", false);
+	try {
+		IType type = getClassFile("JavaSearchBugs", "lib/b211366.jar", "test", "Bug.class").getType();
+		SearchPattern rightPattern = SearchPattern.createPattern(type, REFERENCES);
+		SearchPattern leftPattern = SearchPattern.createPattern(type, DECLARATIONS);
+		SearchPattern pattern = SearchPattern.createOrPattern(leftPattern, rightPattern);
+		new SearchEngine(workingCopies).search(
+			pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchScope(),
+			this.resultCollector,
+			null
+		);
+		assertSearchResults(
+			"lib/b211366.jar pack.Test [No source] EXACT_MATCH\n" + 
+			"lib/b211366.jar pack.TestInner$Member [No source] EXACT_MATCH\n" + 
+			"lib/b211366.jar void pack.TestMembers.method(java.lang.Object, java.lang.String) [No source] EXACT_MATCH\n" + 
+			"lib/b211366.jar pack.TestMembers.field [No source] EXACT_MATCH\n" +
+			"lib/b211366.jar test.Bug [No source] EXACT_MATCH"
+		);
+	}
+	finally {
+		removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b211366.jar"));
+	}
+}
 
 /**
  * @bug 211857: [search] Standard annotations references not found on binary fields and methods when no source is attached
