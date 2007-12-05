@@ -50,14 +50,18 @@ static Object convertMemberValue(Object binaryValue, LookupEnvironment env) {
 	if (binaryValue == null) return null;
 	if (binaryValue instanceof Constant)
 		return binaryValue;
-	if (binaryValue instanceof ClassSignature)
-		return env.getTypeFromSignature(((ClassSignature) binaryValue).getTypeName(), 0, -1, false, null);
+	if (binaryValue instanceof ClassSignature) {
+		TypeBinding typeFromSignature = env.getTypeFromSignature(((ClassSignature) binaryValue).getTypeName(), 0, -1, false, null);
+		if (typeFromSignature.isBaseType()) {
+			return typeFromSignature;
+		}
+		return resolveType((ReferenceBinding) typeFromSignature, env, false);
+	}
 	if (binaryValue instanceof IBinaryAnnotation)
 		return createAnnotation((IBinaryAnnotation) binaryValue, env);
 	if (binaryValue instanceof EnumConstantSignature) {
 		EnumConstantSignature ref = (EnumConstantSignature) binaryValue;
-		ReferenceBinding enumType =
-			(ReferenceBinding) env.getTypeFromSignature(ref.getTypeName(), 0, -1, false, null);
+		ReferenceBinding enumType = (ReferenceBinding) env.getTypeFromSignature(ref.getTypeName(), 0, -1, false, null);
 		enumType = resolveType(enumType, env, false);
 		return enumType.getField(ref.getEnumConstantName(), false);
 	}
