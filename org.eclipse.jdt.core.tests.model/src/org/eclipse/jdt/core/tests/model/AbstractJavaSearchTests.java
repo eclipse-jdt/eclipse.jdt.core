@@ -61,6 +61,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 		public boolean showSynthetic;
 		public boolean showOffset = false;
 		public int showFlavors = 0;
+		public boolean showMatchKind = false;
 		public int count = 0;
 		List lines = new ArrayList();
 		boolean sorted;
@@ -85,7 +86,13 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			try {
 				IResource resource = match.getResource();
 				IJavaElement element = getElement(match);
-				line = new StringBuffer(getPathString(resource, element));
+				line = new StringBuffer();
+				if (this.showMatchKind) {
+					String matchClassName = this.match.getClass().getName();
+					line.append(matchClassName.substring(matchClassName.lastIndexOf('.')+1));
+					line.append(": ");
+				}
+				line.append(getPathString(resource, element));
 				if (this.showProject) {
 					IProject project = element.getJavaProject().getProject();
 					line.append(" [in ");

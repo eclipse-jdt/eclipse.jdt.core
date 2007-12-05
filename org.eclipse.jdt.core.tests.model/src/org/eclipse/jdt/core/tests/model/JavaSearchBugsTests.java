@@ -9273,12 +9273,13 @@ public void testBug211366() throws CoreException {
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b211366.jar", false);
 	try {
 		IType type = getClassFile("JavaSearchBugs", "lib/b211366.jar", "test", "Bug.class").getType();
+		this.resultCollector.showMatchKind = true;
 		search(type, REFERENCES);
 		assertSearchResults(
-			"lib/b211366.jar pack.Test [No source] EXACT_MATCH\n" + 
-			"lib/b211366.jar pack.TestInner$Member [No source] EXACT_MATCH\n" + 
-			"lib/b211366.jar void pack.TestMembers.method(java.lang.Object, java.lang.String) [No source] EXACT_MATCH\n" + 
-			"lib/b211366.jar pack.TestMembers.field [No source] EXACT_MATCH"
+			"TypeReferenceMatch: lib/b211366.jar pack.Test [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar pack.TestInner$Member [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar void pack.TestMembers.method(java.lang.Object, java.lang.String) [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar pack.TestMembers.field [No source] EXACT_MATCH"
 		);
 	}
 	finally {
@@ -9292,6 +9293,7 @@ public void testBug211366_OrPattern() throws CoreException {
 		SearchPattern rightPattern = SearchPattern.createPattern(type, REFERENCES);
 		SearchPattern leftPattern = SearchPattern.createPattern(type, DECLARATIONS);
 		SearchPattern pattern = SearchPattern.createOrPattern(leftPattern, rightPattern);
+		this.resultCollector.showMatchKind = true;
 		new SearchEngine(workingCopies).search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -9300,11 +9302,51 @@ public void testBug211366_OrPattern() throws CoreException {
 			null
 		);
 		assertSearchResults(
-			"lib/b211366.jar pack.Test [No source] EXACT_MATCH\n" + 
-			"lib/b211366.jar pack.TestInner$Member [No source] EXACT_MATCH\n" + 
-			"lib/b211366.jar void pack.TestMembers.method(java.lang.Object, java.lang.String) [No source] EXACT_MATCH\n" + 
-			"lib/b211366.jar pack.TestMembers.field [No source] EXACT_MATCH\n" +
-			"lib/b211366.jar test.Bug [No source] EXACT_MATCH"
+			"TypeReferenceMatch: lib/b211366.jar pack.Test [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar pack.TestInner$Member [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar void pack.TestMembers.method(java.lang.Object, java.lang.String) [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar pack.TestMembers.field [No source] EXACT_MATCH\n" +
+			"TypeDeclarationMatch: lib/b211366.jar test.Bug [No source] EXACT_MATCH"
+		);
+	}
+	finally {
+		removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b211366.jar"));
+	}
+}
+public void testBug211366_ComplexOrPattern() throws CoreException {
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b211366.jar", false);
+	try {
+		IType bType = getClassFile("JavaSearchBugs", "lib/b211366.jar", "test", "Bug.class").getType();
+		SearchPattern leftPattern = SearchPattern.createOrPattern(
+			SearchPattern.createPattern("field", FIELD, DECLARATIONS, SearchPattern.R_CASE_SENSITIVE),
+			SearchPattern.createPattern(bType, REFERENCES));
+		SearchPattern rightPattern = SearchPattern.createOrPattern(
+			SearchPattern.createPattern("Member", TYPE, DECLARATIONS, SearchPattern.R_EXACT_MATCH),
+			SearchPattern.createOrPattern(
+				SearchPattern.createPattern("method", METHOD, DECLARATIONS, SearchPattern.R_EXACT_MATCH),
+				SearchPattern.createPattern("Bug", TYPE, REFERENCES, SearchPattern.R_EXACT_MATCH)));
+		IPackageFragmentRoot root = JAVA_PROJECT.getPackageFragmentRoot("/JavaSearchBugs/lib/b211366.jar");
+		this.resultCollector.sorted = true;
+		this.resultCollector.showMatchKind = true;
+		new SearchEngine(workingCopies).search(
+			SearchPattern.createOrPattern(leftPattern, rightPattern),
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			SearchEngine.createJavaSearchScope(new IJavaElement[] { root }),
+			this.resultCollector,
+			null
+		);
+		assertSearchResults(
+			"FieldDeclarationMatch: lib/b211366.jar pack.TestMembers.field [No source] EXACT_MATCH\n" + 
+			"MethodDeclarationMatch: lib/b211366.jar void pack.TestMembers.method(java.lang.Object, java.lang.String) [No source] EXACT_MATCH\n" + 
+			"TypeDeclarationMatch: lib/b211366.jar pack.TestInner$Member [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar pack.Test [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar pack.Test [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar pack.TestInner$Member [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar pack.TestInner$Member [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar pack.TestMembers.field [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar pack.TestMembers.field [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar void pack.TestMembers.method(java.lang.Object, java.lang.String) [No source] EXACT_MATCH\n" + 
+			"TypeReferenceMatch: lib/b211366.jar void pack.TestMembers.method(java.lang.Object, java.lang.String) [No source] EXACT_MATCH"
 		);
 	}
 	finally {

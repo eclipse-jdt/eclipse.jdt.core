@@ -329,7 +329,8 @@ void matchAnnotations(SearchPattern pattern, MatchLocator locator, ClassFile cla
 	BinaryTypeBinding binaryTypeBinding = null;
 	if (checkAnnotations(typeReferencePattern, annotations, binaryType.getTagBits())) {
 		classFileBinaryType = new ResolvedBinaryType((JavaElement) classFileBinaryType.getParent(), classFileBinaryType.getElementName(), classFileBinaryType.getKey());
-		locator.reportBinaryMemberDeclaration(null, classFileBinaryType, null, binaryType, SearchMatch.A_ACCURATE);
+		SearchMatch match = new TypeReferenceMatch(classFileBinaryType, SearchMatch.A_ACCURATE, -1, 0, false, locator.getParticipant(), locator.currentPossibleMatch.resource);
+		locator.report(match);
 	}
 
 	// Look for references in methods annotations
@@ -342,7 +343,8 @@ void matchAnnotations(SearchPattern pattern, MatchLocator locator, ClassFile cla
 					IMethod methodHandle = classFileBinaryType.getMethod(
 						new String(method.isConstructor() ? binaryTypeBinding.compoundName[binaryTypeBinding.compoundName.length-1] : method.getSelector()),
 						CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(method.getMethodDescriptor()))));
-					locator.reportBinaryMemberDeclaration(null, methodHandle, null, binaryType, SearchMatch.A_ACCURATE);
+					SearchMatch match = new TypeReferenceMatch(methodHandle, SearchMatch.A_ACCURATE, -1, 0, false, locator.getParticipant(), locator.currentPossibleMatch.resource);
+					locator.report(match);
 			}
 		}
 	}
@@ -354,7 +356,8 @@ void matchAnnotations(SearchPattern pattern, MatchLocator locator, ClassFile cla
 			FieldInfo field = fields[i];
 			if (checkAnnotations(typeReferencePattern, field.getAnnotations(), field.getTagBits())) {
 					IField fieldHandle = classFileBinaryType.getField(new String(field.getName()));
-					locator.reportBinaryMemberDeclaration(null, fieldHandle, null, binaryType, SearchMatch.A_ACCURATE);
+					SearchMatch match = new TypeReferenceMatch(fieldHandle, SearchMatch.A_ACCURATE, -1, 0, false, locator.getParticipant(), locator.currentPossibleMatch.resource);
+					locator.report(match);
 			}
 		}
 	}
