@@ -32,6 +32,7 @@ CompilationUnitDeclaration parsedUnit;
 public SearchDocument document;
 private String sourceFileName;
 private char[] source;
+PossibleMatch similarMatch;
 
 public PossibleMatch(MatchLocator locator, IResource resource, Openable openable, SearchDocument document, boolean mustResolve) {
 	this.resource = resource;
@@ -132,6 +133,9 @@ private String getSourceFileName() {
 	}
 	return this.sourceFileName;
 }	
+boolean hasContents() {
+	return this.source != null;
+}
 public int hashCode() {
 	if (this.compoundName == null) return super.hashCode();
 

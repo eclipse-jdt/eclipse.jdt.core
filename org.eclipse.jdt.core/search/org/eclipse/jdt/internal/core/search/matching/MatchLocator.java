@@ -988,6 +988,10 @@ protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMa
 					}
 				}
 			} finally {
+				if (possibleMatch.similarMatch != null && !possibleMatch.hasContents()) {
+					possibleMatches[i] = possibleMatch.similarMatch;
+					i--;
+				}
 				if (!possibleMatch.nodeSet.mustResolve)
 					possibleMatch.cleanUp();
 			}

@@ -27,8 +27,15 @@ public void add(PossibleMatch possibleMatch) {
 	IPath path = possibleMatch.openable.getPackageFragmentRoot().getPath();
 	ObjectVector possibleMatches = (ObjectVector) this.rootsToPossibleMatches.get(path);
 	if (possibleMatches != null) {
-		if (possibleMatches.contains(possibleMatch)) return;
-	} else {
+		PossibleMatch storedMatch = (PossibleMatch) possibleMatches.find(possibleMatch);
+		if (storedMatch != null) {
+			while (storedMatch.similarMatch != null) {
+				storedMatch = storedMatch.similarMatch;
+			}
+			storedMatch.similarMatch = possibleMatch;
+			return;
+		}
+	} else{
 		this.rootsToPossibleMatches.put(path, possibleMatches = new ObjectVector());
 	}
 

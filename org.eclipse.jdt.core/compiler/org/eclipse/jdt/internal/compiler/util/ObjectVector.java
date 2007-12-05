@@ -96,7 +96,7 @@ public final class ObjectVector {
 
 		for (int i = this.size; --i >= 0;)
 			if (element.equals(this.elements[i]))
-				return element;
+				return this.elements[i];
 		return null;
 	}
 

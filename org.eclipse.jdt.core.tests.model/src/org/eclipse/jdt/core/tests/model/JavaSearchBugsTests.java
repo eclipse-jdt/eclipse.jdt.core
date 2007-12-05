@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9303,6 +9304,45 @@ public void testBug211857() throws CoreException {
 	}
 	finally {
 		removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b211857.jar"));
+	}
+}
+
+/**
+ * @bug 211872: [search] References to annotations not found in class file without source
+ * @test Ensure that annotations references are found in the specific class file without source
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=211872"
+ */
+public void testBug211872_ns() throws CoreException, IOException {
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b211872_ns.jar", false);
+	try {
+		IType type = getClassFile("JavaSearchBugs", "lib/b211872_ns.jar", "test", "Bug.class").getType();
+		search(type, REFERENCES);
+		assertSearchResults(
+			"lib/b211872_ns.jar pack.Test [No source] EXACT_MATCH\n" + 
+			"lib/b211872_ns.jar pack.TestMembers$Member [No source] EXACT_MATCH\n" + 
+			"lib/b211872_ns.jar void pack.TestMembers.method(java.lang.Object, java.lang.String) [No source] EXACT_MATCH\n" + 
+			"lib/b211872_ns.jar pack.TestMembers.field [No source] EXACT_MATCH"
+		);
+	}
+	finally {
+		removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b211872_ns.jar"));
+	}
+}
+public void testBug211872_ws() throws CoreException, IOException {
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b211872_ws.jar", false);
+	try {
+		IType type = getClassFile("JavaSearchBugs", "lib/b211872_ws.jar", "test", "Bug.class").getType();
+		search(type, REFERENCES);
+		assertSearchResults(
+			"lib/b211872_ws.jar pack.Test EXACT_MATCH\n" + 
+			"lib/b211872_ws.jar pack.Test EXACT_MATCH\n" + 
+			"lib/b211872_ws.jar pack.TestMembers.field EXACT_MATCH\n" + 
+			"lib/b211872_ws.jar void pack.TestMembers.method(java.lang.Object, java.lang.String) EXACT_MATCH\n" + 
+			"lib/b211872_ws.jar pack.TestMembers$Member EXACT_MATCH"
+		);
+	}
+	finally {
+		removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b211872_ws.jar"));
 	}
 }
 
