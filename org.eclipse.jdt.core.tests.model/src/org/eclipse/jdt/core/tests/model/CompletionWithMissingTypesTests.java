@@ -1593,4 +1593,43 @@ public void test0038() throws JavaModelException {
 			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
+public void test0039() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  MissingType m;\n" + 
+		"  void foo() {\n" + 
+		"    class MissingType {\n" + 
+		"      public void bar2() {}\n" + 
+		"    }\n" + 
+		"    m.b\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/missing/MissingType.java",
+		"package missing;"+
+		"public class MissingType {\n" + 
+		"  public void bar1() {}\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "m.b";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
+	int start1 = str.lastIndexOf("m.b") + "m.".length();
+	int end1 = start1 + "b".length();
+	int start2 = str.indexOf("MissingType");
+	int end2 = start2 + "MissingType".length();
+	assertResults(
+			"bar1[METHOD_REF]{bar1(), Lmissing.MissingType;, ()V, bar1, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
 }
