@@ -521,13 +521,17 @@ public static void searchAllPossibleSubTypes(
 			// search all index references to a given supertype
 			pattern.superSimpleName = currentTypeName;
 			indexManager.performConcurrentJob(job, waitingPolicy, progressMonitor == null ? null : new NullProgressMonitor() { 
-				// don't report progress since this is too costly for deep hierarchies
-				// just handle isCanceled() (seehttps://bugs.eclipse.org/bugs/show_bug.cgi?id=179511)
+				// don't report progress since this is too costly for deep hierarchies (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=34078 )
+				// just handle isCanceled() (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=179511 )
 				public void setCanceled(boolean value) {
 					progressMonitor.setCanceled(value);
 				}
 				public boolean isCanceled() {
 					return progressMonitor.isCanceled();
+				}
+				// and handle subTask(...) (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=34078 )
+				public void subTask(String name) {
+					progressMonitor.subTask(name);
 				}
 			});
 			if (progressMonitor != null && ++ticks <= MAXTICKS)

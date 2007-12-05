@@ -101,10 +101,10 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			return this.results.size();
 		}
 	}
-	class WaitingJob implements IJob {
-		static final int MAX_WAIT = 30000; // wait 30s max
-		Semaphore startingSem = new Semaphore();
-		Semaphore runningSem = new Semaphore();
+	static class WaitingJob implements IJob {
+		private static final int MAX_WAIT = 30000; // wait 30s max
+		private Semaphore startingSem = new Semaphore();
+		private Semaphore runningSem = new Semaphore();
 		public boolean belongsTo(String jobFamily) {
 			return false;
 		}
@@ -124,9 +124,27 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		public String getJobFamily() {
 			return "SearchTests.Waiting";
 		}
+		public void suspend() throws Semaphore.TimeOutException, CoreException {
+	 		runAndSuspend(null);
+		}
+		public void runAndSuspend(IWorkspaceRunnable runnable) throws Semaphore.TimeOutException, CoreException {
+	 		IndexManager indexManager = JavaModelManager.getIndexManager();
+			indexManager.disable();
+			if (runnable != null) {
+				runnable.run(null);
+			}
+			indexManager.request(this);
+			indexManager.enable();
+			this.startingSem.acquire(30000); // wait for job to start (wait 30s max)
+		}
+
+		public void resume() {
+			this.runningSem.release();
+			JavaModelManager.getIndexManager().enable();
+		}
 	}
 static {
-	TESTS_PREFIX = "testSearchPatternValidateMatchRule";
+	//TESTS_PREFIX = "testSearchPatternValidateMatchRule";
 }
 public static Test suite() {
 	return buildModelTestSuite(SearchTests.class);
@@ -235,26 +253,23 @@ public void tearDownSuite() throws Exception {
  * a project causes another request to reindex.
  */
 public void testChangeClasspath() throws CoreException, TimeOutException {
-	IndexManager indexManager = JavaModelManager.getIndexManager();
 	WaitingJob job = new WaitingJob();
 	try {
 		// setup: suspend indexing and create a project (prj=src) with one cu
-		indexManager.disable();
-		JavaCore.run(new IWorkspaceRunnable() {
+		job.runAndSuspend(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
-				createJavaProject("P1");
-				createFile(
-					"/P1/X.java",
-					"public class X {\n" +
-					"}"
-				);
+				JavaCore.run(new IWorkspaceRunnable() {
+					public void run(IProgressMonitor monitor2) throws CoreException {
+						createJavaProject("P1");
+						createFile(
+							"/P1/X.java",
+							"public class X {\n" +
+							"}"
+						);
+					}
+				}, monitor);				
 			}
-		}, null);
-		
-		// add waiting job and wait for it to be executed
-		indexManager.request(job);
-		indexManager.enable();
-		job.startingSem.acquire(30000); // wait for job to start (wait 30s max)
+		});
 		
 		// remove source folder from classpath
 		IJavaProject project = getJavaProject("P1");
@@ -263,7 +278,7 @@ public void testChangeClasspath() throws CoreException, TimeOutException {
 			null);
 			
 		// resume waiting job
-		job.runningSem.release();
+		job.resume();
 		
 		assertAllTypes(
 			"Unexpected all types after removing source folder",
@@ -271,9 +286,8 @@ public void testChangeClasspath() throws CoreException, TimeOutException {
 			""
 		);
 	} finally {
-		job.runningSem.release();
+		job.resume();
 		deleteProject("P1");
-		indexManager.enable();
 	}
 }
 /*
@@ -337,22 +351,19 @@ public void testChangeClasspath2() throws CoreException {
  * (regression test for bug 35306 Index update request can be incorrectly handled)
  */
 public void testConcurrentJob() throws CoreException, InterruptedException, IOException, TimeOutException {
-	IndexManager indexManager = JavaModelManager.getIndexManager();
 	WaitingJob job = new WaitingJob();
 	try {
 		// setup: suspend indexing and create a project with one empty jar on its classpath
-		indexManager.disable();
-		JavaCore.run(new IWorkspaceRunnable() {
+		job.runAndSuspend(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
-				createJavaProject("P1", new String[] {}, new String[] {"/P1/jclMin.jar"}, "bin");
-				createFile("/P1/jclMin.jar", EMPTY_JAR);
+				JavaCore.run(new IWorkspaceRunnable() {
+					public void run(IProgressMonitor monitor2) throws CoreException {
+						createJavaProject("P1", new String[] {}, new String[] {"/P1/jclMin.jar"}, "bin");
+						createFile("/P1/jclMin.jar", EMPTY_JAR);
+					}
+				}, monitor);
 			}
-		}, null);
-		
-		// add waiting job and wait for it to be executed
-		indexManager.request(job);
-		indexManager.enable();
-		job.startingSem.acquire(30000); // wait for job to start (wait 30s max)
+		});
 				
 		final IJavaProject project = getJavaProject("P1");
 			
@@ -396,7 +407,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		getFile("/P1/jclMin.jar").setContents(new FileInputStream(getExternalJCLPathString()), IResource.NONE, null);
 			
 		// resume waiting job
-		job.runningSem.release();
+		job.resume();
 		
 		// wait for concurrent job to finish
 		thread.join(10000); // 10s max
@@ -404,9 +415,8 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		assertTrue("Failed to get all types", success[0]);
 				
 	} finally {
-		job.runningSem.release();
+		job.resume();
 		deleteProject("P1");
-		indexManager.enable();
 	}
 }
 /*
@@ -415,14 +425,9 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
  * (regression test for bug 33571 SearchEngine.searchAllTypeNames: NPE when passing null as progress monitor)
  */
  public void testNullProgressMonitor() throws CoreException, TimeOutException {
-	IndexManager indexManager = JavaModelManager.getIndexManager();
 	WaitingJob job = new WaitingJob();
  	try {
- 		// add waiting job and wait for it to be executed
-		indexManager.disable();
-		indexManager.request(job);
-		indexManager.enable();
-		job.startingSem.acquire(30000); // wait for job to start (wait 30s max)
+ 		job.suspend();
 		
 		// query all type names with a null progress monitor
 		boolean operationCanceled = false;
@@ -437,7 +442,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		}
 		assertTrue("Should throw an OperationCanceledException", operationCanceled);
  	} finally {
- 		job.runningSem.release();
+ 		job.resume();
  	}
  }
  /*

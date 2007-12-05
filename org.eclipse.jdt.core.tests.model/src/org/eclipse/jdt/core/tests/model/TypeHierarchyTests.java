@@ -20,6 +20,8 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.tests.model.SearchTests.WaitingJob;
+import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
@@ -1524,6 +1526,36 @@ public void testPotentialSubtypeNotInClasspath() throws JavaModelException {
 		"p1.Y\n",
 		types
 	);
+}
+/*
+ * Ensures that progress is reported while waiting for indexing to finish
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=210094 )
+ */
+public void testProgressWhileIndexing() throws CoreException, TimeOutException {
+	final WaitingJob job = new WaitingJob();
+	try {
+		createJavaProject("P");
+		createFile("/P/X210094.java", "public class X210094 {}");
+		job.suspend();
+		createFile("/P/Y210094.java", "public class Y210094 {}");
+		IType type = getCompilationUnit("/P/X210094.java").getType("X210094");
+		class ProgressCounter extends TestProgressMonitor {
+			int count = 0;
+			public void subTask(String name) {
+				if (this.count++ == 0)
+					job.resume();
+			}
+			public boolean isCanceled() {
+				return false;
+			}
+		}
+		ProgressCounter counter = new ProgressCounter();
+		type.newTypeHierarchy(counter);
+		assertTrue("subTask() should be notified", counter.count > 0);
+	} finally {
+		job.resume();
+		deleteProject("P");
+	}
 }
 /*
  * Ensures that a type hierarchy on a region contains all subtypes
