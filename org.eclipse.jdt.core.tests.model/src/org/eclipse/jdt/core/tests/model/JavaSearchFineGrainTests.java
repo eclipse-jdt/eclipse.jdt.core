@@ -245,11 +245,10 @@ private final static int ALL_TYPE_FINE_GRAIN_FLAGS =
 	LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE |
 	PARAMETER_DECLARATION_TYPE_REFERENCE |
 	SUPERTYPE_TYPE_REFERENCE |
-	SUPERINTERFACE_TYPE_REFERENCE |
 	THROWS_CLAUSE_TYPE_REFERENCE |
 	CAST_TYPE_REFERENCE |
 	CATCH_TYPE_REFERENCE |
-	ALLOCATION_EXPRESSION_TYPE_REFERENCE |
+	CLASS_INSTANCE_CREATION_TYPE_REFERENCE |
 	RETURN_TYPE_REFERENCE |
 	IMPORT_DECLARATION_TYPE_REFERENCE |
 	ANNOTATION_TYPE_REFERENCE |
@@ -357,7 +356,7 @@ public void testTypeRef_AllFlags() throws CoreException {
 	);
 }
 public void testTypeRef_Allocation() throws CoreException {
-	search(setUpTypeRef(0), ALLOCATION_EXPRESSION_TYPE_REFERENCE);
+	search(setUpTypeRef(0), CLASS_INSTANCE_CREATION_TYPE_REFERENCE);
 	assertSearchResults(
 		"src/type/ref/TestTypes.java Types type.ref.TestTypes.method(Types) [		Object obj = new §|Types|§();@253] EXACT_MATCH"
 	);
@@ -412,7 +411,7 @@ public void testTypeRef_Return() throws CoreException {
 }
 public void testTypeRef_Superinterface() throws CoreException {
 	IType type = setUpTypeRef(0);
-	search(((ICompilationUnit) type.getParent()).getType("ITest1"), SUPERINTERFACE_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
+	search(((ICompilationUnit) type.getParent()).getType("ITest1"), SUPERTYPE_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/type/def/Types.java type.def.Types [public class Types extends Exception implements §|ITest1|§, ITest2 {@78] EXACT_MATCH\n" + 
 		"src/type/def/Types.java type.def.ITest2 [interface ITest2 extends §|ITest1|§ {}@184] EXACT_MATCH"
@@ -535,7 +534,7 @@ private void setUpTypeRefAll() throws JavaModelException {
 }
 public void testTypeRefAll_Allocation() throws CoreException {
 	setUpTypeRefAll();
-	search("*", TYPE, ALLOCATION_EXPRESSION_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
+	search("*", TYPE, CLASS_INSTANCE_CREATION_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/all/types/ref/TestTypes.java all.types.ref.TestTypes.field [	Types field = new §|Types|§(), local, other = new Types();@167] EXACT_MATCH\n" + 
 		"src/all/types/ref/TestTypes.java all.types.ref.TestTypes.other [	Types field = new Types(), local, other = new §|Types|§();@195] EXACT_MATCH\n" + 
@@ -617,21 +616,15 @@ public void testTypeRefAll_Return() throws CoreException {
 		"src/type/def/Bug.java String type.def.Bug.comment() [	§|String|§ comment() default \"\";@65] EXACT_MATCH"
 	);
 }
-public void testTypeRefAll_Superinterface() throws CoreException {
-	setUpTypeRefAll();
-	search("*", TYPE, SUPERINTERFACE_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
-	assertSearchResults(
-		"src/type/def/Types.java type.def.Types [public class Types extends Exception implements §|ITest1|§, ITest2 {@78] EXACT_MATCH\n" + 
-		"src/type/def/Types.java type.def.Types [public class Types extends Exception implements ITest1, §|ITest2|§ {@86] EXACT_MATCH\n" + 
-		"src/type/def/Types.java type.def.ITest2 [interface ITest2 extends §|ITest1|§ {}@184] EXACT_MATCH"
-	);
-}
 public void testTypeRefAll_Supertype() throws CoreException {
 	setUpTypeRefAll();
 	search("*", TYPE, SUPERTYPE_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/all/types/ref/TestTypes.java all.types.ref.TestTypes [public class TestTypes extends §|Types|§ {@117] EXACT_MATCH\n" + 
-		"src/type/def/Types.java type.def.Types [public class Types extends §|Exception|§ implements ITest1, ITest2 {@57] EXACT_MATCH"
+		"src/type/def/Types.java type.def.Types [public class Types extends §|Exception|§ implements ITest1, ITest2 {@57] EXACT_MATCH\n" +
+		"src/type/def/Types.java type.def.Types [public class Types extends Exception implements §|ITest1|§, ITest2 {@78] EXACT_MATCH\n" + 
+		"src/type/def/Types.java type.def.Types [public class Types extends Exception implements ITest1, §|ITest2|§ {@86] EXACT_MATCH\n" + 
+		"src/type/def/Types.java type.def.ITest2 [interface ITest2 extends §|ITest1|§ {}@184] EXACT_MATCH"
 	);
 }
 public void testTypeRefAll_Throws() throws CoreException {
@@ -1246,7 +1239,7 @@ private void setUpTypeRefQualifiedAll() throws JavaModelException {
 }
 public void testTypeRefQualifiedAll_Allocation() throws CoreException {
 	setUpTypeRefQualifiedAll();
-	search("*", TYPE, ALLOCATION_EXPRESSION_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
+	search("*", TYPE, CLASS_INSTANCE_CREATION_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/all/types/ref/TestTypes.java all.types.ref.TestTypes.field [	type.def.Types field = new §|type.def.Types|§(), local, other = new type.def.Types();@158] EXACT_MATCH\n" + 
 		"src/all/types/ref/TestTypes.java all.types.ref.TestTypes.other [	type.def.Types field = new type.def.Types(), local, other = new §|type.def.Types|§();@195] EXACT_MATCH\n" + 
@@ -1325,21 +1318,15 @@ public void testTypeRefQualifiedAll_Return() throws CoreException {
 		"src/type/def/Bug.java String type.def.Bug.comment() [	§|String|§ comment() default \"\";@65] EXACT_MATCH"
 	);
 }
-public void testTypeRefQualifiedAll_Superinterface() throws CoreException {
-	setUpTypeRefQualifiedAll();
-	search("*", TYPE, SUPERINTERFACE_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
-	assertSearchResults(
-		"src/type/def/Types.java type.def.Types [public class Types extends Exception implements §|ITest1|§, ITest2 {@78] EXACT_MATCH\n" + 
-		"src/type/def/Types.java type.def.Types [public class Types extends Exception implements ITest1, §|ITest2|§ {@86] EXACT_MATCH\n" + 
-		"src/type/def/Types.java type.def.ITest2 [interface ITest2 extends §|ITest1|§ {}@184] EXACT_MATCH"
-	);
-}
 public void testTypeRefQualifiedAll_Supertype() throws CoreException {
 	setUpTypeRefQualifiedAll();
 	search("*", TYPE, SUPERTYPE_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
 	assertSearchResults(
 		"src/all/types/ref/TestTypes.java all.types.ref.TestTypes [public class TestTypes extends §|type.def.Types|§ {@81] EXACT_MATCH\n" + 
-		"src/type/def/Types.java type.def.Types [public class Types extends §|Exception|§ implements ITest1, ITest2 {@57] EXACT_MATCH"
+		"src/type/def/Types.java type.def.Types [public class Types extends §|Exception|§ implements ITest1, ITest2 {@57] EXACT_MATCH\n" +
+		"src/type/def/Types.java type.def.Types [public class Types extends Exception implements §|ITest1|§, ITest2 {@78] EXACT_MATCH\n" + 
+		"src/type/def/Types.java type.def.Types [public class Types extends Exception implements ITest1, §|ITest2|§ {@86] EXACT_MATCH\n" + 
+		"src/type/def/Types.java type.def.ITest2 [interface ITest2 extends §|ITest1|§ {}@184] EXACT_MATCH"
 	);
 }
 public void testTypeRefQualifiedAll_Throws() throws CoreException {
@@ -2014,6 +2001,29 @@ public void testTypeRefGenericsTest13_TypeArgument() throws CoreException {
 		"src/test13/Test.java void test13.Test.fred(Test<String>) [		test.<X<X<X<Object>>>, RuntimeException, Test<X<§|X|§<Exception>>>>bar(null);@446] EXACT_MATCH\n" + 
 		"src/test13/Test.java void test13.Test.fred(Test<String>) [		test.<X<X<X<Object>>>, RuntimeException, Test<X<X<§|Exception|§>>>>bar(null);@448] EXACT_MATCH\n" + 
 		"src/test13/Test.java void test13.S.bar(S) [	<T, U extends Exception, V extends S<§|R|§>>void bar(S s) {}@558] EXACT_MATCH"
+	);
+}
+public void testTypeRefGenericsTest15_ClassInstanceCreation() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/test15/Test.java",
+		"package test15;\n" + 
+		"public class Test {\n" + 
+		"	Test() {}\n" + 
+		"	<U> Test(U u) {}\n" + 
+		"	static Test foo() {\n" + 
+		"		return new <String> Test(\"\");\n" + 
+		"	}\n" + 
+		"	static Test bar()  {\n" + 
+		"		return new Test();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = workingCopies[0].getType("Test");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
+	search("*", TYPE, CLASS_INSTANCE_CREATION_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	assertSearchResults(
+		"src/test15/Test.java Test test15.Test.foo() [		return new <String> §|Test|§(\"\");@108] EXACT_MATCH\n" + 
+		"src/test15/Test.java Test test15.Test.bar() [		return new §|Test|§();@156] EXACT_MATCH"
 	);
 }
 }

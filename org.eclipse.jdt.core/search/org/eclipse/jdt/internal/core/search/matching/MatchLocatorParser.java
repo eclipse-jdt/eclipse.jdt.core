@@ -188,7 +188,7 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 	super.classInstanceCreation(alwaysQualified);
 	if (this.patternFineGrain == 0) {
 		this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
-	} else if ((this.patternFineGrain & IJavaSearchConstants.ALLOCATION_EXPRESSION_TYPE_REFERENCE) != 0) {
+	} else if ((this.patternFineGrain & IJavaSearchConstants.CLASS_INSTANCE_CREATION_TYPE_REFERENCE) != 0) {
 		AllocationExpression allocation = (AllocationExpression) this.expressionStack[this.expressionPtr];
 		this.patternLocator.match(allocation.type, this.nodeSet);
 	}
@@ -204,12 +204,14 @@ protected void consumeAdditionalBound() {
 
 protected void consumeAssignment() {
 	super.consumeAssignment();
-	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
+	if (this.patternFineGrain == 0) {
+		this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
+	}
 }
 
 protected void consumeCastExpressionLL1() {
 	super.consumeCastExpressionLL1();
-	if (this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
+	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
 		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
 		if (castExpression.type instanceof Reference) {
 			this.patternLocator.match((Reference) castExpression.type, this.nodeSet);
@@ -218,7 +220,7 @@ protected void consumeCastExpressionLL1() {
 }
 protected void consumeCastExpressionWithGenericsArray() {
 	super.consumeCastExpressionWithGenericsArray();
-	if (this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
+	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
 		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
 		if (castExpression.type instanceof Reference) {
 			this.patternLocator.match((Reference) castExpression.type, this.nodeSet);
@@ -227,7 +229,7 @@ protected void consumeCastExpressionWithGenericsArray() {
 }
 protected void consumeCastExpressionWithNameArray() {
 	super.consumeCastExpressionWithNameArray();
-	if (this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
+	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
 		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
 		if (castExpression.type instanceof Reference) {
 			this.patternLocator.match((Reference) castExpression.type, this.nodeSet);
@@ -236,7 +238,7 @@ protected void consumeCastExpressionWithNameArray() {
 }
 protected void consumeCastExpressionWithPrimitiveType() {
 	super.consumeCastExpressionWithPrimitiveType();
-	if (this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
+	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
 		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
 		if (castExpression.type instanceof Reference) {
 			this.patternLocator.match((Reference) castExpression.type, this.nodeSet);
@@ -245,7 +247,7 @@ protected void consumeCastExpressionWithPrimitiveType() {
 }
 protected void consumeCastExpressionWithQualifiedGenericsArray() {
 	super.consumeCastExpressionWithQualifiedGenericsArray();
-	if (this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
+	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
 		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
 		if (castExpression.type instanceof Reference) {
 			this.patternLocator.match((Reference) castExpression.type, this.nodeSet);
@@ -263,12 +265,22 @@ protected void consumeClassHeaderExtends() {
 
 protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() {
 	super.consumeClassInstanceCreationExpressionWithTypeArguments();
-	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
+	if (this.patternFineGrain == 0) {
+		this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
+	} else if ((this.patternFineGrain & IJavaSearchConstants.CLASS_INSTANCE_CREATION_TYPE_REFERENCE) != 0) {
+		AllocationExpression allocation = (AllocationExpression) this.expressionStack[this.expressionPtr];
+		this.patternLocator.match(allocation.type, this.nodeSet);
+	}
 }
 
 protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 	super.consumeClassInstanceCreationExpressionWithTypeArguments();
-	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
+	if (this.patternFineGrain == 0) {
+		this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
+	} else if ((this.patternFineGrain & IJavaSearchConstants.CLASS_INSTANCE_CREATION_TYPE_REFERENCE) != 0) {
+		AllocationExpression allocation = (AllocationExpression) this.expressionStack[this.expressionPtr];
+		this.patternLocator.match(allocation.type, this.nodeSet);
+	}
 }
 
 protected void consumeEnterVariable() {
@@ -312,7 +324,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 
 protected void consumeInterfaceType() {
 	super.consumeInterfaceType();
-	if ((this.patternFineGrain & IJavaSearchConstants.SUPERINTERFACE_TYPE_REFERENCE) != 0) {
+	if ((this.patternFineGrain & IJavaSearchConstants.SUPERTYPE_TYPE_REFERENCE) != 0) {
 		TypeReference typeReference = (TypeReference) this.astStack[this.astPtr];
 		this.patternLocator.match(typeReference, this.nodeSet);
 	}
@@ -729,18 +741,19 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	NameReference nameRef = super.getUnspecifiedReferenceOptimized();
 	if (this.patternFineGrain == 0) {
 		this.patternLocator.match(nameRef, this.nodeSet); // NB: Don't check container since unspecified reference can happen anywhere
-	}
-	boolean flagQualifiedRef = (this.patternFineGrain & IJavaSearchConstants.QUALIFIED_REFERENCE) != 0;
-	boolean flagImplicitThis = (this.patternFineGrain & IJavaSearchConstants.IMPLICIT_THIS_REFERENCE) != 0;
-	if (flagQualifiedRef && flagImplicitThis) {
-		this.patternLocator.match(nameRef, this.nodeSet);
-	} else if (flagQualifiedRef) {
-		if (nameRef instanceof QualifiedNameReference) {
+	} else {
+		boolean flagQualifiedRef = (this.patternFineGrain & IJavaSearchConstants.QUALIFIED_REFERENCE) != 0;
+		boolean flagImplicitThis = (this.patternFineGrain & IJavaSearchConstants.IMPLICIT_THIS_REFERENCE) != 0;
+		if (flagQualifiedRef && flagImplicitThis) {
 			this.patternLocator.match(nameRef, this.nodeSet);
-		}
-	} else if (flagImplicitThis) {
-		if (nameRef instanceof SingleNameReference) {
-			this.patternLocator.match(nameRef, this.nodeSet);
+		} else if (flagQualifiedRef) {
+			if (nameRef instanceof QualifiedNameReference) {
+				this.patternLocator.match(nameRef, this.nodeSet);
+			}
+		} else if (flagImplicitThis) {
+			if (nameRef instanceof SingleNameReference) {
+				this.patternLocator.match(nameRef, this.nodeSet);
+			}
 		}
 	}
 	return nameRef;

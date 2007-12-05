@@ -115,9 +115,6 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 				case IJavaSearchConstants.SUPERTYPE_TYPE_REFERENCE:
 					buffer.append("SUPERTYPE_TYPE_REFERENCE"); //$NON-NLS-1$
 					break;
-				case IJavaSearchConstants.SUPERINTERFACE_TYPE_REFERENCE:
-					buffer.append("SUPERINTERFACE_TYPE_REFERENCE"); //$NON-NLS-1$
-					break;
 				case IJavaSearchConstants.THROWS_CLAUSE_TYPE_REFERENCE:
 					buffer.append("THROWS_CLAUSE_TYPE_REFERENCE"); //$NON-NLS-1$
 					break;
@@ -127,8 +124,8 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 				case IJavaSearchConstants.CATCH_TYPE_REFERENCE:
 					buffer.append("CATCH_TYPE_REFERENCE"); //$NON-NLS-1$
 					break;
-				case IJavaSearchConstants.ALLOCATION_EXPRESSION_TYPE_REFERENCE:
-					buffer.append("ALLOCATION_EXPRESSION_TYPE_REFERENCE"); //$NON-NLS-1$
+				case IJavaSearchConstants.CLASS_INSTANCE_CREATION_TYPE_REFERENCE:
+					buffer.append("CLASS_INSTANCE_CREATION_TYPE_REFERENCE"); //$NON-NLS-1$
 					break;
 				case IJavaSearchConstants.RETURN_TYPE_REFERENCE:
 					buffer.append("RETURN_TYPE_REFERENCE"); //$NON-NLS-1$

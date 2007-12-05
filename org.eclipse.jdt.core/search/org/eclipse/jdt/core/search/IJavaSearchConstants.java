@@ -248,7 +248,7 @@ public interface IJavaSearchConstants {
 	int PARAMETER_DECLARATION_TYPE_REFERENCE = 0x100;
 	
 	/**
-	 * Return only type references used as a super type.
+	 * Return only type references used as a super type or as a super interface.
 	 * <p>
 	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
@@ -259,17 +259,6 @@ public interface IJavaSearchConstants {
 	int SUPERTYPE_TYPE_REFERENCE = 0x200;
 	
 	/**
-	 * Return only type references used as a super interface.
-	 * <p>
-	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
-	 * returned.
-	 *</p>
-	 * @since 3.4
-	 * @category limitTo
-	 */
-	int SUPERINTERFACE_TYPE_REFERENCE = 0x400;
-	
-	/**
 	 * Return only type references used in a throws clause.
 	 * <p>
 	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
@@ -278,7 +267,7 @@ public interface IJavaSearchConstants {
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int THROWS_CLAUSE_TYPE_REFERENCE = 0x800;
+	int THROWS_CLAUSE_TYPE_REFERENCE = 0x400;
 	
 	/**
 	 * Return only type references used in a cast expression.
@@ -289,7 +278,7 @@ public interface IJavaSearchConstants {
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int CAST_TYPE_REFERENCE = 0x1000;
+	int CAST_TYPE_REFERENCE = 0x800;
 	
 	/**
 	 * Return only type references used in a catch header.
@@ -300,18 +289,32 @@ public interface IJavaSearchConstants {
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int CATCH_TYPE_REFERENCE = 0x2000;
+	int CATCH_TYPE_REFERENCE = 0x1000;
 	
 	/**
-	 * Return only type references used in an allocation expression.
+	 * Return only type references used in class instance creation.
 	 * <p>
 	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
-	 *</p>
+	 *</p><p>
+	 *	Example:
+	 *<pre>
+	 * public class Test {
+	 * 	Test() {}
+	 * 	static Test bar()  {
+	 * 		return new <i>Test</i>();
+	 * 	}
+	 * }
+	 *</pre>
+	 * Searching references to the type <code>Test</code> using this flag in the
+	 * above snippet will match only the reference in italic.
+	 * </p><p>
+	 * Note that array creations are not returned when using this flag.
+	 * </p>
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int ALLOCATION_EXPRESSION_TYPE_REFERENCE = 0x4000;
+	int CLASS_INSTANCE_CREATION_TYPE_REFERENCE = 0x2000;
 	
 	/**
 	 * Return only type references used as a method return type.
@@ -322,7 +325,7 @@ public interface IJavaSearchConstants {
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int RETURN_TYPE_REFERENCE = 0x8000;
+	int RETURN_TYPE_REFERENCE = 0x4000;
 	
 	/**
 	 * Return only type references used in an import declaration.
@@ -333,7 +336,7 @@ public interface IJavaSearchConstants {
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int IMPORT_DECLARATION_TYPE_REFERENCE = 0x10000;
+	int IMPORT_DECLARATION_TYPE_REFERENCE = 0x8000;
 
 	/**
 	 * Return only type references used as an annotation.
@@ -344,7 +347,7 @@ public interface IJavaSearchConstants {
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int ANNOTATION_TYPE_REFERENCE = 0x20000;
+	int ANNOTATION_TYPE_REFERENCE = 0x10000;
 
 	/**
 	 * Return only type references used as a type argument in a parameterized
@@ -356,7 +359,7 @@ public interface IJavaSearchConstants {
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int TYPE_ARGUMENT_TYPE_REFERENCE = 0x40000;
+	int TYPE_ARGUMENT_TYPE_REFERENCE = 0x20000;
 
 	/**
 	 * Return only type references used as a type variable bound.
@@ -367,7 +370,7 @@ public interface IJavaSearchConstants {
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int TYPE_VARIABLE_BOUND_TYPE_REFERENCE = 0x80000;
+	int TYPE_VARIABLE_BOUND_TYPE_REFERENCE = 0x40000;
 
 	/**
 	 * Return only type references used as a wildcard bound.
@@ -378,7 +381,7 @@ public interface IJavaSearchConstants {
 	 * @since 3.4
 	 * @category limitTo
 	 */
-	int WILDCARD_BOUND_TYPE_REFERENCE = 0x100000;
+	int WILDCARD_BOUND_TYPE_REFERENCE = 0x80000;
 	
 	/**
 	 * Return only super field accesses or super method invocations (e.g. using the

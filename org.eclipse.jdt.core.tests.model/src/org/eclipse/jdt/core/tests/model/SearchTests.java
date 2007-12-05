@@ -1010,7 +1010,7 @@ public void testSearchPatternCreation36() {
  * Fine grain patterns
  */
 public void testSearchPatternCreation37() {
-	int allFlags = 0x0F1FFFF0;
+	int allFlags = 0xFFFFFFF0;
 	SearchPattern searchPattern = createPattern("*", TYPE, allFlags, true);
 	assertPattern(
 		"TypeReferencePattern: qualification<*>, type<*>, pattern match, case sensitive, generic full match, " +
@@ -1018,21 +1018,27 @@ public void testSearchPatternCreation37() {
 		"LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE | " +
 		"PARAMETER_DECLARATION_TYPE_REFERENCE | " +
 		"SUPERTYPE_TYPE_REFERENCE | " +
-		"SUPERINTERFACE_TYPE_REFERENCE | " +
 		"THROWS_CLAUSE_TYPE_REFERENCE | " +
 		"CAST_TYPE_REFERENCE | " +
 		"CATCH_TYPE_REFERENCE | " +
-		"ALLOCATION_EXPRESSION_TYPE_REFERENCE | " +
+		"CLASS_INSTANCE_CREATION_TYPE_REFERENCE | " +
 		"RETURN_TYPE_REFERENCE | " +
 		"IMPORT_DECLARATION_TYPE_REFERENCE | " +
 		"ANNOTATION_TYPE_REFERENCE | " +
 		"TYPE_ARGUMENT_TYPE_REFERENCE | " +
 		"TYPE_VARIABLE_BOUND_TYPE_REFERENCE | " +
 		"WILDCARD_BOUND_TYPE_REFERENCE | " +
+		" | " + // unused slots
+		" | " +
+		" | " +
+		" | " +
 		"SUPER_REFERENCE | " +
 		"QUALIFIED_REFERENCE | " +
 		"THIS_REFERENCE | " +
-		"IMPLICIT_THIS_REFERENCE",
+		"IMPLICIT_THIS_REFERENCE | " +
+		" | " + // unused slots
+		" | " +
+		" | ",
 		searchPattern);
 }
 
