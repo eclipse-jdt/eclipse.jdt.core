@@ -38,34 +38,66 @@ public class NegativeTests extends TestCase
 
 	/**
 	 * Validate the testNegativeModel test against the javac compiler.
+	 * All test routines are executed.
 	 * @throws IOException 
 	 */
 	public void testNegativeModelWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestNegativeModel(compiler);
+		internalTestNegativeModel(compiler, 0);
 	}
 
 	/**
-	 * Attempt to report errors on various elements, using the Eclipse compiler.
+	 * Attempt to report errors on model of targets.negative.pa.Negative1, 
+	 * using the Eclipse compiler.
 	 * @throws IOException 
 	 */
-	public void testNegativeModelWithEclipseCompiler() throws IOException {
+	public void testNegativeModel1WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestNegativeModel(compiler);
+		internalTestNegativeModel(compiler, 1);
+	}
+
+	/**
+	 * Attempt to report errors on model of targets.negative.pa.Negative2, 
+	 * using the Eclipse compiler.
+	 * @throws IOException 
+	 */
+	public void testNegativeModel2WithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestNegativeModel(compiler, 2);
+	}
+
+	/**
+	 * Attempt to report errors on model of targets.negative.pa.Negative3, 
+	 * using the Eclipse compiler.
+	 * @throws IOException 
+	 */
+	public void testNegativeModel3WithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestNegativeModel(compiler, 3);
+	}
+
+	/**
+	 * Attempt to report errors on model of targets.negative.pa.Negative4, 
+	 * using the Eclipse compiler.
+	 * @throws IOException 
+	 */
+	public void testNegativeModel4WithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestNegativeModel(compiler, 4);
 	}
 
 	/**
 	 * Attempt to report errors on various elements.
 	 * @throws IOException
 	 */
-	private void internalTestNegativeModel(JavaCompiler compiler) throws IOException {
+	private void internalTestNegativeModel(JavaCompiler compiler, int test) throws IOException {
 		System.clearProperty(NEGATIVEMODELPROCNAME);
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "negative");
 		BatchTestUtils.copyResources("targets/negative", targetFolder);
 
 		// Turn on the NegativeModelProc - without this, it will just return without doing anything
 		List<String> options = new ArrayList<String>();
-		options.add("-A" + NEGATIVEMODELPROCNAME);
+		options.add("-A" + NEGATIVEMODELPROCNAME + "=" + test);
 
 		// Invoke processing by compiling the targets.model resources
 		StringWriter errors = new StringWriter();

@@ -39,6 +39,11 @@ import javax.lang.model.util.Elements;
  * semantic errors such as missing types. To enable this processor, add
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.negative.NegativeModelProc to the
  * command line.
+ * 
+ * Optionally, enable just a single test, by adding an integer value denoting the
+ * test to the option key.  For example, to enable testNegative2, add
+ * -Aorg.eclipse.jdt.compiler.apt.tests.processors.negative.NegativeModelProc=2
+ * to the command line.  If 0 or no value is specified, all tests will be run.
  */
 @SupportedAnnotationTypes("*")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
@@ -52,9 +57,10 @@ public class NegativeModelProc extends AbstractProcessor
 	 * Sometimes it's necessary to work on one test at a time, while
 	 * ignoring failures in earlier tests. 
 	 */
-	private static final boolean testNegative1 = true;
-	private static final boolean testNegative2 = true;
-	private static final boolean testNegative3 = true;
+	private boolean testNegative1 = true;
+	private boolean testNegative2 = true;
+	private boolean testNegative3 = true;
+	private boolean testNegative4 = true;
 	
 	/**
 	 * Report an error to the test case code.  
@@ -77,11 +83,6 @@ public class NegativeModelProc extends AbstractProcessor
 
 	private Elements _elementUtils;
 	
-	// Initialized in collectElements()
-	private TypeElement _elementN1;
-	private TypeElement _elementN2;
-	private TypeElement _elementN3;
-
 	// Report failures on tests that are already known to be unsupported
 	private boolean _reportFailingCases = true;
 
@@ -103,14 +104,33 @@ public class NegativeModelProc extends AbstractProcessor
 			// We're not interested in the postprocessing round.
 			return false;
 		}
+		
+		// Selectively enable just one of the test routines
 		Map<String, String> options = processingEnv.getOptions();
 		if (!options.containsKey(CLASSNAME)) {
 			// Disable this processor unless we are intentionally performing the test.
 			return false;
 		}
-		
-		if (!collectElements()) {
-			return false;
+		String oneTest = options.get(CLASSNAME);
+		if (oneTest != null && oneTest.length() > 0) {
+			int enable = 0;
+			try {
+				enable = Integer.parseInt(oneTest);
+			}
+			catch (NumberFormatException e) {
+				reportError("Option value '" + oneTest + "' must be an integer indicating what test to enable");
+				return false;
+			}
+			if (enable > 4) {
+				reportError("Option value must be an integer 1 to 4");
+				return false;
+			}
+			if (enable >= 1) {
+				testNegative1 = enable == 1;
+				testNegative2 = enable == 2;
+				testNegative3 = enable == 3;
+				testNegative4 = enable == 4;
+			}
 		}
 		
 		if (testNegative1 && !checkNegative1()) {
@@ -125,45 +145,30 @@ public class NegativeModelProc extends AbstractProcessor
 			return false;
 		}
 		
+		if (testNegative4 && !checkNegative4()) {
+			return false;
+		}
+		
 		reportSuccess();
 		return false;
 	}
 
 	/**
-	 * Collect some elements that will be reused in various tests
-	 * @return true if all tests passed
-	 */
-	private boolean collectElements() {
-		_elementN1 = _elementUtils.getTypeElement("targets.negative.pa.Negative1");
-		if (null == _elementN1 || _elementN1.getKind() != ElementKind.CLASS) {
-			reportError("Element Negative1 was not found or was not a class");
-			return false;
-		}
-		_elementN2 = _elementUtils.getTypeElement("targets.negative.pa.Negative2");
-		if (null == _elementN2 || _elementN2.getKind() != ElementKind.CLASS) {
-			reportError("Element Negative2 was not found or was not a class");
-			return false;
-		}
-		_elementN3 = _elementUtils.getTypeElement("targets.negative.pa.Negative3");
-		if (null == _elementN3 || _elementN3.getKind() != ElementKind.CLASS) {
-			reportError("Element Negative3 was not found or was not a class");
-			return false;
-		}
-		// TODO: try collecting a nested or secondary type that extends a missing type
-		return true;
-	}
-	
-	/**
 	 * Check the annotations in the model of targets.negative.pa.Negative1
 	 * @return true if all tests passed
 	 */
 	private boolean checkNegative1() {
-		AnnotationMirror am3 = findAnnotation(_elementN1, "A3");
+		TypeElement elementN1 = _elementUtils.getTypeElement("targets.negative.pa.Negative1");
+		if (null == elementN1 || elementN1.getKind() != ElementKind.CLASS) {
+			reportError("Element Negative1 was not found or was not a class");
+			return false;
+		}
+		AnnotationMirror am3 = findAnnotation(elementN1, "A3");
 		if (_reportFailingCases && null == am3) {
 			reportError("Couldn't find annotation A3 on class Negative1");
 			return false;
 		}
-		List<? extends Element> enclosedElements = _elementN1.getEnclosedElements();
+		List<? extends Element> enclosedElements = elementN1.getEnclosedElements();
 		boolean foundM1 = false; // do we find an element of unresolved type?
 		for (Element element : enclosedElements) {
 			String name = element.getSimpleName().toString();
@@ -223,7 +228,12 @@ public class NegativeModelProc extends AbstractProcessor
 	 * @return true if all tests passed
 	 */
 	private boolean checkNegative2() {
-		List<? extends Element> enclosedElements = _elementN2.getEnclosedElements();
+		TypeElement elementN2 = _elementUtils.getTypeElement("targets.negative.pa.Negative2");
+		if (null == elementN2 || elementN2.getKind() != ElementKind.CLASS) {
+			reportError("Element Negative2 was not found or was not a class");
+			return false;
+		}
+		List<? extends Element> enclosedElements = elementN2.getEnclosedElements();
 		for (Element element : enclosedElements) {
 			String name = element.getSimpleName().toString();
 			if ("m1".equals(name)) {
@@ -283,7 +293,12 @@ public class NegativeModelProc extends AbstractProcessor
 	 * @return true if all tests passed
 	 */
 	private boolean checkNegative3() {
-		List<? extends Element> enclosedElements = _elementN3.getEnclosedElements();
+		TypeElement elementN3 = _elementUtils.getTypeElement("targets.negative.pa.Negative3");
+		if (null == elementN3 || elementN3.getKind() != ElementKind.CLASS) {
+			reportError("Element Negative3 was not found or was not a class");
+			return false;
+		}
+		List<? extends Element> enclosedElements = elementN3.getEnclosedElements();
 		for (Element element : enclosedElements) {
 			String name = element.getSimpleName().toString();
 			if ("foo".equals(name)) {
@@ -316,6 +331,101 @@ public class NegativeModelProc extends AbstractProcessor
 		}
 		return true;
 	}
+	
+	/**
+	 * Check the model of targets.negative.pa.Negative4
+	 * @return true if all tests passed
+	 */
+	private boolean checkNegative4() {
+		TypeElement elementN4 = _elementUtils.getTypeElement("targets.negative.pa.Negative4");
+		if (null == elementN4 || elementN4.getKind() != ElementKind.CLASS) {
+			reportError("Element Negative3 was not found or was not a class");
+			return false;
+		}
+		boolean foundZorkRaw = false;
+		boolean foundZorkOfString = false;
+		boolean foundIFooOfString = false;
+		boolean foundIBarRaw = false;
+		boolean foundIBarOfT1T2 = false;
+		List<? extends Element> enclosedElements = elementN4.getEnclosedElements();
+		for (Element element : enclosedElements) {
+			ElementKind kind = element.getKind();
+			if (kind != ElementKind.METHOD)
+				continue;
+			String name = element.getSimpleName().toString();
+			if ("zorkRaw".equals(name)) {
+				foundZorkRaw = true;
+				TypeMirror retType = ((ExecutableElement)element).getReturnType();
+				TypeKind retKind = retType.getKind();
+				// javac returns ERROR type
+				if (retKind != TypeKind.DECLARED && retKind != TypeKind.ERROR) {
+					reportError("Return type of Negative4." + name + " should be DECLARED or ERROR, but is reported as " + retKind);
+					return false;
+				}
+			}
+			else if ("zorkOfString".equals(name)) {
+				foundZorkOfString = true;
+				TypeMirror retType = ((ExecutableElement)element).getReturnType();
+				TypeKind retKind = retType.getKind();
+				// javac returns ERROR type
+				if (retKind != TypeKind.DECLARED && retKind != TypeKind.ERROR) {
+					reportError("Return type of Negative4." + name + " should be DECLARED or ERROR, but is reported as " + retKind);
+					return false;
+				}
+			}
+			else if ("ifooOfString".equals(name)) {
+				foundIFooOfString = true;
+				TypeMirror retType = ((ExecutableElement)element).getReturnType();
+				TypeKind retKind = retType.getKind();
+				// javac returns ERROR type
+				if (retKind != TypeKind.DECLARED && retKind != TypeKind.ERROR) {
+					reportError("Return type of Negative4." + name + " should be DECLARED or ERROR, but is reported as " + retKind);
+					return false;
+				}
+			}
+			else if ("ibarRaw".equals(name)) {
+				foundIBarRaw = true;
+				TypeMirror retType = ((ExecutableElement)element).getReturnType();
+				TypeKind retKind = retType.getKind();
+				if (retKind != TypeKind.DECLARED && retKind != TypeKind.ERROR) {
+					reportError("Return type of Negative4." + name + " should be DECLARED or ERROR, but is reported as " + retKind);
+					return false;
+				}
+			}
+			else if ("ibarOfT1T2".equals(name)) {
+				foundIBarOfT1T2 = true;
+				TypeMirror retType = ((ExecutableElement)element).getReturnType();
+				TypeKind retKind = retType.getKind();
+				// javac returns ERROR type
+				if (retKind != TypeKind.DECLARED && retKind != TypeKind.ERROR) {
+					reportError("Return type of Negative4." + name + " should be DECLARED or ERROR, but is reported as " + retKind);
+					return false;
+				}
+			}
+		}
+		if (!foundZorkRaw) {
+			reportError("Didn't find element Negative4.zorkRaw");
+			return false;
+		}
+		if (!foundZorkOfString) {
+			reportError("Didn't find element Negative4.zorkOfString");
+			return false;
+		}
+		if (!foundIFooOfString) {
+			reportError("Didn't find element Negative4.ifooOfString");
+			return false;
+		}
+		if (!foundIBarRaw) {
+			reportError("Didn't find element Negative4.ibarRaw");
+			return false;
+		}
+		if (!foundIBarOfT1T2) {
+			reportError("Didn't find element Negative4.ibarOfT1T2");
+			return false;
+		}
+		return true;
+	}
+
 	
 	/**
 	 * Find a particular annotation on a specified element.
