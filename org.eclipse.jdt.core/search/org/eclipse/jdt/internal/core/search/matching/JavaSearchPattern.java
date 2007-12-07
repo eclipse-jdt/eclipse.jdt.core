@@ -191,41 +191,41 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	 * and type parameters for non-generic ones.
 	 */
 	char[][] extractMethodArguments(IMethod method) {
-		String[] argumentsSignatures = null;
-		BindingKey key;
-		if (method.isResolved() && (key = new BindingKey(method.getKey())).isParameterizedMethod()) {
-			argumentsSignatures = key.getTypeArguments();
-		} else {
-			try {
-				ITypeParameter[] parameters = method.getTypeParameters();
-				if (parameters != null) {
-					int length = parameters.length;
-					if (length > 0) {
-						char[][] arguments = new char[length][];
-						for (int i=0; i<length; i++) {
-							arguments[i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
-						}
-						return arguments;
+
+		// Use bind key if the element is resolved
+		if (method.isResolved()) {
+			BindingKey bindingKey = new BindingKey(method.getKey());
+			if (bindingKey.isParameterizedMethod()) {
+				String[] argumentsSignatures = bindingKey.getTypeArguments();
+				int length = argumentsSignatures.length;
+				if (length > 0) {
+					char[][] methodArguments = new char[length][];
+					for (int i=0; i<length; i++) {
+						methodArguments[i] = argumentsSignatures[i].toCharArray();
+						CharOperation.replace(methodArguments[i], new char[] { '$', '/' }, '.');
 					}
+					return methodArguments;
 				}
-			}
-			catch (JavaModelException jme) {
-				// do nothing
 			}
 			return null;
 		}
-
-		// Parameterized method
-		if (argumentsSignatures != null) {
-			int length = argumentsSignatures.length;
-			if (length > 0) {
-				char[][] methodArguments = new char[length][];
-				for (int i=0; i<length; i++) {
-					methodArguments[i] = argumentsSignatures[i].toCharArray();
-					CharOperation.replace(methodArguments[i], new char[] { '$', '/' }, '.');
+		
+		// Try to get the argument using the JavaModel info
+		try {
+			ITypeParameter[] parameters = method.getTypeParameters();
+			if (parameters != null) {
+				int length = parameters.length;
+				if (length > 0) {
+					char[][] arguments = new char[length][];
+					for (int i=0; i<length; i++) {
+						arguments[i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
+					}
+					return arguments;
 				}
-				return methodArguments;
 			}
+		}
+		catch (JavaModelException jme) {
+			// do nothing
 		}
 		return null;
 	}
@@ -394,46 +394,50 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 	 * and type parameters for non-generic ones
 	 */
 	void storeTypeSignaturesAndArguments(IType type) {
-		BindingKey key;
-		if (type.isResolved() && ((key = new BindingKey(type.getKey())).isParameterizedType() || key.isRawType())) {
-			String signature = key.toSignature();
-			this.typeSignatures = Util.splitTypeLevelsSignature(signature);
-			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
-		} else {
-			// Scan hierachy to store type arguments at each level
-			char[][][] typeParameters = new char[10][][];
-			int ptr = -1;
-			boolean hasParameters = false;
-			try {
-				IJavaElement parent = type;
-				ITypeParameter[] parameters = null;
-				while (parent != null && parent.getElementType() == IJavaElement.TYPE) {
-					if (++ptr > typeParameters.length) {
-						System.arraycopy(typeParameters, 0, typeParameters = new char[typeParameters.length+10][][], 0, ptr);
-					}
-					IType parentType = (IType) parent;
-					parameters = parentType.getTypeParameters();
-					if (parameters !=null) {
-						int length = parameters.length;
-						if (length > 0) {
-							hasParameters = true;
-							typeParameters[ptr] = new char[length][];
-							for (int i=0; i<length; i++)
-								typeParameters[ptr][i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
-						}
-					}
-					parent = parent.getParent();
+		if (type.isResolved()) {
+			BindingKey bindingKey = new BindingKey(type.getKey());
+			if (bindingKey.isParameterizedType() || bindingKey.isRawType()) {
+				String signature = bindingKey.toSignature();
+				this.typeSignatures = Util.splitTypeLevelsSignature(signature);
+				setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
+			}
+			return;
+		}
+
+		// Scan hierarchy to store type arguments at each level
+		char[][][] typeParameters = new char[10][][];
+		int ptr = -1;
+		boolean hasParameters = false;
+		try {
+			IJavaElement parent = type;
+			ITypeParameter[] parameters = null;
+			while (parent != null && parent.getElementType() == IJavaElement.TYPE) {
+				if (++ptr > typeParameters.length) {
+					System.arraycopy(typeParameters, 0, typeParameters = new char[typeParameters.length+10][][], 0, ptr);
 				}
+				IType parentType = (IType) parent;
+				parameters = parentType.getTypeParameters();
+				if (parameters !=null) {
+					int length = parameters.length;
+					if (length > 0) {
+						hasParameters = true;
+						typeParameters[ptr] = new char[length][];
+						for (int i=0; i<length; i++)
+							typeParameters[ptr][i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
+					}
+				}
+				parent = parent.getParent();
 			}
-			catch (JavaModelException jme) {
-				return;
-			}
-			// Store type arguments if any
-			if (hasParameters) {
-				if (++ptr < typeParameters.length)
-					System.arraycopy(typeParameters, 0, typeParameters = new char[ptr][][], 0, ptr);
-				setTypeArguments(typeParameters);
-			}
+		}
+		catch (JavaModelException jme) {
+			return;
+		}
+
+		// Store type arguments if any
+		if (hasParameters) {
+			if (++ptr < typeParameters.length)
+				System.arraycopy(typeParameters, 0, typeParameters = new char[ptr][][], 0, ptr);
+			setTypeArguments(typeParameters);
 		}
 	}
 	public final String toString() {

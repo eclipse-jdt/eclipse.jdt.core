@@ -158,19 +158,19 @@ public MethodPattern(
 
 	// Get unique key for parameterized constructors
 	String genericDeclaringTypeSignature = null;
-//	String genericSignature = null;
-	String key;
-	if (method.isResolved() && (new BindingKey(key = method.getKey())).isParameterizedMethod()) {
-		genericDeclaringTypeSignature = Util.getDeclaringTypeSignature(key);
+	if (method.isResolved()) {
+		String key = method.getKey();
+		BindingKey bindingKey = new BindingKey(key);
+		if (bindingKey.isParameterizedType()) {
+			genericDeclaringTypeSignature = Util.getDeclaringTypeSignature(key);
+			// Store type signature and arguments for declaring type
+			if (genericDeclaringTypeSignature != null) {
+					this.typeSignatures = Util.splitTypeLevelsSignature(genericDeclaringTypeSignature);
+					setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
+			}
+		}
 	} else {
 		methodParameters = true;
-	}
-
-	// Store type signature and arguments for declaring type
-	if (genericDeclaringTypeSignature != null) {
-		this.typeSignatures = Util.splitTypeLevelsSignature(genericDeclaringTypeSignature);
-		setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
-	} else {
 		storeTypeSignaturesAndArguments(declaringType);
 	}
 
