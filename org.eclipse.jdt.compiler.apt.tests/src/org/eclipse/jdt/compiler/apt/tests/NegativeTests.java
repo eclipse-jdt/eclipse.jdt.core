@@ -87,6 +87,16 @@ public class NegativeTests extends TestCase
 	}
 
 	/**
+	 * Attempt to report errors on model of targets.negative.pa.Negative5, 
+	 * using the Eclipse compiler.
+	 * @throws IOException 
+	 */
+	public void testNegativeModel5WithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestNegativeModel(compiler, 5);
+	}
+
+	/**
 	 * Attempt to report errors on various elements.
 	 * @throws IOException
 	 */

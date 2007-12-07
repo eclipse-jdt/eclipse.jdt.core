@@ -61,6 +61,7 @@ public class NegativeModelProc extends AbstractProcessor
 	private boolean testNegative2 = true;
 	private boolean testNegative3 = true;
 	private boolean testNegative4 = true;
+	private boolean testNegative5 = true;
 	
 	/**
 	 * Report an error to the test case code.  
@@ -121,8 +122,8 @@ public class NegativeModelProc extends AbstractProcessor
 				reportError("Option value '" + oneTest + "' must be an integer indicating what test to enable");
 				return false;
 			}
-			if (enable > 4) {
-				reportError("Option value must be an integer 1 to 4");
+			if (enable > 5) {
+				reportError("Option value must be an integer 1 to 5");
 				return false;
 			}
 			if (enable >= 1) {
@@ -130,6 +131,7 @@ public class NegativeModelProc extends AbstractProcessor
 				testNegative2 = enable == 2;
 				testNegative3 = enable == 3;
 				testNegative4 = enable == 4;
+				testNegative5 = enable == 5;
 			}
 		}
 		
@@ -146,6 +148,10 @@ public class NegativeModelProc extends AbstractProcessor
 		}
 		
 		if (testNegative4 && !checkNegative4()) {
+			return false;
+		}
+		
+		if (testNegative5 && !checkNegative5()) {
 			return false;
 		}
 		
@@ -339,7 +345,7 @@ public class NegativeModelProc extends AbstractProcessor
 	private boolean checkNegative4() {
 		TypeElement elementN4 = _elementUtils.getTypeElement("targets.negative.pa.Negative4");
 		if (null == elementN4 || elementN4.getKind() != ElementKind.CLASS) {
-			reportError("Element Negative3 was not found or was not a class");
+			reportError("Element Negative4 was not found or was not a class");
 			return false;
 		}
 		boolean foundZorkRaw = false;
@@ -423,6 +429,50 @@ public class NegativeModelProc extends AbstractProcessor
 			reportError("Didn't find element Negative4.ibarOfT1T2");
 			return false;
 		}
+		return true;
+	}
+
+	
+	/**
+	 * Check the model of targets.negative.pa.Negative5
+	 * @return true if all tests passed
+	 */
+	private boolean checkNegative5() {
+		class TestElement {
+			String name;
+			TypeElement element;
+			TestElement(String n) {
+				name = n;
+				element = null;
+			}
+		}
+		
+		TestElement elements[] = new TestElement[] {
+			new TestElement("targets.negative.pa.Negative5.C1"),
+			new TestElement("targets.negative.pa.Negative5.C2"),
+			new TestElement("targets.negative.pa.Negative5.I1"),
+			new TestElement("targets.negative.pa.Negative5.I2"),
+			new TestElement("targets.negative.pa.INegative5.C101"),
+			new TestElement("targets.negative.pa.INegative5.C102"),
+			new TestElement("targets.negative.pa.INegative5.I101"),
+			new TestElement("targets.negative.pa.INegative5.I102")
+		};
+		for (TestElement testElement : elements) {
+			testElement.element = _elementUtils.getTypeElement(testElement.name);
+			if (null == testElement.element) {
+				reportError("Element " + testElement.name + " was not found");
+				return false;
+			}
+			
+			// TODO: check superclass and superinterfaces against expected values
+			TypeMirror superClass = testElement.element.getSuperclass();
+			List<? extends TypeMirror> superInterfaces = testElement.element.getInterfaces();
+			if (superClass == null) {
+				reportError("Element " + testElement.name + " has null superclass");
+				return false;
+			}
+		}
+		
 		return true;
 	}
 
