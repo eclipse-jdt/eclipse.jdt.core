@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.compiler.apt.tests.processors.negative;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,19 +51,17 @@ import javax.lang.model.util.Elements;
 @SupportedOptions("org.eclipse.jdt.compiler.apt.tests.processors.negative.NegativeModelProc")
 public class NegativeModelProc extends AbstractProcessor
 {
-
 	private static final String CLASSNAME = NegativeModelProc.class.getName();
 
-	/*
-	 * Sometimes it's necessary to work on one test at a time, while
-	 * ignoring failures in earlier tests. 
-	 */
-	private boolean testNegative1 = true;
-	private boolean testNegative2 = true;
-	private boolean testNegative3 = true;
-	private boolean testNegative4 = true;
-	private boolean testNegative5 = true;
+	private static final String[] testMethodNames = {
+		"checkNegative1",
+		"checkNegative2",
+		"checkNegative3",
+		"checkNegative4",
+		"checkNegative5"}; 
 	
+	private static final Method[] testMethods = new Method[testMethodNames.length];
+
 	/**
 	 * Report an error to the test case code.  
 	 * This is not the same as reporting via Messager!  Use this if some API fails.
@@ -84,10 +83,27 @@ public class NegativeModelProc extends AbstractProcessor
 
 	private Elements _elementUtils;
 	
+	// 0 means run all tests; otherwise run just the (1-based) single test indicated
+	private int _oneTest;
+
 	// Report failures on tests that are already known to be unsupported
 	private boolean _reportFailingCases = true;
 
+	// If processor options don't include this processor's classname, don't run the proc at all.
+	private boolean _processorEnabled;
 	
+	
+	public NegativeModelProc() {
+		for (int i = 0; i < testMethodNames.length; ++i) {
+			try {
+				testMethods[i] = NegativeModelProc.class.getMethod(testMethodNames[i]);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new IllegalStateException(e);
+			}
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see javax.annotation.processing.AbstractProcessor#init(javax.annotation.processing.ProcessingEnvironment)
 	 */
@@ -95,63 +111,60 @@ public class NegativeModelProc extends AbstractProcessor
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		_elementUtils = processingEnv.getElementUtils();
+		
+		// parse options
+		_oneTest = -1;
+		Map<String, String> options = processingEnv.getOptions();
+		_processorEnabled = options.containsKey(CLASSNAME);
+		String oneTestOption = options.get(CLASSNAME);
+		if (oneTestOption == null || oneTestOption.length() == 0) {
+			_oneTest = 0;
+		}
+		else {
+			try {
+				_oneTest = Integer.parseInt(oneTestOption);
+			} catch (Exception e) {
+				// report it in process(), where we have better error reporting capability
+			}
+		}
 	}
-
+	
 	// Always return false from this processor, because it supports "*".
 	// The return value does not signify success or failure!
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+		if (!_processorEnabled) {
+			// Disable this processor unless we are intentionally performing the test.
+			return false;
+		}
 		if (roundEnv.processingOver()) {
 			// We're not interested in the postprocessing round.
 			return false;
 		}
-		
-		// Selectively enable just one of the test routines
-		Map<String, String> options = processingEnv.getOptions();
-		if (!options.containsKey(CLASSNAME)) {
-			// Disable this processor unless we are intentionally performing the test.
+		if (_oneTest < 0 || _oneTest > testMethodNames.length) {
+			reportError("Invalid test method specified: " + processingEnv.getOptions().get(CLASSNAME));
 			return false;
 		}
-		String oneTest = options.get(CLASSNAME);
-		if (oneTest != null && oneTest.length() > 0) {
-			int enable = 0;
-			try {
-				enable = Integer.parseInt(oneTest);
+		
+		// Reflectively invoke the specified tests.
+		try {
+			if (_oneTest == 0) {
+				for (Method testMethod : testMethods) {
+					Object success = testMethod.invoke(this);
+					if (!(success instanceof Boolean) || !(Boolean)success) {
+						return false;
+					}
+				}
 			}
-			catch (NumberFormatException e) {
-				reportError("Option value '" + oneTest + "' must be an integer indicating what test to enable");
-				return false;
+			else {
+				Object success = testMethods[_oneTest - 1].invoke(this);
+				if (!(success instanceof Boolean) || !(Boolean)success) {
+					return false;
+				}
 			}
-			if (enable > 5) {
-				reportError("Option value must be an integer 1 to 5");
-				return false;
-			}
-			if (enable >= 1) {
-				testNegative1 = enable == 1;
-				testNegative2 = enable == 2;
-				testNegative3 = enable == 3;
-				testNegative4 = enable == 4;
-				testNegative5 = enable == 5;
-			}
-		}
-		
-		if (testNegative1 && !checkNegative1()) {
-			return false;
-		}
-		
-		if (testNegative2 && !checkNegative2()) {
-			return false;
-		}
-		
-		if (testNegative3 && !checkNegative3()) {
-			return false;
-		}
-		
-		if (testNegative4 && !checkNegative4()) {
-			return false;
-		}
-		
-		if (testNegative5 && !checkNegative5()) {
+		} catch (Exception e) {
+			e.printStackTrace();
+			reportError("Exception thrown while invoking test method: " + e);
 			return false;
 		}
 		
@@ -163,7 +176,7 @@ public class NegativeModelProc extends AbstractProcessor
 	 * Check the annotations in the model of targets.negative.pa.Negative1
 	 * @return true if all tests passed
 	 */
-	private boolean checkNegative1() {
+	public boolean checkNegative1() {
 		TypeElement elementN1 = _elementUtils.getTypeElement("targets.negative.pa.Negative1");
 		if (null == elementN1 || elementN1.getKind() != ElementKind.CLASS) {
 			reportError("Element Negative1 was not found or was not a class");
@@ -233,7 +246,7 @@ public class NegativeModelProc extends AbstractProcessor
 	 * Check the annotations in the model of targets.negative.pa.Negative2
 	 * @return true if all tests passed
 	 */
-	private boolean checkNegative2() {
+	public boolean checkNegative2() {
 		TypeElement elementN2 = _elementUtils.getTypeElement("targets.negative.pa.Negative2");
 		if (null == elementN2 || elementN2.getKind() != ElementKind.CLASS) {
 			reportError("Element Negative2 was not found or was not a class");
@@ -298,7 +311,7 @@ public class NegativeModelProc extends AbstractProcessor
 	 * Check the model of targets.negative.pa.Negative3
 	 * @return true if all tests passed
 	 */
-	private boolean checkNegative3() {
+	public boolean checkNegative3() {
 		TypeElement elementN3 = _elementUtils.getTypeElement("targets.negative.pa.Negative3");
 		if (null == elementN3 || elementN3.getKind() != ElementKind.CLASS) {
 			reportError("Element Negative3 was not found or was not a class");
@@ -342,7 +355,7 @@ public class NegativeModelProc extends AbstractProcessor
 	 * Check the model of targets.negative.pa.Negative4
 	 * @return true if all tests passed
 	 */
-	private boolean checkNegative4() {
+	public boolean checkNegative4() {
 		TypeElement elementN4 = _elementUtils.getTypeElement("targets.negative.pa.Negative4");
 		if (null == elementN4 || elementN4.getKind() != ElementKind.CLASS) {
 			reportError("Element Negative4 was not found or was not a class");
@@ -437,13 +450,13 @@ public class NegativeModelProc extends AbstractProcessor
 	 * Check the model of targets.negative.pa.Negative5
 	 * @return true if all tests passed
 	 */
-	private boolean checkNegative5() {
+	public boolean checkNegative5() {
 		class TestElement {
 			String name;
 			TypeElement element;
-			TestElement(String n) {
-				name = n;
-				element = null;
+			TestElement(String name) {
+				this.name = name;
+				this.element = null;
 			}
 		}
 		
@@ -464,11 +477,18 @@ public class NegativeModelProc extends AbstractProcessor
 				return false;
 			}
 			
-			// TODO: check superclass and superinterfaces against expected values
+			// TODO: there are substantial differences between javac and Eclipse in how
+			// missing types are recovered (e.g., as error types or as declared types),
+			// and the toString() implementations are also different.  The JSR269 spec
+			// does not require these to match.  Do we want to enforce matching anyway?
 			TypeMirror superClass = testElement.element.getSuperclass();
-			List<? extends TypeMirror> superInterfaces = testElement.element.getInterfaces();
-			if (superClass == null) {
+			if (_reportFailingCases && superClass == null) {
 				reportError("Element " + testElement.name + " has null superclass");
+				return false;
+			}
+			List<? extends TypeMirror> superInterfaces = testElement.element.getInterfaces();
+			if (_reportFailingCases && (superInterfaces == null || superInterfaces.isEmpty())) {
+				reportError("Element " + testElement.name + " has empty list of superinterfaces");
 				return false;
 			}
 		}

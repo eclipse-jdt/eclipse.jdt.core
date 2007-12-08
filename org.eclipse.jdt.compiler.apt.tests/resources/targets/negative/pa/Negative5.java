@@ -14,7 +14,7 @@ package targets.negative.pa;
  * by empty types with the same name.
  */
 class Negative5 {
-	class C1 extends M1 implements MI2 {}
+	class C1 extends M1 implements M2 {}
 	class C2 extends M3<M4<M5>> implements M6<M7>, M8<M9> {}
 	interface I1 extends M10 {}
 	interface I2 extends M11<M12> {}
