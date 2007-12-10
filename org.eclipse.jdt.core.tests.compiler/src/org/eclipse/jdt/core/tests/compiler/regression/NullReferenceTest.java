@@ -4103,7 +4103,90 @@ public void test0466_while_infinite() {
 			"}\n"},
 		"");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=212283
+// (which is a dupe of 184298)
+public void test0467_while_break() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    RuntimeException e = null;\n" + 
+			"    while (e != null || bar()) {\n" + 
+			"      if (e != null || bar()) {\n" + 
+			"        break;\n" +  // always breaks out of the loop if e non-null
+			"      }\n" + 
+			"      if (bar()) {\n" + 
+			"        e = new RuntimeException();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    if (e != null) {\n" + 
+			"      throw e;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  boolean bar() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=212283
+// (which is a dupe of 184298)
+public void test0468_while_break() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    RuntimeException e = null;\n" + 
+			"    while (e != null || bar()) {\n" + 
+			"      if (bar()) {\n" + 
+			"        break;\n" + 
+			"      }\n" + 
+			"      if (bar()) {\n" + 
+			"        e = new RuntimeException();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    if (e != null) {\n" + 
+			"      throw e;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  boolean bar() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=212283
+// (which is a dupe of 184298)
+public void test0469_while_break() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    RuntimeException e = null;\n" + 
+			"    while (e != null || bar()) {\n" + 
+			"      if (e != null) {\n" + 
+			"        break;\n" + 
+			"      }\n" + 
+			"      if (bar()) {\n" + 
+			"        e = new RuntimeException();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    if (e != null) {\n" + 
+			"      throw e;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  boolean bar() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+}
 // null analysis -- try/finally
 public void test0500_try_finally() {
 	this.runConformTest(
