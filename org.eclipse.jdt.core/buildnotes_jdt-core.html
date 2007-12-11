@@ -75,21 +75,22 @@ parameter while calling <code>SearchPattern.createPattern(...)</code> methods.<b
 They can be combined to get results of multiple fine grain search in one single query.
 <p>
 Here is the exhaustive list of these fine grain search flags:<pre>
+
 /**
- * Return only references to type used in field type declaration.
+ * Return only type references used as the type of a field declaration.
  *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
  * returned.
  *
  * @since 3.4
  * @category limitTo
  */
-int FIELD_TYPE_DECLARATION_TYPE_REFERENCE = 0x40;
+int FIELD_DECLARATION_TYPE_REFERENCE = 0x40;
 
 /**
- * Return only references to type used in local variable declaration.
+ * Return only type references used as the type of a local variable declaration.
  *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
  * returned.
  *
  * @since 3.4
@@ -98,20 +99,21 @@ int FIELD_TYPE_DECLARATION_TYPE_REFERENCE = 0x40;
 int LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE = 0x80;
 
 /**
- * Return only references to type used in method parameter declaration.
+ * Return only type references used as the type of a method parameter
+ * declaration.
  *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
  * returned.
  *
  * @since 3.4
  * @category limitTo
  */
-int PARAMETER_TYPE_DECLARATION_TYPE_REFERENCE = 0x100;
+int PARAMETER_DECLARATION_TYPE_REFERENCE = 0x100;
 
 /**
- * Return only references to type used as super type.
+ * Return only type references used as a super type or as a super interface.
  *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
  * returned.
  *
  * @since 3.4
@@ -120,97 +122,111 @@ int PARAMETER_TYPE_DECLARATION_TYPE_REFERENCE = 0x100;
 int SUPERTYPE_TYPE_REFERENCE = 0x200;
 
 /**
- * Return only references to type used as super interface.
+ * Return only type references used in a throws clause.
  *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
  * returned.
  *
  * @since 3.4
  * @category limitTo
  */
-int SUPERINTERFACE_TYPE_REFERENCE = 0x400;
+int THROWS_CLAUSE_TYPE_REFERENCE = 0x400;
 
 /**
- * Return only references to types used in throws clause.
+ * Return only type references used in a cast expression.
  *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
  * returned.
  *
  * @since 3.4
  * @category limitTo
  */
-int THROWS_CLAUSE_TYPE_REFERENCE = 0x800;
+int CAST_TYPE_REFERENCE = 0x800;
 
 /**
- * Return only reference to types used in a cast expression.
+ * Return only type references used in a catch header.
  *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
  * returned.
  *
  * @since 3.4
  * @category limitTo
  */
-int CAST_TYPE_REFERENCE = 0x1000;
+int CATCH_TYPE_REFERENCE = 0x1000;
 
 /**
- * Return only reference to types used in a catch header.
+ * Return only type references used in class instance creation.
  *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
+ * returned.
+ *
+ * Example:
+ * 	public class Test {
+ * 		Test() {}
+ * 		static Test bar()  {
+ * 			return new <i>Test</i>();
+ * 		}
+ * 	}
+ *
+ * Searching references to the type <code>Test</code> using this flag in the
+ * above snippet will match only the reference in italic.
+ * </p><p>
+ * Note that array creations are not returned when using this flag.
+ * </p>
+ * @since 3.4
+ * @category limitTo
+ */
+int CLASS_INSTANCE_CREATION_TYPE_REFERENCE = 0x2000;
+
+/**
+ * Return only type references used as a method return type.
+ *
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
  * returned.
  *
  * @since 3.4
  * @category limitTo
  */
-int CATCH_TYPE_REFERENCE = 0x2000;
+int RETURN_TYPE_REFERENCE = 0x4000;
 
 /**
- * Return only reference to types used in an allocation expression.
+ * Return only type references used in an import declaration.
  *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
  * returned.
  *
  * @since 3.4
  * @category limitTo
  */
-int ALLOCATION_EXPRESSION_TYPE_REFERENCE = 0x4000;
+int IMPORT_DECLARATION_TYPE_REFERENCE = 0x8000;
 
 /**
- * Return only reference to types used as method return type.
+ * Return only type references used as an annotation.
  *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
  * returned.
  *
  * @since 3.4
  * @category limitTo
  */
-int RETURN_TYPE_REFERENCE = 0x8000;
+int ANNOTATION_TYPE_REFERENCE = 0x10000;
 
 /**
- * Return only reference to types used in import declaration.
+ * Return only type references used as a type argument in a parameterized
+ * type or a parameterized method.
  *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
  * returned.
  *
  * @since 3.4
  * @category limitTo
  */
-int IMPORT_DECLARATION_TYPE_REFERENCE = 0x10000;
+int TYPE_ARGUMENT_TYPE_REFERENCE = 0x20000;
 
 /**
- * Return only reference to types used as annotation.
+ * Return only type references used as a type variable bound.
  *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
- * returned.
- *
- * @since 3.4
- * @category limitTo
- */
-int ANNOTATION_TYPE_REFERENCE = 0x20000;
-
-/**
- * Return only reference to types used as type variable bound.
- *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
  * returned.
  *
  * @since 3.4
@@ -219,38 +235,26 @@ int ANNOTATION_TYPE_REFERENCE = 0x20000;
 int TYPE_VARIABLE_BOUND_TYPE_REFERENCE = 0x40000;
 
 /**
- * Return only reference to types used as parameterized type.
+ * Return only type references used as a wildcard bound.
  *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
  * returned.
  *
  * @since 3.4
  * @category limitTo
  */
-int PARAMETERIZED_TYPE_REFERENCE = 0x80000;
+int WILDCARD_BOUND_TYPE_REFERENCE = 0x80000;
 
 /**
- * Return only reference to types used as wildcard bound.
- *
- * When this flag is used, only {@link TypeReferenceMatch} matches will be
- * returned.
- *
- * @since 3.4
- * @category limitTo
- */
-int WILDCARD_BOUND_TYPE_REFERENCE = 0x100000;
-
-/**
- * Return only super field accesses  or method invocations (e.g. using
+ * Return only super field accesses or super method invocations (e.g. using the
  * <code>super</code> qualifier).
  *
- * When this flag is used, the kind of returned matches will depend on the
- * specified nature of searched element:
- *
- *      . for {@link #FIELD} nature, only {@link FieldReferenceMatch} matches
- *              will be accepted,
- *      . for {@link #METHOD} nature, only {@link MethodReferenceMatch}
- *              matches will be returned.
+ * When this flag is set, the kind of returned matches will depend on the
+ * specified nature of the searched element:
+ * 	. for the {@link #FIELD} nature, only {@link FieldReferenceMatch}
+ * 		matches will be returned,
+ * 	. for the {@link #METHOD} nature, only {@link MethodReferenceMatch}
+ * 		matches will be returned.
  *
  * @since 3.4
  * @category limitTo
@@ -258,15 +262,14 @@ int WILDCARD_BOUND_TYPE_REFERENCE = 0x100000;
 int SUPER_REFERENCE = 0x1000000;
 
 /**
- * Return only qualified field accesses or method invocations.
+ * Return only qualified field accesses or qualified method invocations.
  *
- * When this flag is used, the kind of returned matches will depend on the
- * specified nature of searched element:
- *
- *      . for {@link #FIELD} nature, only {@link FieldReferenceMatch} matches
- *              will be accepted,
- *      . for {@link #METHOD} nature, only {@link MethodReferenceMatch}
- *              matches will be returned.
+ * When this flag is set, the kind of returned matches will depend on the
+ * specified nature of the searched element:
+ * 	. for the {@link #FIELD} nature, only {@link FieldReferenceMatch}
+ * 		matches will be returned,
+ * 	. for the {@link #METHOD} nature, only {@link MethodReferenceMatch}
+ * 		matches will be returned.
  *
  * @since 3.4
  * @category limitTo
@@ -274,16 +277,15 @@ int SUPER_REFERENCE = 0x1000000;
 int QUALIFIED_REFERENCE = 0x2000000;
 
 /**
- * Return only primary field accesses  or method invocations (e.g. using
- * <code>this</code> qualifier).
+ * Return only primary field accesses or primary method invocations (e.g. using
+ * the <code>this</code> qualifier).
  *
- * When this flag is used, the kind of returned matches will depend on the
- * specified nature of searched element:
- *
- *      . for {@link #FIELD} nature, only {@link FieldReferenceMatch} matches
- *              will be accepted,
- *      . for {@link #METHOD} nature, only {@link MethodReferenceMatch}
- *              matches will be returned.
+ * When this flag is set, the kind of returned matches will depend on the
+ * specified nature of the searched element:
+ * 	. for the {@link #FIELD} nature, only {@link FieldReferenceMatch}
+ * 		matches will be returned,
+ * 	. for the {@link #METHOD} nature, only {@link MethodReferenceMatch}
+ * 		matches will be returned.
  *
  * @since 3.4
  * @category limitTo
@@ -291,15 +293,14 @@ int QUALIFIED_REFERENCE = 0x2000000;
 int THIS_REFERENCE = 0x4000000;
 
 /**
- * Return only field accesses  or method invocations without any qualification.
+ * Return only field accesses or method invocations without any qualification.
  *
- * When this flag is used, the kind of returned matches will depend on the
- * specified nature of searched element:
- *
- *      . for {@link #FIELD} nature, only {@link FieldReferenceMatch} matches
- *              will be accepted,
- *      . for {@link #METHOD} nature, only {@link MethodReferenceMatch}
- *              matches will be returned.
+ * When this flag is set, the kind of returned matches will depend on the
+ * specified nature of the searched element:
+ * 	. for the {@link #FIELD} nature, only {@link FieldReferenceMatch}
+ * 		matches will be returned,
+ * 	. for the {@link #METHOD} nature, only {@link MethodReferenceMatch}
+ * 		matches will be returned.
  *
  * @since 3.4
  * @category limitTo
