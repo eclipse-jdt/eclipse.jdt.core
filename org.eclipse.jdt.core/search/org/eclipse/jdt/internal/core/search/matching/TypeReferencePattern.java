@@ -76,7 +76,7 @@ public class TypeReferencePattern extends IntersectingPattern {
 		}
 	    this.fineGrain = limitTo & 0xFFFFFFF0;
 	    if (this.fineGrain == IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE) {
-	    	categories =CATEGORIES_ANNOT_REF;
+	    	categories = CATEGORIES_ANNOT_REF;
 	    }
 	}
 
@@ -130,13 +130,6 @@ public class TypeReferencePattern extends IntersectingPattern {
 	public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 		return true; // index key is not encoded so query results all match
 	}
-
-	protected void setFineGrain(int limitTo) {
-	    this.fineGrain = limitTo & 0xFFFFFFF0;
-//		if (this.fineGrain == IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE) {
-//			this.categories = new char[][] { ANNOTATION_REF };
-//		}
-    }
 
 	protected void resetQuery() {
 		/* walk the segments from end to start as it will find less potential references using 'lang' than 'java' */
