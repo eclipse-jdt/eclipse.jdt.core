@@ -2028,11 +2028,11 @@ public void testTypeRefGenericsTest15_ClassInstanceCreation() throws CoreExcepti
 }
 
 /**
- * @bug 212859: [search] fine grained search must not report matches in Javadoc
+ * @bug 212599: [search] fine grained search must not report matches in Javadoc
  * @test Ensure that fine grain references are not found in javadoc
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212859"
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212599"
  */
-public void testBug212859() throws CoreException {
+public void testBug212599() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/Ref.java",
 		"public class Ref {\n" + 
@@ -2070,7 +2070,7 @@ public void testBug212859() throws CoreException {
 		"src/Test.java Ref Test.bar() [	§|Ref|§ bar() {@100] EXACT_MATCH"
 	);
 }
-public void testBug212859_all() throws CoreException {
+public void testBug212599_all() throws CoreException {
 	workingCopies = new ICompilationUnit[2];
 	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/Ref.java",
 		"public class Ref {\n" + 
