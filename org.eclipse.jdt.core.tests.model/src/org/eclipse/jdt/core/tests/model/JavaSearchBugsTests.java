@@ -7534,7 +7534,7 @@ public void testBug148380_SearchAllTypes_cu_wksp() throws CoreException, JavaMod
  */
 public void testBug156340() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	IPackageFragment fragment = getPackageFragment("JavaSearchBugs", getExternalJCLPathString(), "java.lang");
+	IPackageFragment fragment = getPackageFragment("JavaSearchBugs", getExternalJCLPathString("1.5"), "java.lang");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { fragment });
 	new SearchEngine().searchAllTypeNames(
 	   null,
@@ -7549,15 +7549,19 @@ public void testBug156340() throws CoreException {
    );
 	assertSearchResults(
 		"Unexpected all type names",
-		"java.lang.Class\n" +
-		"java.lang.CloneNotSupportedException\n" +
-		"java.lang.Error\n" +
-		"java.lang.Exception\n" +
-		"java.lang.IllegalMonitorStateException\n" +
-		"java.lang.InterruptedException\n" +
-		"java.lang.Object\n" +
-		"java.lang.RuntimeException\n" +
-		"java.lang.String\n" +
+		"java.lang.CharSequence\n" + 
+		"java.lang.Class\n" + 
+		"java.lang.CloneNotSupportedException\n" + 
+		"java.lang.Comparable\n" + 
+		"java.lang.Deprecated\n" + 
+		"java.lang.Enum\n" + 
+		"java.lang.Error\n" + 
+		"java.lang.Exception\n" + 
+		"java.lang.IllegalMonitorStateException\n" + 
+		"java.lang.InterruptedException\n" + 
+		"java.lang.Object\n" + 
+		"java.lang.RuntimeException\n" + 
+		"java.lang.String\n" + 
 		"java.lang.Throwable",
 		requestor);
 }
