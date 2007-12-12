@@ -151,11 +151,9 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <li>{@link IAnnotation} for a binding key from an 
 	 * 		{@link IAnnotationBinding}</li>
 	 * </ul></p>
-	 * <p>As Java elements are not resolved, if a binding key contains resolved 
-	 * information (see {@link IMethod#isResolved()} for example), this information 
-	 * cannot be used to retrieve the method. Thus the first method with matching 
-	 * simple parameter types (see {@link IType#findMethods(IMethod)} is returned.
-	 * </p>
+	 * <p>Note if two methods correspond to the binding key because they have 
+	 * the same simple parameter types (e.g. <code>X.foo(p1.Y)</code> and 
+	 * <code>X.foo(p2.Y)</code>), then the first one is returned.</p>
 	 * 
 	 * @param bindingKey the given binding key
 	 * @param owner the owner of the returned element's compilation unit, 
