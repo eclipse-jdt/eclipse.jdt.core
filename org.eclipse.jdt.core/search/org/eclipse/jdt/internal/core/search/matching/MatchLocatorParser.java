@@ -107,7 +107,7 @@ protected MatchLocatorParser(ProblemReporter problemReporter, MatchLocator locat
 }
 public void checkComment() {
 	super.checkComment();
-	if (this.javadocParser.checkDocComment && this.javadoc != null) {
+	if (this.javadocParser.checkDocComment && this.javadoc != null && this.patternFineGrain == 0 /* there's no fine grain concerning Javadoc*/) {
 
 		// Search for pattern locator matches in javadoc comment parameters @param tags
 		JavadocSingleNameReference[] paramReferences = this.javadoc.paramReferences;

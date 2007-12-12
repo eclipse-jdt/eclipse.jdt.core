@@ -2026,4 +2026,88 @@ public void testTypeRefGenericsTest15_ClassInstanceCreation() throws CoreExcepti
 		"src/test15/Test.java Test test15.Test.bar() [		return new §|Test|§();@156] EXACT_MATCH"
 	);
 }
+
+/**
+ * @bug 212859: [search] fine grained search must not report matches in Javadoc
+ * @test Ensure that fine grain references are not found in javadoc
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212859"
+ */
+public void testBug212859() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/Ref.java",
+		"public class Ref {\n" + 
+		"	public int field;\n" + 
+		"	public Ref foo() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearch15/src/Test.java",
+		"/**\n" + 
+		" * @see Ref\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"	Ref test;\n" + 
+		"	/**\n" + 
+		"	 * @see Ref#field\n" + 
+		"	 * @see Ref#foo()\n" + 
+		"	 */\n" + 
+		"	Ref bar() {\n" + 
+		"		if (this.test != null) {\n" + 
+		"			if (this.test.field > 0) {\n" + 
+		"				return this.test;\n" + 
+		"			}\n" + 
+		"			return new Ref();\n" + 
+		"		}\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Ref");
+	search(type, RETURN_TYPE_REFERENCE, getJavaSearchWorkingCopiesScope());
+	assertSearchResults(
+		"src/Ref.java Ref Ref.foo() [	public §|Ref|§ foo() {@46] EXACT_MATCH\n" + 
+		"src/Test.java Ref Test.bar() [	§|Ref|§ bar() {@100] EXACT_MATCH"
+	);
+}
+public void testBug212859_all() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/Ref.java",
+		"public class Ref {\n" + 
+		"	public int field;\n" + 
+		"	public Ref foo() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearch15/src/Test.java",
+		"/**\n" + 
+		" * @see Ref\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"	Ref test;\n" + 
+		"	/**\n" + 
+		"	 * @see Ref#field\n" + 
+		"	 * @see Ref#foo()\n" + 
+		"	 */\n" + 
+		"	Ref bar() {\n" + 
+		"		if (this.test != null) {\n" + 
+		"			if (this.test.field > 0) {\n" + 
+		"				return this.test;\n" + 
+		"			}\n" + 
+		"			return new Ref();\n" + 
+		"		}\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Ref");
+	search(type, ALL_TYPE_FINE_GRAIN_FLAGS, getJavaSearchWorkingCopiesScope());
+	assertSearchResults(
+		"src/Ref.java Ref Ref.foo() [	public §|Ref|§ foo() {@46] EXACT_MATCH\n" + 
+		"src/Test.java Test.test [	§|Ref|§ test;@41] EXACT_MATCH\n" + 
+		"src/Test.java Ref Test.bar() [	§|Ref|§ bar() {@100] EXACT_MATCH\n" + 
+		"src/Test.java Ref Test.bar() [			return new §|Ref|§();@210] EXACT_MATCH"
+	);
+}
 }
