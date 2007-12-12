@@ -696,6 +696,19 @@ public void testEmptyWorkingCopyPotentialSubtype() throws JavaModelException {
     }
 }
 /*
+ * Ensures that a call to IJavaProject.findType("java.lang.Object") doesn't cause the hierarchy
+ * computation to throw a StackOverFlow
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=209222)
+ */
+public void testFindObject() throws CoreException {
+	// ensure Object.class is closed
+	this.currentProject.getPackageFragmentRoot(getExternalJCLPathString()).getPackageFragment("java.lang").getClassFile("Object.class").close();
+	// find Object to fill internal jar type cache
+	IType type = this.currentProject.findType("java.lang.Object");
+	// create hierarchy
+	type.newTypeHierarchy(null); // should not throw a StackOverFlow
+}
+/*
  * Ensures that a hierarchy on a type with local and anonymous types is correct.
  */
 public void testFocusWithLocalAndAnonymousTypes() throws JavaModelException {
@@ -1307,24 +1320,6 @@ public void testGetType() throws JavaModelException {
 
 	// hierarchy created on a region
 	assertTrue("Unexpected focus type for hierarchy on region", this.typeHierarchy.getType() == null);
-}
-/*
- * Ensures that a call to IJavaProject.findType("java.lang.Object") doesn't cause the hierarchy
- * computation to throw a StackOverFlow
- * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=209222)
- */
-public void testFindObject() throws CoreException {
-	try {
-		IJavaProject p = createJavaProject("P");
-		// ensure Object.class is closed
-		p.getPackageFragmentRoot(getExternalJCLPathString()).getPackageFragment("java.lang").getClassFile("Object.class").close();
-		// find Object to fill internal jar type cache
-		IType type = p.findType("java.lang.Object");
-		// create hierarchy
-		type.newTypeHierarchy(null); // should not throw a StackOverFlow
-	} finally {
-		deleteProject("P");
-	}
 }
 /*
  * Ensures that a hierarchy on an type that implements a binary inner interface is correct.
