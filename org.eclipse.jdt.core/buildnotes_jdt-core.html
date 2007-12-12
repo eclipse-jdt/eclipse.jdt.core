@@ -325,7 +325,11 @@ int IMPLICIT_THIS_REFERENCE = 0x8000000;
 <li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=209642">bug 209642</a> required the index version to be incremented. 
     Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress 
     dialogs).
-</li></ul>
+</li>
+<li>Search Engine is now able to find references to annotations inside class files which do not have any attached sources.
+(see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=211366">bug 211366</a> for more details).
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=211857">211857</a>
