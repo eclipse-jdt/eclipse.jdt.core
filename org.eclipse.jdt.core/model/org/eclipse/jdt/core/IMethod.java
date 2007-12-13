@@ -20,9 +20,8 @@ package org.eclipse.jdt.core;
 public interface IMethod extends IMember, IAnnotatable {
 /**
  * Returns a {@link IMemberValuePair member value pair} representing the default 
- * value of this annotation method.
- * Returns <code>null</code> if this method's parent is not an annotation 
- * type, or if it does not have a default value.
+ * value of this method if any, or <code>null</code> if this method's parent is 
+ * not an annotation type, or else if this method does not have a default value.
  * <p>
  * Note that {@link IMemberValuePair#getValue()} might return <code>null</code>. 
  * Please see this method for more details.
@@ -30,6 +29,7 @@ public interface IMethod extends IMember, IAnnotatable {
  * 
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
+ * @return a member pair value if any, or <code>null</code> if none
  * @since 3.4
  */
 IMemberValuePair getDefaultValue() throws JavaModelException;
