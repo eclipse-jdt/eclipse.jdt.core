@@ -98,17 +98,19 @@ public interface IMemberValuePair {
 	int K_CLASS = 11;
 	
 	/**
-	 * Constant indicating that the value is a qualified name represented by a {@link String}.
-	 * This usually represents an enumeration's constant (e.g. "MyEnum.FIRST"), but this 
-	 * would need to be further analyzed to ensure that.
+	 * Constant indicating that the value is a qualified name represented by a 
+	 * {@link String}. Especially if the qualified name is "MyEnum.FIRST", this can 
+	 * represent an enumeration's constant. Use {@link IType#resolveType(String)} 
+	 * to verify that assumption.
 	 */
 	int K_QUALIFIED_NAME = 12;
 	
 	/**
-	 * Constant indicating that the value is a simple name represented by a {@link String}.
-	 * This usually represents an enumeration's constant (e.g. "FIRST" when there is a
-	 * static import for "MyEnum.FIRST"), but this would need to be further analyzed to ensure 
-	 * that.
+	 * Constant indicating that the value is a simple name represented by a 
+	 * {@link String}.
+	 * Especially if the simple name is "FIRST" and there is a static import for 
+	 * "MyEnum.FIRST", this can represent an enumeration's constant. Use 
+	 * {@link IType#resolveType(String)} to verify that assumption.
 	 */
 	int K_SIMPLE_NAME = 13;
 	
