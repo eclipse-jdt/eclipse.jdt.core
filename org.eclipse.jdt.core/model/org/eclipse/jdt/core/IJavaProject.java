@@ -133,10 +133,10 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	IJavaElement findElement(IPath path, WorkingCopyOwner owner) throws JavaModelException;
 
 	/**
-	 * Finds the Java element corresponding to the given binding key. Elements are 
-	 * looked up using this project's classpath. The first element corresponding to 
+	 * Finds the Java element corresponding to the given binding key if any, 
+	 * else returns <code>null</code>. Elements are looked up using this 
+	 * project's classpath. The first element corresponding to 
 	 * the given key on this project's classpath is returned.
-	 * Returns <code>null</code> if the element is not found. 
 	 * <p>Possible elements are:
 	 * <ul>
 	 * <li>{@link IPackageFragment} for a binding key from an 
@@ -151,9 +151,12 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <li>{@link IAnnotation} for a binding key from an 
 	 * 		{@link IAnnotationBinding}</li>
 	 * </ul></p>
-	 * <p>Note if two methods correspond to the binding key because they have 
-	 * the same simple parameter types (e.g. <code>X.foo(p1.Y)</code> and 
-	 * <code>X.foo(p2.Y)</code>), then the first one is returned.</p>
+	 * <p>Note: if two methods correspond to the binding key because their 
+	 * parameter types' simple names are the same, then the first one is returned.
+	 * For example, if a class defines two methods <code>foo(p1.Y, String)</code> 
+	 * and <code>foo(p2.Y, String)</code>, in both cases the parameter type's 
+	 * simple names  are <code>{"Y", "String"}</code>. Thus 
+	 * <code>foo(p1.Y, String)</code> is returned.</p>
 	 * 
 	 * @param bindingKey the given binding key
 	 * @param owner the owner of the returned element's compilation unit, 
