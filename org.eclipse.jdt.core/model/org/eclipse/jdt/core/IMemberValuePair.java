@@ -100,8 +100,7 @@ public interface IMemberValuePair {
 	/**
 	 * Constant indicating that the value is a qualified name represented by a 
 	 * {@link String}. Especially if the qualified name is "MyEnum.FIRST", this can 
-	 * represent an enumeration's constant. Use {@link IType#resolveType(String)} 
-	 * to verify that assumption.
+	 * represent an enumeration's constant.
 	 */
 	int K_QUALIFIED_NAME = 12;
 	
@@ -109,8 +108,7 @@ public interface IMemberValuePair {
 	 * Constant indicating that the value is a simple name represented by a 
 	 * {@link String}.
 	 * Especially if the simple name is "FIRST" and there is a static import for 
-	 * "MyEnum.FIRST", this can represent an enumeration's constant. Use 
-	 * {@link IType#resolveType(String)} to verify that assumption.
+	 * "MyEnum.FIRST", this can represent an enumeration's constant.
 	 */
 	int K_SIMPLE_NAME = 13;
 	
