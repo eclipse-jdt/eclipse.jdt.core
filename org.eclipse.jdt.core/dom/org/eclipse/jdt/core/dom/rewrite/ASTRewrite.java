@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.core.dom.rewrite.NodeRewriteEvent;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.TrackedNodePosition;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
+import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.PropertyLocation;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.text.edits.MultiTextEdit;
@@ -330,11 +331,26 @@ public class ASTRewrite {
 		if (node == null) {
 			throw new IllegalArgumentException();
 		}
-		StructuralPropertyDescriptor property= node.getLocationInParent();
-		if (property.isChildListProperty()) {
-			getListRewrite(node.getParent(), (ChildListPropertyDescriptor) property).remove(node, editGroup);
+		
+		StructuralPropertyDescriptor property;
+		ASTNode parent;
+		if (RewriteEventStore.isNewNode(node)) { // remove a new node, bug 164862 
+			PropertyLocation location= this.eventStore.getPropertyLocation(node, RewriteEventStore.NEW);
+			if (location != null) {
+				property= location.getProperty();
+				parent= location.getParent();
+			} else {
+				throw new IllegalArgumentException("Node is not part of the rewriter's AST"); //$NON-NLS-1$
+			}
 		} else {
-			set(node.getParent(), property, null, editGroup);
+			property= node.getLocationInParent();
+			parent= node.getParent();
+		}
+		
+		if (property.isChildListProperty()) {
+			getListRewrite(parent, (ChildListPropertyDescriptor) property).remove(node, editGroup);
+		} else {
+			set(parent, property, null, editGroup);
 		}
 	}
 	
@@ -359,11 +375,26 @@ public class ASTRewrite {
 		if (node == null) {
 			throw new IllegalArgumentException();
 		}
-		StructuralPropertyDescriptor property= node.getLocationInParent();
-		if (property.isChildListProperty()) {
-			getListRewrite(node.getParent(), (ChildListPropertyDescriptor) property).replace(node, replacement, editGroup);
+		
+		StructuralPropertyDescriptor property;
+		ASTNode parent;
+		if (RewriteEventStore.isNewNode(node)) { // replace a new node, bug 164862 
+			PropertyLocation location= this.eventStore.getPropertyLocation(node, RewriteEventStore.NEW);
+			if (location != null) {
+				property= location.getProperty();
+				parent= location.getParent();
+			} else {
+				throw new IllegalArgumentException("Node is not part of the rewriter's AST"); //$NON-NLS-1$
+			}
 		} else {
-			set(node.getParent(), property, replacement, editGroup);
+			property= node.getLocationInParent();
+			parent= node.getParent();
+		}
+		
+		if (property.isChildListProperty()) {
+			getListRewrite(parent, (ChildListPropertyDescriptor) property).replace(node, replacement, editGroup);
+		} else {
+			set(parent, property, replacement, editGroup);
 		}
 	}
 

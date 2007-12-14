@@ -128,8 +128,8 @@ public class ListRewriteEvent extends RewriteEvent {
 		return replaceEntry(originalEntry, null);
 	}
 	
-	public RewriteEvent replaceEntry(ASTNode originalEntry, ASTNode newEntry) {
-		if (originalEntry == null) {
+	public RewriteEvent replaceEntry(ASTNode entry, ASTNode newEntry) {
+		if (entry == null) {
 			throw new IllegalArgumentException();
 		}
 		
@@ -137,8 +137,12 @@ public class ListRewriteEvent extends RewriteEvent {
 		int nEntries= entries.size();
 		for (int i= 0; i < nEntries; i++) {
 			NodeRewriteEvent curr= (NodeRewriteEvent) entries.get(i);
-			if (curr.getOriginalValue() == originalEntry) {
+			if (curr.getOriginalValue() == entry || curr.getNewValue() == entry) {
 				curr.setNewValue(newEntry);
+				if (curr.getNewValue() == null && curr.getOriginalValue() == null) { // removed an inserted node
+					entries.remove(i);
+					return null;
+				}
 				return curr;
 			}
 		}
@@ -147,7 +151,7 @@ public class ListRewriteEvent extends RewriteEvent {
 	
 	public void revertChange(NodeRewriteEvent event) {
 		Object originalValue = event.getOriginalValue();
-		if(originalValue == null) {
+		if (originalValue == null) {
 			List entries= getEntries();
 			entries.remove(event);
 		} else {
