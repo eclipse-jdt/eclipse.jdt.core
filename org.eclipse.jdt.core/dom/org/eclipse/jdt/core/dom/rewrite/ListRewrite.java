@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2005 IBM Corporation and others.
+ * Copyright (c) 2004, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -83,7 +83,8 @@ public final class ListRewrite {
 	 * The AST itself is not actually modified in any way; rather, the rewriter
 	 * just records a note that this node has been removed from this list.
 	 * 
-	 * @param node the node being removed
+	 * @param node the node being removed. The node can either be an original node in this list
+	 * or (since 3.4) a new node already inserted or used as replacement in this AST rewriter.
 	 * @param editGroup the edit group in which to collect the corresponding
 	 * text edits, or <code>null</code> if ungrouped
 	 * @throws IllegalArgumentException if the node is null, or if the node is not
@@ -121,7 +122,8 @@ public final class ListRewrite {
      * is not actually modified in any way; rather, the rewriter just records
      * a note that this node has been replaced in this list.
 	 * 
-	 * @param node the node being replaced
+	 * @param node the node being removed. The node can either be an original node in this list
+	 * or (since 3.4) a new node already inserted or used as replacement in this AST rewriter.
 	 * @param replacement the replacement node, or <code>null</code> if no
 	 * replacement
 	 * @param editGroup the edit group in which to collect the corresponding

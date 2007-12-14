@@ -320,7 +320,8 @@ public class ASTRewrite {
      * is not actually modified in any way; rather, the rewriter just records
      * a note that this node should not be there.
 	 * 
-	 * @param node the node being removed
+	 * @param node the node being removed. The node can either be an original node in the AST
+	 * or (since 3.4) a new node already inserted or used as replacement in this AST rewriter.
 	 * @param editGroup the edit group in which to collect the corresponding
 	 * text edits, or <code>null</code> if ungrouped
 	 * @throws IllegalArgumentException if the node is null, or if the node is not
@@ -362,7 +363,8 @@ public class ASTRewrite {
      * is not actually modified in any way; rather, the rewriter just records
      * a note that this node has been replaced.
 	 * 
-	 * @param node the node being replaced
+	 * @param node the node being replaced. The node can either be an original node in the AST
+	 * or (since 3.4) a new node already inserted or used as replacement in this AST rewriter.
 	 * @param replacement the replacement node, or <code>null</code> if no
 	 * replacement
 	 * @param editGroup the edit group in which to collect the corresponding
