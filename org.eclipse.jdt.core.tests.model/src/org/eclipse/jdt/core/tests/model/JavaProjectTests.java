@@ -389,6 +389,33 @@ public void testFindPackageFragmentRootFromClasspathEntry() {
 	assertEquals("Unexpected number of roots for non existing entry", 0, roots.length);
 
 }
+/*
+ * Ensures that a type can be found if run after setting the classpath in a runnable
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=212769 )
+ */
+public void testFindTypeAfterSetClasspath() throws CoreException {
+	try {
+		final IJavaProject project = createJavaProject("P", new String[] {"src1"}, "bin");
+		createFolder("/P/src2/p");
+		createFile("/P/src2/p/X.java", "package p; public class X {}");
+		project.findType("p.X"); // populate project's cache
+		final IType[] result = new IType[1];
+		ResourcesPlugin.getWorkspace().run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					addClasspathEntry(project, JavaCore.newSourceEntry(new Path("/P/src2")));
+					result[0] = project.findType("p.X");
+				}
+			},
+			null);
+		assertElementsEqual(
+			"Unexpected type found",
+			"X [in X.java [in p [in src2 [in P]]]]",
+			result);
+	} finally {
+		deleteProject("P");
+	}
+}
 /**
  * Test that a folder with a dot name does not relate to a package fragment
  */

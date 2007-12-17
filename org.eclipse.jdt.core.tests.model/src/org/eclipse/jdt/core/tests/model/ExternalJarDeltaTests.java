@@ -270,6 +270,42 @@ public void testExternalJarChanged5() throws CoreException, IOException {
 		this.stopDeltas();
 	}
 }
+/*
+ * Ensures that the correct delta is reported after a setRawClasspath and after a modification of an external jar.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=212769 )
+ */
+public void testExternalJarChanged6() throws CoreException, IOException {
+	File f = null;
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
+		
+		String pPath = getExternalPath() + "p.jar";
+		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
+		
+		f = new File(pPath);
+		f.createNewFile();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		startDeltas();
+		
+		touch(f);
+		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null), JavaCore.newSourceEntry(new Path("/P"))});
+		
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	<project root>[*]: {ADDED TO CLASSPATH}\n" + 
+			"	"+f.getCanonicalPath()+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		if(f != null) {
+			deleteFile(f);
+		}
+		this.deleteProject("P");
+		this.stopDeltas();
+	}
+}
 /**
  * Refresh the JavaModel after an addition of an external jar.
  */

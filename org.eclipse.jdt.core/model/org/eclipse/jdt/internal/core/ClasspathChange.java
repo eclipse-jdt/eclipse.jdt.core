@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -261,6 +265,8 @@ public class ClasspathChange {
 		
 		delta.changed(this.project, IJavaElementDelta.F_RESOLVED_CLASSPATH_CHANGED);
 		result |= HAS_DELTA;
+
+		state.addForRefresh(this.project); // ensure external jars are refreshed for this project (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=212769 )
 		
 		Map removedRoots = null;
 		IPackageFragmentRoot[] roots = null;
@@ -314,6 +320,26 @@ public class ClasspathChange {
 					}
 				}
 				addClasspathDeltas(delta, pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH);
+				
+				// remember timestamp of jars that were removed (in case they are added as external jar in the same operation)
+				for (int j = 0, length = pkgFragmentRoots.length; j < length; j++) {
+					IPackageFragmentRoot root = pkgFragmentRoots[j];
+					if (root.isArchive() && !root.isExternal()) {
+						URI location = root.getResource().getLocationURI();
+						File file = null;
+						try {
+							IFileStore fileStore = EFS.getStore(location);
+							file = fileStore.toLocalFile(EFS.NONE, null);
+						} catch (CoreException e) {
+							// continue
+						}
+						if (file == null)
+							continue;
+						long timeStamp = DeltaProcessor.getTimeStamp(file);
+						IPath externalPath = new org.eclipse.core.runtime.Path(file.getAbsolutePath());
+						state.getExternalLibTimeStamps().put(externalPath, new Long(timeStamp));
+					}
+				}
 			} else {
 				// remote project changes
 				if (this.oldResolvedClasspath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT) {
