@@ -188,6 +188,30 @@ public void testResolveTypeInBinary3() throws JavaModelException {
 		"p1.X",
 		types);		
 }
+/*
+ * Resolve the type "int" within a member binary type with a constructor.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=212224 )
+ */
+public void testResolveTypeInBinary4() throws Exception {
+	try {
+		addLibrary("lib212224.jar", "lib212224src.zip", new String[] {
+			"X212224.java", 
+			"public class X212224 {\n" +
+			"  public class Member {\n" +
+			"    Member(int i) {\n" +
+			"    }\n" +
+			"  }\n" +
+			"}"
+		}, "1.4");
+		IType type = getPackageFragmentRoot("/TypeResolve/lib212224.jar").getPackageFragment("").getClassFile("X212224$Member.class").getType();
+		String[][] types = type.resolveType("int");
+		assertTypesEqual(
+			"<null>",
+			types);
+	} finally {
+		removeLibrary(this.currentProject, "lib212224.jar", "lib212224src.zip");
+	}
+}
 /**
  * Resolve the type "X" with a type import for it
  * within an inner class

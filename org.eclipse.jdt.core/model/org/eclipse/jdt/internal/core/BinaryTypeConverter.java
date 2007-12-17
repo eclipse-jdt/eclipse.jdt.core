@@ -147,9 +147,12 @@ public class BinaryTypeConverter {
 		String[] argumentTypeNames = method.getParameterTypes();
 		String[] argumentNames = method.getParameterNames();
 		int argumentCount = argumentTypeNames == null ? 0 : argumentTypeNames.length;
+		// Ignore synthetic arguments (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=212224)
+		int startIndex = (method.isConstructor() && type.isMember() && !Flags.isStatic(type.getFlags())) ? 1 : 0;
+		argumentCount -= startIndex;
 		methodDeclaration.arguments = new Argument[argumentCount];
 		for (int i = 0; i < argumentCount; i++) {
-			String argumentTypeName = argumentTypeNames[i];
+			String argumentTypeName = argumentTypeNames[startIndex+i];
 			TypeReference typeReference = createTypeReference(Signature.toString(argumentTypeName).toCharArray(), typeNames);
 			if (isVarargs && i == argumentCount-1) {
 				typeReference.bits |= ASTNode.IsVarArgs;
