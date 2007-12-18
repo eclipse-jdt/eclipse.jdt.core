@@ -8096,4 +8096,53 @@ public void test149() {
 		"----------\n"
 	);
 }
+public void test150() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	// DOESN\'T Compile\n" + 
+			"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<java.util.Date> date){\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	// Doesn\'t compile\n" + 
+			"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<String> date){\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	// Using vararg trick compiles ok use vararg to differentiate method signature\n" + 
+			"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<java.util.Date> date, D1 ... notUsed){\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	// Using vararg trick compiles ok use vararg to differentiate method signature\n" + 
+			"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<String> date, D2 ... notUsed){\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	class MyT<T>{}\n" + 
+			"	class D1<T>{}\n" + 
+			"	class D2<T>{}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<java.util.Date> date){\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Method method3(X.D1<String>, X.D1<String>, X.D1<Date>) has the same erasure method3(X.D1<T>, X.D1<T>, X.D1<T>) as another method in type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<String> date){\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Method method3(X.D1<String>, X.D1<String>, X.D1<String>) has the same erasure method3(X.D1<T>, X.D1<T>, X.D1<T>) as another method in type X\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 11)\n" + 
+		"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<java.util.Date> date, D1 ... notUsed){\n" + 
+		"	                                                                                    ^^\n" + 
+		"X.D1 is a raw type. References to generic type X.D1<T> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 15)\n" + 
+		"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<String> date, D2 ... notUsed){\n" + 
+		"	                                                                            ^^\n" + 
+		"X.D2 is a raw type. References to generic type X.D2<T> should be parameterized\n" + 
+		"----------\n");
+}	
+
 }
