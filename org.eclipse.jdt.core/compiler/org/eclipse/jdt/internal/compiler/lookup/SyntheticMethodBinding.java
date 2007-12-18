@@ -244,15 +244,16 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.selector = selector;
 	    this.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		LookupEnvironment environment = declaringEnum.scope.environment();
 	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		if (selector == TypeConstants.VALUES) {
-		    this.returnType = declaringEnum.scope.createArrayType(declaringEnum, 1);
+		    this.returnType = environment.createArrayType(environment.convertToParameterizedType(declaringEnum), 1);
 		    this.parameters = Binding.NO_PARAMETERS;
-		    this.kind = EnumValues;
+		    this.kind = SyntheticMethodBinding.EnumValues;
 		} else if (selector == TypeConstants.VALUEOF) {
-		    this.returnType = declaringEnum;
+		    this.returnType = environment.convertToParameterizedType(declaringEnum);
 		    this.parameters = new TypeBinding[]{ declaringEnum.scope.getJavaLangString() };
-		    this.kind = EnumValueOf;
+		    this.kind = SyntheticMethodBinding.EnumValueOf;
 		}
 		SyntheticMethodBinding[] knownAccessMethods = ((SourceTypeBinding)this.declaringClass).syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;

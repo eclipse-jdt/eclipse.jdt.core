@@ -39098,5 +39098,35 @@ public void test1216() {
 		"The type A.P is not visible\n" + 
 		"----------\n");
 }	
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=211718
+public void test1223() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" + 
+			"import java.util.List;\n" + 
+			"public class X<E> {\n" + 
+			"    public static enum IsABug {\n" + 
+			"        TRUE,\n" + 
+			"        FALSE;\n" + 
+			"    }   \n" + 
+			"    public List<IsABug> getPossibleBugStates() {\n" + 
+			"    	String s1 = IsABug.values();\n" + 
+			"    	String s2 = IsABug.valueOf(s1);\n" + 
+			"        return Arrays.asList(IsABug.values());\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	String s1 = IsABug.values();\n" + 
+		"	            ^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X.IsABug[] to String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	String s2 = IsABug.valueOf(s1);\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X.IsABug to String\n" + 
+		"----------\n");
+}	
 }
