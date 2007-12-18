@@ -31,12 +31,20 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	public static final int AST_INTERNAL_JLS2 = AST.JLS2;
 
 	protected AST ast;
+	// TODO (frederic) use this field while converting instead of method argument
+	protected int testLevel = AST_INTERNAL_JLS2;
 	static List TEST_SUITES = null;
 	static boolean PROJECT_SETUP = false;
 
 	protected ConverterTestSetup(String name) {
 		super(name);
 	}
+
+	// TODO (frederic) replace all ASTParser creation with by calling this method
+	protected ASTParser createASTParser() {
+	    ASTParser parser = ASTParser.newParser(this.testLevel);
+	    return parser;
+    }
 
 	protected IPath getConverterJCLPath() {
 		return getConverterJCLPath(""); //$NON-NLS-1$

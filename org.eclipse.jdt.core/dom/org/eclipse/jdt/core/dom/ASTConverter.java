@@ -429,17 +429,28 @@ class ASTConverter {
 		methodName.setSourceRange(start, end - start + 1);
 		methodDecl.setName(methodName);
 		org.eclipse.jdt.internal.compiler.ast.TypeReference[] thrownExceptions = methodDeclaration.thrownExceptions;
-		if (thrownExceptions != null) {
-			int thrownExceptionsLength = thrownExceptions.length;
-			for (int i = 0; i < thrownExceptionsLength; i++) {
-				methodDecl.thrownExceptions().add(convert(thrownExceptions[i]));
-			}
+		int methodHeaderEnd = methodDeclaration.sourceEnd;
+		int thrownExceptionsLength = thrownExceptions == null ? 0 : thrownExceptions.length;
+		if (thrownExceptionsLength > 0) {
+			Name thrownException;
+			int i = 0;
+			do {
+				thrownException = convert(thrownExceptions[i++]);
+				methodDecl.thrownExceptions().add(thrownException);
+			} while (i < thrownExceptionsLength);
+			methodHeaderEnd = thrownException.getStartPosition() + thrownException.getLength();
 		}
 		org.eclipse.jdt.internal.compiler.ast.Argument[] parameters = methodDeclaration.arguments;
-		if (parameters != null) {
-			int parametersLength = parameters.length;
-			for (int i = 0; i < parametersLength; i++) {
-				methodDecl.parameters().add(convert(parameters[i]));
+		int parametersLength = parameters == null ? 0 : parameters.length;
+		if (parametersLength > 0) {
+			SingleVariableDeclaration parameter;
+			int i = 0;
+			do {
+				parameter = convert(parameters[i++]);
+				methodDecl.parameters().add(parameter);
+			} while (i < parametersLength);
+			if (thrownExceptionsLength == 0) {
+				methodHeaderEnd = parameter.getStartPosition() + parameter.getLength();
 			}
 		}
 		org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall explicitConstructorCall = null;
@@ -487,15 +498,16 @@ class ASTConverter {
 
 			org.eclipse.jdt.internal.compiler.ast.Statement[] statements = methodDeclaration.statements;
 			
-			start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
-			end = retrieveEndBlockPosition(methodDeclaration.sourceStart, methodDeclaration.declarationSourceEnd);
+			start = retrieveStartBlockPosition(methodHeaderEnd, methodDeclaration.bodyStart);
+			if (start == -1) start = methodDeclaration.bodyStart; // use recovery position for body start
+			end = retrieveRightBrace(methodDeclaration.bodyEnd, methodDeclaration.declarationSourceEnd);
 			Block block = null;
 			if (start != -1 && end != -1) {
 				/*
 				 * start or end can be equal to -1 if we have an interface's method.
 				 */
 				block = new Block(this.ast);
-				block.setSourceRange(start, end - start + 1);
+				block.setSourceRange(start, closingPosition - start + 1);
 				methodDecl.setBody(block);
 			}
 			if (block != null && (statements != null || explicitConstructorCall != null)) {
@@ -520,7 +532,8 @@ class ASTConverter {
 		} else {
 			// syntax error in this method declaration
 			if (!methodDeclaration.isNative() && !methodDeclaration.isAbstract()) {
-				start = retrieveStartBlockPosition(methodDeclaration.sourceStart, declarationSourceEnd);
+				start = retrieveStartBlockPosition(methodHeaderEnd, declarationSourceEnd);
+				if (start == -1) start = methodDeclaration.bodyStart; // use recovery position for body start
 				end = methodDeclaration.bodyEnd;
 				// try to get the best end position
 				CategorizedProblem[] problems = methodDeclaration.compilationResult().problems;

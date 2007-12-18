@@ -28,6 +28,7 @@ public static Class[] getAllTestClasses() {
 		ASTConverterTest.class,		
 		ASTConverterTest2.class,
 		ASTConverterBugsTest.class,		
+		ASTConverterBugsTestJLS3.class,		
 		ASTConverterJavadocTest.class,
 		ASTConverter15Test.class,
 		ASTConverter16Test.class,
