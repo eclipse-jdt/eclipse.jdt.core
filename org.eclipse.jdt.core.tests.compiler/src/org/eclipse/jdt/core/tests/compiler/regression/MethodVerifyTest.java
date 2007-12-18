@@ -8144,5 +8144,50 @@ public void test150() {
 		"X.D2 is a raw type. References to generic type X.D2<T> should be parameterized\n" + 
 		"----------\n");
 }	
+public void test151() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Date;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	// Using vararg trick compiles ok use vararg to differentiate method signature\n" + 
+			"	public static MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<java.util.Date> date, D1... notUsed) {\n" + 
+			"		System.out.print(\"#method3(D1<String>, D1<String>, D1<java.util.Date>, D1[])\");\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	// Using vararg trick compiles ok use vararg to differentiate method signature\n" + 
+			"	public static MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<String> date, D2... notUsed) {\n" + 
+			"		System.out.print(\"#method3(D1<String>, D1<String>, D1<java.util.Date>, D2[])\");\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * this java main demonstrates that compiler can differentiate between to\n" + 
+			"	 * the 2 different methods.\n" + 
+			"	 * @param args\n" + 
+			"	 */\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X x = new X();\n" + 
+			"		D1<String> dString = x.new D1<String>();\n" + 
+			"		D1<Date> dDate = x.new D1<Date>();\n" + 
+			"		// calling first defined method\n" + 
+			"		X.method3(dString, dString, dDate);\n" + 
+			"		// calling second defined method\n" + 
+			"		X.method3(dString, dString, dString);\n" + 
+			"		// / will write out\n" + 
+			"		// method3 called with this signature: D1<String> harg, D1<String> oarg,\n" + 
+			"		// D1<java.util.Date> date\n" + 
+			"		// method3 called with this signature: D1<String> harg, D1<String> oarg,\n" + 
+			"		// D1<String> date\n" + 
+			"	}\n" + 
+			"	class MyT<T> {}\n" + 
+			"	public class D1<T> {}\n" + 
+			"	public class D2<T> {}\n" + 
+			"}\n"
+		},
+		"#method3(D1<String>, D1<String>, D1<java.util.Date>, D1[])#method3(D1<String>, D1<String>, D1<java.util.Date>, D2[])");
+}	
 
 }
