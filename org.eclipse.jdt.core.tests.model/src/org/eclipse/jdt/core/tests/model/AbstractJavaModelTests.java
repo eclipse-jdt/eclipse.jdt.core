@@ -137,7 +137,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
         		public int compare(Object a, Object b) {
         			IJavaElementDelta deltaA = (IJavaElementDelta)a;
         			IJavaElementDelta deltaB = (IJavaElementDelta)b;
-        			return deltaA.toString().compareTo(deltaB.toString());
+        			return toString(deltaA).compareTo(toString(deltaB));
+        		}
+        		private String toString(IJavaElementDelta delta) {
+        			if (delta.getElement().getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT) {
+        				return delta.getElement().getPath().setDevice(null).toString();
+        			}
+        			return delta.toString();
         		}
         	};
         	org.eclipse.jdt.internal.core.util.Util.sort(elementDeltas, comparer);
