@@ -134,7 +134,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
         		public int compare(Object a, Object b) {
         			IJavaElementDelta deltaA = (IJavaElementDelta)a;
         			IJavaElementDelta deltaB = (IJavaElementDelta)b;
-        			return deltaA.toString().compareTo(deltaB.toString());
+        			return toString(deltaA).compareTo(toString(deltaB));
+        		}
+        		private String toString(IJavaElementDelta delta) {
+        			if (delta.getElement().getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT) {
+        				return delta.getElement().getPath().setDevice(null).toString();
+        			}
+        			return delta.toString();
         		}
         	};
         	org.eclipse.jdt.internal.core.util.Util.sort(elementDeltas, comparer);
@@ -233,6 +239,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return suite;
 	}
 
+	protected void addClasspathEntry(IJavaProject project, IClasspathEntry entry) throws JavaModelException{
+		IClasspathEntry[] entries = project.getRawClasspath();
+		int length = entries.length;
+		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 0, length);
+		entries[length] = entry;
+		project.setRawClasspath(entries, null);
+	}
 	protected void addJavaNature(String projectName) throws CoreException {
 		IProject project = getWorkspaceRoot().getProject(projectName);
 		IProjectDescription description = project.getDescription();

@@ -40,6 +40,10 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 	 * - create resolved classpath markers
 	 */
 	protected void classpathChanged(JavaProject project) throws JavaModelException {
+		// reset the project's caches early since some clients rely on the project's caches being up-to-date when run inside an IWorkspaceRunnable
+		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=212769#c5 )
+		project.resetCaches();
+		
 		DeltaProcessingState state = JavaModelManager.getJavaModelManager().deltaState;
 		DeltaProcessor deltaProcessor = state.getDeltaProcessor();
 		ClasspathChange change = (ClasspathChange) deltaProcessor.classpathChanges.get(project.getProject());
