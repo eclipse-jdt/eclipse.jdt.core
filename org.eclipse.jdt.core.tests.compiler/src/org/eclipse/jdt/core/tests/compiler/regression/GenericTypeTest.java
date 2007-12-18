@@ -40976,5 +40976,55 @@ public void test1221() {
 		"	                   ^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot cast from Set<String> to String\n" + 
 		"----------\n");
-}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207959
+public void test1222() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Zork & Runnable> {\n" + 
+			"  T get() { return null; }\n" + 
+			"  void foo2(X<T> x2) {\n" + 
+			"	    Runnable r = x2.get();\n" + 
+			"	  }  \n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends Zork & Runnable> {\n" + 
+		"	                         ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=211718
+public void test1223() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" + 
+			"import java.util.List;\n" + 
+			"public class X<E> {\n" + 
+			"    public static enum IsABug {\n" + 
+			"        TRUE,\n" + 
+			"        FALSE;\n" + 
+			"    }   \n" + 
+			"    public List<IsABug> getPossibleBugStates() {\n" + 
+			"    	String s1 = IsABug.values();\n" + 
+			"    	String s2 = IsABug.valueOf(s1);\n" + 
+			"        return Arrays.asList(IsABug.values());\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	String s1 = IsABug.values();\n" + 
+		"	            ^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X.IsABug[] to String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	String s2 = IsABug.valueOf(s1);\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X.IsABug to String\n" + 
+		"----------\n");
+}
 }

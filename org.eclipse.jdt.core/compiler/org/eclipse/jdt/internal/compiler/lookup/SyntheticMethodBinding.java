@@ -244,13 +244,14 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.selector = selector;
 	    this.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		LookupEnvironment environment = declaringEnum.scope.environment();
 	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		if (selector == TypeConstants.VALUES) {
-		    this.returnType = declaringEnum.scope.createArrayType(declaringEnum, 1);
+		    this.returnType = environment.createArrayType(environment.convertToParameterizedType(declaringEnum), 1);
 		    this.parameters = Binding.NO_PARAMETERS;
 		    this.purpose = SyntheticMethodBinding.EnumValues;
 		} else if (selector == TypeConstants.VALUEOF) {
-		    this.returnType = declaringEnum;
+		    this.returnType = environment.convertToParameterizedType(declaringEnum);
 		    this.parameters = new TypeBinding[]{ declaringEnum.scope.getJavaLangString() };
 		    this.purpose = SyntheticMethodBinding.EnumValueOf;
 		}
