@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
@@ -442,7 +443,35 @@ public AnnotationBinding[] getAnnotations() {
 public AnnotationBinding[] getParameterAnnotations(int index) {
 	MethodBinding originalMethod = this.original();
 	AnnotationHolder holder = originalMethod.declaringClass.retrieveAnnotationHolder(originalMethod, true);
-	return holder == null ? Binding.NO_ANNOTATIONS : holder.getParameterAnnotations(index);
+	AnnotationBinding[][] allParameterAnnotations = holder == null ? null : holder.getParameterAnnotations();
+	if (allParameterAnnotations == null && (this.tagBits & TagBits.HasParameterAnnotations) != 0) {
+		// forward reference to method, where param annotations have not yet been associated to method
+		if (this.declaringClass instanceof SourceTypeBinding) {
+			SourceTypeBinding sourceType = (SourceTypeBinding) this.declaringClass;
+			if (sourceType.scope != null) {
+				AbstractMethodDeclaration methodDecl = sourceType.scope.referenceType().declarationOf(this);
+				if (methodDecl.arguments != null) {
+					for (int i = 0, length = methodDecl.arguments.length; i < length; i++) {
+						Argument argument = methodDecl.arguments[i];
+						if (argument.annotations != null) {
+							ASTNode.resolveAnnotations(methodDecl.scope, argument.annotations, argument.binding);
+							if (allParameterAnnotations == null) {
+								allParameterAnnotations = new AnnotationBinding[length][];
+							}
+							allParameterAnnotations[i] = argument.binding.getAnnotations();
+						}
+					}
+					if (allParameterAnnotations != null)
+						this.setParameterAnnotations(allParameterAnnotations);
+				}
+			}
+		}
+	}
+	AnnotationBinding[] resultParameterAnnotations = allParameterAnnotations == null ? null : allParameterAnnotations[	index];
+	 if (resultParameterAnnotations != null) {
+		 return resultParameterAnnotations;
+	 }
+	return Binding.NO_ANNOTATIONS;
 }
 public final int getAccessFlags() {
 	return modifiers & ExtraCompilerModifiers.AccJustFlag;

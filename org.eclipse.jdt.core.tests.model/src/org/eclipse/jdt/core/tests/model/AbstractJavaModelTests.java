@@ -1796,9 +1796,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		ICompilationUnit wc = getWorkingCopy(path, source, this.wcOwner);
 		// Verify that compute problem parameter is compatible with working copy problem requestor
 		if (computeProblems) {
-			assertNotNull("Cannot compute problems if working copy owner is set to null!", this.wcOwner.getProblemRequestor(wc));
+			assertNotNull("Cannot compute problems if the problem requestor of the working copy owner is set to null!", this.wcOwner.getProblemRequestor(wc));
 		} else {
-			assertNull("Cannot ignore problems if working copy owner is not set to null!", this.wcOwner.getProblemRequestor(wc));
+			assertNull("Cannot ignore problems if the problem requestor of the working copy owner is not set to null!", this.wcOwner.getProblemRequestor(wc));
 		}
 		return wc;
 	}

@@ -1360,6 +1360,9 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 		TypeBinding[] newParameters = new TypeBinding[size];
 		for (int i = 0; i < size; i++) {
 			Argument arg = arguments[i];
+			if (arg.annotations != null) {
+				method.tagBits |= TagBits.HasParameterAnnotations;
+			}
 			TypeBinding parameterType = arg.type.resolveType(methodDecl.scope, true /* check bounds*/);
 			if (parameterType == null) {
 				foundArgProblem = true;

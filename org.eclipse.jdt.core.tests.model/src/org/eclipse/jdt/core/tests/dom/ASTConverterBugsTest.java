@@ -19,14 +19,15 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.*;
 
 public class ASTConverterBugsTest extends ConverterTestSetup {
 
 public void setUpSuite() throws Exception {
-	PROJECT_SETUP = true; // do not copy Converter* directories
+//	PROJECT_SETUP = true; // do not copy Converter* directories
 	super.setUpSuite();
-	setUpJCLClasspathVariables("1.5");
+//	setUpJCLClasspathVariables("1.5");
 	waitUntilIndexesReady();
 }
 
@@ -75,7 +76,16 @@ public ASTNode runConversion(
 	parser.setResolveBindings(resolveBindings);
 	parser.setStatementsRecovery(statementsRecovery);
 	parser.setBindingsRecovery(bindingsRecovery);
+	parser.setWorkingCopyOwner(this.wcOwner);
 	return parser.createAST(null);
+}
+
+protected void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, ASTRequestor requestor, IJavaProject project, WorkingCopyOwner owner) {
+	ASTParser parser = createASTParser();
+	parser.setResolveBindings(true);
+	parser.setProject(project);
+	parser.setWorkingCopyOwner(owner);
+	parser.createASTs(cus, bindingKeys,  requestor, null);
 }
 
 /**
@@ -203,6 +213,46 @@ public void testBug209510c() throws CoreException, IOException {
 }
 
 /**
+ * @bug 212834: [dom] IMethodBinding.getParameterAnnotations does not return annotations
+ * @test Ensures that the method binding get the parameter annotations even on method invocation
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212834"
+ */
+public void testBug212834() throws CoreException, IOException {
+	workingCopies = new ICompilationUnit[3];
+	workingCopies[0] = getWorkingCopy("/Converter15/src/Baz.java",
+		"public @interface Baz {\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/Converter15/src/C.java",
+		"public class C {\n" + 
+		"public C(D d) {\n" + 
+		"	foo(5);\n" + 
+		"	d.bar(7);\n" + 
+		"}\n" + 
+		"@Baz\n" + 
+		"public void foo(@Baz int x) { }\n" + 
+		"\n" + 
+		"}"
+	);
+	workingCopies[2] = getWorkingCopy("/Converter15/src/D.java",
+		"public class D {\n" + 
+		"@Baz\n" + 
+		"public void bar(@Baz int y) { }\n" + 
+		"\n" + 
+		"}"
+	);
+
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[1], true, false, true);
+	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+	MethodInvocation methodInvocation = (MethodInvocation) ((ExpressionStatement) methodDeclaration.getBody().statements().get(1)).getExpression();
+	IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+	assertBindingsEqual(methodInvocation+" has invalid parameter annotations!",
+		"@LBaz;",
+		methodBinding.getParameterAnnotations(0)
+	);
+}
+
+/**
  * @bug 212857: [dom] AST has wrong source range after parameter with array-valued annotation
  * @test Ensures that the method body has the right source range even when there's braces in its header
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212857"
@@ -210,11 +260,11 @@ public void testBug209510c() throws CoreException, IOException {
 public void testBug212857() throws CoreException, IOException {
 	workingCopies = new ICompilationUnit[1];
 	String source = "package xy;\n" + 
-	"public class C {\n" + 
-	"	void m(@SuppressWarnings({\"unused\", \"bla\"}) int arg) {\n" + 
-	"		int local;\n" + 
-	"	}\n" + 
-	"}\n";
+		"public class C {\n" + 
+		"	void m(@SuppressWarnings({\"unused\", \"bla\"}) int arg) {\n" + 
+		"		int local;\n" + 
+		"	}\n" + 
+		"}\n";
 	workingCopies[0] = getWorkingCopy("/Converter15/src/xy/C.java", source);
 	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true, false, true);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);

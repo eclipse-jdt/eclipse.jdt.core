@@ -207,6 +207,10 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	}
 	
 	protected void assertBindingsEqual(String expected, IBinding[] actualBindings) {
+		assertBindingsEqual("Unexpected bindings", expected, actualBindings);
+	}
+	
+	protected void assertBindingsEqual(String message, String expected, IBinding[] actualBindings) {
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0, length = actualBindings.length; i < length; i++) {
 			if (i > 0) buffer.append('\n');
@@ -220,10 +224,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 			System.out.print(displayString(actual, 3));
 			System.out.println(',');
 		}
-		assertEquals(
-			"Unexpected bindings",
-			expected,
-			actual);
+		assertEquals(message, expected, actual);
 	}
 
 	/*

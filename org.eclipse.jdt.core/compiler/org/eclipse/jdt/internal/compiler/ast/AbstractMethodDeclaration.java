@@ -90,7 +90,6 @@ public abstract class AbstractMethodDeclaration
 				Argument argument = this.arguments[i];
 				argument.bind(this.scope, this.binding.parameters[i], used);
 				if (argument.annotations != null) {
-					this.binding.tagBits |= TagBits.HasParameterAnnotations;
 					if (paramAnnotations == null)
 						paramAnnotations = new AnnotationBinding[length][];
 					paramAnnotations[i] = argument.binding.getAnnotations();

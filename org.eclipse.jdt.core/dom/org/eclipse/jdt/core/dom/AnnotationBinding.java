@@ -128,6 +128,10 @@ class AnnotationBinding implements IAnnotationBinding {
 		if (!(this.bindingResolver instanceof DefaultBindingResolver)) return ""; //$NON-NLS-1$
 		DefaultBindingResolver resolver = (DefaultBindingResolver) this.bindingResolver;
 		ASTNode node = (ASTNode) resolver.bindingsToAstNodes.get(this);
+		if (node == null) {
+			// Can happen if annotation bindings have been resolved before having parsed the declaration
+			return ""; //$NON-NLS-1$
+		}
 		ASTNode recipient = node.getParent();
 		switch (recipient.getNodeType()) {
 		case ASTNode.PACKAGE_DECLARATION:
