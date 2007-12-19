@@ -44,5 +44,16 @@
          </enabledWhen>
       </page>
    </extension>
+   <extension 
+   		point="org.eclipse.ui.ide.markerSupport">
+      <markerTypeCategory name="%markerCategory.problem">
+         <markerTypeReference id="org.eclipse.jdt.apt.core.buildproblem"/>
+         <markerTypeReference id="org.eclipse.jdt.apt.core.compile.problem"/>
+         <markerTypeReference id="org.eclipse.jdt.apt.core.configproblem"/>
+         <markerTypeReference id="org.eclipse.jdt.apt.core.nonreconcile.compile.problem"/>
+         <markerTypeReference id="org.eclipse.jdt.apt.pluggable.core.compileProblem"/>
+      </markerTypeCategory>
+   </extension>
+
    
 </plugin>
