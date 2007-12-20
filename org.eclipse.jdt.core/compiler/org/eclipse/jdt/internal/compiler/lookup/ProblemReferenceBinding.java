@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.lang.reflect.Field;
+
+import org.eclipse.jdt.core.compiler.CharOperation;
+
 public class ProblemReferenceBinding extends ReferenceBinding {
 	private ReferenceBinding closestMatch;
 	private int problemReason;
@@ -40,6 +44,28 @@ public int problemId() {
 	return this.problemReason;
 }
 
+public static String problemReasonString(int problemReason) {
+	try {
+		Class reasons = ProblemReasons.class;
+		String simpleName = reasons.getName();
+		int lastDot = simpleName.lastIndexOf('.');
+		if (lastDot >= 0) {
+			simpleName = simpleName.substring(lastDot+1);
+		}
+		Field[] fields = reasons.getFields();
+		for (int i = 0, length = fields.length; i < length; i++) {
+			Field field = fields[i];
+			if (!field.getType().equals(int.class)) continue;
+			if (field.getInt(reasons) == problemReason) {
+				return simpleName + '.' + field.getName();
+			}
+		} 
+	} catch (IllegalAccessException e) {
+		// do nothing
+	}
+	return "unknown"; //$NON-NLS-1$
+}
+
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#shortReadableName()
  */
@@ -47,4 +73,14 @@ public char[] shortReadableName() {
 	return readableName();
 }
 
+public String toString() {
+	StringBuffer buffer = new StringBuffer(10);
+	buffer.append("ProblemType:[compoundName="); //$NON-NLS-1$
+	buffer.append(this.compoundName == null ? "<null>" : new String(CharOperation.concatWith(this.compoundName,'.'))); //$NON-NLS-1$
+	buffer.append("][problemID=").append(problemReasonString(this.problemReason)); //$NON-NLS-1$
+	buffer.append("][closestMatch="); //$NON-NLS-1$
+	buffer.append(this.closestMatch == null ? "<null>" : this.closestMatch.toString()); //$NON-NLS-1$
+	buffer.append("]"); //$NON-NLS-1$
+	return buffer.toString();
+}
 }
