@@ -3191,4 +3191,44 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n"
 		);
 	}
+	
+	/**
+	 * Bug 204749  [1.5][javadoc] NPE in JavadocQualifiedTypeReference
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=204749"
+	 */
+	public void testBug204749a() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+			    "    /** @see T.R */\n" + 
+			    "    void foo() {}\n" + 
+				"}"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	/** @see T.R */\n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Invalid reference\n" + 
+			"----------\n"
+		);
+	}
+	
+	public void testBug204749b() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		reportInvalidJavadoc = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+			    "    /** @see T.R */\n" + 
+			    "    void foo() {}\n" + 
+				"}"
+			}
+		);
+	}
 }

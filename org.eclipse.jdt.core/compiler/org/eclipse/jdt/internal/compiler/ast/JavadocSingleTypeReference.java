@@ -67,6 +67,11 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 			return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
 
 		this.resolvedType = getTypeBinding(scope);
+		// End resolution when getTypeBinding(scope) returns null. This may happen in
+		// certain circumstances, typically when an illegal access is done on a type 
+		// variable (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=204749)
+		if (this.resolvedType == null) return null;
+		
 		if (!this.resolvedType.isValidBinding()) {
 			char[][] tokens = { this.token };
 			Binding binding = scope.getTypeOrPackage(tokens);
