@@ -436,42 +436,44 @@ public AnnotationBinding[] getAnnotations() {
 	return originalMethod.declaringClass.retrieveAnnotations(originalMethod);
 }
 /**
- * @param index the index of the parameter of interest
- * @return the annotations on the <code>index</code>th parameter
- * @throws ArrayIndexOutOfBoundsException when <code>index</code> is not valid 
+ * @return the annotations for each of the method parameters or <code>null></code>
+ * 	if there's no parameter.
  */
-public AnnotationBinding[] getParameterAnnotations(int index) {
+public AnnotationBinding[][] getParameterAnnotations() {
+	int length = this.parameters.length;
+	if (this.parameters == null || length == 0) {
+		return null;
+	}
 	MethodBinding originalMethod = this.original();
 	AnnotationHolder holder = originalMethod.declaringClass.retrieveAnnotationHolder(originalMethod, true);
 	AnnotationBinding[][] allParameterAnnotations = holder == null ? null : holder.getParameterAnnotations();
 	if (allParameterAnnotations == null && (this.tagBits & TagBits.HasParameterAnnotations) != 0) {
+		allParameterAnnotations = new AnnotationBinding[length][];
 		// forward reference to method, where param annotations have not yet been associated to method
 		if (this.declaringClass instanceof SourceTypeBinding) {
 			SourceTypeBinding sourceType = (SourceTypeBinding) this.declaringClass;
 			if (sourceType.scope != null) {
 				AbstractMethodDeclaration methodDecl = sourceType.scope.referenceType().declarationOf(this);
-				if (methodDecl.arguments != null) {
-					for (int i = 0, length = methodDecl.arguments.length; i < length; i++) {
-						Argument argument = methodDecl.arguments[i];
-						if (argument.annotations != null) {
-							ASTNode.resolveAnnotations(methodDecl.scope, argument.annotations, argument.binding);
-							if (allParameterAnnotations == null) {
-								allParameterAnnotations = new AnnotationBinding[length][];
-							}
-							allParameterAnnotations[i] = argument.binding.getAnnotations();
-						}
+				for (int i = 0; i < length; i++) {
+					Argument argument = methodDecl.arguments[i];
+					if (argument.annotations != null) {
+						ASTNode.resolveAnnotations(methodDecl.scope, argument.annotations, argument.binding);
+						allParameterAnnotations[i] = argument.binding.getAnnotations();
 					}
-					if (allParameterAnnotations != null)
-						this.setParameterAnnotations(allParameterAnnotations);
 				}
+				this.setParameterAnnotations(allParameterAnnotations);
+			} else {
+				for (int i = 0; i < length; i++) {
+					allParameterAnnotations[i] = Binding.NO_ANNOTATIONS;
+				}
+			}
+		} else {
+			for (int i = 0; i < length; i++) {
+				allParameterAnnotations[i] = Binding.NO_ANNOTATIONS;
 			}
 		}
 	}
-	AnnotationBinding[] resultParameterAnnotations = allParameterAnnotations == null ? null : allParameterAnnotations[	index];
-	 if (resultParameterAnnotations != null) {
-		 return resultParameterAnnotations;
-	 }
-	return Binding.NO_ANNOTATIONS;
+	return allParameterAnnotations;
 }
 public final int getAccessFlags() {
 	return modifiers & ExtraCompilerModifiers.AccJustFlag;

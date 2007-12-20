@@ -39,6 +39,23 @@ public static Test suite() {
 	return buildModelTestSuite(ASTConverterBugsTest.class);
 }
 
+protected void checkParameterAnnotations(String message, String expected, IMethodBinding methodBinding) {
+	int size = methodBinding.getParameterTypes().length;
+	StringBuffer buffer = new StringBuffer();
+	for (int i=0; i<size; i++) {
+		buffer.append("----- param ");
+		buffer.append(i+1);
+		buffer.append("-----\n");
+		IAnnotationBinding[] bindings= methodBinding.getParameterAnnotations(i);
+		int length = bindings.length;
+		for (int j=0; j<length; j++) {
+			buffer.append(bindings[j].getKey());
+			buffer.append('\n');
+		}
+	}
+	assertEquals(message, expected, buffer.toString());
+}
+
 public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
 	return runConversion(this.testLevel, unit, resolveBindings);
 }
@@ -360,6 +377,72 @@ public void testBug212857e() throws CoreException, IOException {
 		" \n" + 
 		"	}",
 		source
+	);
+}
+
+/**
+ * @bug 213509: [dom] IMethodBinding.getParameterAnnotations returns annotations for wrong parameter
+ * @test Ensures that all parameter annotations of a the method binding are correctly  returned
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=213509"
+ */
+public void testBug213509() throws CoreException, IOException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
+		"public class Test {\n" + 
+		"	void m(@Foo @Bar @Annot String str, @Bar @Foo Object obj, @Annot int x) {}\n" + 
+		"}\n" + 
+		"@interface Foo {}\n" + 
+		"@interface Bar {}\n" + 
+		"@interface Annot {}\n"
+	);
+
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true, false, true);
+	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
+		"----- param 1-----\n" + 
+		"@LTest~Foo;\n" + 
+		"@LTest~Bar;\n" + 
+		"@LTest~Annot;\n" + 
+		"----- param 2-----\n" + 
+		"@LTest~Bar;\n" + 
+		"@LTest~Foo;\n" + 
+		"----- param 3-----\n" + 
+		"@LTest~Annot;\n",
+		methodDeclaration.resolveBinding()
+	);
+}
+public void testBug213509_invocation() throws CoreException, IOException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
+		"public class Test {\n" + 
+		"	void m(@Foo @Bar @Annot String str, @Bar @Foo Object obj, @Annot int x) {}\n" + 
+		"}\n" + 
+		"@interface Foo {}\n" + 
+		"@interface Bar {}\n" + 
+		"@interface Annot {}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/Converter15/src/X.java",
+		"public class X {\n" + 
+		"public X(Test test) {\n" + 
+		"	test.m(\"\", null, 7);\n" + 
+		"}\n" + 
+		"}"
+	);
+
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[1], true, false, true);
+	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+	MethodInvocation methodInvocation = (MethodInvocation) ((ExpressionStatement) methodDeclaration.getBody().statements().get(0)).getExpression();
+	checkParameterAnnotations(methodInvocation+" has invalid parameter annotations!",
+		"----- param 1-----\n" + 
+		"@LTest~Foo;\n" + 
+		"@LTest~Bar;\n" + 
+		"@LTest~Annot;\n" + 
+		"----- param 2-----\n" + 
+		"@LTest~Bar;\n" + 
+		"@LTest~Foo;\n" + 
+		"----- param 3-----\n" + 
+		"@LTest~Annot;\n",
+		methodInvocation.resolveMethodBinding()
 	);
 }
 

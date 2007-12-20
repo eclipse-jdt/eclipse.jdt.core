@@ -52,7 +52,7 @@ class MethodBinding implements IMethodBinding {
 	private ITypeBinding[] typeParameters;
 	private ITypeBinding[] typeArguments;
 	private IAnnotationBinding[] annotations;
-	private IAnnotationBinding[] parameterAnnotations;
+	private IAnnotationBinding[][] parameterAnnotations;
 
 	MethodBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding) {
 		this.resolver = resolver;
@@ -134,23 +134,30 @@ class MethodBinding implements IMethodBinding {
 	}
 
 	public IAnnotationBinding[] getParameterAnnotations(int index) {
+		if (getParameterTypes() == NO_TYPE_BINDINGS) {
+			return AnnotationBinding.NoAnnotations;
+		}
 		if (this.parameterAnnotations != null) {
-			return this.parameterAnnotations;
+			return this.parameterAnnotations[index];
 		}
-		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] annots = this.binding.getParameterAnnotations(index);
-		int length = annots == null ? 0 : annots.length;
-		if (length == 0) {
-			return this.parameterAnnotations = AnnotationBinding.NoAnnotations;
-		}
-		IAnnotationBinding[] domInstances =new AnnotationBinding[length];
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[][] bindingAnnotations = this.binding.getParameterAnnotations();
+		// bindingAnnoatations is never null as the method has one or several parameters
+		int length = bindingAnnotations.length;
+		this.parameterAnnotations = new AnnotationBinding[length][];
 		for (int i = 0; i < length; i++) {
-			final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(annots[i]);
-			if (annotationInstance == null) {
-				return this.parameterAnnotations = AnnotationBinding.NoAnnotations;
+			org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] paramBindingAnnotations = bindingAnnotations[i];
+			int pLength = paramBindingAnnotations.length;
+			this.parameterAnnotations[i] = new AnnotationBinding[pLength];
+			for (int j=0; j<pLength; j++) {
+				IAnnotationBinding domAnnotation = this.resolver.getAnnotationInstance(paramBindingAnnotations[j]);
+				if (domAnnotation == null) {
+					this.parameterAnnotations[i] = AnnotationBinding.NoAnnotations;
+					break;
+				}
+				this.parameterAnnotations[i][j] = domAnnotation;
 			}
-			domInstances[i] = annotationInstance;
 		}
-		return this.parameterAnnotations = domInstances;
+		return this.parameterAnnotations[index];
 	}
 
 	/**
