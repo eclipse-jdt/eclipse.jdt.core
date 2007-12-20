@@ -542,7 +542,6 @@ public void testMissingLibrary4() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=172345
 public void testIncompatibleJdkLEvelOnProject() throws JavaModelException {
-	this.abortOnFailure = false; // NOT sure this test will pass on releng boxes => do not abort on failures
 
 	// Create project
 	IPath projectPath = env.addProject("Project");
@@ -562,41 +561,33 @@ public void testIncompatibleJdkLEvelOnProject() throws JavaModelException {
 	project.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, CompilerOptions.WARNING);
 	incrementalBuild();
 	long projectRuntimeJDKLevel = CompilerOptions.versionToJdkLevel(projectRuntime);
-	StringBuffer buffer = new StringBuffer();
-	for (int i = 0, max = classlibs.length; i < max; i++) {
+	int max = classlibs.length;
+	List expectedProblems = new ArrayList();
+	for (int i = 0; i < max; i++) {
 		String path = project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString();
 		Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(path).makeAbsolute(), true);
 		long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
 		if (libraryJDK > projectRuntimeJDKLevel) {
-			if (i>0) buffer.append('\n');
-			buffer.append(getJdkLevelProblem(projectRuntime, path, IMarker.SEVERITY_WARNING));
+			expectedProblems.add(getJdkLevelProblem(projectRuntime, path, IMarker.SEVERITY_WARNING));
 		}
 	}
-
-	expectingProblemsFor(
-		projectPath,
-		String.valueOf(buffer)
-	);
+	expectingProblemsFor(projectPath, expectedProblems);
 
 	// Change project incompatible jdk level preferences to error, perform incremental build and expect 2 problems
 	project.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, CompilerOptions.ERROR);
 	incrementalBuild();
 
-	buffer = new StringBuffer();
-	for (int i = 0, max = classlibs.length; i < max; i++) {
+	expectedProblems = new ArrayList();
+	for (int i = 0; i < max; i++) {
 		String path = project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString();
 		Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(path).makeAbsolute(), true);
 		long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
 		if (libraryJDK > projectRuntimeJDKLevel) {
-			if (i>0) buffer.append('\n');
-			buffer.append(getJdkLevelProblem(projectRuntime, path, IMarker.SEVERITY_ERROR));
+			expectedProblems.add(getJdkLevelProblem(projectRuntime, path, IMarker.SEVERITY_ERROR));
 		}
 	}
-	expectingProblemsFor(
-		projectPath,
-		"Problem : The project cannot be built until build path errors are resolved [ resource : </Project> range : <-1,-1> category : <10> severity : <2>]\n" +
-		String.valueOf(buffer)
-	);
+	expectedProblems.add("Problem : The project cannot be built until build path errors are resolved [ resource : </Project> range : <-1,-1> category : <10> severity : <2>]");
+	expectingProblemsFor(projectPath, expectedProblems);
 
 	// Remove project to avoid side effect on other tests
 	env.removeProject(projectPath);
@@ -610,7 +601,6 @@ public void testIncompatibleJdkLEvelOnWksp() throws JavaModelException {
 	IEclipsePreferences preferences = manager.getInstancePreferences();
 	String incompatibleJdkLevel = preferences.get(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, null);
 	try {
-		this.abortOnFailure = false; // NOT sure this test will pass on all releng boxes => do not abort on failures
 
 		// Create project
 		IPath projectPath = env.addProject("Project");
@@ -631,42 +621,33 @@ public void testIncompatibleJdkLEvelOnWksp() throws JavaModelException {
 		preferences.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
 		incrementalBuild();
 
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0, max = classlibs.length; i < max; i++) {
+		List expectedProblems = new ArrayList();
+		int max = classlibs.length;
+		for (int i = 0; i < max; i++) {
 			String path = project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString();
 			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(path).makeAbsolute(), true);
 			long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
 			if (libraryJDK > wkspRuntimeJDKLevel) {
-				if (i>0) buffer.append('\n');
-				buffer.append(getJdkLevelProblem(wkspRuntime, path, IMarker.SEVERITY_WARNING));
+				expectedProblems.add(getJdkLevelProblem(wkspRuntime, path, IMarker.SEVERITY_WARNING));
 			}
 		}
-
-		expectingProblemsFor(
-			projectPath,
-			String.valueOf(buffer)
-		);
+		expectingProblemsFor(projectPath, expectedProblems);
 
 		// Change workspace incompatible jdk level preferences to error, perform incremental build and expect 2 problems
 		preferences.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.ERROR);
 		incrementalBuild();
 
-		buffer = new StringBuffer();
-		for (int i = 0, max = classlibs.length; i < max; i++) {
+		expectedProblems = new ArrayList();
+		for (int i = 0; i < max; i++) {
 			String path = project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString();
 			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(path).makeAbsolute(), true);
 			long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
 			if (libraryJDK > wkspRuntimeJDKLevel) {
-				if (i>0) buffer.append('\n');
-				buffer.append(getJdkLevelProblem(wkspRuntime, path, IMarker.SEVERITY_ERROR));
+				expectedProblems.add(getJdkLevelProblem(wkspRuntime, path, IMarker.SEVERITY_ERROR));
 			}
 		}
-
-		expectingProblemsFor(
-			projectPath,
-			"Problem : The project cannot be built until build path errors are resolved [ resource : </Project> range : <-1,-1> category : <10> severity : <2>]\n" +
-			String.valueOf(buffer)
-		);
+		expectedProblems.add("Problem : The project cannot be built until build path errors are resolved [ resource : </Project> range : <-1,-1> category : <10> severity : <2>]");
+		expectingProblemsFor(projectPath, expectedProblems);
 
 		// Remove project to avoid side effect on other tests
 		env.removeProject(projectPath);

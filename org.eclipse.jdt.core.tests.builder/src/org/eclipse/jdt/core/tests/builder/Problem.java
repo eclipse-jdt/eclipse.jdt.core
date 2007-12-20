@@ -118,17 +118,24 @@ public int getSeverity() {
 	}
 	
 	public int compareTo(Object o) {
-		Problem problem = (Problem) o;
-		if (!(this.getLocation().equals(problem.getLocation()))) {
-			return this.getLocation().compareTo(problem.getLocation());
+		if(o instanceof Problem){
+			Problem problem = (Problem) o;
+			/* Replace initial implementation with toString() comparison otherwise the problems order may change
+			 * when different VM are used (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=213570)...
+			if (!(this.getLocation().equals(problem.getLocation()))) {
+				return this.getLocation().compareTo(problem.getLocation());
+			}
+			if (this.getStart() < problem.getStart()) {
+				return -1;
+			}
+			if (this.getEnd() < problem.getEnd()) {
+				return -1;
+			}
+			return this.getMessage().compareTo(problem.getMessage());
+			*/
+			return this.toString().compareTo(problem.toString());
 		}
-		if (this.getStart() < problem.getStart()) {
-			return -1;
-		}
-		if (this.getEnd() < problem.getEnd()) {
-			return -1;
-		}
-		return this.getMessage().compareTo(problem.getMessage());
+		return -1;
 	}
 }
 

@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 import junit.framework.*;
 
@@ -320,16 +321,23 @@ public class BuilderTests extends TestCase {
 	/** Verifies that the given elements have problems.
 	 */
 	protected void expectingProblemsFor(IPath[] roots, String expected) {
-		StringBuffer buffer = new StringBuffer();
+		Problem[] problems = allSortedProblems(roots);
+		assumeEquals("Invalid problem(s)!!!", expected, arrayToString(problems)); //$NON-NLS-1$
+	}
+
+	/**
+	 * Verifies that the given element has the expected problems.
+	 */
+	protected void expectingProblemsFor(IPath root, List expected) {
+		expectingProblemsFor(new IPath[] { root }, expected);
+	}
+
+	/**
+	 * Verifies that the given elements have the expected problems.
+	 */
+	protected void expectingProblemsFor(IPath[] roots, List expected) {
 		Problem[] allProblems = allSortedProblems(roots);
-		if (allProblems != null) {
-			for (int i=0, length=allProblems.length; i<length; i++) {
-				if (i>0) buffer.append('\n');
-				buffer.append(allProblems[i]);
-			}
-		}
-		String actual = buffer.toString();
-		assumeEquals("Invalid problem(s)!!!", expected, actual); //$NON-NLS-1$
+		assumeEquals("Invalid problem(s)!!!", arrayToString(expected.toArray()), arrayToString(allProblems));
 	}
 
 	/** Verifies that the given element has a specific problem.
@@ -369,7 +377,7 @@ public class BuilderTests extends TestCase {
 			System.out.println("--------------------------------------------------------------------------------");
 			System.out.println("Missing problem while running test "+getName()+":");
 			System.out.println("	- expected : " + problem);
-			System.out.println("	- current: " + problemsToString(rootProblems));
+			System.out.println("	- current: " + arrayToString(rootProblems));
 			assumeTrue("missing expected problem: " + problem, false);
 		}
 	}
@@ -424,15 +432,19 @@ public class BuilderTests extends TestCase {
 
 			/* get the leaf problems for this type */
 			Problem[] problems = env.getProblemsFor(path);
-			System.out.println(problemsToString(problems));
+			System.out.println(arrayToString(problems));
+			System.out.println();
 		}
 	}
 
-	protected String problemsToString(Problem[] problems) {
+	protected String arrayToString(Object[] array) {
 		StringBuffer buffer = new StringBuffer();
-		for (int j = 0; j < problems.length; j++) {
-			buffer.append(problems[j].toString());
-			buffer.append('\n');
+		int length = array == null ? 0 : array.length;
+		for (int i = 0; i < length; i++) {
+			if (array[i] != null) {
+				if (i > 0) buffer.append('\n');
+				buffer.append(array[i].toString());
+			}
 		}
 		return buffer.toString();
 	}
