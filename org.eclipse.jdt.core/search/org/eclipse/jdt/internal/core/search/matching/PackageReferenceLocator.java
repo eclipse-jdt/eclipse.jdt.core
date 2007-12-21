@@ -64,6 +64,9 @@ public PackageReferenceLocator(PackageReferencePattern pattern) {
 
 	this.pattern = pattern;
 }
+public int match(Annotation node, MatchingNodeSet nodeSet) {
+	return match(node.type, nodeSet);
+}
 public int match(ASTNode node, MatchingNodeSet nodeSet) { // interested in ImportReference
 	if (!(node instanceof ImportReference)) return IMPOSSIBLE_MATCH;
 
@@ -310,9 +313,8 @@ public int resolveLevel(Binding binding) {
 				return IMPOSSIBLE_MATCH;
 		}				
 		return ACCURATE_MATCH;
-	} else {
-		return IMPOSSIBLE_MATCH;
 	}
+	return IMPOSSIBLE_MATCH;
 }
 protected int resolveLevel(QualifiedNameReference qNameRef) {
 	TypeBinding typeBinding = null;

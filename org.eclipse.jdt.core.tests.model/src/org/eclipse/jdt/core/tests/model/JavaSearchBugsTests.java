@@ -128,7 +128,7 @@ protected void setUp () throws Exception {
 }
 
 /**
- * Bug 41018: Method reference not found
+ * @bug 41018: Method reference not found
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=41018"
  */
 public void testBug41018() throws CoreException {
@@ -159,7 +159,7 @@ public void testBug41018() throws CoreException {
 }
 
 /**
- * Bug 70827: [Search] wrong reference match to private method of supertype
+ * @bug 70827: [Search] wrong reference match to private method of supertype
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=70827"
  */
 public void testBug70827() throws CoreException {
@@ -188,7 +188,7 @@ public void testBug70827() throws CoreException {
 }
 
 /**
- * Bug 71279: [Search] NPE in TypeReferenceLocator when moving CU with unresolved type reference
+ * @bug 71279: [Search] NPE in TypeReferenceLocator when moving CU with unresolved type reference
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=71279"
  */
 public void testBug71279() throws CoreException {
@@ -215,7 +215,7 @@ public void testBug71279() throws CoreException {
 }
 
 /**
- * Bug 72866: [search] references to endVisit(MethodInvocation) reports refs to endVisit(SuperMethodInvocation)
+ * @bug 72866: [search] references to endVisit(MethodInvocation) reports refs to endVisit(SuperMethodInvocation)
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=72866"
  */
 public void testBug72866() throws CoreException {
@@ -264,7 +264,7 @@ public void testBug72866() throws CoreException {
 }
 
 /**
- * Bug 73112: [Search] SearchEngine doesn't find all fields multiple field declarations
+ * @bug 73112: [Search] SearchEngine doesn't find all fields multiple field declarations
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=73112"
  */
 public void testBug73112a() throws CoreException {
@@ -314,7 +314,7 @@ public void testBug73112b() throws CoreException {
 }
 
 /**
- * Bug 73336: [1.5][search] Search Engine does not find type references of actual generic type parameters
+ * @bug 73336: [1.5][search] Search Engine does not find type references of actual generic type parameters
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=73336"
  */
 public void testBug73336() throws CoreException {
@@ -468,7 +468,7 @@ public void testBug73336c() throws CoreException {
 }
 
 /**
- * Bug 73696: searching only works for IJavaSearchConstants.TYPE, but not CLASS or INTERFACE
+ * @bug 73696: searching only works for IJavaSearchConstants.TYPE, but not CLASS or INTERFACE
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=73696"
  */
 public void testBug73696() throws CoreException {
@@ -522,7 +522,7 @@ public void testBug73696() throws CoreException {
 }
 
 /**
- * Bug 74776: [Search] Wrong search results for almost identical method
+ * @bug 74776: [Search] Wrong search results for almost identical method
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=74776"
  */
 public void testBug74776() throws CoreException {
@@ -564,7 +564,7 @@ public void testBug74776() throws CoreException {
 }
 
 /**
- * Bug 75816: [search] correct results are missing in java search
+ * @bug 75816: [search] correct results are missing in java search
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=75816"
  */
 public void testBug75816() throws CoreException {
@@ -579,7 +579,7 @@ public void testBug75816() throws CoreException {
 }
 
 /**
- * Bug 77093: [search] No references found to method with member type argument
+ * @bug 77093: [search] No references found to method with member type argument
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=77093"
  */
 private void setUpBug77093() throws CoreException {
@@ -641,7 +641,7 @@ public void testBug77093method() throws CoreException {
 }
 
 /**
- * Bug 77388: [compiler] Reference to constructor includes space after closing parenthesis
+ * @bug 77388: [compiler] Reference to constructor includes space after closing parenthesis
  */
 public void testBug77388() throws CoreException {
 	workingCopies = new ICompilationUnit[1];
@@ -664,7 +664,7 @@ public void testBug77388() throws CoreException {
 }
 
 /**
- * Bug 78082: [1.5][search] FieldReferenceMatch in static import should not include qualifier
+ * @bug 78082: [1.5][search] FieldReferenceMatch in static import should not include qualifier
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=78082"
  */
 public void testBug78082() throws CoreException {
@@ -699,7 +699,7 @@ public void testBug78082() throws CoreException {
 }
 
 /**
- * Bug 79267: [search] Refactoring of static generic member fails partially
+ * @bug 79267: [search] Refactoring of static generic member fails partially
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=79267"
  */
 public void testBug79267() throws CoreException {
@@ -743,7 +743,7 @@ public void testBug79267() throws CoreException {
 }
 
 /**
- * Bug 79378: [search] IOOBE when inlining a method
+ * @bug 79378: [search] IOOBE when inlining a method
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=79378"
  */
 public void testBug79378() throws CoreException {
@@ -789,7 +789,7 @@ public void testBug79378b() throws CoreException {
 }
 
 /**
- * Bug 79803: [1.5][search] Search for references to type A reports match for type variable A
+ * @bug 79803: [1.5][search] Search for references to type A reports match for type variable A
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=79803"
  */
 public void testBug79803() throws CoreException {
@@ -826,7 +826,7 @@ public void testBug79803string() throws CoreException {
 }
 
 /**
- * Bug 79860: [1.5][search] Search doesn't find type reference in type parameter bound
+ * @bug 79860: [1.5][search] Search doesn't find type reference in type parameter bound
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=79860"
  */
 public void testBug79860() throws CoreException {
@@ -880,7 +880,7 @@ public void testBug79860string() throws CoreException {
 }
 
 /**
- * Bug 79990: [1.5][search] Search doesn't find type reference in type parameter bound
+ * @bug 79990: [1.5][search] Search doesn't find type reference in type parameter bound
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=79990"
  */
 private void setUpBug79990() throws CoreException {
@@ -943,7 +943,7 @@ public void testBug79990d() throws CoreException {
 }
 
 /**
- * Bug 80084: [1.5][search]Rename field fails on field based on parameterized type with member type parameter
+ * @bug 80084: [1.5][search]Rename field fails on field based on parameterized type with member type parameter
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=80084"
  */
 public void testBug80084() throws CoreException, JavaModelException {
@@ -968,7 +968,7 @@ public void testBug80084() throws CoreException, JavaModelException {
 }
 
 /**
- * Bug 80194: [1.5][search]Rename field fails on field based on parameterized type with member type parameter
+ * @bug 80194: [1.5][search]Rename field fails on field based on parameterized type with member type parameter
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=80194"
  */
 private void setUpBug80194() throws CoreException, JavaModelException {
@@ -1036,7 +1036,7 @@ public void testBug80194string3() throws CoreException, JavaModelException {
 }
 
 /**
- * Bug 80223: [search] Declaration search doesn't consider visibility to determine overriding methods
+ * @bug 80223: [search] Declaration search doesn't consider visibility to determine overriding methods
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80223"
  */
 public void testBug80223() throws CoreException {
@@ -1066,11 +1066,11 @@ public void testBug80223() throws CoreException {
 }
 
 /**
- * Bug 80264: [search] Search for method declarations in workspace, disregarding declaring type
+ * @bug 80264: [search] Search for method declarations in workspace, disregarding declaring type
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80264"
  *
  * Following tests also verify
- * Bug 87778: [search] doesn't find all declarations of method with covariant return type
+ * @bug 87778: [search] doesn't find all declarations of method with covariant return type
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=87778"
  */
 // Methods
@@ -1271,7 +1271,7 @@ public void testBug80264_FieldsIgnoreBothTypes() throws CoreException, JavaModel
 }
 
 /**
- * Bug 80890: [search] Strange search engine behaviour
+ * @bug 80890: [search] Strange search engine behaviour
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=80890"
  */
 public void testBug80890() throws CoreException, JavaModelException {
@@ -1308,7 +1308,7 @@ public void testBug80890() throws CoreException, JavaModelException {
 }
 
 /**
- * Bug 80918: [1.5][search] ClassCastException when searching for references to binary type
+ * @bug 80918: [1.5][search] ClassCastException when searching for references to binary type
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80918"
  */
 public void testBug80918() throws CoreException {
@@ -1321,7 +1321,7 @@ public void testBug80918() throws CoreException {
 }
 
 /**
- * Bug 81084: [1.5][search]Rename field fails on field based on parameterized type with member type parameter
+ * @bug 81084: [1.5][search]Rename field fails on field based on parameterized type with member type parameter
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=81084"
  */
 public void testBug81084a() throws CoreException, JavaModelException {
@@ -1405,7 +1405,7 @@ public void testBug81084b() throws CoreException, JavaModelException {
 }
 
 /**
- * Bug 81556: [search] correct results are missing in java search
+ * @bug 81556: [search] correct results are missing in java search
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=81556"
  */
 public void testBug81556() throws CoreException {
@@ -1419,7 +1419,7 @@ public void testBug81556() throws CoreException {
 }
 
 /**
- * Bug 82088: [search][javadoc] Method parameter types references not found in @see/@link tags
+ * @bug 82088: [search][javadoc] Method parameter types references not found in @see/@link tags
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=82088"
  */
 public void testBug82088method() throws CoreException {
@@ -1470,7 +1470,7 @@ public void testBug82088constructor() throws CoreException {
 }
 
 /**
- * Bug 82208: [1.5][search][annot] Search for annotations misses references in default and values constructs
+ * @bug 82208: [1.5][search][annot] Search for annotations misses references in default and values constructs
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=82208"
  */
 private void setUpBug82208() throws CoreException {
@@ -1546,7 +1546,7 @@ public void testBug82208_CLASS_AND_ENUMERATION() throws CoreException {
 }
 
 /**
- * Bug 82673: [1.5][search][annot] Search for annotations misses references in default and values constructs
+ * @bug 82673: [1.5][search][annot] Search for annotations misses references in default and values constructs
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83012"
  */
 public void testBug82673() throws CoreException {
@@ -1579,7 +1579,7 @@ public void testBug82673() throws CoreException {
 }
 
 /**
- * Bug 83012: [1.5][search][annot] Search for annotations misses references in default and values constructs
+ * @bug 83012: [1.5][search][annot] Search for annotations misses references in default and values constructs
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83012"
  */
 public void testBug83012() throws CoreException {
@@ -1611,7 +1611,7 @@ public void testBug83012() throws CoreException {
 }
 
 /**
- * Bug 83230: [1.5][search][annot] search for annotation elements does not seem to be implemented yet
+ * @bug 83230: [1.5][search][annot] search for annotation elements does not seem to be implemented yet
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83230"
  */
 private void setUpBug83230_Explicit() throws CoreException {
@@ -1767,7 +1767,7 @@ public void testBug83230_Implicit02() throws CoreException {
 }
 
 /**
- * Bug 83304: [search] correct results are missing in java search
+ * @bug 83304: [search] correct results are missing in java search
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83304"
  */
 public void testBug83304() throws CoreException {
@@ -1958,7 +1958,7 @@ public void testBug83304_ConstructorStringPattern() throws CoreException {
 }
 
 /**
- * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
+ * @bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
  */
 private void setUpBug83804_Type() throws CoreException {
@@ -2024,7 +2024,7 @@ public void testBug83804_Field() throws CoreException {
 }
 
 /**
- * Bug 83388: [1.5][search] Search for varargs method not finding match
+ * @bug 83388: [1.5][search] Search for varargs method not finding match
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83388"
  */
 public void testBug83388() throws CoreException {
@@ -2085,7 +2085,7 @@ public void testBug83388b() throws CoreException {
 }
 
 /**
- * Bug 83693: [search][javadoc] References to methods/constructors: range does not include parameter lists
+ * @bug 83693: [search][javadoc] References to methods/constructors: range does not include parameter lists
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83693"
  */
 public void testBug83693() throws CoreException {
@@ -2115,7 +2115,7 @@ public void testBug83693() throws CoreException {
 }
 
 /**
- * Bug 83716: [search] refs to 2-arg constructor on Action found unexpected matches
+ * @bug 83716: [search] refs to 2-arg constructor on Action found unexpected matches
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83716"
  *
  * Note that this test does verify that bug is really fixed, but only that it has no impact
@@ -2142,7 +2142,7 @@ public void testBug83716() throws CoreException {
 }
 
 /**
- * Bug 84100: [1.5][search] Search for varargs method not finding match
+ * @bug 84100: [1.5][search] Search for varargs method not finding match
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84100"
  */
 private void setUpBug84100() throws CoreException {
@@ -2221,7 +2221,7 @@ public void testBug84100e() throws CoreException {
 }
 
 /**
- * Bug 84121: [1.5][search][varargs] reference to type reported as inaccurate in vararg
+ * @bug 84121: [1.5][search][varargs] reference to type reported as inaccurate in vararg
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84121"
  */
 public void testBug84121() throws CoreException {
@@ -2246,7 +2246,7 @@ public void testBug84121() throws CoreException {
 }
 
 /**
- * Bug 84724: [1.5][search] Search for varargs method not finding match
+ * @bug 84724: [1.5][search] Search for varargs method not finding match
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84724"
  */
 private void setUpBug84724() throws CoreException {
@@ -2315,7 +2315,7 @@ public void testBug84724d() throws CoreException {
 }
 
 /**
- * Bug 84727: [1.5][search] String pattern search does not work with multiply nested types
+ * @bug 84727: [1.5][search] String pattern search does not work with multiply nested types
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84727"
  */
 private void setUpBug84727() throws CoreException {
@@ -2367,7 +2367,7 @@ public void testBug84727b() throws CoreException {
 }
 
 /**
- * Bug 85810: [1.5][search] Missed type parameter reference in implements clause
+ * @bug 85810: [1.5][search] Missed type parameter reference in implements clause
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=85810"
  */
 public void testBug85810() throws CoreException {
@@ -2389,7 +2389,7 @@ public void testBug85810() throws CoreException {
 }
 
 /**
- * Bug 86596: [search] Search for type finds segments in import
+ * @bug 86596: [search] Search for type finds segments in import
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86596"
  */
 public void testBug86596() throws CoreException {
@@ -2420,7 +2420,7 @@ public void testBug86596() throws CoreException {
 }
 
 /**
- * Bug 86642: [search] no match found of package-visible supertypes in subtypes
+ * @bug 86642: [search] no match found of package-visible supertypes in subtypes
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86642"
  */
 public void testBug86642() throws CoreException {
@@ -2450,7 +2450,7 @@ public void testBug86642() throws CoreException {
 	);
 }
 /**
- * Bug 86293: [search] Search for method declaration with pattern "run()" reports match in binary field instead of anonymous class
+ * @bug 86293: [search] Search for method declaration with pattern "run()" reports match in binary field instead of anonymous class
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86293"
  */
 public void testBug86293() throws CoreException {
@@ -2464,7 +2464,7 @@ public void testBug86293() throws CoreException {
 }
 
 /**
- * Bug 86380: [1.5][search][annot] Add support to find references inside annotations on a package declaration
+ * @bug 86380: [1.5][search][annot] Add support to find references inside annotations on a package declaration
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86380"
  */
 private void setUpBug86380() throws CoreException {
@@ -2524,7 +2524,7 @@ public void testBug86380_Field() throws CoreException {
 }
 
 /**
- * Bug 88174: [1.5][search][annot] Search for annotations misses references in default and values constructs
+ * @bug 88174: [1.5][search][annot] Search for annotations misses references in default and values constructs
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=88174"
  */
 public void testBug88174() throws CoreException {
@@ -2563,7 +2563,7 @@ public void testBug88174() throws CoreException {
 }
 
 /**
- * Bug 87627: [search] correct results are missing in java search
+ * @bug 87627: [search] correct results are missing in java search
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=87627"
  */
 public void testBug87627() throws CoreException {
@@ -2579,7 +2579,7 @@ public void testBug87627() throws CoreException {
 }
 
 /**
- * Bug 88300: [search] Reference search result is changed by placement of private method
+ * @bug 88300: [search] Reference search result is changed by placement of private method
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=88300"
  */
 public void testBug88300() throws CoreException {
@@ -2698,7 +2698,7 @@ public void testBug88300c() throws CoreException {
 }
 
 /**
- * Bug 89686: [1.5][search] JavaModelException on ResolvedSourceMethod during refactoring
+ * @bug 89686: [1.5][search] JavaModelException on ResolvedSourceMethod during refactoring
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=89686"
  */
 public void testBug89686() throws CoreException {
@@ -2739,7 +2739,7 @@ public void testBug89686b() throws CoreException {
 }
 
 /**
- * Bug 89848: [search] does not find method references in anonymous class of imported jarred plugin
+ * @bug 89848: [search] does not find method references in anonymous class of imported jarred plugin
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=89848"
  */
 public void testBug89848() throws CoreException {
@@ -2753,7 +2753,7 @@ public void testBug89848() throws CoreException {
 }
 
 /**
- * Bug 90779: [search] Constructor Declaration search with ignoring declaring and return type also ignores type name
+ * @bug 90779: [search] Constructor Declaration search with ignoring declaring and return type also ignores type name
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=90779"
  */
 public void testBug90779() throws CoreException {
@@ -2786,7 +2786,7 @@ public void testBug90779() throws CoreException {
 }
 
 /**
- * Bug 90915: [1.5][search] NPE in PatternLocator
+ * @bug 90915: [1.5][search] NPE in PatternLocator
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=90915"
  */
 public void testBug90915() throws CoreException {
@@ -2818,7 +2818,7 @@ public void testBug90915() throws CoreException {
 }
 
 /**
- * Bug 91542: [1.5][search] JavaModelException on ResolvedSourceMethod during refactoring
+ * @bug 91542: [1.5][search] JavaModelException on ResolvedSourceMethod during refactoring
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=91542"
  */
 public void testBug91542() throws CoreException {
@@ -2845,7 +2845,7 @@ public void testBug91542() throws CoreException {
 }
 
 /**
- * Bug 91078: [search] Java search for package reference wrongly identifies inner class as package
+ * @bug 91078: [search] Java search for package reference wrongly identifies inner class as package
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=91078"
  */
 public void testBug91078() throws CoreException {
@@ -2890,7 +2890,7 @@ public void testBug91078() throws CoreException {
 }
 
 /**
- * Bug 92264: [search] all types names should support patterns for package/enclosing type name
+ * @bug 92264: [search] all types names should support patterns for package/enclosing type name
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=92264"
  */
 public void testBug92264a() throws CoreException {
@@ -2997,7 +2997,7 @@ public void testBug92264d() throws CoreException {
 }
 
 /**
- * Bug 92944: [1.5][search] SearchEngine#searchAllTypeNames doesn't honor enum or annotation element kind
+ * @bug 92944: [1.5][search] SearchEngine#searchAllTypeNames doesn't honor enum or annotation element kind
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=92944"
  */
 private void setUpBug92944() throws CoreException {
@@ -3161,11 +3161,11 @@ public void testBug92944_ANNOTATION_TYPE() throws CoreException {
 }
 
 /**
- * Bug 93392: [1.5][search][annot] search for annotation elements does not seem to be implemented yet
+ * @bug 93392: [1.5][search][annot] search for annotation elements does not seem to be implemented yet
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=93392"
  *
  * Note that this test valid also:
- * Bug 94062: [1.5][search][annot] search for annotation elements incorrect match range
+ * @bug 94062: [1.5][search][annot] search for annotation elements incorrect match range
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94062"
  */
 public void testBug93392() throws CoreException {
@@ -3213,7 +3213,7 @@ public void testBug93392() throws CoreException {
 }
 
 /**
- * Bug 94160: [1.5][search] Generic method in superclass does not exist
+ * @bug 94160: [1.5][search] Generic method in superclass does not exist
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94160"
  */
 public void testBug94160() throws CoreException {
@@ -3243,7 +3243,7 @@ public void testBug94160() throws CoreException {
 }
 
 /**
- * Bug 94389: [search] InvocationTargetException on Rename
+ * @bug 94389: [search] InvocationTargetException on Rename
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94389"
  */
 public void testBug94389() throws CoreException {
@@ -3285,7 +3285,7 @@ public void testBug94389() throws CoreException {
 }
 
 /**
- * Bug 94718: [1.5][search][annot] Find references in workspace breaks on an annotation
+ * @bug 94718: [1.5][search][annot] Find references in workspace breaks on an annotation
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94718"
  */
 public void testBug94718() throws CoreException {
@@ -3310,7 +3310,7 @@ public void testBug94718() throws CoreException {
 }
 
 /**
- * Bug 95152: [search] Field references not found when type is a qualified member type [regression]
+ * @bug 95152: [search] Field references not found when type is a qualified member type [regression]
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=95152"
  */
 public void testBug95152_jar01() throws CoreException {
@@ -3487,7 +3487,7 @@ public void testBug95152_wc04() throws CoreException {
 }
 
 /**
- * Bug 95794: [1.5][search][annot] Find references in workspace breaks on an annotation
+ * @bug 95794: [1.5][search][annot] Find references in workspace breaks on an annotation
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=95794"
  */
 public void testBug95794() throws CoreException {
@@ -3556,7 +3556,7 @@ public void testBug95794c() throws CoreException {
 }
 
 /**
- * Bug 96761: [1.5][search] Search for declarations of generic method finds non-overriding method
+ * @bug 96761: [1.5][search] Search for declarations of generic method finds non-overriding method
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=96761"
  */
 public void testBug96761() throws CoreException {
@@ -3581,7 +3581,7 @@ public void testBug96761() throws CoreException {
 }
 
 /**
- * Bug 96763: [1.5][search] Search for method declarations does not find overridden method with different signature
+ * @bug 96763: [1.5][search] Search for method declarations does not find overridden method with different signature
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=96763"
  */
 public void testBug96763() throws CoreException {
@@ -3644,7 +3644,7 @@ public void testBug96763c() throws CoreException {
 }
 
 /**
- * Bug 97087: [1.5][search] Can't find reference of generic class's constructor.
+ * @bug 97087: [1.5][search] Can't find reference of generic class's constructor.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97087"
  */
 public void testBug97087() throws CoreException {
@@ -3672,7 +3672,7 @@ public void testBug97087() throws CoreException {
 }
 
 /**
- * Bug 97120:
+ * @bug 97120:
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97120"
  */
 public void testBug97120() throws CoreException {
@@ -3699,7 +3699,7 @@ public void testBug97120() throws CoreException {
 }
 
 /**
- * Bug 97322: [search] Search for method references sometimes reports potential match with differing argument count
+ * @bug 97322: [search] Search for method references sometimes reports potential match with differing argument count
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97322"
  */
 public void testBug97322() throws CoreException {
@@ -3720,7 +3720,7 @@ public void testBug97322() throws CoreException {
 }
 
 /**
- * Bug 97547: [search] Package search does not find references in member types import clause
+ * @bug 97547: [search] Package search does not find references in member types import clause
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97547"
  */
 public void testBug97547() throws CoreException {
@@ -3747,7 +3747,7 @@ public void testBug97547() throws CoreException {
 }
 
 /**
- * Bug 97606: [1.5][search] Raw type reference is reported as exact match for qualified names
+ * @bug 97606: [1.5][search] Raw type reference is reported as exact match for qualified names
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97606"
  */
 public void testBug97606() throws CoreException {
@@ -3857,7 +3857,7 @@ public void testBug97606b() throws CoreException {
 }
 
 /**
- * Bug 97614: [1.5][search] Refactoring: renaming of field of a (complex) parametrized type does not replace all occurrences
+ * @bug 97614: [1.5][search] Refactoring: renaming of field of a (complex) parametrized type does not replace all occurrences
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97614"
  */
 public void testBug97614() throws CoreException {
@@ -3901,7 +3901,7 @@ public void testBug97614() throws CoreException {
 }
 
 /**
- * Bug 98378: [search] does not find method references in anonymous class of imported jarred plugin
+ * @bug 98378: [search] does not find method references in anonymous class of imported jarred plugin
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=98378"
  */
 public void testBug98378() throws CoreException {
@@ -3961,7 +3961,7 @@ public void testBug98378b() throws CoreException {
 }
 
 /**
- * Bug 99600: [search] Java model exception on "Move to new file" on inner type with inner type
+ * @bug 99600: [search] Java model exception on "Move to new file" on inner type with inner type
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=99600"
  */
 public void testBug99600() throws CoreException {
@@ -3988,7 +3988,7 @@ public void testBug99600() throws CoreException {
 }
 
 /**
- * Bug 99903: [1.5][search] range wrong for package-info
+ * @bug 99903: [1.5][search] range wrong for package-info
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=99903"
  */
 public void testBug99903_annotation() throws CoreException {
@@ -4044,7 +4044,7 @@ public void testBug99903_javadoc() throws CoreException {
 }
 
 /**
- * Bug 100695: [1.5][search] Renaming a field of generic array type has no effect
+ * @bug 100695: [1.5][search] Renaming a field of generic array type has no effect
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=100695"
  */
 public void testBug100695() throws CoreException {
@@ -4188,7 +4188,7 @@ public void testBug100695f() throws CoreException {
 }
 
 /**
- * Bug 100772: [1.5][search] Search for declarations in hierarchy reports to many matches
+ * @bug 100772: [1.5][search] Search for declarations in hierarchy reports to many matches
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=100772"
  */
 private void setUpBug100772_HierarchyScope_ClassAndSubclass() throws CoreException {
@@ -4691,7 +4691,7 @@ public void testBug100772_ProjectScope_Complex04() throws CoreException {
 }
 
 /**
- * Bug 108088: [search] Inaccurate search match for method invocations with literal arguments
+ * @bug 108088: [search] Inaccurate search match for method invocations with literal arguments
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=108088"
  */
 public void testBug108088() throws CoreException {
@@ -5954,7 +5954,7 @@ public void testBug110422b() throws CoreException {
 }
 
 /**
- * Bug 113671: [search] AIOOBE in SearchEngine#searchAllTypeNames
+ * @bug 113671: [search] AIOOBE in SearchEngine#searchAllTypeNames
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113671"
  */
 public void testBug113671() throws CoreException {
@@ -6015,7 +6015,7 @@ public void testBug114539() throws CoreException {
 }
 
 /**
- * Bug 116459: [search] correct results are missing in java search
+ * @bug 116459: [search] correct results are missing in java search
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=116459"
  */
 public void testBug116459() throws CoreException {
@@ -6207,7 +6207,7 @@ public void testBug122442i() throws CoreException {
 }
 
 /**
- * Bug 123679: [search] Field references not found when type is a qualified member type [regression]
+ * @bug 123679: [search] Field references not found when type is a qualified member type [regression]
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=123679"
  */
 public void testBug123679() throws CoreException {
@@ -6276,7 +6276,7 @@ public void testBug123679_wc() throws CoreException {
 }
 
 /**
- * Bug 124469: [search] AIOOBE in PatternLocator when searching for dependency extent from manifest
+ * @bug 124469: [search] AIOOBE in PatternLocator when searching for dependency extent from manifest
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=124469"
  */
 public void testBug124469a() throws CoreException {
@@ -6463,7 +6463,7 @@ public void testBug124469n() throws CoreException {
 }
 
 /**
- * Bug 124489: [search] correct results are missing in java search
+ * @bug 124489: [search] correct results are missing in java search
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=124489"
  */
 public void testBug124489() throws CoreException {
@@ -6710,7 +6710,7 @@ public void testBug124645d() throws CoreException {
 }
 
 /**
- * Bug 125178: [search] AIOOBE in PatternLocator when searching for dependency extent from manifest
+ * @bug 125178: [search] AIOOBE in PatternLocator when searching for dependency extent from manifest
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125178"
  */
 public void testBug125178() throws CoreException {
@@ -6750,7 +6750,7 @@ public void testBug125178() throws CoreException {
 }
 
 /**
- * Bug 126330: Type reference not found in jar file if sources was not already opened
+ * @bug 126330: Type reference not found in jar file if sources was not already opened
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=126330"
  */
 public void testBug126330() throws CoreException {
@@ -6762,7 +6762,7 @@ public void testBug126330() throws CoreException {
 }
 
 /**
- * Bug 127628: [index] CodeAssist doesn't filter deprecated types
+ * @bug 127628: [index] CodeAssist doesn't filter deprecated types
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=127628"
  */
 public void testBug127628() throws CoreException {
@@ -6797,7 +6797,7 @@ public void testBug127628() throws CoreException {
 }
 
 /**
- * Bug 128877: [search] reports inexistent IMethod for binary constructor of inner class
+ * @bug 128877: [search] reports inexistent IMethod for binary constructor of inner class
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=128877"
  */
 public void testBug128877a() throws CoreException {
@@ -7179,7 +7179,7 @@ public void testBug137087m_CamelCaseSamePartCount() throws CoreException {
 }
 
 /**
- * Bug 137984: [search] Field references not found when type is a qualified member type [regression]
+ * @bug 137984: [search] Field references not found when type is a qualified member type [regression]
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=137984"
  */
 public void testBug137984_jar() throws CoreException {
@@ -7224,7 +7224,7 @@ public void testBug137984_wc() throws CoreException {
 }
 
 /**
- * Bug 140156: [1.5][search] Invalid method handle with parameterized parameters when no source is attached
+ * @bug 140156: [1.5][search] Invalid method handle with parameterized parameters when no source is attached
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=140156"
  */
 public void testBug140156() throws CoreException {
@@ -7319,7 +7319,7 @@ public void testBug142044_Or() throws CoreException {
 }
 
 /**
- * Bug 144044: [search] NPE when trying to find references to field variable
+ * @bug 144044: [search] NPE when trying to find references to field variable
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=144044"
  */
 public void testBug144044() throws CoreException {
@@ -7385,7 +7385,7 @@ public void testBug144044b() throws CoreException {
 }
 
 /**
- * Bug 148215: [search] correct results are missing in java search
+ * @bug 148215: [search] correct results are missing in java search
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=148215"
  */
 public void testBug148215_Types() throws CoreException {
@@ -7529,7 +7529,39 @@ public void testBug148380_SearchAllTypes_cu_wksp() throws CoreException, JavaMod
 }
 
 /**
- * Bug 156340: [search] searchAllTypeNames return nothing for empty prefix
+ * @bug 153765: [search] Reference to package is not found in qualified annotation
+ * @test Ensure that references to package are also found in qualified annotation
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=153765"
+ */
+public void testBug153765() throws CoreException {
+	try {
+		createFolder("/JavaSearchBugs/src/b153765");
+		createFile("/JavaSearchBugs/src/b153765/Unimportant.java",
+			"package b153765;\n" + 
+			"public @interface Unimportant {}\n"
+		);
+		createFolder("/JavaSearchBugs/src/b153765/test");
+		createFile("/JavaSearchBugs/src/b153765/test/SomeClass.java",
+			"package test;\n" + 
+			"public class SomeClass {\n" + 
+			"        @b153765.Unimportant public void foo() {}\n" + 
+			"}"
+		);
+		waitUntilIndexesReady();
+		IPackageFragment packageFragment = getPackage("/JavaSearchBugs/src/b153765");
+		this.resultCollector.showSelection = true;
+		search(packageFragment, REFERENCES);
+		assertSearchResults(
+			"src/b153765/test/SomeClass.java void b153765.test.SomeClass.foo() [        @§|b153765|§.Unimportant public void foo() {}] EXACT_MATCH"
+		);
+	}
+	finally {
+		deleteFolder("/JavaSearchBugs/src/b153765");
+	}
+}
+
+/**
+ * @bug 156340: [search] searchAllTypeNames return nothing for empty prefix
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156340"
  */
 public void testBug156340() throws CoreException {
@@ -7567,7 +7599,7 @@ public void testBug156340() throws CoreException {
 }
 
 /**
- * Bug 156177: [1.5][search] interfaces and annotations could be found with only one requets of searchAllTypeName
+ * @bug 156177: [1.5][search] interfaces and annotations could be found with only one requets of searchAllTypeName
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156177"
  */
 public void testBug156177() throws CoreException {
@@ -7600,7 +7632,7 @@ public void testBug156177() throws CoreException {
 }
 
 /**
- * Bug 156491: [1.5][search] interfaces and annotations could be found with only one requets of searchAllTypeName
+ * @bug 156491: [1.5][search] interfaces and annotations could be found with only one requets of searchAllTypeName
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156491"
  */
 public void testBug156491() throws CoreException {
