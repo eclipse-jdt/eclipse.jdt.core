@@ -130,7 +130,7 @@ public class Scribe {
 					int lowerBound = 0;
 					boolean upperFound = false;
 					int regionEnd = offset + length;
-					for (int j = 0, max2 = this.editsIndex; j < max2; j++) {
+					for (int j = 0, max2 = this.editsIndex; j <= max2; j++) {
 						// search for lower bound
 						int editOffset = this.edits[j].offset;
 						if (upperFound && lowerBound == 0) {
@@ -146,11 +146,22 @@ public class Scribe {
 							}
 							// search for upper bound
 						} else {
-							if (this.edits[j + 1].offset < offset) {
+							int next = j+1;
+							if (next == max2) {
+								// https://bugs.eclipse.org/bugs/show_bug.cgi?id=213284
+								// checked all edits, no upper bound found: leave the loop
+								break;
+							}
+							if (this.edits[next].offset < offset) {
 								continue;
 							} else {
 								upperBound = editOffset;
 								upperFound = true;
+								// verify if region end is at EOF
+								if (this.scannerEndPosition == regionEnd + 1) {
+									lowerBound = this.scannerEndPosition;
+									break;
+								}
 							}
 						}
 					}
@@ -737,19 +748,28 @@ public class Scribe {
 	 * @return boolean true if line should be adapted, false otherwhise
 	 */
 	private boolean isAdaptableRegion(int offset, int length) {
-		int regionEnd = offset + length + this.lineSeparator.length() - 1;
+		int regionEnd = offset + length;
+		
 		// first check region width
 		if (regionEnd > this.pageWidth) {
 			return false;
 		}
+		
 		int numberOfLineEnds = this.lineEnds != null && this.lineEnds.length > 0 ? this.lineEnds.length : 0;
+		if (this.line == numberOfLineEnds + 1) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=213283
+			return true; // last line of the CU
+		}
+		
 		if (this.line > 1 && numberOfLineEnds > 0) { // CU has more than one line
 			int lineNumber = Util.getLineNumber(offset, this.lineEnds, 0, this.line);
 			int lineEnd = this.getLineEnd(lineNumber);
 			if (regionEnd > lineEnd) {
 				// if more than one line selected, check whether selection is at line end
 				for (int i = lineNumber + 1 ; i <=  numberOfLineEnds ; i++) {
-					if (regionEnd == this.getLineEnd(i)) {
+					int nextLineEnd = this.getLineEnd(i);
+					// accept both line ends and line starts
+					if (regionEnd == nextLineEnd || regionEnd == nextLineEnd + 1) {
 						return true;
 					}
 				}
