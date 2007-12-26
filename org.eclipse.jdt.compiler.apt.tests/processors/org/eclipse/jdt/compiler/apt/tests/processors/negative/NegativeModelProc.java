@@ -48,9 +48,15 @@ import javax.lang.model.util.Elements;
  */
 @SupportedAnnotationTypes("*")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
-@SupportedOptions("org.eclipse.jdt.compiler.apt.tests.processors.negative.NegativeModelProc")
+@SupportedOptions({"org.eclipse.jdt.compiler.apt.tests.processors.negative.NegativeModelProc", NegativeModelProc.IGNORE_JAVAC_BUGS})
 public class NegativeModelProc extends AbstractProcessor
 {
+	/**
+	 * Declare this option (-AignoreJavacBugs) to ignore failures of cases that are
+	 * known to fail under javac, i.e., known bugs in javac.
+	 */
+	public static final String IGNORE_JAVAC_BUGS = "ignoreJavacBugs";
+
 	private static final String CLASSNAME = NegativeModelProc.class.getName();
 
 	private static final String[] testMethodNames = {
@@ -91,6 +97,8 @@ public class NegativeModelProc extends AbstractProcessor
 
 	// If processor options don't include this processor's classname, don't run the proc at all.
 	private boolean _processorEnabled;
+
+	private boolean _ignoreJavacBugs = false;
 	
 	
 	public NegativeModelProc() {
@@ -127,6 +135,7 @@ public class NegativeModelProc extends AbstractProcessor
 				// report it in process(), where we have better error reporting capability
 			}
 		}
+		_ignoreJavacBugs = options.containsKey(IGNORE_JAVAC_BUGS);
 	}
 	
 	// Always return false from this processor, because it supports "*".
@@ -487,7 +496,7 @@ public class NegativeModelProc extends AbstractProcessor
 				return false;
 			}
 			List<? extends TypeMirror> superInterfaces = testElement.element.getInterfaces();
-			if (_reportFailingCases && (superInterfaces == null || superInterfaces.isEmpty())) {
+			if (_reportFailingCases && !_ignoreJavacBugs && (superInterfaces == null || superInterfaces.isEmpty())) {
 				reportError("Element " + testElement.name + " has empty list of superinterfaces");
 				return false;
 			}
