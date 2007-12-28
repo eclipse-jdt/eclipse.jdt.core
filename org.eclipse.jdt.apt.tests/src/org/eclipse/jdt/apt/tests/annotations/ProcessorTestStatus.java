@@ -32,7 +32,7 @@ public final class ProcessorTestStatus {
 	
 	/** Returns true if any errors were encountered **/
 	public static boolean hasErrors() {
-		return s_errorStatus == NO_ERRORS;
+		return s_errorStatus != NO_ERRORS;
 	}
 	
 	/** Get the error string. Will be NO_ERRORS if none were encountered **/
