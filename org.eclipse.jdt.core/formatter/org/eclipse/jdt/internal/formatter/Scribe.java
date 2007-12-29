@@ -130,7 +130,7 @@ public class Scribe {
 					int lowerBound = 0;
 					boolean upperFound = false;
 					int regionEnd = offset + length;
-					for (int j = 0, max2 = this.editsIndex; j <= max2; j++) {
+					for (int j = 0, max2 = this.editsIndex - 1; j <= max2; j++) {
 						// search for lower bound
 						int editOffset = this.edits[j].offset;
 						if (upperFound && lowerBound == 0) {
@@ -158,8 +158,8 @@ public class Scribe {
 								upperBound = editOffset;
 								upperFound = true;
 								// verify if region end is at EOF
-								if (this.scannerEndPosition == regionEnd + 1) {
-									lowerBound = this.scannerEndPosition;
+								if (this.scannerEndPosition == regionEnd) {
+									lowerBound = this.scannerEndPosition - 1;
 									break;
 								}
 							}
@@ -769,7 +769,9 @@ public class Scribe {
 				for (int i = lineNumber + 1 ; i <=  numberOfLineEnds ; i++) {
 					int nextLineEnd = this.getLineEnd(i);
 					// accept both line ends and line starts
-					if (regionEnd == nextLineEnd || regionEnd == nextLineEnd + 1) {
+					if (regionEnd == nextLineEnd) {
+						return length > 1; // except when formatting a single character
+					} else if (regionEnd == lineEnd + 1 || regionEnd == nextLineEnd + 1) {
 						return true;
 					}
 				}

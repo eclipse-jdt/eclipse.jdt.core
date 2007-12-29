@@ -9791,7 +9791,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	
 	// variation on bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
-//	public void testONLY_698() {
+//	public void test698() {
 //		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 //		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 //		preferences.line_separator = "\n";//$NON-NLS-1$
