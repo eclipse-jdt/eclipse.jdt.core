@@ -259,7 +259,7 @@ public void testBug212834() throws CoreException, IOException {
 		"}"
 	);
 
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[1], true, false, true);
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[1], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	MethodInvocation methodInvocation = (MethodInvocation) ((ExpressionStatement) methodDeclaration.getBody().statements().get(1)).getExpression();
 	IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
@@ -283,7 +283,7 @@ public void testBug212857() throws CoreException, IOException {
 		"	}\n" + 
 		"}\n";
 	workingCopies[0] = getWorkingCopy("/Converter15/src/xy/C.java", source);
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true, false, true);
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
 		"{\n" + 
@@ -301,7 +301,7 @@ public void testBug212857a() throws CoreException, IOException {
 	"	}\n" + 
 	"}\n";
 	workingCopies[0] = getWorkingCopy("/Converter15/src/xy/C.java", source);
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true, false, true);
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
 		"{\n" + 
@@ -320,7 +320,7 @@ public void testBug212857b() throws CoreException, IOException {
 	"	}\n" + 
 	"}\n";
 	workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true, false, true);
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
 		" \n" + 
@@ -337,7 +337,7 @@ public void testBug212857c() throws CoreException, IOException {
 	"	}\n" + 
 	"}\n";
 	workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true, false, true);
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
 		" \n" + 
@@ -354,7 +354,7 @@ public void testBug212857d() throws CoreException, IOException {
 	"	}\n" + 
 	"}\n";
 	workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true, false, true);
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
 		" \n" + 
@@ -371,7 +371,7 @@ public void testBug212857e() throws CoreException, IOException {
 	"	}\n" + 
 	"}\n";
 	workingCopies[0] = getWorkingCopy("/Converter15/src/test/X.java", source);
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true, false, true);
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkSourceRange(methodDeclaration.getBody(),
 		" \n" + 
@@ -396,7 +396,7 @@ public void testBug213509() throws CoreException, IOException {
 		"@interface Annot {}\n"
 	);
 
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true, false, true);
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
 		"----- param 1-----\n" + 
@@ -429,7 +429,7 @@ public void testBug213509_invocation() throws CoreException, IOException {
 		"}"
 	);
 
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[1], true, false, true);
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[1], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
 	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 	MethodInvocation methodInvocation = (MethodInvocation) ((ExpressionStatement) methodDeclaration.getBody().statements().get(0)).getExpression();
 	checkParameterAnnotations(methodInvocation+" has invalid parameter annotations!",
@@ -446,4 +446,55 @@ public void testBug213509_invocation() throws CoreException, IOException {
 	);
 }
 
+/**
+ * @bug 214002: [dom] NPE in MethodBinding.getParameterAnnotations()
+ * @test Ensures that no NPE occurs when not all method parameters have annotations
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=214002"
+ */
+public void testBug214002() throws CoreException, IOException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
+		"public class Test {\n" + 
+		"	void m(String str, @Bar @Foo Object obj, @Annot int x) {}\n" + 
+		"}\n" + 
+		"@interface Foo {}\n" + 
+		"@interface Bar {}\n" + 
+		"@interface Annot {}\n"
+	);
+
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
+		"----- param 1-----\n" + 
+		"----- param 2-----\n" + 
+		"@LTest~Bar;\n" + 
+		"@LTest~Foo;\n" + 
+		"----- param 3-----\n" + 
+		"@LTest~Annot;\n",
+		methodDeclaration.resolveBinding()
+	);
+}
+public void testBug214002b() throws CoreException, IOException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
+		"public class Test {\n" + 
+		"	void m(@Annot String str, Object obj, @Bar @Foo int x) {}\n" + 
+		"}\n" + 
+		"@interface Foo {}\n" + 
+		"@interface Bar {}\n" + 
+		"@interface Annot {}\n"
+	);
+
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
+		"----- param 1-----\n" + 
+		"@LTest~Annot;\n" +
+		"----- param 2-----\n" + 
+		"----- param 3-----\n" + 
+		"@LTest~Bar;\n" + 
+		"@LTest~Foo;\n",
+		methodDeclaration.resolveBinding()
+	);
+}
 }

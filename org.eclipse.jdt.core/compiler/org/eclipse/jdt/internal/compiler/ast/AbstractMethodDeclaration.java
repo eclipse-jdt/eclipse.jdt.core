@@ -90,9 +90,15 @@ public abstract class AbstractMethodDeclaration
 				Argument argument = this.arguments[i];
 				argument.bind(this.scope, this.binding.parameters[i], used);
 				if (argument.annotations != null) {
-					if (paramAnnotations == null)
+					if (paramAnnotations == null) {
 						paramAnnotations = new AnnotationBinding[length][];
+						for (int j=0; j<i; j++) {
+							paramAnnotations[j] = Binding.NO_ANNOTATIONS;
+						}
+					}
 					paramAnnotations[i] = argument.binding.getAnnotations();
+				} else if (paramAnnotations != null) {
+					paramAnnotations[i] = Binding.NO_ANNOTATIONS;
 				}
 			}
 			if (paramAnnotations != null)
