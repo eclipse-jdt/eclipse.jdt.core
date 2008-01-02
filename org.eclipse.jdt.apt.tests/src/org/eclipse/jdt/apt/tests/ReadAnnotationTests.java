@@ -37,6 +37,7 @@ public class ReadAnnotationTests extends APTTestBase
 	{
 		addQuestionSources();
 		addTriggerSource();
+		addNoTypeSources();
 	}
 	
 	private void addQuestionSources()
@@ -83,6 +84,16 @@ public class ReadAnnotationTests extends APTTestBase
 				CodeExample.PACKAGE_QUESTION, 
 				CodeExample.ANNOTATION_TEST_CLASS,
 				CodeExample.ANNOTATION_TEST_CODE);
+	}
+	
+	private void addNoTypeSources()
+	{
+		IPath srcRoot = getSourcePath();
+		// package-info.java
+		env.addClass(srcRoot,
+				CodeExample.PACKAGE_NOTYPES,
+				CodeExample.PACKAGE_INFO_NOTYPES_CLASS,
+				CodeExample.PACKAGE_INFO_NOTYPES_CODE);
 	}
 	
 	private void addTriggerSource()

@@ -153,4 +153,10 @@ public class CodeExample {
 		"package trigger; \n" +
 		"\n" +		
 		"public @interface MyMarkerAnnotation {}";
+	
+	public static final String PACKAGE_NOTYPES = "notypes";
+	public static final String PACKAGE_INFO_NOTYPES_CLASS = "package-info";
+	public static final String PACKAGE_INFO_NOTYPES_CODE = 
+		"@question.SimpleAnnotation(\"foo\") package notypes;\n";
+	
 }
