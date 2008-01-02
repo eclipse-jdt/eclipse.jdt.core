@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,7 @@ public class ReadAnnotationProcessor extends BaseProcessor
 
 	public void process()
 	{	
+		ProcessorTestStatus.setProcessorRan();
 		try{			
 			TypeDeclaration typeDecl = _env.getTypeDeclaration("question.AnnotationTest");		
 			TestCase.assertNotNull("failed to locate type 'question.AnnotationTest'", typeDecl);
@@ -45,6 +46,7 @@ public class ReadAnnotationProcessor extends BaseProcessor
 				
 				final String[] expectedPkgAnnos = new String[]{ "@Deprecated()" };
 				assertAnnotation(expectedPkgAnnos, typeDecl.getPackage().getAnnotationMirrors() );				
+				assertAnnotation(expectedPkgAnnos, _env.getPackage("question").getAnnotationMirrors() );				
 				
 				final String[] expectedTypeAnnos = new String[]{ "@Deprecated()",
 														  	     "@RTVisibleAnno(anno = @SimpleAnnotation(value = test), clazzes = {})",

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2008 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.CodeExample;
-import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorTestAnnotationProcessor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -40,7 +39,7 @@ public class MirrorTests extends APTTestBase {
 	 * the actual tests
 	 */
 	public void testMirror() throws Exception {
-		MirrorTestAnnotationProcessor._processRun = false;
+		ProcessorTestStatus.reset();
 		
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
@@ -57,7 +56,7 @@ public class MirrorTests extends APTTestBase {
 
 		expectingNoProblems();
 		
-		assertTrue("Processor was not run", MirrorTestAnnotationProcessor._processRun); //$NON-NLS-1$
+		assertTrue("Processor was not run", ProcessorTestStatus.processorRan()); //$NON-NLS-1$
 		
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}

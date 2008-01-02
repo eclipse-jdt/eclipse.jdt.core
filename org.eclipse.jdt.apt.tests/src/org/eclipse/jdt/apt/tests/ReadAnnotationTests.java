@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,6 @@ import java.io.File;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -23,51 +22,15 @@ import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.readannotation.CodeExample;
 import org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.tests.builder.BuilderTests;
-import org.eclipse.jdt.core.tests.util.Util;
 
-public class ReadAnnotationTests extends BuilderTests 
+public class ReadAnnotationTests extends APTTestBase 
 {
-	private int counter = 0;
-	private String projectName = null;
 	public ReadAnnotationTests(final String name) {
 		super( name );
 	}
 
 	public static Test suite() {
 		return new TestSuite( ReadAnnotationTests.class );
-	}
-	
-	public String getProjectName() {
-		return projectName;
-	}
-	
-	public String getUniqueProjectName(){
-		projectName = ReadAnnotationTests.class.getName() + "Project" + counter; //$NON-NLS-1$
-		counter ++;
-		return projectName;
-	}
-	
-
-	public IPath getSourcePath() {
-		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
-		IPath srcRoot = srcFolder.getFullPath();
-		return srcRoot;
-	}
-	
-	public IPath getBinaryPath(){
-		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "binary" ); //$NON-NLS-1$
-		IPath lib = srcFolder.getFullPath();
-		return lib;
-	}
-	
-	public IPath getOutputPath(){
-		IProject project = env.getProject( getProjectName() );
-		IFolder binFolder = project.getFolder( "bin" ); //$NON-NLS-1$
-		IPath bin = binFolder.getFullPath();
-		return bin;
 	}
 	
 	private void addAllSources()
@@ -140,28 +103,15 @@ public class ReadAnnotationTests extends BuilderTests
 	
 	private IProject setupTest() throws Exception
 	{				
-		ProcessorTestStatus.reset();
-		// project will be deleted by super-class's tearDown() method
-		IPath projectPath = env.addProject( getUniqueProjectName(), "1.5" ); //$NON-NLS-1$
-		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$ 
-		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
-		
 		// This should not be necessary, but see https://bugs.eclipse.org/bugs/show_bug.cgi?id=99638
-		IJavaProject jproj = env.getJavaProject(projectPath);
+		IJavaProject jproj = getCurrentJavaProject();
 		jproj.setOption("org.eclipse.jdt.core.compiler.problem.deprecation", "ignore");
-		
-		fullBuild( projectPath );
-
-		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
-
-		env.addPackageFragmentRoot( projectPath, "src" ); //$NON-NLS-1$
-		return env.getProject(getProjectName());
+		return jproj.getProject();
 	}
 	
 	/**
 	 * Set up all the source files for testing.
-	 * Runs the AnnotationReaderProcessor, which contains
+	 * Runs the ReadAnnotationProcessor, which contains
 	 * the actual testing.
 	 */
 
@@ -172,12 +122,13 @@ public class ReadAnnotationTests extends BuilderTests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
+		assertTrue(ProcessorTestStatus.processorRan());
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 
 	/**
 	 * Set up the jar file for testing.
-	 * Runs the AnnotationReaderProcessor, which contains
+	 * Runs the ReadAnnotationProcessor, which contains
 	 * the actual testing.
 	 */
 	public void test1() throws Exception 
@@ -194,6 +145,7 @@ public class ReadAnnotationTests extends BuilderTests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 
+		assertTrue(ProcessorTestStatus.processorRan());
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}	
 }

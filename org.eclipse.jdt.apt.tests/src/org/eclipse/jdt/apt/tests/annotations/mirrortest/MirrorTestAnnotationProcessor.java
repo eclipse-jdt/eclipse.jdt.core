@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2008 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,14 +32,12 @@ import com.sun.mirror.util.Declarations;
 
 public class MirrorTestAnnotationProcessor extends BaseProcessor {
 	
-	public static boolean _processRun = false;
-	
 	public MirrorTestAnnotationProcessor(AnnotationProcessorEnvironment env) {
 		super(env);
 	}
 
 	public void process() {
-		_processRun = true;
+		ProcessorTestStatus.setProcessorRan();
 		try {
 			Collection<TypeDeclaration> decls = _env.getSpecifiedTypeDeclarations();
 			TypeDeclaration decl = null;

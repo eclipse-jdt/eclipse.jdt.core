@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 
 package org.eclipse.jdt.apt.core.internal.util;
 
-import com.sun.mirror.declaration.PackageDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.declaration.TypeParameterDeclaration;
 import com.sun.mirror.type.ArrayType;
@@ -31,7 +30,6 @@ import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.type.ArrayTypeImpl;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class TypesUtil implements Types
@@ -279,19 +277,6 @@ public class TypesUtil implements Types
     	return left.isSubTypeCompatible(right);
     }
     
-    public static IPackageBinding getPackageBinding(PackageDeclaration pkg)
-    	throws NonEclipseImplementationException
-    {	
-        if(pkg == null) return null;
-        if( pkg instanceof EclipseMirrorObject ){
-            final PackageDeclarationImpl impl = (PackageDeclarationImpl)pkg;
-            return impl.getPackageBinding();
-        }
-
-        throw new NonEclipseImplementationException("only applicable to eclipse type system objects." + //$NON-NLS-1$
-                                                    " Found " + pkg.getClass().getName()); //$NON-NLS-1$
-    }  
-
     /**
      * @return the binding correspond to the given type.
      *         Return null if the type is an error marker.

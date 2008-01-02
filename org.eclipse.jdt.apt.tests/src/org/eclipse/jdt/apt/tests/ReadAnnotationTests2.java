@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ package org.eclipse.jdt.apt.tests;
 
 import java.io.File;
 import java.util.HashSet;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -20,7 +21,6 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.readannotation.CodeExample;
 import org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin;
 import org.eclipse.jdt.core.BindingKey;
@@ -29,9 +29,9 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTRequestor;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
@@ -135,12 +135,13 @@ public class ReadAnnotationTests2 extends BuilderTests {
 	
 	private IProject setupTest() throws Exception
 	{				
-		ProcessorTestStatus.reset();
 		// project will be deleted by super-class's tearDown() method
 		IPath projectPath = env.addProject( getUniqueProjectName(), "1.5" ); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$ 
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
-		fullBuild( projectPath );
+		
+		IJavaProject jproj = env.getJavaProject(projectPath);
+		jproj.setOption("org.eclipse.jdt.core.compiler.problem.deprecation", "ignore");
 
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
@@ -149,11 +150,6 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		return env.getProject(getProjectName());
 	}
 	
-	/**
-	 * Set up all the source files for testing.
-	 * Runs the AnnotationReaderProcessor, which contains
-	 * the actual testing.
-	 */
 	public void testSourceAnnotation() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -163,17 +159,12 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		_testAnnotations();
 	}
 
-	/**
-	 * Set up the jar file for testing.
-	 * Runs the AnnotationReaderProcessor, which contains
-	 * the actual testing.
-	 */
-	public void testBindingAnnotation() throws Exception 
+	public void testBinaryAnnotation() throws Exception 
 	{	
 		IProject project = setupTest();
 		final File jar = 
 			TestUtil.getFileInPlugin(AptTestsPlugin.getDefault(), 
-									 new Path("/src/org/eclipse/jdt/apt/tests/annotations/readannotation/lib/question.jar")); //$NON-NLS-1$
+									 new Path("/resources/question.jar")); //$NON-NLS-1$
 		final String path = jar.getAbsolutePath();
 		env.addExternalJar(project.getFullPath(), path);		
 		fullBuild( project.getFullPath() );

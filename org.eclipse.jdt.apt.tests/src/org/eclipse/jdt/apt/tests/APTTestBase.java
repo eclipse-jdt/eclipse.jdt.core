@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,8 @@ import com.sun.mirror.apt.AnnotationProcessor;
  */
 public abstract class APTTestBase extends BuilderTests{
 	
+	private IJavaProject _jproj;
+	
 	public APTTestBase(final String name)
 	{
 		super(name);
@@ -43,10 +45,10 @@ public abstract class APTTestBase extends BuilderTests{
 	
 	/**
 	 * Set up a basic project with the following properties.
-	 * - java compliances level is 1.5  
+	 * - java compliance level is 1.5  
 	 * - 'src' is the source folder
 	 * - 'bin' is the output folder	  
-	 * - add java class library into teh build class path
+	 * - add java class library into the build class path
 	 * - create and add an annotation jar.
 	 */
 	public void setUp() throws Exception
@@ -63,8 +65,17 @@ public abstract class APTTestBase extends BuilderTests{
 		final String projectName = getProjectName();
 		if( projectName == null )
 			throw new IllegalStateException();
-		IJavaProject jproj = createJavaProject(projectName);
-		AptConfig.setEnabled(jproj, true);
+		_jproj = createJavaProject(projectName);
+		AptConfig.setEnabled(_jproj, true);
+	}
+	
+	/**
+	 * @return the java project created in setUp().  Note that some tests may
+	 * create more than one project; this method only returns the one named
+	 * by getProjectName().
+	 */
+	protected IJavaProject getCurrentJavaProject() {
+		return _jproj;
 	}
 	
 	/**

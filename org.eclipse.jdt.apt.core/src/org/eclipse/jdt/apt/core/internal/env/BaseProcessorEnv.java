@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 BEA Systems Inc.
+ * Copyright (c) 2005, 2008 BEA Systems Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,13 @@
 package org.eclipse.jdt.apt.core.internal.env;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -38,6 +44,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -517,85 +524,106 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	}
     
 	public PackageDeclaration getPackage(String name)
-    {
+	{
 		if (name == null)
 			throw new IllegalArgumentException("name cannot be null"); //$NON-NLS-1$		
-        IPackageFragment[] pkgFrags = PackageUtil.getPackageFragments(name, this);
+		IPackageFragment[] pkgFrags = PackageUtil.getPackageFragments(name, this);
 
 		// No packages found, null expected
 		if (pkgFrags.length == 0)
 			return null;
 
-		// If there are no source or class files, we'll need to return
-		// a special implementation of the package decl that expects
-		// no declarations inside it
-		boolean containsNoJavaResources = true;
-		for (IPackageFragment pkg : pkgFrags) {
-			try {
+		try {
+			// If there are no source or class files, we'll need to return
+			// a special implementation of the package decl that expects
+			// no declarations inside it
+			boolean containsNoJavaResources = true;
+			for (IPackageFragment pkg : pkgFrags) {
 				if (pkg.containsJavaResources()) {
 					containsNoJavaResources = false;
 					break;
 				}
 			}
-			catch (JavaModelException e) {}
-		}
-		if (containsNoJavaResources)
-			return new PackageDeclarationImplNoBinding(pkgFrags);
+			if (containsNoJavaResources)
+				return new PackageDeclarationImplNoBinding(pkgFrags);
 
-		// We should be able to create a class or
-		// source file from one of the packages.
-		ICompilationUnit compUnit = null;
-		IClassFile classFile = null;
-
-		OUTER:
-		for (IPackageFragment pkg : pkgFrags) {
-			try {
-				ICompilationUnit[] compUnits = pkg.getCompilationUnits();
-				if (compUnits.length > 0) {
-					compUnit = compUnits[0];
-					break;
-				}
-				IClassFile[] classFiles = pkg.getClassFiles();
-				if (classFiles.length > 0) {
-					// Need to grab the first one that's not an inner class,
-					// as eclipse has trouble parsing inner class files
-					for (IClassFile tempClassFile : classFiles) {
-						if (tempClassFile.getElementName().indexOf("$") < 0) { //$NON-NLS-1$
-							classFile = tempClassFile;
-							break OUTER;
+			// We should be able to create a class or
+			// source file from one of the packages.
+			// If we find package-info, don't use it, but set 
+			// it aside in case it's all we can find.
+			ICompilationUnit compUnit = null;
+			IClassFile classFile = null;
+			ICompilationUnit pkgInfoUnit = null;
+			IClassFile pkgInfoClassFile = null;
+			OUTER:
+				for (IPackageFragment frag : pkgFrags) {
+					if (frag.getKind() == IPackageFragmentRoot.K_SOURCE) {
+						for (ICompilationUnit unit : frag.getCompilationUnits()) {
+							if ("package-info.java".equals(unit.getElementName())) { //$NON-NLS-1$
+								pkgInfoUnit = unit;
+							}
+							else {
+								compUnit = unit;
+								break OUTER;
+							}
+						}
+					}
+					else { // K_BINARY
+						for (IClassFile file : frag.getClassFiles()) {
+							String cfName = file.getElementName();
+							if ("package-info.class".equals(cfName)) { //$NON-NLS-1$
+								pkgInfoClassFile = file;
+							}
+							else if (file.getElementName().indexOf("$") < 0) { //$NON-NLS-1$
+								classFile = file;
+								break OUTER;
+							}
 						}
 					}
 				}
-			}
-			catch (JavaModelException e) {}
-		}
 
-		IType type = null;
-		if (compUnit != null) {
-			try {
-				IType[] types = compUnit.getAllTypes();
-				if (types.length > 0) {
-					type = types[0];
+			IType type = null;
+			if (compUnit != null) {
+				try {
+					IType[] types = compUnit.getAllTypes();
+					if (types.length > 0) {
+						type = types[0];
+					}
+				}
+				catch (JavaModelException e) {}
+			}
+			if (type == null && classFile != null) {
+				type = classFile.getType();
+			}
+
+			// Given a type, we can construct a package declaration impl from it,
+			// but we must hide the fact that it came from a real declaration,
+			// as the client requested it without that context
+			if (type != null) {
+				TypeDeclarationImpl typeDecl = (TypeDeclarationImpl)getTypeDeclaration(type);
+				ITypeBinding binding = typeDecl.getDeclarationBinding();
+				return new PackageDeclarationImpl(binding.getPackage(), typeDecl, this, true, pkgFrags);
+			}
+
+			// No classes or source files found.  Do we have a package-info we can use?
+			if (pkgInfoUnit != null) {
+				IPackageDeclaration[] decls = pkgInfoUnit.getPackageDeclarations();
+				if (decls.length > 0) {
+					// TODO: here we would like to return a PackageDeclarationImpl based on package-info.java.
 				}
 			}
-			catch (JavaModelException e) {}
+			if (pkgInfoClassFile != null) {
+				// TODO: how can we access the annotations on a package-info.class?
+				// Hopefully this will be a rare situation: a binary package containing only a package-info.
+			}
 		}
-		else if (classFile != null) {
-			type = classFile.getType();
-		}
-
-		// Given a type, we can construct a package declaration impl from it,
-		// but we must hide the fact that it came from a real declaration,
-		// as the client requested it without that context
-		if (type != null) {
-			TypeDeclarationImpl typeDecl = (TypeDeclarationImpl)getTypeDeclaration(type);
-			ITypeBinding binding = typeDecl.getDeclarationBinding();
-			return new PackageDeclarationImpl(binding.getPackage(), typeDecl, this, true, pkgFrags);
+		catch (JavaModelException e) {
+			// Probably bad code; treat as if no types were found
 		}
 
-		// No classes or source files found
+		// This package is empty: no types and no package-info.
 		return new PackageDeclarationImplNoBinding(pkgFrags);
-    }
+	}
 	
 	protected CompilationUnit searchLocallyForBinding(final IBinding binding)
 	{

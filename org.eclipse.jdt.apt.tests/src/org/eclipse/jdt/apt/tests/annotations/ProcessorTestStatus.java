@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2008 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,11 @@ public final class ProcessorTestStatus {
 	/** Error status. Will be == NO_ERRORS if no errors were encountered **/
 	private static String s_errorStatus = NO_ERRORS;
 	
+	/**
+	 * Was a processor run at all?
+	 */
+	private static boolean s_processorRan = false;
+	
 	/** An expected condition failed. Record the error **/
 	public static void failWithoutException(final String error) {
 		s_errorStatus = error;
@@ -43,6 +48,17 @@ public final class ProcessorTestStatus {
 	/** Reset the status. Needs to be called before each set of tests that could fail **/
 	public static void reset() {
 		s_errorStatus = NO_ERRORS;
+		s_processorRan = false;
+	}
+	
+	/** Did a processor call the setProcessorRan() method since the last reset()? */
+	public static boolean processorRan() {
+		return s_processorRan;
+	}
+	
+	/** A processor can call this to indicate that it has run (with or without errors) */
+	public static void setProcessorRan() {
+		s_processorRan = true;
 	}
 	
 	// Private c-tor to prevent construction
