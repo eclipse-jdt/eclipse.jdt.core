@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.compiler.ReconcileContext;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
@@ -136,8 +137,8 @@ public abstract class AbstractCompilationEnv
 	}
 	
 	@Override
-	protected ITypeBinding getTypeBindingFromKey(String key, ICompilationUnit unit) {
-		return (ITypeBinding)_requestor.createBindings(new String[] {key})[0];
+	protected IBinding getBindingFromKey(String key, ICompilationUnit unit) {
+		return _requestor.createBindings(new String[] {key})[0];
 	}
 
 	public void addListener(AnnotationProcessorListener listener)

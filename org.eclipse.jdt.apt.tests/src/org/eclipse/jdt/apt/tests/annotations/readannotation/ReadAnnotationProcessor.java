@@ -47,8 +47,9 @@ public class ReadAnnotationProcessor extends BaseProcessor
 				final String[] expectedPkgAnnos = new String[]{ "@Deprecated()" };
 				assertAnnotation(expectedPkgAnnos, typeDecl.getPackage().getAnnotationMirrors() );				
 				assertAnnotation(expectedPkgAnnos, _env.getPackage("question").getAnnotationMirrors() );
-				// This doesn't work, until https://bugs.eclipse.org/bugs/show_bug.cgi?id=213917 is fixed:
-				// assertAnnotation(expectedPkgAnnos, _env.getPackage("notypes").getAnnotationMirrors());
+				
+				final String[] expectedNoTypeAnnos = new String[]{ "@SimpleAnnotation(value = foo)" };
+				assertAnnotation(expectedNoTypeAnnos, _env.getPackage("notypes").getAnnotationMirrors());
 				
 				final String[] expectedTypeAnnos = new String[]{ "@Deprecated()",
 														  	     "@RTVisibleAnno(anno = @SimpleAnnotation(value = test), clazzes = {})",

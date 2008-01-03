@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -170,7 +170,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     {
 		if (_hideSourcePosition)
 			return null;
-		if(_typeDecl.isFromSource()){
+		if (isFromSource()){
 			final CompilationUnit unit = _typeDecl.getCompilationUnit();
 			final ASTNode node = unit.findDeclaringNode(getDeclarationBinding());
 			if( node == null ) return null;
@@ -204,7 +204,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 	
 	public IPackageBinding getDeclarationBinding(){ return (IPackageBinding)_binding; }
 
-	public boolean isFromSource(){ return _typeDecl.isFromSource(); }
+	public boolean isFromSource(){ return _typeDecl != null && _typeDecl.isFromSource(); }
 	
 	/**
 	 * Make sure to call this before attempting to access _pkgFragments.

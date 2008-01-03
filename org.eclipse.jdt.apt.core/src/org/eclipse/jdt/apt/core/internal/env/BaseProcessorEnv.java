@@ -44,7 +44,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -59,6 +58,7 @@ import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -445,7 +445,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     	// see CR259011 -theodora
     	ICompilationUnit unit = getICompilationUnitForTopLevelType(toplevelTypeName);
        	final String key = BindingKey.createTypeBindingKey(fullyQualifiedName);
-    	return getTypeBindingFromKey(key, unit);
+    	return (ITypeBinding)getBindingFromKey(key, unit);
     }
   
     private ITypeBinding getTypeDefinitionBindingFromName(String fullyQualifiedName) {
@@ -472,11 +472,13 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
      * if <code>key</code> is a wild card, primitive, array type or parameterized type, this should be null.
      * @return return the type binding for the given key or null if none is found.
      */
-    protected ITypeBinding getTypeBindingFromKey(final String key, final ICompilationUnit unit){
+    protected IBinding getBindingFromKey(final String key, final ICompilationUnit unit){
     	
 		class BindingRequestor extends ASTRequestor
 		{
-			private ITypeBinding _result = null;
+			private IBinding _result = null;
+			private int _kind;
+			
 			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 				if( source == unit ){		
 					_modelCompUnit2astCompUnit.put(source, ast);
@@ -484,8 +486,9 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			}
 			public void acceptBinding(String bindingKey, IBinding binding)
 			{
-				if( binding != null && binding.getKind() == IBinding.TYPE )
-					_result = (ITypeBinding)binding;
+				if( binding != null )
+					_result = binding;
+					_kind = binding.getKind();
 			}
 		}
 
@@ -495,11 +498,11 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		parser.setProject(_javaProject);
 		ICompilationUnit[] units = unit == null ? NO_UNIT : new ICompilationUnit[]{unit};
 		parser.createASTs(units, new String[]{key}, requestor, null);
-		final ITypeBinding result = requestor._result;
+		final IBinding result = requestor._result;
 		if(result != null && unit != null){
 			final CompilationUnit astUnit = _modelCompUnit2astCompUnit.get(unit);	
-			// make sure everything is lining up properly.
-			if( astUnit.findDeclaringNode(result) != null ){
+			// make sure everything is lining up properly.  Only cache real types, not package-infos.
+			if( requestor._kind == IBinding.TYPE && astUnit.findDeclaringNode(result) != null ){
 				ITypeBinding declaringClass = getDeclaringClass(result);
 				_typeBinding2ModelCompUnit.put(declaringClass, unit);
 			}
@@ -513,7 +516,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	 */
 	public ITypeBinding getTypeBindingFromKey(final String key)
 	{
-		return getTypeBindingFromKey(key, null);
+		return (ITypeBinding)getBindingFromKey(key, null);
 		
 	}
 	
@@ -606,15 +609,12 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			}
 
 			// No classes or source files found.  Do we have a package-info we can use?
-			if (pkgInfoUnit != null) {
-				IPackageDeclaration[] decls = pkgInfoUnit.getPackageDeclarations();
-				if (decls.length > 0) {
-					// TODO: here we would like to return a PackageDeclarationImpl based on package-info.java.
+			if (pkgInfoUnit != null || pkgInfoClassFile != null) {
+				String key = getPackageBindingKey(name);
+				IPackageBinding packageBinding = (IPackageBinding)getBindingFromKey(key, compUnit);
+				if (null != packageBinding) {
+					return new PackageDeclarationImpl(packageBinding, null, this, true, pkgFrags);
 				}
-			}
-			if (pkgInfoClassFile != null) {
-				// TODO: how can we access the annotations on a package-info.class?
-				// Hopefully this will be a rare situation: a binary package containing only a package-info.
 			}
 		}
 		catch (JavaModelException e) {
@@ -623,6 +623,12 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 
 		// This package is empty: no types and no package-info.
 		return new PackageDeclarationImplNoBinding(pkgFrags);
+	}
+	
+	// There doesn't seem to be a public inverse of 
+	// org.eclipse.jdt.internal.compiler.lookup.PackageBinding.computeUniqueKey().
+	private String getPackageBindingKey(String packageName) {
+		return packageName.replace('.', '/');
 	}
 	
 	protected CompilationUnit searchLocallyForBinding(final IBinding binding)
