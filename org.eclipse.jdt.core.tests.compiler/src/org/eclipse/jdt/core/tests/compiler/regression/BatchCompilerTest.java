@@ -5609,7 +5609,7 @@ public void test155_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
 // bad behavior for -warn:null -warn:unused
-public void _test156_warn_options() {
+public void test156_warn_options() {
 	// same source as 153, skip default checks
 	this.runConformTest(
 		new String[] {
@@ -7813,6 +7813,48 @@ public void _test213_warn_options() {
 		"The parameter i is never read\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
+// variant
+public void test214_warn_options() {
+	// same source as 153, skip default checks
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"     String u;\n" +
+			"   }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:null,-unused -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"invalid warning option: -warn:null,-unused. Must specify a warning token\n",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
+// variant
+public void test215_warn_options() {
+	// same source as 153, skip default checks
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo() {\n" +
+			"     String s = null;\n" +
+			"     s.toString();\n" +
+			"     String u;\n" +
+			"   }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:null,+unused -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"invalid warning option: -warn:null,+unused. Must specify a warning token\n",
 		true);
 }
 public static Class testClass() {

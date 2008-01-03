@@ -2260,7 +2260,6 @@ public void configure(String[] argv) throws InvalidInputException {
 
 	boolean didSpecifyDefaultEncoding = false;
 	boolean didSpecifyDeprecation = false;
-	boolean didSpecifyWarnings = false;
 	boolean useEnableJavadoc = false;
 	boolean didSpecifyCompliance = false;
 	boolean didSpecifyDisabledAnnotationProcessing = false;
@@ -2685,22 +2684,23 @@ public void configure(String[] argv) throws InvalidInputException {
 							this.bind("configure.invalidWarningConfiguration", warningOption)); //$NON-NLS-1$
 					}
 					int warnTokenStart;
-					boolean isEnabling;
+					boolean isEnabling, allowPlusOrMinus;
 					switch (warningOption.charAt(6)) {
 						case '+' :
 							warnTokenStart = 7;
 							isEnabling = true;
+							allowPlusOrMinus = true;
 							break;
 						case '-' :
 							warnTokenStart = 7;
 							isEnabling = false; // mentionned warnings are disabled
+							allowPlusOrMinus = true;
 							break;
 						default:
+							disableWarnings();
 							warnTokenStart = 6;
-							// clear default warning level
-							// but allow multiple warning option on the command line
-							if (!didSpecifyWarnings) disableWarnings();
 							isEnabling = true;
+							allowPlusOrMinus = false;
 					}
 
 					StringTokenizer tokenizer =
@@ -2711,17 +2711,27 @@ public void configure(String[] argv) throws InvalidInputException {
 						this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 					}
 
-					while (tokenizer.hasMoreTokens()) {
+					nextToken: while (tokenizer.hasMoreTokens()) {
 						String token = tokenizer.nextToken();
 						tokenCounter++;
 						switch(token.charAt(0)) {
 							case '+' :
-								isEnabling = true;
-								token = token.substring(1);
+								if (allowPlusOrMinus) {
+									isEnabling = true;
+									token = token.substring(1);
+								} else {
+									tokenCounter = 0;
+									break nextToken;
+								}
 								break;
 							case '-' :
-								isEnabling = false;
-								token = token.substring(1);
+								if (allowPlusOrMinus) {
+									isEnabling = false;
+									token = token.substring(1);
+								} else {
+									tokenCounter = 0;
+									break nextToken;
+								}
 								break;
 						}
 						handleWarningToken(token, isEnabling, useEnableJavadoc);
@@ -2730,7 +2740,6 @@ public void configure(String[] argv) throws InvalidInputException {
 						throw new InvalidInputException(
 							this.bind("configure.invalidWarningOption", currentArg)); //$NON-NLS-1$
 					}
-					didSpecifyWarnings = true;
 					continue;
 				}
 				if (currentArg.equals("-target")) { //$NON-NLS-1$
