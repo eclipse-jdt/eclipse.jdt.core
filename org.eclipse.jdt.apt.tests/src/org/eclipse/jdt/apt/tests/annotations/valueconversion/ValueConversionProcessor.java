@@ -17,6 +17,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Messager;
@@ -49,7 +50,8 @@ public class ValueConversionProcessor extends BaseProcessor {
 	}
 	
 	public void process() 
-	{	
+	{
+		ProcessorTestStatus.setProcessorRan();
 		final TypeDeclaration test = _env.getTypeDeclaration("sample.Test");
 		if( test == null )
 			TestCase.assertNotNull("failed to locate type 'sample.Test'", test);

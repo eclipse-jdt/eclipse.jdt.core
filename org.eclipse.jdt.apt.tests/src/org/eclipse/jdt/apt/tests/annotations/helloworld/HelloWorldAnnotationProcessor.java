@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 import java.util.Collection;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Filer;
@@ -38,6 +39,7 @@ public class HelloWorldAnnotationProcessor extends BaseProcessor {
 
 	public void process()
 	{
+		ProcessorTestStatus.setProcessorRan();
 		Filer f = _env.getFiler();
 		AnnotationTypeDeclaration annoDecl = (AnnotationTypeDeclaration) _env.getTypeDeclaration(HelloWorldAnnotation.class.getName());
 		Collection<Declaration> annotatedDecls = _env.getDeclarationsAnnotatedWith(annoDecl);

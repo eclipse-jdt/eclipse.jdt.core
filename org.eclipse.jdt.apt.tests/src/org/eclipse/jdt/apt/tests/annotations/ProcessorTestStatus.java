@@ -22,8 +22,13 @@ public final class ProcessorTestStatus {
 	 */
 	public static final String NO_ERRORS = "NO ERRORS";
 	
+	/**
+	 * Marker string to indicate processor never ran.
+	 */
+	public static final String NOT_RUN = "NOT RUN";
+	
 	/** Error status. Will be == NO_ERRORS if no errors were encountered **/
-	private static String s_errorStatus = NO_ERRORS;
+	private static String s_errorStatus = NOT_RUN;
 	
 	/**
 	 * Was a processor run at all?
@@ -47,7 +52,7 @@ public final class ProcessorTestStatus {
 	
 	/** Reset the status. Needs to be called before each set of tests that could fail **/
 	public static void reset() {
-		s_errorStatus = NO_ERRORS;
+		s_errorStatus = NOT_RUN;
 		s_processorRan = false;
 	}
 	
@@ -59,6 +64,7 @@ public final class ProcessorTestStatus {
 	/** A processor can call this to indicate that it has run (with or without errors) */
 	public static void setProcessorRan() {
 		s_processorRan = true;
+		s_errorStatus = NO_ERRORS;
 	}
 	
 	// Private c-tor to prevent construction

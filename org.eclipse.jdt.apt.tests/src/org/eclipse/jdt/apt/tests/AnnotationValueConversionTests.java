@@ -76,7 +76,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	}
 	
 	public void testByteConversion() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		String content =  
@@ -133,7 +132,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testShortConversion() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -161,7 +159,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	}
 	
 	public void testShortConversion_Reflection() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -193,7 +190,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testCharConversion() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -225,7 +221,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testCharConversion_Reflection() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -257,7 +252,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testIntConversion() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -289,7 +283,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testIntConversion_Reflection() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -321,7 +314,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testLongConversion() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -361,7 +353,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testLongConversion_Reflection() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -401,7 +392,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testFloatConversion() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -447,7 +437,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testFloatConversion_Reflection() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -493,7 +482,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testDoubleConversion() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -537,7 +525,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testDoubleConversion_Reflection() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -581,7 +568,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testArrayification() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -610,7 +596,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testArrayification_Reflection() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -639,7 +624,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testArrayElementConversion() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -672,7 +656,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	 * @throws Exception
 	 */
 	public void testArrayElementConversion_Reflection() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		
@@ -762,7 +745,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 	}
 	
 	public void testMissingPrimitiveTypeValues_Reflection() throws Exception {
-		// reset the error reset the error;
 		IProject project = setupTest();	
 		IPath srcRoot = getSourcePath();		
 		

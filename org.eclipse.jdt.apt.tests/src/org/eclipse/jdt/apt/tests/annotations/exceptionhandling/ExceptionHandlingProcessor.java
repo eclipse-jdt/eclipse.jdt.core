@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.exceptionhandling.ExceptionHandlingAnnotation.EHAEnum;
 
 public class ExceptionHandlingProcessor extends BaseProcessor {  
@@ -33,6 +34,7 @@ public class ExceptionHandlingProcessor extends BaseProcessor {
     
     @SuppressWarnings("unused")
     public void process() {
+		ProcessorTestStatus.setProcessorRan();
         Collection<Declaration> declarations = _env.getDeclarationsAnnotatedWith(_annotationType);     
         assert declarations.size() == 1;
         for (Declaration dec : declarations) {

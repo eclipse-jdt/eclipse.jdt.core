@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Filer;
@@ -28,6 +29,7 @@ public class SecondGenAnnotationProcessor extends BaseProcessor {
 
 	public void process()
 	{
+		ProcessorTestStatus.setProcessorRan();
 		try
 		{
 			Filer f = _env.getFiler();
