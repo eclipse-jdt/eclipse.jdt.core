@@ -3350,7 +3350,7 @@ protected void consumeToken(int token) {
 				pushOnElementStack(K_BINARY_OPERATOR, INSTANCEOF);
 				break;
 			case TokenNameQUESTION:
-				if(previous != TokenNameLESS) {
+				if(previous != TokenNameLESS && previous != TokenNameCOMMA) {
 					pushOnElementStack(K_CONDITIONAL_OPERATOR, QUESTION);
 				}
 				break;

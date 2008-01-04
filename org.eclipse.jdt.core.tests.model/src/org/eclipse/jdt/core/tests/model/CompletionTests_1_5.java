@@ -10867,6 +10867,34 @@ public void test0337() throws JavaModelException {
 			"voidClass[TYPE_REF]{voidClass, test, Ltest.voidClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_UNQUALIFIED + R_TARGET + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=212153
+public void test0338() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Xxx {\n"+
+		"	static {\n"+
+		"		new Object() {\n"+
+		"			public boolean f(Object o) {\n"+
+		"				if (o instanceof Yyy) {\n"+
+		"					((Yyy<?, ?>)o).getZzz().\n"+
+		"				}\n"+
+		"			}\n"+
+		"		};\n"+
+		"	}\n"+
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "getZzz().";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130
 public void testEC001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
