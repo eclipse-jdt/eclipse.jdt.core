@@ -3075,6 +3075,7 @@ protected void consumeToken(int token) {
 				pushOnElementStack(K_BETWEEN_CATCH_AND_RIGHT_PAREN);
 				break;
 			case TokenNameLPAREN:
+				this.bracketDepth++;
 				if (this.invocationType == NO_RECEIVER || this.invocationType == NAME_RECEIVER || this.invocationType == SUPER_RECEIVER) {
 					this.qualifier = this.expressionPtr; // remenber the last expression so that arguments are correctly computed
 				}
@@ -3200,6 +3201,7 @@ protected void consumeToken(int token) {
 				this.bracketDepth--;
 				break;
 			case TokenNameRPAREN:
+			this.bracketDepth--;
 				switch(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
 					case K_BETWEEN_CATCH_AND_RIGHT_PAREN :
 						popElement(K_BETWEEN_CATCH_AND_RIGHT_PAREN);

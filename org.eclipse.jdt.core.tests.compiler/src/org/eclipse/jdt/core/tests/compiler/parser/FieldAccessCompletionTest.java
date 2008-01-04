@@ -494,7 +494,7 @@ public void testCastExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  Bar foo() {\n" + 
-		"    return <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    <CompleteOnMemberAccess:fred().x>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

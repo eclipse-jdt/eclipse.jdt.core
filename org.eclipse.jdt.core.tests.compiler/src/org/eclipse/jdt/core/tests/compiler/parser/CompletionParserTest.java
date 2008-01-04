@@ -1782,7 +1782,7 @@ public void testFA_1() {
 		"  public FA() {\n" + 
 		"  }\n" + 
 		"  public float foo() {\n" + 
-		"    return <CompleteOnName:f>;\n" + 
+		"    <CompleteOnName:f>;\n" + 
 		"  }\n" + 
 		"}\n";
 
