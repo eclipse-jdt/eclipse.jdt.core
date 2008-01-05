@@ -139,5 +139,39 @@ public class FilerTests extends TestBase
 
 		expectingNoFile(proj, ".apt_generated/gen6/Generated02.java");
 	}
+	
+	// Temporarily disabled, functionality not yet implemented
+	public void _testGetResource01() throws Throwable {
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJavaProject(_projectName);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+		
+		env.addClass(projPath.append("src"), "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testGetResource01\", arg0 = \"src/p\", arg1 = \"Trigger.java\")" +
+				"public class Trigger {\n" +
+				"}"
+			); 
+		
+		// Make sure that there are no Java 5 processors on the factory path - see comment below.
+		FactoryPath fp = (FactoryPath) AptConfig.getFactoryPath(jproj);
+		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : fp.getAllContainers().entrySet()) {
+			if (entry.getKey().getType() == FactoryType.PLUGIN) {
+				String id = entry.getKey().getId();
+				if (!Apt6TestsPlugin.PLUGIN_ID.equals(id)) {
+					fp.disablePlugin(id);
+				}
+			}
+		}
+		AptConfig.setFactoryPath(jproj, fp);
+		AptConfig.setEnabled(jproj, true);
+		fullBuild();
+		expectingNoProblems();
+		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
+		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
+	}
+
 
 }

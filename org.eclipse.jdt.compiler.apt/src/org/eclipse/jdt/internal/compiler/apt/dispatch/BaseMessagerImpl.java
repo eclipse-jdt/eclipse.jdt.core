@@ -111,7 +111,10 @@ public class BaseMessagerImpl {
 				case TYPE_PARAMETER :
 			}
 		}
-		StringBuilder builder = new StringBuilder(msg);
+		StringBuilder builder = new StringBuilder();
+		if (msg != null) {
+			builder.append(msg);
+		}
 		int lineNumber = 0;
 		int columnNumber = 1;
 		char[] fileName = null;

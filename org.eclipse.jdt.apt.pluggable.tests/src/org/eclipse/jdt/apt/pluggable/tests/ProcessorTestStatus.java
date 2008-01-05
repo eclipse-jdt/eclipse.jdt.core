@@ -1,15 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc. 
+ * Copyright (c) 2008 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    jgarms@bea.com - initial API and implementation
+ *    jgarms@bea.com - original implementation in org.eclipse.jdt.apt.tests
+ *    wharley@bea.com - copied to org.eclipse.jdt.apt.pluggable.tests
  *    
  *******************************************************************************/
-package org.eclipse.jdt.apt.tests.annotations;
+
+package org.eclipse.jdt.apt.pluggable.tests;
 
 /**
  * Utility class to hold results of processor-based tests.
