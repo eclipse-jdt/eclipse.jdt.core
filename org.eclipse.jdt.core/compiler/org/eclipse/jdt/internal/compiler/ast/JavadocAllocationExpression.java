@@ -71,7 +71,7 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		if (this.resolvedType == null) {
 			return null;
 		}
-		this.resolvedType = scope.environment().convertToRawType(this.type.resolvedType);
+		this.resolvedType = scope.environment().convertToRawType(this.type.resolvedType,  true /*force the conversion of enclosing types*/);
 		SourceTypeBinding enclosingType = scope.enclosingSourceType();
 		if (enclosingType == null ? false : enclosingType.isCompatibleWith(this.resolvedType)) {
 			this.bits |= ASTNode.SuperAccess;

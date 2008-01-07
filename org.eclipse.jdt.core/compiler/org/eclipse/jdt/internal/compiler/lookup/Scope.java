@@ -2525,7 +2525,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		}
 		// binding is now a ReferenceBinding
 		ReferenceBinding typeBinding = (ReferenceBinding) binding;
-		ReferenceBinding qualifiedType = (ReferenceBinding) this.environment().convertToRawType(typeBinding);
+		ReferenceBinding qualifiedType = (ReferenceBinding) this.environment().convertToRawType(typeBinding, false /*do not force conversion of enclosing types*/);
 
 		if (checkVisibility) // handles the fall through case
 			if (!typeBinding.canBeSeenBy(this))

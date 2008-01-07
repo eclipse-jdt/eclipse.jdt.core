@@ -41,7 +41,7 @@ public class JavadocMessageSend extends MessageSend {
 		// Base type promotion
 		this.constant = Constant.NotAConstant;
 		if (this.receiver == null) {
-			this.actualReceiverType = scope.enclosingSourceType();
+			this.actualReceiverType = scope.enclosingReceiverType();
 		} else if (scope.kind == Scope.CLASS_SCOPE) {
 			this.actualReceiverType = this.receiver.resolveType((ClassScope) scope);
 		} else {
@@ -78,8 +78,8 @@ public class JavadocMessageSend extends MessageSend {
 		if (this.actualReceiverType == null) {
 			return null;
 		}
-		this.actualReceiverType = scope.environment().convertToRawType(this.receiver.resolvedType);
-		SourceTypeBinding enclosingType = scope.enclosingSourceType();
+		this.actualReceiverType = scope.environment().convertToRawType(this.receiver.resolvedType, true /*force the conversion of enclosing types*/);
+		ReferenceBinding enclosingType = scope.enclosingReceiverType();
 		if (enclosingType==null ? false : enclosingType.isCompatibleWith(this.actualReceiverType)) {
 			this.bits |= ASTNode.SuperAccess;
 		}

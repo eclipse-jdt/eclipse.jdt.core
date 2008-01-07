@@ -3093,104 +3093,6 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"}\n"
 			});
 	}
-	/**
-	 * Bug 209936  Missing code implementation in the compiler on inner classes
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936"
-	 */
-	public void testBug209936a() {
-		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		reportMissingJavadocCommentsVisibility = CompilerOptions.IGNORE;
-		runNegativeTest(
-			new String[] {
-				"p/X.java",
-				"package p;\n" + 
-				"\n" + 
-				"public abstract class X extends Y {\n" + 
-				"	protected class A extends Member {\n" + 
-				"		/**\n" + 
-				"		 * @see Member#foo(Object, Object)\n" + 
-				"		 */\n" + 
-				"		public void foo(Object source, Object data) {}\n" + 
-				"	}\n" + 
-				"}",
-				"p/Y.java",
-				"package p;\n" + 
-				"\n" + 
-				"import p1.Z;\n" + 
-				"\n" + 
-				"public abstract class Y extends Z<Object> {\n" + 
-				"}",
-				"p1/Z.java",
-				"package p1;\n" + 
-				"\n" + 
-				"public abstract class Z<T> {\n" + 
-				"	protected class Member {\n" + 
-				"		protected void foo(Object source, Object data) {\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"}"
-			},
-			"----------\n" + 
-			"1. ERROR in p\\X.java (at line 6)\n" + 
-			"	* @see Member#foo(Object, Object)\n" + 
-			"	              ^^^\n" + 
-			"Javadoc: The method foo(Object, Object) from the type Z<T>.Member is not visible\n" + 
-			"----------\n" + 
-			"2. ERROR in p\\X.java (at line 8)\n" + 
-			"	public void foo(Object source, Object data) {}\n" + 
-			"	                       ^^^^^^\n" + 
-			"Javadoc: Missing tag for parameter source\n" + 
-			"----------\n" + 
-			"3. ERROR in p\\X.java (at line 8)\n" + 
-			"	public void foo(Object source, Object data) {}\n" + 
-			"	                                      ^^^^\n" + 
-			"Javadoc: Missing tag for parameter data\n" + 
-			"----------\n"
-		);
-	}
-	
-	public void testBug209936b() {
-		reportMissingJavadocTags = CompilerOptions.IGNORE;
-		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		reportMissingJavadocCommentsVisibility = CompilerOptions.IGNORE;
-		runNegativeTest(
-			new String[] {
-				"p/X.java",
-				"package p;\n" + 
-				"\n" + 
-				"public abstract class X extends Y {\n" + 
-				"	protected class A extends Member {\n" + 
-				"		/**\n" + 
-				"		 * @see Member#foo(Object, Object)\n" + 
-				"		 */\n" + 
-				"		public void foo(Object source, Object data) {}\n" + 
-				"	}\n" + 
-				"}",
-				"p/Y.java",
-				"package p;\n" + 
-				"\n" + 
-				"import p1.Z;\n" + 
-				"\n" + 
-				"public abstract class Y extends Z<Object> {\n" + 
-				"}",
-				"p1/Z.java",
-				"package p1;\n" + 
-				"\n" + 
-				"public abstract class Z<T> {\n" + 
-				"	protected class Member {\n" + 
-				"		protected void foo(Object source, Object data) {\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"}"
-			},
-			"----------\n" + 
-			"1. ERROR in p\\X.java (at line 6)\n" + 
-			"	* @see Member#foo(Object, Object)\n" + 
-			"	              ^^^\n" + 
-			"Javadoc: The method foo(Object, Object) from the type Z<T>.Member is not visible\n" + 
-			"----------\n"
-		);
-	}
 	
 	/**
 	 * Bug 204749  [1.5][javadoc] NPE in JavadocQualifiedTypeReference
@@ -3229,6 +3131,669 @@ public class JavadocTest_1_5 extends JavadocTest {
 			    "    void foo() {}\n" + 
 				"}"
 			}
+		);
+	}
+	
+	/**
+	 * Bug 209936  Missing code implementation in the compiler on inner classes
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936"
+	 */
+	public void testBug209936a() {
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"public abstract class X extends Y {\n" + 
+				"	protected class A extends Member {\n" + 
+				"		/**\n" + 
+				"		 * @see Member#foo(Object, Object)\n" + 
+				"		 */\n" + 
+				"		public void foo(Object source, Object data) {}\n" + 
+				"	}\n" + 
+				"}",
+				"p/Y.java",
+				"package p;\n" + 
+				"import p1.Z;\n" + 
+				"public abstract class Y extends Z<Object> {\n" + 
+				"}",
+				"p1/Z.java",
+				"package p1;\n" + 
+				"public abstract class Z<T> {\n" + 
+				"	protected class Member {\n" + 
+				"		protected void foo(Object source, Object data) {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 5)\n" + 
+			"	* @see Member#foo(Object, Object)\n" + 
+			"	       ^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n"
+		);
+	}
+	
+	public void testBug209936b() {
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"public abstract class X extends Y {\n" + 
+				"	protected class A extends Member {\n" + 
+				"		/**\n" + 
+				"		 * @see Member#foo(Object, Object)\n" + 
+				"		 */\n" + 
+				"		public void foo(Object source, Object data) {}\n" + 
+				"	}\n" + 
+				"}",
+				"p/Y.java",
+				"package p;\n" + 
+				"\n" + 
+				"import p1.Z;\n" + 
+				"public abstract class Y extends Z<Object> {}",
+				"p1/Z.java",
+				"package p1;\n" + 
+				"public abstract class Z<T> {\n" + 
+				"	protected class Member {\n" + 
+				"		protected void foo(Object source, Object data) {}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 5)\n" + 
+			"	* @see Member#foo(Object, Object)\n" + 
+			"	       ^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n"
+		);
+	}
+	
+	public void testBug209936_GenericMemberImplicitReference() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" + 
+				"public class A<R> {\n" + 
+				"	public class A1<S> {\n" + 
+				"		public class A2<T> {\n" + 
+				"			public class A3<U> {\n" + 
+				"				public class A4<V> {\n" + 
+				"					public void foo(V v) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"p2/X.java",
+				"package p2;\n" + 
+				"import p1.A;\n" + 
+				"public class X<R> extends A<R> {\n" + 
+				"	public class X1<S> extends A1<S> {\n" + 
+				"		public class X2<T> extends A2<T> {\n" + 
+				"			public class X3<U> extends A3<U> {\n" + 
+				"				public class X4<V> extends A4<V> {\n" + 
+				"					/**\n" + 
+									// implicit type reference
+				"			 		 * @see #foo(Object)\n" + 
+				"			 		 * @see #foo(V)\n" + 
+				"					 */\n" + 
+				"					public void foo(V v) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p2\\X.java (at line 10)\n" + 
+			"	* @see #foo(V)\n" + 
+			"	        ^^^\n" + 
+			"Javadoc: The method foo(Object) in the type X.X1.X2.X3.X4 is not applicable for the arguments (V)\n" + 
+			"----------\n"
+		);
+	}
+
+	public void testBug209936_GenericMemberSingleReference() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" + 
+				"public class A<R> {\n" + 
+				"	public class A1<S> {\n" + 
+				"		public class A2<T> {\n" + 
+				"			public class A3<U> {\n" + 
+				"				public class A4<V> {\n" + 
+				"					public void foo(V v) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"p2/X.java",
+				"package p2;\n" + 
+				"import p1.A;\n" + 
+				"public class X<R> extends A<R> {\n" + 
+				"	public class X1<S> extends A1<S> {\n" + 
+				"		public class X2<T> extends A2<T> {\n" + 
+				"			public class X3<U> extends A3<U> {\n" + 
+				"				public class X4<V> extends A4<V> {\n" + 
+				"					/**\n" + 
+									// single type reference
+				"			 		 * @see A4#foo(V)\n" + 
+				"			 		 * @see A4#foo(Object)\n" + 
+				"					 */\n" + 
+				"					public void myFoo(V v) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p2\\X.java (at line 9)\n" + 
+			"	* @see A4#foo(V)\n" + 
+			"	          ^^^\n" + 
+			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (V)\n" + 
+			"----------\n" + 
+			"2. ERROR in p2\\X.java (at line 10)\n" + 
+			"	* @see A4#foo(Object)\n" + 
+			"	       ^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n"
+		);
+	}
+	
+	public void testBug209936_GenericMemberQualifiedSingleReference() {
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" + 
+				"public class A<R> {\n" + 
+				"	public class A1<S> {\n" + 
+				"		public class A2<T> {\n" + 
+				"			public class A3<U> {\n" + 
+				"				public class A4<V> {\n" + 
+				"					public void foo(V v) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"p2/X.java",
+				"package p2;\n" + 
+				"import p1.A;\n" + 
+				"public class X<R> extends A<R> {\n" + 
+				"	public class X1<S> extends A1<S> {\n" + 
+				"		public class X2<T> extends A2<T> {\n" + 
+				"			public class X3<U> extends A3<U> {\n" + 
+				"				public class X4<V> extends A4<V> {\n" + 
+				"					/**\n" + 
+									// qualified single type reference
+				"			 		 * @see A3.A4#foo(V)\n" +
+				"			 		 * @see A3.A4#foo(Object)\n" + 
+				"					 */\n" + 
+				"					public void foo(V v) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p2\\X.java (at line 9)\n" + 
+			"	* @see A3.A4#foo(V)\n" + 
+			"	             ^^^\n" + 
+			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (V)\n" + 
+			"----------\n"
+		);
+	}
+
+	public void testBug209936_GenericMemberFullyQualifiedSingleReference() {
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" + 
+				"public class A<R> {\n" + 
+				"	public class A1<S> {\n" + 
+				"		public class A2<T> {\n" + 
+				"			public class A3<U> {\n" + 
+				"				public class A4<V> {\n" + 
+				"					public void foo(V v) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"p2/X.java",
+				"package p2;\n" + 
+				"import p1.A;\n" + 
+				"public class X<R> extends A<R> {\n" + 
+				"	public class X1<S> extends A1<S> {\n" + 
+				"		public class X2<T> extends A2<T> {\n" + 
+				"			public class X3<U> extends A3<U> {\n" + 
+				"				public class X4<V> extends A4<V> {\n" + 
+				"					/**\n" + 
+									// fully qualified type reference
+				"			 		 * @see A.A1.A2.A3.A4#foo(V)\n" + 
+				"			 		 * @see A.A1.A2.A3.A4#foo(Object)\n" +
+				"					 */\n" + 
+				"					public void foo(V v) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p2\\X.java (at line 9)\n" + 
+			"	* @see A.A1.A2.A3.A4#foo(V)\n" + 
+			"	                     ^^^\n" + 
+			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (V)\n" + 
+			"----------\n"
+		);
+	}
+	
+	public void testBug209936_MemberImplicitReference() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" + 
+				"public class A<R> {\n" + 
+				"	public class A1<S> {\n" + 
+				"		public class A2<T> {\n" + 
+				"			public class A3<U> {\n" + 
+				"				public class A4 {\n" + 
+				"					public void foo(U u) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"p2/X.java",
+				"package p2;\n" + 
+				"import p1.A;\n" + 
+				"public class X<R> extends A<R> {\n" + 
+				"	public class X1<S> extends A1<S> {\n" + 
+				"		public class X2<T> extends A2<T> {\n" + 
+				"			public class X3<U> extends A3<U> {\n" + 
+				"				public class X4 extends A4 {\n" + 
+				"					/**\n" + 
+									// implicit reference
+				"			 		 * @see #foo(Object)\n" + 
+				"			 		 * @see #foo(U u)\n" + 
+				"					 */\n" + 
+				"					public void foo(U u) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p2\\X.java (at line 10)\r\n" + 
+			"	* @see #foo(U u)\r\n" + 
+			"	        ^^^\n" + 
+			"Javadoc: The method foo(Object) in the type X.X1.X2.X3.X4 is not applicable for the arguments (U)\n" + 
+			"----------\n"
+		);
+	}
+
+	public void testBug209936_MemberSingleReference1(){
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" + 
+				"public class A<R> {\n" + 
+				"	public class A1<S> {\n" + 
+				"		public class A2<T> {\n" + 
+				"			public class A3 {\n" + 
+				"				public class A4 {\n" + 
+				"					public void foo(T t) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"p2/X.java",
+				"package p2;\n" + 
+				"import p1.A;\n" + 
+				"public class X<R> extends A<R> {\n" + 
+				"	public class X1<S> extends A1<S> {\n" + 
+				"		public class X2<T> extends A2<T> {\n" + 
+				"			public class X3 extends A3 {\n" + 
+				"				public class X4 extends A4 {\n" + 
+				"					/**\n" + 
+									// single type reference
+				"			 		 * @see A4#foo(Object)\n" + 
+				"			 		 * @see A4#foo(T)\n" +
+				"					 */\n" + 
+				"					public void foo(T t) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p2\\X.java (at line 9)\n" + 
+			"	* @see A4#foo(Object)\n" + 
+			"	       ^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" + 
+			"2. ERROR in p2\\X.java (at line 10)\n" + 
+			"	* @see A4#foo(T)\n" + 
+			"	          ^^^\n" + 
+			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (T)\n" + 
+			"----------\n"
+		);
+	}
+
+	public void testBug209936_MemberSingleReference2(){
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" + 
+				"public class A<R> {\n" + 
+				"	public class A1<S> {\n" + 
+				"		public class A2 {\n" + 
+				"			public class A3 {\n" + 
+				"				public class A4 {\n" + 
+				"					public void foo(S s) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"p2/X.java",
+				"package p2;\n" + 
+				"import p1.A;\n" + 
+				"public class X<R> extends A<R> {\n" + 
+				"	public class X1<S> extends A1<S> {\n" + 
+				"		public class X2 extends A2 {\n" + 
+				"			public class X3 extends A3 {\n" + 
+				"				public class X4 extends A4 {\n" + 
+				"					/**\n" + 
+									// single type reference
+				"			 		 * @see A4#foo(Object)\n" + 
+				"			 		 * @see A4#foo(S)\n" +
+				"					 */\n" + 
+				"					public void foo(S s) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p2\\X.java (at line 9)\n" + 
+			"	* @see A4#foo(Object)\n" + 
+			"	       ^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" + 
+			"2. ERROR in p2\\X.java (at line 10)\n" + 
+			"	* @see A4#foo(S)\n" + 
+			"	          ^^^\n" + 
+			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (S)\n" + 
+			"----------\n"
+		);
+	}
+	
+	public void testBug209936_MemberSingleReference3(){
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" + 
+				"public class A {\n" + 
+				"	public class A1 {\n" + 
+				"		public class A2<T> {\n" + 
+				"			public class A3 {\n" + 
+				"				public class A4 {\n" + 
+				"					public void foo(T t) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"p2/X.java",
+				"package p2;\n" + 
+				"import p1.A;\n" + 
+				"public class X extends A {\n" + 
+				"	public class X1 extends A1 {\n" + 
+				"		public class X2<T> extends A2<T> {\n" + 
+				"			public class X3 extends A3 {\n" + 
+				"				public class X4 extends A4 {\n" + 
+				"					/**\n" + 
+									// single type reference
+				"			 		 * @see A4#foo(Object)\n" + 
+				"			 		 * @see A4#foo(T)\n" +
+				"					 */\n" + 
+				"					public void foo(T t) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p2\\X.java (at line 9)\n" + 
+			"	* @see A4#foo(Object)\n" + 
+			"	       ^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" + 
+			"2. ERROR in p2\\X.java (at line 10)\n" + 
+			"	* @see A4#foo(T)\n" + 
+			"	          ^^^\n" + 
+			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (T)\n" + 
+			"----------\n"
+		);
+	}
+
+	public void testBug209936_MemberSingleReference4(){
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" + 
+				"public class A {\n" + 
+				"	public class A1 {\n" + 
+				"		public class A2<T> {\n" + 
+				"			public class A3 {\n" + 
+				"				public class A4 {\n" + 
+				"					public void foo(T t) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"p2/X.java",
+				"package p2;\n" + 
+				"import p1.A;\n" + 
+				"public class X extends A {\n" + 
+				"	public class X1 extends A1 {\n" + 
+				"		public class X2<T> extends A2<T> {\n" + 
+				"			public class X3 extends A3 {\n" + 
+				"				public class X4 extends A4 {\n" + 
+				"					/**\n" + 
+				// single type reference
+				"			 		 * @see A4#foo(Object)\n" + 
+				"			 		 * @see A4#foo(T)\n" +
+				"					 */\n" + 
+				"					public void foo(T t) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p2\\X.java (at line 9)\n" + 
+			"	* @see A4#foo(Object)\n" + 
+			"	       ^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" + 
+			"2. ERROR in p2\\X.java (at line 10)\n" + 
+			"	* @see A4#foo(T)\n" + 
+			"	          ^^^\n" + 
+			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (T)\n" + 
+			"----------\n"
+		);
+	}
+	
+	public void testBug209936_MemberQualifiedSingleReference1() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runConformTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" + 
+				"\n" + 
+				"public class A<R> {\n" + 
+				"	public class A1<S> {\n" + 
+				"		public class A2 {\n" + 
+				"			public class A3 {\n" + 
+				"				public class A4 {\n" + 
+				"					public void foo(S s) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"p2/X.java",
+				"package p2;\n" + 
+				"import p1.A;\n" + 
+				"public class X<R> extends A<R> {\n" + 
+				"	public class X1<S> extends A1<S> {\n" + 
+				"		public class X2 extends A2 {\n" + 
+				"			public class X3 extends A3 {\n" + 
+				"				public class X4 extends A4 {\n" + 
+				"					/**\n" + 
+									// qualified single type reference
+				"			 		 * @see A3.A4#foo(Object)\n" + 
+				"			 		 * @see A2.A3.A4#foo(Object)\n" + 
+				"			 		 * @see A1.A2.A3.A4#foo(Object)\n" + 
+				"					 */\n" + 
+				"					public void foo(S s) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			}
+		);
+	}
+
+	public void testBug209936_MemberQualifiedSingleReference2() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runConformTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" + 
+				"\n" + 
+				"public class A<R> {\n" + 
+				"	public class A1<S> {\n" + 
+				"		public class A2 {\n" + 
+				"			public class A3 {\n" + 
+				"				public class A4 {\n" + 
+				"					public class A5 {\n" + 
+				"						public class A6 {\n" + 
+				"							public void foo(S s) {}\n" + 
+				"						}\n" + 
+				"					}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"p2/X.java",
+				"package p2;\n" + 
+				"import p1.A;\n" + 
+				"public class X<R> extends A<R> {\n" + 
+				"	public class X1<S> extends A1<S> {\n" + 
+				"		public class X2 extends A2 {\n" + 
+				"			public class X3 extends A3 {\n" + 
+				"				public class X4 extends A4 {\n" + 
+				"					public class X5 extends A5 {\n" + 
+				"						public class X6 extends A6 {\n" + 
+				"							/**\n" + 
+											// qualified single type reference
+				"			 				 * @see A5.A6#foo(Object)\n" + 
+				"			 				 * @see A4.A5.A6#foo(Object)\n" +
+				"							 */\n" + 
+				"							public void foo(S s) {}\n" + 
+				"						}\n" +
+				"					}\n" +
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			}
+		);
+	}
+
+	public void testBug209936_MemberFullyQualifiedSingleReference() {
+		reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
+		runNegativeTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" + 
+				"\n" + 
+				"public class A<R> {\n" + 
+				"	public class A1 {\n" + 
+				"		public class A2 {\n" + 
+				"			public class A3 {\n" + 
+				"				public class A4 {\n" + 
+				"					public void foo(R r) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"p2/X.java",
+				"package p2;\n" + 
+				"import p1.A;\n" + 
+				"public class X<R> extends A<R> {\n" + 
+				"	public class X1 extends A1 {\n" + 
+				"		public class X2 extends A2 {\n" + 
+				"			public class X3 extends A3 {\n" + 
+				"				public class X4 extends A4 {\n" + 
+				"					/**\n" + 
+									// fully qualified type reference
+				"			 		 * @see A.A1.A2.A3.A4#foo(Object)\n" + 
+				"			 		 * @see A.A1.A2.A3.A4#foo(R)\n" +
+				"					 */\n" + 
+				"					public void foo(R r) {}\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in p2\\X.java (at line 10)\r\n" + 
+			"	* @see A.A1.A2.A3.A4#foo(R)\r\n" + 
+			"	                     ^^^\n" + 
+			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (R)\n" + 
+			"----------\n"
 		);
 	}
 }

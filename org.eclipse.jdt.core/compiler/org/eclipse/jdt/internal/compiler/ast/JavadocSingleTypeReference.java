@@ -16,13 +16,11 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-
 
 public class JavadocSingleTypeReference extends SingleTypeReference {
 	
@@ -91,8 +89,11 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 		}
 		if (isTypeUseDeprecated(this.resolvedType, scope))
 			reportDeprecatedType(this.resolvedType, scope);
-		if (this.resolvedType instanceof ParameterizedTypeBinding) {
-			this.resolvedType = ((ParameterizedTypeBinding)this.resolvedType).genericType();
+		
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936
+		// raw convert all enclosing types when dealing with Javadoc references
+		if (this.resolvedType.isGenericType() || this.resolvedType.isParameterizedType()) {
+			return this.resolvedType = scope.environment().convertToRawType(this.resolvedType, true /*force the conversion of enclosing types*/);
 		}
 		return this.resolvedType;
 	}

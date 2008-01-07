@@ -406,7 +406,7 @@ public ReferenceBinding convertToParameterizedType(ReferenceBinding originalType
 		boolean needToConvert = isGeneric;
 		if (originalEnclosingType != null) {
 			convertedEnclosingType = originalType.isStatic() 
-				? (ReferenceBinding) convertToRawType(originalEnclosingType) 
+				? (ReferenceBinding) convertToRawType(originalEnclosingType, false /*do not force conversion of enclosing types*/) 
 				: convertToParameterizedType(originalEnclosingType);
 			needToConvert |= originalEnclosingType != convertedEnclosingType;
 		}
@@ -534,7 +534,13 @@ public TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, Ref
 	return originalType;
 }
 
-public TypeBinding convertToRawType(TypeBinding type) {
+/**
+ * Returns the given binding's raw type binding.
+ * @param type the TypeBinding to raw convert
+ * @param forceRawEnclosingType forces recursive raw conversion of enclosing types (used in Javadoc references only)
+ * @return TypeBinding the raw converted TypeBinding
+ */
+public TypeBinding convertToRawType(TypeBinding type, boolean forceRawEnclosingType) {
 	int dimension;
 	TypeBinding originalType;
 	switch(type.kind()) {
@@ -578,8 +584,11 @@ public TypeBinding convertToRawType(TypeBinding type) {
 		if (originalEnclosing.kind() == Binding.RAW_TYPE) {
 			needToConvert |= !((ReferenceBinding)originalType).isStatic();
 			convertedEnclosing = originalEnclosing;
+		} else if (forceRawEnclosingType && !needToConvert/*stop recursion when conversion occurs*/) {
+			convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing, forceRawEnclosingType);
+			needToConvert = originalEnclosing != convertedEnclosing; // only convert generic or parameterized types
 		} else if (needToConvert || ((ReferenceBinding)originalType).isStatic()) {
-			convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing);
+			convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing, false);
 		} else {
 			convertedEnclosing = convertToParameterizedType(originalEnclosing);
 		}
@@ -1235,7 +1244,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 	ReferenceBinding genericType = actualType;
 	ReferenceBinding actualEnclosing = actualType.enclosingType();
 	if (actualEnclosing != null) { // convert needed if read some static member type
-		actualEnclosing = (ReferenceBinding) convertToRawType(actualEnclosing);
+		actualEnclosing = (ReferenceBinding) convertToRawType(actualEnclosing, false /*do not force conversion of enclosing types*/);
 		// The actualType needs to be a ParameterizedTypeBinding when its a member type, whose enclosing type is a generic
 		genericType = createParameterizedType(actualType, null, actualEnclosing);
 	}

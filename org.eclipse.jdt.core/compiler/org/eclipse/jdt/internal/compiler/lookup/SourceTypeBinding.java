@@ -1274,7 +1274,7 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 				FieldDeclaration fieldDecl = fieldDecls[f];
 				TypeBinding fieldType = 
 					fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT
-						? initializationScope.environment().convertToRawType(this) // enum constant is implicitly of declaring enum type
+						? initializationScope.environment().convertToRawType(this, false /*do not force conversion of enclosing types*/) // enum constant is implicitly of declaring enum type
 						: fieldDecl.type.resolveType(initializationScope, true /* check bounds*/);
 				field.type = fieldType;
 				field.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;

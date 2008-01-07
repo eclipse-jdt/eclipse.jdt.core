@@ -169,7 +169,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				qualifiedType = currentType.enclosingType(); // if member type
 				if (qualifiedType != null && (qualifiedType.isGenericType() || qualifiedType.isParameterizedType())) {
 					qualifiedType = currentType.isStatic()
-						? (ReferenceBinding) scope.environment().convertToRawType(qualifiedType)
+						? (ReferenceBinding) scope.environment().convertToRawType(qualifiedType, false /*do not force conversion of enclosing types*/)
 						: scope.environment().convertToParameterizedType(qualifiedType);
 				}
 			}				

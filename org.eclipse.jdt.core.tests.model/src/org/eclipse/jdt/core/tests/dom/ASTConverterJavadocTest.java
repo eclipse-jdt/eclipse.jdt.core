@@ -2418,9 +2418,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			IBinding binding = seeRef.resolveBinding();
 			assertTrue("Wrong kind of binding", binding instanceof ITypeBinding);
 			ITypeBinding typeBinding = (ITypeBinding)binding;
-			assertTrue(seeRef.toString()+" should have a generic type binding", typeBinding.isGenericType());
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936
+			// only have RawTypeBinding in Javadocs
+			assertFalse(seeRef.toString()+" should NOT have a generic type binding", typeBinding.isGenericType());
 			assertFalse(seeRef.toString()+" should NOT have a parameterized type binding", typeBinding.isParameterizedType());
-			assertFalse(seeRef.toString()+" should NOT have a raw type binding", typeBinding.isRawType());
+			assertTrue(seeRef.toString()+" should have a raw type binding", typeBinding.isRawType());
 			// Get inline tag simple name reference in second tag
 			assertEquals("Invalid number of fragments for inline tag element: "+inlineTag, 1, inlineTag.fragments().size());
 			node = (ASTNode) inlineTag.fragments().get(0);
@@ -2430,9 +2432,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			binding = linkRef.resolveBinding();
 			assertTrue("Wrong kind of binding", binding instanceof ITypeBinding);
 			typeBinding = (ITypeBinding)binding;
-			assertTrue(linkRef.toString()+" should have a generic type binding", typeBinding.isGenericType());
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936
+			// only have RawTypeBinding in Javadocs
+			assertFalse(linkRef.toString()+" should NOT have a generic type binding", typeBinding.isGenericType());
 			assertFalse(linkRef.toString()+" should NOT have a parameterized type binding", typeBinding.isParameterizedType());
-			assertFalse(linkRef.toString()+" should NOT have a raw type binding", typeBinding.isRawType());
+			assertTrue(linkRef.toString()+" should have a raw type binding", typeBinding.isRawType());
 		}
 	}
 

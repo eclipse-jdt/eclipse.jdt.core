@@ -895,7 +895,7 @@ public class ClassScope extends Scope {
 			return false; // cannot reach here as AbortCompilation is thrown
 		}			
 		// check argument type compatibility
-		ParameterizedTypeBinding  superType = environment().createParameterizedType(rootEnumType, new TypeBinding[]{ environment().convertToRawType(sourceType) } , null);
+		ParameterizedTypeBinding  superType = environment().createParameterizedType(rootEnumType, new TypeBinding[]{ environment().convertToRawType(sourceType, false /*do not force conversion of enclosing types*/) } , null);
 		sourceType.superclass = superType;
 		// bound check (in case of bogus definition of Enum type)
 		if (refTypeVariables[0].boundCheck(superType, sourceType) != TypeConstants.OK) {

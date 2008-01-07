@@ -36,7 +36,7 @@ public class JavadocImplicitTypeReference extends TypeReference {
 	 */
 	protected TypeBinding getTypeBinding(Scope scope) {
 		this.constant = Constant.NotAConstant;
-		return this.resolvedType = scope.enclosingSourceType();
+		return this.resolvedType = scope.enclosingReceiverType();
 	}
 
 	public char[] getLastToken() {
@@ -67,7 +67,7 @@ public class JavadocImplicitTypeReference extends TypeReference {
 		if (this.resolvedType != null) // is a shared type reference which was already resolved
 			return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
 
-		this.resolvedType = scope.enclosingSourceType();
+		this.resolvedType = scope.enclosingReceiverType();
 		if (this.resolvedType == null)
 			return null; // detected cycle while resolving hierarchy	
 		if (!this.resolvedType.isValidBinding()) {
@@ -76,6 +76,12 @@ public class JavadocImplicitTypeReference extends TypeReference {
 		}
 		if (isTypeUseDeprecated(this.resolvedType, scope))
 			reportDeprecatedType(this.resolvedType, scope);
+		
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936
+		// raw convert all enclosing types when dealing with Javadoc references
+		if (this.resolvedType.isGenericType() || this.resolvedType.isParameterizedType()) {
+			return this.resolvedType = scope.environment().convertToRawType(this.resolvedType, true /*force the conversion of enclosing types*/);
+		}
 		return this.resolvedType;
 	}
 

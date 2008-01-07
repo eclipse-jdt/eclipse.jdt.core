@@ -340,7 +340,7 @@ public void testBug87868() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "meth");
 	assertSortedResults(
-		"method[METHOD_REF]{method(Object), Ljavadoc.bugs.BasicTestBugs<TS;>;, (TS;)V, method, (s), "+this.positions+R_DRICNRNS+"}"
+		"method[METHOD_REF]{method(Object), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.Object;)V, method, (s), "+this.positions+R_DRICNRNS+"}"
 	);
 }
 

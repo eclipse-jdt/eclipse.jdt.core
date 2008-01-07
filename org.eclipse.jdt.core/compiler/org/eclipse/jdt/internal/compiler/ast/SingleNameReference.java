@@ -868,7 +868,7 @@ public int nullStatus(FlowInfo flowInfo) {
 					TypeBinding type = (TypeBinding)binding;
 					if (isTypeUseDeprecated(type, scope))
 						scope.problemReporter().deprecatedType(type, this);
-					type = scope.environment().convertToRawType(type);
+					type = scope.environment().convertToRawType(type, false /*do not force conversion of enclosing types*/);
 					return this.resolvedType = type;
 			}
 		}

@@ -100,7 +100,7 @@ public class QualifiedTypeReference extends TypeReference {
 					qualifiedType = currentType;
 				}
 			} else {
-				qualifiedType = currentType.isGenericType() ? (ReferenceBinding)scope.environment().convertToRawType(currentType) : currentType;
+				qualifiedType = currentType.isGenericType() ? (ReferenceBinding)scope.environment().convertToRawType(currentType, false /*do not force conversion of enclosing types*/) : currentType;
 			}			
 		}
 		this.resolvedType = qualifiedType;

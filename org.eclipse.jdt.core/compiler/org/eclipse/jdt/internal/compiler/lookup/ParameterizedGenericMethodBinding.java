@@ -266,7 +266,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		int length = originalVariables.length;
 		TypeBinding[] rawArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
-			rawArguments[i] =  environment.convertToRawType(originalVariables[i].erasure());
+			rawArguments[i] =  environment.convertToRawType(originalVariables[i].erasure(), false /*do not force conversion of enclosing types*/);
 		}		
 	    this.isRaw = true;
 	    this.tagBits = originalMethod.tagBits;
@@ -471,11 +471,11 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			for (int i = 0; i < length; i++) {
 				TypeVariableBinding originalVariable = originalVariables[i];
 				if (originalVariable.boundsCount() == 1) {
-					newArguments[i] = this.environment.convertToRawType(originalVariable.upperBound());
+					newArguments[i] = this.environment.convertToRawType(originalVariable.upperBound(), false /*do not force conversion of enclosing types*/);
 				} else {
 					newArguments[i] = this.environment.convertToRawType(
 							// use an intersection type to retain full bound information
-							this.environment.createWildcard(null, 0, originalVariable.superclass(), originalVariable.superInterfaces(), Wildcard.EXTENDS));
+							this.environment.createWildcard(null, 0, originalVariable.superclass(), originalVariable.superInterfaces(), Wildcard.EXTENDS), false /*do not force conversion of enclosing types*/);
 				}
 			}
 			this.tiebreakMethod = this.environment.createParameterizedGenericMethod(this.originalMethod, newArguments);

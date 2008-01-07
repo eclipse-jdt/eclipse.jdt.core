@@ -457,7 +457,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 
 	// know binding is now a ReferenceBinding
 	ReferenceBinding referenceBinding = (ReferenceBinding) binding;
-	binding = environment().convertToRawType(referenceBinding);
+	binding = environment().convertToRawType(referenceBinding, false /*do not force conversion of enclosing types*/);
 	if (invocationSite instanceof ASTNode) {
 		ASTNode invocationNode = (ASTNode) invocationSite;
 		if (invocationNode.isTypeUseDeprecated(referenceBinding, this)) {

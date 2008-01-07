@@ -56,7 +56,7 @@ public class JavadocArgumentExpression extends Expression {
 				if (isTypeUseDeprecated(this.resolvedType, scope)) {
 					scope.problemReporter().javadocDeprecatedType(this.resolvedType, typeRef, scope.getDeclarationModifiers());
 				}
-				return this.resolvedType = scope.environment().convertToRawType(this.resolvedType);
+				return this.resolvedType = scope.environment().convertToRawType(this.resolvedType,  true /*force the conversion of enclosing types*/);
 			}
 		}
 		return null;
