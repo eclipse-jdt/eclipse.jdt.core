@@ -5201,8 +5201,6 @@ public final class CompletionEngine
 		if (typeName == null)
 			return;
 
-		if (this.assistNodeIsSuperType && !this.insideQualifiedReference) return; // we're trying to find a supertype
-
 		if (this.insideQualifiedReference
 			|| typeName.length == 0) { // do not search up the hierarchy
 
@@ -5369,7 +5367,7 @@ public final class CompletionEngine
 		if (typeName == null || typeName.length == 0)
 			return;
 
-		if (this.assistNodeIsSuperType && !this.insideQualifiedReference) return; // we're trying to find a supertype
+		if (this.assistNodeIsSuperType && !this.insideQualifiedReference && this.isForbidden(currentType)) return; // we're trying to find a supertype
 
 		findMemberTypes(
 				typeName,

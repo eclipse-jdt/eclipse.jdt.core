@@ -5762,6 +5762,61 @@ public void testCompletionInsideExtends12() throws JavaModelException {
 			requestor.getResults());
 }
 
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=212713
+public void testCompletionInsideExtends13() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n"+
+		"        static class GrrrBug {}\n"+
+		"        class Foo extends Grrr\n"+
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Grrr";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"Test.GrrrBug[TYPE_REF]{GrrrBug, test, Ltest.Test$GrrrBug;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=212713
+public void testCompletionInsideExtends14() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/GrrrBug1.java",
+		"package test;\n"+
+		"public class GrrrBug1 {\n"+
+		"	public static class GrrrBug2 {\n"+
+		"		public static class GrrrBug3 {}\n"+
+ 		"       }\n"+
+		"	public static class GrrrBug4 extends Grrr {\n"+
+		"		public static class GrrrBug5 {}\n"+
+		"    }\n"+
+		"}\n"+
+		"class GrrrBug6 {\n"+
+		"	public static class GrrrBug7 {}\n"+
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "extends Grrr";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"GrrrBug1.GrrrBug2.GrrrBug3[TYPE_REF]{test.GrrrBug1.GrrrBug2.GrrrBug3, test, Ltest.GrrrBug1$GrrrBug2$GrrrBug3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CLASS + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"GrrrBug6.GrrrBug7[TYPE_REF]{test.GrrrBug6.GrrrBug7, test, Ltest.GrrrBug6$GrrrBug7;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CLASS + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"GrrrBug1[TYPE_REF]{GrrrBug1, test, Ltest.GrrrBug1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"GrrrBug1.GrrrBug2[TYPE_REF]{GrrrBug2, test, Ltest.GrrrBug1$GrrrBug2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"GrrrBug6[TYPE_REF]{GrrrBug6, test, Ltest.GrrrBug6;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
 public void testCompletionInsideExtends2() throws JavaModelException {
 	this.wc = getWorkingCopy(
