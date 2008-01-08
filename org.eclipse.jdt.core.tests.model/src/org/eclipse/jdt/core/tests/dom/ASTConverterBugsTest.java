@@ -40,7 +40,8 @@ public static Test suite() {
 }
 
 protected void checkParameterAnnotations(String message, String expected, IMethodBinding methodBinding) {
-	int size = methodBinding.getParameterTypes().length;
+	ITypeBinding[] parameterTypes = methodBinding.getParameterTypes();
+	int size = parameterTypes == null ? 0 : parameterTypes.length;
 	StringBuffer buffer = new StringBuffer();
 	for (int i=0; i<size; i++) {
 		buffer.append("----- param ");
@@ -494,6 +495,44 @@ public void testBug214002b() throws CoreException, IOException {
 		"----- param 3-----\n" + 
 		"@LTest~Bar;\n" + 
 		"@LTest~Foo;\n",
+		methodDeclaration.resolveBinding()
+	);
+}
+
+/**
+ * @bug 214647: [dom] NPE in MethodBinding.getParameterAnnotations(..)
+ * @test Ensures that no NPE occurs when parameters have no annotation
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=214647"
+ */
+public void testBug214647() throws CoreException, IOException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
+		"public class Test {\n" + 
+		"	void m(String str) {}\n" + 
+		"}\n"
+	);
+
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
+		"----- param 1-----\n",
+		methodDeclaration.resolveBinding()
+	);
+}
+public void testBug214647b() throws CoreException, IOException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
+		"public class Test {\n" + 
+		"	void m(String str, Object o, int x) {}\n" + 
+		"}\n"
+	);
+
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
+		"----- param 1-----\n" +
+		"----- param 2-----\n" + 
+		"----- param 3-----\n",
 		methodDeclaration.resolveBinding()
 	);
 }
