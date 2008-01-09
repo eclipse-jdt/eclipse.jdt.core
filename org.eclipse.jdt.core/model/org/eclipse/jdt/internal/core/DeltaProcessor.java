@@ -2080,9 +2080,10 @@ public class DeltaProcessor {
 						break;
 					case IResourceDelta.CHANGED:
 						processChildren = isJavaProject;
+						// always add to affected projects
+						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=213723
+						affectedProjects.add(project.getFullPath());
 						if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
-							// project opened or closed: remember  project and its dependents
-							affectedProjects.add(project.getFullPath());
 							if (isJavaProject) {
 								JavaProject javaProject = (JavaProject)JavaCore.create(project);
 								javaProject.updateClasspathMarkers(preferredClasspaths, preferredOutputs); // in case .classpath got modified while closed
@@ -2090,8 +2091,6 @@ public class DeltaProcessor {
 						} else if ((delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
 							boolean wasJavaProject = this.state.findJavaProject(project.getName()) != null;
 							if (wasJavaProject && !isJavaProject) {
-								// project no longer has Java nature, discard Java related obsolete markers
-								affectedProjects.add(project.getFullPath());
 								// flush classpath markers
 								JavaProject javaProject = (JavaProject)JavaCore.create(project);
 								javaProject.
