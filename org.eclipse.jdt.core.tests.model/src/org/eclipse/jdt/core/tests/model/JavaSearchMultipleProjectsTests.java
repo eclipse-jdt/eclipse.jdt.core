@@ -14,11 +14,16 @@ import java.io.IOException;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
+import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.TypeNameMatchCollector;
+import org.eclipse.jdt.core.tests.util.Util;
 
 /**
  * Tests the Java search engine accross multiple projects.
@@ -916,6 +921,63 @@ public void testBug167743() throws CoreException {
 		assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
 	} finally {
 		deleteProject("P");
+	}
+}
+
+/**
+ * @bug 211962: [search] NullPointerException when typing search pattern in open type
+ * @test Ensure that no NPE occurs when an internal JAR file of a non-Java project
+ *		has the same path than an external JAR file which is on a Java project classpath
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=211962"
+ */
+public void testBug211962() throws CoreException, IOException {
+	IPath tmpPath = new Path(getExternalPath()).append("b211962");
+	try {
+		// Create external JAR file
+		tmpPath.toFile().mkdir();
+		IPath externalLibPath = tmpPath.append("lib.jar");
+		String[] pathsAndContents = new String[] {
+			"p/X.java",
+			"package p;\n" +
+			"public class X {}"
+		};
+		Util.createJar(pathsAndContents, externalLibPath.toString(), "1.4");
+
+		// Create simple project with internal JAR file
+		IProject p1 = createProject(tmpPath.segment(0));
+		IPath folderPath = new Path(p1.getName());
+		for (int i=1,max=tmpPath.segmentCount(); i<max; i++) {
+			folderPath = folderPath.append(tmpPath.segment(i));
+			createFolder(folderPath.toString());
+		}
+		IPath internalLibPath = p1.getParent().getLocation().append(folderPath).append("lib.jar");
+		Util.createJar(pathsAndContents, internalLibPath.toString(), "1.4");
+		p1.refreshLocal(IResource.DEPTH_INFINITE, null);
+
+		// Create java project
+		String libPath = externalLibPath.setDevice(null).toString();
+		IJavaProject p2 = createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB", libPath }, "bin");
+
+		// Search all type names with TypeNameMatchRequestor
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			new char[] { 'X' },
+			SearchPattern.R_PREFIX_MATCH,
+			IJavaSearchConstants.TYPE,
+			SearchEngine.createJavaSearchScope(new IJavaElement[] { p2 }),
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		assertSearchResults(
+			"X (not open) [in X.class [in p [in "+libPath+" [in P2]]]]",
+			collector
+		);
+	} finally {
+		Util.delete(tmpPath.toString());
+		deleteProject(tmpPath.segment(0));
+		deleteProject("P2");
 	}
 }
 }

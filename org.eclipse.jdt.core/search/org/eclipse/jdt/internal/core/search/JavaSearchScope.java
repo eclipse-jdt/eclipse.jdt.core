@@ -586,7 +586,9 @@ public IPackageFragmentRoot packageFragmentRoot(String resourcePathString) {
 			}
 			if (target instanceof IResource) {
 				IJavaElement element = JavaCore.create((IResource)target);
-				return (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+				if (element != null) {
+					return (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+				}
 			}
 			if (isJarFile) {
 				return project.getPackageFragmentRoot(this.containerPaths[index]);
