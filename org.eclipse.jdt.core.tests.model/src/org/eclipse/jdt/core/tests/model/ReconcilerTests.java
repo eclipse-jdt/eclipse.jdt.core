@@ -681,6 +681,41 @@ public void testAnnotations4() throws JavaModelException {
 	);
 }
 /*
+ * Ensures that no error is reported if an annotation type's cu starts with a slash
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=214450 )
+ */
+public void testAnnotations5() throws JavaModelException {
+	ICompilationUnit annotation = null;
+	try {
+		setUp15WorkingCopy();
+		annotation = getWorkingCopy(
+			"Reconciler15/src/p1/MyAnnot2.java", 
+			"/* test */\n" +
+			"package p1;\n" +
+			"public @interface MyAnnot2 {\n" +
+			"  String bar();\n" +
+			"}", 
+			this.wcOwner);
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"public class X {\n" +
+			"  @MyAnnot2(bar=\"a\")\n" +
+			"  public void foo() {\n" +
+			"  }\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (annotation != null)
+			annotation.discardWorkingCopy();
+	}
+}
+/*
  * Ensures that the AST broadcasted during a reconcile operation is correct.
  * (case of a working copy being reconciled with changes, creating AST and no problem detection)
  */

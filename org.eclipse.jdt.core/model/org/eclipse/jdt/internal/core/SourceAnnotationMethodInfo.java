@@ -22,8 +22,8 @@ public class SourceAnnotationMethodInfo extends SourceMethodInfo {
 	 * These are {-1, -1} if the method is an annotation method with no default value.
 	 * Otherwise these are the start and end (inclusive) of the expression representing the default value.
 	 */
-	public int defaultValueStart;
-	public int defaultValueEnd;
+	public int defaultValueStart = -1;
+	public int defaultValueEnd = -1;
 	
 	public IMemberValuePair defaultValue;
 
