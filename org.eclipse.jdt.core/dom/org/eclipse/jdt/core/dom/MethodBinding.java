@@ -141,22 +141,25 @@ class MethodBinding implements IMethodBinding {
 			return this.parameterAnnotations[index];
 		}
 		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[][] bindingAnnotations = this.binding.getParameterAnnotations();
-		// bindingAnnoatations is never null as the method has one or several parameters
+		if (bindingAnnotations == null) return AnnotationBinding.NoAnnotations;
+
 		int length = bindingAnnotations.length;
-		this.parameterAnnotations = new AnnotationBinding[length][];
+		IAnnotationBinding[][] domAnnotations = new IAnnotationBinding[length][];
 		for (int i = 0; i < length; i++) {
 			org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] paramBindingAnnotations = bindingAnnotations[i];
 			int pLength = paramBindingAnnotations.length;
-			this.parameterAnnotations[i] = new AnnotationBinding[pLength];
+			domAnnotations[i] = new AnnotationBinding[pLength];
 			for (int j=0; j<pLength; j++) {
 				IAnnotationBinding domAnnotation = this.resolver.getAnnotationInstance(paramBindingAnnotations[j]);
 				if (domAnnotation == null) {
-					this.parameterAnnotations[i] = AnnotationBinding.NoAnnotations;
+					domAnnotations[i] = AnnotationBinding.NoAnnotations;
 					break;
 				}
-				this.parameterAnnotations[i][j] = domAnnotation;
+				domAnnotations[i][j] = domAnnotation;
 			}
 		}
+		this.parameterAnnotations = domAnnotations;
+		
 		return this.parameterAnnotations[index];
 	}
 

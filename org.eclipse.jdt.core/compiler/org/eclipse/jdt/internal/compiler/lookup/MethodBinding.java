@@ -437,7 +437,7 @@ public AnnotationBinding[] getAnnotations() {
 }
 /**
  * @return the annotations for each of the method parameters or <code>null></code>
- * 	if there's no parameter.
+ * 	if there's no parameter or no annotation at all.
  */
 public AnnotationBinding[][] getParameterAnnotations() {
 	int length = this.parameters.length;
@@ -447,24 +447,18 @@ public AnnotationBinding[][] getParameterAnnotations() {
 	MethodBinding originalMethod = this.original();
 	AnnotationHolder holder = originalMethod.declaringClass.retrieveAnnotationHolder(originalMethod, true);
 	AnnotationBinding[][] allParameterAnnotations = holder == null ? null : holder.getParameterAnnotations();
-	if (allParameterAnnotations == null) {
+	if (allParameterAnnotations == null && (this.tagBits & TagBits.HasParameterAnnotations) != 0) {
 		allParameterAnnotations = new AnnotationBinding[length][];
-		if ((this.tagBits & TagBits.HasParameterAnnotations) != 0) {
-			// forward reference to method, where param annotations have not yet been associated to method
-			if (this.declaringClass instanceof SourceTypeBinding) {
-				SourceTypeBinding sourceType = (SourceTypeBinding) this.declaringClass;
-				if (sourceType.scope != null) {
-					AbstractMethodDeclaration methodDecl = sourceType.scope.referenceType().declarationOf(this);
-					for (int i = 0; i < length; i++) {
-						Argument argument = methodDecl.arguments[i];
-						if (argument.annotations != null) {
-							ASTNode.resolveAnnotations(methodDecl.scope, argument.annotations, argument.binding);
-							allParameterAnnotations[i] = argument.binding.getAnnotations();
-						}
-					}
-				} else {
-					for (int i = 0; i < length; i++) {
-						allParameterAnnotations[i] = Binding.NO_ANNOTATIONS;
+		// forward reference to method, where param annotations have not yet been associated to method
+		if (this.declaringClass instanceof SourceTypeBinding) {
+			SourceTypeBinding sourceType = (SourceTypeBinding) this.declaringClass;
+			if (sourceType.scope != null) {
+				AbstractMethodDeclaration methodDecl = sourceType.scope.referenceType().declarationOf(this);
+				for (int i = 0; i < length; i++) {
+					Argument argument = methodDecl.arguments[i];
+					if (argument.annotations != null) {
+						ASTNode.resolveAnnotations(methodDecl.scope, argument.annotations, argument.binding);
+						allParameterAnnotations[i] = argument.binding.getAnnotations();
 					}
 				}
 			} else {
