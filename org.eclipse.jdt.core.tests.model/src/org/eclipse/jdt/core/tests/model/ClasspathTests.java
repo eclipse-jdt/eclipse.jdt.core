@@ -2401,6 +2401,26 @@ public void testExtraAttributes4() throws CoreException {
 		deleteProject("P");
 	}
 }
+/*
+ * Ensures that a marker is removed if adding an internal jar that is on the classpath in another project
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=213723 )
+ */
+public void testFixClasspath() throws CoreException {
+	try {
+		createProject("P1");
+		IJavaProject project = createJavaProject("P2", new String[0], new String[] {"/P1/lib.jar"}, "bin");
+		waitForAutoBuild();
+		
+		createFile("/P1/lib.jar", "");
+		assertMarkers(
+			"Unexpected markers",
+			"",
+			project);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
 /**
  * Test IJavaProject.hasClasspathCycle(IClasspathEntry[]).
  */
