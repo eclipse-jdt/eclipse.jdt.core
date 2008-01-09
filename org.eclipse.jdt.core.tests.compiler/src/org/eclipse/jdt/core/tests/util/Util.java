@@ -311,6 +311,11 @@ public static void createFile(String path, String contents) throws IOException {
         output.close();
     }
 }
+public static void createClassFolder(String[] pathsAndContents, String folderPath, String compliance) throws IOException {
+    File classesDir = new File(folderPath);
+    flushDirectoryContent(classesDir);
+    compile(pathsAndContents, getCompileOptions(compliance), folderPath);
+}
 public static void createJar(String[] pathsAndContents, Map options, String jarPath) throws IOException {
     String classesPath = getOutputDirectory() + File.separator + "classes";
     File classesDir = new File(classesPath);
@@ -319,19 +324,7 @@ public static void createJar(String[] pathsAndContents, Map options, String jarP
     zip(classesDir, jarPath);
 }
 public static void createJar(String[] pathsAndContents, String jarPath, String compliance) throws IOException {
-    Map options = new HashMap();
-    options.put(CompilerOptions.OPTION_Compliance, compliance);
-    options.put(CompilerOptions.OPTION_Source, compliance);
-    options.put(CompilerOptions.OPTION_TargetPlatform, compliance);
-    // Ignore options with new defaults (since bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=76530)
-    options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
-    options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-    options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
-    options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE);
-    options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.IGNORE);
-    options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
-    options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-    createJar(pathsAndContents, options, jarPath);
+    createJar(pathsAndContents, getCompileOptions(compliance), jarPath);
 }
 public static void createSourceZip(String[] pathsAndContents, String zipPath) throws IOException {
     String sourcesPath = getOutputDirectory() + File.separator + "sources";
@@ -614,6 +607,21 @@ public static void flushDirectoryContent(File dir) {
     for (int i = 0, max = files.length; i < max; i++) {
         delete(files[i]);
     }
+}
+private static Map getCompileOptions(String compliance) {
+    Map options = new HashMap();
+    options.put(CompilerOptions.OPTION_Compliance, compliance);
+    options.put(CompilerOptions.OPTION_Source, compliance);
+    options.put(CompilerOptions.OPTION_TargetPlatform, compliance);
+    // Ignore options with new defaults (since bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=76530)
+    options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+    options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+    options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
+    options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE);
+    options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.IGNORE);
+    options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
+    options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+    return options;
 }
 /**
  * Returns the next available port number on the local host.

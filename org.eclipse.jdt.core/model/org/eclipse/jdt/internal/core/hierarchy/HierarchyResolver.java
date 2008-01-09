@@ -53,6 +53,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.core.*;
@@ -71,6 +72,14 @@ public class HierarchyResolver implements ITypeRequestor {
 
 	private int typeIndex;
 	private IGenericType[] typeModels;
+	
+	private static final CompilationUnitDeclaration FakeUnit;
+	static {
+		IErrorHandlingPolicy policy = DefaultErrorHandlingPolicies.exitAfterAllProblems();
+		ProblemReporter problemReporter = new ProblemReporter(policy, new CompilerOptions(), new DefaultProblemFactory());
+		CompilationResult result = new CompilationResult(CharOperation.NO_CHAR, 0, 0, 0);
+		FakeUnit = new CompilationUnitDeclaration(problemReporter, result, 0);
+	}
 	
 public HierarchyResolver(INameEnvironment nameEnvironment, Map settings, HierarchyBuilder builder, IProblemFactory problemFactory) {
 	// create a problem handler with the 'exit after all problems' handling policy
@@ -699,13 +708,21 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 		for (int i = 0; i <= this.typeIndex; i++) {
 			IGenericType suppliedType = this.typeModels[i];
 			if (suppliedType != null && suppliedType.isBinaryType()) {
+				CompilationUnitDeclaration previousUnitBeingCompleted = this.lookupEnvironment.unitBeingCompleted;
 				// fault in its hierarchy...
 				try {
+					// ensure that unitBeingCompleted is set so that we don't get an AbortCompilation for a missing type
+					// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=213249 )
+					if (previousUnitBeingCompleted == null) {
+						this.lookupEnvironment.unitBeingCompleted = FakeUnit;
+					}
 					ReferenceBinding typeBinding = this.typeBindings[i];
 					typeBinding.superclass();
 					typeBinding.superInterfaces();
 				} catch (AbortCompilation e) {
 					// classpath problem for this type: ignore
+				} finally {
+					this.lookupEnvironment.unitBeingCompleted = previousUnitBeingCompleted;
 				}
 			}
 		}		

@@ -271,6 +271,24 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		entries[length] = entry;
 		project.setRawClasspath(entries, null);
 	}
+	protected void addClassFolder(IJavaProject javaProject, String folderRelativePath, String[] pathAndContents, String compliance) throws CoreException, IOException {
+		IProject project = javaProject.getProject();
+		String projectLocation = project.getLocation().toOSString();
+		String folderPath = projectLocation + File.separator + folderRelativePath;
+    	org.eclipse.jdt.core.tests.util.Util.createClassFolder(pathAndContents, folderPath, compliance);
+    	project.refreshLocal(IResource.DEPTH_INFINITE, null);
+		String projectPath = '/' + project.getName() + '/';
+		addLibraryEntry(
+			javaProject,
+			new Path(projectPath + folderRelativePath),
+			null,
+			null,
+			null,
+			null,
+			true
+		);
+		
+	}
 	protected void addLibrary(String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
 		addLibrary(this.currentProject, jarName, sourceZipName, pathAndContents, null, null, compliance);
 	}
