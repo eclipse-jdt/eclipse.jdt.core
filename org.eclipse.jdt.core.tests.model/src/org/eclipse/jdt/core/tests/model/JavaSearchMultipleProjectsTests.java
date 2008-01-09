@@ -924,6 +924,68 @@ public void testBug167743() throws CoreException {
 }
 
 /**
+ * @bug 176831: [search] No search results due to malformed search scope
+ * @test Verify that type are found in rt.jar even if it's added as a library on the classpath
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=176831"
+ */
+public void testBug176831() throws CoreException {
+	try {
+		// Create projects and files
+		final IJavaProject p1 = createJavaProject("P1", new String[] {"src"}, null, new String[] {"/P2"}, "bin");
+		final IJavaProject p2 = createJavaProject("P2", new String[] {"src"}, new String[] { getExternalJCLPathString() }, "bin");
+		
+		// Create scope and search
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p1, p2 }, IJavaSearchScope.SOURCES | IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.REFERENCED_PROJECTS);
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		resultCollector.showAccuracy = true;
+		new SearchEngine().search(
+			SearchPattern.createPattern("toString", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_EXACT_MATCH),
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			scope,
+			resultCollector,
+			null
+		);
+		assertSearchResults(
+			"Unexpected references to /P1/p/A.java",
+			""+ getExternalJCLPathString() + " [in P2] java.lang.String java.lang.Object.toString() EXACT_MATCH",
+			resultCollector);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+public void testBug176831b() throws CoreException {
+	try {
+		// Create projects and files
+		final IJavaProject p1 = createJavaProject("P1", new String[] {"src"}, null, new String[] {"/P2"}, "bin");
+		final IJavaProject p2 = createJavaProject("P2", new String[] {"src"}, null, new String[] {"/P3"}, "bin");
+		final IJavaProject p3 = createJavaProject("P3", new String[] {"src"}, new String[] { getExternalJCLPathString() }, "bin");
+		
+		// Create scope and search
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p1, p2, p3 }, IJavaSearchScope.SOURCES | IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.REFERENCED_PROJECTS);
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		resultCollector.showAccuracy = true;
+		new SearchEngine().search(
+			SearchPattern.createPattern("toString", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_EXACT_MATCH),
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			scope,
+			resultCollector,
+			null
+		);
+		assertSearchResults(
+			"Unexpected references to /P1/p/A.java",
+			""+ getExternalJCLPathString() + " [in P3] java.lang.String java.lang.Object.toString() EXACT_MATCH",
+			resultCollector);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+		deleteProject("P3");
+	}
+}
+
+/**
  * @bug 195228: [search] Invalid path in open type dialog
  * @test Verify that correct types are found even with project and source folders in the classpath
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=195228"

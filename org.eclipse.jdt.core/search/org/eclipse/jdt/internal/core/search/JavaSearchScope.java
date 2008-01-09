@@ -121,7 +121,13 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 		if (referringEntry != null) {
 			// Add only exported entries.
 			// Source folder are implicitly exported.
-			if (!entry.isExported() && entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) continue;
+			if (!entry.isExported() && entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) {
+				// Need to remove the project from visited projects list to be sure
+				// not to skip library when the project will be added as a top level.
+				// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=176831
+				visitedProjects.remove(project);
+				continue;
+			}
 			cpEntry = cpEntry.combineWith((ClasspathEntry)referringEntry);
 //				cpEntry = ((ClasspathEntry)referringEntry).combineWith(cpEntry);
 		}
