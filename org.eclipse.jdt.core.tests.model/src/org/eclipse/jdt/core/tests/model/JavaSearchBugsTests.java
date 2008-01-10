@@ -9450,4 +9450,50 @@ public void testBug211872_ws() throws CoreException, IOException {
 	}
 }
 
+/**
+ * @bug 181981: [model] Linked Source Folders with Parallel package structure do not work with occurrences
+ * @test Ensure that source folder nesting doesn't cause non existing elements to be returned
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=181981"
+ */
+public void testBug181981() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.4");
+		createFolder("/P/p1");
+		createFile(
+			"/P/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"  public void foo() {}\n" +
+			"}"
+		);
+		createFile(
+			"/P/p1/Y.java",
+			"package p1;\n" +
+			"public class Y {\n" +
+			"  public void bar(X x) {\n" +
+			"    x.foo();\n" +
+			"  }\n" +
+			"}"
+		);
+		createFolder("/P/src/p2");
+		createFile(
+			"/P/src/p2/Z.java",
+			"package p2;\n" +
+			"public class Z {\n" +
+			"  public void bar(p1.X x) {\n" +
+			"    x.foo();\n" +
+			"  }\n" +
+			"}"
+		);
+		IMethod method = getCompilationUnit("/P/p1/X.java").getType("X").getMethod("foo", new String[0]);
+		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
+		assertSearchResults(
+			"p1/Y.java void p1.Y.bar(X) [foo()] EXACT_MATCH\n" + 
+			"src/p2/Z.java void p2.Z.bar(p1.X) [foo()] EXACT_MATCH"
+		);
+	}
+	finally {
+		deleteProject("P");
+	}
+}
 }

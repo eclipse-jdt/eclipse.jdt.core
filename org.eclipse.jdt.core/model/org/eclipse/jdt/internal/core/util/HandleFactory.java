@@ -56,7 +56,7 @@ public class HandleFactory {
 	 * Cache package fragment root information to optimize speed performance.
 	 */
 	private String lastPkgFragmentRootPath;
-	private IPackageFragmentRoot lastPkgFragmentRoot;
+	private PackageFragmentRoot lastPkgFragmentRoot;
 
 	/**
 	 * Cache package handles to optimize memory.
@@ -90,7 +90,7 @@ public class HandleFactory {
 					|| (rootPathLength = this.lastPkgFragmentRootPath.length()) != resourcePath.length()
 					|| !resourcePath.regionMatches(0, this.lastPkgFragmentRootPath, 0, rootPathLength)) {
 				String jarPath= resourcePath.substring(0, separatorIndex);
-				IPackageFragmentRoot root= this.getJarPkgFragmentRoot(jarPath, scope);
+				PackageFragmentRoot root= getJarPkgFragmentRoot(jarPath, scope);
 				if (root == null)
 					return null; // match is outside classpath
 				this.lastPkgFragmentRootPath= jarPath;
@@ -110,7 +110,7 @@ public class HandleFactory {
 			}
 			IPackageFragment pkgFragment= (IPackageFragment) this.packageHandles.get(pkgName);
 			if (pkgFragment == null) {
-				pkgFragment= ((PackageFragmentRoot) this.lastPkgFragmentRoot).getPackageFragment(pkgName);
+				pkgFragment= this.lastPkgFragmentRoot.getPackageFragment(pkgName);
 				this.packageHandles.put(pkgName, pkgFragment);
 			}
 			IClassFile classFile= pkgFragment.getClassFile(simpleNames[length]);
@@ -121,9 +121,10 @@ public class HandleFactory {
 			int rootPathLength = -1;
 			if (this.lastPkgFragmentRootPath == null 
 				|| !(resourcePath.startsWith(this.lastPkgFragmentRootPath) 
+					&& !org.eclipse.jdt.internal.compiler.util.Util.isExcluded(resourcePath.toCharArray(), this.lastPkgFragmentRoot.fullInclusionPatternChars(), this.lastPkgFragmentRoot.fullExclusionPatternChars(), false)
 					&& (rootPathLength = this.lastPkgFragmentRootPath.length()) > 0
 					&& resourcePath.charAt(rootPathLength) == '/')) {
-				IPackageFragmentRoot root= this.getPkgFragmentRoot(resourcePath);
+				PackageFragmentRoot root= getPkgFragmentRoot(resourcePath);
 				if (root == null)
 					return null; // match is outside classpath
 				this.lastPkgFragmentRoot = root;
@@ -143,7 +144,7 @@ public class HandleFactory {
 			}
 			IPackageFragment pkgFragment= (IPackageFragment) this.packageHandles.get(pkgName);
 			if (pkgFragment == null) {
-				pkgFragment= ((PackageFragmentRoot) this.lastPkgFragmentRoot).getPackageFragment(pkgName);
+				pkgFragment= this.lastPkgFragmentRoot.getPackageFragment(pkgName);
 				this.packageHandles.put(pkgName, pkgFragment);
 			}
 			String simpleName= simpleNames[length];
@@ -247,7 +248,7 @@ public class HandleFactory {
 	 * See createOpenable(...) for the format of the jar path string.
 	 * If not null, uses the given scope as a hint for getting Java project handles.
 	 */
-	private IPackageFragmentRoot getJarPkgFragmentRoot(String jarPathString, IJavaSearchScope scope) {
+	private PackageFragmentRoot getJarPkgFragmentRoot(String jarPathString, IJavaSearchScope scope) {
 
 		IPath jarPath= new Path(jarPathString);
 		
@@ -261,7 +262,7 @@ public class HandleFactory {
 			try {
 				IClasspathEntry entry = javaProject.getClasspathEntryFor(jarPath);
 				if (entry != null) {
-					return javaProject.getPackageFragmentRoot(jarFile);
+					return (PackageFragmentRoot) javaProject.getPackageFragmentRoot(jarFile);
 				}
 			} catch (JavaModelException e) {
 				// ignore and try to find another project
@@ -284,7 +285,7 @@ public class HandleFactory {
 			if (index < length) {
 				System.arraycopy(projects, 0, projects = new IJavaProject[index], 0, index);
 			}
-			IPackageFragmentRoot root = getJarPkgFragmentRoot(jarPath, target, projects);
+			PackageFragmentRoot root = getJarPkgFragmentRoot(jarPath, target, projects);
 			if (root != null) {
 				return root;
 			}
@@ -300,7 +301,7 @@ public class HandleFactory {
 		return getJarPkgFragmentRoot(jarPath, target, projects);
 	}
 	
-	private IPackageFragmentRoot getJarPkgFragmentRoot(
+	private PackageFragmentRoot getJarPkgFragmentRoot(
 		IPath jarPath,
 		Object target,
 		IJavaProject[] projects) {
@@ -311,14 +312,14 @@ public class HandleFactory {
 				if (classpathEnty != null) {
 					if (target instanceof IFile) {
 						// internal jar
-						return javaProject.getPackageFragmentRoot((IFile)target);
+						return (PackageFragmentRoot) javaProject.getPackageFragmentRoot((IFile)target);
 					} else {
 						// external jar
-						return javaProject.getPackageFragmentRoot0(jarPath);
+						return (PackageFragmentRoot) javaProject.getPackageFragmentRoot0(jarPath);
 					}
 				}
 			} catch (JavaModelException e) {
-				// JavaModelException from getResolvedClasspath - a problem occured while accessing project: nothing we can do, ignore
+				// JavaModelException from getResolvedClasspath - a problem occurred while accessing project: nothing we can do, ignore
 			}
 		}
 		return null;
@@ -327,7 +328,7 @@ public class HandleFactory {
 	/**
 	 * Returns the package fragment root that contains the given resource path.
 	 */
-	private IPackageFragmentRoot getPkgFragmentRoot(String pathString) {
+	private PackageFragmentRoot getPkgFragmentRoot(String pathString) {
 
 		IPath path= new Path(pathString);
 		IProject[] projects= ResourcesPlugin.getWorkspace().getRoot().getProjects();
