@@ -157,6 +157,8 @@ public class Scanner implements TerminalTokens {
 	protected int nlsTagsPtr;
 	public boolean checkNonExternalizedStringLiterals;
 	
+	protected int lastPosistion;
+	
 	// generic support
 	public boolean returnOnlyGreater = false;
 	
@@ -1507,7 +1509,8 @@ public int getNextToken() throws InvalidInputException {
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
-									if (this.checkNonExternalizedStringLiterals) {
+									if (this.checkNonExternalizedStringLiterals &&
+											this.lastPosistion < this.currentPosition) {
 										parseTags();
 									}
 									if (this.recordLineSeparator) {
@@ -1525,7 +1528,8 @@ public int getNextToken() throws InvalidInputException {
 								this.currentPosition--;
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
-								if (this.checkNonExternalizedStringLiterals) {
+								if (this.checkNonExternalizedStringLiterals &&
+										this.lastPosistion < this.currentPosition) {
 									parseTags();
 								}
 								if (this.tokenizeComments) {
@@ -1951,7 +1955,8 @@ public final void jumpOverMethodBody() {
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.recordLineSeparator
 									&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
-										if (this.checkNonExternalizedStringLiterals) {
+										if (this.checkNonExternalizedStringLiterals &&
+												this.lastPosistion < this.currentPosition) {
 											parseTags();
 										}
 										if (this.recordLineSeparator) {
@@ -1966,7 +1971,8 @@ public final void jumpOverMethodBody() {
 								 //an eof will then be generated
 								this.currentPosition--;
 								recordComment(TokenNameCOMMENT_LINE);
-								if (this.checkNonExternalizedStringLiterals) {
+								if (this.checkNonExternalizedStringLiterals &&
+										this.lastPosistion < this.currentPosition) {
 									parseTags();
 								}
 								if (!this.tokenizeComments) {

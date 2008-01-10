@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.util.HashSetOfInt;
 
 public class CompilationUnitDeclaration
 	extends ASTNode
@@ -69,6 +70,7 @@ public class CompilationUnitDeclaration
 	public NLSTag[] nlsTags;
 	private StringLiteral[] stringLiterals;
 	private int stringLiteralsPtr;
+	private HashSetOfInt stringLiteralsStart;
 
 	long[] suppressWarningIrritants;  // irritant for suppressed warnings
 	Annotation[] suppressWarningAnnotations;
@@ -434,7 +436,20 @@ public class CompilationUnitDeclaration
 		}
 	}
 
-	public void recordStringLiteral(StringLiteral literal) {
+	public void recordStringLiteral(StringLiteral literal, boolean fromRecovery) {
+		if (this.stringLiteralsStart != null) {
+			if (this.stringLiteralsStart.contains(literal.sourceStart)) return;
+			this.stringLiteralsStart.add(literal.sourceStart);
+		} else if (fromRecovery) {
+			this.stringLiteralsStart = new HashSetOfInt(stringLiteralsPtr + STRING_LITERALS_INCREMENT);
+			for (int i = 0; i < this.stringLiteralsPtr; i++) {
+				this.stringLiteralsStart.add(this.stringLiterals[i].sourceStart);
+			}
+			
+			if (this.stringLiteralsStart.contains(literal.sourceStart)) return;
+			this.stringLiteralsStart.add(literal.sourceStart);
+		}
+		
 		if (this.stringLiterals == null) {
 			this.stringLiterals = new StringLiteral[STRING_LITERALS_INCREMENT];
 			this.stringLiteralsPtr = 0;

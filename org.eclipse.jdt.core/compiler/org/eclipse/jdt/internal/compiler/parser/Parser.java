@@ -183,6 +183,8 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	public boolean reportSyntaxErrorIsRequired = true;
 	protected boolean restartRecovery;
 	
+	protected int lastPosistion;
+	
 	// statement recovery
 //	public boolean statementRecoveryEnabled = true;
 	public boolean methodRecoveryActivated = false;
@@ -7442,13 +7444,16 @@ protected void consumeToken(int type) {
 			break;
 		case TokenNameStringLiteral :
 			StringLiteral stringLiteral;
-			if (this.recordStringLiterals && this.checkExternalizeStrings && !this.statementRecoveryActivated) {
+			if (this.recordStringLiterals &&
+					this.checkExternalizeStrings &&
+					this.lastPosistion < this.scanner.currentPosition &&
+					!this.statementRecoveryActivated) {
 				stringLiteral = this.createStringLiteral(
 					this.scanner.getCurrentTokenSourceString(), 
 					this.scanner.startPosition, 
 					this.scanner.currentPosition - 1,
 					Util.getLineNumber(this.scanner.startPosition, this.scanner.lineEnds, 0, this.scanner.linePtr));
-				this.compilationUnit.recordStringLiteral(stringLiteral);
+				this.compilationUnit.recordStringLiteral(stringLiteral, this.currentElement != null);
 			} else {
 				stringLiteral = this.createStringLiteral(
 					this.scanner.getCurrentTokenSourceString(), 
@@ -8787,6 +8792,7 @@ public void initialize(boolean initializeNLS) {
 	final boolean checkNLS = this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore;
 	this.checkExternalizeStrings = checkNLS;
 	this.scanner.checkNonExternalizedStringLiterals = initializeNLS && checkNLS;
+	this.scanner.lastPosistion = -1;
 
 	resetModifiers();
 
@@ -8802,6 +8808,7 @@ public void initialize(boolean initializeNLS) {
 	this.lastJavadocEnd = -1;
 	this.listLength = 0;
 	this.listTypeParameterLength = 0;
+	this.lastPosistion = -1;
 	
 	this.rBraceStart = 0;
 	this.rBraceEnd = 0;
@@ -9125,7 +9132,12 @@ protected void parse() {
 			
 		} else if (act > ERROR_ACTION) { /* shift-reduce */
 			consumeToken(this.currentToken);
-			if (this.currentElement != null) this.recoveryTokenCheck();
+			if (this.currentElement != null) {
+				boolean oldValue = this.recordStringLiterals;
+				this.recordStringLiterals = false;
+				this.recoveryTokenCheck();
+				this.recordStringLiterals = oldValue;
+			}
 			try {
 				this.currentToken = this.scanner.getNextToken();
 			} catch(InvalidInputException e){
@@ -9148,7 +9160,12 @@ protected void parse() {
 		} else {
 		    if (act < ACCEPT_ACTION) { /* shift */
 				consumeToken(this.currentToken);
-				if (this.currentElement != null) this.recoveryTokenCheck();
+				if (this.currentElement != null) {
+					boolean oldValue = this.recordStringLiterals;
+					this.recordStringLiterals = false;
+					this.recoveryTokenCheck();
+					this.recordStringLiterals = oldValue;
+				}
 				try{
 					this.currentToken = this.scanner.getNextToken();
 				} catch(InvalidInputException e){
@@ -10059,6 +10076,19 @@ public void recoveryExitFromVariable() {
  */
 public void recoveryTokenCheck() {
 	switch (this.currentToken) {
+		case TokenNameStringLiteral :
+			if (this.recordStringLiterals &&
+					this.checkExternalizeStrings &&
+					this.lastPosistion < this.scanner.currentPosition &&
+					!this.statementRecoveryActivated) {
+				StringLiteral stringLiteral = this.createStringLiteral(
+					this.scanner.getCurrentTokenSourceString(), 
+					this.scanner.startPosition, 
+					this.scanner.currentPosition - 1,
+					Util.getLineNumber(this.scanner.startPosition, this.scanner.lineEnds, 0, this.scanner.linePtr));
+				this.compilationUnit.recordStringLiteral(stringLiteral, this.currentElement != null);
+			}
+			break;
 		case TokenNameLBRACE : 
 			RecoveredElement newElement = null;
 			if(!this.ignoreNextOpeningBrace) {
@@ -10246,9 +10276,7 @@ protected boolean resumeAfterRecovery() {
 		return false;
 	}
 }
-protected boolean resumeOnSyntaxError() {
-	this.checkExternalizeStrings = false;
-	this.scanner.checkNonExternalizedStringLiterals = false;
+protected boolean resumeOnSyntaxError() {	
 	/* request recovery initialization */
 	if (this.currentElement == null){
 		// Reset javadoc before restart parsing after recovery
@@ -10269,6 +10297,11 @@ protected boolean resumeOnSyntaxError() {
 	}
 	/* update recovery state with current error state of the parser */
 	this.updateRecoveryState();
+	
+	if (this.lastPosistion < this.scanner.currentPosition) {
+		this.lastPosistion = this.scanner.currentPosition;
+		this.scanner.lastPosistion = this.scanner.currentPosition;
+	}
 	
 	/* attempt to reset state in order to resume to parse loop */
 	return this.resumeAfterRecovery();

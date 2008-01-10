@@ -548,6 +548,193 @@ public void test017() {
 		false,
 		true);	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=213692
+public void test018() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	#\n" +
+			"	String s1= \"1\"; //$NON-NLS-1$\n" +
+			"	public void foo() {\n" +
+			"		String s2= \"2\"; //$NON-NLS-1$\n" +
+			"	}\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	#\n" + 
+		"	^\n" + 
+		"Syntax error on token \"Invalid Character\", delete this token\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions,
+		false,
+		false,
+		false,
+		false,
+		true);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=213692
+public void test019() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	String s1= \"1\"; //$NON-NLS-1$\n" +
+			"	#\n" +
+			"	public void foo() {\n" +
+			"		String s2= \"2\"; //$NON-NLS-1$\n" +
+			"	}\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	#\n" + 
+		"	^\n" + 
+		"Syntax error on token \"Invalid Character\", delete this token\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions,
+		false,
+		false,
+		false,
+		false,
+		true);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=213692
+public void test020() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	String s1= \"1\"; //$NON-NLS-1$\n" +
+			"	public void foo() {\n" +
+			"		#\n" +
+			"		String s2= \"2\"; //$NON-NLS-1$\n" +
+			"	}\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	#\n" + 
+		"	^\n" + 
+		"Syntax error on token \"Invalid Character\", delete this token\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions,
+		false,
+		false,
+		false,
+		false,
+		true);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=213692
+public void test021() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	String s1= \"1\"; //$NON-NLS-1$\n" +
+			"	public void foo() {\n" +
+			"		String s2= \"2\"; //$NON-NLS-1$\n" +
+			"		#\n" +
+			"	}\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	#\n" + 
+		"	^\n" + 
+		"Syntax error on token \"Invalid Character\", delete this token\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions,
+		false,
+		false,
+		false,
+		false,
+		true);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=213692
+public void test022() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	#\n" +
+			"	String s1= \"1\"; //$NON-NLS-1$\n" +
+			"	public void foo() {\n" +
+			"		#\n" +
+			"		String s2= \"2\"; //$NON-NLS-1$\n" +
+			"	}\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	#\n" + 
+		"	^\n" + 
+		"Syntax error on token \"Invalid Character\", delete this token\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	#\n" + 
+		"	^\n" + 
+		"Syntax error on token \"Invalid Character\", delete this token\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions,
+		false,
+		false,
+		false,
+		false,
+		true);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=213692
+public void test023() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        public String toString() {\n" + 
+			"                StringBuffer output = new StringBuffer(10);\n" + 
+			"                output.append(this != null) ? null : \"<no type>\"); //$NON-NLS-1$\n" + 
+			"                output.append(\" \"); //$NON-NLS-1$\n" + 
+			"                return output.toString();\n" + 
+			"        }       \n" + 
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	output.append(this != null) ? null : \"<no type>\"); //$NON-NLS-1$\n" + 
+		"	                          ^\n" + 
+		"Syntax error on token \")\", delete this token\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions,
+		false,
+		false,
+		false,
+		false,
+		true);	
+}
 public static Class testClass() {
 	return ExternalizeStringLiteralsTest.class;
 }
