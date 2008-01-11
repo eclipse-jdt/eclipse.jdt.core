@@ -289,6 +289,23 @@ protected void assumeEquals(String msg, int expected, int actual) {
 }
 
 /**
+ * Same method as {@link #assertEquals(String, long, long)} if the flag
+ * {@link #abortOnFailure} has been set to <code>true</code>.
+ * Otherwise, the thrown exception {@link AssertionFailedError} is caught
+ * and its message is only displayed in the console hence producing no JUnit failure.
+ */
+protected void assumeEquals(String msg, long expected, long actual) {
+	try {
+		assertEquals(msg, expected, actual);
+	} catch (AssertionFailedError afe) {
+		if (abortOnFailure) {
+			throw afe;
+		}
+		printAssertionFailure(afe);
+	}
+}
+
+/**
  * Same method as {@link #assertTrue(String, boolean)} if the flag
  * {@link #abortOnFailure} has been set to <code>true</code>.
  * Otherwise, the thrown exception {@link AssertionFailedError} is caught
