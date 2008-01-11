@@ -3,10 +3,16 @@ package org.eclipse.jdt.apt.pluggable.tests;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
+import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
+import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -64,6 +70,26 @@ public class TestBase extends BuilderTests
 		final IJavaProject javaProj = env.getJavaProject(projectPath);
 		addAnnotationJar(javaProj);
 		return javaProj;
+	}
+	
+	/**
+	 * Ensure that there are no Java 5 processors on the factory path, as they can cause
+	 * units to be multiply compiled, which can mess up tests that expect a certain number
+	 * of compilations to occur.
+	 * @param jproj the project whose factory path will be edited
+	 * @throws CoreException
+	 */
+	protected void disableJava5Factories(IJavaProject jproj) throws CoreException {
+		FactoryPath fp = (FactoryPath) AptConfig.getFactoryPath(jproj);
+		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : fp.getAllContainers().entrySet()) {
+			if (entry.getKey().getType() == FactoryType.PLUGIN) {
+				String id = entry.getKey().getId();
+				if (!Apt6TestsPlugin.PLUGIN_ID.equals(id)) {
+					fp.disablePlugin(id);
+				}
+			}
+		}
+		AptConfig.setFactoryPath(jproj, fp);
 	}
 	
 	/**

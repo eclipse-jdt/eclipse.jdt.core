@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2008 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,7 +88,7 @@ public class IdeFilerImpl implements Filer {
 		if ( relativeName.length() == 0) {
 			throw new IllegalArgumentException("Relative name is zero length");
 		}
-		IFile file = getOutputFileForLocation(location, pkg, relativeName);
+		IFile file = getFileFromOutputLocation(location, pkg, relativeName);
 		
 		//TODO: check whether file has already been generated in this run
 		Set<IFile> parentFiles = new HashSet<IFile>(originatingElements.length);
@@ -127,12 +127,15 @@ public class IdeFilerImpl implements Filer {
 
 	/* (non-Javadoc)
 	 * @see javax.annotation.processing.Filer#getResource(javax.tools.JavaFileManager.Location, java.lang.CharSequence, java.lang.CharSequence)
+	 * Returns a FileObject representing the specified resource.  The only supported locations
+	 * are CLASS_OUTPUT and SOURCE_OUTPUT.
 	 */
 	@Override
 	public FileObject getResource(Location location, CharSequence pkg, CharSequence relativeName)
-			throws IOException {
-		//TODO
-		throw new UnsupportedOperationException("Reading resource files is not yet implemented"); //$NON-NLS-1$
+			throws IOException 
+	{
+		IFile file = getFileFromOutputLocation(location, pkg, relativeName);
+		return new IdeInputFileObject(file);
 	}
 
     /**
@@ -142,7 +145,7 @@ public class IdeFilerImpl implements Filer {
      * @param relPath must be non-null and non-empty.
      * @throws IOException if the path is not valid.
      */
-    protected IFile getOutputFileForLocation( Location loc, CharSequence pkg, CharSequence relPath )
+    protected IFile getFileFromOutputLocation( Location loc, CharSequence pkg, CharSequence relPath )
     	throws IOException
     {
     	GeneratedSourceFolderManager gsfm = _env.getAptProject().getGeneratedSourceFolderManager();

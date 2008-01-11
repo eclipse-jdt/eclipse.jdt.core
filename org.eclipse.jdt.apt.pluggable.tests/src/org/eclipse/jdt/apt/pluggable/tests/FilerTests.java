@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc.
+ * Copyright (c) 2007, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,18 +11,19 @@
 
 package org.eclipse.jdt.apt.pluggable.tests;
 
-import java.util.Map;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
-import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
-import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.pluggable.tests.processors.filertester.FilerTesterProc;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.builder.Problem;
@@ -104,17 +105,7 @@ public class FilerTests extends TestBase
 		IProject proj = jproj.getProject();
 		IdeTestUtils.copyResources(proj, "targets/filer02a", "src/targets/filer");
 		
-		// Make sure that there are no Java 5 processors on the factory path - see comment below.
-		FactoryPath fp = (FactoryPath) AptConfig.getFactoryPath(jproj);
-		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : fp.getAllContainers().entrySet()) {
-			if (entry.getKey().getType() == FactoryType.PLUGIN) {
-				String id = entry.getKey().getId();
-				if (!Apt6TestsPlugin.PLUGIN_ID.equals(id)) {
-					fp.disablePlugin(id);
-				}
-			}
-		}
-		AptConfig.setFactoryPath(jproj, fp);
+		disableJava5Factories(jproj);
 		AptConfig.setEnabled(jproj, true);
 		fullBuild();
 		expectingNoProblems();
@@ -140,38 +131,67 @@ public class FilerTests extends TestBase
 		expectingNoFile(proj, ".apt_generated/gen6/Generated02.java");
 	}
 	
-	// Temporarily disabled, functionality not yet implemented
-	public void _testGetResource01() throws Throwable {
+	/**
+	 * Call FilerTesterProc.testGetResource01(), which checks getResource() in SOURCE_OUTPUT location
+	 */
+	public void testGetResource01() throws Throwable {
 		ProcessorTestStatus.reset();
 		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
 		IProject proj = jproj.getProject();
 		IPath projPath = proj.getFullPath();
 		
 		env.addClass(projPath.append("src"), "p", "Trigger",
 				"package p;\n" +
 				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testGetResource01\", arg0 = \"src/p\", arg1 = \"Trigger.java\")" +
+				"@FilerTestTrigger(test = \"testGetResource01\", arg0 = \"g\", arg1 = \"Test.java\")" +
 				"public class Trigger {\n" +
 				"}"
 			); 
 		
-		// Make sure that there are no Java 5 processors on the factory path - see comment below.
-		FactoryPath fp = (FactoryPath) AptConfig.getFactoryPath(jproj);
-		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : fp.getAllContainers().entrySet()) {
-			if (entry.getKey().getType() == FactoryType.PLUGIN) {
-				String id = entry.getKey().getId();
-				if (!Apt6TestsPlugin.PLUGIN_ID.equals(id)) {
-					fp.disablePlugin(id);
-				}
-			}
-		}
-		AptConfig.setFactoryPath(jproj, fp);
 		AptConfig.setEnabled(jproj, true);
+		
+		// FilerTesterProc looks for the existence and contents of this class:
+		env.addClass(projPath.append(".apt_generated"), "g", "Test",
+				FilerTesterProc.resource01FileContents);
+
 		fullBuild();
 		expectingNoProblems();
 		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 
+	/**
+	 * Call FilerTesterProc.testGetResource02(), which checks getResource() in CLASS_OUTPUT location
+	 */
+	public void testGetResource02() throws Throwable {
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+		
+		env.addClass(projPath.append("src"), "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testGetResource02\", arg0 = \"t\", arg1 = \"Test.txt\")" +
+				"public class Trigger {\n" +
+				"}"
+			); 
+		
+		AptConfig.setEnabled(jproj, true);
+		
+		// FilerTesterProc looks for the existence and contents of this file after it is copied to the output folder:
+		IFolder textFileFolder = proj.getFolder("src/t");
+		textFileFolder.create(false, true, null);
+		IFile textFile = proj.getFile(textFileFolder.getProjectRelativePath().append("Test.txt"));
+		InputStream textSource = new ByteArrayInputStream(FilerTesterProc.resource02FileContents.getBytes());
+		textFile.create(textSource, false, null);
+
+		fullBuild();
+		expectingNoProblems();
+		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
+		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
+	}
 
 }
