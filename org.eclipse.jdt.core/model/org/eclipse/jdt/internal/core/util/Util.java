@@ -1045,7 +1045,10 @@ public class Util {
 		if (location == null) {
 			// non local file
 			try {
-				length = EFS.getStore(file.getLocationURI()).fetchInfo().getLength();
+				URI locationURI = file.getLocationURI();
+				if (locationURI == null)
+					throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Messages.bind(Messages.file_notFound, file.getFullPath().toString())));
+				length = EFS.getStore(locationURI).fetchInfo().getLength();
 			} catch (CoreException e) {
 				throw new JavaModelException(e);
 			}

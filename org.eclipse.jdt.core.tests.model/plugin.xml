@@ -63,5 +63,14 @@
        <requires id="non.existing"/>
     </compilationParticipant>
 	 </extension>
+  <extension
+        point="org.eclipse.core.filesystem.filesystems">
+     <filesystem
+           scheme="jdt.core.test">
+        <run
+              class="org.eclipse.jdt.core.tests.model.TestFileSystem">
+        </run>
+     </filesystem>
+  </extension>
 	
 </plugin>

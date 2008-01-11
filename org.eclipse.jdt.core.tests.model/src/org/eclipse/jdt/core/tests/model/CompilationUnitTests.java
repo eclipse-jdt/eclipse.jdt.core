@@ -11,7 +11,12 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
@@ -1170,6 +1175,32 @@ public void testGetContentsForNotPresent() {
 	
 	assertSourceEquals("Unexpected contents for non present cu", "", new String(compilationUnit.getContents()));
 }
+/*
+ * Ensures that getContents() doesn't throw a NullPointerException for a non-existing cu on a remote file system
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=213427 )
+ */
+public void testGetContentsForNotPresentRemote() throws CoreException, URISyntaxException {
+	IWorkspace workspace = getWorkspace();
+	IProject project = workspace.getRoot().getProject("Foo");
+	try {
+		IProjectDescription description = workspace.newProjectDescription("Foo");
+		description.setLocationURI(new URI("jdt.core.test:///foo"));
+		project.create(description, null);
+		CompilationUnit remoteCU = (CompilationUnit) getCompilationUnit("/Foo/X.java");
+		Exception actual = null;
+		try {
+			remoteCU.getContents();
+		} catch (Exception e) {
+			actual = e;
+		}
+		assertExceptionEquals(
+			"Unexpected exception", 
+			"<null>",
+			actual);
+	} finally {
+		project.delete(true, null);
+	}
+ }
 /**
  * Tests Java element retrieval via source position 
  */
