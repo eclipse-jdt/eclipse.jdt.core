@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,6 @@ protected File file;
 protected ZipFile zipFile;
 protected boolean closeZipFileAtEnd;
 protected Hashtable packageCache;
-protected char[] normalizedPath;
 
 public ClasspathJar(File file, boolean closeZipFileAtEnd, 
 		AccessRuleSet accessRuleSet, String destinationPath) {
@@ -133,7 +132,7 @@ public String toString() {
 }
 public char[] normalizedPath() {
 	if (this.normalizedPath == null) {
-		char[] rawName = this.file.getPath().toCharArray();
+		char[] rawName = this.file.getAbsolutePath().toCharArray();
 		if (File.separatorChar == '\\') {
 			CharOperation.replace(rawName, '\\', '/');
 		}
@@ -142,6 +141,9 @@ public char[] normalizedPath() {
 	return this.normalizedPath;
 }
 public String getPath(){
-	return this.file.getPath();
+	if (this.path == null) {
+		this.path = this.file.getAbsolutePath();
+	}
+	return this.path;
 }
 }

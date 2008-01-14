@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,8 +24,10 @@ import junit.framework.Test;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.batch.ClasspathJar;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -7981,6 +7983,21 @@ public void test217_warn_options() {
 		"----------\n" + 
 		"1 problem (1 warning)",
 		false);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=214731
+// white-box test for internal API
+public void test218_batch_classpath_apis() {
+	assertFalse("path should be absolute", 
+		new ClasspathJar(new File("relative.jar"), true, null, null).
+		getPath().indexOf(File.separator) == -1);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=214731
+// white-box test for internal API
+public void test219_batch_classpath_apis() {
+	assertFalse("path should be absolute", 
+		CharOperation.indexOf('/', 
+			new ClasspathJar(new File("relative.jar"), true, null, null).
+			normalizedPath()) == -1);
 }
 public static Class testClass() {
 	return BatchCompilerTest.class;

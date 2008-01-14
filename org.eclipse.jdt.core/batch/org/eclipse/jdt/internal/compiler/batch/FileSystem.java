@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,9 +36,12 @@ public class FileSystem implements INameEnvironment, SuffixConstants {
 		 */
 		void reset();
 		/**
-		 * Return a normalized path for file based classpath entries. This is an absolute path
-		 * ending with a file separator for directories, an absolute path deprived from the '.jar'
-		 * (resp. '.zip') extension for jar (resp. zip) files.
+		 * Return a normalized path for file based classpath entries. This is an
+		 * absolute path in which file separators are transformed to the
+		 * platform-agnostic '/', ending with a '/' for directories. This is an 
+		 * absolute path in which file separators are transformed to the
+		 * platform-agnostic '/', deprived from the '.jar' (resp. '.zip') 
+		 * extension for jar (resp. zip) files.
 		 * @return a normalized path for file based classpath entries
 		 */
 		char[] normalizedPath();
