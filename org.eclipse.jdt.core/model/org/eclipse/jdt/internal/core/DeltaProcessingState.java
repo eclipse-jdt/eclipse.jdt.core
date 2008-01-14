@@ -22,6 +22,7 @@ import java.util.*;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -93,7 +94,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		 */
 		public void updateProjectReferencesIfNecessary() throws JavaModelException {
 			
-			String[] oldRequired = this.oldResolvedPath == null ? CharOperation.NO_STRINGS : this.project.projectPrerequisites(this.oldResolvedPath);
+			final String[] oldRequired = this.oldResolvedPath == null ? CharOperation.NO_STRINGS : this.project.projectPrerequisites(this.oldResolvedPath);
 	
 			if (this.newResolvedPath == null) {
 				if (this.newRawPath == null)
@@ -106,59 +107,67 @@ public class DeltaProcessingState implements IResourceChangeListener {
 						true/*generate marker on error*/, 
 						null/*no reverse map*/);
 			}
-			String[] newRequired = this.project.projectPrerequisites(this.newResolvedPath);
-			try {
-				IProject projectResource = this.project.getProject();
-				IProjectDescription description = projectResource.getDescription();
-				 
-				IProject[] projectReferences = description.getDynamicReferences();
-				
-				HashSet oldReferences = new HashSet(projectReferences.length);
-				for (int i = 0; i < projectReferences.length; i++){
-					String projectName = projectReferences[i].getName();
-					oldReferences.add(projectName);
-				}
-				HashSet newReferences = (HashSet)oldReferences.clone();
-		
-				for (int i = 0; i < oldRequired.length; i++){
-					String projectName = oldRequired[i];
-					newReferences.remove(projectName);
-				}
-				for (int i = 0; i < newRequired.length; i++){
-					String projectName = newRequired[i];
-					newReferences.add(projectName);
-				}
-		
-				Iterator iter;
-				int newSize = newReferences.size();
-				
-				checkIdentity: {
-					if (oldReferences.size() == newSize){
-						iter = newReferences.iterator();
-						while (iter.hasNext()){
-							if (!oldReferences.contains(iter.next())){
-								break checkIdentity;
-							}
-						}
-						return;
+			final String[] newRequired = this.project.projectPrerequisites(this.newResolvedPath);
+			final IProject projectResource = this.project.getProject();
+			IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					IProjectDescription description = projectResource.getDescription();
+					 
+					IProject[] projectReferences = description.getDynamicReferences();
+					
+					HashSet oldReferences = new HashSet(projectReferences.length);
+					for (int i = 0; i < projectReferences.length; i++){
+						String projectName = projectReferences[i].getName();
+						oldReferences.add(projectName);
 					}
+					HashSet newReferences = (HashSet)oldReferences.clone();
+			
+					for (int i = 0; i < oldRequired.length; i++){
+						String projectName = oldRequired[i];
+						newReferences.remove(projectName);
+					}
+					for (int i = 0; i < newRequired.length; i++){
+						String projectName = newRequired[i];
+						newReferences.add(projectName);
+					}
+			
+					Iterator iter;
+					int newSize = newReferences.size();
+					
+					checkIdentity: {
+						if (oldReferences.size() == newSize){
+							iter = newReferences.iterator();
+							while (iter.hasNext()){
+								if (!oldReferences.contains(iter.next())){
+									break checkIdentity;
+								}
+							}
+							return;
+						}
+					}
+					String[] requiredProjectNames = new String[newSize];
+					int index = 0;
+					iter = newReferences.iterator();
+					while (iter.hasNext()){
+						requiredProjectNames[index++] = (String)iter.next();
+					}
+					Util.sort(requiredProjectNames); // ensure that if changed, the order is consistent
+					
+					IProject[] requiredProjectArray = new IProject[newSize];
+					IWorkspaceRoot wksRoot = projectResource.getWorkspace().getRoot();
+					for (int i = 0; i < newSize; i++){
+						requiredProjectArray[i] = wksRoot.getProject(requiredProjectNames[i]);
+					}
+					description.setDynamicReferences(requiredProjectArray);
+					projectResource.setDescription(description, null);
 				}
-				String[] requiredProjectNames = new String[newSize];
-				int index = 0;
-				iter = newReferences.iterator();
-				while (iter.hasNext()){
-					requiredProjectNames[index++] = (String)iter.next();
-				}
-				Util.sort(requiredProjectNames); // ensure that if changed, the order is consistent
-				
-				IProject[] requiredProjectArray = new IProject[newSize];
-				IWorkspaceRoot wksRoot = projectResource.getWorkspace().getRoot();
-				for (int i = 0; i < newSize; i++){
-					requiredProjectArray[i] = wksRoot.getProject(requiredProjectNames[i]);
-				}
-				description.setDynamicReferences(requiredProjectArray);
-				projectResource.setDescription(description, null);
-		
+			};
+			try {
+				// ensure that a sheduling rule is used so that the project description is not modified by another thread while we update it
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=214981
+				IWorkspace workspace = projectResource.getWorkspace();
+				ISchedulingRule rule = workspace.getRuleFactory().modifyRule(projectResource); // sheduling rule for modifying the project
+				workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, null);
 			} catch(CoreException e){
 				if (!ExternalJavaProject.EXTERNAL_PROJECT_NAME.equals(this.project.getElementName()))
 					throw new JavaModelException(e);
