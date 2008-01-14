@@ -1190,7 +1190,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	// for the '-d none' option (wherever it may be found)
 	public static final int DEFAULT_SIZE_CLASSPATH = 4;
 	public static final String NONE = "none"; //$NON-NLS-1$
-
+	
+	// javadoc analysis tuning
+	boolean enableJavadocOn;
+	boolean warnJavadocOn;
+	boolean warnAllJavadocOn;
+	
 	/*
 	 * Internal IDE API
 	 */
@@ -1603,7 +1608,7 @@ public boolean compile(String[] argv) {
  * External API
  * Handle a single warning token.
 */
-protected void handleWarningToken(String token, boolean isEnabling, boolean useEnableJavadoc) throws InvalidInputException {
+protected void handleWarningToken(String token, boolean isEnabling) throws InvalidInputException {
 	if (token.equals("constructorName")) { //$NON-NLS-1$
 		this.options.put(
 			CompilerOptions.OPTION_ReportMethodWithConstructorName,
@@ -1745,65 +1750,9 @@ protected void handleWarningToken(String token, boolean isEnabling, boolean useE
 			CompilerOptions.OPTION_ReportUnnecessaryElse,
 			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 	} else if (token.equals("javadoc")) {//$NON-NLS-1$
-		if (!useEnableJavadoc) {
-			this.options.put(
-				CompilerOptions.OPTION_DocCommentSupport,
-				isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
-		}
-		// if disabling then it's not necessary to set other javadoc options
-		if (isEnabling) {
-			this.options.put(
-				CompilerOptions.OPTION_ReportInvalidJavadoc,
-				CompilerOptions.WARNING);
-			this.options.put(
-				CompilerOptions.OPTION_ReportInvalidJavadocTags,
-				CompilerOptions.ENABLED);
-			this.options.put(
-				CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef,
-				CompilerOptions.DISABLED);
-			this.options.put(
-				CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef,
-				CompilerOptions.DISABLED);
-			this.options.put(
-				CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
-				CompilerOptions.PRIVATE);
-			this.options.put(
-				CompilerOptions.OPTION_ReportMissingJavadocTags,
-				CompilerOptions.WARNING);
-			this.options.put(
-				CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
-				CompilerOptions.PRIVATE);
-			this.options.put(
-				CompilerOptions.OPTION_ReportRedundantSuperinterface,
-				CompilerOptions.DISABLED);
-		}
+		this.warnJavadocOn = isEnabling;
 	} else if (token.equals("allJavadoc")) { //$NON-NLS-1$
-		if (!useEnableJavadoc) {
-			this.options.put(
-				CompilerOptions.OPTION_DocCommentSupport,
-				isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
-		}
-		// if disabling then it's not necessary to set other javadoc options
-		if (isEnabling) {
-			this.options.put(
-			CompilerOptions.OPTION_ReportInvalidJavadoc,
-			CompilerOptions.WARNING);
-			this.options.put(
-				CompilerOptions.OPTION_ReportInvalidJavadocTags,
-				CompilerOptions.ENABLED);
-			this.options.put(
-				CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
-				CompilerOptions.PRIVATE);
-			this.options.put(
-				CompilerOptions.OPTION_ReportMissingJavadocTags,
-				CompilerOptions.WARNING);
-			this.options.put(
-				CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
-				CompilerOptions.PRIVATE);
-			this.options.put(
-				CompilerOptions.OPTION_ReportMissingJavadocComments,
-				CompilerOptions.WARNING);
-		}
+		this.warnAllJavadocOn = this.warnJavadocOn = isEnabling;
 	} else if (token.startsWith("tasks")) { //$NON-NLS-1$
 		String taskTags = Util.EMPTY_STRING;
 		int start = token.indexOf('(');
@@ -2260,7 +2209,6 @@ public void configure(String[] argv) throws InvalidInputException {
 
 	boolean didSpecifyDefaultEncoding = false;
 	boolean didSpecifyDeprecation = false;
-	boolean useEnableJavadoc = false;
 	boolean didSpecifyCompliance = false;
 	boolean didSpecifyDisabledAnnotationProcessing = false;
 
@@ -2734,7 +2682,7 @@ public void configure(String[] argv) throws InvalidInputException {
 								}
 								break;
 						}
-						handleWarningToken(token, isEnabling, useEnableJavadoc);
+						handleWarningToken(token, isEnabling);
 					}
 					if (tokenCounter == 0) {
 						throw new InvalidInputException(
@@ -2755,10 +2703,7 @@ public void configure(String[] argv) throws InvalidInputException {
 				}
 				if (currentArg.equals("-enableJavadoc")) {//$NON-NLS-1$
 				    mode = DEFAULT;
-					this.options.put(
-						CompilerOptions.OPTION_DocCommentSupport,
-						CompilerOptions.ENABLED);
-					useEnableJavadoc = true;
+					this.enableJavadocOn = true;
 					continue;
 				}
 				if (currentArg.equals("-Xemacs")) { //$NON-NLS-1$
@@ -3065,6 +3010,52 @@ public void configure(String[] argv) throws InvalidInputException {
 		}
 		mode = DEFAULT;
 		continue;
+	}
+	
+	// set DocCommentSupport, with appropriate side effects on defaults if 
+	// javadoc is not enabled
+	if (this.enableJavadocOn) {
+		this.options.put(
+			CompilerOptions.OPTION_DocCommentSupport,
+			CompilerOptions.ENABLED);
+	} else if (this.warnJavadocOn || this.warnAllJavadocOn) {
+		this.options.put(
+			CompilerOptions.OPTION_DocCommentSupport,
+			CompilerOptions.ENABLED);
+		// override defaults: references that are embedded in javadoc are ignored
+		// from the perspective of parameters and thrown exceptions usage
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference,
+			CompilerOptions.DISABLED);
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference,
+			CompilerOptions.DISABLED);
+	}
+	// configure warnings for javadoc contents
+	if (this.warnJavadocOn || this.warnAllJavadocOn) {
+		this.options.put(
+			CompilerOptions.OPTION_ReportInvalidJavadoc,
+			CompilerOptions.WARNING);
+		this.options.put(
+			CompilerOptions.OPTION_ReportInvalidJavadocTags,
+			CompilerOptions.ENABLED);
+		this.options.put(
+			CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef,
+			CompilerOptions.ENABLED);
+		this.options.put(
+			CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef,
+			CompilerOptions.ENABLED);
+		this.options.put(
+			CompilerOptions.OPTION_ReportMissingJavadocTags,
+			CompilerOptions.WARNING);
+		this.options.put(
+			CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
+			CompilerOptions.PRIVATE);
+	}
+	if (this.warnAllJavadocOn) {
+		this.options.put(
+			CompilerOptions.OPTION_ReportMissingJavadocComments,
+			CompilerOptions.WARNING);
 	}
 
 	if (printUsageRequired || (filesCount == 0 && classCount == 0)) {

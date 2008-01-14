@@ -7632,7 +7632,7 @@ public void test205_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // -warn option - regression tests
-public void _test206_warn_options() {
+public void test206_warn_options() {
 	// same source as 168, skip check defaults
 	this.runConformTest(
 		new String[] {
@@ -7653,7 +7653,7 @@ public void _test206_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // -warn option - regression tests
-public void _test207_warn_options() {
+public void test207_warn_options() {
 	// same source as 168, skip check defaults
 	this.runConformTest(
 		new String[] {
@@ -7760,7 +7760,7 @@ public void test211_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // variant - javadoc and allJavadoc mistakenly imply enableJavadoc
-public void _test212_warn_options() {
+public void test212_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -7791,7 +7791,7 @@ public void _test212_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // variant - javadoc and allJavadoc mistakenly imply enableJavadoc
-public void _test213_warn_options() {
+public void test213_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -7856,6 +7856,131 @@ public void test215_warn_options() {
 		"",
 		"invalid warning option: -warn:null,+unused. Must specify a warning token\n",
 		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// variant - check impact of javadoc upon other warnings
+public void test216_warn_options() {
+	// check what if allJavadoc on
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */" +
+			"public class X {\n" +
+			"  /**\n" +
+			"    {@link Y}\n" +
+			"  */\n" +
+			"  public void foo() {\n" +
+			"  }\n" + 
+			"}\n",
+			"Y.java",
+			"/** @deprecated */" +
+			"public class Y {\n" +
+			"}",			
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	{@link Y}\n" + 
+		"	       ^\n" + 
+		"Javadoc: The type Y is deprecated\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+	// same sources, what if we add -warn:+javadoc
+	this.runConformTest(
+		new String[] { },
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:allJavadoc -warn:+javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	{@link Y}\n" + 
+		"	       ^\n" + 
+		"Javadoc: The type Y is deprecated\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+	// same sources, what if we only have -warn:javadoc
+	this.runConformTest(
+		new String[] { },
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	{@link Y}\n" + 
+		"	       ^\n" + 
+		"Javadoc: The type Y is deprecated\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// variant - check impact of javadoc upon other warnings
+public void test217_warn_options() {
+	// check what if allJavadoc on
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */" +
+			"public class X {\n" +
+			"  /**\n" +
+			"    @see #bar()\n" +
+			"  */\n" +
+			"  public void foo() {\n" +
+			"    bar();\n" +
+			"  }\n" + 
+			"  private void bar() {\n" +
+			"  }\n" + 
+			"}\n"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	@see #bar()\n" + 
+		"	     ^^^^^^\n" + 
+		"Javadoc: \'public\' visibility for malformed doc comments hides this \'private\' reference\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+	// same sources, what if we add -warn:+javadoc
+	this.runConformTest(
+		new String[] { },
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:allJavadoc -warn:+javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	@see #bar()\n" + 
+		"	     ^^^^^^\n" + 
+		"Javadoc: \'public\' visibility for malformed doc comments hides this \'private\' reference\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
+	// same sources, what if we only have -warn:javadoc
+	this.runConformTest(
+		new String[] { },
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	@see #bar()\n" + 
+		"	     ^^^^^^\n" + 
+		"Javadoc: \'public\' visibility for malformed doc comments hides this \'private\' reference\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		false);
 }
 public static Class testClass() {
 	return BatchCompilerTest.class;
