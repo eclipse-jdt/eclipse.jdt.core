@@ -11,9 +11,6 @@
 package org.eclipse.jdt.internal.core.search.processing;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -237,8 +234,8 @@ public abstract class JobManager implements Runnable {
 										if (VERBOSE)
 											Util.verbose("-> NOT READY - waiting until ready - " + searchJob);//$NON-NLS-1$
 										if (subProgress != null) {
-											subProgress.subTask(
-												Messages.bind(Messages.jobmanager_filesToIndex, Integer.toString(awaitingJobsCount)));
+											String indexing = Messages.bind(Messages.jobmanager_filesToIndex, currentJob.getJobFamily(), Integer.toString(awaitingJobsCount));
+											subProgress.subTask(indexing);
 											// ratio of the amount of work relative to the total work
 											float ratio = awaitingJobsCount < totalWork ? 1 : ((float) totalWork) / awaitingJobsCount;
 											if (lastJobsCount > awaitingJobsCount) {
@@ -337,10 +334,13 @@ public abstract class JobManager implements Runnable {
 				}
 				protected IStatus run(IProgressMonitor monitor) {
 					IJob job = currentJob();
+					StringBuffer prefix = new StringBuffer(Messages.jobmanager_indexing);
 					while (!monitor.isCanceled() && job != null) {
-						String indexing = Messages.bind(Messages.jobmanager_indexing, job.getJobFamily());
-						monitor.subTask(indexing);
-						setName(indexing); 
+						 String taskName = prefix
+							.append(Messages.bind(Messages.jobmanager_filesToIndex, job.getJobFamily(), Integer.toString(awaitingJobsCount())))
+							.toString();
+						monitor.subTask(taskName);
+						setName(taskName); 
 						try {
 							Thread.sleep(500);
 						} catch (InterruptedException e) {
@@ -387,7 +387,7 @@ public abstract class JobManager implements Runnable {
 					try {
 						this.executing = true;
 						if (this.progressJob == null) {
-							this.progressJob = new ProgressJob(Messages.bind(Messages.jobmanager_indexing, "")); //$NON-NLS-1$
+							this.progressJob = new ProgressJob(Messages.bind(Messages.jobmanager_indexing, "", "")); //$NON-NLS-1$ //$NON-NLS-2$
 							this.progressJob.setPriority(Job.LONG);
 							this.progressJob.setSystem(true);
 							this.progressJob.schedule();
