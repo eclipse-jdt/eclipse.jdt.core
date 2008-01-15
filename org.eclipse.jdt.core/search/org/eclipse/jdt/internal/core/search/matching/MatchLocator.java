@@ -144,6 +144,8 @@ SimpleLookupTable bindings;
 // Cache for method handles
 HashSet methodHandles;
 
+private final boolean searchPackageDeclaration;
+
 /**
  * An ast visitor that visits local type declarations.
  */
@@ -330,6 +332,13 @@ public MatchLocator(
 	this.requestor = requestor;
 	this.scope = scope;
 	this.progressMonitor = progressMonitor;
+	if (pattern instanceof PackageDeclarationPattern) {
+		this.searchPackageDeclaration = true;
+	} else if (pattern instanceof OrPattern) {
+		this.searchPackageDeclaration = ((OrPattern)pattern).hasPackageDeclaration();
+	} else {
+		this.searchPackageDeclaration = false;
+	}
 }
 /**
  * Add an additional binary type
@@ -1076,16 +1085,22 @@ protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet,
 public void locateMatches(SearchDocument[] searchDocuments) throws CoreException {
 	if (this.patternLocator == null) return;
 	int docsLength = searchDocuments.length;
+	int progressLength = docsLength;
 	if (BasicSearchEngine.VERBOSE) {
 		System.out.println("Locating matches in documents ["); //$NON-NLS-1$
 		for (int i = 0; i < docsLength; i++)
 			System.out.println("\t" + searchDocuments[i]); //$NON-NLS-1$
 		System.out.println("]"); //$NON-NLS-1$
 	}
+	IJavaProject[] javaModelProjects = null;
+	if (this.searchPackageDeclaration) {
+		javaModelProjects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
+		progressLength += javaModelProjects.length;
+	}
 
 	// init infos for progress increasing
-	int n = docsLength<1000 ? Math.min(Math.max(docsLength/200+1, 2),4) : 5 *(docsLength/1000);
-	this.progressStep = docsLength < n ? 1 : docsLength / n; // step should not be 0
+	int n = progressLength<1000 ? Math.min(Math.max(progressLength/200+1, 2),4) : 5 *(progressLength/1000);
+	this.progressStep = progressLength < n ? 1 : progressLength / n; // step should not be 0
 	this.progressWorked = 0;
 
 	// extract working copies
@@ -1126,6 +1141,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 		}); 
 		int displayed = 0; // progress worked displayed
 		String previousPath = null;
+		SearchParticipant searchParticipant = null;
 		for (int i = 0; i < docsLength; i++) {
 			if (this.progressMonitor != null && this.progressMonitor.isCanceled()) {
 				throw new OperationCanceledException();
@@ -1133,6 +1149,9 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 
 			// skip duplicate paths
 			SearchDocument searchDocument = searchDocuments[i];
+			if (searchParticipant == null) {
+				searchParticipant = searchDocument.getParticipant();
+			}
 			searchDocuments[i] = null; // free current document
 			String pathString = searchDocument.getPath();
 			if (i > 0 && pathString.equals(previousPath)) {
@@ -1191,7 +1210,11 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			} catch (JavaModelException e) {
 				// problem with classpath in last project -> ignore
 			}
-		} 
+		}
+
+		if (this.searchPackageDeclaration) {
+			locatePackageDeclarations(searchParticipant, javaModelProjects);
+		}
 
 	} finally {
 		if (this.progressMonitor != null)
@@ -1205,17 +1228,21 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 /**
  * Locates the package declarations corresponding to this locator's pattern. 
  */
-public void locatePackageDeclarations(SearchParticipant participant) throws CoreException {
-	locatePackageDeclarations(this.pattern, participant);
+protected void locatePackageDeclarations(SearchParticipant participant, IJavaProject[] projects) throws CoreException {
+	locatePackageDeclarations(this.pattern, participant, projects);
 }
 /**
  * Locates the package declarations corresponding to the search pattern. 
  */
-protected void locatePackageDeclarations(SearchPattern searchPattern, SearchParticipant participant) throws CoreException {
+protected void locatePackageDeclarations(SearchPattern searchPattern, SearchParticipant participant, IJavaProject[] projects) throws CoreException {
+	if (this.progressMonitor != null && this.progressMonitor.isCanceled()) {
+		throw new OperationCanceledException();
+	}
 	if (searchPattern instanceof OrPattern) {
 		SearchPattern[] patterns = ((OrPattern) searchPattern).patterns;
-		for (int i = 0, length = patterns.length; i < length; i++)
-			locatePackageDeclarations(patterns[i], participant);
+		for (int i = 0, length = patterns.length; i < length; i++) {
+			locatePackageDeclarations(patterns[i], participant, projects);
+		}
 	} else if (searchPattern instanceof PackageDeclarationPattern) {
 		IJavaElement focus = ((InternalSearchPattern) searchPattern).focus;
 		if (focus != null) {
@@ -1229,10 +1256,14 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 		boolean isWorkspaceScope = this.scope == JavaModelManager.getJavaModelManager().getWorkspaceScope();
 		IPath[] scopeProjectsAndJars =  isWorkspaceScope ? null : this.scope.enclosingProjectsAndJars();
 		int scopeLength = isWorkspaceScope ? 0 : scopeProjectsAndJars.length;
-		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
 		SimpleSet packages = new SimpleSet();
 		for (int i = 0, length = projects.length; i < length; i++) {
 			IJavaProject javaProject = projects[i];
+			if (this.progressMonitor != null) {
+				if (this.progressMonitor.isCanceled()) throw new OperationCanceledException();
+				this.progressWorked++;
+				if ((this.progressWorked%this.progressStep)==0) this.progressMonitor.worked(this.progressStep);
+			}
 			// Verify that project belongs to the scope
 			if (!isWorkspaceScope) {
 				boolean found = false;

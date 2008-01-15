@@ -92,11 +92,6 @@ public class JavaSearchParticipant extends SearchParticipant {
 		/* eliminating false matches and locating them */
 		if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 		matchLocator.locateMatches(indexMatches);
-		
-
-		if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
-		
-		matchLocator.locatePackageDeclarations(this);
 	}
 
 	/* (non-Javadoc)

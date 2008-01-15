@@ -778,7 +778,7 @@ public class BasicSearchEngine {
 	
 		try {
 			if (progressMonitor != null) {
-				progressMonitor.beginTask(Messages.engine_searching, 100); 
+				progressMonitor.beginTask(Messages.engine_searching, 1000); 
 			}
 			// add type names from indexes
 			indexManager.performConcurrentJob(
@@ -788,7 +788,7 @@ public class BasicSearchEngine {
 					scope, 
 					searchRequestor),
 				waitingPolicy,
-				progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));	
+				progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 1000-copiesLength));	
 				
 			// add type names from working copies
 			if (copies != null) {
@@ -880,6 +880,10 @@ public class BasicSearchEngine {
 							}
 							parsedUnit.traverse(new AllTypeDeclarationsVisitor(), parsedUnit.scope);
 						}
+					}
+					if (progressMonitor != null) {
+						if (progressMonitor.isCanceled()) throw new OperationCanceledException();
+						progressMonitor.worked(1);
 					}
 				}
 			}	

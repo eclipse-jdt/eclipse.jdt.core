@@ -79,6 +79,19 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 	}
 
 	/**
+	 * Returns whether the pattern has one or several package declaration or not.
+	 * 
+	 * @return <code>true</code> if one at least of the stored pattern is a package declaration
+	 * 	pattern ({@link PackageDeclarationPattern}), <code>false</code> otherwise.
+	 */
+	public final boolean hasPackageDeclaration() {
+		for (int i = 0, length = this.patterns.length; i < length; i++) {
+			if (this.patterns[i] instanceof PackageDeclarationPattern) return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Returns whether the pattern has signatures or not.
 	 * @return true if one at least of the stored pattern has signatures.
 	 */
