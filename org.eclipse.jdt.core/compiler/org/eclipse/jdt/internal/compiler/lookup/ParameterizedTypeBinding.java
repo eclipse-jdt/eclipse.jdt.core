@@ -372,10 +372,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			    StringBuffer sig = new StringBuffer(10);
 			    if (this.isMemberType()) {
 			    	ReferenceBinding enclosing = enclosingType();
-			    	boolean hasParameterizedEnclosing = enclosing.isParameterizedType();
-					char[] typeSig = hasParameterizedEnclosing ? enclosing.genericTypeSignature() : enclosing.signature();
+					char[] typeSig = enclosing.genericTypeSignature();
 					sig.append(typeSig, 0, typeSig.length-1);// copy all but trailing semicolon
-			    	if (hasParameterizedEnclosing && (enclosing.modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
+			    	if ((enclosing.modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
 			    		sig.append('.');
 			    	} else {
 			    		sig.append('$');
