@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -8522,13 +8523,13 @@ public void testBug181488a() throws CoreException {
 	waitUntilIndexesReady();
 	IndexManager manager = JavaModelManager.getIndexManager();
 	Index index = manager.getIndex(JAVA_PROJECT.getPath(), true, false);
-	long lastModified = index.getIndexFile().lastModified();
-	simulateExitRestart();
+	File indexFile = index.getIndexFile();
+	simulateExit();
+	long lastModified = indexFile.lastModified();
+	simulateRestart();
 	waitUntilIndexesReady();
 	Index newIndex = manager.getIndex(JAVA_PROJECT.getPath(), true, false);
-	// TODO (frederic) Verify this test result on releng build to know whether it continues to fail or not
-	this.abortOnFailure = false;
-	assumeEquals("Index file should be unchanged!!!", lastModified, newIndex.getIndexFile().lastModified());
+	assertEquals("Index file should be unchanged!!!", lastModified, newIndex.getIndexFile().lastModified());
 }
 public void testBug181488b() throws CoreException {
 	IJavaProject project = createJavaProject("Bug181488");
