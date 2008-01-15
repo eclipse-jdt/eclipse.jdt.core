@@ -39129,4 +39129,202 @@ public void test1223() {
 		"Type mismatch: cannot convert from X.IsABug to String\n" + 
 		"----------\n");
 }	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=214972  
+public void test1228() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<U extends Class> {\n" + 
+			"	public <Y> X(Y b1, U b2) {\n" + 
+			"	}\n" + 
+			"	public class Binner {\n" + 
+			"		public class BinnerInner<I> {\n" + 
+			"			public <J> BinnerInner<J> $new$() {\n" + 
+			"				return new BinnerInner<J>();\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"");
+	// check $new$ method generic signature
+	String expectedOutput =
+		"  // Method descriptor #22 ()LX$Binner$BinnerInner;\n" + 
+		"  // Signature: <J:Ljava/lang/Object;>()LX<TU;>.Binner.BinnerInner<TJ;>;\n" + 
+		"  // Stack: 3, Locals: 1\n" + 
+		"  public X.Binner.BinnerInner $new$();\n" + 
+		"     0  new X$Binner$BinnerInner [1]\n" + 
+		"     3  dup\n" + 
+		"     4  aload_0 [this]\n" + 
+		"     5  getfield X$Binner$BinnerInner.this$1 : X.Binner [10]\n" + 
+		"     8  invokespecial X$Binner$BinnerInner(X$Binner) [25]\n" + 
+		"    11  areturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 7]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 12] local: this index: 0 type: X.Binner.BinnerInner\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 12] local: this index: 0 type: X<U>.Binner.BinnerInner<I>\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X$BInner$BInnerInner.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}			
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=214972 - variation
+public void test1229() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<U extends Class> {\n" + 
+			"	public <Y> X(Y b1, U b2) {\n" + 
+			"	}\n" + 
+			"	public class Binner {\n" + 
+			"		public class BinnerInner<I> {\n" + 
+			"			public <J> BinnerInner<J> $new$() {\n" + 
+			"				return new BinnerInner<J>();\n" + 
+			"			}\n" + 
+			"			X<U> root() {\n" + 
+			"				return X.this;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+			"Z.java",
+			"public class Z {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X<Class>.Binner.BinnerInner<String> binString = new X<Class>(null, null).new Binner().new BinnerInner<String>();\n" + 
+			"		String s = binString.$new$().root();\n" + 
+			"	}\n" + 
+			"}\n"			
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
+		"	public class X<U extends Class> {\n" + 
+		"	                         ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 1)\n" + 
+		"	public class X<U extends Class> {\n" + 
+		"	                         ^^^^^\n" + 
+		"The type parameter U should not be bounded by the final type Class. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in Z.java (at line 3)\n" + 
+		"	X<Class>.Binner.BinnerInner<String> binString = new X<Class>(null, null).new Binner().new BinnerInner<String>();\n" + 
+		"	  ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in Z.java (at line 3)\n" + 
+		"	X<Class>.Binner.BinnerInner<String> binString = new X<Class>(null, null).new Binner().new BinnerInner<String>();\n" + 
+		"	                                                      ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in Z.java (at line 4)\n" + 
+		"	String s = binString.$new$().root();\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Class> to String\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=214972 - variation
+public void test1230() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<U extends Class> {\n" + 
+			"	public <Y> X(Y b1, U b2) {\n" + 
+			"	}\n" + 
+			"	public class Binner {\n" + 
+			"		public class BinnerInner<I> {\n" + 
+			"			public <J> BinnerInner<J> $new$() {\n" + 
+			"				return new BinnerInner<J>();\n" + 
+			"			}\n" + 
+			"			X<U> root() {\n" + 
+			"				return X.this;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+	this.runNegativeTest(
+			new String[] {
+				"Z.java",
+				"public class Z {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<Class>.Binner.BinnerInner<String> binString = new X<Class>(null, null).new Binner().new BinnerInner<String>();\n" + 
+				"		String s = binString.$new$().root();\n" + 
+				"	}\n" + 
+				"}\n"			
+			},
+			"----------\n" + 
+			"1. WARNING in Z.java (at line 3)\n" + 
+			"	X<Class>.Binner.BinnerInner<String> binString = new X<Class>(null, null).new Binner().new BinnerInner<String>();\n" + 
+			"	  ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in Z.java (at line 3)\n" + 
+			"	X<Class>.Binner.BinnerInner<String> binString = new X<Class>(null, null).new Binner().new BinnerInner<String>();\n" + 
+			"	                                                      ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in Z.java (at line 4)\n" + 
+			"	String s = binString.$new$().root();\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from X<Class> to String\n" + 
+			"----------\n",
+			null,
+			false,
+			null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=214972 - variation
+public void test1231() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<U extends Class> {\n" + 
+			"	public <Y> X(Y b1, U b2) {\n" + 
+			"	}\n" + 
+			"	public class Binner {\n" + 
+			"		public class BinnerInner<I> {\n" + 
+			"			public <J> BinnerInner<J> $new$() {\n" + 
+			"				return new BinnerInner<J>();\n" + 
+			"			}\n" + 
+			"			X<U> root() {\n" + 
+			"				return X.this;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+	this.runConformTest(
+			new String[] {
+				"Z.java",
+				"public class Z {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<Class>.Binner.BinnerInner<String> binString = new X<Class>(null, null).new Binner().new BinnerInner<String>();\n" + 
+				"		X<Class>.Binner.BinnerInner<Number> binNumber = binString.$new$();\n" +
+				"	}\n" + 
+				"}\n"			
+			},
+			"",
+			null,
+			false,
+			null);		
+}
+
 }
