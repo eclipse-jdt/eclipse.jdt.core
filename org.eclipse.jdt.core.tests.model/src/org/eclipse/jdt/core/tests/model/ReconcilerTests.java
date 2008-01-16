@@ -18,6 +18,7 @@ import junit.framework.Test;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -1061,6 +1062,60 @@ public void testCategories4() throws JavaModelException {
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	f2[*]: {CATEGORIES}"
 	);
+}
+/*
+ * Ensures that changing a binary folder used as class folder in 2 projects doesn't cause the old binary to be seen
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=210746 )
+ */
+public void testChangeClassFolder() throws CoreException {
+	try {
+		createJavaProject("P1", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		createFolder("/P1/src/p");
+		createFile(
+			"/P1/src/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		getProject("P1").build(IncrementalProjectBuilder.FULL_BUILD, null);
+		createJavaProject("P2", new String[0], new String[] {"/P1/bin"}, "bin");
+		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL_LIB", "/P1/bin"}, "bin");
+		setUpWorkingCopy(
+			"/P3/src/q/Y.java",
+			"package q;\n" +
+			"import p.X;\n" +
+			"public class Y {\n" +
+			"  void foo(X x) {\n" +
+			"  }\n"+
+			"}"
+		);
+		editFile(
+			"/P1/src/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"  public void bar() {\n" +
+			"  }\n" +
+			"}"
+		);
+		getProject("P1").build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+		setWorkingCopyContents(
+			"package q;\n" +
+			"import p.X;\n" +
+			"public class Y {\n" +
+			"  void foo(X x) {\n" +
+			"    x.bar();\n" +
+			"  }\n"+
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2", "P3"});
+	}
 }
 /*
  * Ensures that changing and external jar and refreshing takes the change into account
