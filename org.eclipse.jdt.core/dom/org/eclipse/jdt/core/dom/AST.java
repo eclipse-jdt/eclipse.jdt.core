@@ -242,7 +242,6 @@ public final class AST {
 	 *
  	 * @param level the API level; one of the LEVEL constants
 	 * @param compilationUnitDeclaration an internal AST node for a compilation unit declaration
-	 * @param source the string of the Java compilation unit
 	 * @param options compiler options
 	 * @param workingCopy the working copy that the AST is created from
 	 * @param monitor the progress monitor used to report progress and request cancelation,
@@ -253,7 +252,6 @@ public final class AST {
 	public static CompilationUnit convertCompilationUnit(
 		int level,
 		org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration compilationUnitDeclaration,
-		char[] source,
 		Map options,
 		boolean isResolved,
 		org.eclipse.jdt.internal.core.CompilationUnit workingCopy,
@@ -275,7 +273,7 @@ public final class AST {
 		ast.setBindingResolver(resolver);
 		converter.setAST(ast);
 
-		CompilationUnit unit = converter.convert(compilationUnitDeclaration, source);
+		CompilationUnit unit = converter.convert(compilationUnitDeclaration, workingCopy.getContents());
 		unit.setLineEndTable(compilationUnitDeclaration.compilationResult.getLineSeparatorPositions());
 		unit.setTypeRoot(workingCopy);
 		ast.setDefaultNodeFlag(savedDefaultNodeFlag);

@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.IOException;
 import java.util.*;
 
 import org.eclipse.core.resources.*;
@@ -23,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -78,17 +80,10 @@ public void becomeWorkingCopy(IProgressMonitor monitor) throws JavaModelExceptio
 protected boolean buildStructure(OpenableElementInfo info, final IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	CompilationUnitElementInfo unitInfo = (CompilationUnitElementInfo) info;
 
-	// get buffer contents
+	// ensure buffer is opened
 	IBuffer buffer = getBufferManager().getBuffer(CompilationUnit.this);
 	if (buffer == null) {
-		buffer = openBuffer(pm, unitInfo); // open buffer independently from the info, since we are building the info
-	}
-	final char[] contents;
-	if (buffer == null) {
-		contents = CharOperation.NO_CHAR ;
-	} else {
-		char[] characters = buffer.getCharacters();
-		contents = characters == null ? CharOperation.NO_CHAR : characters;
+		openBuffer(pm, unitInfo); // open buffer independently from the info, since we are building the info
 	}
 
 	// generate structure and compute syntax problems if needed
@@ -133,22 +128,6 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	if (!computeProblems && !resolveBindings && !createAST) // disable javadoc parsing if not computing problems, not resolving and not creating ast
 		parser.javadocParser.checkDocComment = false;
 	requestor.parser = parser;
-	CompilationUnitDeclaration unit = parser.parseCompilationUnit(
-		new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
-			public char[] getContents() {
-				return contents;
-			}
-			public char[] getMainTypeName() {
-				return CompilationUnit.this.getMainTypeName();
-			}
-			public char[][] getPackageName() {
-				return CompilationUnit.this.getPackageName();
-			}
-			public char[] getFileName() {
-				return CompilationUnit.this.getFileName();
-			}
-		}, 
-		true /*full parse to find local elements*/);
 	
 	// update timestamp (might be IResource.NULL_STAMP if original does not exist)
 	if (underlyingResource == null) {
@@ -160,12 +139,13 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	
 	// compute other problems if needed
 	CompilationUnitDeclaration compilationUnitDeclaration = null;
+	CompilationUnit source = cloneCachingContents();
 	try {
 		if (computeProblems) {
 			if (problems == null) {
 				// report problems to the problem requestor
 				problems = new HashMap();
-				compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, problems, createAST, reconcileFlags, pm);
+				compilationUnitDeclaration = CompilationUnitProblemFinder.process(source, parser, this.owner, problems, createAST, reconcileFlags, pm);
 				try {
 					perWorkingCopyInfo.beginReporting();
 					for (Iterator iteraror = problems.values().iterator(); iteraror.hasNext();) {
@@ -180,13 +160,15 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 				}
 			} else {
 				// collect problems
-				compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, problems, createAST, reconcileFlags, pm);
+				compilationUnitDeclaration = CompilationUnitProblemFinder.process(source, parser, this.owner, problems, createAST, reconcileFlags, pm);
 			}
+		} else {
+			compilationUnitDeclaration = parser.parseCompilationUnit(source, true /*full parse to find local elements*/);
 		}
 		
 		if (createAST) {
 			int astLevel = ((ASTHolderCUInfo) info).astLevel;
-			org.eclipse.jdt.core.dom.CompilationUnit cu = AST.convertCompilationUnit(astLevel, unit, contents, options, computeProblems, this, reconcileFlags, pm);
+			org.eclipse.jdt.core.dom.CompilationUnit cu = AST.convertCompilationUnit(astLevel, compilationUnitDeclaration, options, computeProblems, source, reconcileFlags, pm);
 			((ASTHolderCUInfo) info).ast = cu;
 		}
 	} finally {
@@ -196,6 +178,20 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	}
 	
 	return unitInfo.isStructureKnown();
+}
+/*
+ * Clone this handle so that it caches its contents in memory.
+ * DO NOT PASS TO CLIENTS
+ */
+public CompilationUnit cloneCachingContents() {
+	return new CompilationUnit((PackageFragment) this.parent, this.name, this.owner) {
+		private char[] cachedContents;
+		public char[] getContents() {
+			if (this.cachedContents == null)
+				this.cachedContents = CompilationUnit.this.getContents();
+			return this.cachedContents;
+		}
+	};
 }
 /*
  * @see Openable#canBeRemovedFromCache
@@ -587,15 +583,47 @@ public char[] getContents() {
 	if (buffer == null) {
 		// no need to force opening of CU to get the content
 		// also this cannot be a working copy, as its buffer is never closed while the working copy is alive
+		IFile file = (IFile) getResource();
+		// Get encoding from file
+		String encoding;
 		try {
-			return Util.getResourceContentsAsCharArray((IFile) getResource());
+			encoding = file.getCharset();
+		} catch(CoreException ce) {
+			// do not use any encoding
+			encoding = null;
+		}
+		try {
+			return Util.getResourceContentsAsCharArray(file, encoding);
 		} catch (JavaModelException e) {
+			if (JavaModelManager.getJavaModelManager().abortOnMissingSource.get() == Boolean.TRUE) {
+				IOException ioException =
+					e.getJavaModelStatus().getCode() == IJavaModelStatusConstants.IO_EXCEPTION ? 
+						(IOException)e.getException() : 
+						new IOException(e.getMessage());
+				throw new AbortCompilationUnit(null, ioException, encoding);
+			} else {
+				Util.log(e, Messages.bind(Messages.file_notFound, file.getFullPath().toString()));
+			}
 			return CharOperation.NO_CHAR;
 		}
 	}
 	char[] contents = buffer.getCharacters();
-	if (contents == null) // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=129814
+	if (contents == null) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=129814
+		if (JavaModelManager.getJavaModelManager().abortOnMissingSource.get() == Boolean.TRUE) {
+			IOException ioException = new IOException(Messages.buffer_closed);
+			IFile file = (IFile) getResource();
+			// Get encoding from file
+			String encoding;
+			try {
+				encoding = file.getCharset();
+			} catch(CoreException ce) {
+				// do not use any encoding
+				encoding = null;
+			}
+			throw new AbortCompilationUnit(null, ioException, encoding);
+		}
 		return CharOperation.NO_CHAR;
+	}
 	return contents;
 }
 /**
@@ -990,21 +1018,26 @@ public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
 public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(int astLevel, boolean resolveBindings, int reconcileFlags, HashMap problems, IProgressMonitor monitor) throws JavaModelException {
 	if (isConsistent()) return null;
 		
-	// create a new info and make it the current info
-	// (this will remove the info and its children just before storing the new infos)
-	if (astLevel != NO_AST || problems != null) {
-		ASTHolderCUInfo info = new ASTHolderCUInfo();
-		info.astLevel = astLevel;
-		info.resolveBindings = resolveBindings;
-		info.reconcileFlags = reconcileFlags;
-		info.problems = problems;
-		openWhenClosed(info, monitor);
-		org.eclipse.jdt.core.dom.CompilationUnit result = info.ast;
-		info.ast = null;
-		return result;
-	} else {
-		openWhenClosed(createElementInfo(), monitor);
-		return null;
+	try {
+		JavaModelManager.getJavaModelManager().abortOnMissingSource.set(Boolean.TRUE);
+		// create a new info and make it the current info
+		// (this will remove the info and its children just before storing the new infos)
+		if (astLevel != NO_AST || problems != null) {
+			ASTHolderCUInfo info = new ASTHolderCUInfo();
+			info.astLevel = astLevel;
+			info.resolveBindings = resolveBindings;
+			info.reconcileFlags = reconcileFlags;
+			info.problems = problems;
+			openWhenClosed(info, monitor);
+			org.eclipse.jdt.core.dom.CompilationUnit result = info.ast;
+			info.ast = null;
+			return result;
+		} else {
+			openWhenClosed(createElementInfo(), monitor);
+			return null;
+		}
+	} finally {
+		JavaModelManager.getJavaModelManager().abortOnMissingSource.set(null);
 	}
 }
 /**

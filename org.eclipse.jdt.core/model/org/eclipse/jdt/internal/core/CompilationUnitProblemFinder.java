@@ -25,8 +25,8 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
-import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -141,10 +141,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 	}
 
 	public static CompilationUnitDeclaration process(
-		CompilationUnitDeclaration unit,
-		ICompilationUnit unitElement, 
-		char[] contents,
-		Parser parser,
+		CompilationUnit unitElement, 
+		SourceElementParser parser,
 		WorkingCopyOwner workingCopyOwner,
 		HashMap problems,
 		boolean creatingAST,
@@ -165,31 +163,27 @@ public class CompilationUnitProblemFinder extends Compiler {
 				getCompilerOptions(project.getOptions(true), creatingAST, ((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0)),
 				getRequestor(),
 				problemFactory);
+			CompilationUnitDeclaration unit = null;
 			if (parser != null) {
 				problemFinder.parser = parser;
-			}
-			PackageFragment packageFragment = (PackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-			char[][] expectedPackageName = null;
-			if (packageFragment != null){
-				expectedPackageName = Util.toCharArrays(packageFragment.names);
-			}
-			if (unit == null) {
-				unit = problemFinder.resolve(
-					new BasicCompilationUnit(
-						contents,
-						expectedPackageName,
-						unitElement.getPath().toString(),
-						unitElement),
-					true, // verify methods
-					true, // analyze code
-					true); // generate code
+				try {
+					unit = parser.parseCompilationUnit(unitElement, true/*full parse*/);
+					problemFinder.resolve(
+						unit,
+						unitElement,
+						true, // verify methods
+						true, // analyze code
+						true); // generate code
+				} catch (AbortCompilation e) {
+					problemFinder.handleInternalException(e, unit);
+				}
 			} else {
-				problemFinder.resolve(
-					unit,
-					null, // no need for source
-					true, // verify methods
-					true, // analyze code
-					true); // generate code
+				unit = 
+					problemFinder.resolve(
+						unitElement,
+						true, // verify methods
+						true, // analyze code
+						true); // generate code
 			}
 			CompilationResult unitResult = unit.compilationResult;
 			CategorizedProblem[] unitProblems = unitResult.getProblems();
@@ -220,7 +214,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 			message.append(lineDelimiter);
 			message.append("----------------------------------- SOURCE BEGIN -------------------------------------"); //$NON-NLS-1$
 			message.append(lineDelimiter);
-			message.append(contents);
+			message.append(unitElement.getSource());
 			message.append(lineDelimiter);
 			message.append("----------------------------------- SOURCE END -------------------------------------"); //$NON-NLS-1$
 			Util.log(e, message.toString());
@@ -237,8 +231,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	}
 
 	public static CompilationUnitDeclaration process(
-		ICompilationUnit unitElement, 
-		char[] contents,
+		CompilationUnit unitElement, 
 		WorkingCopyOwner workingCopyOwner,
 		HashMap problems,
 		boolean creatingAST,
@@ -246,7 +239,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		IProgressMonitor monitor)
 		throws JavaModelException {
 			
-		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problems, creatingAST, reconcileFlags, monitor);
+		return process(unitElement, null/*use default Parser*/, workingCopyOwner, problems, creatingAST, reconcileFlags, monitor);
 	}
 
 	/* (non-Javadoc)

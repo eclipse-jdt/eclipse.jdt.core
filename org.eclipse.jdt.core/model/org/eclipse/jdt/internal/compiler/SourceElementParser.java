@@ -1512,12 +1512,12 @@ public CompilationUnitDeclaration parseCompilationUnit(
 	boolean fullParse) {
 		
 	boolean old = diet;
-
+	CompilationUnitDeclaration parsedUnit = null;
 	try {
 		diet = true;
 		this.reportReferenceInfo = fullParse;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
-		CompilationUnitDeclaration parsedUnit = parse(unit, compilationUnitResult);
+		parsedUnit = parse(unit, compilationUnitResult);
 		if (scanner.recordLineSeparator) {
 			requestor.acceptLineSeparatorPositions(compilationUnitResult.getLineSeparatorPositions());
 		}
@@ -1536,7 +1536,7 @@ public CompilationUnitDeclaration parseCompilationUnit(
 		diet = old;
 		reset();
 	}
-	return null;
+	return parsedUnit;
 }
 public void parseTypeMemberDeclarations(
 	ISourceType type, 

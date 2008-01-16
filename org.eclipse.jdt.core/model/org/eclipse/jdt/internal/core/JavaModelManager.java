@@ -404,6 +404,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			
 	public final CompilationParticipants compilationParticipants = new CompilationParticipants();
 	
+	/* whether an AbortCompilationUnit should be thrown when the source of a compilation unit cannot be retrieved */
+	public ThreadLocal abortOnMissingSource = new ThreadLocal();
+	
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
 	 * of the given project.

@@ -1050,7 +1050,7 @@ public class Util {
 					throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Messages.bind(Messages.file_notFound, file.getFullPath().toString())));
 				length = EFS.getStore(locationURI).fetchInfo().getLength();
 			} catch (CoreException e) {
-				throw new JavaModelException(e);
+				throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
 			}
 		} else {
 			// local file

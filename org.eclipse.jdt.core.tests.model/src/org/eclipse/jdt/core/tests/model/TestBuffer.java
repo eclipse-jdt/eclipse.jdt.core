@@ -44,6 +44,7 @@ public class TestBuffer implements IBuffer {
 		 */
 		public void append(char[] text) {
 			this.hasUnsavedChanges = true;
+			notifyListeners();
 		}
 
 		/*
@@ -51,6 +52,7 @@ public class TestBuffer implements IBuffer {
 		 */
 		public void append(String text) {
 			this.hasUnsavedChanges = true;
+			notifyListeners();
 		}
 
 		/*
@@ -59,13 +61,17 @@ public class TestBuffer implements IBuffer {
 		public void close() {
 			this.contents = null; // mark as closed
 			if (this.changeListeners != null) {
-				BufferChangedEvent event = null;
-				event = new BufferChangedEvent(this, 0, 0, null);
-				for (int i = 0, size = this.changeListeners.size(); i < size; ++i) {
-					IBufferChangedListener listener = (IBufferChangedListener) this.changeListeners.get(i);
-					listener.bufferChanged(event);
-				}
+				notifyListeners();
 				this.changeListeners = null;
+			}
+		}
+		private void notifyListeners() {
+			if (this.changeListeners == null) return;
+			BufferChangedEvent event = null;
+			event = new BufferChangedEvent(this, 0, 0, null);
+			for (int i = 0, size = this.changeListeners.size(); i < size; ++i) {
+				IBufferChangedListener listener = (IBufferChangedListener) this.changeListeners.get(i);
+				listener.bufferChanged(event);
 			}
 		}
 
@@ -156,6 +162,7 @@ public class TestBuffer implements IBuffer {
 		 */
 		public void replace(int position, int length, char[] text) {
 			this.hasUnsavedChanges = true;
+			notifyListeners();
 		}
 
 		/*
@@ -163,6 +170,7 @@ public class TestBuffer implements IBuffer {
 		 */
 		public void replace(int position, int length, String text) {
 			this.hasUnsavedChanges = true;
+			notifyListeners();
 		}
 
 		/*
@@ -178,6 +186,7 @@ public class TestBuffer implements IBuffer {
 		public void setContents(char[] characters) {
 			this.contents = characters;
 			this.hasUnsavedChanges = true;
+			notifyListeners();
 		}
 
 		/*
@@ -186,6 +195,7 @@ public class TestBuffer implements IBuffer {
 		public void setContents(String characters) {
 			this.contents = characters.toCharArray();
 			this.hasUnsavedChanges = true;
+			notifyListeners();
 		}
 
 }

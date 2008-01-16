@@ -105,6 +105,17 @@ public static Test suite() {
 protected void assertProblems(String message, String expected) {
 	assertProblems(message, expected, this.problemRequestor);
 }
+protected void assertProblemsInclude(String message, String expected) {
+	String actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(problemRequestor.problems.toString());
+	String independantExpectedString = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(expected);
+	if (actual.indexOf(independantExpectedString) == -1){
+	 	System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actual, this.tabs));
+		assertEquals(
+			message,
+			independantExpectedString,
+			actual);
+	}
+}
 // Expect no error as soon as indexing is finished
 protected void assertNoProblem(char[] source, ICompilationUnit unit) throws InterruptedException, JavaModelException {
 	IndexManager indexManager = JavaModelManager.getIndexManager();
@@ -812,6 +823,84 @@ public void testBufferOpenAfterReconcile() throws CoreException {
 	} finally {
 		deleteFile("/Reconciler/src/p1/Super.java");
 	}
+}
+/*
+ * Ensures that reconciling with a closed buffer reports an error
+ * (regression test for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=138882 )
+ */
+public void testBufferClosed1() throws CoreException {
+	this.wcOwner = new WorkingCopyOwner() {
+		public IBuffer createBuffer(ICompilationUnit copy) {
+			return new TestBuffer(copy);
+		}
+		public IProblemRequestor getProblemRequestor(ICompilationUnit unit) {
+			return ReconcilerTests.this.problemRequestor;
+		}
+	};
+	setUpWorkingCopy(
+		"Reconciler/src/p1/X.java", 
+		"package p1;\n" +
+		"public class X {\n" +
+		"  void foo(String s) {\n" +
+		"  }\n" +
+		"}"
+	);
+	
+	// simulate buffer being closed
+	((TestBuffer) this.workingCopy.getBuffer()).contents = null; 
+	
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
+	assertProblemsInclude(
+		"Unexpected problems", 
+		"----------\n" + 
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 1)\n" + 
+		"	package p1;\n" + 
+		"	^\n" + 
+		"Cannot read the source from /Reconciler/src/p1/X.java due to internal exception java.io.IOException:Buffer is closed\n" + 
+		"----------\n" 
+	);
+}
+/*
+ * Ensures that reconciling with a closed buffer reports an error
+ * (regression test for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=138882 )
+ */
+public void testBufferClosed2() throws CoreException {
+	this.wcOwner = new WorkingCopyOwner() {
+		public IBuffer createBuffer(ICompilationUnit copy) {
+			return new TestBuffer(copy);
+		}
+		public IProblemRequestor getProblemRequestor(ICompilationUnit unit) {
+			return ReconcilerTests.this.problemRequestor;
+		}
+	};
+	setUpWorkingCopy(
+		"Reconciler/src/p1/X.java", 
+		"package p1;\n" +
+		"public class X {\n" +
+		"  void foo(String s) {\n" +
+		"  }\n" +
+		"}"
+	);
+	// make the working copy not consistent
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	
+	// simulate buffer being closed
+	((TestBuffer) this.workingCopy.getBuffer()).contents = null; 
+
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
+	assertProblemsInclude(
+		"Unexpected problems", 
+		"----------\n" + 
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 1)\n" + 
+		"	package p1;\n" + 
+		"	^\n" + 
+		"Cannot read the source from /Reconciler/src/p1/X.java due to internal exception java.io.IOException:Buffer is closed\n" + 
+		"----------\n" 
+	);
 }
 /**
  * Ensure an OperationCanceledException is correcly thrown when progress monitor is canceled

@@ -177,19 +177,18 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			return this.ast; // no need to recompute AST if known already
 		
 		CompilationUnitDeclaration unit = null;
-		char[] contents = null;
 		try {
+			JavaModelManager.getJavaModelManager().abortOnMissingSource.set(Boolean.TRUE);
+			CompilationUnit source = workingCopy.cloneCachingContents();
 			// find problems if needed
 			if (JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject()) 
 					&& (this.reconcileFlags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0) {
 				this.resolveBindings = this.requestorIsActive;
 				if (this.problems == null)
 					this.problems = new HashMap();
-				contents = workingCopy.getContents();
 				unit =
 					CompilationUnitProblemFinder.process(
-						workingCopy,
-						contents,
+						source,
 						this.workingCopyOwner,
 						this.problems,
 						this.astLevel != ICompilationUnit.NO_AST/*creating AST if level is not NO_AST */,
@@ -207,10 +206,9 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 					AST.convertCompilationUnit(
 						this.astLevel,
 						unit,
-						contents,
 						options,
 						this.resolveBindings,
-						workingCopy,
+						source,
 						reconcileFlags,
 						this.progressMonitor);
 				if (this.ast != null) {
@@ -227,6 +225,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	    	// else JavaProject has lost its nature (or most likely was closed/deleted) while reconciling -> ignore
 	    	// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=100919)
 	    } finally {
+			JavaModelManager.getJavaModelManager().abortOnMissingSource.set(null);
 	        if (unit != null) {
 	            unit.cleanUp();
 	        }

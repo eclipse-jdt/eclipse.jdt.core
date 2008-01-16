@@ -74,6 +74,7 @@ public final class Messages extends NLS {
 	public static String operation_pathOutsideProject;
 	public static String operation_sortelements;
 	public static String workingCopy_commit;
+	public static String buffer_closed;
 	public static String build_preparingBuild;
 	public static String build_readStateProgress;
 	public static String build_saveStateProgress;

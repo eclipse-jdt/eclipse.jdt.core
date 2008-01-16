@@ -18,6 +18,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.ILogListener;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -346,6 +349,34 @@ public void testFindPrimaryType1() throws JavaModelException {
 		"Unexpected primary type", 
 		"X [in X.java [in p [in src [in P]]]]",
 		unit.findPrimaryType());
+}
+
+/*
+ * Ensures that retrieving the content of a compilation whose file has been deleted logs the problem
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=138882 )
+ */
+public void testFileDeleted() throws CoreException {
+	ILog log = JavaCore.getPlugin().getLog();
+	ILogListener listener = new ILogListener(){
+		private StringBuffer buffer = new StringBuffer();
+		public void logging(IStatus status, String plugin) {
+			buffer.append(status);
+			buffer.append('\n');
+		}
+		public String toString() {
+			return this.buffer.toString();
+		}
+	};
+	try {
+		log.addLogListener(listener);
+		((org.eclipse.jdt.internal.compiler.env.ICompilationUnit) getCompilationUnit("/P/src/p/Deleted.java")).getContents();
+		assertSourceEquals(
+			"Unexpected error logged", 
+			"Status ERROR: org.eclipse.jdt.core code=4 File not found: \'/P/src/p/Deleted.java\' org.eclipse.core.internal.resources.ResourceException: Resource \'/P/src/p/Deleted.java\' does not exist.\n",
+			listener.toString());
+	} finally {
+		log.removeLogListener(listener);
+	}
 }
 
 /*
