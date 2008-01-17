@@ -125,7 +125,7 @@ public class TestCase extends PerformanceTestCase {
 	 * Static initializer for memory trace.
 	 * This functionality is activated using system property "storeMemory".
 	 * Here's possible format for this property:
-	 * 	-DstoreMemory=<file name>[,all][,gc][,dir=<directory name>]
+	 * 	-DstoreMemory=<file name without extension>[,all][,gc][,dir=<directory name>]
 	 * 		<file name>: name of the file where memory data will be stored
 	 * 		optional parameters:
 	 * 			all:	flag to store memory data for all tests. If not specified,
@@ -135,6 +135,8 @@ public class TestCase extends PerformanceTestCase {
 	 * 			dir=<directory name>:
 	 * 					specify directory where to put the file. Default is the directory
 	 * 					specified in 'user.home' property
+	 * Example:
+	 * 	-DstoreMemory=RunAllJDTCoreTests,d:/tmp
 	 */
 	static {
 		String storeMemory = System.getProperty("storeMemory");
@@ -731,7 +733,7 @@ public void assertPerformance() {
  * Currently, clean only performs a gc.
  */
 protected void clean() {
-	System.out.println("Clean test "+getName());
+	//System.out.println("Clean test "+getName());
 	// Run gc
 	int iterations = 0;
 	long delta=0, free=0;
@@ -774,7 +776,8 @@ protected void setUp() throws Exception {
 
 	// Store test class and its name when changing
 	first = false;
-	if (CURRENT_CLASS == null || CURRENT_CLASS != getClass()) {
+	boolean isFirstTestRun = CURRENT_CLASS == null;
+	if (isFirstTestRun || CURRENT_CLASS != getClass()) {
 		if (CURRENT_CLASS != null && RUN_GC) clean();
 		CURRENT_CLASS = getClass();
 		first = true;
@@ -784,6 +787,7 @@ protected void setUp() throws Exception {
 
 	// Memory storage if specified
 	if (STORE_MEMORY != null && MEM_LOG_FILE != null) {
+		if (isFirstTestRun) clean();
 		if (ALL_TESTS_LOG && MEM_LOG_FILE.exists()) {
 			PrintStream stream = new PrintStream(new FileOutputStream(MEM_LOG_FILE, true));
 			stream.print(CURRENT_CLASS_NAME);
@@ -793,15 +797,51 @@ protected void setUp() throws Exception {
 			stream.print('\t');
 			long total = Runtime.getRuntime().totalMemory();
 			long used = total - Runtime.getRuntime().freeMemory();
-			stream.print(used);
+			stream.print(format(used));
 			stream.print('\t');
-			stream.print(total);
+			stream.print(format(total));
 			stream.print('\t');
-			stream.print(Runtime.getRuntime().maxMemory());
+			stream.print(format(Runtime.getRuntime().maxMemory()));
 			stream.println();
 			stream.close();
+			if (isFirstTestRun) {
+				System.out.println("	"+format(used));
+			}
+		} else {
+			if (isFirstTestRun) {
+				long total = Runtime.getRuntime().totalMemory();
+				long used = total - Runtime.getRuntime().freeMemory();
+				System.out.println("	already used while starting: "+format(used));
+			}
 		}
 	}
+}
+
+private String format(long number) {
+	StringBuffer buffer = new StringBuffer();
+	long n = number;
+	long q = n / 1000L;
+	int r = (int) (n - q*1000);
+	buffer.append(r);
+//	int x = 0;
+	while ((n=q) > 0) {
+		q = n / 1000L;
+		r = (int) (n - q*1000);
+		buffer = new StringBuffer()
+			.append(r)
+			.append(',')
+			.append(buffer);
+//		x++;
+	}
+//	switch (x) {
+//		case 1:
+//			buffer.append('K');
+//			break;
+//		case 2:
+//			buffer.append('M');
+//			break;
+//	}
+	return buffer.toString();
 }
 
 public void startMeasuring() {
@@ -835,11 +875,11 @@ protected void tearDown() throws Exception {
 			}
 			long total = Runtime.getRuntime().totalMemory();
 			long used = total - Runtime.getRuntime().freeMemory();
-			stream.print(used);
+			stream.print(format(used));
 			stream.print('\t');
-			stream.print(total);
+			stream.print(format(total));
 			stream.print('\t');
-			stream.print(Runtime.getRuntime().maxMemory());
+			stream.print(format(Runtime.getRuntime().maxMemory()));
 			stream.println();
 			stream.close();
 		}
