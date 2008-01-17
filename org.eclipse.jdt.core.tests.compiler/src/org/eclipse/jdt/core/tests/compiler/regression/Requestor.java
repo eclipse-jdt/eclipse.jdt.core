@@ -50,7 +50,6 @@ public void acceptResult(CompilationResult compilationResult) {
 	}
 }
 protected void outputClassFiles(CompilationResult unitResult) {
-
 	if ((unitResult != null) && (!unitResult.hasErrors() || generateOutput)) {
 		ClassFile[]classFiles = unitResult.getClassFiles();
 		if (outputPath != null) {
@@ -62,6 +61,7 @@ protected void outputClassFiles(CompilationResult unitResult) {
 				try {
 					ClassFile.writeToDisk(true, outputPath, relativeName, classFile);
 				} catch(IOException e) {
+					e.printStackTrace();
 				}
 			}
 		}
