@@ -4758,7 +4758,7 @@ public void test106_per_source_output_directory(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 // source 1.3 compliance 1.3
-public void test107(){
+public void test107() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4776,7 +4776,7 @@ public void test107(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.4 source 1.3
-public void test108(){
+public void test108() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4794,7 +4794,7 @@ public void test108(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.4 source 1.4
-public void test109(){
+public void test109() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4812,7 +4812,7 @@ public void test109(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.5 source 1.3
-public void test110(){
+public void test110() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4830,7 +4830,7 @@ public void test110(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.5 source 1.4
-public void test111(){
+public void test111() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4848,7 +4848,7 @@ public void test111(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.5 source 1.5
-public void test112(){
+public void test112() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4866,7 +4866,7 @@ public void test112(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.6 source 1.3
-public void test113(){
+public void test113() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4884,7 +4884,7 @@ public void test113(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.6 source 1.4
-public void test114(){
+public void test114() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4902,7 +4902,7 @@ public void test114(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.6 source 1.5
-public void test115(){
+public void test115() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4920,7 +4920,7 @@ public void test115(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.6 source 1.6
-public void test116(){
+public void test116() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4938,7 +4938,7 @@ public void test116(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.7 source 1.3
-public void test117(){
+public void test117() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4956,7 +4956,7 @@ public void test117(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.7 source 1.4
-public void test118(){
+public void test118() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4974,7 +4974,7 @@ public void test118(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.7 source 1.5
-public void test119(){
+public void test119() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4992,7 +4992,7 @@ public void test119(){
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.7 source 1.6
-public void test120(){
+public void test120() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -5011,7 +5011,7 @@ public void test120(){
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.7 source 1.7
 // TODO part of the changes for 206483
-public void test121(){
+public void test121() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -5298,7 +5298,7 @@ public void test143_null_ref_option(){
 true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190493
-public void test144(){
+public void test144() throws Exception {
 	String version = System.getProperty("java.class.version");
 	if ("49.0".equals(version)) {
 		this.runConformTest(

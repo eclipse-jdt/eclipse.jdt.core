@@ -10,13 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import java.io.IOException;
-
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
-import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 
@@ -41,7 +38,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=15051
 	 */
-	public void test001() throws ClassFormatException, IOException {
+	public void test001() throws Exception {
 		String source =
 			"public class A001 {\n" +
 			"	private int i = 6;\n" +
@@ -74,7 +71,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=25188
 	 */
-	public void test002() throws ClassFormatException, IOException {
+	public void test002() throws Exception {
 		String source =
 			"public class A002 {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -103,7 +100,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26098
 	 */
-	public void test003() throws ClassFormatException, IOException {
+	public void test003() throws Exception {
 		String source =
 			"public class A003 {\n" +
 			"\n" +
@@ -145,7 +142,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test004() throws ClassFormatException, IOException {
+	public void test004() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -191,7 +188,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test005() throws ClassFormatException, IOException {
+	public void test005() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -229,7 +226,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test006() throws ClassFormatException, IOException {
+	public void test006() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -259,7 +256,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test007() throws ClassFormatException, IOException {
+	public void test007() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -295,7 +292,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test008() throws ClassFormatException, IOException {
+	public void test008() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -325,7 +322,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test009() throws ClassFormatException, IOException {
+	public void test009() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -371,7 +368,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test010() throws ClassFormatException, IOException {
+	public void test010() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -409,7 +406,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test011() throws ClassFormatException, IOException {
+	public void test011() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -447,7 +444,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test012() throws ClassFormatException, IOException {
+	public void test012() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -480,7 +477,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test013() throws ClassFormatException, IOException {
+	public void test013() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -516,7 +513,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test014() throws ClassFormatException, IOException {
+	public void test014() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -569,7 +566,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test015() throws ClassFormatException, IOException {
+	public void test015() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -607,7 +604,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test016() throws ClassFormatException, IOException {
+	public void test016() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -645,7 +642,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test017() throws ClassFormatException, IOException {
+	public void test017() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -681,7 +678,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test018() throws ClassFormatException, IOException {
+	public void test018() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -718,7 +715,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 * http:  //bugs.eclipse.org/bugs/show_bug.cgi?id=26881
 	 */
-	public void test019() throws ClassFormatException, IOException {
+	public void test019() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -767,7 +764,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test020() throws ClassFormatException, IOException {
+	public void test020() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -806,7 +803,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test021() throws ClassFormatException, IOException {
+	public void test021() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -843,7 +840,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test022() throws ClassFormatException, IOException {
+	public void test022() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -880,7 +877,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test023() throws ClassFormatException, IOException {
+	public void test023() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -917,7 +914,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test024() throws ClassFormatException, IOException {
+	public void test024() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -954,7 +951,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test025() throws ClassFormatException, IOException {
+	public void test025() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -994,7 +991,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test026() throws ClassFormatException, IOException {
+	public void test026() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1032,7 +1029,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test027() throws ClassFormatException, IOException {
+	public void test027() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1069,7 +1066,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test028() throws ClassFormatException, IOException {
+	public void test028() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1108,7 +1105,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test029() throws ClassFormatException, IOException {
+	public void test029() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1146,7 +1143,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test030() throws ClassFormatException, IOException {
+	public void test030() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1183,7 +1180,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test031() throws ClassFormatException, IOException {
+	public void test031() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1222,7 +1219,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test032() throws ClassFormatException, IOException {
+	public void test032() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1261,7 +1258,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test033() throws ClassFormatException, IOException {
+	public void test033() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1315,7 +1312,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test034() throws ClassFormatException, IOException {
+	public void test034() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1353,7 +1350,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test035() throws ClassFormatException, IOException {
+	public void test035() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1383,7 +1380,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test036() throws ClassFormatException, IOException {
+	public void test036() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1419,7 +1416,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test037() throws ClassFormatException, IOException {
+	public void test037() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1449,7 +1446,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test038() throws ClassFormatException, IOException {
+	public void test038() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1503,7 +1500,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test039() throws ClassFormatException, IOException {
+	public void test039() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1537,7 +1534,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test040() throws ClassFormatException, IOException {
+	public void test040() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1575,7 +1572,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test041() throws ClassFormatException, IOException {
+	public void test041() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1608,7 +1605,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test042() throws ClassFormatException, IOException {
+	public void test042() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1644,7 +1641,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test043() throws ClassFormatException, IOException {
+	public void test043() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1698,7 +1695,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test044() throws ClassFormatException, IOException {
+	public void test044() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1736,7 +1733,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test045() throws ClassFormatException, IOException {
+	public void test045() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1774,7 +1771,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test046() throws ClassFormatException, IOException {
+	public void test046() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1810,7 +1807,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test047() throws ClassFormatException, IOException {
+	public void test047() throws Exception {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1843,7 +1840,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("A", source, expectedOutput);
 	}
 
-	public void test048() throws ClassFormatException, IOException {
+	public void test048() throws Exception {
 		String source =
 			"public class A {\n" +
 			"\n" +
@@ -1905,7 +1902,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("A", source, expectedOutput);
 	}
 	
-	public void test049() throws ClassFormatException, IOException {
+	public void test049() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -1933,7 +1930,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test050() throws ClassFormatException, IOException {
+	public void test050() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -1970,7 +1967,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test051() throws ClassFormatException, IOException {
+	public void test051() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -1999,7 +1996,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test052() throws ClassFormatException, IOException {
+	public void test052() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2035,7 +2032,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test053() throws ClassFormatException, IOException {
+	public void test053() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2072,7 +2069,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test054() throws ClassFormatException, IOException {
+	public void test054() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2114,7 +2111,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test055() throws ClassFormatException, IOException {
+	public void test055() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2152,7 +2149,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test056() throws ClassFormatException, IOException {
+	public void test056() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2193,7 +2190,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test057() throws ClassFormatException, IOException {
+	public void test057() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2221,7 +2218,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test058() throws ClassFormatException, IOException {
+	public void test058() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2254,7 +2251,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test059() throws ClassFormatException, IOException {
+	public void test059() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2283,7 +2280,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test060() throws ClassFormatException, IOException {
+	public void test060() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2315,7 +2312,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test061() throws ClassFormatException, IOException {
+	public void test061() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2346,7 +2343,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test062() throws ClassFormatException, IOException {
+	public void test062() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2382,7 +2379,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test063() throws ClassFormatException, IOException {
+	public void test063() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2414,7 +2411,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test064() throws ClassFormatException, IOException {
+	public void test064() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2449,7 +2446,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test065() throws ClassFormatException, IOException {
+	public void test065() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2486,7 +2483,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test066() throws ClassFormatException, IOException {
+	public void test066() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2528,7 +2525,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test067() throws ClassFormatException, IOException {
+	public void test067() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2566,7 +2563,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test068() throws ClassFormatException, IOException {
+	public void test068() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2610,7 +2607,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47886
 	 */
-	public void test069() throws ClassFormatException, IOException {
+	public void test069() throws Exception {
 		String source =
 			"public interface I {\n" + 
 			"}";
@@ -2629,7 +2626,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
-	public void test072() throws ClassFormatException, IOException {
+	public void test072() throws Exception {
 		String source =
 			"package p;\n" +
 			"public abstract class X {\n" + 
@@ -2703,7 +2700,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
-	public void test073() throws ClassFormatException, IOException {
+	public void test073() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	public static final double CONST = Double.POSITIVE_INFINITY;\n" +
@@ -2720,7 +2717,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
-	public void test074() throws ClassFormatException, IOException {
+	public void test074() throws Exception {
 		String source =
 			"package p;\n" +
 			"public class X {\n" + 
@@ -2740,7 +2737,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
-	public void test075() throws ClassFormatException, IOException {
+	public void test075() throws Exception {
 		String source =
 			"package p;\n" +
 			"public class X {\n" + 
@@ -2760,7 +2757,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
-	public void test076() throws ClassFormatException, IOException {
+	public void test076() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	void foo() {\n" + 
@@ -2778,7 +2775,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=34373
-	public void test077() throws ClassFormatException, IOException {
+	public void test077() throws Exception {
 		String source =
 			"package p;\n" +
 			"public class X {\n" +
@@ -2790,7 +2787,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102473
-	public void test078() throws ClassFormatException, IOException {
+	public void test078() throws Exception {
 		String source =
 			"public class X {\n" +
 			"	X(int i, int j) {}\n" +
@@ -2816,7 +2813,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102473
-	public void test079() throws ClassFormatException, IOException {
+	public void test079() throws Exception {
 		String source =
 			"public class X {\n" +
 			"	X(int i, int j) {}\n" +
@@ -2851,7 +2848,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102473
-	public void test080() throws ClassFormatException, IOException {
+	public void test080() throws Exception {
 		String source =
 			"public class X {\n" +
 			"	X(int i, int j) {}\n" +

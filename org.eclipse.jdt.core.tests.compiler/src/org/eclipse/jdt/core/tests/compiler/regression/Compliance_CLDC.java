@@ -75,7 +75,7 @@ public void test001() {
 		},
 		"OK");
 }
-public void test002() {
+public void test002() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -212,7 +212,7 @@ public void test002() {
 		"        [pc: 181, full, stack: {java.io.PrintStream, int}, locals: {java.lang.String[]}]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
-public void test003() {
+public void test003() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",

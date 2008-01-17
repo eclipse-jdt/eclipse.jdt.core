@@ -1127,7 +1127,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 	
 	// check array handling of singleton 
-	public void test047() {
+	public void test047() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1143,21 +1143,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1170,14 +1161,8 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 
-		try {
-			ClassFileReader fileReader = ClassFileReader.read(new File(OUTPUT_DIR + File.separator  +"I.class"));
-			assertEquals("Not an annotation type declaration", TypeDeclaration.ANNOTATION_TYPE_DECL, TypeDeclaration.kind(fileReader.getModifiers()));
-		} catch (ClassFormatException e1) {
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e1) {
-			assertTrue("IOException", false);
-		}
+		ClassFileReader fileReader = ClassFileReader.read(new File(OUTPUT_DIR + File.separator  +"I.class"));
+		assertEquals("Not an annotation type declaration", TypeDeclaration.ANNOTATION_TYPE_DECL, TypeDeclaration.kind(fileReader.getModifiers()));
 	}		
 	
 	// check invalid constant in array initializer
@@ -1230,7 +1215,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	// check array handling of singleton 
-	public void test050() {
+	public void test050() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1246,21 +1231,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1274,7 +1250,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
 	
-	public void test051() {
+	public void test051() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1290,21 +1266,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1317,7 +1284,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	public void test052() {
+	public void test052() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1333,21 +1300,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1360,7 +1318,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	public void test053() {
+	public void test053() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1376,21 +1334,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1403,7 +1352,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	public void test054() {
+	public void test054() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1419,21 +1368,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1446,7 +1386,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	public void test055() {
+	public void test055() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1462,21 +1402,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1489,7 +1420,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	public void test056() {
+	public void test056() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1505,21 +1436,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1532,7 +1454,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	public void test057() {
+	public void test057() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1548,21 +1470,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1576,7 +1489,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
 	
-	public void test058() {
+	public void test058() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1592,21 +1505,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1619,7 +1523,8 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	public void test059() {
+	
+	public void test059() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1639,21 +1544,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1666,7 +1562,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	public void test060() {
+	public void test060() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1685,21 +1581,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1712,7 +1599,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	public void test061() {
+	public void test061() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1731,21 +1618,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1758,7 +1636,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
-	public void test062() {
+	public void test062() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1799,21 +1677,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1839,7 +1708,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 	}
 	
-	public void test063() {
+	public void test063() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1880,21 +1749,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1920,7 +1780,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 	}
 	
-	public void test064() {
+	public void test064() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1936,21 +1796,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1964,7 +1815,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79848
-	public void test065() {
+	public void test065() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1980,21 +1831,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" +
@@ -2183,7 +2025,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// check code generation of annotation default attribute (autowrapping)
-	public void test073() {
+	public void test073() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2225,21 +2067,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"I.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"I.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"abstract @interface I extends java.lang.annotation.Annotation {\n" + 
@@ -2286,7 +2119,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 	}
 	// check code generation of annotation default attribute non array types
-	public void test074() {
+	public void test074() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2327,21 +2160,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		"");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"I.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"I.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"abstract @interface I extends java.lang.annotation.Annotation {\n" + 
@@ -2999,7 +2823,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80780
-	public void test099() {
+	public void test099() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3029,21 +2853,12 @@ public class AnnotationTest extends AbstractComparableTest {
 			"class X");
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		String expectedOutput = null; 
@@ -5335,7 +5150,7 @@ public void test142c() {
     }
 
 	// check array handling of singleton 
-	public void test166() {
+	public void test166() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5582,24 +5397,13 @@ public void test142c() {
 			},
 		"");
 		
-		try {
-			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			final byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			new ClassFileReader(classFileBytes, "X.java".toCharArray(), true);
-			disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED);			
-		} catch (ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		final byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		new ClassFileReader(classFileBytes, "X.java".toCharArray(), true);
+		disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED);			
 	}    
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99469
     public void test167() {

@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -5616,7 +5615,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=147690
-	public void test090() {
+	public void test090() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5650,23 +5649,17 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n";
 		
-		try {
-			File f = new File(OUTPUT_DIR + File.separator + "X.class");
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-			int index = result.indexOf(expectedOutput);
-			if (index == -1 || expectedOutput.length() == 0) {
-				System.out.println(Util.displayString(result, 3));
-			}
-			if (index == -1) {
-				assertEquals("Wrong contents", expectedOutput, result);
-			}
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue(false);
-		} catch (IOException e) {
-			assertTrue(false);
-		}		
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783	
 	public void test091() {

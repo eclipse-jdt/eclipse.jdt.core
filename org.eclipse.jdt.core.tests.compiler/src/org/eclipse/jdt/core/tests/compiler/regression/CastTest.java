@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -40,7 +39,7 @@ public static Test suite() {
 /*
  * check extra checkcast (interface->same interface)
  */
-public void test001() {
+public void test001() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -55,19 +54,12 @@ public void test001() {
 		"SUCCESS");
 
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-	String actualOutput = null;
-	try {
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-		actualOutput =
-			disassembler.disassemble(
-				classFileBytes,
-				"\n",
-				ClassFileBytesDisassembler.DETAILED); 
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue("ClassFormatException", false);
-	} catch (IOException e) {
-		assertTrue("IOException", false);
-	}
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED); 
 
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
@@ -1253,7 +1245,7 @@ public void test033() {
  * check non insertion of checkcast for unnecessary cast to interfaces
  * (same test case as test033)
  */
-public void test034() {
+public void test034() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1276,19 +1268,12 @@ public void test034() {
 		"SUCCESS");
 
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-	String actualOutput = null;
-	try {
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-		actualOutput =
-			disassembler.disassemble(
-				classFileBytes,
-				"\n",
-				ClassFileBytesDisassembler.DETAILED); 
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue("ClassFormatException", false);
-	} catch (IOException e) {
-		assertTrue("IOException", false);
-	}
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED); 
 
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 

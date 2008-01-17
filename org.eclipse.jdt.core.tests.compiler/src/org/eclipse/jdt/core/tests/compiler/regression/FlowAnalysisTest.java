@@ -11,8 +11,9 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
+
+import junit.framework.Test;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -23,8 +24,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
-
-import junit.framework.Test;
 
 public class FlowAnalysisTest extends AbstractRegressionTest {
 	
@@ -786,7 +785,7 @@ public void test027() {
 		"s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423
-public void test028() {
+public void test028() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -812,26 +811,20 @@ public void test028() {
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 12] local: this index: 0 type: X\n";
 	
-	try {
-		File f = new File(OUTPUT_DIR + File.separator + "X.class");
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue(false);
-	} catch (IOException e) {
-		assertTrue(false);
-	}	
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
-public void test029() {
+public void test029() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -862,26 +855,20 @@ public void test029() {
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 12] local: this index: 0 type: X\n";
 	
-	try {
-		File f = new File(OUTPUT_DIR + File.separator + "X.class");
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue(false);
-	} catch (IOException e) {
-		assertTrue(false);
-	}	
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
-public void test030() {
+public void test030() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -935,23 +922,17 @@ public void test030() {
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 19] local: this index: 0 type: X\n";
 	
-	try {
-		File f = new File(OUTPUT_DIR + File.separator + "X.class");
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue(false);
-	} catch (IOException e) {
-		assertTrue(false);
-	}	
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
 public void test031() {

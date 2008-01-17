@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import java.io.IOException;
 
 import junit.framework.Test;
 
@@ -4700,7 +4699,7 @@ public void _test122() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110182 - variation
-public void test123() {
+public void test123() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4771,26 +4770,20 @@ public void test123() {
 			"     inner name: #34 Z, accessflags: 8 static]\n" + 
 			"}";
 	
-	try {
-		File f = new File(OUTPUT_DIR + File.separator + "X$Z.class");
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue(false);
-	} catch (IOException e) {
-		assertTrue(false);
-	}		
+	File f = new File(OUTPUT_DIR + File.separator + "X$Z.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=77473
-public void test124() {
+public void test124() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4827,26 +4820,20 @@ public void test124() {
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 5] local: this index: 0 type: X.Baz\n";
 	
-	try {
-		File f = new File(OUTPUT_DIR + File.separator + "X$Baz.class");
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue(false);
-	} catch (IOException e) {
-		assertTrue(false);
-	}		
+	File f = new File(OUTPUT_DIR + File.separator + "X$Baz.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=77473 - variation
-public void test125() {
+public void test125() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -5011,23 +4998,17 @@ public void test125() {
 				"    [inner class info: #1 X$1Local, outer class info: #0\n" + 
 				"     inner name: #44 Local, accessflags: 0 default]\n";
 	
-	try {
-		File f = new File(OUTPUT_DIR + File.separator + (options.complianceLevel >= ClassFileConstants.JDK1_5 ? "X$1Local.class" : "X$1$Local.class"));
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue(false);
-	} catch (IOException e) {
-		assertTrue(false);
-	}		
+	File f = new File(OUTPUT_DIR + File.separator + (options.complianceLevel >= ClassFileConstants.JDK1_5 ? "X$1Local.class" : "X$1$Local.class"));
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130117
 public void test126() {
@@ -5681,7 +5662,7 @@ public void test139() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
-public void test140() {
+public void test140() throws Exception {
 	this.runConformTest(new String[] {
 		"p/A.java",
 		"package p;\n" + 
@@ -5704,7 +5685,7 @@ public void test140() {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
-public void test141() {
+public void test141() throws Exception {
 	this.runConformTest(new String[] {
 		"p/A.java",
 		"package p;\n" + 
@@ -5726,7 +5707,7 @@ public void test141() {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
-public void test142() {
+public void test142() throws Exception {
 	this.runConformTest(new String[] {
 		"p/A.java",
 		"package p;\n" + 
@@ -5757,7 +5738,7 @@ public void test142() {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
-public void test143() {
+public void test143() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
 		"class A {\n" + 
@@ -5780,7 +5761,7 @@ public void test143() {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
-public void test144() {
+public void test144() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
 		"class A {\n" + 
@@ -5801,7 +5782,7 @@ public void test144() {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
-public void test145() {
+public void test145() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
 		"class A {\n" + 
@@ -5819,7 +5800,7 @@ public void test145() {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
-public void test146() {
+public void test146() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
 		"class A {\n" + 
@@ -5839,7 +5820,7 @@ public void test146() {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
-public void test147() {
+public void test147() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
 		"class A {\n" + 
@@ -5859,7 +5840,7 @@ public void test147() {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
-public void test148() {
+public void test148() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
 		"class A {\n" + 
@@ -5878,7 +5859,7 @@ public void test148() {
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171749
-public void test149() {
+public void test149() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
 		"public final class X implements A.Foo1 {\n" + 

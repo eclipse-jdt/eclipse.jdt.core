@@ -11,13 +11,12 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import java.io.IOException;
+
+import junit.framework.Test;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
-
-import junit.framework.Test;
 
 public class StackMapAttributeTest extends AbstractRegressionTest {
 	public StackMapAttributeTest(String name) {
@@ -39,7 +38,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_1_6);
 	}
-	public void test001() {
+	public void test001() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -73,19 +72,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"SUCCESS");
 				
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String actualOutput = null;
-			try {
-				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-				actualOutput =
-					disassembler.disassemble(
-						classFileBytes,
-						"\n",
-						ClassFileBytesDisassembler.DETAILED); 
-			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				assertTrue("IOException", false);
-			}
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
 			
 			String expectedOutput = 
 				"  // Method descriptor #14 (D)V\n" + 
@@ -182,7 +174,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				assertEquals("Wrong contents", expectedOutput, actualOutput);
 			}
 	}
-	public void test002() {
+	public void test002() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -220,20 +212,13 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"SUCCESS");
 				
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String actualOutput = null;
-			try {
-				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-				actualOutput =
-					disassembler.disassemble(
-						classFileBytes,
-						"\n",
-						ClassFileBytesDisassembler.DETAILED); 
-			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				assertTrue("IOException", false);
-			}
-			
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+
 			String expectedOutput = 
 				"  // Method descriptor #15 (DZ)V\n" + 
 				"  // Stack: 4, Locals: 11\n" + 
@@ -343,7 +328,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				assertEquals("Wrong contents", expectedOutput, actualOutput);
 			}
 	}
-	public void test003() {
+	public void test003() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -374,19 +359,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"SUCCESS");
 				
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String actualOutput = null;
-			try {
-				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-				actualOutput =
-					disassembler.disassemble(
-						classFileBytes,
-						"\n",
-						ClassFileBytesDisassembler.DETAILED); 
-			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				assertTrue("IOException", false);
-			}
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
 			
 			String expectedOutput = 
 				"  // Method descriptor #15 (Z)V\n" + 
@@ -459,7 +437,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
-	public void test004() {
+	public void test004() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -489,19 +467,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"SUCCESS");
 				
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String actualOutput = null;
-			try {
-				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-				actualOutput =
-					disassembler.disassemble(
-						classFileBytes,
-						"\n",
-						ClassFileBytesDisassembler.DETAILED); 
-			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				assertTrue("IOException", false);
-			}
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
 			
 			String expectedOutput = 
 				"  // Method descriptor #15 (Z)V\n" + 
@@ -543,7 +514,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				assertEquals("Wrong contents", expectedOutput, actualOutput);
 			}
 	}
-	public void test005() {
+	public void test005() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -573,19 +544,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"SUCCESS");
 				
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String actualOutput = null;
-			try {
-				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-				actualOutput =
-					disassembler.disassemble(
-						classFileBytes,
-						"\n",
-						ClassFileBytesDisassembler.DETAILED); 
-			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				assertTrue("IOException", false);
-			}
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
 			
 			String expectedOutput = 
 				"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
@@ -681,7 +645,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 	
-	public void test006() {
+	public void test006() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -706,19 +670,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"SUCCESS");
 				
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String actualOutput = null;
-			try {
-				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-				actualOutput =
-					disassembler.disassemble(
-						classFileBytes,
-						"\n",
-						ClassFileBytesDisassembler.DETAILED); 
-			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				assertTrue("IOException", false);
-			}
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
 			
 			String expectedOutput = 
 				"  // Method descriptor #15 (I)V\n" + 
@@ -769,7 +726,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 	
-	public void test007() {
+	public void test007() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -786,19 +743,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"SUCCESS");
 				
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String actualOutput = null;
-			try {
-				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-				actualOutput =
-					disassembler.disassemble(
-						classFileBytes,
-						"\n",
-						ClassFileBytesDisassembler.DETAILED); 
-			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				assertTrue("IOException", false);
-			}
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
 			
 			String expectedOutput = 
 				"  // Method descriptor #15 (Z)Ljava/lang/StringBuffer;\n" + 
@@ -835,7 +785,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141252
-	public void test008() {
+	public void test008() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -854,19 +804,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"zero");
 				
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String actualOutput = null;
-			try {
-				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-				actualOutput =
-					disassembler.disassemble(
-						classFileBytes,
-						"\n",
-						ClassFileBytesDisassembler.DETAILED); 
-			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				assertTrue("IOException", false);
-			}
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
 			
 			String expectedOutput = 
 					"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
@@ -936,7 +879,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 	
-	public void test009() {
+	public void test009() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -959,19 +902,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"PASSEDDONE0");
 				
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String actualOutput = null;
-			try {
-				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-				actualOutput =
-					disassembler.disassemble(
-						classFileBytes,
-						"\n",
-						ClassFileBytesDisassembler.DETAILED); 
-			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				assertTrue("IOException", false);
-			}
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
 			
 			String expectedOutput = 
 				"  // Method descriptor #8 ()V\n" + 
@@ -1025,7 +961,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 	
-	public void test010() {
+	public void test010() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -1044,19 +980,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"class [I");
 				
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String actualOutput = null;
-			try {
-				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-				actualOutput =
-					disassembler.disassemble(
-						classFileBytes,
-						"\n",
-						ClassFileBytesDisassembler.DETAILED); 
-			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				assertTrue("IOException", false);
-			}
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
 			
 			String expectedOutput = 
 				"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
@@ -1105,7 +1034,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 	
-	public void test011() {
+	public void test011() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -1143,19 +1072,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"1222222222");
 				
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String actualOutput = null;
-			try {
-				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-				actualOutput =
-					disassembler.disassemble(
-						classFileBytes,
-						"\n",
-						ClassFileBytesDisassembler.DETAILED); 
-			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				assertTrue("IOException", false);
-			}
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
 			
 			String expectedOutput = 
 				"  // Method descriptor #17 ([Ljava/lang/String;)V\n" + 
@@ -1247,7 +1169,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 	
-	public void test012() {
+	public void test012() throws Exception {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -1288,19 +1210,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"333332323232323");
 				
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String actualOutput = null;
-			try {
-				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-				actualOutput =
-					disassembler.disassemble(
-						classFileBytes,
-						"\n",
-						ClassFileBytesDisassembler.DETAILED); 
-			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-				assertTrue("ClassFormatException", false);
-			} catch (IOException e) {
-				assertTrue("IOException", false);
-			}
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
 			
 			String expectedOutput = 
 				"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
@@ -1394,7 +1309,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 	
-	public void test013() {
+	public void test013() throws Exception {
 		this.runConformTest(
             new String[] {
             		"X.java",
@@ -1416,19 +1331,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"");
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-                     classFileBytes,
-                     "\n",
-                     ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+                 classFileBytes,
+                 "\n",
+                 ClassFileBytesDisassembler.DETAILED); 
 
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1481,7 +1389,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		}
 	}
 	
-	public void test014() {
+	public void test014() throws Exception {
 		this.runConformTest(
             new String[] {
             		"X.java",
@@ -1498,19 +1406,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"");
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-                     classFileBytes,
-                     "\n",
-                     ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+                 classFileBytes,
+                 "\n",
+                 ClassFileBytesDisassembler.DETAILED); 
 
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 
@@ -1557,7 +1458,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		}
 	}
 	
-	public void test015() {
+	public void test015() throws Exception {
 		this.runConformTest(
             new String[] {
             		"X.java",
@@ -1592,19 +1493,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"");
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-                     classFileBytes,
-                     "\n",
-                     ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+                 classFileBytes,
+                 "\n",
+                 ClassFileBytesDisassembler.DETAILED); 
 
 		String expectedOutput = 
 			"  // Method descriptor #40 ()I\n" + 
@@ -1677,7 +1571,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		}
 	}
 	
-	public void test016() {
+	public void test016() throws Exception {
 		this.runConformTest(
             new String[] {
             		"X.java",
@@ -1710,19 +1604,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"");
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-                     classFileBytes,
-                     "\n",
-                     ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+                 classFileBytes,
+                 "\n",
+                 ClassFileBytesDisassembler.DETAILED); 
 
 		String expectedOutput = 
 			"  // Method descriptor #40 ()I\n" + 
@@ -1790,7 +1677,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		}
 	}
 	
-	public void test017() {
+	public void test017() throws Exception {
 		this.runConformTest(
             new String[] {
             		"X.java",
@@ -1812,19 +1699,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"1");
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-                     classFileBytes,
-                     "\n",
-                     ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+                 classFileBytes,
+                 "\n",
+                 ClassFileBytesDisassembler.DETAILED); 
 
 		String expectedOutput = 
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
@@ -2006,7 +1886,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"SUCCESS");
 	}
 	// 155423
-	public void test021() {
+	public void test021() throws Exception {
 		this.runConformTest(
             new String[] {
         		"X.java",
@@ -2022,19 +1902,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"");
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-                     classFileBytes,
-                     "\n",
-                     ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+                 classFileBytes,
+                 "\n",
+                 ClassFileBytesDisassembler.DETAILED); 
 
 		String expectedOutput = 
 			"  // Method descriptor #6 ()V\n" + 

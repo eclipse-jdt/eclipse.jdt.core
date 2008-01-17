@@ -40965,7 +40965,7 @@ public void test1228()  throws Exception {
 		"      Local variable type table:\n" + 
 		"        [pc: 0, pc: 12] local: this index: 0 type: X<U>.Binner.BinnerInner<I>\n";
 	
-	File f = new File(OUTPUT_DIR + File.separator + "X$BInner$BInnerInner.class");
+	File f = new File(OUTPUT_DIR + File.separator + "X$Binner$BinnerInner.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
-import java.io.IOException;
 
 import junit.framework.Test;
 
@@ -95,7 +94,7 @@ public void test004() {
 /**
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=37387
  */
-public void test005() {
+public void test005() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -109,21 +108,12 @@ public void test005() {
 		"SUCCESS");
 		
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-	String actualOutput = null;
-	try {
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-		actualOutput =
-			disassembler.disassemble(
-				classFileBytes,
-				"\n",
-				ClassFileBytesDisassembler.DETAILED); 
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		e.printStackTrace();
-		assertTrue("ClassFormatException", false);
-	} catch (IOException e) {
-		e.printStackTrace();
-		assertTrue("IOException", false);
-	}
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED); 
 	
 	String expectedOutput = 
 		"  static {};\n" + 
@@ -246,7 +236,7 @@ public void test010() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148807 - variation
-public void test011() {
+public void test011() throws Exception {
 	if (new CompilerOptions(getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_5) {
 		// there is a bug on 1.4 VMs which make them fail verification (see 148807)
 		return;
@@ -297,26 +287,20 @@ public void test011() {
 			"        [pc: 5, pc: 15] local: all index: 1 type: java.lang.Object[][]\n" + 
 			"        [pc: 16, pc: 24] local: e index: 1 type: java.lang.ArrayStoreException\n";
 
-	try {
-		File f = new File(OUTPUT_DIR + File.separator + "X.class");
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue(false);
-	} catch (IOException e) {
-		assertTrue(false);
-	}		
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148807 - variation
-public void test012() {
+public void test012() throws Exception {
 	if (new CompilerOptions(getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_5) {
 		// there is a bug on 1.4 VMs which make them fail verification (see 148807)
 		return;
@@ -357,23 +341,17 @@ public void test012() {
 	"        [pc: 0, pc: 15] local: this index: 0 type: X\n" + 
 	"        [pc: 13, pc: 15] local: all index: 1 type: java.lang.Object[][]\n";
 
-	try {
-		File f = new File(OUTPUT_DIR + File.separator + "X.class");
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue(false);
-	} catch (IOException e) {
-		assertTrue(false);
-	}		
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
 }
 //check resolution of faulty initializer
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179477

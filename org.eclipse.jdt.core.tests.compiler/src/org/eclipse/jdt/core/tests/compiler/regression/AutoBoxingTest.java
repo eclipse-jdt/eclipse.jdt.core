@@ -11,15 +11,14 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.core.tests.util.Util;
-
-import junit.framework.Test;
 
 public class AutoBoxingTest extends AbstractComparableTest {
 
@@ -1018,7 +1017,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 	}
 	
-	public void test032() { // boolean expression
+	public void test032() throws Exception { // boolean expression
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1035,21 +1034,12 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		);
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			e.printStackTrace();
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			e.printStackTrace();
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 

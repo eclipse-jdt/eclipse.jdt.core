@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import java.io.IOException;
 
 import junit.framework.Test;
 
@@ -29,7 +28,7 @@ public static Test suite() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=173800
-public void test001() {
+public void test001() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -59,19 +58,12 @@ public void test001() {
 		"SUCCESS");
 
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-	String actualOutput = null;
-	try {
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-		actualOutput =
-			disassembler.disassemble(
-				classFileBytes,
-				"\n",
-				ClassFileBytesDisassembler.DETAILED); 
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue("ClassFormatException", false);
-	} catch (IOException e) {
-		assertTrue("IOException", false);
-	}
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED); 
 
 	String expectedOutput =
 		"  // Method descriptor #19 ([Ljava/lang/String;)V\n" + 
@@ -129,7 +121,7 @@ public void test001() {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=173800
-public void test002() {
+public void test002() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -167,19 +159,12 @@ public void test002() {
 		"SUCCESS");
 
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-	String actualOutput = null;
-	try {
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-		actualOutput =
-			disassembler.disassemble(
-				classFileBytes,
-				"\n",
-				ClassFileBytesDisassembler.DETAILED); 
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue("ClassFormatException", false);
-	} catch (IOException e) {
-		assertTrue("IOException", false);
-	}
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED); 
 
 	String expectedOutput =
 		"  // Method descriptor #13 ()V\n" + 

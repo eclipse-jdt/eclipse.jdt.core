@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -1413,7 +1412,7 @@ public void _test043() {
  * array.clone() should use array type in methodRef
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=36307
  */
-public void test044() {
+public void test044() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1427,19 +1426,13 @@ public void test044() {
 		"SUCCESS");
 		
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-	String actualOutput = null;
-	try {
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-		actualOutput =
-			disassembler.disassemble(
-				classFileBytes,
-				"\n",
-				ClassFileBytesDisassembler.DETAILED); 
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue("ClassFormatException", false);
-	} catch (IOException e) {
-		assertTrue("IOException", false);
-	}
+
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED); 
 	
 	String expectedOutput = 
 		"     1  invokevirtual java.lang.String[].clone() : java.lang.Object [16]\n";
@@ -3334,7 +3327,7 @@ public void test102() {
 		},
 		"X$1$1");
 }
-public void test103() {
+public void test103() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -3347,19 +3340,12 @@ public void test103() {
 		"class X");
 		
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-	String actualOutput = null;
-	try {
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
-		actualOutput =
-			disassembler.disassemble(
-				classFileBytes,
-				"\n",
-				ClassFileBytesDisassembler.DETAILED); 
-	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-		assertTrue("ClassFormatException", false);
-	} catch (IOException e) {
-		assertTrue("IOException", false);
-	}
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED); 
 	
 	String expectedOutput = 
 		"public class X {\n" + 

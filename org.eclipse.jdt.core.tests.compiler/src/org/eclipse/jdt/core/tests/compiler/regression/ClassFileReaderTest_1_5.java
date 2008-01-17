@@ -20,7 +20,6 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
-import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
@@ -80,7 +79,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76440
 	 */
-	public void test001() throws ClassFormatException, IOException {
+	public void test001() throws Exception {
 		String source =
 			"public class X {\n" +
 			"	X(String s) {\n" +
@@ -107,7 +106,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76472
 	 */
-	public void test002() throws ClassFormatException, IOException {
+	public void test002() throws Exception {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -136,7 +135,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
-	public void test003() throws ClassFormatException, IOException {
+	public void test003() throws Exception {
 		String source =
 			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" + 
 			"  U field;\n" +
@@ -164,7 +163,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
-	public void test004() throws ClassFormatException, IOException {
+	public void test004() throws Exception {
 		String source =
 			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" + 
 			"  U field;\n" +
@@ -194,7 +193,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76440
 	 */
-	public void test005() throws ClassFormatException, IOException {
+	public void test005() throws Exception {
 		String source =
 			"public class X {\n" +
 			"	X(String s) {\n" +
@@ -219,7 +218,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
 	 */
-	public void test006() throws ClassFormatException, IOException {
+	public void test006() throws Exception {
 		String source =
 			"public enum X { \n" + 
 			"	\n" + 
@@ -247,7 +246,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
 	 * TODO corner case that doesn't produce the right source
 	 */
-	public void test007() throws ClassFormatException, IOException {
+	public void test007() throws Exception {
 		String source =
 			"public enum X {\n" +
 			"	BLEU(0) {\n" +
@@ -291,7 +290,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
 	 * TODO corner case that doesn't produce the right source
 	 */
-	public void test008() throws ClassFormatException, IOException {
+	public void test008() throws Exception {
 		String source =
 			"interface I {\n" +
 			"	String colorName();\n" +
@@ -334,7 +333,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111767
 	 */
-	public void test009() throws ClassFormatException, IOException {
+	public void test009() throws Exception {
 		String source =
 			"@interface X {\n" +
 			"	String firstName();\n" +
@@ -354,7 +353,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111767
 	 * @deprecated Using deprecated API
 	 */
-	public void test010() throws ClassFormatException, IOException {
+	public void test010() throws Exception {
 		String source =
 			"@interface X {\n" +
 			"	String firstName();\n" +
@@ -373,7 +372,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=203577
 	 */
-	public void test011() throws ClassFormatException, IOException {
+	public void test011() throws Exception {
 		String source =
 			"import java.lang.annotation.Retention;\n" + 
 			"import java.lang.annotation.RetentionPolicy;\n" + 
@@ -414,7 +413,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=203609
 	 */
-	public void test012() throws ClassFormatException, IOException {
+	public void test012() throws Exception {
 		String source =
 			"@Deprecated\n" +
 			"package p;";

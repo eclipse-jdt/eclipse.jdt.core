@@ -11,13 +11,12 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-import java.io.IOException;
+
+import junit.framework.Test;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
-
-import junit.framework.Test;
 
 public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 	public EnclosingMethodAttributeTest(String name) {
@@ -40,7 +39,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		return EnclosingMethodAttributeTest.class;
 	}
 
-	public void test001() {
+	public void test001() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -67,19 +66,12 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 			"falsefalsetruefalsefalsefalse");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X$1.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X$1.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = "  Enclosing Method: #22  #24 X.foo()Ljava/lang/Object;\n";
 			
@@ -92,7 +84,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		}		
 	}
 	
-	public void test002() {
+	public void test002() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -119,19 +111,12 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 			"falsefalsetruefalsefalsefalse");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  + "X$1MyLocal$A$Member$1.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  + "X$1MyLocal$A$Member$1.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = "  Enclosing Method: #22  #24 X$1MyLocal$A$Member.foo()Ljava/lang/Object;\n";
 			
@@ -145,7 +130,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162356
-	public void test003() {
+	public void test003() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -175,19 +160,12 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 			"enclosing method = public void X.test() throws java.lang.NoSuchMethodException,java.lang.IllegalAccessException,java.lang.reflect.InvocationTargetException");
 		
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String actualOutput = null;
-		try {
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  + "X$1LocalClass.class"));
-			actualOutput =
-				disassembler.disassemble(
-					classFileBytes,
-					"\n",
-					ClassFileBytesDisassembler.DETAILED); 
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue("ClassFormatException", false);
-		} catch (IOException e) {
-			assertTrue("IOException", false);
-		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  + "X$1LocalClass.class"));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput =
 			"  Inner classes:\n" + 
