@@ -39167,7 +39167,7 @@ public void test1228() {
 		"        [pc: 0, pc: 12] local: this index: 0 type: X<U>.Binner.BinnerInner<I>\n";
 	
 	try {
-		File f = new File(OUTPUT_DIR + File.separator + "X$BInner$BInnerInner.class");
+		File f = new File(OUTPUT_DIR + File.separator + "X$Binner$BinnerInner.class");
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
