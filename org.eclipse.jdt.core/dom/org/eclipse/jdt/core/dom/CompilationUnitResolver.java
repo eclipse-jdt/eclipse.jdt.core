@@ -426,7 +426,7 @@ class CompilationUnitResolver extends Compiler {
 			} else if (enclosingTypeDeclaration != null) {
 				if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(parser, enclosingTypeDeclaration, compilationUnitDeclaration);
-				} else {
+				} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 					((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethods(parser, compilationUnitDeclaration);
 				}
 			}
