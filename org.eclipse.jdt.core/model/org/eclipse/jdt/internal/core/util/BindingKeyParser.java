@@ -145,6 +145,7 @@ public class BindingKeyParser {
 		int nextToken() {
 			int previousTokenEnd = this.index;
 			this.start = this.index;
+			int dollarIndex = -1;
 			int length = this.source.length;
 			while (this.index <= length) {
 				char currentChar = this.index == length ? Character.MIN_VALUE : this.source[this.index];
@@ -172,21 +173,38 @@ public class BindingKeyParser {
 						if (this.index == previousTokenEnd 
 								&& (this.index == 0 || this.source[this.index-1] != '.')) { // case of field or method starting with one of the character above
 							this.start = this.index+1;
+							dollarIndex = -1;
 						}
 						break;
 					case ';':
 						if (this.index == previousTokenEnd) {
 							this.start = this.index+1;
+							dollarIndex = -1;
 							previousTokenEnd = this.start;
 						} else {
+							if (dollarIndex != -1) this.index = dollarIndex;
 							this.token = TYPE;
 							return this.token;
 						}
 						break;
 					case '$':
+						if (this.index == previousTokenEnd) {
+							this.start = this.index+1;
+							dollarIndex = -1;
+						} else {
+							if (dollarIndex == -1) {
+								dollarIndex = this.index;
+								break;
+							}
+							this.index = dollarIndex;
+							this.token = TYPE;
+							return this.token;
+						}
+						break;
 					case '~':
 						if (this.index == previousTokenEnd) {
 							this.start = this.index+1;
+							dollarIndex = -1;
 						} else {
 							this.token = TYPE;
 							return this.token;
@@ -198,6 +216,7 @@ public class BindingKeyParser {
 					case '>':
 					case '@':
 						this.start = this.index+1;
+						dollarIndex = -1;
 						previousTokenEnd = this.start;
 						break;
 					case '[':
@@ -209,17 +228,21 @@ public class BindingKeyParser {
 						if (this.start > 0) {
 							switch (this.source[this.start-1]) {
 								case '.':
-									if (this.source[this.start-2] == '>')
+									if (this.source[this.start-2] == '>') {
 										// case of member type where enclosing type is parameterized
+										if (dollarIndex != -1) this.index = dollarIndex;
 										this.token = TYPE;
-									else
+									} else {
 										this.token = METHOD;
+									}
 									return this.token;
 								default:
 									if (this.index == previousTokenEnd) {
 										this.start = this.index+1;
+										dollarIndex = -1;
 										previousTokenEnd = this.start;
 									} else {
+										if (dollarIndex != -1) this.index = dollarIndex;
 										this.token = TYPE;
 										return this.token;
 									}
@@ -235,11 +258,13 @@ public class BindingKeyParser {
 							return this.token;
 						}
 						this.start = this.index+1;
+						dollarIndex = -1;
 						previousTokenEnd = this.start;
 						break;
 					case '#':
 						if (this.index == previousTokenEnd) {
 							this.start = this.index+1;
+							dollarIndex = -1;
 							previousTokenEnd = this.start;
 						} else {
 							this.token = LOCAL_VAR;

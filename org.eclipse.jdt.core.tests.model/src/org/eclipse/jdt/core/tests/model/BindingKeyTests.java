@@ -569,4 +569,25 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		assertFalse("Should not be a raw type", new BindingKey("Ltest/ZZ<Ljava/lang/Object;>;").isRawType());
 	}
 	
+	/*
+	 * Ensures that the signature of a method defined in a cu with a $ name is correct
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=127739 )
+	 */
+	public void test052() {
+		assertBindingKeySignatureEquals(
+			"()V",
+			"LA$B~A$B;.m()V"
+		);
+	}
+	
+	/*
+	 * Ensures that the signature of a method with a $ name is correct
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=127739 )
+	 */
+	public void test053() {
+		assertBindingKeySignatureEquals(
+			"()V",
+			"LA;.m$1()V"
+		);
+	}
 }
