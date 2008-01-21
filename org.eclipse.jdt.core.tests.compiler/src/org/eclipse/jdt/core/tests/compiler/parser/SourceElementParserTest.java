@@ -166,7 +166,7 @@ public void dietParse(String s, String testName, boolean recordLocalDeclaration)
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 
-	parser.parseCompilationUnit(sourceUnit, false);
+	parser.parseCompilationUnit(sourceUnit, false, null);
 
 }
 public static String displayModifiers(int modifiers) {
@@ -329,7 +329,7 @@ public void fullParse(String s, String testName, boolean recordLocalDeclaration)
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 
-	parser.parseCompilationUnit(sourceUnit, true);
+	parser.parseCompilationUnit(sourceUnit, true, null);
 }
 public void reset() {
 	currentType = null;
