@@ -14,6 +14,7 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 import org.eclipse.jdt.core.Flags;
@@ -120,6 +121,7 @@ public class TestCase extends PerformanceTestCase {
 	public final static String STORE_MEMORY;
 	public final static boolean ALL_TESTS_LOG;
 	public final static boolean RUN_GC;
+	private static final NumberFormat DIGIT_FORMAT = NumberFormat.getNumberInstance();
 
 	/*
 	 * Static initializer for memory trace.
@@ -174,6 +176,7 @@ public class TestCase extends PerformanceTestCase {
 			System.out.println("	all tests log: "+ALL_TESTS_LOG);
 			System.out.println("	gc activated: "+RUN_GC);
 		}
+		DIGIT_FORMAT.setMinimumIntegerDigits(3);
 	}
 	/*
 	 * Flag telling if current test is the first of TestSuite it belongs or not.
@@ -816,31 +819,20 @@ protected void setUp() throws Exception {
 		}
 	}
 }
-
 private String format(long number) {
-	StringBuffer buffer = new StringBuffer();
 	long n = number;
-	long q = n / 1000L;
-	int r = (int) (n - q*1000);
-	buffer.append(r);
-//	int x = 0;
+	long q = n;
+	int[] values = new int[10];
+	int m = -1;
 	while ((n=q) > 0) {
 		q = n / 1000L;
-		r = (int) (n - q*1000);
-		buffer = new StringBuffer()
-			.append(r)
-			.append(',')
-			.append(buffer);
-//		x++;
+		values[++m] = (int) (n - q*1000);
 	}
-//	switch (x) {
-//		case 1:
-//			buffer.append('K');
-//			break;
-//		case 2:
-//			buffer.append('M');
-//			break;
-//	}
+	StringBuffer buffer = new StringBuffer();
+	buffer.append(values[m]);
+	for (int i=m-1; i>=0; i--) {
+		buffer.append(',').append(DIGIT_FORMAT.format(values[i]));
+	}
 	return buffer.toString();
 }
 
