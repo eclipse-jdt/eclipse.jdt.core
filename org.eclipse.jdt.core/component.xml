@@ -165,7 +165,6 @@
    <type name="MethodRef" instantiate="false"/>
    <type name="MethodRefParameter" instantiate="false"/>
    <type name="Modifier" instantiate="false" subclass="false"/>
-   <type name="NaiveASTFlattener" reference="false"/>
    <type name="Name" instantiate="false" subclass="false"/>
    <type name="NodeEventHandler" reference="false"/>
    <type name="NodeSearcher" reference="false"/>
