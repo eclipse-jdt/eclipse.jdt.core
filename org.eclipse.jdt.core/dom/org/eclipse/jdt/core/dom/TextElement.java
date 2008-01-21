@@ -29,7 +29,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public final class TextElement extends ASTNode implements IDocElement {
 
 	/**
-	 * The "test" structural property of this node type.
+	 * The "text" structural property of this node type.
 	 * 
 	 * @since 3.0
 	 */
