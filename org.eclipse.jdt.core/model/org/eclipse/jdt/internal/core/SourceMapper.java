@@ -1279,7 +1279,8 @@ public class SourceMapper
 			if (javaElement == null) javaElement = this.binaryType.getParent();
 			parser.parseCompilationUnit(
 				new BasicCompilationUnit(contents, null, this.binaryType.sourceFileName(info), javaElement),
-				doFullParse);
+				doFullParse,
+				null/*no progress*/);
 			if (elementToFind != null) {
 				ISourceRange range = this.getNameRange(elementToFind);
 				return range;

@@ -163,7 +163,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 				compilationUnitDeclaration = CompilationUnitProblemFinder.process(source, parser, this.owner, problems, createAST, reconcileFlags, pm);
 			}
 		} else {
-			compilationUnitDeclaration = parser.parseCompilationUnit(source, true /*full parse to find local elements*/);
+			compilationUnitDeclaration = parser.parseCompilationUnit(source, true /*full parse to find local elements*/, pm);
 		}
 		
 		if (createAST) {

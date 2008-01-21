@@ -65,7 +65,7 @@ public class SourceIndexer extends AbstractIndexer implements SuffixConstants {
 		if (source == null || name == null) return; // could not retrieve document info (e.g. resource was discarded)
 		CompilationUnit compilationUnit = new CompilationUnit(source, name);
 		try {
-			parser.parseCompilationUnit(compilationUnit, true/*full parse*/);
+			parser.parseCompilationUnit(compilationUnit, true/*full parse*/, null/*no progress*/);
 		} catch (Exception e) {
 			if (JobManager.VERBOSE) {
 				e.printStackTrace();

@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.compiler;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
@@ -23,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * A source element parser extracts structural and reference information
@@ -1509,7 +1512,8 @@ public void parseCompilationUnit(
 }
 public CompilationUnitDeclaration parseCompilationUnit(
 	ICompilationUnit unit, 
-	boolean fullParse) {
+	boolean fullParse,
+	IProgressMonitor pm) {
 		
 	boolean old = diet;
 	CompilationUnitDeclaration parsedUnit = null;
@@ -1518,6 +1522,8 @@ public CompilationUnitDeclaration parseCompilationUnit(
 		this.reportReferenceInfo = fullParse;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
 		parsedUnit = parse(unit, compilationUnitResult);
+		if (pm != null && pm.isCanceled())
+			throw new OperationCanceledException(Messages.operation_cancelled);
 		if (scanner.recordLineSeparator) {
 			requestor.acceptLineSeparatorPositions(compilationUnitResult.getLineSeparatorPositions());
 		}
