@@ -26,25 +26,14 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public abstract class ConverterTestSetup extends AbstractASTTests {
-
-	/** @deprecated Using deprecated code */
-	public static final int AST_INTERNAL_JLS2 = AST.JLS2;
-
+	
 	protected AST ast;
-	// TODO (frederic) use this field while converting instead of method argument
-	protected int testLevel = AST_INTERNAL_JLS2;
 	static List TEST_SUITES = null;
 	static boolean PROJECT_SETUP = false;
 
 	protected ConverterTestSetup(String name) {
 		super(name);
 	}
-
-	// TODO (frederic) replace all ASTParser creation with by calling this method
-	protected ASTParser createASTParser() {
-	    ASTParser parser = ASTParser.newParser(this.testLevel);
-	    return parser;
-    }
 
 	protected IPath getConverterJCLPath() {
 		return getConverterJCLPath(""); //$NON-NLS-1$
@@ -124,23 +113,23 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
-		return runConversion(AST_INTERNAL_JLS2, unit, resolveBindings);
+		return runConversion(astInternalJLS2(), unit, resolveBindings);
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
-		return runConversion(AST_INTERNAL_JLS2, unit, position, resolveBindings);
+		return runConversion(astInternalJLS2(), unit, position, resolveBindings);
 	}
 
 	public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
-		return runConversion(AST_INTERNAL_JLS2, classFile, position, resolveBindings);
+		return runConversion(astInternalJLS2(), classFile, position, resolveBindings);
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		return runConversion(AST_INTERNAL_JLS2, source, unitName, project);
+		return runConversion(astInternalJLS2(), source, unitName, project);
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, boolean resolveBindings) {
-		return runConversion(AST_INTERNAL_JLS2, source, unitName, project, resolveBindings);
+		return runConversion(astInternalJLS2(), source, unitName, project, resolveBindings);
 	}
 
 	public ASTNode runConversion(int astLevel, ICompilationUnit unit, boolean resolveBindings) {
@@ -418,7 +407,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		// Create parser
 		ASTParser parser;
 		if (checkJLS2) {
-			parser = ASTParser.newParser(AST_INTERNAL_JLS2);
+			parser = ASTParser.newParser(astInternalJLS2());
 			parser.setSource(unit);
 			parser.setResolveBindings(resolveBindings);
 			parser.createAST(null);
@@ -505,10 +494,10 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options, boolean resolveBindings) {
-		return runConversion(AST_INTERNAL_JLS2, source, unitName, project, options, resolveBindings);
+		return runConversion(astInternalJLS2(), source, unitName, project, options, resolveBindings);
 	}
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options) {
-		return runConversion(AST_INTERNAL_JLS2, source, unitName, project, options);
+		return runConversion(astInternalJLS2(), source, unitName, project, options);
 	}
 
 	protected ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {

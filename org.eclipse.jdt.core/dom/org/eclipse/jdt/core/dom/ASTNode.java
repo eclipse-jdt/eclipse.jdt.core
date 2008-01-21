@@ -19,6 +19,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
+
 /**
  * Abstract superclass of all Abstract Syntax Tree (AST) node types.
  * <p>

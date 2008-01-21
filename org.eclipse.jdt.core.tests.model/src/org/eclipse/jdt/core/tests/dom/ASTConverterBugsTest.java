@@ -536,4 +536,123 @@ public void testBug214647b() throws CoreException, IOException {
 		methodDeclaration.resolveBinding()
 	);
 }
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=215759
+ */
+/**
+ * @bug 215759: DOM AST regression tests should be improved
+ * @test these tests test the new DOM AST test framework
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=215759"
+ */
+public void testBug215759a() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+
+	this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/p/Y.java",
+			"package p;\n" + 
+			"public class  Y {\n" + 
+			"}",
+			true/*resolve*/);
+	
+	ASTResult result = this.buildMarkedAST(
+			"/Converter/src/p/X.java",
+			"package p;\n" + 
+			"public class X extends Y {\n" + 
+			"	/**\n" + 
+			"	 * blabla1\n" + 
+			"	 * @param [*1*]string[*1*] blabla2\n" + 
+			"	 */\n" + 
+			"	protected [*2*]String[*2*] foo(String string) {\n" + 
+			"		return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" + 
+			"	}\n" + 
+			"	/*comment*/[*4*]protected void bar() {}[*4*]\n" + 
+			"	#\n" + 
+			"}");
+	
+	assertASTResult(
+			"===== AST =====\n" + 
+			"package p;\n" + 
+			"public class X extends Y {\n" + 
+			"  /** \n" + 
+			" * blabla1\n" + 
+			" * @param [*1*]string[*1*] blabla2\n" + 
+			" */\n" + 
+			"  protected [*2*]String[*2*] foo(  String string){\n" + 
+			"    return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" + 
+			"  }\n" + 
+			"  [*4*]protected void bar(){\n" + 
+			"  }[*4*]\n" + 
+			"}\n" + 
+			"\n" + 
+			"===== Details =====\n" + 
+			"1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string,]\n" + 
+			"2:SIMPLE_TYPE,[97,6],,,[TYPE,Ljava/lang/String;,]\n" + 
+			"2:SIMPLE_NAME,[97,6],,,[TYPE,Ljava/lang/String;,]\n" + 
+			"3:PARENTHESIZED_EXPRESSION,[134,18],,,[N/A]\n" + 
+			"4:METHOD_DECLARATION,[176,23],,,[METHOD,Lp/X;.bar()V,]\n" + 
+			"===== Problems =====\n" + 
+			"1. ERROR in /Converter/src/p/X.java (at line 11)\n" + 
+			"	#\n" + 
+			"	^\n" + 
+			"Syntax error on token \"Invalid Character\", delete this token\n",
+			result);
+}
+
+public void testBug215759b() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	
+	this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/p/Y.java",
+			"package p;\n" + 
+			"public class  Y {\n" + 
+			"}",
+			true/*resolve*/);
+	
+	ASTResult result = this.buildMarkedAST(
+			"/Converter/src/p/X.java",
+			"package p;\n" + 
+			"public class X extends Y {\n" + 
+			"	/**\n" + 
+			"	 * blabla1\n" + 
+			"	 * @param [*1*]string[*1*] blabla2\n" + 
+			"	 */\n" + 
+			"	protected [*2*]String[*2*] foo(String string) {\n" + 
+			"		return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" + 
+			"	}\n" + 
+			"	/*comment*/[*4*]protected void bar() {}[*4*]\n" + 
+			"	[*5*]/**@deprecated*/protected void bar2() {}[*5*]\n" + 
+			"}");
+	
+	assertASTResult(
+			"===== AST =====\n" + 
+			"package p;\n" + 
+			"public class X extends Y {\n" + 
+			"  /** \n" + 
+			" * blabla1\n" + 
+			" * @param [*1*]string[*1*] blabla2\n" + 
+			" */\n" + 
+			"  protected [*2*]String[*2*] foo(  String string){\n" + 
+			"    return [*3*](\"\" + string + \"\")[*3*] + (\"\");\n" + 
+			"  }\n" + 
+			"  [*4*]protected void bar(){\n" + 
+			"  }[*4*]\n" + 
+			"  [*5*]/** \n" + 
+			" * @deprecated\n" + 
+			" */\n" + 
+			"  protected void bar2(){\n" + 
+			"  }[*5*]\n" + 
+			"}\n" + 
+			"\n" + 
+			"===== Details =====\n" + 
+			"1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string,]\n" + 
+			"2:SIMPLE_TYPE,[97,6],,,[TYPE,Ljava/lang/String;,]\n" + 
+			"2:SIMPLE_NAME,[97,6],,,[TYPE,Ljava/lang/String;,]\n" + 
+			"3:PARENTHESIZED_EXPRESSION,[134,18],,,[N/A]\n" + 
+			"4:METHOD_DECLARATION,[176,23],[165,34],,[METHOD,Lp/X;.bar()V,]\n" + 
+			"5:METHOD_DECLARATION,[201,40],,,[METHOD,Lp/X;.bar2()V,DEPRECATED]\n" + 
+			"===== Problems =====\n" + 
+			"No Problem",
+			result);
+}
 }

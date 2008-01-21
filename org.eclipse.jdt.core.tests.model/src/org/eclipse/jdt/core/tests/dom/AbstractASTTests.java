@@ -22,7 +22,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -55,10 +54,17 @@ import org.eclipse.jdt.core.dom.WildcardType;
 import org.eclipse.jdt.core.tests.model.ModifyingResourceTests;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public class AbstractASTTests extends ModifyingResourceTests {
-
-//	ICompilationUnit[] workingCopies;
-
+public class AbstractASTTests extends ModifyingResourceTests implements DefaultMarkedNodeLabelProviderOptions {
+	
+	/** @deprecated Using deprecated code */
+	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
+	public static final int astInternalJLS2() {
+		return AST_INTERNAL_JLS2;
+	}
+	
+	// TODO (frederic) use this field while converting instead of method argument
+	protected int testLevel = AST_INTERNAL_JLS2;
+	
 	public AbstractASTTests(String name) {
 		super(name);
 	}
@@ -70,20 +76,49 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	public class MarkerInfo {
 		String path;
 		String source;
+		
+		String markerStartStart;
+		String markerStartEnd;
+		String markerEndStart;
+		String markerEndEnd;
+		
 		int[] astStarts, astEnds;
 		
 		public MarkerInfo(String source) {
 			this(null, source);
 		}
 		public MarkerInfo(String path, String source) {
+			this(path, source, "/*", "*/", "start", "end");
+		}
+		public MarkerInfo(
+				String source,
+				String markerBeginning,
+				String markerEnding,
+				String markerStart,
+				String markerEnd) {
+			this(null, source, markerBeginning, markerEnding, markerStart, markerEnd);
+		}
+		
+		public MarkerInfo(
+				String path,
+				String source,
+				String markerBeginning,
+				String markerEnding,
+				String markerStart,
+				String markerEnd) {
 			this.path = path;
 			this.source = source;
+			
+			this.markerStartStart = markerBeginning + markerStart;
+			this.markerStartEnd = markerEnding;
+			this.markerEndStart = markerBeginning + markerEnd;
+			this.markerEndEnd = markerEnding;
 
 			int markerIndex = 1;
-			while (source.indexOf("/*start" + markerIndex + "*/") != -1) {
+			while (source.indexOf(this.markerStartStart + markerIndex + this.markerStartEnd) != -1) {
 				markerIndex++;
 			}
-			int astNumber = source.indexOf("/*start*/") != -1 ? markerIndex : markerIndex-1;
+			int astNumber = source.indexOf(this.markerStartStart + this.markerStartEnd) != -1 ? markerIndex : markerIndex-1;
 			this.astStarts = new int[astNumber];
 			this.astEnds = new int[astNumber];
 			
@@ -101,10 +136,9 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		}
 		
 		private void removeMarkerFromSource(String marker, int sourceIndex, int astNumber) {
-			char[] markerChars = marker.toCharArray();
-			this.source = new String(CharOperation.replace(this.source.toCharArray(), markerChars, CharOperation.NO_CHAR));
+			int markerLength = marker.length();
+			this.source = this.source.substring(0, sourceIndex).concat(this.source.substring(sourceIndex + markerLength));
 			// shift previously recorded positions
-			int markerLength = markerChars.length;
 			for (int i = 0; i < astNumber; i++) {
 				if (this.astStarts[i] > sourceIndex)
 					this.astStarts[i] -= markerLength;
@@ -121,8 +155,8 @@ public class AbstractASTTests extends ModifyingResourceTests {
 			} else
 				markerNumber = Integer.toString(markerIndex);
 			
-			String markerStart = "/*start" + markerNumber + "*/";
-			String markerEnd = "/*end" + markerNumber + "*/";
+			String markerStart = this.markerStartStart + markerNumber + this.markerStartEnd;
+			String markerEnd = this.markerEndStart + markerNumber + this.markerEndEnd;
 			int astStart = this.source.indexOf(markerStart); // start of AST inclusive
 			this.astStarts[markerIndex-1] = astStart;
 			removeMarkerFromSource(markerStart, astStart, markerIndex-1);
@@ -145,6 +179,15 @@ public class AbstractASTTests extends ModifyingResourceTests {
 				result[i] = (IBinding) this.bindings.get(bindingKeys[i]);
 			}
 			return result;
+		}
+	}
+	
+	public static class ASTResult {
+		public String result; // marked ast output
+		public String source; // source without marker
+		public ASTResult(String result, String source) {
+			this.result = result;
+			this.source = source;
 		}
 	}
 		
@@ -226,7 +269,25 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		}
 		assertEquals(message, expected, actual);
 	}
+	
+	protected void assertASTResult(
+			String expected,
+			ASTResult actual) throws JavaModelException {
+		
+		if (!expected.equals(actual.result)) {
+			System.out.println();
+			System.out.println(actual.source);
+			System.out.println(Util.displayString(actual.result, 3));
+		}
+		
+		assertEquals(expected, actual.result);
+	}
 
+	// TODO (frederic) replace all ASTParser creation with by calling this method
+	protected ASTParser createASTParser() {
+	    ASTParser parser = ASTParser.newParser(this.testLevel);
+	    return parser;
+    }
 	/*
 	 * Builds an AST from the info source (which is assumed to be the source attached to the given class file), 
 	 * and returns the AST node that was delimited by the astStart and astEnd of the marker info.
@@ -376,6 +437,75 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		return nodes;
 	}
 	
+	protected ASTResult buildMarkedAST(
+			String path,
+			String content) throws JavaModelException {
+		return
+			this.buildMarkedAST(
+					path,
+					content,
+					true, // enable statement recovery
+					true, // report ast
+					true, // report problems
+					new MarkedASTFlattener.DefaultMarkedNodeLabelProvider(ALL_OPTIONS));
+	}
+	
+	protected ASTResult buildMarkedAST(
+			String path,
+			String content,
+			boolean enableStatementRecovery,
+			boolean reportAST,
+			boolean reportProblems,
+			int options) throws JavaModelException {
+		return 
+			this.buildMarkedAST(
+					path,
+					content,
+					enableStatementRecovery,
+					reportAST,
+					reportProblems,
+					new MarkedASTFlattener.DefaultMarkedNodeLabelProvider(options));
+	}
+	
+	/*
+	 * Removes the marker comments "[*?*]" from the given new contents
+	 * (where ? is either empty or a number), or use the current contents if the given new contents is null.
+	 * Builds an AST from the resulting source and information about marked nodes.
+	 */
+	protected ASTResult buildMarkedAST(
+			String path,
+			String content,
+			boolean enableStatementRecovery,
+			boolean reportAST,
+			boolean reportProblems,
+			MarkedASTFlattener.DefaultMarkedNodeLabelProvider labelProvider) throws JavaModelException {
+		
+		MarkerInfo markerInfo;
+		markerInfo = new MarkerInfo(content, "[*", "*]", "", "");
+		content = markerInfo.source;
+		
+		ICompilationUnit compilationUnit = getWorkingCopy(path, content, true);
+		
+		ASTParser parser = createASTParser();
+		parser.setSource(compilationUnit);
+		parser.setResolveBindings(true);
+		parser.setWorkingCopyOwner(this.wcOwner);
+		parser.setStatementsRecovery(enableStatementRecovery);
+		CompilationUnit unit = (CompilationUnit)parser.createAST(null);
+		
+		MarkedASTFlattener flattener =
+			new MarkedASTFlattener(
+					reportAST,
+					reportProblems,
+					labelProvider);
+		flattener.process(unit, markerInfo);
+		
+		ASTResult result = new ASTResult(flattener.getResult(), markerInfo.source);
+		
+		compilationUnit.discardWorkingCopy();
+		
+		return result;
+	}
 
 	protected MarkerInfo[] createMarkerInfos(String[] pathAndSources) {
 		MarkerInfo[] markerInfos = new MarkerInfo[pathAndSources.length / 2];
