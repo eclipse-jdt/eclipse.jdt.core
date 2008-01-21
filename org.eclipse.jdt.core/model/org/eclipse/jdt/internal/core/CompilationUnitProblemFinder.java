@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.*;
@@ -204,6 +205,9 @@ public class CompilationUnitProblemFinder extends Compiler {
 				System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment.nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			return unit;
+		} catch (OperationCanceledException e) {
+			// catch this exception so as to not enter the catch(RuntimeException e) below
+			throw e;
 		} catch(RuntimeException e) { 
 			// avoid breaking other tools due to internal compiler failure (40334)
 			String lineDelimiter = unitElement.findRecommendedLineSeparator();
