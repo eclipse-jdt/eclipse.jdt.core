@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -9217,8 +9218,6 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertNotNull("No fields", fields);
 		assertTrue("Empty", fields.length != 0);
 	}
-	
-	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=196354
 	 */
@@ -9232,5 +9231,20 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		final IPackageBinding packageBinding = packageDeclaration.resolveBinding();
 		assertNotNull("No binding", packageBinding);
 		assertEquals("Wrong name", "Sample", packageBinding.getName());
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=215858
+	 */
+	public void test0679() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0679", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertNotNull(types);
+		assertEquals("wrong size", 1, types.length);
+		IType type = types[0];
+		IField field = type.getField("i");
+		assertNotNull("No field", field);
+		ISourceRange sourceRange = field.getNameRange();
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		assertNotNull(result);
 	}
 }
