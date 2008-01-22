@@ -9553,7 +9553,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		}
 	}
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40474
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=215858
 	 */
 	public void test0688() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0688", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
