@@ -39,7 +39,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 247, 248 };
+//		TESTS_NUMBERS = new int[] { 248 };
 //		TESTS_RANGE = new int[] { 219, -1 };
 	}
 
@@ -2762,7 +2762,8 @@ public class AnnotationTest extends AbstractComparableTest {
 				"		try {\n" +
 				"			Class c = X.class;\n" +
 				"			Annotation[] annots = c.getAnnotations();\n" +
-				"			System.out.print(annots.length);\n" +				"			Method method = c.getMethod(\"foo\", Integer.TYPE, Integer.TYPE, Integer.TYPE);\n" +
+				"			System.out.print(annots.length);\n" +
+				"			Method method = c.getMethod(\"foo\", Integer.TYPE, Integer.TYPE, Integer.TYPE);\n" +
 				"			Annotation[][] annotations = method.getParameterAnnotations();\n" +
 				"			final int length = annotations.length;\n" +
 				"			System.out.print(length);\n" +
@@ -5403,18 +5404,18 @@ public void test142c() {
 		disassembler.disassemble(
 				classFileBytes,
 				"\n",
-				ClassFileBytesDisassembler.DETAILED);			
-	}    
-    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99469
-    public void test167() {
-        this.runNegativeTest(
-            new String[] {
-                "X.java",
+				ClassFileBytesDisassembler.DETAILED);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99469
+	public void test167() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
 				"public class X {\n" + 
 				"	public foo(@Deprecated() String s) {\n" + 
 				"	}\n" + 
 				"}\n",
-           },
+			},
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public foo(@Deprecated() String s) {\n" + 
