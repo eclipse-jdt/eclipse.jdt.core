@@ -154,6 +154,8 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	protected int nlsTagsPtr;
 	public boolean checkNonExternalizedStringLiterals;
 	
+	protected int lastPosistion;
+	
 	// generic support
 	public boolean returnOnlyGreater = false;
 	
@@ -204,9 +206,25 @@ public PublicScanner(
 	this.sourceLevel = sourceLevel;
 	this.complianceLevel = complianceLevel;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
-	this.taskTags = taskTags;
-	this.taskPriorities = taskPriorities;
-	this.isTaskCaseSensitive = isTaskCaseSensitive;
+	if (taskTags != null) {
+		int length = taskTags.length;
+		if (taskPriorities != null) {
+			int[] initialIndexes = new int[length];
+			for (int i = 0; i < length; i++) {
+				initialIndexes[i] = i;
+			}
+			Util.reverseQuickSort(taskTags, 0, taskTags.length - 1, initialIndexes);
+			char[][] temp = new char[length][];
+			for (int i = 0; i < length; i++) {
+				temp[i] = taskPriorities[initialIndexes[i]];
+			}
+			this.taskPriorities = temp;
+		} else {
+			Util.reverseQuickSort(taskTags, 0, taskTags.length - 1);
+		}
+		this.taskTags = taskTags;
+		this.isTaskCaseSensitive = isTaskCaseSensitive;
+	}
 }
 
 public PublicScanner(
@@ -270,8 +288,10 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 					char sc, tc;
 					int x = i+t;
 					if (x >= this.eofPosition || x >= commentEnd) continue nextTag;
-					if ((sc = src[i + t]) != (tc = tag[t])) { 																					// case sensitive check
-						if (this.isTaskCaseSensitive || (ScannerHelper.toLowerCase(sc) != ScannerHelper.toLowerCase(tc))) { 	// case insensitive check
+					// case sensitive check
+					if ((sc = src[i + t]) != (tc = tag[t])) {
+						// case insensitive check
+						if (this.isTaskCaseSensitive || (ScannerHelper.toLowerCase(sc) != ScannerHelper.toLowerCase(tc))) {
 							continue nextTag;
 						}
 					}
@@ -1486,7 +1506,8 @@ public int getNextToken() throws InvalidInputException {
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
-									if (this.checkNonExternalizedStringLiterals) {
+									if (this.checkNonExternalizedStringLiterals &&
+											this.lastPosistion < this.currentPosition) {
 										parseTags();
 									}
 									if (this.recordLineSeparator) {
@@ -1504,7 +1525,8 @@ public int getNextToken() throws InvalidInputException {
 								this.currentPosition--;
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
-								if (this.checkNonExternalizedStringLiterals) {
+								if (this.checkNonExternalizedStringLiterals &&
+										this.lastPosistion < this.currentPosition) {
 									parseTags();
 								}
 								if (this.tokenizeComments) {
@@ -1930,7 +1952,8 @@ public final void jumpOverMethodBody() {
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.recordLineSeparator
 									&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
-										if (this.checkNonExternalizedStringLiterals) {
+										if (this.checkNonExternalizedStringLiterals &&
+												this.lastPosistion < this.currentPosition) {
 											parseTags();
 										}
 										if (this.recordLineSeparator) {
@@ -1945,7 +1968,8 @@ public final void jumpOverMethodBody() {
 								 //an eof will then be generated
 								this.currentPosition--;
 								recordComment(TokenNameCOMMENT_LINE);
-								if (this.checkNonExternalizedStringLiterals) {
+								if (this.checkNonExternalizedStringLiterals &&
+										this.lastPosistion < this.currentPosition) {
 									parseTags();
 								}
 								if (!this.tokenizeComments) {
