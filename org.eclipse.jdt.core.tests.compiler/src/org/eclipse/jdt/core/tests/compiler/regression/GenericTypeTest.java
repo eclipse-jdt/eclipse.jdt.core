@@ -39326,5 +39326,323 @@ public void test1231() {
 			false,
 			null);		
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843
+public void test1232() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void testCovariant(SubInterface sub1, SubInterface sub2) {\n" + 
+			"		SubInterface sub3 = sub1.and(sub2);\n" + 
+			"	}\n" + 
+			"	public interface SuperInterface<E> {\n" + 
+			"		public Number getNumber();\n" + 
+			"		public SuperInterface<E> and(SuperInterface<E> a);\n" + 
+			"	}\n" + 
+			"	public interface SubInterface extends SuperInterface {\n" + 
+			"		public Integer getNumber();\n" + 
+			"		public SubInterface and(SuperInterface s);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
+public void test1233() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void testCovariant(SubInterface<String> sub1, SubInterface<String> sub2) {\n" + 
+			"		SubInterface<String> sub3 = sub1.and(sub2);\n" + 
+			"	}\n" + 
+			"	public interface SuperInterface<E> {\n" + 
+			"		public Number getNumber();\n" + 
+			"		public SuperInterface<E> and(SuperInterface<E> a);\n" + 
+			"	}\n" + 
+			"	public interface SubInterface<F> extends SuperInterface<F> {\n" + 
+			"		public Integer getNumber();\n" + 
+			"		public SubInterface<F> and(SuperInterface<F> s);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
+public void test1234() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X { \n" + 
+			"	void a3(G x) {} \n" + 
+			"	<T extends F<X>> void a3(T x) {}\n" + 
+			"\n" + 
+			"	public static void ambiguousCases() { \n" + 
+			"		H<X> hx = null;\n" + 
+			"		H hraw = null;\n" + 
+			"		new X().a3(hx);\n" + 
+			"		new X().a3(hraw);\n" + 
+			"	} \n" + 
+			"}\n" + 
+			"class F<T1> {}  \n" + 
+			"class G<T2> extends F<T2> {}\n" + 
+			"class H<T3> extends G<T3> {}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	void a3(G x) {} \n" + 
+		"	        ^\n" + 
+		"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	H hraw = null;\n" + 
+		"	^\n" + 
+		"H is a raw type. References to generic type H<T3> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	new X().a3(hx);\n" + 
+		"	        ^^\n" + 
+		"The method a3(G) is ambiguous for the type X\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
+		"	new X().a3(hraw);\n" + 
+		"	        ^^\n" + 
+		"The method a3(G) is ambiguous for the type X\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
+public void test1235() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X { \n" + 
+			"	<T extends G<X>> void a3(T x) {}\n" + 
+			"	<T extends F<X>> void a3(T x) {}\n" + 
+			"\n" + 
+			"	public static void ambiguousCases() { \n" + 
+			"		H<X> hx = null;\n" + 
+			"		H hraw = null;\n" + 
+			"		new X().a3(hx);\n" + 
+			"		new X().a3(hraw);\n" + 
+			"	} \n" + 
+			"}\n" + 
+			"class F<T1> {}  \n" + 
+			"class G<T2> extends F<T2> {}\n" + 
+			"class H<T3> extends G<T3> {}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
+public void test1236() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void testCovariant(SubInterface sub1, SubInterface sub2) {\n" + 
+			"		SubInterface sub3 = sub1.and(sub2);\n" + 
+			"	}\n" + 
+			"	public interface SuperInterface<E> {\n" + 
+			"		public Number getNumber();\n" + 
+			"		public SuperInterface<E> and(SuperInterface<E> a);\n" + 
+			"	}\n" + 
+			"	public interface SubInterface extends SuperInterface, OtherSubInterface {\n" + 
+			"		public Integer getNumber();\n" + 
+			"		public SubInterface and(SuperInterface s);\n" + 
+			"	}\n" + 
+			"	public interface OtherSubInterface<U> extends SuperInterface<U> {\n" + 
+			"		public OtherSubInterface<U> and(SuperInterface<U> a);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
+public void test1237() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void testCovariant(SubInterface sub1, SubInterface sub2) {\n" + 
+			"		SubInterface sub3 = sub1.and(sub2);\n" + 
+			"	}\n" + 
+			"	public interface SuperInterface<E> {\n" + 
+			"		public Number getNumber();\n" + 
+			"		public SuperInterface<E> and(SuperInterface<E> a);\n" + 
+			"	}\n" + 
+			"	public interface SubInterface extends SuperInterface, OtherSubInterface {\n" + 
+			"	}\n" + 
+			"	public interface OtherSubInterface<U> extends SuperInterface<U> {\n" + 
+			"		public OtherSubInterface<U> and(SuperInterface<U> a);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	SubInterface sub3 = sub1.and(sub2);\n" + 
+		"	                    ^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method and(X.SuperInterface) belongs to the raw type X.OtherSubInterface. References to generic type X.OtherSubInterface<U> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	SubInterface sub3 = sub1.and(sub2);\n" + 
+		"	                    ^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X.OtherSubInterface to X.SubInterface\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 9)\n" + 
+		"	public interface SubInterface extends SuperInterface, OtherSubInterface {\n" + 
+		"	                                      ^^^^^^^^^^^^^^\n" + 
+		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<E> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 9)\n" + 
+		"	public interface SubInterface extends SuperInterface, OtherSubInterface {\n" + 
+		"	                                                      ^^^^^^^^^^^^^^^^^\n" + 
+		"X.OtherSubInterface is a raw type. References to generic type X.OtherSubInterface<U> should be parameterized\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
+public void test1238() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void testCovariant(SubInterface sub1, SubInterface sub2) {\n" + 
+			"		SubInterface sub3 = sub1.and(sub2);\n" + 
+			"	}\n" + 
+			"	public interface SuperInterface<E> {\n" + 
+			"		public Number getNumber();\n" + 
+			"		public SuperInterface<E> and(SuperInterface<E> a);\n" + 
+			"	}\n" + 
+			"	public interface SubInterface extends SuperInterface, OtherSubInterface {\n" + 
+			"	}\n" + 
+			"	public interface OtherSubInterface extends SuperInterface {\n" + 
+			"		public OtherSubInterface and(SuperInterface a);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	SubInterface sub3 = sub1.and(sub2);\n" + 
+		"	                    ^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X.OtherSubInterface to X.SubInterface\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	public interface SubInterface extends SuperInterface, OtherSubInterface {\n" + 
+		"	                                      ^^^^^^^^^^^^^^\n" + 
+		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 11)\n" + 
+		"	public interface OtherSubInterface extends SuperInterface {\n" + 
+		"	                                           ^^^^^^^^^^^^^^\n" + 
+		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<E> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 12)\n" + 
+		"	public OtherSubInterface and(SuperInterface a);\n" + 
+		"	                             ^^^^^^^^^^^^^^\n" + 
+		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<E> should be parameterized\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
+public void test1239() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void testCovariant(CombinedSubInterface sub1, SubInterface sub2) {\n" + 
+			"		SubInterface sub3 = sub1.and(sub2);\n" + 
+			"	}\n" + 
+			"	public interface SuperInterface<E> {\n" + 
+			"		public Number getNumber();\n" + 
+			"		public SuperInterface<E> and(SuperInterface<E> a);\n" + 
+			"	}\n" + 
+			"	public interface SubInterface extends SuperInterface {\n" + 
+			"		public Integer getNumber();\n" + 
+			"		public SubInterface and(SuperInterface s);\n" + 
+			"	}\n" + 
+			"	public interface CombinedSubInterface extends SubInterface, OtherSubInterface {}\n" + 
+			"	\n" + 
+			"	public interface OtherSubInterface extends SuperInterface {\n" + 
+			"		public OtherSubInterface and(SuperInterface a);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	SubInterface sub3 = sub1.and(sub2);\n" + 
+		"	                         ^^^\n" + 
+		"The method and(X.SuperInterface) is ambiguous for the type X.CombinedSubInterface\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	public interface SubInterface extends SuperInterface {\n" + 
+		"	                                      ^^^^^^^^^^^^^^\n" + 
+		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 11)\n" + 
+		"	public SubInterface and(SuperInterface s);\n" + 
+		"	                        ^^^^^^^^^^^^^^\n" + 
+		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<E> should be parameterized\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 13)\n" + 
+		"	public interface CombinedSubInterface extends SubInterface, OtherSubInterface {}\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The return type is incompatible with X.OtherSubInterface.and(X.SuperInterface), X.SubInterface.and(X.SuperInterface)\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 15)\n" + 
+		"	public interface OtherSubInterface extends SuperInterface {\n" + 
+		"	                                           ^^^^^^^^^^^^^^\n" + 
+		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<E> should be parameterized\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 16)\n" + 
+		"	public OtherSubInterface and(SuperInterface a);\n" + 
+		"	                             ^^^^^^^^^^^^^^\n" + 
+		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<E> should be parameterized\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
+public void test1240() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void testCovariant(CombinedSubInterface sub1, SubInterface sub2) {\n" + 
+			"		SubInterface sub3 = sub1.and(sub2);\n" + 
+			"	}\n" + 
+			"	public interface SuperInterface<E> {\n" + 
+			"		public Number getNumber();\n" + 
+			"		public SuperInterface<E> and(SuperInterface<E> a);\n" + 
+			"	}\n" + 
+			"	public interface SubInterface extends SuperInterface {\n" + 
+			"		public Integer getNumber();\n" + 
+			"		public SubInterface and(SuperInterface s);\n" + 
+			"	}\n" + 
+			"	public interface OtherSubInterface extends SubInterface {\n" + 
+			"		public OtherSubInterface and(SuperInterface a);\n" + 
+			"	}\n" + 
+			"	public interface CombinedSubInterface extends OtherSubInterface {}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
+public void test1241() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void testCovariant(CombinedSubInterface sub1, SubInterface sub2) {\n" + 
+			"		CombinedSubInterface sub3 = sub1.and(sub2);\n" + 
+			"	}\n" + 
+			"	public interface SuperInterface<E> {\n" + 
+			"		public SuperInterface<E> and(SuperInterface<E> a);\n" + 
+			"	}\n" + 
+			"	public interface SubInterface extends SuperInterface {\n" + 
+			"	}\n" + 
+			"	public interface OtherSubInterface extends SuperInterface {\n" + 
+			"		public CombinedSubInterface and(SuperInterface a);\n" + 
+			"	}\n" + 
+			"	public interface CombinedSubInterface extends SubInterface, OtherSubInterface {}\n" + 
+			"}\n",
+		},
+		"");
+}
 
 }

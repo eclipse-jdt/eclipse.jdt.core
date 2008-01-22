@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2574,14 +2574,19 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				TypeBinding oneParam = oneParams[i];
 				TypeBinding twoParam = twoParams[i];
 				if (oneParam == twoParam) {
-					if (oneParam.leafComponentType().isRawType()) {
-						// A#RAW is not more specific than a rawified A<T>
-						if (oneParam == one.original().parameters[i] && oneParam != two.original().parameters[i])
+					if (twoParam.leafComponentType().isRawType()) {
+						// must detect & reject this case
+						// when Y<U> extends X<U>
+						// void foo(Y y) {}
+						// <T extends X<Object>> void foo(T t) {}
+						// foo(T) will show up as foo(Y#RAW) and not foo(X#RAW)
+						// Y#RAW is not more specific than a rawified X<T>
+						if (oneParam == one.original().parameters[i]
+								&&  twoParam.leafComponentType().erasure() != two.original().parameters[i].leafComponentType().erasure()) {
 							return false;
+						}
 					}
-					continue;
-				}
-				if (oneParam.isCompatibleWith(twoParam)) {
+				} else if (oneParam.isCompatibleWith(twoParam)) {
 					if (oneParam.leafComponentType().isRawType()) {
 						// A#RAW is not more specific than a rawified A<T>
 						if (oneParam.needsUncheckedConversion(two.declaringClass.isRawType() ? twoParam : two.original().parameters[i]))
