@@ -675,6 +675,7 @@ public void test017() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
 // variant: using a binary class
+// **
 public void test018() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
