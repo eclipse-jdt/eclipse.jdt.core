@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,6 +77,8 @@
  *								   COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_ALL_TAGS
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_REDUNDANT_SUPERINTERFACE
+ *     IBM Corporation - added the following constant:
+ *                                 COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_UNCHECKED_EXCEPTIONS
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -458,6 +460,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.4
 	 */
 	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionIncludeDocCommentReference"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.4
+	 */
+	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_UNCHECKED_EXCEPTIONS = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionIncludeUnckechedExceptions"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -2277,8 +2285,12 @@ public final class JavaCore extends Plugin {
 	 *     - default:           "warning"
 	 *
 	 * COMPILER / Reporting Unused Declared Thrown Exception
-	 *    When enabled, the compiler will issue an error or a warning when a method or a constructor is declaring a
-	 *    thrown checked exception, but never actually raises it in its body.
+	 *    When enabled, the compiler will issue an error or a warning when a 
+	 *    method or a constructor is declaring a thrown exception, but never 
+	 *    actually raises it in its body. Depending on
+	 *    "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeUncheckedExceptions",
+	 *    only checked exceptions will be considered (default), or all 
+	 *    exceptions, including unchecked ones, will be considered. 
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
@@ -2301,6 +2313,17 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeDocCommentReference"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
+	 *
+	 * COMPILER / Reporting Unused Declared Thrown Unchecked Exceptions
+	 *    When enabled, the compiler will report unused declared thrown 
+	 *    exceptions for all exceptions, including unchecked ones. When 
+	 *    disabled, only checked exceptions will be considered.
+	 *    <br>
+	 *    The severity of the problem is controlled with option 
+	 *    "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeUncheckedExceptions"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
 	 *
 	 * COMPILER / Reporting Unqualified Access to Field
 	 *    When enabled, the compiler will issue an error or a warning when a field is access without any qualification.

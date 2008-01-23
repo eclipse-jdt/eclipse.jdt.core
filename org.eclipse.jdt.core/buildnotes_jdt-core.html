@@ -46,9 +46,28 @@ Eclipse SDK 3.4M5 - %date% - 3.4 MILESTONE 5
 <br>Project org.eclipse.jdt.core v_834
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_834">cvs</a>).
 <h2>What's new in this drop</h2>
-
+<ul>
+<li>Added new compiler option to detect unused declared unchecked exceptions.
+<pre>
+ * COMPILER / Reporting Unused Declared Thrown Unchecked Exceptions
+ *    When enabled, the compiler will report unused declared thrown 
+ *    exceptions for all exceptions, including unchecked ones. When 
+ *    disabled, only checked exceptions will be considered.
+ *    <br>
+ *    The severity of the problem is controlled with option 
+ *    "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException".
+ *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeUncheckedExceptions"
+ *     - possible values:   { "enabled", "disabled" }
+ *     - default:           "disabled"
+</pre>
+(note that the specification for unusedDeclaredThrownException has been
+amended accordingly; see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=100278">bug 100278</a>)
+</li>
+</ul>
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=191090">191090</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=100278">100278</a>
+[compiler] Add compiler warning for explicitly declared runtime exceptions
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=191090">191090</a>
 [compiler] Preserve annotations for the problem methods
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=215843">215843</a>
 [1.5][compiler] Compiler error with generic covariant

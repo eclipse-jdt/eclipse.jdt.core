@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,11 +58,15 @@ public ExceptionHandlingFlowContext(
 	this.isReached = new int[cacheSize]; // none is reached by default
 	this.isNeeded = new int[cacheSize]; // none is needed by default
 	this.initsOnExceptions = new UnconditionalFlowInfo[count];
+	boolean reachUnchecked = !scope.compilerOptions().
+		reportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions;
 	for (int i = 0; i < count; i++) {
 		this.indexes.put(handledExceptions[i], i); // key type  -> value index
 		int cacheIndex = i / ExceptionHandlingFlowContext.BitCacheSize, bitMask = 1 << (i % ExceptionHandlingFlowContext.BitCacheSize);
 		if (handledExceptions[i].isUncheckedException(true)) {
-			this.isReached[cacheIndex] |= bitMask;
+			if (reachUnchecked) {
+				this.isReached[cacheIndex] |= bitMask;
+			}
 			this.initsOnExceptions[i] = flowInfo.unconditionalCopy();
 		} else {
 			this.initsOnExceptions[i] = FlowInfo.DEAD_END;
