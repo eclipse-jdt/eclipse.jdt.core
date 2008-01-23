@@ -1131,7 +1131,7 @@ public void test012b(){
         "      redundantSuperinterface                + find redundant superinterfaces\n" +
         "      semicolon            unnecessary semicolon, empty statement\n" +
         "      serial             + missing serialVersionUID\n" +
-        "      specialParamHiding   constructor or setter parameter hiding another field\n" +
+        "      specialParamHiding   constructor or setter parameter hiding a field\n" +
         "      static-access        macro for indirectStatic and staticReceiver\n" +
         "      staticReceiver     + non-static reference to static member\n" +
         "      super                overriding a method without making a super invocation\n" +
