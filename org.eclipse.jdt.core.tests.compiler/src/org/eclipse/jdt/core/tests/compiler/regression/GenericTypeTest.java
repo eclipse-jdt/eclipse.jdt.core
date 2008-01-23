@@ -41484,4 +41484,109 @@ public void test1242() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100
+public void test1243() {
+	this.runConformTest(
+		new String[] {
+			"eclipse/modifier/impl/EclipseModifierBug.java",
+			"package eclipse.modifier.impl;\n" + 
+			"import eclipse.modifier.Pool;\n" + 
+			"public class EclipseModifierBug {\n" + 
+			"  static class MyEntry extends Pool.AbstractEntry<MyEntry> { }  \n" + 
+			"  static final Pool<MyEntry> pool=new Pool<MyEntry>() {\n" + 
+			"    @Override\n" + 
+			"    protected MyEntry delegate() {\n" + 
+			"      return new MyEntry();\n" + 
+			"    }  \n" + 
+			"  };\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    MyEntry entry=pool.m();  \n" + 
+			"  }\n" + 
+			"}", // =================
+			"eclipse/modifier/Pool.java",
+			"package eclipse.modifier;\n" + 
+			"public abstract class Pool<E extends Pool.Entry<E>> {\n" + 
+			"    static abstract class Entry<E extends Entry<E>> {\n" + 
+			"        E next;\n" + 
+			"    }\n" + 
+			"    static public class AbstractEntry<E extends AbstractEntry<E>> extends Entry<E> {\n" + 
+			"    }\n" + 
+			"    public E m() {\n" + 
+			"      return delegate();\n" + 
+			"    }\n" + 
+			"    protected abstract E delegate();\n" + 
+			"  }\n" + 
+			"\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100 - variation
+public void test1244() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  static class MyEntry extends Pool.AbstractEntry<MyEntry> { }  \n" + 
+				"  static final Pool<MyEntry> pool=new Pool<MyEntry>() {\n" + 
+				"    @Override\n" + 
+				"    protected MyEntry delegate() {\n" + 
+				"      return new MyEntry();\n" + 
+				"    }  \n" + 
+				"  };\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    MyEntry entry=pool.m();\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Pool<E extends Pool.Entry<E>> {\n" + 
+				"    private static abstract class Entry<E extends Entry<E>> {\n" + 
+				"        E next;\n" + 
+				"    }\n" + 
+				"    static public class AbstractEntry<E extends AbstractEntry<E>> extends Entry<E> {\n" + 
+				"    }\n" + 
+				"    public E m() {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"      return delegate();\n" + 
+				"    }\n" + 
+				"    protected abstract E delegate();\n" + 
+				"}\n", // =================
+
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100 - variation
+public void test1245() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X<T extends Secondary.Private> {\n" + 
+				"}\n" + 
+				"class Secondary {\n" + 
+				"	static private class Private {}\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends Secondary.Private> {\n" + 
+		"	                         ^^^^^^^^^^^^^^^^^\n" + 
+		"The type Secondary.Private is not visible\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	static private class Private {}\n" + 
+		"	                     ^^^^^^^\n" + 
+		"The type Secondary.Private is never used locally\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100 - variation
+public void test1246() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X<T extends X.Private> {\n" + 
+				"	static private class Private {}\n" + 
+				"	<U extends X.Private> void foo(U u) {}\n" + 
+				"}\n", // =================
+		},
+		"");
+}
 }
