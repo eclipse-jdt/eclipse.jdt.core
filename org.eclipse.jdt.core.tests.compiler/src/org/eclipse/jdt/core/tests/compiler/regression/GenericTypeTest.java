@@ -41437,4 +41437,51 @@ public void test1241() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=164655
+public void test1242() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.LinkedList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public void testCase() {\n" + 
+			"		TypedCollection<SuperTypeAbstractClass> collection = TypedCollectionFactory.createTypedCollection(SubTypeClass.class);\n" + 
+			"		collection.add(new SubTypeClass());\n" + 
+			"		List<SuperTypeAbstractClass> list = collection.list();\n" + 
+			"		assert (list.size() > 0);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"abstract class SuperTypeAbstractClass {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class SubTypeClass extends SuperTypeAbstractClass {\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface TypedCollection<T> {\n" + 
+			"	TypedCollection<T> add(T object);\n" + 
+			"	List<T> list();\n" + 
+			"}\n" + 
+			"\n" + 
+			"class TypedCollectionFactory {\n" + 
+			"	public static <T, U extends T> TypedCollection<T> createTypedCollection(Class<U> c) {\n" + 
+			"		return new TypedCollectionImpl<T>();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class TypedCollectionImpl<T> implements TypedCollection<T> {\n" + 
+			"	private List<T> list = new LinkedList<T>();\n" + 
+			"	public TypedCollection<T> add(T object) {\n" + 
+			"		list.add(object);\n" + 
+			"		return (this);\n" + 
+			"	}\n" + 
+			"	public List<T> list() {\n" + 
+			"		return list;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");
+}
 }
