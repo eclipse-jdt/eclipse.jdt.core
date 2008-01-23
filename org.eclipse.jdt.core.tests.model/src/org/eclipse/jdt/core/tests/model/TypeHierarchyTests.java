@@ -934,6 +934,74 @@ public void testGeneric10() throws CoreException {
 		deleteFile("/TypeHierarchy15/src/X_140340.java");
 	}
 }
+/*
+ * Ensures that no cycle is created in a hierarchy with 2 types with same simple names and errors 
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=215681 )
+ */
+public void testGeneric11() throws CoreException {
+	try {
+		createFolder("/TypeHierarchy15/src/p215681");
+		createFile(
+			"/TypeHierarchy15/src/p215681/A_215681.java", 
+			"package p215681;\r\n" + 
+			"public class A_215681<E> {\n" + 
+			"}"
+		);
+		createFolder("/TypeHierarchy15/src/q215681");
+		createFile(
+			"/TypeHierarchy15/src/q215681/A_215681.java", 
+			"package q215681;\n" + 
+			"import p215681.A_215681;\n" + 
+			"public class A_215681 extends A_215681<Object> {\n" + 
+			"}"
+		);
+		IType type = getCompilationUnit("/TypeHierarchy15/src/q215681/A_215681.java").getType("A_215681");
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+		assertHierarchyEquals(
+			"Focus: A_215681 [in A_215681.java [in q215681 [in src [in TypeHierarchy15]]]]\n" + 
+			"Super types:\n" + 
+			"Sub types:\n",
+			hierarchy
+		);
+	} finally {
+		deleteFolder("/TypeHierarchy15/src/p215681");
+		deleteFolder("/TypeHierarchy15/src/q215681");
+	}
+}
+/*
+ * Ensures that no cycle is created in a hierarchy with 2 types with same simple names and errors 
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=215681 )
+ */
+public void testGeneric12() throws CoreException {
+	try {
+		createFolder("/TypeHierarchy15/src/p215681");
+		createFile(
+			"/TypeHierarchy15/src/p215681/A_215681.java", 
+			"package p215681;\r\n" + 
+			"public interface A_215681<E> {\n" + 
+			"}"
+		);
+		createFolder("/TypeHierarchy15/src/q215681");
+		createFile(
+			"/TypeHierarchy15/src/q215681/A_215681.java", 
+			"package q215681;\n" + 
+			"import p215681.A_215681;\n" + 
+			"public interface A_215681 extends A_215681<Object> {\n" + 
+			"}"
+		);
+		IType type = getCompilationUnit("/TypeHierarchy15/src/q215681/A_215681.java").getType("A_215681");
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+		assertHierarchyEquals(
+			"Focus: A_215681 [in A_215681.java [in q215681 [in src [in TypeHierarchy15]]]]\n" + 
+			"Super types:\n" + 
+			"Sub types:\n",
+			hierarchy
+		);
+	} finally {
+		deleteFolder("/TypeHierarchy15/src/p215681");
+		deleteFolder("/TypeHierarchy15/src/q215681");
+	}
+}
 /**
  * Ensures the correctness of all classes in a type hierarchy based on a region.
  */

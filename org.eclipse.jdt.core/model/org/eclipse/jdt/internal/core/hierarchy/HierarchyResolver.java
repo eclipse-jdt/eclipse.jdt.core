@@ -328,8 +328,12 @@ private void fixSupertypeBindings() {
 				if (superclass instanceof ProblemReferenceBinding) {
 					superclass = ((ProblemReferenceBinding) superclass).closestMatch();
 				}
-				if (superclass != null) 
-					((SourceTypeBinding) typeBinding).superclass = (ReferenceBinding) superclass;
+				if (superclass != null) {
+					// ensure we are not creating a cycle (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=215681 )
+					if (!(subTypeOfType((ReferenceBinding) superclass, typeBinding))) {
+						((SourceTypeBinding) typeBinding).superclass = (ReferenceBinding) superclass;
+					}
+				}
 	
 				TypeReference[] superInterfaces = typeDeclaration == null ? null : typeDeclaration.superInterfaces;
 				int length;
@@ -341,8 +345,12 @@ private void fixSupertypeBindings() {
 						ReferenceBinding superInterface = (ReferenceBinding) superInterfaces[i].resolvedType;
 						if (superInterface instanceof ProblemReferenceBinding)
 							superInterface = superInterface.closestMatch();
-						if (superInterface != null)
-							interfaceBindings[index++] = superInterface;
+						if (superInterface != null) {
+							// ensure we are not creating a cycle (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=215681 )
+							if (!(subTypeOfType(superInterface, typeBinding))) {
+								interfaceBindings[index++] = superInterface;
+							}
+						}
 					}
 					if (index < length)
 						System.arraycopy(interfaceBindings, 0, interfaceBindings = new ReferenceBinding[index], 0 , index);
