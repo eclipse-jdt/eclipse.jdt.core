@@ -1579,7 +1579,7 @@ public void testMissingInterface() throws JavaModelException {
  * is correct.
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=213249 )
  */
-public void testMissingBinarySuperclass() throws Exception {
+public void testMissingBinarySuperclass1() throws Exception {
 	try {
 		IJavaProject project = createJavaProject("P", new String[0], "bin");
 		addClassFolder(project, "lib", new String[] {
@@ -1599,6 +1599,41 @@ public void testMissingBinarySuperclass() throws Exception {
 		deleteFile("/P/lib/p/X213249.class");
 		IType type = getClassFile("/P/lib/p/Z213249.class").getType();
 		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+		assertHierarchyEquals(
+			"Focus: Z213249 [in Z213249.class [in p [in lib [in P]]]]\n" + 
+			"Super types:\n" + 
+			"  Y213249 [in Y213249.class [in p [in lib [in P]]]]\n" + 
+			"Sub types:\n",
+			hierarchy);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that a hierarchy on a binary type that extends a missing class with only binary types in the project
+ * is correct.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=213249 )
+ */
+public void testMissingBinarySuperclass2() throws Exception {
+	try {
+		IJavaProject project = createJavaProject("P", new String[0], "bin");
+		addClassFolder(project, "lib", new String[] {
+			"p/X213249.java",
+			"package p;\n" +
+			"public class X213249 {\n" +
+			"}",
+			"p/Y213249.java",
+			"package p;\n" +
+			"public class Y213249 extends X213249 {\n" +
+			"}",
+			"p/Z213249.java",
+			"package p;\n" +
+			"public class Z213249 extends Y213249 {\n" +
+			"}",
+		}, "1.4");
+		deleteFile("/P/lib/p/X213249.class");
+		IType type = getClassFile("/P/lib/p/Z213249.class").getType();
+		ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
 		assertHierarchyEquals(
 			"Focus: Z213249 [in Z213249.class [in p [in lib [in P]]]]\n" + 
 			"Super types:\n" + 

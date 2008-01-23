@@ -555,13 +555,21 @@ public void resolve(IGenericType suppliedType) {
 			for (int i = startIndex; i <= this.typeIndex; i++) {
 				IGenericType igType = this.typeModels[i];
 				if (igType != null && igType.isBinaryType()) {
+					CompilationUnitDeclaration previousUnitBeingCompleted = this.lookupEnvironment.unitBeingCompleted;
 					// fault in its hierarchy...
 					try {
+						// ensure that unitBeingCompleted is set so that we don't get an AbortCompilation for a missing type
+						// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=213249 )
+						if (previousUnitBeingCompleted == null) {
+							this.lookupEnvironment.unitBeingCompleted = FakeUnit;
+						}
 						ReferenceBinding typeBinding = this.typeBindings[i];
 						typeBinding.superclass();
 						typeBinding.superInterfaces();
 					} catch (AbortCompilation e) {
 						// classpath problem for this type: ignore
+					} finally {
+						this.lookupEnvironment.unitBeingCompleted = previousUnitBeingCompleted;
 					}
 				}
 			}		
