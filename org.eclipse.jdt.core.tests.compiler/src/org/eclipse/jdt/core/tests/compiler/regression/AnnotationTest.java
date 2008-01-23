@@ -39,8 +39,8 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 248 };
-//		TESTS_RANGE = new int[] { 219, -1 };
+//		TESTS_NUMBERS = new int[] { 249 };
+//		TESTS_RANGE = new int[] { 249, -1 };
 	}
 
 	public static Test suite() {
@@ -1685,19 +1685,17 @@ public class AnnotationTest extends AbstractComparableTest {
 				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
-			"  // Method descriptor #6 ()V\n" + 
-			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(enums={Color.RED},\n" + 
-			"      annotations={@Foo},\n" + 
-			"      ints={(int) 2},\n" + 
-			"      bytes={(byte) 1},\n" + 
-			"      shorts={(short) 5},\n" + 
-			"      longs={-9223372036854775808L},\n" + 
-			"      strings={\"Hi\"},\n" + 
-			"      booleans={true},\n" + 
-			"      floats={0.0f},\n" + 
-			"      doubles={-0.0})\n" + 
-			"  void foo();"; 
+			"    annotations={@Foo},\n" + 
+			"    ints={(int) 2},\n" + 
+			"    bytes={(byte) 1},\n" + 
+			"    shorts={(short) 5},\n" + 
+			"    longs={-9223372036854775808L},\n" + 
+			"    strings={\"Hi\"},\n" + 
+			"    booleans={true},\n" + 
+			"    floats={0.0f},\n" + 
+			"    doubles={-0.0})\n" + 
+			"  void foo();";
 
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
@@ -1757,19 +1755,17 @@ public class AnnotationTest extends AbstractComparableTest {
 				ClassFileBytesDisassembler.DETAILED); 
 		
 		String expectedOutput = 
-			"  // Method descriptor #6 ()V\n" + 
-			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(enums=Color.RED,\n" + 
-			"      annotations=@Foo,\n" + 
-			"      ints=(int) 2,\n" + 
-			"      bytes=(byte) 1,\n" + 
-			"      shorts=(short) 5,\n" + 
-			"      longs=-9223372036854775808L,\n" + 
-			"      strings=\"Hi\",\n" + 
-			"      booleans=true,\n" + 
-			"      floats=0.0f,\n" + 
-			"      doubles=-0.0)\n" + 
-			"  void foo();"; 
+			"    annotations=@Foo,\n" + 
+			"    ints=(int) 2,\n" + 
+			"    bytes=(byte) 1,\n" + 
+			"    shorts=(short) 5,\n" + 
+			"    longs=-9223372036854775808L,\n" + 
+			"    strings=\"Hi\",\n" + 
+			"    booleans=true,\n" + 
+			"    floats=0.0f,\n" + 
+			"    doubles=-0.0)\n" + 
+			"  void foo();";
 			
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
@@ -7991,5 +7987,291 @@ public void test248() {
 			"	                            ^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Class<Void> to String\n" + 
 			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+public void test249() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //-----------------------------------------------------------------------
+			"@Zork\n" +
+			"public class X {}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	@Zork\n" + 
+		"	 ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		null,
+		true, // flush output
+		null,
+		true, // generate output
+		false,
+		false);
+	String expectedOutput = "public class X {";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+public void test250() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //-----------------------------------------------------------------------
+			"@Deprecated\n" +
+			"@Zork\n" +
+			"@Annot(1)\n" +
+			"public class X {}",
+			"Annot.java",
+			"import java.lang.annotation.Retention;\n" +
+			"import static java.lang.annotation.RetentionPolicy.*;\n" +
+			"@Retention(RUNTIME)\n" +
+			"@interface Annot {\n" +
+			"	int value() default -1;\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@Zork\n" + 
+		"	 ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		null,
+		true, // flush output
+		null,
+		true, // generate output
+		false,
+		false);
+	String expectedOutput =
+		"@java.lang.Deprecated\n" + 
+		"@Annot(value=(int) 1)\n" + 
+		"public class X {";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+public void test251() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //-----------------------------------------------------------------------
+			"@Deprecated\n" +
+			"@Zork\n" +
+			"@Annot(1)\n" +
+			"public class X {}",
+			"Annot.java",
+			"import java.lang.annotation.Retention;\n" +
+			"import static java.lang.annotation.RetentionPolicy.*;\n" +
+			"@Retention(CLASS)\n" +
+			"@interface Annot {\n" +
+			"	int value() default -1;\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@Zork\n" + 
+		"	 ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		null,
+		true, // flush output
+		null,
+		true, // generate output
+		false,
+		false);
+	String expectedOutput =
+		"@Annot(value=(int) 1)\n" + 
+		"@java.lang.Deprecated\n" + 
+		"public class X {";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+public void test252() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //-----------------------------------------------------------------------
+			"public class X {\n" +
+			"	public void foo(@Deprecated @Zork @Annot(2) int i) {}\n" +
+			"}",
+			"Annot.java",
+			"import java.lang.annotation.Retention;\n" +
+			"import static java.lang.annotation.RetentionPolicy.*;\n" +
+			"@Retention(CLASS)\n" +
+			"@interface Annot {\n" +
+			"	int value() default -1;\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public void foo(@Deprecated @Zork @Annot(2) int i) {}\n" + 
+		"	                             ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		null,
+		true, // flush output
+		null,
+		true, // generate output
+		false,
+		false);
+	String expectedOutput =
+		"    RuntimeVisibleParameterAnnotations: \n" + 
+		"      Number of annotations for parameter 0: 1\n" + 
+		"        #21 @java.lang.Deprecated(\n" + 
+		"        )\n" + 
+		"    RuntimeInvisibleParameterAnnotations: \n" + 
+		"      Number of annotations for parameter 0: 1\n" + 
+		"        #17 @Annot(\n" + 
+		"          #18 value=(int) 2 (constant type)\n" + 
+		"        )\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+public void test253() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //-----------------------------------------------------------------------
+			"public class X {\n" +
+			"	public void foo(@Deprecated @Zork @Annot(2) int i) {}\n" +
+			"}",
+			"Annot.java",
+			"import java.lang.annotation.Retention;\n" +
+			"import static java.lang.annotation.RetentionPolicy.*;\n" +
+			"@Retention(RUNTIME)\n" +
+			"@interface Annot {\n" +
+			"	int value() default -1;\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public void foo(@Deprecated @Zork @Annot(2) int i) {}\n" + 
+		"	                             ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		null,
+		true, // flush output
+		null,
+		true, // generate output
+		false,
+		false);
+	String expectedOutput =
+		"    RuntimeVisibleParameterAnnotations: \n" + 
+		"      Number of annotations for parameter 0: 2\n" + 
+		"        #17 @java.lang.Deprecated(\n" + 
+		"        )\n" + 
+		"        #18 @Annot(\n" + 
+		"          #19 value=(int) 2 (constant type)\n" + 
+		"        )\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+public void test254() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //-----------------------------------------------------------------------
+			"public class X {\n" +
+			"	public void foo(@Deprecated int j, @Zork @Annot(3) int i) {}\n" +
+			"}",
+			"Annot.java",
+			"import java.lang.annotation.Retention;\n" +
+			"import static java.lang.annotation.RetentionPolicy.*;\n" +
+			"@Retention(RUNTIME)\n" +
+			"@interface Annot {\n" +
+			"	int value() default -1;\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public void foo(@Deprecated int j, @Zork @Annot(3) int i) {}\n" + 
+		"	                                    ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		null,
+		true, // flush output
+		null,
+		true, // generate output
+		false,
+		false);
+	String expectedOutput =
+		"    RuntimeVisibleParameterAnnotations: \n" + 
+		"      Number of annotations for parameter 0: 1\n" + 
+		"        #17 @java.lang.Deprecated(\n" + 
+		"        )\n" + 
+		"      Number of annotations for parameter 1: 1\n" + 
+		"        #18 @Annot(\n" + 
+		"          #19 value=(int) 3 (constant type)\n" + 
+		"        )\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+public void test255() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //-----------------------------------------------------------------------
+			"public class X {\n" +
+			"	public void foo(@Deprecated int j, @Annot(\"\") @Deprecated int i) {}\n" +
+			"}",
+			"Annot.java",
+			"import java.lang.annotation.Retention;\n" +
+			"import static java.lang.annotation.RetentionPolicy.*;\n" +
+			"@Retention(RUNTIME)\n" +
+			"@interface Annot {\n" +
+			"	int value() default -1;\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public void foo(@Deprecated int j, @Annot(\"\") @Deprecated int i) {}\n" + 
+		"	                                          ^^\n" + 
+		"Type mismatch: cannot convert from String to int\n" + 
+		"----------\n",
+		null,
+		true, // flush output
+		null,
+		true, // generate output
+		false,
+		false);
+	String expectedOutput =
+		"    RuntimeVisibleParameterAnnotations: \n" + 
+		"      Number of annotations for parameter 0: 1\n" + 
+		"        #17 @java.lang.Deprecated(\n" + 
+		"        )\n" + 
+		"      Number of annotations for parameter 1: 1\n" + 
+		"        #17 @java.lang.Deprecated(\n" + 
+		"        )\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
+public void test256() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //-----------------------------------------------------------------------
+			"public class X {\n" +
+			"	public void foo(@Deprecated int j, @Annot(\"\") @Deprecated int i) {}\n" +
+			"}",
+			"Annot.java",
+			"import java.lang.annotation.Retention;\n" +
+			"import static java.lang.annotation.RetentionPolicy.*;\n" +
+			"@Retention(CLASS)\n" +
+			"@interface Annot {\n" +
+			"	int value() default -1;\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public void foo(@Deprecated int j, @Annot(\"\") @Deprecated int i) {}\n" + 
+		"	                                          ^^\n" + 
+		"Type mismatch: cannot convert from String to int\n" + 
+		"----------\n",
+		null,
+		true, // flush output
+		null,
+		true, // generate output
+		false,
+		false);
+	String expectedOutput =
+		"    RuntimeVisibleParameterAnnotations: \n" + 
+		"      Number of annotations for parameter 0: 1\n" + 
+		"        #20 @java.lang.Deprecated(\n" + 
+		"        )\n" + 
+		"      Number of annotations for parameter 1: 1\n" + 
+		"        #20 @java.lang.Deprecated(\n" + 
+		"        )";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
 }

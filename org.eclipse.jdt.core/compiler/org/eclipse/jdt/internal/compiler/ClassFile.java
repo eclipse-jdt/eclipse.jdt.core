@@ -71,6 +71,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -568,7 +569,7 @@ public class ClassFile
 			contents[contentsOffset++] = methodIndexByte2;
 			attributeNumber++;
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK1_5 && !this.creatingProblemType) {
+		if (this.targetJDK >= ClassFileConstants.JDK1_5) {
 			TypeDeclaration typeDeclaration = referenceBinding.scope.referenceContext;
 			if (typeDeclaration != null) {
 				final Annotation[] annotations = typeDeclaration.annotations;
@@ -828,7 +829,7 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) signatureIndex;
 			attributesNumber++;
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK1_5 && !this.creatingProblemType) {
+		if (this.targetJDK >= ClassFileConstants.JDK1_5) {
 			FieldDeclaration fieldDeclaration = fieldBinding.sourceField();
 			if (fieldDeclaration != null) {
 				Annotation[] annotations = fieldDeclaration.annotations;
@@ -1024,7 +1025,7 @@ public class ClassFile
 		// always clear the strictfp/native/abstract bit for a problem method
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
 		int methodAttributeOffset = contentsOffset;
-		int attributeNumber = generateMethodInfoAttribute(methodBinding, true);
+		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 
 		// Code attribute
 		attributeNumber++;
@@ -1109,7 +1110,7 @@ public class ClassFile
 		// always clear the strictfp/native/abstract bit for a problem method
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
 		int methodAttributeOffset = contentsOffset;
-		int attributeNumber = generateMethodInfoAttribute(methodBinding, true);
+		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 
 		// Code attribute
 		attributeNumber++;
@@ -6033,13 +6034,14 @@ public class ClassFile
 		return constantPool.UTF8Cache.returnKeyFor(2);
 	}
 
-	private void generateAnnotation(Annotation annotation, int attributeOffset) {
+	private void generateAnnotation(Annotation annotation, int currentOffset) {
+		int startingContentsOffset = currentOffset;
 		if (contentsOffset + 4 >= this.contents.length) {
 			resizeContents(4);
 		}
 		TypeBinding annotationTypeBinding = annotation.resolvedType;
 		if (annotationTypeBinding == null) {
-			this.contentsOffset = attributeOffset;
+			this.contentsOffset = startingContentsOffset;
 			return;
 		}
 		final int typeIndex = constantPool.literalIndex(annotationTypeBinding.signature());
@@ -6062,9 +6064,15 @@ public class ClassFile
 					contents[contentsOffset++] = (byte) elementNameIndex;
 					MethodBinding methodBinding = memberValuePair.binding;
 					if (methodBinding == null) {
-						contentsOffset = attributeOffset;
+						contentsOffset = startingContentsOffset;
 					} else {
-						generateElementValue(memberValuePair.value, methodBinding.returnType, attributeOffset);
+						try {
+							generateElementValue(memberValuePair.value, methodBinding.returnType, startingContentsOffset);
+						} catch(ClassCastException e) {
+							contentsOffset = startingContentsOffset;
+						} catch(ShouldNotImplement e) {
+							contentsOffset = startingContentsOffset;
+						}
 					}
 				}
 			} else {
@@ -6084,9 +6092,15 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) elementNameIndex;
 			MethodBinding methodBinding = singleMemberAnnotation.memberValuePairs()[0].binding;
 			if (methodBinding == null) {
-				contentsOffset = attributeOffset;
+				contentsOffset = startingContentsOffset;
 			} else {
-				generateElementValue(singleMemberAnnotation.memberValue, methodBinding.returnType, attributeOffset);
+				try {
+					generateElementValue(singleMemberAnnotation.memberValue, methodBinding.returnType, startingContentsOffset);
+				} catch(ClassCastException e) {
+					contentsOffset = startingContentsOffset;
+				} catch(ShouldNotImplement e) {
+					contentsOffset = startingContentsOffset;
+				}
 			}
 		} else {
 			// this is a marker annotation (no member value pairs)
@@ -6290,11 +6304,6 @@ public class ClassFile
 			contentsOffset = attributeOffset;
 		}
 	}
-
-	public int generateMethodInfoAttribute(MethodBinding methodBinding) {
-		return generateMethodInfoAttribute(methodBinding, false);
-	}
-
 	public int generateMethodInfoAttribute(MethodBinding methodBinding, AnnotationMethodDeclaration declaration) {
 		int attributesNumber = generateMethodInfoAttribute(methodBinding);
 		int attributeOffset = contentsOffset;
@@ -6334,7 +6343,7 @@ public class ClassFile
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.lookup.MethodBinding
 	 * @return <CODE>int</CODE>
 	 */
-	public int generateMethodInfoAttribute(MethodBinding methodBinding, boolean createProblemMethod) {
+	public int generateMethodInfoAttribute(MethodBinding methodBinding) {
 		// leave two bytes for the attribute_number
 		contentsOffset += 2;
 		if (contentsOffset + 2 >= this.contents.length) {
@@ -6459,7 +6468,7 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) signatureIndex;
 			attributeNumber++;
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK1_5 && !this.creatingProblemType && !createProblemMethod) {
+		if (this.targetJDK >= ClassFileConstants.JDK1_5) {
 			AbstractMethodDeclaration methodDeclaration = methodBinding.sourceMethod();
 			if (methodDeclaration != null) {
 				Annotation[] annotations = methodDeclaration.annotations;
@@ -6607,8 +6616,8 @@ public class ClassFile
 			}
 		}
 
+		int annotationAttributeOffset = contentsOffset;
 		if (invisibleAnnotationsCounter != 0) {
-			int annotationAttributeOffset = contentsOffset;
 			if (contentsOffset + 10 >= contents.length) {
 				resizeContents(10);
 			}
@@ -6622,21 +6631,23 @@ public class ClassFile
 			int annotationsLengthOffset = contentsOffset;
 			contentsOffset += 2; // leave space for the annotations length
 
-			contents[annotationsLengthOffset++] = (byte) (invisibleAnnotationsCounter >> 8);
-			contents[annotationsLengthOffset++] = (byte) invisibleAnnotationsCounter;
-
+			int counter = 0;
 			loop: for (int i = 0; i < length; i++) {
 				if (invisibleAnnotationsCounter == 0) break loop;
 				Annotation annotation = annotations[i];
 				if (isRuntimeInvisible(annotation)) {
-					generateAnnotation(annotation, annotationAttributeOffset);
+					int currentAnnotationOffset = this.contentsOffset;
+					generateAnnotation(annotation, currentAnnotationOffset);
 					invisibleAnnotationsCounter--;
-					if (this.contentsOffset == annotationAttributeOffset) {
-						break loop;
+					if (this.contentsOffset != currentAnnotationOffset) {
+						counter++;
 					}
 				}
 			}
-			if (contentsOffset != annotationAttributeOffset) {
+			if (counter != 0) {
+				contents[annotationsLengthOffset++] = (byte) (counter >> 8);
+				contents[annotationsLengthOffset++] = (byte) counter;
+
 				int attributeLength = contentsOffset - attributeLengthOffset - 4;
 				contents[attributeLengthOffset++] = (byte) (attributeLength >> 24);
 				contents[attributeLengthOffset++] = (byte) (attributeLength >> 16);
@@ -6648,8 +6659,8 @@ public class ClassFile
 			}
 		}
 
+		annotationAttributeOffset = contentsOffset;
 		if (visibleAnnotationsCounter != 0) {
-			int annotationAttributeOffset = contentsOffset;
 			if (contentsOffset + 10 >= contents.length) {
 				resizeContents(10);
 			}
@@ -6663,21 +6674,23 @@ public class ClassFile
 			int annotationsLengthOffset = contentsOffset;
 			contentsOffset += 2; // leave space for the annotations length
 
-			contents[annotationsLengthOffset++] = (byte) (visibleAnnotationsCounter >> 8);
-			contents[annotationsLengthOffset++] = (byte) visibleAnnotationsCounter;
-
+			int counter = 0;
 			loop: for (int i = 0; i < length; i++) {
 				if (visibleAnnotationsCounter == 0) break loop;
 				Annotation annotation = annotations[i];
 				if (isRuntimeVisible(annotation)) {
 					visibleAnnotationsCounter--;
-					generateAnnotation(annotation, annotationAttributeOffset);
-					if (this.contentsOffset == annotationAttributeOffset) {
-						break loop;
+					int currentAnnotationOffset = this.contentsOffset;
+					generateAnnotation(annotation, currentAnnotationOffset);
+					if (this.contentsOffset != currentAnnotationOffset) {
+						counter++;
 					}
 				}
 			}
-			if (contentsOffset != annotationAttributeOffset) {
+			if (counter != 0) {
+				contents[annotationsLengthOffset++] = (byte) (counter >> 8);
+				contents[annotationsLengthOffset++] = (byte) counter;
+
 				int attributeLength = contentsOffset - attributeLengthOffset - 4;
 				contents[attributeLengthOffset++] = (byte) (attributeLength >> 24);
 				contents[attributeLengthOffset++] = (byte) (attributeLength >> 16);
@@ -6717,6 +6730,7 @@ public class ClassFile
 		int attributesNumber = 0;
 		int annotationAttributeOffset = contentsOffset;
 		if (invisibleParametersAnnotationsCounter != 0) {
+			int globalCounter = 0;
 			if (contentsOffset + 7 >= contents.length) {
 				resizeContents(7);
 			}
@@ -6728,7 +6742,7 @@ public class ClassFile
 			contentsOffset += 4; // leave space for the attribute length
 
 			contents[contentsOffset++] = (byte) argumentsLength;
-			invisibleLoop: for (int i = 0; i < argumentsLength; i++) {
+			for (int i = 0; i < argumentsLength; i++) {
 				if (contentsOffset + 2 >= contents.length) {
 					resizeContents(2);
 				}
@@ -6737,25 +6751,31 @@ public class ClassFile
 					contents[contentsOffset++] = (byte) 0;
 				} else {
 					final int numberOfInvisibleAnnotations = annotationsCounters[i][INVISIBLE_INDEX];
-					contents[contentsOffset++] = (byte) (numberOfInvisibleAnnotations >> 8);
-					contents[contentsOffset++] = (byte) numberOfInvisibleAnnotations;
+					int invisibleAnnotationsOffset = this.contentsOffset;
+					// leave space for number of annotations
+					this.contentsOffset += 2;
+					int counter = 0;
 					if (numberOfInvisibleAnnotations != 0) {
 						Argument argument = arguments[i];
 						Annotation[] annotations = argument.annotations;
 						for (int j = 0, max = annotations.length; j < max; j++) {
 							Annotation annotation = annotations[j];
 							if (isRuntimeInvisible(annotation)) {
-								generateAnnotation(annotation, annotationAttributeOffset);
-								if (contentsOffset == annotationAttributeOffset) {
-									break invisibleLoop;
+								int currentAnnotationOffset = this.contentsOffset;
+								generateAnnotation(annotation, currentAnnotationOffset);
+								if (contentsOffset != currentAnnotationOffset) {
+									counter++;
+									globalCounter++;
 								}
 								invisibleParametersAnnotationsCounter--;
 							}
 						}
 					}
+					contents[invisibleAnnotationsOffset++] = (byte) (counter >> 8);
+					contents[invisibleAnnotationsOffset] = (byte) counter;
 				}
 			}
-			if (contentsOffset != annotationAttributeOffset) {
+			if (globalCounter != 0) {
 				int attributeLength = contentsOffset - attributeLengthOffset - 4;
 				contents[attributeLengthOffset++] = (byte) (attributeLength >> 24);
 				contents[attributeLengthOffset++] = (byte) (attributeLength >> 16);
@@ -6763,10 +6783,12 @@ public class ClassFile
 				contents[attributeLengthOffset++] = (byte) attributeLength;
 				attributesNumber++;
 			} else {
+				// if globalCounter is 0, this means that the code generation for all visible annotations failed
 				contentsOffset = annotationAttributeOffset;
 			}
 		}
 		if (visibleParametersAnnotationsCounter != 0) {
+			int globalCounter = 0;
 			if (contentsOffset + 7 >= contents.length) {
 				resizeContents(7);
 			}
@@ -6778,7 +6800,7 @@ public class ClassFile
 			contentsOffset += 4; // leave space for the attribute length
 
 			contents[contentsOffset++] = (byte) argumentsLength;
-			visibleLoop: for (int i = 0; i < argumentsLength; i++) {
+			for (int i = 0; i < argumentsLength; i++) {
 				if (contentsOffset + 2 >= contents.length) {
 					resizeContents(2);
 				}
@@ -6787,25 +6809,31 @@ public class ClassFile
 					contents[contentsOffset++] = (byte) 0;
 				} else {
 					final int numberOfVisibleAnnotations = annotationsCounters[i][VISIBLE_INDEX];
-					contents[contentsOffset++] = (byte) (numberOfVisibleAnnotations >> 8);
-					contents[contentsOffset++] = (byte) numberOfVisibleAnnotations;
+					int visibleAnnotationsOffset = this.contentsOffset;
+					// leave space for number of annotations
+					this.contentsOffset += 2;
+					int counter = 0;
 					if (numberOfVisibleAnnotations != 0) {
 						Argument argument = arguments[i];
 						Annotation[] annotations = argument.annotations;
 						for (int j = 0, max = annotations.length; j < max; j++) {
 							Annotation annotation = annotations[j];
 							if (isRuntimeVisible(annotation)) {
-								generateAnnotation(annotation, annotationAttributeOffset);
-								if (contentsOffset == annotationAttributeOffset) {
-									break visibleLoop;
+								int currentAnnotationOffset = this.contentsOffset;
+								generateAnnotation(annotation, currentAnnotationOffset);
+								if (contentsOffset != currentAnnotationOffset) {
+									counter++;
+									globalCounter++;
 								}
 								visibleParametersAnnotationsCounter--;
 							}
 						}
 					}
+					contents[visibleAnnotationsOffset++] = (byte) (counter >> 8);
+					contents[visibleAnnotationsOffset] = (byte) counter;
 				}
 			}
-			if (contentsOffset != annotationAttributeOffset) {
+			if (globalCounter != 0) {
 				int attributeLength = contentsOffset - attributeLengthOffset - 4;
 				contents[attributeLengthOffset++] = (byte) (attributeLength >> 24);
 				contents[attributeLengthOffset++] = (byte) (attributeLength >> 16);
@@ -6813,6 +6841,7 @@ public class ClassFile
 				contents[attributeLengthOffset++] = (byte) attributeLength;
 				attributesNumber++;
 			} else {
+				// if globalCounter is 0, this means that the code generation for all visible annotations failed
 				contentsOffset = annotationAttributeOffset;
 			}
 		}

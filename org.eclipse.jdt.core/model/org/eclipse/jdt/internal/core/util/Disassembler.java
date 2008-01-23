@@ -437,11 +437,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		final IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
 		// disassemble compact version of annotations
 		if (runtimeInvisibleAnnotationsAttribute != null) {
-			disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1, mode);
+			disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			writeNewLine(buffer, lineSeparator, tabNumber);
 		}
 		if (runtimeVisibleAnnotationsAttribute != null) {
-			disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1, mode);
+			disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			writeNewLine(buffer, lineSeparator, tabNumber);
 		}
 		final int accessFlags = methodInfo.getAccessFlags();
@@ -546,11 +546,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		if (checkMode(mode, DETAILED)) {
 			// disassemble compact version of annotations
 			if (runtimeInvisibleAnnotationsAttribute != null) {
-				disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1, mode);
+				disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 			if (runtimeVisibleAnnotationsAttribute != null) {
-				disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1, mode);
+				disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 		}
@@ -789,11 +789,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		if (checkMode(mode, DETAILED)) {
 			// disassemble compact version of annotations
 			if (runtimeInvisibleAnnotationsAttribute != null) {
-				disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, 1, mode);
+				disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, 0, mode);
 				writeNewLine(buffer, lineSeparator, 0);
 			}
 			if (runtimeVisibleAnnotationsAttribute != null) {
-				disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, 1, mode);
+				disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, 0, mode);
 				writeNewLine(buffer, lineSeparator, 0);
 			}
 		}
@@ -1422,11 +1422,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		final IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
 		// disassemble compact version of annotations
 		if (runtimeInvisibleAnnotationsAttribute != null) {
-			disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1, mode);
+			disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			writeNewLine(buffer, lineSeparator, tabNumber);
 		}
 		if (runtimeVisibleAnnotationsAttribute != null) {
-			disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1, mode);
+			disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			writeNewLine(buffer, lineSeparator, tabNumber);
 		}
 		buffer.append(new String(fieldInfo.getName()));
@@ -1493,11 +1493,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		if (checkMode(mode, DETAILED)) {
 			// disassemble compact version of annotations
 			if (runtimeInvisibleAnnotationsAttribute != null) {
-				disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1, mode);
+				disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 			if (runtimeVisibleAnnotationsAttribute != null) {
-				disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber + 1, mode);
+				disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 		}
@@ -1860,6 +1860,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	private void disassembleAsModifier(IRuntimeVisibleAnnotationsAttribute runtimeVisibleAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		IAnnotation[] annotations = runtimeVisibleAnnotationsAttribute.getAnnotations();
 		for (int i = 0, max = annotations.length; i < max; i++) {
+			if (i > 0) {
+				writeNewLine(buffer, lineSeparator, tabNumber);
+			}
 			disassembleAsModifier(annotations[i], buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
