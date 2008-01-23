@@ -6025,7 +6025,7 @@ public void test170_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210521
 // -warn option - regression tests
-public void _test171_warn_options() {
+public void test171_warn_options() {
 	// same source as 168, skip check defaults
 	this.runConformTest(
 		new String[] {
@@ -6046,7 +6046,8 @@ public void _test171_warn_options() {
 		"	public class X {\n" + 
 		"	             ^\n" + 
 		"Javadoc: Missing comment for public declaration\n" + 
-		"1 problem (1 warnings)",
+		"----------\n" +		
+		"1 problem (1 warning)",
 		true);
 }
 // -warn option - regression tests
