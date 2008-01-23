@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
@@ -899,6 +900,42 @@ public void test0025_declared_thrown_unchecked_exceptions() {
 public void test0026_declared_thrown_unchecked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
+			CompilerOptions.ENABLED);
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public void foo() throws ArithmeticException {\n" + 
+			"  }\n" + 
+			"}\n"
+			},
+		null /* errorOptions */,
+		new String[] {
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
+			} /* warningOptions */,
+		null /* ignoreOptions */,
+		false /* expectingCompilerErrors */,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	public void foo() throws ArithmeticException {\n" + 
+		"	                         ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The declared exception ArithmeticException is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		customOptions,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
+// reporting unnecessary declaration of thrown unchecked exceptions as warning
+// the external API uses another string literal - had it wrong in first attempt
+public void test0026b_declared_thrown_unchecked_exceptions() {
+	Map customOptions = new HashMap();
+	customOptions.put(JavaCore.COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_UNCHECKED_EXCEPTIONS, 
 			CompilerOptions.ENABLED);
 	runTest(
 		new String[] {

@@ -465,7 +465,7 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @since 3.4
 	 */
-	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_UNCHECKED_EXCEPTIONS = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionIncludeUnckechedExceptions"; //$NON-NLS-1$
+	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_UNCHECKED_EXCEPTIONS = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionIncludeUncheckedExceptions"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
