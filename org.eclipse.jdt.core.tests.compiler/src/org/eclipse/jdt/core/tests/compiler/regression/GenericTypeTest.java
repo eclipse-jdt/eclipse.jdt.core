@@ -38668,8 +38668,6 @@ public void test1170() {
 			"package example;\n" +
 			"class A<E> {}\n" + 
 			"class B<E> extends A<E> {}\n" + 
-			"class A<E> {}\n" + 
-			"class B<E> extends A<E> {}\n" + 
 			"\n" + 
 			"public interface Container3<T, U extends T, V extends A<? super T>> {\n" + 
 			"	<T1, U1 extends T1, V1 extends A<? super T1>> void g(\n" + 
@@ -38698,62 +38696,52 @@ public void test1170() {
 			"}\n", // =================
 		},
 		"----------\n" + 
-		"1. ERROR in example\\Container3.java (at line 4)\n" + 
-		"	class A<E> {}\n" + 
-		"	      ^\n" + 
-		"The type A is already defined\n" + 
-		"----------\n" + 
-		"2. ERROR in example\\Container3.java (at line 5)\n" + 
-		"	class B<E> extends A<E> {}\n" + 
-		"	      ^\n" + 
-		"The type B is already defined\n" + 
-		"----------\n" + 
-		"3. ERROR in example\\Container3.java (at line 14)\n" + 
+		"1. ERROR in example\\Container3.java (at line 12)\n" + 
 		"	Container3<T1, ? extends U1, A<T>> f, \n" + 
 		"	                             ^\n" + 
 		"Bound mismatch: The type A<T> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
 		"----------\n" + 
-		"4. ERROR in example\\Container3.java (at line 15)\n" + 
+		"2. ERROR in example\\Container3.java (at line 13)\n" + 
 		"	Container3<T1, U1, A<U1>> g, \n" + 
 		"	                   ^\n" + 
 		"Bound mismatch: The type A<U1> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
 		"----------\n" + 
-		"5. ERROR in example\\Container3.java (at line 17)\n" + 
+		"3. ERROR in example\\Container3.java (at line 15)\n" + 
 		"	Container3<T1, ? extends U1, A<? super T>> i, \n" + 
 		"	                             ^\n" + 
 		"Bound mismatch: The type A<? super T> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
 		"----------\n" + 
-		"6. WARNING in example\\Container3.java (at line 18)\n" + 
+		"4. WARNING in example\\Container3.java (at line 16)\n" + 
 		"	Container3<T1, ? extends U1, A> j);\n" + 
 		"	                             ^\n" + 
 		"A is a raw type. References to generic type A<E> should be parameterized\n" + 
 		"----------\n" + 
-		"7. ERROR in example\\Container3.java (at line 18)\n" + 
+		"5. ERROR in example\\Container3.java (at line 16)\n" + 
 		"	Container3<T1, ? extends U1, A> j);\n" + 
 		"	                             ^\n" + 
 		"Bound mismatch: The type A is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
 		"----------\n" + 
-		"8. ERROR in example\\Container3.java (at line 26)\n" + 
+		"6. ERROR in example\\Container3.java (at line 24)\n" + 
 		"	Container3<T1, ? extends U1, B<T>> f, \n" + 
 		"	                             ^\n" + 
 		"Bound mismatch: The type B<T> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
 		"----------\n" + 
-		"9. ERROR in example\\Container3.java (at line 27)\n" + 
+		"7. ERROR in example\\Container3.java (at line 25)\n" + 
 		"	Container3<T1, U1, B<U1>> g, \n" + 
 		"	                   ^\n" + 
 		"Bound mismatch: The type B<U1> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
 		"----------\n" + 
-		"10. ERROR in example\\Container3.java (at line 29)\n" + 
+		"8. ERROR in example\\Container3.java (at line 27)\n" + 
 		"	Container3<T1, ? extends U1, B<? super T>> i, \n" + 
 		"	                             ^\n" + 
 		"Bound mismatch: The type B<? super T> is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
 		"----------\n" + 
-		"11. WARNING in example\\Container3.java (at line 30)\n" + 
+		"9. WARNING in example\\Container3.java (at line 28)\n" + 
 		"	Container3<T1, ? extends U1, B> j);\n" + 
 		"	                             ^\n" + 
 		"B is a raw type. References to generic type B<E> should be parameterized\n" + 
 		"----------\n" + 
-		"12. ERROR in example\\Container3.java (at line 30)\n" + 
+		"10. ERROR in example\\Container3.java (at line 28)\n" + 
 		"	Container3<T1, ? extends U1, B> j);\n" + 
 		"	                             ^\n" + 
 		"Bound mismatch: The type B is not a valid substitute for the bounded parameter <V extends A<? super T>> of the type Container3<T,U,V>\n" + 
