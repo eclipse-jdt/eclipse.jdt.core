@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -177,7 +177,9 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			if (!isAsVisible(currentMethod, inheritedMethod))
 				problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
 			if (options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
-				if (!currentMethod.isViewedAsDeprecated() || options.reportDeprecationInsideDeprecatedCode) {
+				boolean currentViewedAsDeprecated = currentMethod.isViewedAsDeprecated();
+				if (options.reportDeprecationInNonDeprecatedCode && !currentViewedAsDeprecated ||
+						options.reportDeprecationInsideDeprecatedCode && currentViewedAsDeprecated) {
 					// check against the other inherited methods to see if they hide this inheritedMethod
 					ReferenceBinding declaringClass = inheritedMethod.declaringClass;
 					if (declaringClass.isInterface())

@@ -38,6 +38,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportOverridingPackageDefaultMethod = "org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeprecation = "org.eclipse.jdt.core.compiler.problem.deprecation"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeprecationInDeprecatedCode = "org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode"; //$NON-NLS-1$
+	public static final String OPTION_ReportDeprecationInNonDeprecatedCode = "org.eclipse.jdt.core.compiler.problem.deprecationInNonDeprecatedCode"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeprecationWhenOverridingDeprecatedMethod = "org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportHiddenCatchBlock = "org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedLocal = "org.eclipse.jdt.core.compiler.problem.unusedLocal"; //$NON-NLS-1$
@@ -282,6 +283,7 @@ public class CompilerOptions {
 
 	// deprecation report
 	public boolean reportDeprecationInsideDeprecatedCode = false;
+	public boolean reportDeprecationInNonDeprecatedCode = true;
 	public boolean reportDeprecationWhenOverridingDeprecatedMethod = false;
 
 	// unused parameters report
@@ -375,6 +377,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportOverridingPackageDefaultMethod, getSeverityString(OverriddenPackageDefaultMethod));
 		optionsMap.put(OPTION_ReportDeprecation, getSeverityString(UsingDeprecatedAPI));
 		optionsMap.put(OPTION_ReportDeprecationInDeprecatedCode, this.reportDeprecationInsideDeprecatedCode ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportDeprecationInNonDeprecatedCode, this.reportDeprecationInNonDeprecatedCode ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, this.reportDeprecationWhenOverridingDeprecatedMethod ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportHiddenCatchBlock, getSeverityString(MaskedCatchBlock));
 		optionsMap.put(OPTION_ReportUnusedLocal, getSeverityString(UnusedLocalVariable));
@@ -678,6 +681,13 @@ public class CompilerOptions {
 				this.reportDeprecationInsideDeprecatedCode = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.reportDeprecationInsideDeprecatedCode = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ReportDeprecationInNonDeprecatedCode)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportDeprecationInNonDeprecatedCode = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportDeprecationInNonDeprecatedCode = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportDeprecationWhenOverridingDeprecatedMethod)) != null) {
@@ -1041,6 +1051,7 @@ public class CompilerOptions {
 		buf.append("\n\t- encoding : ").append(this.defaultEncoding == null ? "<default>" : this.defaultEncoding); //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n\t- task tags: ").append(this.taskTags == null ? Util.EMPTY_STRING : new String(CharOperation.concatWith(this.taskTags,',')));  //$NON-NLS-1$
 		buf.append("\n\t- task priorities : ").append(this.taskPriorites == null ? Util.EMPTY_STRING : new String(CharOperation.concatWith(this.taskPriorites,','))); //$NON-NLS-1$
+		buf.append("\n\t- report deprecation in non deprecated code : ").append(this.reportDeprecationInNonDeprecatedCode ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- report deprecation inside deprecated code : ").append(this.reportDeprecationInsideDeprecatedCode ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- report deprecation when overriding deprecated method : ").append(this.reportDeprecationWhenOverridingDeprecatedMethod ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- report unused parameter when implementing abstract method : ").append(this.reportUnusedParameterWhenImplementingAbstract ? ENABLED : DISABLED); //$NON-NLS-1$

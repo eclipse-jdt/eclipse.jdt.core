@@ -1234,6 +1234,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.autoboxing\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecation\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInNonDeprecatedCode\" value=\"enabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.emptyStatement\" value=\"ignore\"/>\n" + 
@@ -6102,7 +6103,7 @@ public void test172_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
 // -warn option - regression tests
-public void _test173_warn_options() {
+public void test173_warn_options() {
 	// same source as 172, skip check defaults
 	this.runConformTest(
 		new String[] {
@@ -7863,7 +7864,7 @@ public void test215_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // variant - check impact of javadoc upon other warnings
-public void test216_warn_options() {
+public void test216a_warn_options() {
 	// check what if allJavadoc on
 	this.runConformTest(
 		new String[] {
@@ -7885,6 +7886,51 @@ public void test216_warn_options() {
 		+ " -warn:allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
 		"",
+		"",
+		true);
+	// same sources, what if we add -warn:+javadoc
+	this.runConformTest(
+		new String[] { },
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:allJavadoc -warn:+javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		false);
+	// same sources, what if we only have -warn:javadoc
+	this.runConformTest(
+		new String[] { },
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		false);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// variant - check impact of javadoc upon other warnings
+public void test216b_warn_options() {
+	// check what if allJavadoc on
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */" +
+			"public class X {\n" +
+			"  /**\n" +
+			"    {@link Y}\n" +
+			"  */\n" +
+			"  public void foo() {\n" +
+			"  }\n" + 
+			"}\n",
+			"Y.java",
+			"/** @deprecated */" +
+			"public class Y {\n" +
+			"}",			
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:+allJavadoc -proc:none -d \"" + OUTPUT_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
+		"",
 		"----------\n" + 
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
 		"	{@link Y}\n" + 
@@ -7897,7 +7943,7 @@ public void test216_warn_options() {
 	this.runConformTest(
 		new String[] { },
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:allJavadoc -warn:+javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
+		+ " -warn:+allJavadoc -warn:+javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" + 
@@ -7912,7 +7958,7 @@ public void test216_warn_options() {
 	this.runConformTest(
 		new String[] { },
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
+		+ " -warn:+javadoc -proc:none -d \"" + OUTPUT_DIR + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" + 
@@ -8003,5 +8049,306 @@ public void test219_batch_classpath_apis() {
 }
 public static Class testClass() {
 	return BatchCompilerTest.class;
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
+// -warn option - regression tests
+// variant
+public void test220_warn_options() {
+	// same source as 172, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  Y f;\n" +
+			"  /** @deprecated */\n" +
+			"  void foo(Y p) {\n" +
+			"  }\n" +
+			"}",
+			"Y.java",
+			"/** @deprecated */\n" +
+			"public class Y {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:allDeprecation -warn:+deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	Y f;\n" + 
+		"	^\n" + 
+		"The type Y is deprecated\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	void foo(Y p) {\n" + 
+		"	         ^\n" + 
+		"The type Y is deprecated\n" + 
+		"----------\n" + 
+		"2 problems (2 warnings)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
+// -warn option - regression tests
+// variant
+public void test221_warn_options() {
+	// same source as 172, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  Y f;\n" +
+			"  /** @deprecated */\n" +
+			"  void foo(Y p) {\n" +
+			"  }\n" +
+			"}",
+			"Y.java",
+			"/** @deprecated */\n" +
+			"public class Y {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:allDeprecation -warn:deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	Y f;\n" + 
+		"	^\n" + 
+		"The type Y is deprecated\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
+// -warn option - regression tests
+// variant
+public void test222_warn_options() {
+	// same source as 172, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  Y f;\n" +
+			"  /** @deprecated */\n" +
+			"  void foo(Y p) {\n" +
+			"  }\n" +
+			"}",
+			"Y.java",
+			"/** @deprecated */\n" +
+			"public class Y {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:allDeprecation -deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
+		// according to the documentation, equivalent to -warn:allDeprecation -warn:+deprecation
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	Y f;\n" + 
+		"	^\n" + 
+		"The type Y is deprecated\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	void foo(Y p) {\n" + 
+		"	         ^\n" + 
+		"The type Y is deprecated\n" + 
+		"----------\n" + 
+		"2 problems (2 warnings)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
+// -warn option - regression tests
+// variant
+public void test223_warn_options() {
+	// same source as 172, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  Y f;\n" +
+			"  /** @deprecated */\n" +
+			"  void foo(Y p) {\n" +
+			"  }\n" +
+			"}",
+			"Y.java",
+			"/** @deprecated */\n" +
+			"public class Y {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -deprecation -warn:-allDeprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
+// -warn option - regression tests
+// variant
+public void test224_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  int i;\n" +
+			"  X(int i) {\n" +
+			"  }\n" +
+			"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:+localHiding,specialParamHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	X(int i) {\n" + 
+		"	      ^\n" + 
+		"The parameter i is hiding a field from type X\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+	// deprecation should erase whatever warnings have been set previously
+	this.runConformTest(
+		new String[] {},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:+localHiding,specialParamHiding -warn:deprecation -warn:+localHiding -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		false);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
+// -warn option - regression tests
+// variant
+public void test225_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"@SuppressWarnings(\"deprecation\")\n" +
+			"public class X {\n" + 
+			"  Y f;\n" +
+			"  /** @deprecated */\n" +
+			"  void foo(Y p) {\n" +
+			"  }\n" +
+			"}",
+			"Y.java",
+			"/** @deprecated */\n" +
+			"public class Y {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.5 -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
+// -warn option - regression tests
+// variant
+public void test226_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"@SuppressWarnings(\"deprecation\")\n" +
+			"public class X {\n" + 
+			"  Y f;\n" +
+			"  /** @deprecated */\n" +
+			"  void foo(Y p) {\n" +
+			"  }\n" +
+			"}",
+			"Y.java",
+			"/** @deprecated */\n" +
+			"public class Y {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.5 -sourcepath \"" + OUTPUT_DIR + "\""
+		// default -warn:+suppress gets overriden
+		+ " -warn:deprecation -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	Y f;\n" + 
+		"	^\n" + 
+		"The type Y is deprecated\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// -warn option - regression tests
+// variant detected while exploring:
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524 
+public void test227_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  /**\n" +
+			"    @param i explained\n" +
+			"  */\n" +
+			"  public void foo(int i) {\n" +
+			"  }\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unused -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	public void foo(int i) {\n" + 
+		"	                    ^\n" + 
+		"The parameter i is never read\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// -warn option - regression tests
+// variant
+public void test228_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" + 
+			"public class X {\n" + 
+			"/** @throws IOException mute warning **/\n" + 
+			"  public void foo() throws IOException {\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unusedThrown -enableJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
+// -warn option - regression tests
+// variant
+public void test229_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" + 
+			"public class X {\n" + 
+			"/** @throws IOException mute warning **/\n" + 
+			"  public void foo() throws IOException {\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unusedThrown -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	public void foo() throws IOException {\n" + 
+		"	                         ^^^^^^^^^^^\n" + 
+		"The declared exception IOException is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
 }
 }

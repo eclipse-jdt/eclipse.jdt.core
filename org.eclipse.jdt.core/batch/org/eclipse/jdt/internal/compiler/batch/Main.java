@@ -1623,24 +1623,17 @@ protected void handleWarningToken(String token, boolean isEnabling) throws Inval
 			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 	} else if (token.equals("deprecation")) { //$NON-NLS-1$
 		this.options.put(
-			CompilerOptions.OPTION_ReportDeprecation,
-			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-		this.options.put(
-			CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode,
-			CompilerOptions.DISABLED);
-		this.options.put(
-			CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod,
-			CompilerOptions.DISABLED);
+			CompilerOptions.OPTION_ReportDeprecationInNonDeprecatedCode,
+			isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 	} else if (token.equals("allDeprecation")) { //$NON-NLS-1$
+		String option = isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED;
 		this.options.put(
-			CompilerOptions.OPTION_ReportDeprecation,
-			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+			CompilerOptions.OPTION_ReportDeprecationInNonDeprecatedCode, option);
 		this.options.put(
-			CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode,
-			isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+			CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, option);
 		this.options.put(
 			CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod,
-			isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+			option);
 	} else if (token.equals("unusedLocal") || token.equals("unusedLocals")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
 		this.options.put(
 			CompilerOptions.OPTION_ReportUnusedLocal,
@@ -2208,7 +2201,6 @@ public void configure(String[] argv) throws InvalidInputException {
 	boolean printVersionRequired = false;
 
 	boolean didSpecifyDefaultEncoding = false;
-	boolean didSpecifyDeprecation = false;
 	boolean didSpecifyCompliance = false;
 	boolean didSpecifyDisabledAnnotationProcessing = false;
 
@@ -2522,8 +2514,7 @@ public void configure(String[] argv) throws InvalidInputException {
 					continue;
 				}
 				if ("-deprecation".equals(currentArg)) { //$NON-NLS-1$
-					didSpecifyDeprecation = true;
-					this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+					this.options.put(CompilerOptions.OPTION_ReportDeprecationInNonDeprecatedCode, CompilerOptions.ENABLED);
 					mode = DEFAULT;
 					continue;
 				}
@@ -2654,11 +2645,6 @@ public void configure(String[] argv) throws InvalidInputException {
 					StringTokenizer tokenizer =
 						new StringTokenizer(warningOption.substring(warnTokenStart, warningOption.length()), ","); //$NON-NLS-1$
 					int tokenCounter = 0;
-
-					if (didSpecifyDeprecation) {  // deprecation could have also been set through -deprecation option
-						this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
-					}
-
 					nextToken: while (tokenizer.hasMoreTokens()) {
 						String token = tokenizer.nextToken();
 						tokenCounter++;
@@ -3018,6 +3004,13 @@ public void configure(String[] argv) throws InvalidInputException {
 		this.options.put(
 			CompilerOptions.OPTION_DocCommentSupport,
 			CompilerOptions.ENABLED);
+		// defaults may have been overridden
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference,
+			CompilerOptions.ENABLED);
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference,
+			CompilerOptions.ENABLED);
 	} else if (this.warnJavadocOn || this.warnAllJavadocOn) {
 		this.options.put(
 			CompilerOptions.OPTION_DocCommentSupport,
@@ -3056,6 +3049,14 @@ public void configure(String[] argv) throws InvalidInputException {
 		this.options.put(
 			CompilerOptions.OPTION_ReportMissingJavadocComments,
 			CompilerOptions.WARNING);
+	}
+	// configure deprecation level
+	if (this.options.get(CompilerOptions.OPTION_ReportDeprecationInNonDeprecatedCode) == CompilerOptions.ENABLED ||
+			this.options.get(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode) == CompilerOptions.ENABLED) {
+		this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+		// the default may have been reset
+	} else {
+		this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 	}
 
 	if (printUsageRequired || (filesCount == 0 && classCount == 0)) {
@@ -3143,6 +3144,11 @@ protected void disableWarnings() {
 		}
 	}
 	this.options.put(CompilerOptions.OPTION_TaskTags, Util.EMPTY_STRING);
+	this.options.put(CompilerOptions.OPTION_ReportDeprecationInNonDeprecatedCode, CompilerOptions.DISABLED);
+	this.options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.DISABLED);
+	this.options.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.DISABLED);
+	this.options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
+	this.options.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.DISABLED);
 }
 
 public String extractDestinationPathFromSourceFile(CompilationResult result) {

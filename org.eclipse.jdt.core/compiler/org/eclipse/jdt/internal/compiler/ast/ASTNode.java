@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -361,9 +361,12 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		// inside same unit - no report
 		if (scope.isDefinedInSameUnit(field.declaringClass)) return false;
 
-		// if context is deprecated, may avoid reporting
-		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
-		return true;
+		// check against scope code deprecation
+		if (scope.isInsideDeprecatedCode()) {
+			return scope.compilerOptions().reportDeprecationInsideDeprecatedCode;
+		} else {
+			return scope.compilerOptions().reportDeprecationInNonDeprecatedCode;
+		}
 	}
 
 	public boolean isImplicitThis() {
@@ -408,9 +411,12 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			return false;
 		}
 
-		// if context is deprecated, may avoid reporting
-		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
-		return true;
+		// check against scope code deprecation
+		if (scope.isInsideDeprecatedCode()) {
+			return scope.compilerOptions().reportDeprecationInsideDeprecatedCode;
+		} else {
+			return scope.compilerOptions().reportDeprecationInNonDeprecatedCode;
+		}
 	}
 
 	public boolean isSuper() {
@@ -457,9 +463,12 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		// inside same unit - no report
 		if (scope.isDefinedInSameUnit(refType)) return false;
 
-		// if context is deprecated, may avoid reporting
-		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
-		return true;
+		// check against scope code deprecation
+		if (scope.isInsideDeprecatedCode()) {
+			return scope.compilerOptions().reportDeprecationInsideDeprecatedCode;
+		} else {
+			return scope.compilerOptions().reportDeprecationInNonDeprecatedCode;
+		}
 	}
 
 	public abstract StringBuffer print(int indent, StringBuffer output);
