@@ -155,11 +155,11 @@ public void testBug186410b() throws CoreException, IOException {
 }
 
 /**
- * @bug 209510: [dom] Recovered type binding for "java.lang.Object" information are not complete
+ * @bug 209150: [dom] Recovered type binding for "java.lang.Object" information are not complete
  * @test Ensures that getPackage() and getQualifiedName() works properly for the "java.lang.Object" recovered binding
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=209510"
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=209150"
  */
-public void testBug209510a() throws CoreException, IOException {
+public void testBug209150a() throws CoreException, IOException {
 	try {
 		createJavaProject("P", new String[] { "" }, new String[0], "");
 			createFile("P/A.java",
@@ -181,7 +181,7 @@ public void testBug209510a() throws CoreException, IOException {
 	}
 }
 
-public void testBug209510b() throws CoreException, IOException {
+public void testBug209150b() throws CoreException, IOException {
 	try {
 		createJavaProject("P", new String[] { "" }, new String[0], "");
 			createFile("P/A.java",
@@ -206,7 +206,7 @@ public void testBug209510b() throws CoreException, IOException {
 	}
 }
 
-public void testBug209510c() throws CoreException, IOException {
+public void testBug209150c() throws CoreException, IOException {
 	try {
 		createJavaProject("P", new String[] { "" }, new String[0], "");
 			createFile("P/A.java",
