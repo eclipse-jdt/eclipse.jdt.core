@@ -2636,7 +2636,7 @@ public void test079() {
 		"5. ERROR in Hello.java (at line 23)\n" + 
 		"	}\n" + 
 		"	^\n" + 
-		"Syntax error, insert \"}\" to complete MemberValueArrayInitializer\n" + 
+		"Syntax error, insert \"}\" to complete MemberValue\n" + 
 		"----------\n" + 
 		"6. ERROR in Hello.java (at line 23)\n" + 
 		"	}\n" + 

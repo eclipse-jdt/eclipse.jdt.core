@@ -4348,18 +4348,18 @@ class ASTConverter {
 
 	protected void setModifiers(AnnotationTypeDeclaration typeDecl, org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 		this.scanner.resetTo(typeDeclaration.declarationSourceStart, typeDeclaration.sourceStart);
-		this.setModifiers(typeDecl, typeDeclaration.annotations);
+		this.setModifiers(typeDecl, typeDeclaration.annotations, typeDeclaration.sourceStart);
 	}
 	
 	protected void setModifiers(AnnotationTypeMemberDeclaration annotationTypeMemberDecl, org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration annotationTypeMemberDeclaration) {
 		this.scanner.resetTo(annotationTypeMemberDeclaration.declarationSourceStart, annotationTypeMemberDeclaration.sourceStart);
-		this.setModifiers(annotationTypeMemberDecl, annotationTypeMemberDeclaration.annotations);
+		this.setModifiers(annotationTypeMemberDecl, annotationTypeMemberDeclaration.annotations, annotationTypeMemberDeclaration.sourceStart);
 	}
 
 	/**
 	 * @param bodyDeclaration
 	 */
-	protected void setModifiers(BodyDeclaration bodyDeclaration, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations) {
+	protected void setModifiers(BodyDeclaration bodyDeclaration, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations, int modifiersEnd) {
 		this.scanner.tokenizeWhiteSpace = false;
 		try {
 			int token;
@@ -4405,7 +4405,7 @@ class ASTConverter {
 						if (annotations != null && indexInAnnotations < annotations.length) {
 							org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
 							modifier = convert(annotation);
-							this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
+							this.scanner.resetTo(annotation.declarationSourceEnd + 1, modifiersEnd);
 						}
 						break;
 					case TerminalTokens.TokenNameCOMMENT_BLOCK :
@@ -4413,7 +4413,8 @@ class ASTConverter {
 					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
 						break;
 					default :
-						return;
+						// there is some syntax errors in source code
+						break;
 				}
 				if (modifier != null) {
 					bodyDeclaration.modifiers().add(modifier);
@@ -4426,7 +4427,7 @@ class ASTConverter {
 
 	protected void setModifiers(EnumDeclaration enumDeclaration, org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enumDeclaration2) {
 		this.scanner.resetTo(enumDeclaration2.declarationSourceStart, enumDeclaration2.sourceStart);
-		this.setModifiers(enumDeclaration, enumDeclaration2.annotations);
+		this.setModifiers(enumDeclaration, enumDeclaration2.annotations, enumDeclaration2.sourceStart);
 	}
 	
 	protected void setModifiers(EnumConstantDeclaration enumConstantDeclaration, org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration) {
@@ -4439,7 +4440,7 @@ class ASTConverter {
 				break;
 			case AST.JLS3 :
 				this.scanner.resetTo(fieldDeclaration.declarationSourceStart, fieldDeclaration.sourceStart);
-				this.setModifiers(enumConstantDeclaration, fieldDeclaration.annotations);
+				this.setModifiers(enumConstantDeclaration, fieldDeclaration.annotations, fieldDeclaration.sourceStart);
 		}
 	}
 	
@@ -4457,7 +4458,7 @@ class ASTConverter {
 				break;
 			case AST.JLS3 :
 				this.scanner.resetTo(fieldDecl.declarationSourceStart, fieldDecl.sourceStart);
-				this.setModifiers(fieldDeclaration, fieldDecl.annotations);
+				this.setModifiers(fieldDeclaration, fieldDecl.annotations, fieldDecl.sourceStart);
 		}
 	}
 	
@@ -4475,7 +4476,7 @@ class ASTConverter {
 				break;
 			case AST.JLS3 :
 				this.scanner.resetTo(oldInitializer.declarationSourceStart, oldInitializer.bodyStart);
-				this.setModifiers(initializer, oldInitializer.annotations);
+				this.setModifiers(initializer, oldInitializer.annotations, oldInitializer.bodyStart);
 		}
 	}
 	/**
@@ -4492,7 +4493,7 @@ class ASTConverter {
 				break;
 			case AST.JLS3 :
 				this.scanner.resetTo(methodDeclaration.declarationSourceStart, methodDeclaration.sourceStart);
-				this.setModifiers(methodDecl, methodDeclaration.annotations);
+				this.setModifiers(methodDecl, methodDeclaration.annotations, methodDeclaration.sourceStart);
 		}
 	}
 
@@ -4667,7 +4668,7 @@ class ASTConverter {
 				break;
 			case AST.JLS3 :
 				this.scanner.resetTo(typeDeclaration.declarationSourceStart, typeDeclaration.sourceStart);
-				this.setModifiers(typeDecl, typeDeclaration.annotations);
+				this.setModifiers(typeDecl, typeDeclaration.annotations, typeDeclaration.sourceStart);
 		}
 	}
 	

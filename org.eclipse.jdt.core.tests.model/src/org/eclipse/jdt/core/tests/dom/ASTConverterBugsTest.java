@@ -537,9 +537,6 @@ public void testBug214647b() throws CoreException, IOException {
 	);
 }
 
-/*
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=215759
- */
 /**
  * @bug 215759: DOM AST regression tests should be improved
  * @test these tests test the new DOM AST test framework
@@ -652,7 +649,7 @@ public void testBug215759b() throws CoreException {
 			"4:METHOD_DECLARATION,[176,23],[165,34],,[METHOD,Lp/X;.bar()V,]\n" + 
 			"5:METHOD_DECLARATION,[201,40],,,[METHOD,Lp/X;.bar2()V,DEPRECATED]\n" + 
 			"===== Problems =====\n" + 
-			"No Problem",
+			"No problem",
 			result);
 }
 }

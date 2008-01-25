@@ -288,7 +288,9 @@ public abstract class Annotation extends Expression {
 					}
 				}
 			}
-			if (!foundValue && (method.modifiers & ClassFileConstants.AccAnnotationDefault) == 0) {
+			if (!foundValue &&
+					(method.modifiers & ClassFileConstants.AccAnnotationDefault) == 0 &&
+					(this.bits & IsRecovered) == 0) {
 				scope.problemReporter().missingValueForAnnotationMember(this, selector);
 			}
 		}

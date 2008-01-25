@@ -182,11 +182,11 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	public boolean reportOnlyOneSyntaxError = false;
 	public boolean reportSyntaxErrorIsRequired = true;
 	protected boolean restartRecovery;
+	protected boolean annotationRecoveryActivated = true;
 	
 	protected int lastPosistion;
 	
 	// statement recovery
-//	public boolean statementRecoveryEnabled = true;
 	public boolean methodRecoveryActivated = false;
 	protected boolean statementRecoveryActivated = false;
 	protected TypeDeclaration[] recoveredTypes;
@@ -888,7 +888,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.javadocParser = createJavadocParser();
 }
 protected void annotationRecoveryCheckPoint(int start, int end) {
-	if(this.lastCheckPoint > start && this.lastCheckPoint < end) {
+	if(this.lastCheckPoint < end) {
 		this.lastCheckPoint = end + 1;
 	}
 }
@@ -1092,6 +1092,10 @@ protected void checkAndSetModifiers(int flag){
 	this.modifiers |= flag;
 			
 	if (this.modifiersSourceStart < 0) this.modifiersSourceStart = this.scanner.startPosition;
+	
+	if (currentElement != null && this.annotationRecoveryActivated) {
+		currentElement.addModifier(flag, this.modifiersSourceStart);
+	}
 }
 public void checkComment() {
 
@@ -1263,6 +1267,10 @@ protected void consumeAnnotationName() {
 		int start = this.intStack[this.intPtr];
 		int end = (int) (this.identifierPositionStack[this.identifierPtr] & 0x00000000FFFFFFFFL);
 		annotationRecoveryCheckPoint(start, end);
+	
+		if (this.annotationRecoveryActivated) {
+			this.currentElement = this.currentElement.addAnnotationName(this.identifierPtr, this.identifierLengthPtr, start, 0);
+		}
 	}
 	this.recordStringLiterals = false;
 }
@@ -3021,7 +3029,12 @@ protected void consumeEnterAnonymousClassBody() {
 	if (this.currentElement != null){ 
 		this.lastCheckPoint = anonymousType.bodyStart;		
 		this.currentElement = this.currentElement.add(anonymousType, 0);
-		this.currentToken = 0; // opening brace already taken into account
+		if (!(this.currentElement instanceof RecoveredAnnotation)) {
+			this.currentToken = 0; // opening brace already taken into account
+		} else {
+			this.ignoreNextOpeningBrace = true;
+			this.currentElement.bracketBalance++;
+		}
 		this.lastIgnoredToken = -1;
 	}	
 }
@@ -4220,6 +4233,9 @@ protected void consumeLocalVariableDeclarationStatement() {
 protected void consumeMarkerAnnotation() {
 	// MarkerAnnotation ::= '@' Name
 	MarkerAnnotation markerAnnotation = null;
+	
+	int oldIndex = this.identifierPtr;
+	
 	TypeReference typeReference = this.getAnnotationType();
 	markerAnnotation = new MarkerAnnotation(typeReference, this.intStack[this.intPtr--]);
 	markerAnnotation.declarationSourceEnd = markerAnnotation.sourceEnd;
@@ -4230,6 +4246,10 @@ protected void consumeMarkerAnnotation() {
 		this.problemReporter().invalidUsageOfAnnotation(markerAnnotation);
 	}
 	this.recordStringLiterals = true;
+	
+	if (this.currentElement != null && this.currentElement instanceof RecoveredAnnotation) {
+		this.currentElement = ((RecoveredAnnotation)this.currentElement).addAnnotation(markerAnnotation, oldIndex);
+	}
 }
 protected void consumeMemberValueArrayInitializer() {
 	// MemberValueArrayInitializer ::= '{' MemberValues ',' '}'
@@ -4250,6 +4270,12 @@ protected void consumeMemberValuePair() {
 	this.expressionLengthPtr--;
 	MemberValuePair memberValuePair = new MemberValuePair(simpleName, start, end, value);
 	pushOnAstStack(memberValuePair);
+	
+	if (this.currentElement != null && this.currentElement instanceof RecoveredAnnotation) {
+		RecoveredAnnotation recoveredAnnotation = (RecoveredAnnotation) this.currentElement;
+		
+		recoveredAnnotation.setKind(RecoveredAnnotation.NORMAL);
+	}
 }
 protected void consumeMemberValuePairs() {
 	// MemberValuePairs ::= MemberValuePairs ',' MemberValuePair
@@ -4725,6 +4751,9 @@ protected void consumeNestedType() {
 protected void consumeNormalAnnotation() {
 	// NormalAnnotation ::= '@' Name '(' MemberValuePairsopt ')'
 	NormalAnnotation normalAnnotation = null;
+	
+	int oldIndex = this.identifierPtr;
+	
 	TypeReference typeReference = this.getAnnotationType();
 	normalAnnotation = new NormalAnnotation(typeReference, this.intStack[this.intPtr--]);
 	int length;
@@ -4741,6 +4770,10 @@ protected void consumeNormalAnnotation() {
 	
 	if(this.currentElement != null) {
 		annotationRecoveryCheckPoint(normalAnnotation.sourceStart, normalAnnotation.declarationSourceEnd);
+		
+		if (currentElement instanceof RecoveredAnnotation) {
+			this.currentElement = ((RecoveredAnnotation)this.currentElement).addAnnotation(normalAnnotation, oldIndex);
+		}
 	}
 	
 	if(!this.statementRecoveryActivated &&
@@ -6738,23 +6771,27 @@ protected void consumeRule(int act) {
 		    consumeMarkerAnnotation() ;  
 			break;
  
-    case 695 : if (DEBUG) { System.out.println("SingleMemberAnnotation ::= AnnotationName LPAREN..."); }  //$NON-NLS-1$
+    case 695 : if (DEBUG) { System.out.println("SingleMemberAnnotationMemberValue ::= MemberValue"); }  //$NON-NLS-1$
+		    consumeSingleMemberAnnotationMemberValue() ;  
+			break;
+ 
+    case 696 : if (DEBUG) { System.out.println("SingleMemberAnnotation ::= AnnotationName LPAREN..."); }  //$NON-NLS-1$
 		    consumeSingleMemberAnnotation() ;  
 			break;
  
-    case 696 : if (DEBUG) { System.out.println("RecoveryMethodHeaderName ::= Modifiersopt TypeParameters"); }  //$NON-NLS-1$
+    case 697 : if (DEBUG) { System.out.println("RecoveryMethodHeaderName ::= Modifiersopt TypeParameters"); }  //$NON-NLS-1$
 		    consumeRecoveryMethodHeaderNameWithTypeParameters();  
 			break;
  
-    case 697 : if (DEBUG) { System.out.println("RecoveryMethodHeaderName ::= Modifiersopt Type..."); }  //$NON-NLS-1$
+    case 698 : if (DEBUG) { System.out.println("RecoveryMethodHeaderName ::= Modifiersopt Type..."); }  //$NON-NLS-1$
 		    consumeRecoveryMethodHeaderName();  
 			break;
  
-    case 698 : if (DEBUG) { System.out.println("RecoveryMethodHeader ::= RecoveryMethodHeaderName..."); }  //$NON-NLS-1$
+    case 699 : if (DEBUG) { System.out.println("RecoveryMethodHeader ::= RecoveryMethodHeaderName..."); }  //$NON-NLS-1$
 		    consumeMethodHeader();  
 			break;
  
-    case 699 : if (DEBUG) { System.out.println("RecoveryMethodHeader ::= RecoveryMethodHeaderName..."); }  //$NON-NLS-1$
+    case 700 : if (DEBUG) { System.out.println("RecoveryMethodHeader ::= RecoveryMethodHeaderName..."); }  //$NON-NLS-1$
 		    consumeMethodHeader();  
 			break;
  
@@ -6768,6 +6805,9 @@ protected void consumeSimpleAssertStatement() {
 protected void consumeSingleMemberAnnotation() {
 	// SingleMemberAnnotation ::= '@' Name '(' MemberValue ')'
 	SingleMemberAnnotation singleMemberAnnotation = null;
+	
+	int oldIndex = this.identifierPtr;
+	
 	TypeReference typeReference = this.getAnnotationType();
 	singleMemberAnnotation = new SingleMemberAnnotation(typeReference, this.intStack[this.intPtr--]);
 	singleMemberAnnotation.memberValue = this.expressionStack[this.expressionPtr--];
@@ -6778,6 +6818,10 @@ protected void consumeSingleMemberAnnotation() {
 	
 	if(this.currentElement != null) {
 		annotationRecoveryCheckPoint(singleMemberAnnotation.sourceStart, singleMemberAnnotation.declarationSourceEnd);
+		
+		if (currentElement instanceof RecoveredAnnotation) {
+			this.currentElement = ((RecoveredAnnotation)this.currentElement).addAnnotation(singleMemberAnnotation, oldIndex);
+		}
 	}
 	
 	if(!this.statementRecoveryActivated &&
@@ -6786,6 +6830,16 @@ protected void consumeSingleMemberAnnotation() {
 		this.problemReporter().invalidUsageOfAnnotation(singleMemberAnnotation);
 	}
 	this.recordStringLiterals = true;
+}
+
+protected void consumeSingleMemberAnnotationMemberValue() {
+	// this rule is used for syntax recovery only
+	if (this.currentElement != null && this.currentElement instanceof RecoveredAnnotation) {
+		RecoveredAnnotation recoveredAnnotation = (RecoveredAnnotation) this.currentElement;
+		
+		recoveredAnnotation.setKind(RecoveredAnnotation.SINGLE_MEMBER);
+	}
+
 }
 protected void consumeSingleStaticImportDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' 'static' Name

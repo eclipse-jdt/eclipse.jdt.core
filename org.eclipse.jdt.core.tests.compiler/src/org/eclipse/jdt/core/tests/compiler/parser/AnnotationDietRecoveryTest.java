@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import java.util.Locale;
 import java.util.Map;
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
@@ -32,13 +34,19 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 // Tests must be updated with annotation recovery improvment
 // TODO(david) update test suite
 public class AnnotationDietRecoveryTest extends AbstractCompilerTest {
+	private static final boolean CHECK_ALL_PARSE = true;
 	public static boolean optimizeStringLiterals = false;
 	public static long sourceLevel = ClassFileConstants.JDK1_3; //$NON-NLS-1$
 	
 public AnnotationDietRecoveryTest(String testName){
 	super(testName);
 }
-
+public static Test suite() {
+	return buildMinimalComplianceTestSuite(testClass(), F_1_5);
+}
+public static Class testClass() {  
+	return AnnotationDietRecoveryTest.class;
+}
 /*
  * Toggle compiler in mode -1.5
  */
@@ -59,7 +67,7 @@ public void checkParse(
 	String testName) {
 
 	/* using regular parser in DIET mode */
-	{
+	if (CHECK_ALL_PARSE){
 		Parser parser = 
 			new Parser(
 				new ProblemReporter(
@@ -119,7 +127,7 @@ public void checkParse(
 			computedUnitToString);
 	}
 	/* using regular parser in FULL mode */
-	{
+	if (CHECK_ALL_PARSE){
 		Parser parser = 
 			new Parser(
 				new ProblemReporter(
@@ -143,7 +151,7 @@ public void checkParse(
 
 	}
 	/* using source element parser in DIET mode */
-	{
+	if (CHECK_ALL_PARSE){
 		SourceElementParser parser =
 			new SourceElementParser(
 				new TestSourceElementRequestor(),
@@ -166,7 +174,7 @@ public void checkParse(
 			computedUnitToString);
 	}
 	/* using source element parser in FULL mode */
-	{
+	if (CHECK_ALL_PARSE){
 		SourceElementParser parser =
 			new SourceElementParser(
 				new TestSourceElementRequestor(),
@@ -189,7 +197,7 @@ public void checkParse(
 			computedUnitToString);
 	}	
 	/* using completion parser in DIET mode */
-	{
+	if (CHECK_ALL_PARSE){
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		CompletionParser parser =
 			new CompletionParser(
@@ -508,7 +516,7 @@ public void test0009() {
 	String expectedDietUnitToString = 
 		"package a;\n" + 
 		"public class X {\n" + 
-		"  List<Test> l;\n" + 
+		"  @SuppressWarnings(\"unchecked\") List<Test> l;\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -516,7 +524,7 @@ public void test0009() {
 	String expectedDietPlusBodyUnitToString = 
 		"package a;\n" + 
 		"public class X {\n" + 
-		"  List<Test> l;\n" + 
+		"  @SuppressWarnings(\"unchecked\") List<Test> l;\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
@@ -525,7 +533,12 @@ public void test0009() {
 	String expectedFullUnitToString = expectedDietUnitToString;
 	
 	String expectedCompletionDietUnitToString = 
-		expectedDietUnitToString;
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  List<Test> l;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
 	
 	String testName = "<generic type recovery>";
 	checkParse(
@@ -661,6 +674,994 @@ public void test0012() {
 	
 	String expectedCompletionDietUnitToString = 
 		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0013() {
+
+	String s = 
+		"package a;										\n"
+			+ "@AnAnnotation(name)						\n"
+			+ "@AnAnnotation2(name2)					\n"
+			+ "public class X {							\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietPlusBodyUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0014() {
+
+	String s = 
+		"package a;										\n"
+			+ "#										\n"
+			+ "@AnAnnotation(name)						\n"
+			+ "@AnAnnotation2(name2)					\n"
+			+ "public class X {							\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0015() {
+
+	String s = 
+		"package a;										\n"
+			+ "@AnAnnotation(name)						\n"
+			+ "@AnAnnotation2(name2)					\n"
+			+ "public class X {							\n"
+			+ "#										\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0016() {
+
+	String s = 
+		"package a;										\n"
+			+ "@AnAnnotation(name)						\n"
+			+ "@AnAnnotation2(name2)					\n"
+			+ "#										\n"
+			+ "public class X {							\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0017() {
+
+	String s = 
+		"package a;										\n"
+			+ "@AnAnnotation(name)						\n"
+			+ "#										\n"
+			+ "@AnAnnotation2(name2)					\n"
+			+ "public class X {							\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0018() {
+
+	String s = 
+		"package a;										\n"
+			+ "@AnAnnotation(name=)						\n"
+			+ "@AnAnnotation2(name2)					\n"
+			+ "public class X {							\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation2(name2) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0019() {
+
+	String s = 
+		"package a;										\n"
+			+ "@AnAnnotation(name)						\n"
+			+ "@AnAnnotation2(name2=)					\n"
+			+ "public class X {							\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2 class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2 class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0020() {
+
+	String s = 
+		"package a;										\n"
+			+ "public class X {							\n"
+			+ "  @AnAnnotation(name) #					\n"
+			+ "  int field;								\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  @AnAnnotation(name) int field;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  @AnAnnotation(name) int field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  int field;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0021() {
+
+	String s = 
+		"package a;										\n"
+			+ "public class X {							\n"
+			+ "  @AnAnnotation(name=)					\n"
+			+ "  int field;								\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  @AnAnnotation int field;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  @AnAnnotation int field;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  int field;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0022() {
+
+	String s = 
+		"package a;										\n"
+			+ "public class X {							\n"
+			+ "  @AnAnnotation(name) #					\n"
+			+ "  void foo() {}							\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  @AnAnnotation(name) void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+			
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  @AnAnnotation(name) void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0023() {
+
+	String s = 
+		"package a;										\n"
+			+ "public class X {							\n"
+			+ "  @AnAnnotation(name=)					\n"
+			+ "  void foo() {}							\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  @AnAnnotation void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  @AnAnnotation void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0024() {
+
+	String s = 
+		"package a;															\n"
+			+ "public class X {												\n"
+			+ "  void foo(int param1, @AnAnnotation(name) # int param2) {}	\n"
+			+ "}															\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo(int param1) {\n" + 
+		"  }\n" + 
+		"}\n";
+			
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo(int param1) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0025() {
+
+	String s = 
+		"package a;															\n"
+			+ "public class X {												\n"
+			+ "  void foo(int param1, @AnAnnotation(name=) int param2) {}	\n"
+			+ "}															\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo(int param1) {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo(int param1) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0026() {
+
+	String s = 
+		"package a;															\n"
+			+ "public class X {												\n"
+			+ "  void foo(int param1, @AnAnnotation(@AnAnnotation1(name1=\"a\", name2=) int param2) {}	\n"
+			+ "}															\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo(int param1) {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo(int param1) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0027() {
+
+	String s = 
+		"package a;																					\n"
+			+ "@AnAnnotation1(name1=\"a\", #)														\n"
+			+ "public class X {																		\n"
+			+ "}																					\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(name1 = \"a\") class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(name1 = \"a\") class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0028() {
+
+	String s = 
+		"package a;																					\n"
+			+ "@AnAnnotation1(name1=\"a\", name2=@AnAnnotation2(name3=\"b\"), #)					\n"
+			+ "public class X {																		\n"
+			+ "}																					\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(name1 = \"a\",name2 = @AnAnnotation2(name3 = \"b\")) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(name1 = \"a\",name2 = @AnAnnotation2(name3 = \"b\")) class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0030() {
+
+	String s = 
+		"package a;																					\n"
+			+ "@AnAnnotation1(\"a\"#)																\n"
+			+ "public class X {																		\n"
+			+ "}																					\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(\"a\") class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(\"a\") class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0031() {
+
+	String s = 
+		"package a;																					\n"
+			+ "@AnAnnotation1(\"a\", name2=@AnAnnotation2(name3=\"b\"), #)							\n"
+			+ "public class X {																		\n"
+			+ "}																					\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(\"a\") @AnAnnotation2(name3 = \"b\") class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(\"a\") @AnAnnotation2(name3 = \"b\") class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0032() {
+
+	String s = 
+		"package a;																					\n"
+			+ "@AnAnnotation1(\"a\", name2=@AnAnnotation2(name3=\"b\"))								\n"
+			+ "public class X {																		\n"
+			+ "}																					\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(\"a\") @AnAnnotation2(name3 = \"b\") class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(\"a\") @AnAnnotation2(name3 = \"b\") class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0033() {
+
+	String s = 
+		"package a;																					\n"
+			+ "@AnAnnotation1(name=new Object() {})	#												\n"
+			+ "public class X {																		\n"
+			+ "}																					\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(name = new Object() {\n" + 
+		"}) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(name = new Object() {\n" + 
+		"}) class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0034() {
+
+	String s = 
+		"package a;																					\n"
+			+ "@AnAnnotation1(name=new Object() {},#)												\n"
+			+ "public class X {																		\n"
+			+ "}																					\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(name = new Object() {\n" + 
+		"}) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1(name = new Object() {\n" + 
+		"}) class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0035() {
+
+	String s = 
+		"package a;																					\n"
+			+ "@AnAnnotation1(name=new Object() {#})												\n"
+			+ "public class X {																		\n"
+			+ "}																					\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1 class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation1 class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
 	
 	String testName = "<generic type recovery>";
 	checkParse(

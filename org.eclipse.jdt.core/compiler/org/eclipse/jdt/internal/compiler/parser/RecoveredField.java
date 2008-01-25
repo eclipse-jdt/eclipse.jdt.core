@@ -14,6 +14,7 @@ package org.eclipse.jdt.internal.compiler.parser;
  * Internal field structure for parsing recovery 
  */
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -26,6 +27,12 @@ public class RecoveredField extends RecoveredElement {
 
 	public FieldDeclaration fieldDeclaration;
 	boolean alreadyCompletedFieldInitialization;
+	
+	public RecoveredAnnotation[] annotations;
+	public int annotationCount;
+	
+	public int modifiers;
+	public int modifiersStart;
 	
 	public RecoveredType[] anonymousTypes;
 	public int anonymousTypeCount;
@@ -85,6 +92,29 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 		return element;
 	}
 }
+public void attach(RecoveredAnnotation[] annots, int annotCount, int mods, int modsSourceStart) {
+	if (annotCount > 0) {
+		Annotation[] existingAnnotations = this.fieldDeclaration.annotations;
+		if (existingAnnotations != null) {
+			this.annotations = new RecoveredAnnotation[annotCount];
+			this.annotationCount = 0;
+			next : for (int i = 0; i < annotCount; i++) {
+				for (int j = 0; j < existingAnnotations.length; j++) {
+					if (annots[i].annotation == existingAnnotations[j]) continue next;
+				}
+				this.annotations[this.annotationCount++] = annots[i];
+			}
+		} else {
+			this.annotations = annots;
+			this.annotationCount = annotCount;
+		}
+	}
+	
+	if (mods != 0) {
+		this.modifiers = mods;
+		this.modifiersStart = modsSourceStart;
+	}
+}
 /* 
  * Answer the associated parsed structure
  */
@@ -101,6 +131,12 @@ public String toString(int tab){
 	StringBuffer buffer = new StringBuffer(tabString(tab));
 	buffer.append("Recovered field:\n"); //$NON-NLS-1$
 	fieldDeclaration.print(tab + 1, buffer);
+	if (this.annotations != null) {
+		for (int i = 0; i < this.annotationCount; i++) {
+			buffer.append("\n"); //$NON-NLS-1$
+			buffer.append(this.annotations[i].toString(tab + 1));
+		}
+	}
 	if (this.anonymousTypes != null) {
 		for (int i = 0; i < this.anonymousTypeCount; i++){
 			buffer.append("\n"); //$NON-NLS-1$
@@ -110,7 +146,31 @@ public String toString(int tab){
 	return buffer.toString();
 }
 public FieldDeclaration updatedFieldDeclaration(){
-
+	/* update annotations */
+	if (modifiers != 0) {
+		this.fieldDeclaration.modifiers |= modifiers;
+		if (this.modifiersStart < this.fieldDeclaration.declarationSourceStart) {
+			this.fieldDeclaration.declarationSourceStart = modifiersStart;
+		}
+	}
+	/* update annotations */
+	if (annotationCount > 0){
+		int existingCount = fieldDeclaration.annotations == null ? 0 : fieldDeclaration.annotations.length;
+		Annotation[] annotationReferences = new Annotation[existingCount + annotationCount];
+		if (existingCount > 0){
+			System.arraycopy(fieldDeclaration.annotations, 0, annotationReferences, annotationCount, existingCount);
+		}
+		for (int i = 0; i < annotationCount; i++){
+			annotationReferences[i] = annotations[i].updatedAnnotationReference();
+		}
+		fieldDeclaration.annotations = annotationReferences;
+		
+		int start = this.annotations[0].annotation.sourceStart;
+		if (start < this.fieldDeclaration.declarationSourceStart) {
+			this.fieldDeclaration.declarationSourceStart = start;
+		}
+	}
+	
 	if (this.anonymousTypes != null) {
 		if(fieldDeclaration.initialization == null) {
 			for (int i = 0; i < this.anonymousTypeCount; i++){

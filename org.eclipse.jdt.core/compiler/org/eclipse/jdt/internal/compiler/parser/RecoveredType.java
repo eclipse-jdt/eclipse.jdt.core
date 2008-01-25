@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
@@ -29,6 +30,12 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class RecoveredType extends RecoveredStatement implements TerminalTokens {
 	public TypeDeclaration typeDeclaration;
+	
+	public RecoveredAnnotation[] annotations;
+	public int annotationCount;
+	
+	public int modifiers;
+	public int modifiersStart;
 
 	public RecoveredType[] memberTypes;
 	public int memberTypeCount;
@@ -44,6 +51,11 @@ public class RecoveredType extends RecoveredStatement implements TerminalTokens 
 	
 	public TypeParameter[] pendingTypeParameters;
 	public int pendingTypeParametersStart;
+	
+	int pendingModifiers;
+	int pendingModifersSourceStart = -1;
+	RecoveredAnnotation[] pendingAnnotations;
+	int pendingAnnotationCount;
 	
 public RecoveredType(TypeDeclaration typeDeclaration, RecoveredElement parent, int bracketBalance){
 	super(typeDeclaration, parent, bracketBalance);
@@ -68,6 +80,8 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 	if (typeDeclaration.declarationSourceEnd != 0 
 		&& methodDeclaration.declarationSourceStart > typeDeclaration.declarationSourceEnd){
 		this.pendingTypeParameters = null;
+		this.resetPendingModifiers();
+		
 		return this.parent.add(methodDeclaration, bracketBalanceValue);
 	}
 
@@ -92,6 +106,15 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 		this.pendingTypeParameters = null;
 	}
 	
+	if(this.pendingAnnotationCount > 0) {
+		element.attach(
+				pendingAnnotations,
+				pendingAnnotationCount,
+				pendingModifiers,
+				pendingModifersSourceStart);
+		this.resetPendingModifiers();
+	}
+	
 	this.insideEnumConstantPart = false;
 
 	/* consider that if the opening brace was not found, it is there */
@@ -105,12 +128,13 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 }
 public RecoveredElement add(Block nestedBlockDeclaration,int bracketBalanceValue) {
 	this.pendingTypeParameters = null;
+	this.resetPendingModifiers();
 	
-	int modifiers = ClassFileConstants.AccDefault;
+	int mods = ClassFileConstants.AccDefault;
 	if(this.parser().recoveredStaticInitializerStart != 0) {
-		modifiers = ClassFileConstants.AccStatic;
+		mods = ClassFileConstants.AccStatic;
 	}
-	return this.add(new Initializer(nestedBlockDeclaration, modifiers), bracketBalanceValue);
+	return this.add(new Initializer(nestedBlockDeclaration, mods), bracketBalanceValue);
 }
 public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanceValue) {
 	this.pendingTypeParameters = null;
@@ -119,6 +143,9 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 	it must be belonging to an enclosing type */
 	if (typeDeclaration.declarationSourceEnd != 0
 		&& fieldDeclaration.declarationSourceStart > typeDeclaration.declarationSourceEnd) {
+		
+		this.resetPendingModifiers();
+		
 		return this.parent.add(fieldDeclaration, bracketBalanceValue);
 	}
 	if (fields == null) {
@@ -148,6 +175,15 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 			return this;
 	}
 	fields[fieldCount++] = element;
+	
+	if(this.pendingAnnotationCount > 0) {
+		element.attach(
+				pendingAnnotations,
+				pendingAnnotationCount,
+				pendingModifiers,
+				pendingModifersSourceStart);
+		this.resetPendingModifiers();
+	}
 
 	/* consider that if the opening brace was not found, it is there */
 	if (!foundOpeningBrace){
@@ -165,6 +201,9 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 		it must be belonging to an enclosing type */
 	if (typeDeclaration.declarationSourceEnd != 0 
 		&& memberTypeDeclaration.declarationSourceStart > typeDeclaration.declarationSourceEnd){
+		
+		this.resetPendingModifiers();
+		
 		return this.parent.add(memberTypeDeclaration, bracketBalanceValue);
 	}
 	
@@ -177,6 +216,9 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 			lastMethod.methodDeclaration.bodyEnd = 0; // reopen method
 			lastMethod.methodDeclaration.declarationSourceEnd = 0; // reopen method
 			lastMethod.bracketBalance++; // expect one closing brace
+			
+			this.resetPendingModifiers();
+			
 			return lastMethod.add(memberTypeDeclaration, bracketBalanceValue);
 		} else {
 			// ignore
@@ -199,6 +241,15 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 	}
 	RecoveredType element = new RecoveredType(memberTypeDeclaration, this, bracketBalanceValue);
 	memberTypes[memberTypeCount++] = element;
+	
+	if(this.pendingAnnotationCount > 0) {
+		element.attach(
+				pendingAnnotations,
+				pendingAnnotationCount,
+				pendingModifiers,
+				pendingModifersSourceStart);
+		this.resetPendingModifiers();
+	}
 
 	/* consider that if the opening brace was not found, it is there */
 	if (!foundOpeningBrace){
@@ -212,6 +263,57 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 public void add(TypeParameter[] parameters, int startPos) {
 	this.pendingTypeParameters = parameters;
 	this.pendingTypeParametersStart = startPos;
+}
+public RecoveredElement addAnnotationName(int identifierPtr, int identifierLengthPtr, int annotationStart, int bracketBalanceValue) {
+	if (pendingAnnotations == null) {
+		pendingAnnotations = new RecoveredAnnotation[5];
+		pendingAnnotationCount = 0;
+	} else {
+		if (pendingAnnotationCount == pendingAnnotations.length) {
+			System.arraycopy(
+				pendingAnnotations, 
+				0, 
+				(pendingAnnotations = new RecoveredAnnotation[2 * pendingAnnotationCount]), 
+				0, 
+				pendingAnnotationCount); 
+		}
+	}
+	
+	RecoveredAnnotation element = new RecoveredAnnotation(identifierPtr, identifierLengthPtr, annotationStart, this, bracketBalanceValue);
+	
+	pendingAnnotations[pendingAnnotationCount++] = element;
+	
+	return element;
+}
+public void addModifier(int flag, int modifiersSourceStart) {
+	this.pendingModifiers |= flag;
+	
+	if (this.pendingModifersSourceStart < 0) {
+		this.pendingModifersSourceStart = modifiersSourceStart;
+	}
+}
+public void attach(RecoveredAnnotation[] annots, int annotCount, int mods, int modsSourceStart) {
+	if (annotCount > 0) {
+		Annotation[] existingAnnotations = this.typeDeclaration.annotations;
+		if (existingAnnotations != null) {
+			this.annotations = new RecoveredAnnotation[annotCount];
+			this.annotationCount = 0;
+			next : for (int i = 0; i < annotCount; i++) {
+				for (int j = 0; j < existingAnnotations.length; j++) {
+					if (annots[i].annotation == existingAnnotations[j]) continue next;
+				}
+				this.annotations[this.annotationCount++] = annots[i];
+			}
+		} else {
+			this.annotations = annots;
+			this.annotationCount = annotCount;
+		}
+	}
+	
+	if (mods != 0) {
+		this.modifiers = mods;
+		this.modifiersStart = modsSourceStart;
+	}
 }
 /*
  * Answer the body end of the corresponding parse node
@@ -258,6 +360,12 @@ public char[] name(){
 public ASTNode parseTree(){
 	return typeDeclaration;
 }
+public void resetPendingModifiers() {
+	this.pendingAnnotations = null;
+	this.pendingAnnotationCount = 0;
+	this.pendingModifiers = 0;
+	this.pendingModifersSourceStart = -1;
+}
 /*
  * Answer the very source end of the corresponding parse node
  */
@@ -272,6 +380,12 @@ public String toString(int tab) {
 		result.append(" "); //$NON-NLS-1$
 	}
 	typeDeclaration.print(tab + 1, result);
+	if (this.annotations != null) {
+		for (int i = 0; i < this.annotationCount; i++) {
+			result.append("\n"); //$NON-NLS-1$
+			result.append(this.annotations[i].toString(tab + 1));
+		}
+	}
 	if (this.memberTypes != null) {
 		for (int i = 0; i < this.memberTypeCount; i++) {
 			result.append("\n"); //$NON-NLS-1$
@@ -320,6 +434,30 @@ public Statement updatedStatement(){
 }
 public TypeDeclaration updatedTypeDeclaration(){
 	int lastEnd = typeDeclaration.bodyStart;
+	/* update annotations */
+	if (modifiers != 0) {
+		this.typeDeclaration.modifiers |= modifiers;
+		if (this.modifiersStart < this.typeDeclaration.declarationSourceStart) {
+			this.typeDeclaration.declarationSourceStart = modifiersStart;
+		}
+	}
+	/* update annotations */
+	if (annotationCount > 0){
+		int existingCount = typeDeclaration.annotations == null ? 0 : typeDeclaration.annotations.length;
+		Annotation[] annotationReferences = new Annotation[existingCount + annotationCount];
+		if (existingCount > 0){
+			System.arraycopy(typeDeclaration.annotations, 0, annotationReferences, annotationCount, existingCount);
+		}
+		for (int i = 0; i < annotationCount; i++){
+			annotationReferences[i] = annotations[i].updatedAnnotationReference();
+		}
+		typeDeclaration.annotations = annotationReferences;
+		
+		int start = this.annotations[0].annotation.sourceStart;
+		if (start < this.typeDeclaration.declarationSourceStart) {
+			this.typeDeclaration.declarationSourceStart = start;
+		}
+	}
 	/* update member types */
 	if (memberTypeCount > 0){
 		int existingCount = typeDeclaration.memberTypes == null ? 0 : typeDeclaration.memberTypes.length;

@@ -462,7 +462,8 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 	private final static String DETAILS_DELIMITER = "===== Details =====";
 	private final static String PROBLEMS_DELIMITER = "===== Problems =====";
 	
-	private final static String NO_PROBLEM = "No Problem";
+	private final static String NO_PROBLEM = "No problem";
+	private static final String NO_CORRESPONDING_NODE = "No corresponding node";
 	
 	// options
 	private boolean reportAST;
@@ -475,7 +476,8 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 	private Map markerFromNode;
 	private Map nodeFromMarker;
 	private Map markerPositonInBuffer;
-
+	
+	private boolean[] foundNodeFromMarker;
 	private StringBuffer markedNodesBuffer;
 	
 	private MarkedNodeLabelProvider labelProvider;
@@ -542,14 +544,19 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 	}
 	public void preVisit(ASTNode node) {
 		String markerName = null;
-		int index = markerInfo.indexOfASTStart(node.getStartPosition());
-		if (index != -1 && node.getStartPosition() + node.getLength() == markerInfo.astEnds[index]) {
-			markerName = String.valueOf(index + 1);
-			
-			if (this.nodeFromMarker.get(markerName) == null) {
-				this.markerFromNode.put(node, markerName);
-				this.nodeFromMarker.put(markerName, node);
-				this.markerPositonInBuffer.put(markerName, new Integer(this.buffer.length()));
+		int index = -1;
+		found : while ((index = markerInfo.indexOfASTStart(node.getStartPosition(), index + 1)) != -1) {
+			if (node.getStartPosition() + node.getLength() == markerInfo.astEnds[index]) {
+				markerName = String.valueOf(index + 1);
+				
+				if (this.nodeFromMarker.get(markerName) == null) {
+					this.markerFromNode.put(node, markerName);
+					this.nodeFromMarker.put(markerName, node);
+					this.markerPositonInBuffer.put(markerName, new Integer(this.buffer.length()));
+					this.foundNodeFromMarker[index] = true;
+				}
+				
+				break found;
 			}
 		}
 		
@@ -569,6 +576,17 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 		this.markerFromNode = new HashMap();
 		this.nodeFromMarker = new HashMap();
 		this.markerPositonInBuffer = new HashMap();
+		int length = mf.astStarts.length;
+		this.foundNodeFromMarker = new boolean[length];
 		this.unit.accept(this);
+		
+		for (int i = 0; i < length; i++) {
+			if (!this.foundNodeFromMarker[i]) {
+				this.markedNodesBuffer.append('\n');
+				this.markedNodesBuffer.append(String.valueOf(i + 1));
+				this.markedNodesBuffer.append(':');
+				this.markedNodesBuffer.append(NO_CORRESPONDING_NODE);
+			}
+		}
 	}
 }

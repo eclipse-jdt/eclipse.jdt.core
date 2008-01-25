@@ -30,6 +30,11 @@ public class RecoveredBlock extends RecoveredStatement implements TerminalTokens
 	public boolean preserveContent = false;
 	public RecoveredLocalVariable pendingArgument;
 	
+	int pendingModifiers;
+	int pendingModifersSourceStart = -1;
+	RecoveredAnnotation[] pendingAnnotations;
+	int pendingAnnotationCount;
+	
 public RecoveredBlock(Block block, RecoveredElement parent, int bracketBalance){
 	super(block, parent, bracketBalance);
 	this.blockDeclaration = block;
@@ -41,6 +46,7 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 	if (this.parent != null && this.parent instanceof RecoveredMethod) {
 		RecoveredMethod enclosingRecoveredMethod = (RecoveredMethod) this.parent;
 		if (enclosingRecoveredMethod.methodBody == this && enclosingRecoveredMethod.parent == null) {
+			this.resetPendingModifiers();
 			// the element cannot be added because we are in the body of a top level method
 			return this; // ignore this element
 		}
@@ -51,6 +57,7 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
  * Record a nested block declaration 
  */
 public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValue) {
+	this.resetPendingModifiers();
 
 	/* do not consider a nested block starting passed the block end (if set)
 		it must be belonging to an enclosing block */
@@ -104,11 +111,21 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 		it must be belonging to an enclosing block */
 	if (this.blockDeclaration.sourceEnd != 0 
 			&& localDeclaration.declarationSourceStart > this.blockDeclaration.sourceEnd){
+		resetPendingModifiers();
 		if (delegatedByParent) return this; //ignore
 		return this.parent.add(localDeclaration, bracketBalanceValue);
 	}
 
 	RecoveredLocalVariable element = new RecoveredLocalVariable(localDeclaration, this, bracketBalanceValue);
+	
+	if(this.pendingAnnotationCount > 0) {
+		element.attach(
+				pendingAnnotations,
+				pendingAnnotationCount,
+				pendingModifiers,
+				pendingModifersSourceStart);
+		this.resetPendingModifiers();
+	}
 
 	if (localDeclaration instanceof Argument){
 		this.pendingArgument = element;
@@ -130,6 +147,7 @@ public RecoveredElement add(Statement stmt, int bracketBalanceValue) {
  * Record a statement declaration 
  */
 public RecoveredElement add(Statement stmt, int bracketBalanceValue, boolean delegatedByParent) {
+	this.resetPendingModifiers();
 
 	/* do not consider a nested block starting passed the block end (if set)
 		it must be belonging to an enclosing block */
@@ -159,14 +177,51 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 		it must be belonging to an enclosing block */
 	if (this.blockDeclaration.sourceEnd != 0 
 			&& typeDeclaration.declarationSourceStart > this.blockDeclaration.sourceEnd){
+		resetPendingModifiers();
 		if (delegatedByParent) return this; //ignore
 		return this.parent.add(typeDeclaration, bracketBalanceValue);
 	}
 			
-	RecoveredStatement element = new RecoveredType(typeDeclaration, this, bracketBalanceValue);
+	RecoveredType element = new RecoveredType(typeDeclaration, this, bracketBalanceValue);
+	if(this.pendingAnnotationCount > 0) {
+		element.attach(
+				pendingAnnotations,
+				pendingAnnotationCount,
+				pendingModifiers,
+				pendingModifersSourceStart);
+		this.resetPendingModifiers();
+	}
 	this.attach(element);
 	if (typeDeclaration.declarationSourceEnd == 0) return element;
 	return this;
+}
+public RecoveredElement addAnnotationName(int identifierPtr, int identifierLengthPtr, int annotationStart, int bracketBalanceValue) {
+	if (pendingAnnotations == null) {
+		pendingAnnotations = new RecoveredAnnotation[5];
+		pendingAnnotationCount = 0;
+	} else {
+		if (pendingAnnotationCount == pendingAnnotations.length) {
+			System.arraycopy(
+				pendingAnnotations, 
+				0, 
+				(pendingAnnotations = new RecoveredAnnotation[2 * pendingAnnotationCount]), 
+				0, 
+				pendingAnnotationCount); 
+		}
+	}
+	
+	RecoveredAnnotation element = new RecoveredAnnotation(identifierPtr, identifierLengthPtr, annotationStart, this, bracketBalanceValue);
+	
+	pendingAnnotations[pendingAnnotationCount++] = element;
+	
+	return element;
+}
+public void addModifier(int flag, int modifiersSourceStart) {
+	this.pendingModifiers |= flag;
+	
+	if (this.pendingModifersSourceStart < 0) {
+		this.pendingModifersSourceStart = modifiersSourceStart;
+	}
 }
 /*
  * Attach a recovered statement
@@ -188,11 +243,23 @@ void attach(RecoveredStatement recoveredStatement) {
 	}
 	this.statements[this.statementCount++] = recoveredStatement;
 }
+void attachPendingModifiers(RecoveredAnnotation[] pendingAnnots, int pendingAnnotCount, int pendingMods, int pendingModsSourceStart) {
+	this.pendingAnnotations = pendingAnnots;
+	this.pendingAnnotationCount = pendingAnnotCount;
+	this.pendingModifiers = pendingMods;
+	this.pendingModifersSourceStart = pendingModsSourceStart;
+}
 /* 
  * Answer the associated parsed structure
  */
 public ASTNode parseTree(){
 	return this.blockDeclaration;
+}
+public void resetPendingModifiers() {
+	this.pendingAnnotations = null;
+	this.pendingAnnotationCount = 0;
+	this.pendingModifiers = 0;
+	this.pendingModifersSourceStart = -1;
 }
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
@@ -377,6 +444,7 @@ public Statement updateStatement(){
  * Record a field declaration 
  */
 public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanceValue) {
+	this.resetPendingModifiers();
 
 	/* local variables inside method can only be final and non void */
 	char[][] fieldTypeName; 

@@ -379,4 +379,353 @@ public void test0002() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0003() {
+
+	String s = 
+		"package a;															\n"
+			+ "public class X {												\n"
+			+ "  void foo() {												\n"
+			+ "    @AnAnnotation(name) #									\n"
+			+ "    int var;													\n"
+			+ "  }															\n"
+			+ "}															\n";
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+			
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    @AnAnnotation(name) int var;\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedFullUnitToString;
+	
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0004() {
+
+	String s = 
+		"package a;															\n"
+			+ "public class X {												\n"
+			+ "  void foo() {												\n"
+			+ "    @AnAnnotation(name=)										\n"
+			+ "    int var;													\n"
+			+ "  }															\n"
+			+ "}															\n";
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+			
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    @AnAnnotation(name = $missing$) int var;\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedFullUnitToString;
+	
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0005() {
+
+	String s = 
+		"package a;															\n"
+			+ "public class X {												\n"
+			+ "  void foo() {												\n"
+			+ "    foo1();													\n"
+			+ "    @AnAnnotation(name) #									\n"
+			+ "    class Y {}												\n"
+			+ "    foo2();													\n"
+			+ "  }															\n"
+			+ "}															\n";
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+			
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    @AnAnnotation(name) class Y {\n" + 
+		"      Y() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    foo1();\n" + 
+		"    @AnAnnotation(name) class Y {\n" + 
+		"      Y() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"    foo2();\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedFullUnitToString;
+	
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0006() {
+
+	String s = 
+		"package a;															\n"
+			+ "public class X {												\n"
+			+ "  void foo() {												\n"
+			+ "    foo1();													\n"
+			+ "    @AnAnnotation(name=)										\n"
+			+ "    class Y {}												\n"
+			+ "    foo2();													\n"
+			+ "  }															\n"
+			+ "}															\n";
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+			
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    @AnAnnotation class Y {\n" + 
+		"      Y() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    foo1();\n" + 
+		"    @AnAnnotation class Y {\n" + 
+		"      Y() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"    foo2();\n" + 
+		"  }\n" + 
+		"}\n";
+			
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedFullUnitToString;
+	
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778
+public void test0007() {
+
+	String s = 
+		"package a;															\n"
+			+ "public class X {												\n"
+			+ "  void foo() {												\n"
+			+ "    foo1();													\n"
+			+ "    final @AnAnnotation(name) #								\n"
+			+ "    class Y {}												\n"
+			+ "    foo2();													\n"
+			+ "  }															\n"
+			+ "}															\n";
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+			
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    final @AnAnnotation(name) class Y {\n" + 
+		"      Y() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    foo1();\n" + 
+		"    final @AnAnnotation(name) class Y {\n" + 
+		"      Y() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"    foo2();\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedFullUnitToString;
+	
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
 }

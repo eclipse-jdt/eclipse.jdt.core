@@ -129,7 +129,11 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		}
 		
 		public int indexOfASTStart(int astStart) {
-			for (int i = 0, length = this.astStarts.length; i < length; i++)
+			return this.indexOfASTStart(astStart, 0);
+		}
+		
+		public int indexOfASTStart(int astStart, int fromIndex) {
+			for (int i = fromIndex, length = this.astStarts.length; i < length; i++)
 				if (this.astStarts[i] == astStart)
 					return i;
 			return -1;

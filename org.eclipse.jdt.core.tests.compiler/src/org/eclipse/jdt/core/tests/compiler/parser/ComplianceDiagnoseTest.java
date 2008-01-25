@@ -41,7 +41,7 @@ public void runComplianceParserTest(
 		this.runNegativeTest(testFiles, expected13ProblemLog);
 	} else if(this.complianceLevel == ClassFileConstants.JDK1_4) {
 		this.runNegativeTest(testFiles, expected14ProblemLog);
-	} else if(this.complianceLevel > ClassFileConstants.JDK1_5) {
+	} else if(this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(testFiles, expected15ProblemLog);
 	}
 }
@@ -1919,7 +1919,7 @@ public void test0042() {
 		"5. ERROR in X.java (at line 23)\n" + 
 		"	}\n" + 
 		"	^\n" + 
-		"Syntax error, insert \"}\" to complete MemberValueArrayInitializer\n" + 
+		"Syntax error, insert \"}\" to complete MemberValue\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 23)\n" + 
 		"	}\n" + 
@@ -2212,6 +2212,16 @@ public void test0049() {
 		"	public @MyAnn(\"\",\"\") class Test {		\n" + 
 		"	              ^^\n" + 
 		"Syntax error, insert \")\" to complete Modifier\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	public @MyAnn(\"\",\"\") class Test {		\n" + 
+		"	              ^^\n" + 
+		"The attribute value is undefined for the annotation type MyAnn\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	public @MyAnn(\"\",\"\") class Test {		\n" + 
+		"	                           ^^^^\n" + 
+		"The public type Test must be defined in its own file\n" + 
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -2220,8 +2230,18 @@ public void test0049() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	public @MyAnn(\"\",\"\") class Test {		\n" + 
+		"	              ^^\n" + 
+		"The attribute value is undefined for the annotation type MyAnn\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	public @MyAnn(\"\",\"\") class Test {		\n" + 
 		"	                ^\n" + 
-		"Syntax error on token \",\", / expected\n" + 
+		"Syntax error on token \",\", < expected\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	public @MyAnn(\"\",\"\") class Test {		\n" + 
+		"	                           ^^^^\n" + 
+		"The public type Test must be defined in its own file\n" + 
 		"----------\n";
 	
 	runComplianceParserTest(

@@ -2233,7 +2233,12 @@ MarkerAnnotation ::= AnnotationName
 /:$readableName MarkerAnnotation:/
 /:$compliance 1.5:/
 
-SingleMemberAnnotation ::= AnnotationName '(' MemberValue ')'
+SingleMemberAnnotationMemberValue ::= MemberValue
+/.$putCase consumeSingleMemberAnnotationMemberValue() ; $break ./
+/:$readableName MemberValue:/
+/:$compliance 1.5:/
+
+SingleMemberAnnotation ::= AnnotationName '(' SingleMemberAnnotationMemberValue ')'
 /.$putCase consumeSingleMemberAnnotation() ; $break ./
 /:$readableName SingleMemberAnnotation:/
 /:$compliance 1.5:/

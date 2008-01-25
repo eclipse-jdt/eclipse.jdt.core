@@ -183,8 +183,24 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 		
 		// is inside diet part of the ast
 		if(this.blockDepth < 1) {
-			if(this.markIncludedProblems(start, end)) {
-				node.setFlags(node.getFlags() | ASTNode.RECOVERED);
+			switch (node.getNodeType()) {
+				case ASTNode.ANNOTATION_TYPE_DECLARATION:
+				case ASTNode.COMPILATION_UNIT:
+				case ASTNode.ENUM_DECLARATION:
+				case ASTNode.FIELD_DECLARATION:
+				case ASTNode.IMPORT_DECLARATION:
+				case ASTNode.INITIALIZER:
+				case ASTNode.METHOD_DECLARATION:
+				case ASTNode.PACKAGE_DECLARATION:
+				case ASTNode.TYPE_DECLARATION:
+				case ASTNode.MARKER_ANNOTATION:
+				case ASTNode.NORMAL_ANNOTATION:
+				case ASTNode.SINGLE_MEMBER_ANNOTATION:
+				case ASTNode.BLOCK:
+					if(this.markIncludedProblems(start, end)) {
+						node.setFlags(node.getFlags() | ASTNode.RECOVERED);
+					}
+					break;
 			}
 		} else {			
 			this.markIncludedProblems(start, end);
@@ -393,6 +409,37 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 					fragment.setInitializer(null);
 					fragment.setFlags(fragment.getFlags() | ASTNode.RECOVERED);
 				}
+			}
+		}
+	}
+	
+	public void endVisit(NormalAnnotation node) {
+		endVisitNode(node);
+		// is inside diet part of the ast
+		if(this.blockDepth < 1) {
+			List values = node.values();
+			int size = values.size();
+			if (size > 0) {
+				MemberValuePair lastMemberValuePair = (MemberValuePair)values.get(size - 1);
+				
+				int annotationEnd = node.getStartPosition() + node.getLength();
+				int lastMemberValuePairEnd = lastMemberValuePair.getStartPosition() + lastMemberValuePair.getLength();
+				if (annotationEnd == lastMemberValuePairEnd) {
+					node.setFlags(node.getFlags() | ASTNode.RECOVERED);
+				}
+			}
+		}
+	}
+	
+	public void endVisit(SingleMemberAnnotation node) {
+		endVisitNode(node);
+		// is inside diet part of the ast
+		if(this.blockDepth < 1) {
+			Expression value = node.getValue();
+			int annotationEnd = node.getStartPosition() + node.getLength();
+			int valueEnd = value.getStartPosition() + value.getLength();
+			if (annotationEnd == valueEnd) {
+				node.setFlags(node.getFlags() | ASTNode.RECOVERED);
 			}
 		}
 	}

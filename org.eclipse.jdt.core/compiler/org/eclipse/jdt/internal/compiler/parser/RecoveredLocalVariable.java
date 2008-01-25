@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 /**
  * Internal local variable structure for parsing recovery 
  */
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -22,6 +23,12 @@ import org.eclipse.jdt.internal.compiler.ast.Statement;
 
 public class RecoveredLocalVariable extends RecoveredStatement {
 
+	public RecoveredAnnotation[] annotations;
+	public int annotationCount;
+	
+	public int modifiers;
+	public int modifiersStart;
+	
 	public LocalDeclaration localDeclaration;
 	boolean alreadyCompletedLocalInitialization;
 public RecoveredLocalVariable(LocalDeclaration localDeclaration, RecoveredElement parent, int bracketBalance){
@@ -44,6 +51,29 @@ public RecoveredElement add(Statement stmt, int bracketBalanceValue) {
 		return this;
 	}
 }
+public void attach(RecoveredAnnotation[] annots, int annotCount, int mods, int modsSourceStart) {
+	if (annotCount > 0) {
+		Annotation[] existingAnnotations = this.localDeclaration.annotations;
+		if (existingAnnotations != null) {
+			this.annotations = new RecoveredAnnotation[annotCount];
+			this.annotationCount = 0;
+			next : for (int i = 0; i < annotCount; i++) {
+				for (int j = 0; j < existingAnnotations.length; j++) {
+					if (annots[i].annotation == existingAnnotations[j]) continue next;
+				}
+				this.annotations[this.annotationCount++] = annots[i];
+			}
+		} else {
+			this.annotations = annots;
+			this.annotationCount = annotCount;
+		}
+	}
+	
+	if (mods != 0) {
+		this.modifiers = mods;
+		this.modifiersStart = modsSourceStart;
+	}
+}
 /* 
  * Answer the associated parsed structure
  */
@@ -56,10 +86,34 @@ public ASTNode parseTree(){
 public int sourceEnd(){
 	return this.localDeclaration.declarationSourceEnd;
 }
-public String toString(int tab) {
+public String toString(int tab) {	
 	return tabString(tab) + "Recovered local variable:\n" + localDeclaration.print(tab + 1, new StringBuffer(10)); //$NON-NLS-1$
 }
 public Statement updatedStatement(){
+	/* update annotations */
+	if (modifiers != 0) {
+		this.localDeclaration.modifiers |= modifiers;
+		if (this.modifiersStart < this.localDeclaration.declarationSourceStart) {
+			this.localDeclaration.declarationSourceStart = modifiersStart;
+		}
+	}
+	/* update annotations */
+	if (annotationCount > 0){
+		int existingCount = localDeclaration.annotations == null ? 0 : localDeclaration.annotations.length;
+		Annotation[] annotationReferences = new Annotation[existingCount + annotationCount];
+		if (existingCount > 0){
+			System.arraycopy(localDeclaration.annotations, 0, annotationReferences, annotationCount, existingCount);
+		}
+		for (int i = 0; i < annotationCount; i++){
+			annotationReferences[i] = annotations[i].updatedAnnotationReference();
+		}
+		localDeclaration.annotations = annotationReferences;
+		
+		int start = this.annotations[0].annotation.sourceStart;
+		if (start < this.localDeclaration.declarationSourceStart) {
+			this.localDeclaration.declarationSourceStart = start;
+		}
+	}
 	return localDeclaration;
 }
 /*

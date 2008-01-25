@@ -80,6 +80,7 @@ public AssistParser(ProblemReporter problemReporter) {
 	
 	this.setMethodsFullRecovery(false);
 	this.setStatementsRecovery(false);
+	this.annotationRecoveryActivated = false;
 }
 public abstract char[] assistIdentifier();
 public int bodyEnd(AbstractMethodDeclaration method){

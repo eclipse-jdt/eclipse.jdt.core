@@ -30,9 +30,43 @@ public class RecoveredUnit extends RecoveredElement {
 	public int importCount;
 	public RecoveredType[] types;
 	public int typeCount;
+	
+	int pendingModifiers;
+	int pendingModifersSourceStart = -1;
+	RecoveredAnnotation[] pendingAnnotations;
+	int pendingAnnotationCount;
+	
 public RecoveredUnit(CompilationUnitDeclaration unitDeclaration, int bracketBalance, Parser parser){
 	super(null, bracketBalance, parser);
 	this.unitDeclaration = unitDeclaration;
+}
+public RecoveredElement addAnnotationName(int identifierPtr, int identifierLengthPtr, int annotationStart, int bracketBalanceValue) {
+	if (pendingAnnotations == null) {
+		pendingAnnotations = new RecoveredAnnotation[5];
+		pendingAnnotationCount = 0;
+	} else {
+		if (pendingAnnotationCount == pendingAnnotations.length) {
+			System.arraycopy(
+				pendingAnnotations, 
+				0, 
+				(pendingAnnotations = new RecoveredAnnotation[2 * pendingAnnotationCount]), 
+				0, 
+				pendingAnnotationCount); 
+		}
+	}
+	
+	RecoveredAnnotation element = new RecoveredAnnotation(identifierPtr, identifierLengthPtr, annotationStart, this, bracketBalanceValue);
+	
+	pendingAnnotations[pendingAnnotationCount++] = element;
+	
+	return element;
+}
+public void addModifier(int flag, int modifiersSourceStart) {
+	this.pendingModifiers |= flag;
+	
+	if (this.pendingModifersSourceStart < 0) {
+		this.pendingModifersSourceStart = modifiersSourceStart;
+	}
 }
 /*
  *	Record a method declaration: should be attached to last type
@@ -64,6 +98,8 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 			type.add(initializer, bracketBalanceValue);
 		}
 		
+		this.resetPendingModifiers();
+		
 		return type.add(methodDeclaration, bracketBalanceValue);
 	}
 	return this; // ignore
@@ -79,11 +115,16 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 		type.bodyEnd = 0; // reset position
 		type.typeDeclaration.declarationSourceEnd = 0; // reset position
 		type.typeDeclaration.bodyEnd = 0;
+		
+		this.resetPendingModifiers();
+		
 		return type.add(fieldDeclaration, bracketBalanceValue);
 	}
 	return this; // ignore
 }
 public RecoveredElement add(ImportReference importReference, int bracketBalanceValue) {
+	this.resetPendingModifiers();
+		
 	if (this.imports == null) {
 		this.imports = new RecoveredImport[5];
 		this.importCount = 0;
@@ -114,6 +155,9 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 			lastType.typeDeclaration.bodyEnd = 0; // reopen type
 			lastType.typeDeclaration.declarationSourceEnd = 0; // reopen type
 			lastType.bracketBalance++; // expect one closing brace
+			
+			this.resetPendingModifiers();
+		
 			return lastType.add(typeDeclaration, bracketBalanceValue);
 		}
 	}
@@ -132,6 +176,15 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 	}
 	RecoveredType element = new RecoveredType(typeDeclaration, this, bracketBalanceValue);
 	this.types[this.typeCount++] = element;
+	
+	if(this.pendingAnnotationCount > 0) {
+		element.attach(
+				pendingAnnotations,
+				pendingAnnotationCount,
+				pendingModifiers,
+				pendingModifersSourceStart);
+		this.resetPendingModifiers();
+	}
 
 	/* if type not finished, then type becomes current */
 	if (typeDeclaration.declarationSourceEnd == 0) return element;
@@ -142,6 +195,12 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
  */
 public ASTNode parseTree(){
 	return this.unitDeclaration;
+}
+public void resetPendingModifiers() {
+	this.pendingAnnotations = null;
+	this.pendingAnnotationCount = 0;
+	this.pendingModifiers = 0;
+	this.pendingModifersSourceStart = -1;
 }
 /*
  * Answer the very source end of the corresponding parse node

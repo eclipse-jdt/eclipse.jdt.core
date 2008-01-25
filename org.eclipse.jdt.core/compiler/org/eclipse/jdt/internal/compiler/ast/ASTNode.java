@@ -28,7 +28,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit3 = 0x4;					// return type (operator) | name reference kind (name ref) | implicit this (this ref)
 	public final static int Bit4 = 0x8;					// return type (operator) | first assignment to local (name ref,local decl) | undocumented empty block (block, type and method decl)
 	public final static int Bit5 = 0x10;				// value for return (expression) | has all method bodies (unit) | supertype ref (type ref) | resolved (field decl)
-	public final static int Bit6 = 0x20;				// depth (name ref, msg) | ignore need cast check (cast expression) | error in signature (method declaration/ initializer)
+	public final static int Bit6 = 0x20;				// depth (name ref, msg) | ignore need cast check (cast expression) | error in signature (method declaration/ initializer) | is recovered (annotation reference)
 	public final static int Bit7 = 0x40;				// depth (name ref, msg) | operator (operator) | need runtime checkcast (cast expression) | label used (labelStatement) | needFreeReturn (AbstractMethodDeclaration)
 	public final static int Bit8 = 0x80;				// depth (name ref, msg) | operator (operator) | unsafe cast (cast expression) | is default constructor (constructor declaration)
 	public final static int Bit9 = 0x100;				// depth (name ref, msg) | operator (operator) | is local type (type decl)
@@ -216,6 +216,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	
 	// for synchronized statement
 	public static final int BlockExit = Bit30;
+	
+	// for annotation reference
+	public static final int IsRecovered = Bit6;
 	
 	// constants used when checking invocation arguments
 	public static final int INVOCATION_ARGUMENT_OK = 0;

@@ -27,6 +27,11 @@ public class RecoveredInitializer extends RecoveredField implements TerminalToke
 	public int localTypeCount;
 
 	public RecoveredBlock initializerBody;	
+	
+	int pendingModifiers;
+	int pendingModifersSourceStart = -1;
+	RecoveredAnnotation[] pendingAnnotations;
+	int pendingAnnotationCount;
 
 public RecoveredInitializer(FieldDeclaration fieldDeclaration, RecoveredElement parent, int bracketBalance){
 	this(fieldDeclaration, parent, bracketBalance, null);
@@ -46,6 +51,7 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValu
 	*/
 	if (fieldDeclaration.declarationSourceEnd > 0
 			&& nestedBlockDeclaration.sourceStart > fieldDeclaration.declarationSourceEnd){
+		resetPendingModifiers();
 		if (this.parent == null) return this; // ignore
 		return this.parent.add(nestedBlockDeclaration, bracketBalanceValue);
 	}
@@ -62,6 +68,7 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValu
  * Record a field declaration (act like inside method body)
  */
 public RecoveredElement add(FieldDeclaration newFieldDeclaration, int bracketBalanceValue) {
+	this.resetPendingModifiers();
 
 	/* local variables inside initializer can only be final and non void */
 	char[][] fieldTypeName;
@@ -95,6 +102,7 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 		it must be belonging to an enclosing type */
 	if (fieldDeclaration.declarationSourceEnd != 0 
 			&& localDeclaration.declarationSourceStart > fieldDeclaration.declarationSourceEnd){
+		resetPendingModifiers();
 		if (parent == null) return this; // ignore
 		return this.parent.add(localDeclaration, bracketBalanceValue);
 	}
@@ -102,6 +110,14 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 	Block block = new Block(0);
 	block.sourceStart = ((Initializer)fieldDeclaration).sourceStart;
 	RecoveredElement element = this.add(block, 1);
+	if (initializerBody != null) {
+		initializerBody.attachPendingModifiers(
+				this.pendingAnnotations,
+				this.pendingAnnotationCount,
+				this.pendingModifiers,
+				this.pendingModifersSourceStart);
+	}
+	this.resetPendingModifiers();
 	return element.add(localDeclaration, bracketBalanceValue);	
 }
 /*
@@ -113,6 +129,7 @@ public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 		it must be belonging to an enclosing type */
 	if (fieldDeclaration.declarationSourceEnd != 0 
 			&& statement.sourceStart > fieldDeclaration.declarationSourceEnd){
+		resetPendingModifiers();
 		if (parent == null) return this; // ignore
 		return this.parent.add(statement, bracketBalanceValue);
 	}
@@ -120,6 +137,16 @@ public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 	Block block = new Block(0);
 	block.sourceStart = ((Initializer)fieldDeclaration).sourceStart;
 	RecoveredElement element = this.add(block, 1);
+	
+	if (initializerBody != null) {
+		initializerBody.attachPendingModifiers(
+				this.pendingAnnotations,
+				this.pendingAnnotationCount,
+				this.pendingModifiers,
+				this.pendingModifersSourceStart);
+	}
+	this.resetPendingModifiers();
+		
 	return element.add(statement, bracketBalanceValue);	
 }
 public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceValue) {
@@ -128,6 +155,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 		it must be belonging to an enclosing type */
 	if (fieldDeclaration.declarationSourceEnd != 0 
 			&& typeDeclaration.declarationSourceStart > fieldDeclaration.declarationSourceEnd){
+		resetPendingModifiers();
 		if (parent == null) return this; // ignore
 		return this.parent.add(typeDeclaration, bracketBalanceValue);
 	}
@@ -136,6 +164,14 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 		Block block = new Block(0);
 		block.sourceStart = ((Initializer)fieldDeclaration).sourceStart;
 		RecoveredElement element = this.add(block, 1);
+		if (initializerBody != null) {
+			initializerBody.attachPendingModifiers(
+					this.pendingAnnotations,
+					this.pendingAnnotationCount,
+					this.pendingModifiers,
+					this.pendingModifersSourceStart);
+		}
+		this.resetPendingModifiers();
 		return element.add(typeDeclaration, bracketBalanceValue);	
 	}	
 	if (localTypes == null) {
@@ -154,6 +190,15 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 	RecoveredType element = new RecoveredType(typeDeclaration, this, bracketBalanceValue);
 	localTypes[localTypeCount++] = element;
 	
+	if(this.pendingAnnotationCount > 0) {
+		element.attach(
+				pendingAnnotations,
+				pendingAnnotationCount,
+				pendingModifiers,
+				pendingModifersSourceStart);
+		this.resetPendingModifiers();
+	}
+	
 	/* consider that if the opening brace was not found, it is there */
 	if (!foundOpeningBrace){
 		foundOpeningBrace = true;
@@ -161,10 +206,50 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 	}
 	return element;
 }
+public RecoveredElement addAnnotationName(int identifierPtr, int identifierLengthPtr, int annotationStart, int bracketBalanceValue) {
+	if (pendingAnnotations == null) {
+		pendingAnnotations = new RecoveredAnnotation[5];
+		pendingAnnotationCount = 0;
+	} else {
+		if (pendingAnnotationCount == pendingAnnotations.length) {
+			System.arraycopy(
+				pendingAnnotations, 
+				0, 
+				(pendingAnnotations = new RecoveredAnnotation[2 * pendingAnnotationCount]), 
+				0, 
+				pendingAnnotationCount); 
+		}
+	}
+	
+	RecoveredAnnotation element = new RecoveredAnnotation(identifierPtr, identifierLengthPtr, annotationStart, this, bracketBalanceValue);
+	
+	pendingAnnotations[pendingAnnotationCount++] = element;
+	
+	return element;
+}
+public void addModifier(int flag, int modifiersSourceStart) {
+	this.pendingModifiers |= flag;
+	
+	if (this.pendingModifersSourceStart < 0) {
+		this.pendingModifersSourceStart = modifiersSourceStart;
+	}
+}
+public void resetPendingModifiers() {
+	this.pendingAnnotations = null;
+	this.pendingAnnotationCount = 0;
+	this.pendingModifiers = 0;
+	this.pendingModifersSourceStart = -1;
+}
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
 	result.append("Recovered initializer:\n"); //$NON-NLS-1$
 	this.fieldDeclaration.print(tab + 1, result);
+	if (this.annotations != null) {
+		for (int i = 0; i < this.annotationCount; i++) {
+			result.append("\n"); //$NON-NLS-1$
+			result.append(this.annotations[i].toString(tab + 1));
+		}
+	}
 	if (this.initializerBody != null) {
 		result.append("\n"); //$NON-NLS-1$
 		result.append(this.initializerBody.toString(tab + 1));
