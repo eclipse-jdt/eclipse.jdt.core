@@ -848,7 +848,7 @@ private char[] readStreamChars(FileInputStream stream) throws IOException {
 		// how many characters can be decoded without refilling the buffer?
 		int charsInBuffer = i + ((this.bufferEnd - this.bufferIndex) / 3);
 		// all the characters must already be in the buffer if we're at the end of the stream
-		if (charsInBuffer > length || this.bufferEnd != this.streamBuffer.length)
+		if (charsInBuffer > length || this.bufferEnd != this.streamBuffer.length || stream == null)
 			charsInBuffer = length;
 		while (i < charsInBuffer) {
 			byte b = this.streamBuffer[this.bufferIndex++];

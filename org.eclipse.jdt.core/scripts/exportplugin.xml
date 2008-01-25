@@ -1,119 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- build script to create a plugin from ${plugin} -->
-<project name="${plugin}" default="export plug-in [_3.2.6]" basedir="..">
+<project name="${plugin}" default="export plug-in [_3.2.7]" basedir="..">
 
-<target name="export plug-in [_3.2.6]">
+<target name="export plug-in [_3.2.7]">
     <tstamp/>
 	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
 	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.2.6"/>
+		<param name="jdt_core_version" value="3.2.7"/>
 	</antcall>
 </target>
-<target name="export plug-in [_3.2.6.qualifier] (with sources)">
+<target name="export plug-in [_3.2.7.qualifier] (with sources)">
     <tstamp/>
 	<property name="qualifier" value="${DSTAMP}-${TSTAMP}" />
 	<antcall target="zz_internal_export_structure">
-		<param name="jdt_core_version" value="3.2.6.${qualifier}"/>
+		<param name="jdt_core_version" value="3.2.7.${qualifier}"/>
 	</antcall>
 </target>
-<target name="export plug-in [_3.2.6.qualifier]">
+<target name="export plug-in [_3.2.7.qualifier]">
     <tstamp/>
 	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
 	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.2.6.${qualifier}"/>
-	</antcall>
-</target>
-<target name="export plug-in [_3.2.5]">
-    <tstamp/>
-	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.2.5"/>
-	</antcall>
-</target>
-<target name="export plug-in [_3.2.5.qualifier] (with sources)">
-    <tstamp/>
-	<property name="qualifier" value="${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export_structure">
-		<param name="jdt_core_version" value="3.2.5.${qualifier}"/>
-	</antcall>
-</target>
-<target name="export plug-in [_3.2.5.qualifier]">
-    <tstamp/>
-	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.2.5.${qualifier}"/>
-	</antcall>
-</target>
-<target name="export plug-in [_3.2.4]">
-    <tstamp/>
-	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.2.4"/>
-	</antcall>
-</target>
-<target name="export plug-in [_3.2.4.qualifier] (with sources)">
-    <tstamp/>
-	<property name="qualifier" value="${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export_structure">
-		<param name="jdt_core_version" value="3.2.4.${qualifier}"/>
-	</antcall>
-</target>
-<target name="export plug-in [_3.2.4.qualifier]">
-    <tstamp/>
-	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.2.4.${qualifier}"/>
-	</antcall>
-</target>
-<target name="export plug-in [_3.2.3]">
-    <tstamp/>
-	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.2.3"/>
-	</antcall>
-</target>
-<target name="export plug-in [_3.2.3.qualifier] (with sources)">
-    <tstamp/>
-	<property name="qualifier" value="${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export_structure">
-		<param name="jdt_core_version" value="3.2.3.${qualifier}"/>
-	</antcall>
-</target>
-<target name="export plug-in [_3.2.3.qualifier]">
-    <tstamp/>
-	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.2.3.${qualifier}"/>
-	</antcall>
-</target>
-<target name="export plug-in [_3.2.1]">
-    <tstamp/>
-	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.2.1"/>
-	</antcall>
-</target>
-<target name="export plug-in [_3.2.1.qualifier] (with sources)">
-    <tstamp/>
-	<property name="qualifier" value="${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export_structure">
-		<param name="jdt_core_version" value="3.2.1.${qualifier}"/>
-	</antcall>
-</target>
-<target name="export plug-in [_3.2.1.qualifier]">
-    <tstamp/>
-	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.2.1.${qualifier}"/>
-	</antcall>
-</target>
-
-<target name="export plug-in [_3.2.0]">
-    <tstamp/>
-	<property name="qualifier" value="z${DSTAMP}-${TSTAMP}" />
-	<antcall target="zz_internal_export">
-		<param name="jdt_core_version" value="3.2.0"/>
+		<param name="jdt_core_version" value="3.2.7.${qualifier}"/>
 	</antcall>
 </target>
 
