@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41586,6 +41586,72 @@ public void test1246() {
 				"	static private class Private {}\n" + 
 				"	<U extends X.Private> void foo(U u) {}\n" + 
 				"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216558
+public void test1247() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void test() {\n" + 
+				"		Foo<?, ?> foo = null;\n" + 
+				"		eval(foo); // fails\n" + 
+				"		X.<Foo<?, ?>> eval(foo);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static <T extends Iterable<T>> void eval(T x) {\n" + 
+				"	}\n" + 
+				"	public static interface Foo<S, T> extends Iterable<Foo<?, ?>> {\n" + 
+				"	}\n" + 
+				"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	eval(foo); // fails\n" + 
+		"	^^^^\n" + 
+		"Bound mismatch: The generic method eval(T) of type X is not applicable for the arguments (X.Foo<capture#1-of ?,capture#2-of ?>). The inferred type X.Foo<capture#1-of ?,capture#2-of ?> is not a valid substitute for the bounded parameter <T extends Iterable<T>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216558 - variation
+public void test1248() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void test() {\n" + 
+				"		Foo<?, ?> foo = null;\n" + 
+				"		eval(foo); // fails\n" + 
+				"		X.<Foo<?, ?>> eval(foo);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static <T extends Iterable<T>> void eval(T x) {\n" + 
+				"	}\n" + 
+				"	public static interface Foo<S, T> extends Iterable<Foo<S,T>> {\n" + 
+				"	}\n" + 
+				"}", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216558 - variation
+public void test1249() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void test() {\n" + 
+				"		Foo<?, ?> foo = null;\n" + 
+				"		eval(foo, foo);\n" + 
+				"		X.<Foo<?, ?>> eval(foo, foo);\n" + 
+				"	}\n" + 
+				"	public static <T extends Iterable<T>> void eval(T t1, T t2) {\n" + 
+				"	}\n" + 
+				"	public static interface Foo<S, T> extends Iterable<Foo<?, ?>> {\n" + 
+				"	}\n" + 
+				"}", // =================
 		},
 		"");
 }
