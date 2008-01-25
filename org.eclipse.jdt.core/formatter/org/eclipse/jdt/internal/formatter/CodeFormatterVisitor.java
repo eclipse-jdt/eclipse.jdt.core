@@ -2396,7 +2396,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		if (argument.modifiers != NO_MODIFIERS || argument.annotations != null) {
 	        this.scribe.printComment();
-			this.scribe.printModifiers(argument.annotations, this);
+			this.scribe.printModifiers(argument.annotations, this, true);
 			this.scribe.space();
 		}
 

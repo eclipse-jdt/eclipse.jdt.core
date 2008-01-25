@@ -9813,4 +9813,29 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		};
 		runTest(codeFormatter, "test699", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
+	public void test700() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.line_separator = "\n";//$NON-NLS-1$
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(0, 221) // nothing selected --> format all
+		};
+		runTest(codeFormatter, "test700", "X.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
+	public void test701() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.line_separator = "\n";//$NON-NLS-1$
+		preferences.insert_new_line_after_arg_annotation = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(0, 221) // nothing selected --> format all
+		};
+		runTest(codeFormatter, "test701", "X.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
 }

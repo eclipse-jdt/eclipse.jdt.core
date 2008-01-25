@@ -942,6 +942,20 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
+	 * FORMATTER / Option to insert a new line after an argument annotation
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_arg_annotation"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.4
+	 */
+	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ARG_ANNOTATION = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_arg_annotation";//$NON-NLS-1$
+
+	
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a new line after the opening brace in an array initializer
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_opening_brace_in_array_initializer"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
