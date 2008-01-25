@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Johan Compagner - partial fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
  *******************************************************************************/
 package org.eclipse.jdt.core.formatter;
 
