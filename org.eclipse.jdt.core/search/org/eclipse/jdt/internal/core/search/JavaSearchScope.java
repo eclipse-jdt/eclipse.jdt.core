@@ -147,8 +147,12 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 							IPath path = entry.getPath();
 							if (pathToAdd == null || pathToAdd.equals(path)) {
 								String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
-								add(projectPath.toString(), "", pathToString, false/*not a package*/, access); //$NON-NLS-1$
-								addEnclosingProjectOrJar(path);
+								// Do not store information inside scope when library does not exist
+								// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=215841)
+								if (JavaModel.getTarget(project.getParent(), path, true) != null) {
+									add(projectPath.toString(), "", pathToString, false/*not a package*/, access); //$NON-NLS-1$
+									addEnclosingProjectOrJar(path);
+								}
 							}
 						}
 						break;
