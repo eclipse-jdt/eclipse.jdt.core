@@ -8274,4 +8274,47 @@ public void test256() throws Exception {
 		"        )";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216570
+public void test257() {
+	if (new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"    static interface IFoo {\n" + 
+					"        public boolean eval(String s);\n" + 
+					"    }\n" + 
+					"    static class Foo implements IFoo {\n" + 
+					"        @Override\n" + 
+					"        public boolean eval(String s) {\n" + 
+					"            return true;\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	public boolean eval(String s) {\n" + 
+				"	               ^^^^^^^^^^^^^^\n" + 
+				"The method eval(String) of type X.Foo must override a superclass method\n" + 
+				"----------\n");		
+		return;
+	}
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static interface IFoo {\n" + 
+				"        public boolean eval(String s);\n" + 
+				"    }\n" + 
+				"    static class Foo implements IFoo {\n" + 
+				"        @Override\n" + 
+				"        public boolean eval(String s) {\n" + 
+				"            return true;\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"");		
+}
 }
