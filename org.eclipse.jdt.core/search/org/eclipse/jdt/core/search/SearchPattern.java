@@ -746,11 +746,6 @@ public static SearchPattern createAndPattern(SearchPattern leftPattern, SearchPa
 	return new AndPattern(leftPattern, rightPattern);
 }
 
-/**
- * Field pattern are formed by [declaringType.]name[ type]
- * e.g. java.lang.String.serialVersionUID long
- *		field*
- */
 private static SearchPattern createFieldPattern(String patternString, int limitTo, int matchRule) {
 	
 	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/); 
@@ -867,24 +862,6 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 			matchRule);
 }
 
-/**
- * Method pattern are formed by:<br>
- * 	[declaringType '.'] ['&lt;' typeArguments '&gt;'] selector ['(' parameterTypes ')'] [returnType]
- *		<br>e.g.<ul>
- *			<li>java.lang.Runnable.run() void</li>
- *			<li>main(*)</li>
- *			<li>&lt;String&gt;toArray(String[])</li>
- *		</ul>
- * Constructor pattern are formed by:<br>
- *		[declaringQualification '.'] ['&lt;' typeArguments '&gt;'] type ['(' parameterTypes ')']
- *		<br>e.g.<ul>
- *			<li>java.lang.Object()</li>
- *			<li>Main(*)</li>
- *			<li>&lt;Exception&gt;Sample(Exception)</li>
- *		</ul>
- * Type arguments have the same pattern that for type patterns
- * @see #createTypePattern(String,int,int,char)
- */
 private static SearchPattern createMethodOrConstructorPattern(String patternString, int limitTo, int matchRule, boolean isConstructor) {
 	
 	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/); 
@@ -918,7 +895,6 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 						case TerminalTokens.TokenNameLESS:
 							argCount++;
 							if (selector == null || lastToken == TerminalTokens.TokenNameDOT) {
-								if (typeArgumentsString != null) return null; // invalid syntax
 								typeArgumentsString = scanner.getCurrentTokenString();
 								mode = InsideTypeArguments;
 								break;
@@ -932,7 +908,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 							selector = null;
 							break;
 						case TerminalTokens.TokenNameDOT:
-							if (typeArgumentsString != null) return null; // invalid syntax
+							if (!isConstructor && typeArgumentsString != null) return null; // invalid syntax
 							if (declaringType == null) {
 								if (selector == null) return null; // invalid syntax
 								declaringType = selector;
@@ -1295,6 +1271,63 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  *			<code>createSearchPattern("java.lang.Runnable", TYPE, IMPLEMENTORS, true);</code></li>
  *  </ul>
  * @param stringPattern the given pattern
+ * <ul>
+ * 	<li>Type pattern can have the following syntax:
+ * 		<p><b><code>[qualification '.']type ['&lt;' typeArguments '&gt;']</code></b></p>
+ *			<p>Some samples:<code>
+ *			<ul>
+ * 			<li>java.lang.Object</li>
+ *				<li>Runnable</li>
+ *				<li>List&lt;String&gt;</li>
+ *			</ul>
+ *			</code>
+ *			</p><p>
+ *			Type arguments can be specified to search references to parameterized types
+ * 		using following syntax:</p><p>
+ * 		<b><code>'&lt;' { [ '?' {'extends'|'super'} ] type ( ',' [ '?' {'extends'|'super'} ] type )* | '?' } '&gt;'</code></b>
+ * 		</p><p><i>
+ * 		Note that:
+ * 		<ul>
+ * 			<li>'*' is not valid inside type arguments definition &lt;&gt;</li>
+ * 			<li>'?' is treated as a wildcard when it is inside &lt;&gt; (i.e. it must be put on first position of the type argument)</li>
+ * 		</ul>
+ * 		</i></p>
+ * 	</li>
+ * 	<li>Method pattern can have the following syntax:
+ * 		<p><b><code>[declaringType '.'] ['&lt;' typeArguments '&gt;'] selector ['(' parameterTypes ')'] [returnType]</code></b></p>
+ *			 <p>Type arguments have the same pattern that for type patterns</p>
+	 *		<p>Some samples:<code>
+ *			<ul>
+ *				<li>java.lang.Runnable.run() void</li>
+ *				<li>main(*)</li>
+ *				<li>&lt;String&gt;toArray(String[])</li>
+ *			</ul>
+ *			</code>
+ *			</p>
+ *		</li>
+ * 	<li>Constructor pattern can have the following syntax:
+ *			<p><b><code>['&lt;' typeArguments '&gt;'] [declaringQualification '.'] type ['(' parameterTypes ')']</code></b></p>
+ *			<p>Type arguments have the same pattern that for type patterns</p>
+ *			<p>Some samples:<code>
+ *			<ul>
+ *				<li>java.lang.Object()</li>
+ *				<li>Test(*)</li>
+ *				<li>&lt;Exception&gt;Sample(Exception)</li>
+ *			</ul>
+ *			</code>
+ *			 </p>
+ * 	</li>
+ * 	<li>Field pattern can have the following syntax:
+ *			<p><b><code>[declaringType.]name[ type]</code></b></p>
+ *			<p>Some samples:<code>
+ *			<ul>
+ *				<li>java.lang.String.serialVersionUID long</li>
+ *				<li>field*</li>
+ *			</ul>
+ *			</code>
+ *			</p>
+ * 	</li>
+ * </ul>
  * @param searchFor determines the nature of the searched elements
  *	<ul>
  * 	<li>{@link IJavaSearchConstants#CLASS}: only look for classes</li>
@@ -1808,19 +1841,7 @@ private static SearchPattern createTypePattern(char[] simpleName, char[] package
 	}
 	return null;
 }
-/**
- * Type pattern are formed by [qualification '.']type [typeArguments].
- * e.g. java.lang.Object
- *		Runnable
- *		List&lt;String&gt;
- *
- * @since 3.1
- *		Type arguments can be specified to search references to parameterized types.
- * 	and look as follow: '&lt;' { [ '?' {'extends'|'super'} ] type ( ',' [ '?' {'extends'|'super'} ] type )* | '?' } '&gt;'
- * 	Please note that:
- * 		- '*' is not valid inside type arguments definition &lt;&gt;
- * 		- '?' is treated as a wildcard when it is inside &lt;&gt; (i.e. it must be put on first position of the type argument)
- */
+
 private static SearchPattern createTypePattern(String patternString, int limitTo, int matchRule, char indexSuffix) {
 	
 	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/); 
