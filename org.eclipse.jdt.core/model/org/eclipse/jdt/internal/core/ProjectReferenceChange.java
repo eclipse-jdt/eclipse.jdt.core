@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -95,7 +96,7 @@ public class ProjectReferenceChange {
 					requiredProjectArray[i] = wksRoot.getProject(requiredProjectNames[i]);
 				}
 				description.setDynamicReferences(requiredProjectArray);
-				projectResource.setDescription(description, null);
+				projectResource.setDescription(description, IResource.AVOID_NATURE_CONFIG, null);
 			}
 		};
 		try {

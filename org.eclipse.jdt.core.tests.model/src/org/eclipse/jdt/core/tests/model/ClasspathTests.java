@@ -3843,6 +3843,26 @@ public void testRenameJar() throws CoreException {
 }
 
 /*
+ * Ensures that updating the project references doesn't throw a runtime excetion
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=216747 )
+ */
+public void testUpdateProjectReferences() throws CoreException {
+	try {
+		createJavaProject("P1");
+		IJavaProject p = createJavaProject("P2");
+		p.setRawClasspath(new IClasspathEntry[] {JavaCore.newProjectEntry(new Path("/P1"))}, null);
+		IProject[] references = p.getProject().getDescription().getDynamicReferences();
+		assertResourcesEqual(
+			"Unexpected resources", 
+			"/P1", 
+			references);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
+/*
  * Ensures that unknown classpath attributes in a .classpath file are not lost when read and rewritten.
  * (regression test for bug 101425 Classpath persistence should be resilient with unknown attributes)
  */
