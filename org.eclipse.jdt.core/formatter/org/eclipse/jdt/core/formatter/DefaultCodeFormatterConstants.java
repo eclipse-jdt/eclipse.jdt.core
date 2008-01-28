@@ -943,8 +943,8 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a new line after an argument annotation
-	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_arg_annotation"
+	 * FORMATTER / Option to insert a new line after an annotation on a parameter
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_in_member_argument_declaration"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
 	 * </pre>
@@ -952,7 +952,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see JavaCore#DO_NOT_INSERT
 	 * @since 3.4
 	 */
-	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ARG_ANNOTATION = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_arg_annotation";//$NON-NLS-1$
+	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_annotation_in_member_argument_declaration";//$NON-NLS-1$
 
 	
 	/**

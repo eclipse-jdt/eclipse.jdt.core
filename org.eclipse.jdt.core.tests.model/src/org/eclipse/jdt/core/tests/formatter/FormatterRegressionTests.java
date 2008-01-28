@@ -8141,6 +8141,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test575() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.insert_new_line_after_annotation_on_parameter = true; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
@@ -8155,6 +8156,30 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);		
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test575", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77809
+	public void test575a() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.insert_new_line_after_annotation_on_parameter = false; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
+		Hashtable javaCoreOptions = JavaCore.getOptions();
+		try {
+			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			JavaCore.setOptions(newJavaCoreOptions);
+		
+			Map compilerOptions = new HashMap();
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);		
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+			runTest(codeFormatter, "test575a", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
 			JavaCore.setOptions(javaCoreOptions);
 		}
@@ -9831,11 +9856,64 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.line_separator = "\n";//$NON-NLS-1$
-		preferences.insert_new_line_after_arg_annotation = true;
+		preferences.insert_new_line_after_annotation_on_parameter = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		IRegion[] regions = new IRegion[] {
 				new Region(0, 221) // nothing selected --> format all
 		};
 		runTest(codeFormatter, "test701", "X.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
+	public void test702() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.line_separator = "\n";//$NON-NLS-1$
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(0, 86) // nothing selected --> format all
+		};
+		runTest(codeFormatter, "test702", "X.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
+	public void test703() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.line_separator = "\n";//$NON-NLS-1$
+		preferences.insert_new_line_after_annotation_on_parameter = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(0, 86) // nothing selected --> format all
+		};
+		runTest(codeFormatter, "test703", "X.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
+	public void test704() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.line_separator = "\n";//$NON-NLS-1$
+		preferences.insert_new_line_after_annotation = false;
+		preferences.insert_new_line_after_annotation_on_parameter = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(0, 86) // nothing selected --> format all
+		};
+		runTest(codeFormatter, "test704", "X.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
+	public void test705() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.line_separator = "\n";//$NON-NLS-1$
+		preferences.insert_new_line_after_annotation = false;
+		preferences.insert_new_line_after_annotation_on_parameter = false;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		IRegion[] regions = new IRegion[] {
+				new Region(0, 86) // nothing selected --> format all
+		};
+		runTest(codeFormatter, "test705", "X.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
