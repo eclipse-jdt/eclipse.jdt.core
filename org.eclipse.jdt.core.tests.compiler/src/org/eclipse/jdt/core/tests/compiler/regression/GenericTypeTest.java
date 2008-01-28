@@ -41655,4 +41655,450 @@ public void test1249() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565
+public void test1250() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"    static <T> List<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static List<Sub<?>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<?>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1251() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> T asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static Sub<?> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<?>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216608
+public void test1252() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	Zork z;\n" + 
+				"	@SuppressWarnings(\"unchecked\")\n" + 
+				"	public B getB() {\n" + 
+				"		return new B<Object>();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	@SuppressWarnings(\"unused\")\n" + 
+				"	public void test() {\n" + 
+				"		C<String> c = getB().getC();\n" + 
+				"		String s = getB().toString();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class B<S> {\n" + 
+				"	public C<String> getC() {\n" + 
+				"		return new C<String>();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class C<T> {\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\r\n" + 
+		"	Zork z;\r\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 10)\r\n" + 
+		"	C<String> c = getB().getC();\r\n" + 
+		"	              ^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type C needs unchecked conversion to conform to C<String>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216608 - variation
+public void test1253() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	Zork z;\n" + 
+				"	@SuppressWarnings(\"unchecked\")\n" + 
+				"	public B<?> getB() {\n" + 
+				"		return new B<Object>();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	@SuppressWarnings(\"unused\")\n" + 
+				"	public void test() {\n" + 
+				"		C<String> c = getB().getC();\n" + 
+				"		String s = getB().toString();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class B<S> {\n" + 
+				"	public C<String> getC() {\n" + 
+				"		return new C<String>();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class C<T> {\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\r\n" + 
+		"	Zork z;\r\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1254() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				" import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<String>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<String>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1255() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				" import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<?>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<?> ARRAY = new Sub() { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	static XList<Sub<?>> LIST = asList(ARRAY); \n" + 
+		"	                            ^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from XList<X.Foo.Sub<capture#1-of ?>> to XList<X.Foo.Sub<?>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	static Sub<?> ARRAY = new Sub() { };\n" + 
+		"	                          ^^^\n" + 
+		"X.Foo.Sub is a raw type. References to generic type X.Foo<T>.Sub<T> should be parameterized\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1256() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<? extends Object>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<?>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1257() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<? extends Object>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<? extends Object>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"	Zork z;\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	static Sub<? extends Object>[] ARRAY = new Sub[] { };\n" + 
+		"	                                       ^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.Foo.Sub[] needs unchecked conversion to conform to X.Foo.Sub<? extends Object>[]\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 12)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1258() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<? extends Number>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<? extends Number>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1259() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<? extends Number>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<? extends Integer>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	static XList<Sub<? extends Number>> LIST = asList(ARRAY); \n" + 
+		"	                                           ^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from XList<X.Foo.Sub<? extends Integer>> to XList<X.Foo.Sub<? extends Number>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	static Sub<? extends Integer>[] ARRAY = new Sub[] { };\n" + 
+		"	                                        ^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.Foo.Sub[] needs unchecked conversion to conform to X.Foo.Sub<? extends Integer>[]\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1260() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<? super Number>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<? super Number>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1261() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<?>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<? super Number>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\r\n" + 
+		"	static XList<Sub<?>> LIST = asList(ARRAY); \r\n" + 
+		"	                            ^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from XList<X.Foo.Sub<? super Number>> to XList<X.Foo.Sub<?>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\r\n" + 
+		"	static Sub<? super Number>[] ARRAY = new Sub[] { };\r\n" + 
+		"	                                     ^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.Foo.Sub[] needs unchecked conversion to conform to X.Foo.Sub<? super Number>[]\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1262() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<? super Number>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<?>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\r\n" + 
+		"	static XList<Sub<? super Number>> LIST = asList(ARRAY); \r\n" + 
+		"	                                         ^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from XList<X.Foo.Sub<?>> to XList<X.Foo.Sub<? super Number>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1263() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<?>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<? super Object>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	static XList<Sub<?>> LIST = asList(ARRAY); \n" + 
+		"	                            ^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from XList<X.Foo.Sub<? super Object>> to XList<X.Foo.Sub<?>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	static Sub<? super Object>[] ARRAY = new Sub[] { };\n" + 
+		"	                                     ^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.Foo.Sub[] needs unchecked conversion to conform to X.Foo.Sub<? super Object>[]\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1264() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"    static <T> List<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static List<X.Foo.Sub<?>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static X.Foo.Sub<?>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1265() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"    static <T> List<T> asList(T[] x) { return null; }\n" + 
+					"    static interface Foo<T> {\n" + 
+					"        static interface Sub<T> extends Foo<T> {\n" + 
+					"            static List<Foo.Sub<?>> LIST = asList(ARRAY); \n" + 
+					"       }\n" + 
+					"        static Sub<?>[] ARRAY = new Sub[] { };\n" + 
+					"    }\n" + 
+					"}", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1266() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"    static <T> List<T> asList(T[] x) { return null; }\n" + 
+					"    static interface Foo<T> {\n" + 
+					"        static interface Sub<T> extends Foo<T> {\n" + 
+					"            static List<Sub<?>> LIST = asList(ARRAY); \n" + 
+					"       }\n" + 
+					"        static Foo.Sub<?>[] ARRAY = new Sub[] { };\n" + 
+					"    }\n" + 
+					"}", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216705
+public void test1267() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"	static interface Foo {\n" + 
+					"	}\n" + 
+					"	static interface SubFoo extends Foo {\n" + 
+					"	}\n" + 
+					"	static abstract class AbstractTest<T extends Foo> {\n" + 
+					"		protected static class Bar<T extends Foo> {\n" + 
+					"		}\n" + 
+					"		protected abstract List<Bar<? extends T>> get();\n" + 
+					"	}\n" + 
+					"	static class Test extends AbstractTest<SubFoo> {\n" + 
+					"		@Override\n" + 
+					"		protected List<Bar<? extends SubFoo>> get() {\n" + 
+					"			return null;\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}", // =================
+			},
+			"");
+}
 }

@@ -2087,12 +2087,12 @@ public class StaticImportTest extends AbstractComparableTest {
 				"1. ERROR in p\\X.java (at line 4)\n" + 
 				"	public class X<T> extends Z<T> {\n" + 
 				"	                          ^\n" + 
-				"The type Y<T>.Z is not generic; it cannot be parameterized with arguments <T>\n" + 
+				"The type Y.Z is not generic; it cannot be parameterized with arguments <T>\n" + 
 				"----------\n" + 
 				"2. ERROR in p\\X.java (at line 5)\n" + 
 				"	Z<T> getZ() { return null; } \n" + 
 				"	^\n" + 
-				"The type Y<T>.Z is not generic; it cannot be parameterized with arguments <T>\n" + 
+				"The type Y.Z is not generic; it cannot be parameterized with arguments <T>\n" + 
 				"----------\n" + 
 				"3. ERROR in p\\X.java (at line 7)\n" + 
 				"	System.out.println(getZ().value);\n" + 
