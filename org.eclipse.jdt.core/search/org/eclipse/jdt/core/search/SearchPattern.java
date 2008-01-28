@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1264,16 +1264,16 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  *	Examples:
  *	<ul>
  * 		<li>search for case insensitive references to <code>Object</code>:
- *			<code>createSearchPattern("Object", TYPE, REFERENCES, false);</code></li>
+ *			<code>createSearchPattern("Object", IJavaSearchConstants.TYPE, IJavaSearchConstants.REFERENCES, false);</code></li>
  *  	<li>search for case sensitive references to exact <code>Object()</code> constructor:
- *			<code>createSearchPattern("java.lang.Object()", CONSTRUCTOR, REFERENCES, true);</code></li>
+ *			<code>createSearchPattern("java.lang.Object()", IJavaSearchConstants.CONSTRUCTOR, IJavaSearchConstants.REFERENCES, true);</code></li>
  *  	<li>search for implementers of <code>java.lang.Runnable</code>:
- *			<code>createSearchPattern("java.lang.Runnable", TYPE, IMPLEMENTORS, true);</code></li>
+ *			<code>createSearchPattern("java.lang.Runnable", IJavaSearchConstants.TYPE, IJavaSearchConstants.IMPLEMENTORS, true);</code></li>
  *  </ul>
  * @param stringPattern the given pattern
  * <ul>
- * 	<li>Type pattern can have the following syntax:
- * 		<p><b><code>[qualification '.']type ['&lt;' typeArguments '&gt;']</code></b></p>
+ * 	<li>Type patterns have the following syntax:
+ * 		<p><b><code>[qualification '.']typeName ['&lt;' typeArguments '&gt;']</code></b></p>
  *			<p>Some samples:<code>
  *			<ul>
  * 			<li>java.lang.Object</li>
@@ -1282,7 +1282,7 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  *			</ul>
  *			</code>
  *			</p><p>
- *			Type arguments can be specified to search references to parameterized types
+ *			Type arguments can be specified to search for references to parameterized types
  * 		using following syntax:</p><p>
  * 		<b><code>'&lt;' { [ '?' {'extends'|'super'} ] type ( ',' [ '?' {'extends'|'super'} ] type )* | '?' } '&gt;'</code></b>
  * 		</p><p><i>
@@ -1293,10 +1293,10 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  * 		</ul>
  * 		</i></p>
  * 	</li>
- * 	<li>Method pattern can have the following syntax:
- * 		<p><b><code>[declaringType '.'] ['&lt;' typeArguments '&gt;'] selector ['(' parameterTypes ')'] [returnType]</code></b></p>
- *			 <p>Type arguments have the same pattern that for type patterns</p>
-	 *		<p>Some samples:<code>
+ * 	<li>Method patterns have the following syntax:
+ * 		<p><b><code>[declaringType '.'] ['&lt;' typeArguments '&gt;'] methodName ['(' parameterTypes ')'] [returnType]</code></b></p>
+ *			<p>Type arguments have the same syntax as explained in the type patterns section</p>
+ *			<p>Some samples:<code>
  *			<ul>
  *				<li>java.lang.Runnable.run() void</li>
  *				<li>main(*)</li>
@@ -1305,9 +1305,9 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  *			</code>
  *			</p>
  *		</li>
- * 	<li>Constructor pattern can have the following syntax:
- *			<p><b><code>['&lt;' typeArguments '&gt;'] [declaringQualification '.'] type ['(' parameterTypes ')']</code></b></p>
- *			<p>Type arguments have the same pattern that for type patterns</p>
+ * 	<li>Constructor patterns have the following syntax:
+ *			<p><b><code>['&lt;' typeArguments '&gt;'] [declaringQualification '.'] typeName ['(' parameterTypes ')']</code></b></p>
+ *			<p>Type arguments have the same syntax as explained in the type patterns section</p>
  *			<p>Some samples:<code>
  *			<ul>
  *				<li>java.lang.Object()</li>
@@ -1317,12 +1317,22 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  *			</code>
  *			 </p>
  * 	</li>
- * 	<li>Field pattern can have the following syntax:
- *			<p><b><code>[declaringType.]name[ type]</code></b></p>
+ * 	<li>Field patterns have the following syntax:
+ *			<p><b><code>[declaringType '.'] fieldName [fieldType]</code></b></p>
  *			<p>Some samples:<code>
  *			<ul>
  *				<li>java.lang.String.serialVersionUID long</li>
  *				<li>field*</li>
+ *			</ul>
+ *			</code>
+ *			</p>
+ * 	</li>
+ * 	<li>Package patterns have the following syntax:
+ *			<p><b><code>packageNameSegment {'.' packageNameSegment}</code></b></p>
+ *			<p>Some samples:<code>
+ *			<ul>
+ *				<li>java.lang</li>
+ *				<li>org.e*.jdt.c*e</li>
  *			</ul>
  *			</code>
  *			</p>
@@ -1363,7 +1373,7 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  *		<li>TODO (frederic) add specification for fine grain flags
  *		</li>
  *	</ul>
- * @param matchRule one of the following match rule
+ * @param matchRule one of the following match rules
  * 	<ul>
  * 		<li>{@link #R_EXACT_MATCH}</li>
  * 		<li>{@link #R_PREFIX_MATCH}</li>
@@ -1372,7 +1382,7 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  * 		<li>{@link #R_CAMELCASE_MATCH}</li>
  * 		<li>{@link #R_CAMELCASE_SAME_PART_COUNT_MATCH}</li>
  * 	</ul>
- * 	which may be also combined with one of the following flag:
+ * 	, which may be also combined with one of the following flags:
  * 	<ul>
  * 		<li>{@link #R_CASE_SENSITIVE}</li>
  * 		<li>{@link #R_ERASURE_MATCH}</li>
@@ -1389,7 +1399,7 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  * 	Note that {@link #R_ERASURE_MATCH} or {@link #R_EQUIVALENT_MATCH} has no effect
  * 	on non-generic types/methods search.
  * 	<p>
- * 	Note also that default behavior for generic types/methods search is to find exact matches.
+ * 	Note also that the default behavior for generic types/methods search is to find exact matches.
  * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed
  */
 public static SearchPattern createPattern(String stringPattern, int searchFor, int limitTo, int matchRule) {
@@ -1530,7 +1540,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
  *		<li>TODO (frederic) add specification for fine grain flags
  *		</li>
  *	</ul>
- * @param matchRule one of the following match rule
+ * @param matchRule one of the following match rules:
  * 	<ul>
  * 		<li>{@link #R_EXACT_MATCH}</li>
  * 		<li>{@link #R_PREFIX_MATCH}</li>
@@ -1539,7 +1549,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
  * 		<li>{@link #R_CAMELCASE_MATCH}</li>
  * 		<li>{@link #R_CAMELCASE_SAME_PART_COUNT_MATCH}</li>
  * 	</ul>
- * 	which may be also combined with one of the following flag:
+ * 	, which may be also combined with one of the following flags:
  * 	<ul>
  * 		<li>{@link #R_CASE_SENSITIVE}</li>
  * 		<li>{@link #R_ERASURE_MATCH}</li>
