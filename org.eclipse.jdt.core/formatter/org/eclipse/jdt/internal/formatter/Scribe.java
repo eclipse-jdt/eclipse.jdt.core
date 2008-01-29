@@ -1507,12 +1507,7 @@ public class Scribe {
 						this.scanner.resetTo(this.scanner.getCurrentTokenStartPosition(), this.scannerEndPosition - 1);
 						if (annotationsIndex < annotationsLength) {
 							annotations[annotationsIndex++].traverse(visitor, (BlockScope) null);
-							if (atArg) {
-								// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
-								if (this.formatter.preferences.insert_new_line_after_annotation_on_parameter) {
-									this.printNewLine();
-								}
-							} else if (this.formatter.preferences.insert_new_line_after_annotation) {
+							if (this.formatter.preferences.insert_new_line_after_annotation) {
 								this.printNewLine();
 							}
 						} else {
