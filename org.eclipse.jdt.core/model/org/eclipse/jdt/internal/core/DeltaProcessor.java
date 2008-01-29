@@ -1850,10 +1850,14 @@ public class DeltaProcessor {
 							}
 							
 							// add late coming elements to refresh (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=212769 )
-							if (elementsToRefresh == null)
+							if (elementsToRefresh == null) {
 								elementsToRefresh = this.state.removeExternalElementsToRefresh();
-							else
-								elementsToRefresh.addAll(this.state.removeExternalElementsToRefresh());
+							} else {
+								HashSet existingElements = this.state.removeExternalElementsToRefresh();
+								if (existingElements != null) {
+									elementsToRefresh.addAll(existingElements);
+								}
+							}
 							
 							// generate external archive change deltas
 							if (elementsToRefresh != null) {

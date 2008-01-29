@@ -33,9 +33,12 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
@@ -3447,6 +3450,36 @@ public void testNoResourceChange05() throws CoreException {
 			"/P/bin2",
 			project.getOutputLocation().toString());
 	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that no error is reported when deleting a project after setting its raw classpath with no resource change.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=216895 )
+ */
+public void testNoResourceChange06() throws CoreException {
+	ILogListener listener = new ILogListener(){
+		private StringBuffer buffer = new StringBuffer();
+		public void logging(IStatus status, String plugin) {
+			buffer.append(status);
+			buffer.append('\n');
+		}
+		public String toString() {
+			return this.buffer.toString();
+		}
+	};
+	try {
+		Platform.addLogListener(listener);
+		IJavaProject project = createJavaProject("P", new String[] {"src1"}, "bin");
+		IClasspathEntry[] newClasspath = createClasspath("P", new String[] {"/P/src2", ""});
+		project.setRawClasspath(newClasspath, false/*cannot modify resources*/, null/*no progress*/);
+		deleteProject("P");
+		assertSourceEquals(
+			"Unexpected error logged", 
+			"",
+			listener.toString());
+	} finally {
+		Platform.removeLogListener(listener);
 		deleteProject("P");
 	}
 }
