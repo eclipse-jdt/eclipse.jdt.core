@@ -364,12 +364,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		// inside same unit - no report
 		if (scope.isDefinedInSameUnit(field.declaringClass)) return false;
 
-		// check against scope code deprecation
-		if (scope.isInsideDeprecatedCode()) {
-			return scope.compilerOptions().reportDeprecationInsideDeprecatedCode;
-		} else {
-			return scope.compilerOptions().reportDeprecationInNonDeprecatedCode;
-		}
+		// if context is deprecated, may avoid reporting
+		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
+		return true;
 	}
 
 	public boolean isImplicitThis() {
@@ -414,12 +411,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			return false;
 		}
 
-		// check against scope code deprecation
-		if (scope.isInsideDeprecatedCode()) {
-			return scope.compilerOptions().reportDeprecationInsideDeprecatedCode;
-		} else {
-			return scope.compilerOptions().reportDeprecationInNonDeprecatedCode;
-		}
+		// if context is deprecated, may avoid reporting
+		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
+		return true;
 	}
 
 	public boolean isSuper() {
@@ -466,12 +460,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		// inside same unit - no report
 		if (scope.isDefinedInSameUnit(refType)) return false;
 
-		// check against scope code deprecation
-		if (scope.isInsideDeprecatedCode()) {
-			return scope.compilerOptions().reportDeprecationInsideDeprecatedCode;
-		} else {
-			return scope.compilerOptions().reportDeprecationInNonDeprecatedCode;
-		}
+		// if context is deprecated, may avoid reporting
+		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
+		return true;
 	}
 
 	public abstract StringBuffer print(int indent, StringBuffer output);

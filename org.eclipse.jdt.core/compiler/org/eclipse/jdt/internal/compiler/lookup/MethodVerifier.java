@@ -177,9 +177,7 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			if (!isAsVisible(currentMethod, inheritedMethod))
 				problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
 			if (options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
-				boolean currentViewedAsDeprecated = currentMethod.isViewedAsDeprecated();
-				if (options.reportDeprecationInNonDeprecatedCode && !currentViewedAsDeprecated ||
-						options.reportDeprecationInsideDeprecatedCode && currentViewedAsDeprecated) {
+				if (!currentMethod.isViewedAsDeprecated() || options.reportDeprecationInsideDeprecatedCode) {
 					// check against the other inherited methods to see if they hide this inheritedMethod
 					ReferenceBinding declaringClass = inheritedMethod.declaringClass;
 					if (declaringClass.isInterface())

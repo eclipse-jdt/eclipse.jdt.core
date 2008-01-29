@@ -1234,7 +1234,6 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.autoboxing\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecation\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInNonDeprecatedCode\" value=\"enabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.emptyStatement\" value=\"ignore\"/>\n" + 
@@ -6103,7 +6102,7 @@ public void test172_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
 // -warn option - regression tests
-public void test173_warn_options() {
+public void _test173_warn_options() {
 	// same source as 172, skip check defaults
 	this.runConformTest(
 		new String[] {
@@ -7864,7 +7863,7 @@ public void test215_warn_options() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // variant - check impact of javadoc upon other warnings
-public void test216a_warn_options() {
+public void _test216a_warn_options() {
 	// check what if allJavadoc on
 	this.runConformTest(
 		new String[] {
@@ -8053,7 +8052,7 @@ public static Class testClass() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
 // -warn option - regression tests
 // variant
-public void test220_warn_options() {
+public void _test220_warn_options() {
 	// same source as 172, skip check defaults
 	this.runConformTest(
 		new String[] {
@@ -8186,7 +8185,7 @@ public void test223_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
 // -warn option - regression tests
 // variant
-public void test224_warn_options() {
+public void _test224_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -8247,7 +8246,7 @@ public void test225_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524
 // -warn option - regression tests
 // variant
-public void test226_warn_options() {
+public void _test226_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",

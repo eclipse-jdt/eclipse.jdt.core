@@ -269,12 +269,6 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
-	 * @since 3.4
-	 */
-	public static final String COMPILER_PB_DEPRECATION_IN_NON_DEPRECATED_CODE = PLUGIN_ID + ".compiler.problem.deprecationInNonDeprecatedCode"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_DEPRECATION_WHEN_OVERRIDING_DEPRECATED_METHOD = "org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod"; //$NON-NLS-1$
@@ -2078,14 +2072,6 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
-	 *
-	 * COMPILER / Reporting Deprecation In Non Deprecated Code
-	 *    When enabled, the compiler will signal use of deprecated API in non 
-	 *    deprecated code.
-	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.deprecation".
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.deprecationInNonDeprecatedCode"
-	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "enabled"
 	 *
 	 * COMPILER / Reporting Deprecation When Overriding Deprecated Method
 	 *    When enabled, the compiler will signal the declaration of a method overriding a deprecated one.
