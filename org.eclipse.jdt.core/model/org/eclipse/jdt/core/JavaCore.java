@@ -2936,7 +2936,9 @@ public final class JavaCore extends Plugin {
 			return ResourcesPlugin.getWorkspace().getRoot().getDefaultCharset();
 		}
 		catch (IllegalStateException ise) {
-			// happen when the workspace is shutting down (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=60687)
+			// happen when there's no workspace (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=216817)
+			// or when it is shutting down (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=60687)
+			return System.getProperty("file.encoding"); //$NON-NLS-1$
 		}
 		catch (CoreException ce) {
 			// fails silently and return plugin global encoding if core exception occurs
