@@ -1470,10 +1470,6 @@ public class Scribe {
 	}
 
 	public void printModifiers(Annotation[] annotations, ASTVisitor visitor) {
-		printModifiers(annotations, visitor, false);
-	}
-	
-	public void printModifiers(Annotation[] annotations, ASTVisitor visitor, boolean atArg) {
 		try {
 			int annotationsLength = annotations != null ? annotations.length : 0;
 			int annotationsIndex = 0;

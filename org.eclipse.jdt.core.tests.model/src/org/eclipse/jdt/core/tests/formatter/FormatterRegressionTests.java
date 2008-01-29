@@ -8160,30 +8160,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		}
 	}
 	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77809
-	public void _test575a() {
-		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.insert_new_line_after_annotation_on_parameter = false; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
-		Hashtable javaCoreOptions = JavaCore.getOptions();
-		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-			JavaCore.setOptions(newJavaCoreOptions);
-		
-			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);		
-			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
-			runTest(codeFormatter, "test575a", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
-		} finally {
-			JavaCore.setOptions(javaCoreOptions);
-		}
-	}
-	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95431
 	public void test576() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
@@ -9827,7 +9803,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 //	}
 	
 	// variation on bugs 208541, 213283, 213284
-	public void _test699() {
+	public void test699() {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.line_separator = "\n";//$NON-NLS-1$
@@ -9836,83 +9812,5 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				new Region(0, 78) // nothing selected --> format all
 		};
 		runTest(codeFormatter, "test699", "A.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
-	public void _test700() {
-		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.line_separator = "\n";//$NON-NLS-1$
-		preferences.insert_new_line_after_annotation_on_parameter = false;
-		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		IRegion[] regions = new IRegion[] {
-				new Region(0, 221) // nothing selected --> format all
-		};
-		runTest(codeFormatter, "test700", "X.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
-	public void _test701() {
-		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.line_separator = "\n";//$NON-NLS-1$
-		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		IRegion[] regions = new IRegion[] {
-				new Region(0, 221) // nothing selected --> format all
-		};
-		runTest(codeFormatter, "test701", "X.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
-	public void _test702() {
-		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.line_separator = "\n";//$NON-NLS-1$
-		preferences.insert_new_line_after_annotation_on_parameter = false;
-		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		IRegion[] regions = new IRegion[] {
-				new Region(0, 86) // nothing selected --> format all
-		};
-		runTest(codeFormatter, "test702", "X.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
-	public void _test703() {
-		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.line_separator = "\n";//$NON-NLS-1$
-		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		IRegion[] regions = new IRegion[] {
-				new Region(0, 86) // nothing selected --> format all
-		};
-		runTest(codeFormatter, "test703", "X.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
-	public void _test704() {
-		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.line_separator = "\n";//$NON-NLS-1$
-		preferences.insert_new_line_after_annotation = false;
-		preferences.insert_new_line_after_annotation_on_parameter = true;
-		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		IRegion[] regions = new IRegion[] {
-				new Region(0, 86) // nothing selected --> format all
-		};
-		runTest(codeFormatter, "test704", "X.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
-	public void _test705() {
-		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.line_separator = "\n";//$NON-NLS-1$
-		preferences.insert_new_line_after_annotation = false;
-		preferences.insert_new_line_after_annotation_on_parameter = false;
-		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		IRegion[] regions = new IRegion[] {
-				new Region(0, 86) // nothing selected --> format all
-		};
-		runTest(codeFormatter, "test705", "X.java", CodeFormatter.K_UNKNOWN, 0, false, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

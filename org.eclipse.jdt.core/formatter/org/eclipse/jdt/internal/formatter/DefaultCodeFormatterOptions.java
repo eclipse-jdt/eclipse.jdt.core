@@ -122,8 +122,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean indent_switchstatements_compare_to_switch;
 	public int indentation_size;
 
-	public boolean insert_new_line_after_annotation; // annotation that are not on parameters
-	public boolean insert_new_line_after_annotation_on_parameter;
+	public boolean insert_new_line_after_annotation;
 	public boolean insert_new_line_after_opening_brace_in_array_initializer;
 	public boolean insert_new_line_at_end_of_file_if_missing;
 	public boolean insert_new_line_before_catch_in_try_statement;
