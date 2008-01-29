@@ -47,7 +47,7 @@ public class AptPreferenceConstants {
 
 	/**
 	 * Processors should report this option in {@link com.sun.mirror.apt.AnnotationProcessorFactory#supportedOptions()}
-	 * in order to enable processing while editing, that is, during reconcile.  If this option is set, ie if processing
+	 * in order to disable processing while editing, that is, during reconcile.  If this option is set, ie if processing
 	 * is disabled, then the value of {@link #RTTG_ENABLED_OPTION} will be ignored.  Whether a processor is called 
 	 * during reconcile is also influenced by the project settings and the project factory path.
 	 * <p>
