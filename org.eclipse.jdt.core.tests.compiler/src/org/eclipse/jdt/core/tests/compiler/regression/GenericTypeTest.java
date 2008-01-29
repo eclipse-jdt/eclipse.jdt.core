@@ -42101,4 +42101,27 @@ public void test1267() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216692
+public void test1268() {
+	this.runConformTest(
+			new String[] {
+					"pkg1/Foo.java",
+					"package pkg1;\n" + 
+					"import java.util.Map;\n" + 
+					"public class Foo<T> {\n" + 
+					"    protected final Map<String, Field> fields = null;\n" + 
+					"    protected static class Field { }\n" + 
+					"}\n",
+					"pkg2/SubFoo.java", 
+					"package pkg2;\n" + 
+					"import pkg1.Foo;\n" + 
+					"public class SubFoo<T> extends Foo<T> {\n" + 
+					"    private Field field = null;\n" + 
+					"    private void test() {\n" + 
+					"        Field field = fields.get(\"test\");\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"");
+}
 }
