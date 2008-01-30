@@ -35,7 +35,7 @@ public class FieldReferenceMatch extends SearchMatch {
 	 * @param offset the offset the match starts at, or -1 if unknown
 	 * @param length the length of the match, or -1 if unknown
 	 * @param isReadAccess whether the match represents a read access
-	 * @param isWriteAccess whethre the match represents a write access
+	 * @param isWriteAccess whether the match represents a write access
 	 * @param insideDocComment <code>true</code> if this search match is inside a doc
 	 * comment, and <code>false</code> otherwise
 	 * @param participant the search participant that created the match
