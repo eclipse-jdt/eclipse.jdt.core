@@ -60,6 +60,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 		public boolean showProject;
 		public boolean showSynthetic;
 		public boolean showOffset = false;
+		public boolean showAccess = false;
 		public int showFlavors = 0;
 		public boolean showMatchKind = false;
 		public int count = 0;
@@ -240,6 +241,27 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 						MethodReferenceMatch methRef = (MethodReferenceMatch) match;
 						if (methRef.isSuperInvocation() && showSuperInvocation()) {
 							line.append(" SUPER INVOCATION");
+						}
+					}
+				}
+				if (this.showAccess) {
+					if (match instanceof FieldReferenceMatch) {
+						FieldReferenceMatch fieldRef = (FieldReferenceMatch) match;
+						if (fieldRef.isReadAccess()) {
+							line.append(" READ");
+							if (fieldRef.isWriteAccess()) line.append("/WRITE");
+							line.append(" ACCESS");
+						} else if (fieldRef.isWriteAccess()) {
+							line.append(" WRITE ACCESS");
+						}
+					} else if (match instanceof LocalVariableReferenceMatch) {
+						LocalVariableReferenceMatch variableRef = (LocalVariableReferenceMatch) match;
+						if (variableRef.isReadAccess()) {
+							line.append(" READ");
+							if (variableRef.isWriteAccess()) line.append("/WRITE");
+							line.append(" ACCESS");
+						} else if (variableRef.isWriteAccess()) {
+							line.append(" WRITE ACCESS");
 						}
 					}
 				}

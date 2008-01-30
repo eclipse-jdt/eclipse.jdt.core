@@ -9499,4 +9499,223 @@ public void testBug181981() throws CoreException {
 		deleteProject("P");
 	}
 }
+
+/**
+ * @bug 216875: [search] Field- and LocalVariableReferenceMatch confuse read/write for field access on LHS
+ * @test Ensure that read access is found inside qualified name reference
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=216875"
+ */
+public void testBug216875() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" + 
+		"    int fField;\n" + 
+		"    void m() {\n" + 
+		"        Test test; // refs to test\n" + 
+		"        test = new Test();\n" + 
+		"        test.fField = 42; // match for t is writeAccess, should be readAccess\n" + 
+		"    }\n" + 
+		"\n" + 
+		"}\n"
+	);
+	this.resultCollector.showSelection = true;
+	ILocalVariable variable = selectLocalVariable(this.workingCopies[0], "test");
+	search(variable, READ_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+	assertSearchResults(
+		"src/Test.java void Test.m() [        §|test|§.fField = 42; // match for t is writeAccess, should be readAccess] EXACT_MATCH"
+	);
+}
+public void testBug216875b() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" + 
+		"    S fWrapped; // refs to fWrapped\n" + 
+		"    void wrapper() {\n" + 
+		"        fWrapped.fField = 12; // match for fWrapped is writeAccess\n" + 
+		"    }\n" + 
+		"}\n" +
+		"class S {\n" +
+		"	int fField;" +
+		"}"
+	);
+	this.resultCollector.showSelection = true;
+	IField field = this.workingCopies[0].getType("Test").getField("fWrapped");
+	search(field, READ_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+	assertSearchResults(
+		"src/Test.java void Test.wrapper() [        §|fWrapped|§.fField = 12; // match for fWrapped is writeAccess] EXACT_MATCH"
+	);
+}
+public void testBug216875c() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/Test.java",
+		"package pack;\n" + 
+		"public class Test {\n" + 
+		"	public int field;\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test/X.java",
+		"package test;\n" + 
+		"import pack.Test;\n" + 
+		"public class X {\n" + 
+		"	void foo(Test t1, Test t2) {\n" + 
+		"		t1 = t2;\n" + 
+		"		t1.field = t1.field;\n" + 
+		"		t2.field = t1.field;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	this.resultCollector.showSelection = true;
+	ILocalVariable variable = selectLocalVariable(this.workingCopies[1], "t1");
+	search(variable, READ_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+	assertSearchResults(
+		"src/test/X.java void test.X.foo(Test, Test) [		§|t1|§.field = t1.field;] EXACT_MATCH\n" + 
+		"src/test/X.java void test.X.foo(Test, Test) [		t1.field = §|t1|§.field;] EXACT_MATCH\n" + 
+		"src/test/X.java void test.X.foo(Test, Test) [		t2.field = §|t1|§.field;] EXACT_MATCH"
+	);
+}
+public void testBug216875d() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/Test.java",
+		"package pack;\n" + 
+		"public class Test {\n" + 
+		"	public int field;\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test/X.java",
+		"package test;\n" + 
+		"import pack.Test;\n" + 
+		"public class X {\n" + 
+		"	Test t1, t2;\n" + 
+		"	void foo() {\n" + 
+		"		t1 = t2;\n" + 
+		"		t1.field = t1.field;\n" + 
+		"		t2.field = t1.field;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	this.resultCollector.showSelection = true;
+	IField field = this.workingCopies[1].getType("X").getField("t1");
+	search(field, READ_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+	assertSearchResults(
+		"src/test/X.java void test.X.foo() [		§|t1|§.field = t1.field;] EXACT_MATCH\n" + 
+		"src/test/X.java void test.X.foo() [		t1.field = §|t1|§.field;] EXACT_MATCH\n" + 
+		"src/test/X.java void test.X.foo() [		t2.field = §|t1|§.field;] EXACT_MATCH"
+	);
+}
+public void testBug216875e() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/Test.java",
+		"package pack;\n" + 
+		"public class Test {\n" + 
+		"	public int field;\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test/X.java",
+		"package test;\n" + 
+		"import pack.Test;\n" + 
+		"public class X {\n" + 
+		"	void foo(Test t1, Test t2) {\n" + 
+		"		t1 = t2;\n" + 
+		"		t1.field = t1.field;\n" + 
+		"		t2.field = t1.field;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	this.resultCollector.showSelection = true;
+	ILocalVariable variable = selectLocalVariable(this.workingCopies[1], "t1");
+	search(variable, WRITE_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+	assertSearchResults(
+		"src/test/X.java void test.X.foo(Test, Test) [		§|t1|§ = t2;] EXACT_MATCH"
+	);
+}
+public void testBug216875f() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/Test.java",
+		"package pack;\n" + 
+		"public class Test {\n" + 
+		"	public int field;\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test/X.java",
+		"package test;\n" + 
+		"import pack.Test;\n" + 
+		"public class X {\n" + 
+		"	Test t1, t2;\n" + 
+		"	void foo() {\n" + 
+		"		t1 = t2;\n" + 
+		"		t1.field = t1.field;\n" + 
+		"		t2.field = t1.field;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	this.resultCollector.showSelection = true;
+	IField field = this.workingCopies[1].getType("X").getField("t1");
+	search(field, WRITE_ACCESSES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+	assertSearchResults(
+		"src/test/X.java void test.X.foo() [		§|t1|§ = t2;] EXACT_MATCH"
+	);
+}
+public void testBug216875g() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/Test.java",
+		"package pack;\n" + 
+		"public class Test {\n" + 
+		"	public int field;\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test/X.java",
+		"package test;\n" + 
+		"import pack.Test;\n" + 
+		"public class X {\n" + 
+		"	void foo(Test t1, Test t2) {\n" + 
+		"		t1 = t2;\n" + 
+		"		t1.field = t1.field;\n" + 
+		"		t2.field = t1.field;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	this.resultCollector.showSelection = true;
+	this.resultCollector.showAccess = true;
+	this.resultCollector.showAccuracy = false;
+	ILocalVariable variable = selectLocalVariable(this.workingCopies[1], "t1");
+	search(variable, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+	assertSearchResults(
+		"src/test/X.java void test.X.foo(Test, Test) [		§|t1|§ = t2;] WRITE ACCESS\n" + 
+		"src/test/X.java void test.X.foo(Test, Test) [		§|t1|§.field = t1.field;] READ ACCESS\n" + 
+		"src/test/X.java void test.X.foo(Test, Test) [		t1.field = §|t1|§.field;] READ ACCESS\n" + 
+		"src/test/X.java void test.X.foo(Test, Test) [		t2.field = §|t1|§.field;] READ ACCESS"
+	);
+}
+public void testBug216875h() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/Test.java",
+		"package pack;\n" + 
+		"public class Test {\n" + 
+		"	public int field;\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test/X.java",
+		"package test;\n" + 
+		"import pack.Test;\n" + 
+		"public class X {\n" + 
+		"	Test t1, t2;\n" + 
+		"	void foo() {\n" + 
+		"		t1 = t2;\n" + 
+		"		t1.field = t1.field;\n" + 
+		"		t2.field = t1.field;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	this.resultCollector.showSelection = true;
+	this.resultCollector.showAccess = true;
+	this.resultCollector.showAccuracy = false;
+	IField field = this.workingCopies[1].getType("X").getField("t1");
+	search(field, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+	assertSearchResults(
+		"src/test/X.java void test.X.foo() [		§|t1|§ = t2;] WRITE ACCESS\n" + 
+		"src/test/X.java void test.X.foo() [		§|t1|§.field = t1.field;] READ ACCESS\n" + 
+		"src/test/X.java void test.X.foo() [		t1.field = §|t1|§.field;] READ ACCESS\n" + 
+		"src/test/X.java void test.X.foo() [		t2.field = §|t1|§.field;] READ ACCESS"
+	);
+}
 }

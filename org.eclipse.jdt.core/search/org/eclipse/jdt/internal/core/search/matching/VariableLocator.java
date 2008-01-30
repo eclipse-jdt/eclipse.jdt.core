@@ -34,9 +34,16 @@ public int match(Expression node, MatchingNodeSet nodeSet) { // interested in As
 		if (node instanceof Assignment && !(node instanceof CompoundAssignment)) {
 			// the lhs of a simple assignment may be added in match(Reference...) before we reach here
 			// for example, the fieldRef to 'this.x' in the statement this.x = x; is not considered a readAccess
+			char[] lastToken = null;
 			Expression lhs = ((Assignment) node).lhs;
-			nodeSet.removePossibleMatch(lhs);
-			nodeSet.removeTrustedMatch(lhs);
+			if (lhs instanceof QualifiedNameReference) {
+				char[][] tokens = ((QualifiedNameReference)lhs).tokens;
+				lastToken = tokens[tokens.length-1];
+			}
+			if (lastToken == null || matchesName(this.pattern.name, lastToken)) {
+				nodeSet.removePossibleMatch(lhs);
+				nodeSet.removeTrustedMatch(lhs);
+			}
 		}
 	}
 	return IMPOSSIBLE_MATCH;

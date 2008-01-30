@@ -1395,9 +1395,19 @@ public SearchMatch newFieldReferenceMatch(
 		int length,
 		ASTNode reference) {
 	int bits = reference.bits;
-	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssigned) != 0;
-	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssigned) == 0;
-	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssigned) != 0;
+	boolean isCompoundAssigned = (bits & ASTNode.IsCompoundAssigned) != 0;
+	boolean isReadAccess = isCompoundAssigned || (bits & ASTNode.IsStrictlyAssigned) == 0;
+	boolean isWriteAccess = isCompoundAssigned || (bits & ASTNode.IsStrictlyAssigned) != 0;
+	if (isWriteAccess) {
+		if (reference instanceof QualifiedNameReference) {
+			char[][] tokens = ((QualifiedNameReference)reference).tokens;
+			char[] lastToken = tokens[tokens.length-1];
+			if (!this.patternLocator.matchesName(((VariablePattern)this.pattern).name, lastToken)) {
+	        	isWriteAccess = false;
+	        	isReadAccess = true;
+			}
+        }
+	}
 	boolean insideDocComment = (bits & ASTNode.InsideJavadoc) != 0;
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
@@ -1413,9 +1423,19 @@ public SearchMatch newLocalVariableReferenceMatch(
 		int length,
 		ASTNode reference) {
 	int bits = reference.bits;
-	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssigned) != 0;
-	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssigned) == 0;
-	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssigned) != 0;
+	boolean isCompoundAssigned = (bits & ASTNode.IsCompoundAssigned) != 0;
+	boolean isReadAccess = isCompoundAssigned || (bits & ASTNode.IsStrictlyAssigned) == 0;
+	boolean isWriteAccess = isCompoundAssigned || (bits & ASTNode.IsStrictlyAssigned) != 0;
+	if (isWriteAccess) {
+		if (reference instanceof QualifiedNameReference) {
+			char[][] tokens = ((QualifiedNameReference)reference).tokens;
+			char[] lastToken = tokens[tokens.length-1];
+			if (!this.patternLocator.matchesName(((VariablePattern)this.pattern).name, lastToken)) {
+	        	isWriteAccess = false;
+	        	isReadAccess = true;
+			}
+        }
+	}
 	boolean insideDocComment = (bits & ASTNode.InsideJavadoc) != 0;
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
