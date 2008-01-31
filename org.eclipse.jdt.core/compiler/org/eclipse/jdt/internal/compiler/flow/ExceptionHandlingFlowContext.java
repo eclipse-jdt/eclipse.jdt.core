@@ -58,21 +58,22 @@ public ExceptionHandlingFlowContext(
 	this.isReached = new int[cacheSize]; // none is reached by default
 	this.isNeeded = new int[cacheSize]; // none is needed by default
 	this.initsOnExceptions = new UnconditionalFlowInfo[count];
-	boolean reachUnchecked = !scope.compilerOptions().
-		reportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions;
+	boolean markUncheckedExceptionsAsReached = 
+		!this.isMethodContext || !scope.compilerOptions().reportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions;
 	for (int i = 0; i < count; i++) {
 		this.indexes.put(handledExceptions[i], i); // key type  -> value index
-		int cacheIndex = i / ExceptionHandlingFlowContext.BitCacheSize, bitMask = 1 << (i % ExceptionHandlingFlowContext.BitCacheSize);
 		if (handledExceptions[i].isUncheckedException(true)) {
-			if (reachUnchecked) {
-				this.isReached[cacheIndex] |= bitMask;
+			if (markUncheckedExceptionsAsReached) {
+				this.isReached[i / ExceptionHandlingFlowContext.BitCacheSize] |= 1 << (i % ExceptionHandlingFlowContext.BitCacheSize);
 			}
 			this.initsOnExceptions[i] = flowInfo.unconditionalCopy();
 		} else {
 			this.initsOnExceptions[i] = FlowInfo.DEAD_END;
 		}
 	}
-	System.arraycopy(this.isReached, 0, this.isNeeded, 0, cacheSize);
+	if (!this.isMethodContext) {
+		System.arraycopy(this.isReached, 0, this.isNeeded, 0, cacheSize);
+	}
 	this.initsOnReturn = FlowInfo.DEAD_END;	
 }
 
@@ -99,9 +100,7 @@ public void complainIfUnusedExceptionHandlers(AbstractMethodDeclaration method) 
 	}
 	nextHandledException: for (int i = 0, count = this.handledExceptions.length; i < count; i++) {
 		int index = this.indexes.get(this.handledExceptions[i]);
-		int cacheIndex = index / ExceptionHandlingFlowContext.BitCacheSize;
-		int bitMask = 1 << (index % ExceptionHandlingFlowContext.BitCacheSize);
-		if ((this.isReached[cacheIndex] & bitMask) == 0) {
+		if ((this.isReached[index / ExceptionHandlingFlowContext.BitCacheSize] & 1 << (index % ExceptionHandlingFlowContext.BitCacheSize)) == 0) {
 			for (int j = 0; j < docCommentReferencesLength; j++) {
 				if (docCommentReferences[j] == this.handledExceptions[i]) {
 					continue nextHandledException;
@@ -207,7 +206,6 @@ public void recordHandlingException(
 		boolean wasAlreadyDefinitelyCaught) {
 		
 	int index = this.indexes.get(exceptionType);
-	// if already flagged as being reached (unchecked exception handler)
 	int cacheIndex = index / ExceptionHandlingFlowContext.BitCacheSize;
 	int bitMask = 1 << (index % ExceptionHandlingFlowContext.BitCacheSize);
 	if (!wasAlreadyDefinitelyCaught) {

@@ -1328,4 +1328,42 @@ public void test0036_declared_thrown_unchecked_exceptions() {
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216897
+// reporting unnecessary declaration of thrown unchecked exceptions as warning
+public void test0037_declared_thrown_unchecked_exceptions() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
+			CompilerOptions.ENABLED);
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static final class MyError extends Error {\n" + 
+			"    private static final long serialVersionUID = 1L;\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    try {\n" + 
+			"      bar();\n" + 
+			"    } catch (MyError e) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  private void bar() {}\n" + 
+			"}"
+			},
+		null /* errorOptions */,
+		new String[] {
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
+			} /* warningOptions */,
+		null /* ignoreOptions */,
+		false /* expectingCompilerErrors */,
+		"" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		customOptions,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
 }
