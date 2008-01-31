@@ -539,6 +539,7 @@ public void testProjectFindKnownSecondaryType() throws CoreException {
  */
 public void testProjectFindUnknownType() throws CoreException {
 	tagAsSummary("Find unknown type in project", false); // do NOT put in fingerprint
+	setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "See https://bugs.eclipse.org/bugs/show_bug.cgi?id=217059");
 
 	// Wait for indexing end
 	AbstractJavaModelTests.waitUntilIndexesReady();
