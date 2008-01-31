@@ -2693,7 +2693,7 @@ public void test084() {
 		"1. WARNING in X.java (at line 3)\n" + 
 		"	Object enum = null;\n" + 
 		"	       ^^^^\n" + 
-		"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 5.0 on\n" + 
+		"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" + 
 		"----------\n");
 }
 /**
@@ -2719,12 +2719,12 @@ public void test085() {
 			"1. ERROR in A.java (at line 1)\n" + 
 			"	import static j.l.S.*;\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Syntax error, static imports are only available if source level is 5.0\n" + 
+			"Syntax error, static imports are only available if source level is 1.5\n" + 
 			"----------\n" + 
 			"2. ERROR in A.java (at line 2)\n" + 
 			"	import static j.l.S.in;\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Syntax error, static imports are only available if source level is 5.0\n" + 
+			"Syntax error, static imports are only available if source level is 1.5\n" + 
 			"----------\n" + 
 			"3. ERROR in A.java (at line 2)\n" + 
 			"	import static j.l.S.in;\n" + 
@@ -2758,7 +2758,7 @@ public void test086() {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	import static p.S;\n" + 
 			"	^^^^^^^^^^^^^^^^^^\n" + 
-			"Syntax error, static imports are only available if source level is 5.0\n" + 
+			"Syntax error, static imports are only available if source level is 1.5\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	System.out.print(full+\" \"+p.S.success);\n" + 
@@ -2788,7 +2788,7 @@ public void test087() {
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	import static S;\n" + 
 			"	^^^^^^^^^^^^^^^^\n" + 
-			"Syntax error, static imports are only available if source level is 5.0\n" + 
+			"Syntax error, static imports are only available if source level is 1.5\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 1)\n" + 
 			"	import static S;\n" + 
@@ -2892,7 +2892,7 @@ public void test089() {
 		"1. ERROR in X.java (at line 2)\r\n" + 
 		"	@interface I1 {}\r\n" + 
 		"	           ^^\n" + 
-		"Syntax error, annotation declarations are only available if source level is 5.0\n" + 
+		"Syntax error, annotation declarations are only available if source level is 1.5\n" + 
 		"----------\n");
 }
 //78104
