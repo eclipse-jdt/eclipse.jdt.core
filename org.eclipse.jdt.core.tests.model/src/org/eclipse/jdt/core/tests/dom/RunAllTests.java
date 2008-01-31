@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,7 @@ public static Class[] getAllTestClasses() {
 		org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest.class,
 		org.eclipse.jdt.core.tests.rewrite.modifying.ASTRewritingModifyingTest.class,
 		org.eclipse.jdt.core.tests.dom.ASTPositionsTest.class,
+		org.eclipse.jdt.core.tests.dom.APIDocumentationTests.class,
 	};
 }
 public static Test suite() {
