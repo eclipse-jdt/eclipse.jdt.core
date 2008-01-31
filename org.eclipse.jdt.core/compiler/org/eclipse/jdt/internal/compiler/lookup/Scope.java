@@ -2263,6 +2263,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			while ((next = scope.parent) != null)
 				scope = next;
 		} else {
+			boolean inheritedHasPrecedence = compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
 			done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 				switch (scope.kind) {
 					case METHOD_SCOPE :
@@ -2318,12 +2319,12 @@ public abstract class Scope implements TypeConstants, TypeIds {
 									return new ProblemReferenceBinding(name, foundType, ProblemReasons.InheritedNameHidesEnclosingName);
 								}
 								if (memberType.isValidBinding()) {
-									if (sourceType == memberType.enclosingType() || compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
+									if (sourceType == memberType.enclosingType() || inheritedHasPrecedence) {
 										if (insideStaticContext && !memberType.isStatic() && sourceType.isGenericType())
 											return new ProblemReferenceBinding(name, memberType, ProblemReasons.NonStaticReferenceInStaticContext);
 										// found a valid type in the 'immediate' scope (ie. not inherited)
-										// OR in 1.4 mode (inherited shadows enclosing)
-										if (foundType == null)
+										// OR in 1.4 mode (inherited visible shadows enclosing)
+										if (foundType == null || (inheritedHasPrecedence && foundType.problemId() == ProblemReasons.NotVisible))
 											return memberType; 
 										// if a valid type was found, complain when another is found in an 'immediate' enclosing type (ie. not inherited)
 										if (foundType.isValidBinding() && foundType != memberType)
