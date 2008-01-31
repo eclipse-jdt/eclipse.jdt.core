@@ -42124,4 +42124,505 @@ public void test1268() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686
+public void test1269() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1270() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { // # 2\n" + 
+					"		System.out.println(\"#2#\");\n" + 
+					"		return new TO<T>() { public String eval(T o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#2#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1271() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.println(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 24)\n" + 
+			"	put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+			"	^^^\n" + 
+			"The method put(Class<E>, X.TO<? super E>) in the type X is not applicable for the arguments (Class<Integer>, X.OO<String,Object>)\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1272() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.print(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"      try {\n" +
+					"		   put(Integer.class, (TO<Object>)combine(FUNC2, FUNC1));\n" + 
+					"      } catch(ClassCastException e) {\n" +
+					"		   System.out.println(\"#CLASSCAST#\");\n" + 
+					"		}\n" +
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#3##CLASSCAST#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1273() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { // # 2\n" + 
+					"		System.out.println(\"#2#\");\n" + 
+					"		return new TO<T>() { public String eval(T o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1274() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { // # 2\n" + 
+					"		System.out.println(\"#2#\");\n" + 
+					"		return new TO<T>() { public String eval(T o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, X.<Object>combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1275() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.println(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1276() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.println(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, X.<Object>combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1277() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { // # 2\n" + 
+					"		System.out.println(\"#2#\");\n" + 
+					"		return new TO<T>() { public String eval(T o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.println(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#2#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1278() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { // # 2\n" + 
+					"		System.out.println(\"#2#\");\n" + 
+					"		return new TO<T>() { public String eval(T o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.println(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1279() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { // # 2\n" + 
+					"		System.out.println(\"#2#\");\n" + 
+					"		return new TO<T>() { public String eval(T o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.println(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, X.<Object>combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1280() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface OO<T,E> {}\n" + 
+					"interface TO<T> extends OO<String,T> {}\n" + 
+					"interface TT extends TO<String> {}\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"	<E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { return null; }\n" + 
+					"  void foo(TT tt, TO<? super Object> too) {\n" + 
+					"     combine(tt, too);\n" + 
+					"  }\n" + 
+					"}", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1281() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface OO<T,E> {}\n" + 
+					"interface TO<T> extends OO<String,T> {}\n" + 
+					"interface TT extends TO<String> {}\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"	<E, T> TO<T> combine(final TO<? super E> x, final OO<E, T>[] y) { return null; }\n" + 
+					"  void foo(TT tt, TO<? super Object>[] too) {\n" + 
+					"     combine(tt, too);\n" + 
+					"  }\n" + 
+					"}", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1282() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	static interface OO<T,E> {}\n" + 
+					"	static interface TO<T> extends OO<String,T> {}\n" + 
+					"	static interface TT extends TO<String> {}\n" + 
+					"	\n" + 
+					"	<E, T> TO<T> combine(TT x, TO<? super E> y) { return null; }\n" + 
+					"	void foo(TO<? super String> too, OO<String,Object> oo) {\n" + 
+					"		combine(too, oo);\n" + 
+					"	}\n" + 
+					"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\r\n" + 
+			"	combine(too, oo);\r\n" + 
+			"	^^^^^^^\n" + 
+			"The method combine(X.TT, X.TO<? super E>) in the type X is not applicable for the arguments (X.TO<capture#1-of ? super String>, X.OO<String,Object>)\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1283() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	static interface OO<T,E> {}\n" + 
+					"	static interface TO<T> extends OO<String,T> {}\n" + 
+					"	static interface TT extends TO<String> {}\n" + 
+					"	\n" + 
+					"	<E, T> TO<T> combine(TT[] x, TO<? super E>[] y) { return null; }\n" + 
+					"	void foo(TO<? super String>[] too, OO<String,Object>[] oo) {\n" + 
+					"		combine(too, oo);\n" + 
+					"	}\n" + 
+					"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\r\n" + 
+			"	combine(too, oo);\r\n" + 
+			"	^^^^^^^\n" + 
+			"The method combine(X.TT[], X.TO<? super E>[]) in the type X is not applicable for the arguments (X.TO<? super String>[], X.OO<String,Object>[])\n" + 
+			"----------\n");
+}
 }

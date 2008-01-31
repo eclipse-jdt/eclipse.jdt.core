@@ -470,7 +470,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			TypeBinding[] newArguments = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				TypeVariableBinding originalVariable = originalVariables[i];
-				if (originalVariable.boundsCount() == 1) {
+				if (originalVariable.boundsCount() <= 1) {
 					newArguments[i] = this.environment.convertToRawType(originalVariable.upperBound(), false /*do not force conversion of enclosing types*/);
 				} else {
 					newArguments[i] = this.environment.convertToRawType(
