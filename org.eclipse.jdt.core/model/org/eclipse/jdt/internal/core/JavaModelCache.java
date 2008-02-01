@@ -113,6 +113,30 @@ public Object getInfo(IJavaElement element) {
 	}
 }
 
+/*
+ *  Returns the existing element that is equal to the given element if present in the cache.
+ *  Returns the given element otherwise.
+ */
+public IJavaElement getExistingElement(IJavaElement element) {
+	switch (element.getElementType()) {
+		case IJavaElement.JAVA_MODEL:
+			return element;
+		case IJavaElement.JAVA_PROJECT:
+			return element; // projectCache is a Hashtable and Hashtables don't support getKey(...)
+		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+			return (IJavaElement) this.rootCache.getKey(element);
+		case IJavaElement.PACKAGE_FRAGMENT:
+			return (IJavaElement) this.pkgCache.getKey(element);
+		case IJavaElement.COMPILATION_UNIT:
+		case IJavaElement.CLASS_FILE:
+			return (IJavaElement) this.openableCache.getKey(element);
+		case IJavaElement.TYPE:
+			return element; // jarTypeCache or childrenCache are Hashtables and Hashtables don't support getKey(...)
+		default:
+			return element; // childrenCache is a Hashtable and Hashtables don't support getKey(...)
+	}
+}
+
 protected double getMemoryRatio() {
 	if (this.memoryRatio == -1) {
 		long maxMemory = Runtime.getRuntime().maxMemory();		

@@ -212,10 +212,13 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 			HashMap rootInfos = JavaModelManager.getJavaModelManager().deltaState.roots;
 			HashMap pkgFragmentsCaches = new HashMap();
 			int length = roots.length;
+			JavaModelManager  manager = JavaModelManager.getJavaModelManager();
 			for (int i = 0; i < length; i++) {
 				IPackageFragmentRoot root = roots[i];
 				DeltaProcessor.RootInfo rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(root.getPath());
 				if (rootInfo == null || rootInfo.project.equals(project)) {
+					// ensure that an identical root is used (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=217059 )
+					roots[i] = root = (IPackageFragmentRoot) manager.getExistingElement(root);
 					// compute fragment cache
 					HashSetOfArray fragmentsCache = new HashSetOfArray();
 					initializePackageNames(root, fragmentsCache);

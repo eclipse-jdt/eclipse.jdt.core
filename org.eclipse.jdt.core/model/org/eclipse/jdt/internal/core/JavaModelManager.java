@@ -1662,6 +1662,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	/**
+	 *  Returns the existing element in the cache that is equal to the given element.
+	 */
+	public synchronized IJavaElement getExistingElement(IJavaElement element) {
+		return this.cache.getExistingElement(element);
+	}
+
+	/**
 	 * Get workspace eclipse preference for JavaCore plug-in.
 	 */
 	public IEclipsePreferences getInstancePreferences() {

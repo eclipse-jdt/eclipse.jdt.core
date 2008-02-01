@@ -194,6 +194,17 @@ public class LRUCache implements Cloneable {
 
 		this.privateRemoveEntry (entry, false);
 	}
+	/*
+	 * Answers the existing key that is equals to the given key.
+	 * If the key is not in the cache, returns the given key
+	 */
+	public Object getKey(Object key) {
+		LRUCacheEntry entry = (LRUCacheEntry) fEntryTable.get(key);
+		if (entry == null) {
+			return key;
+		}
+		return entry._fKey;
+	}
 	/**
 	 * Answers the value in the cache at the given key.
 	 * If the value is not in the cache, returns null
