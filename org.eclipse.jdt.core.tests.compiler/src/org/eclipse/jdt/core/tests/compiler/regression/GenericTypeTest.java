@@ -42625,4 +42625,320 @@ public void test1283() {
 			"The method combine(X.TT[], X.TO<? super E>[]) in the type X is not applicable for the arguments (X.TO<? super String>[], X.OO<String,Object>[])\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425
+public void test1284() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Thread th = Thread.currentThread();\n" + 
+					"		Z<String, Thread> z1 = new Z<String, Thread>(th);\n" + 
+					"		Z<String, Exception> z2 = new Z<String, Exception>(new Exception());\n" + 
+					"		Y<String, Thread> y = new Y<String, Thread>() {};\n" + 
+					"		y.foo(z1).get().getThreadGroup();\n" + 
+					"		y.foo(z2).get().getThreadGroup(); // heap pollution: we get a CCE because we return a U2\n" + 
+					"		Zork z;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"abstract class Y<T, U> {\n" + 
+					"	I2<T, U> foo(I1<T> i) {\n" + 
+					"		return (I2<T, U>) i;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"interface I1<T> {\n" + 
+					"}\n" + 
+					"interface I2<T, U> extends I1<T> {\n" + 
+					"	U get();\n" + 
+					"}\n" + 
+					"class Z<V, W> implements I2<V, W> {\n" + 
+					"	W w;\n" + 
+					"	Z(W w) {\n" + 
+					"		this.w = w;\n" + 
+					"	}\n" + 
+					"	public W get() {\n" + 
+					"		return this.w;\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	return (I2<T, U>) i;\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from I1<T> to I2<T,U>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
+public void test1285() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Thread th = Thread.currentThread();\n" + 
+					"		Z<String, Thread> z1 = new Z<String, Thread>(th);\n" + 
+					"		Z<String, Exception> z2 = new Z<String, Exception>(new Exception());\n" + 
+					"		Y<String, Thread> y = new Y<String, Thread>() {};\n" + 
+					"		y.foo(z1).get().getThreadGroup();\n" + 
+					"		y.foo(z2).get().getThreadGroup();\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"abstract class Y<T, U> {\n" + 
+					"	I2<T, U> foo(I1<T,U> i) {\n" + 
+					"		return (I2<T, U>) i;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"interface I1<T, U> {\n" + 
+					"}\n" + 
+					"interface I2<T, U> extends I1<T,U> {\n" + 
+					"	U get();\n" + 
+					"}\n" + 
+					"class Z<V, W> implements I2<V, W> {\n" + 
+					"	W w;\n" + 
+					"	Z(W w) {\n" + 
+					"		this.w = w;\n" + 
+					"	}\n" + 
+					"	public W get() {\n" + 
+					"		return this.w;\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	y.foo(z2).get().getThreadGroup();\n" + 
+			"	  ^^^\n" + 
+			"The method foo(I1<String,Thread>) in the type Y<String,Thread> is not applicable for the arguments (Z<String,Exception>)\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
+public void test1286() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Thread th = Thread.currentThread();\n" + 
+					"		Z<String, Thread> z1 = new Z<String, Thread>(th);\n" + 
+					"		Z<String, Exception> z2 = new Z<String, Exception>(new Exception());\n" + 
+					"		Y<String, Thread> y = new Y<String, Thread>() {};\n" + 
+					"		y.foo(z1).get().getThreadGroup();\n" + 
+					"		y.foo(z2).get().getThreadGroup(); // heap pollution: we get a CCE because we return a U2\n" + 
+					"		Zork z;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"abstract class Y<T, U> {\n" + 
+					"	I2<U> foo(I1 i) {\n" + 
+					"		return (I2<U>) i;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"interface I1 {}\n" + 
+					"interface I2<U> extends I1 {\n" + 
+					"	U get();\n" + 
+					"}\n" + 
+					"class Z<V, W> implements I2<W> {\n" + 
+					"	W w;\n" + 
+					"	Z(W w) {\n" + 
+					"		this.w = w;\n" + 
+					"	}\n" + 
+					"	public W get() {\n" + 
+					"		return this.w;\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	return (I2<U>) i;\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from I1 to I2<U>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
+public void test1287() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Thread th = Thread.currentThread();\n" + 
+					"		Z<String, Thread> z1 = new Z<String, Thread>(th);\n" + 
+					"		Z<String, Exception> z2 = new Z<String, Exception>(new Exception());\n" + 
+					"		Y<String, Thread> y = new Y<String, Thread>() {};\n" + 
+					"		y.foo(z1).get().getThreadGroup();\n" + 
+					"		y.foo(z2).get().getThreadGroup(); // heap pollution: we get a CCE because we return a U2\n" + 
+					"		Zork z;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"abstract class Y<T, U> {\n" + 
+					"	I2<T,U> foo(I1<T,T> i) {\n" + 
+					"		return (I2<T,U>) i;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"interface I1<D,E> {}\n" + 
+					"interface I2<F,G> extends I1<F,F> {\n" + 
+					"	G get();\n" + 
+					"}\n" + 
+					"class Z<V, W> implements I2<V,W> {\n" + 
+					"	W w;\n" + 
+					"	Z(W w) {\n" + 
+					"		this.w = w;\n" + 
+					"	}\n" + 
+					"	public W get() {\n" + 
+					"		return this.w;\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	return (I2<T,U>) i;\n" + 
+			"	       ^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from I1<T,T> to I2<T,U>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
+public void test1288() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.Map;\n" + 
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Thread th = Thread.currentThread();\n" + 
+					"		Z<String, Thread> z1 = new Z<String, Thread>(th);\n" + 
+					"		Z<String, Exception> z2 = new Z<String, Exception>(new Exception());\n" + 
+					"		Y<String, Thread> y = new Y<String, Thread>() {};\n" + 
+					"		y.foo(z1).get().getThreadGroup();\n" + 
+					"		y.foo(z2).get().getThreadGroup(); // heap pollution: we get a CCE because we return a U2\n" + 
+					"		Zork z;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"abstract class Y<T, U> {\n" + 
+					"	I2<T,U> foo(I1<Map<T,T>> i) {\n" + 
+					"		return (I2<T,U>) i;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"interface I1<D> {}\n" + 
+					"interface I2<F,G> extends I1<Map<F,F>> {\n" + 
+					"	G get();\n" + 
+					"}\n" + 
+					"class Z<V, W> implements I2<V,W> {\n" + 
+					"	W w;\n" + 
+					"	Z(W w) {\n" + 
+					"		this.w = w;\n" + 
+					"	}\n" + 
+					"	public W get() {\n" + 
+					"		return this.w;\n" + 
+					"	}\n" + 
+					"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 15)\n" + 
+			"	return (I2<T,U>) i;\n" + 
+			"	       ^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from I1<Map<T,T>> to I2<T,U>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
+public void test1289() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.Map;\n" + 
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Thread th = Thread.currentThread();\n" + 
+					"		Z<String, Thread> z1 = new Z<String, Thread>(th);\n" + 
+					"		Z<String, Exception> z2 = new Z<String, Exception>(new Exception());\n" + 
+					"		Y<String, Thread> y = new Y<String, Thread>() {};\n" + 
+					"		y.foo(z1).get().getThreadGroup();\n" + 
+					"		y.foo(z2).get().getThreadGroup(); // heap pollution: we get a CCE because we return a U2\n" + 
+					"		Zork z;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"abstract class Y<T, U> {\n" + 
+					"	I2<T,U> foo(I1<Map<T,T>> i) {\n" + 
+					"		return (I2<T,U>) i;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"interface I1<D> {}\n" + 
+					"interface I2<F,G> extends I1<Map<F,G>> {\n" + 
+					"	G get();\n" + 
+					"}\n" + 
+					"class Z<V, W> implements I2<V,W> {\n" + 
+					"	W w;\n" + 
+					"	Z(W w) {\n" + 
+					"		this.w = w;\n" + 
+					"	}\n" + 
+					"	public W get() {\n" + 
+					"		return this.w;\n" + 
+					"	}\n" + 
+					"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	y.foo(z1).get().getThreadGroup();\n" + 
+			"	  ^^^\n" + 
+			"The method foo(I1<Map<String,String>>) in the type Y<String,Thread> is not applicable for the arguments (Z<String,Thread>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	y.foo(z2).get().getThreadGroup(); // heap pollution: we get a CCE because we return a U2\n" + 
+			"	  ^^^\n" + 
+			"The method foo(I1<Map<String,String>>) in the type Y<String,Thread> is not applicable for the arguments (Z<String,Exception>)\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 15)\n" + 
+			"	return (I2<T,U>) i;\n" + 
+			"	       ^^^^^^^^^^^\n" + 
+			"Cannot cast from I1<Map<T,T>> to I2<T,U>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
+public void test1290() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X <T, U> {\n" + 
+					"  K<T> foo(I<T> i) {\n" + 
+					"        return (K<T>) i;\n" + 
+					"  }\n" + 
+					"  Zork z;\n" + 
+					"}\n" + 
+					"interface I<T> {\n" + 
+					"}\n" + 
+					"interface J<T, U> extends I<T> {\n" + 
+					"}\n" + 
+					"interface K<T> extends J<T, String> {\n" + 
+					"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+
 }
