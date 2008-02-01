@@ -1815,9 +1815,18 @@ public class JavaProject
 	 */
 	public IClasspathEntry[] getResolvedClasspath() throws JavaModelException {
 		PerProjectInfo perProjectInfo = getPerProjectInfo();
-		if (perProjectInfo.resolvedClasspath == null)
+		IClasspathEntry[] resolvedClasspath = perProjectInfo.resolvedClasspath;
+		if (resolvedClasspath == null) {
 			resolveClasspath(perProjectInfo);
-		return perProjectInfo.resolvedClasspath;
+			resolvedClasspath = perProjectInfo.resolvedClasspath;
+			if (resolvedClasspath == null) {
+				// another thread reset the resolved classpath, use a temporary PerProjectInfo
+				PerProjectInfo temporaryInfo = new PerProjectInfo(getProject());
+				resolveClasspath(temporaryInfo);
+				resolvedClasspath = temporaryInfo.resolvedClasspath;
+			}
+		}
+		return resolvedClasspath;
 	}
 
 	/**
@@ -1845,6 +1854,13 @@ public class JavaProject
 			synchronized (perProjectInfo) {
 				resolvedClasspath = perProjectInfo.resolvedClasspath;
 				unresolvedEntryStatus = perProjectInfo.unresolvedEntryStatus;
+			}
+			if (resolvedClasspath == null) {
+				// another thread reset the resolved classpath, use a temporary PerProjectInfo
+				PerProjectInfo temporaryInfo = new PerProjectInfo(getProject());
+				resolveClasspath(temporaryInfo);
+				resolvedClasspath = temporaryInfo.resolvedClasspath;
+				unresolvedEntryStatus = temporaryInfo.unresolvedEntryStatus;
 			}
 		}
 		if (!ignoreUnresolvedEntry && unresolvedEntryStatus != null && !unresolvedEntryStatus.isOK())

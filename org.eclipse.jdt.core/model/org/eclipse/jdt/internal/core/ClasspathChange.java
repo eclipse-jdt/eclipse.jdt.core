@@ -227,6 +227,15 @@ public class ClasspathChange {
 				newOutputLocation = perProjectInfo.outputLocation;				
 			}
 			
+			if (newResolvedClasspath == null) {
+				// another thread reset the resolved classpath, use a temporary PerProjectInfo
+				PerProjectInfo temporaryInfo = new PerProjectInfo(this.project.getProject());
+				this.project.resolveClasspath(temporaryInfo);
+				newRawClasspath = temporaryInfo.rawClasspath;
+				newResolvedClasspath = temporaryInfo.resolvedClasspath;
+				newOutputLocation = temporaryInfo.outputLocation;				
+			}
+			
 			// check if raw classpath has changed
 			if (this.oldRawClasspath != null && !JavaProject.areClasspathsEqual(this.oldRawClasspath, newRawClasspath, this.oldOutputLocation, newOutputLocation)) {
 				delta.changed(this.project, IJavaElementDelta.F_CLASSPATH_CHANGED);
