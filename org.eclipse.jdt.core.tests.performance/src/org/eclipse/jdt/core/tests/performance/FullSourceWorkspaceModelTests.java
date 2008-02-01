@@ -599,6 +599,47 @@ public void testProjectFindUnknownType() throws CoreException {
 	assertPerformance();
 }
 
+/*
+ * Performance tests for model: Find Unknown type after resetting the classpath
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=217059 )
+ * 
+ */
+public void testProjectFindUnknownTypeAfterSetClasspath() throws CoreException {
+	tagAsSummary("Find unknown type in project after resetting classpath", false); // do NOT put in fingerprint
+
+	// Wait for indexing end
+	AbstractJavaModelTests.waitUntilIndexesReady();
+	
+	// First findType populates the package fragment roots in the Java model cache
+	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
+	fullQualifiedName = fullQualifiedName.replace('/', '.')+".Unknown";
+	IType type = BIG_PROJECT.findType(fullQualifiedName);
+	assertNull("We should not find an unknown type in project "+BIG_PROJECT_NAME, type);
+	
+	// Reset classpath
+	BIG_PROJECT.setRawClasspath(BIG_PROJECT.getRawClasspath(), null);
+
+	// Warm up
+	for (int i=0; i<WARMUP_COUNT; i++) {
+		BIG_PROJECT.findType(fullQualifiedName);
+	}
+
+	// Measures
+	resetCounters();
+	for (int i=0; i<MEASURES_COUNT; i++) {
+		runGc();
+		startMeasuring();
+		for (int n=0; n<2000; n++) {
+			BIG_PROJECT.findType(fullQualifiedName);
+		}
+		stopMeasuring();
+	}
+	
+	// Commit
+	commitMeasurements();
+	assertPerformance();
+}
+
 /**
  * Ensures that the reconciler does nothing when the source
  * to reconcile with is the same as the current contents.
