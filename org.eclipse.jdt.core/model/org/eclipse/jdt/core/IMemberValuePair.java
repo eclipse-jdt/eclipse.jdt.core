@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -91,24 +91,25 @@ public interface IMemberValuePair {
 	 * the name is "x.y.MyType.MyNestedType"). If the member-value pair is coming from a class file, this is 
 	 * always a fully qualified name.
 	 * <p>
-	 * Note that one can use {@link IType#resolveType(String)} to find the corresponding
-	 * {@link IType}.
+	 * Note that one can use {@link IType#resolveType(String)} and e.g.
+	 * {@link IJavaProject#findType(String, String, org.eclipse.core.runtime.IProgressMonitor)}
+	 * to find the corresponding {@link IType}.
 	 * </p>
 	 */
 	int K_CLASS = 11;
 	
 	/**
 	 * Constant indicating that the value is a qualified name represented by a 
-	 * {@link String}. Especially if the qualified name is "MyEnum.FIRST", this can 
-	 * represent an enumeration's constant.
+	 * {@link String}. The qualified name refers to an enum constant or another
+	 * compile-time constant if the code is correct (e.g. "MyEnum.FIRST").
 	 */
 	int K_QUALIFIED_NAME = 12;
 	
 	/**
 	 * Constant indicating that the value is a simple name represented by a 
-	 * {@link String}.
-	 * Especially if the simple name is "FIRST" and there is a static import for 
-	 * "MyEnum.FIRST", this can represent an enumeration's constant.
+	 * {@link String}. The simple name refers to an enum constant or another
+	 * compile-time constant if the code is correct (e.g. "FIRST" when there is
+	 * a static import for "MyEnum.FIRST").
 	 */
 	int K_SIMPLE_NAME = 13;
 	
