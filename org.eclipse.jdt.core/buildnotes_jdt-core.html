@@ -46,9 +46,36 @@ Eclipse SDK 3.4M5 - %date% - 3.4 MILESTONE 5
 <br>Project org.eclipse.jdt.core v_835
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_835">cvs</a>).
 <h2>What's new in this drop</h2>
-
+<ul>
+<li>Code formatter: 3 new options were added to better handle the addition of new lines after annotations.
+<pre>
+ * FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER
+ * FORMATTER / Option to insert a new line after an annotation on a member (package, class, method, field declaration)
+ *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member"
+ *     - possible values:   { INSERT, DO_NOT_INSERT }
+ *     - default:           INSERT
+ * 
+ * FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER
+ * FORMATTER / Option to insert a new line after an annotation on a parameter
+ *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_parameter"
+ *     - possible values:   { INSERT, DO_NOT_INSERT }
+ *     - default:           DO_NOT_INSERT
+ *
+ * FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_LOCAL_VARIABLE
+ * FORMATTER / Option to insert a new line after an annotation on a local variable
+ *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_local_variable"
+ *     - possible values:   { INSERT, DO_NOT_INSERT }
+ *     - default:           INSERT
+</pre>
+The addition of new lines after annotations has been discussed in <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=100278">bug 122247</a><br>
+Also note that previously available code formatter constant FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION has been deprecated.<br>
+All new options must be enabled to activate old strategy.
+</li>
+</ul>
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=216686">216686</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=122247">122247</a>
+[formatter] add support to handle parameter annotations
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=216686">216686</a>
 [1.5][compiler] Failures of inference and overload resolution
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=216897">216897</a>
 [compiler][options] Compile error when disabling 'Ignore Unchecked Exception'

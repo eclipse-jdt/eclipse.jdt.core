@@ -562,7 +562,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		Alignment memberAlignment = this.scribe.getMemberAlignment();
 	
         this.scribe.printComment();
-		this.scribe.printModifiers(fieldDeclaration.annotations, this);
+		this.scribe.printModifiers(fieldDeclaration.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_MEMBER);
 		this.scribe.space();
 		/*
 		 * Field type
@@ -669,7 +669,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		Alignment fieldAlignment = this.scribe.getMemberAlignment();
 	
         this.scribe.printComment();
-		this.scribe.printModifiers(multiFieldDeclaration.annotations, this);
+		this.scribe.printModifiers(multiFieldDeclaration.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_MEMBER);
 		this.scribe.space();
 	
 		multiFieldDeclaration.declarations[0].type.traverse(this, scope);
@@ -917,7 +917,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
         this.scribe.printComment();
         int line = this.scribe.line; 
 
-		this.scribe.printModifiers(typeDeclaration.annotations, this);
+		this.scribe.printModifiers(typeDeclaration.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_MEMBER);
 
 		if (this.scribe.line > line) {
         	// annotations introduced new line, but this is not a line wrapping
@@ -1563,7 +1563,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (!isMultipleLocalDeclaration(localDeclaration)) {
 			if (localDeclaration.modifiers != NO_MODIFIERS || localDeclaration.annotations != null) {
 		        this.scribe.printComment();
-				this.scribe.printModifiers(localDeclaration.annotations, this);
+				this.scribe.printModifiers(localDeclaration.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_LOCAL_VARIABLE);
 				this.scribe.space();
 			}
 	
@@ -2349,7 +2349,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
          * Print comments to get proper line number
          */
         this.scribe.printComment();        
-        this.scribe.printModifiers(annotationTypeMemberDeclaration.annotations, this);
+        this.scribe.printModifiers(annotationTypeMemberDeclaration.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_MEMBER);
 		this.scribe.space();
 		/*
 		 * Print the method return type
@@ -2396,7 +2396,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		if (argument.modifiers != NO_MODIFIERS || argument.annotations != null) {
 	        this.scribe.printComment();
-			this.scribe.printModifiers(argument.annotations, this);
+			this.scribe.printModifiers(argument.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_PARAMETER);
 			this.scribe.space();
 		}
 
@@ -2958,7 +2958,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.scribe.printEmptyLines(blankLinesBeforePackage);
 			}
 
-			this.scribe.printModifiers(compilationUnitDeclaration.currentPackage.annotations, this);
+			this.scribe.printModifiers(compilationUnitDeclaration.currentPackage.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_MEMBER);
 			this.scribe.space();
 			// dump the package keyword
 			this.scribe.printNextToken(TerminalTokens.TokenNamepackage);
@@ -3193,7 +3193,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
          */
         this.scribe.printComment();
         int line = this.scribe.line;
-		this.scribe.printModifiers(constructorDeclaration.annotations, this);
+		this.scribe.printModifiers(constructorDeclaration.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_MEMBER);
 		if (this.scribe.line > line) {
         	// annotations introduced new line, but this is not a line wrapping
 			// see 158267
@@ -3408,8 +3408,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
          */
         this.scribe.printComment();
         final int line = this.scribe.line; 
-        
-        this.scribe.printModifiers(enumConstant.annotations, this);
+        this.scribe.printModifiers(enumConstant.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_MEMBER);
 		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false); 
 		formatEnumConstantArguments(
 			enumConstant,
@@ -4081,7 +4080,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
         this.scribe.printComment();
         int line = this.scribe.line;
         
-        this.scribe.printModifiers(methodDeclaration.annotations, this);
+        this.scribe.printModifiers(methodDeclaration.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_MEMBER);
         
 		if (this.scribe.line > line) {
         	// annotations introduced new line, but this is not a line wrapping

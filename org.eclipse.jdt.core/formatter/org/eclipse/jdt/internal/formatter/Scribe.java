@@ -1470,6 +1470,10 @@ public class Scribe {
 	}
 
 	public void printModifiers(Annotation[] annotations, ASTVisitor visitor) {
+		printModifiers(annotations, visitor, ICodeFormatterConstants.ANNOTATION_UNSPECIFIED);
+	}
+	
+	public void printModifiers(Annotation[] annotations, ASTVisitor visitor, int annotationSourceKind) {
 		try {
 			int annotationsLength = annotations != null ? annotations.length : 0;
 			int annotationsIndex = 0;
@@ -1503,7 +1507,28 @@ public class Scribe {
 						this.scanner.resetTo(this.scanner.getCurrentTokenStartPosition(), this.scannerEndPosition - 1);
 						if (annotationsIndex < annotationsLength) {
 							annotations[annotationsIndex++].traverse(visitor, (BlockScope) null);
-							if (this.formatter.preferences.insert_new_line_after_annotation) {
+							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
+							boolean shouldAddNewLine = false;
+							switch (annotationSourceKind) {
+								case ICodeFormatterConstants.ANNOTATION_ON_MEMBER :
+									if (this.formatter.preferences.insert_new_line_after_annotation_on_member) {
+										shouldAddNewLine = true;
+									}
+									break;
+								case ICodeFormatterConstants.ANNOTATION_ON_PARAMETER :
+									if (this.formatter.preferences.insert_new_line_after_annotation_on_parameter) {
+										shouldAddNewLine = true;
+									}
+									break;
+								case ICodeFormatterConstants.ANNOTATION_ON_LOCAL_VARIABLE :
+									if (this.formatter.preferences.insert_new_line_after_annotation_on_local_variable) {
+										shouldAddNewLine = true;
+									}
+									break;
+								default:
+									// do nothing when no annotation formatting option specified
+							}
+							if (shouldAddNewLine) {
 								this.printNewLine();
 							}
 						} else {
