@@ -1326,6 +1326,7 @@ public void reset() {
 			for (int j = arrayBindings.length; --j >= 0;)
 				arrayBindings[j] = null;
 	}
+	// NOTE: remember to fix #updateCaches(...) when adding unique binding caches
 	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(3);
 	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
@@ -1363,7 +1364,15 @@ void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding re
 			}
 		}
 	}
-
+	if (this.uniqueRawTypeBindings.get(unresolvedType) != null) { // update the key
+		Object[] keys = this.uniqueRawTypeBindings.keyTable;
+		for (int i = 0, l = keys.length; i < l; i++) {
+			if (keys[i] == unresolvedType) {
+				keys[i] = resolvedType; // hashCode is based on compoundName so this works
+				break;
+			}
+		}
+	}
 	if (this.uniqueWildcardBindings.get(unresolvedType) != null) { // update the key
 		Object[] keys = this.uniqueWildcardBindings.keyTable;
 		for (int i = 0, l = keys.length; i < l; i++) {
