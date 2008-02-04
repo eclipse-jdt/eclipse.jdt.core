@@ -733,6 +733,8 @@ public class EncodingTests extends ModifyingResourceTests {
 		IPackageFragment packFrag = getPackageFragment("Encoding", "src", "tmp");
 		
 		try {
+			waitUntilIndexesReady();
+			
 			// Move file
 			cu.move(packFrag, null, null, false, null);
 			ICompilationUnit destSource = packFrag.getCompilationUnit(fileName);
