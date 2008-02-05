@@ -79,6 +79,34 @@ public class Java50Tests extends BuilderTests {
 		fullBuild(projectPath);
 		expectingNoProblems();
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=214237, dupe of
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=205235
+	public void testHierarchyCycleInstanceof() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.5"); 
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, "");
+
+		env.addClass(projectPath, "", "A",
+			"import java.util.Collection;\n" +
+			"public abstract class A\n" +
+			"<T extends A<T,S>,S extends Collection<T>> {}\n" +
+			// a specific grouping of classes is needed to hit the problem using
+			// the test framework
+			"abstract class B extends A<D,Collection<D>> {\n" +
+			"  boolean isD() {return this instanceof D;}\n" +
+			"}\n"+
+			"final class D extends C {}\n"
+		);
+		env.addClass(projectPath, "", "C",
+			"public abstract class C extends B {\n" +
+			"  boolean isD() {return this instanceof D;}\n" +
+			"}\n"
+		); 
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+	}
 
 	public void testParameterizedMemberType() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.5"); 
