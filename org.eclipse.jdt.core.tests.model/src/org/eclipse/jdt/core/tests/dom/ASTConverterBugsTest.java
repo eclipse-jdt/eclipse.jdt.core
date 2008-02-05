@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.*;
 
@@ -228,6 +229,90 @@ public void testBug209150c() throws CoreException, IOException {
 	} finally {
 		deleteProject("P");
 	}
+}
+
+/**
+ * @bug 212100: [dom] Can't create binding to inner class
+ * @test Verify that the binding is well created for an inner class
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212100"
+ */
+public void testBug212100a() throws JavaModelException {
+	workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+	String contents =
+		"public class X {\n" +
+		"	public class Y {\n" +
+		"      void foo() {}\n" +
+		"   }\n" +
+		"}";
+	this.workingCopies[0].getBuffer().setContents(contents);
+	this.workingCopies[0].save(null, true);
+	final IBinding[] bindings = new IBinding[4];
+	final String key = "Ljava/lang/Object;"; // this will make the test fail
+//	final String key = "LX;"; // this would make the test pass
+
+	resolveASTs(this.workingCopies,
+			new String[] { key },
+			new ASTRequestor() {
+				public void acceptBinding(String bindingKey, IBinding binding) {
+					if (key.equals(bindingKey)) {
+						bindings[0] = binding;
+						IBinding[] temp = createBindings(new String[] {"LX;", "LX$Y;", "[LX$Y;"});
+						for (int i = 0; i < temp.length; ++i) {
+							bindings[i + 1] = temp[i];
+						}
+					}
+				}
+			},
+			getJavaProject("Converter15"),
+			null);
+	assertNotNull("Binding for java.lang.Object should not be null", bindings[0]);
+	assertNotNull("Binding for X should not be null", bindings[1]);
+	assertNotNull("Binding for X.Y should not be null", bindings[2]);
+	assertNotNull("Binding for X.Y[] should not be null", bindings[3]);
+}
+public void testBug212100b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+	String contents =
+		"public class X {\n" +
+		"	public class Y {\n" +
+		"      void foo() {}\n" +
+		"   }\n" +
+		"}";
+	this.workingCopies[0].getBuffer().setContents(contents);
+	this.workingCopies[0].save(null, true);
+
+	this.workingCopies[1] = getWorkingCopy("/Converter15/src/Z.java", true/*resolve*/);
+	String contentsZ =
+		"public class Z {\n" +
+		"	public class W {\n" +
+		"      void bar() {}\n" +
+		"   }\n" +
+		"}";
+	this.workingCopies[1].getBuffer().setContents(contentsZ);
+	this.workingCopies[1].save(null, true);
+
+	final String keyX = "LX;";
+	final String keyXY = "LX$Y;";
+	final String keyZ = "LZ;";
+	final String keyZW = "LZ$W;";
+
+	resolveASTs(this.workingCopies,
+			new String[] { keyX, keyZ },
+			new ASTRequestor() {
+				public void acceptBinding(String bindingKey, IBinding binding) {
+					IBinding[] bindings = createBindings(new String[] {
+							keyX, keyXY, keyZ, keyZW
+					});
+					assertNotNull("When accepting " + bindingKey + ", Binding for X should not be null", bindings[0]);
+					assertNotNull("When accepting " + bindingKey + ", Binding for X.Y should not be null", bindings[1]);
+					assertNotNull("When accepting " + bindingKey + ", Binding for Z should not be null", bindings[2]);
+					assertNotNull("When accepting " + bindingKey + ", Binding for Z.W should not be null", bindings[3]);
+				}
+			},
+			getJavaProject("Converter15"),
+			null);
 }
 
 /**

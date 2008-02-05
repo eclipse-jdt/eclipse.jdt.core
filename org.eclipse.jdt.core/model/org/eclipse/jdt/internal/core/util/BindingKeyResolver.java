@@ -28,7 +28,6 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
@@ -503,20 +502,19 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	private TypeBinding getTypeBinding(char[] simpleTypeName) {
-		if (this.typeBinding instanceof BinaryTypeBinding) {
-			return ((BinaryTypeBinding) this.typeBinding).getMemberType(simpleTypeName);
-		} else {
-			TypeDeclaration[] typeDeclarations = 
-				this.typeDeclaration == null ? 
-					(this.parsedUnit == null ? null : this.parsedUnit.types) : 
-					this.typeDeclaration.memberTypes;
-			if (typeDeclarations == null) return null;
-			for (int i = 0, length = typeDeclarations.length; i < length; i++) {
-				TypeDeclaration declaration = typeDeclarations[i];
-				if (CharOperation.equals(simpleTypeName, declaration.name)) {
-					this.typeDeclaration = declaration;
-					return declaration.binding;
-				}
+		if (this.typeBinding instanceof ReferenceBinding) {
+			return ((ReferenceBinding) this.typeBinding).getMemberType(simpleTypeName);
+		}
+		TypeDeclaration[] typeDeclarations = 
+			this.typeDeclaration == null ? 
+				(this.parsedUnit == null ? null : this.parsedUnit.types) : 
+				this.typeDeclaration.memberTypes;
+		if (typeDeclarations == null) return null;
+		for (int i = 0, length = typeDeclarations.length; i < length; i++) {
+			TypeDeclaration declaration = typeDeclarations[i];
+			if (CharOperation.equals(simpleTypeName, declaration.name)) {
+				this.typeDeclaration = declaration;
+				return declaration.binding;
 			}
 		}
 		return null;
