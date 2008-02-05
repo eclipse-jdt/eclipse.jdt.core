@@ -1035,7 +1035,7 @@ public void testBug179199() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=215841"
  */
 // see #testApplicationLibrairiesJarAndClassFolder()
-public void testBug215841() throws CoreException {
+public void _testBug215841() throws CoreException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"/P/internal.jar", "/P/classfolder"}, "bin");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
@@ -1047,7 +1047,7 @@ public void testBug215841() throws CoreException {
 	}
 }
 // see #testApplicationLibrairiesClasspathContainer()
-public void testBug215841b() throws CoreException {
+public void _testBug215841b() throws CoreException {
 	try {
 		VariablesInitializer.setInitializer(new ClasspathInitializerTests.DefaultVariableInitializer(new String[] {"TEST_LIB", "/P/lib.jar"}));
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"TEST_LIB"}, "");
