@@ -59,7 +59,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * to a specified {@linkplain #setSourceRange(int,int) subrange}.</li>
  * <li>Whether {@linkplain #setResolveBindings(boolean) bindings} will be created.</li>
  * <li>Which {@linkplain #setWorkingCopyOwner(WorkingCopyOwner)
- * working set owner} to use when resolving bindings).</li>
+ * working copy owner} to use when resolving bindings.</li>
  * <li>A hypothetical {@linkplain #setUnitName(String) compilation unit file name}
  * and {@linkplain #setProject(IJavaProject) Java project}
  * for locating a raw source string in the Java model (when
