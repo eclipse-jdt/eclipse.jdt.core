@@ -111,6 +111,10 @@ public char[][] getDefinedTypeNamesFor(String typeLocator) {
 	return null; // means only one type is defined with the same name as the file... saves space
 }
 
+public SimpleLookupTable getReferences() {
+	return this.references;
+}
+
 StringSet getStructurallyChangedTypes(State prereqState) {
 	if (prereqState != null && prereqState.previousStructuralBuildTime > 0) {
 		Object o = structuralBuildTimes.get(prereqState.javaProjectName);
@@ -121,12 +125,12 @@ StringSet getStructurallyChangedTypes(State prereqState) {
 	return null;
 }
 
-boolean isDuplicateLocator(String qualifiedTypeName, String typeLocator) {
+public boolean isDuplicateLocator(String qualifiedTypeName, String typeLocator) {
 	String existing = (String) typeLocators.get(qualifiedTypeName);
 	return existing != null && !existing.equals(typeLocator);
 }
 
-boolean isKnownPackage(String qualifiedPackageName) {
+public boolean isKnownPackage(String qualifiedPackageName) {
 	if (knownPackageNames == null) {
 		ArrayList names = new ArrayList(typeLocators.elementSize);
 		Object[] keyTable = typeLocators.keyTable;
@@ -151,7 +155,7 @@ boolean isKnownPackage(String qualifiedPackageName) {
 	return false;
 }
 
-boolean isKnownType(String qualifiedTypeName) {
+public boolean isKnownType(String qualifiedTypeName) {
 	return typeLocators.containsKey(qualifiedTypeName);
 }
 

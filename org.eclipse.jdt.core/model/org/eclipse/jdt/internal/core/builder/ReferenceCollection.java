@@ -24,7 +24,7 @@ protected ReferenceCollection(char[][][] qualifiedNameReferences, char[][] simpl
 	this.simpleNameReferences = internSimpleNames(simpleNameReferences, true);
 }
 
-void addDependencies(String[] typeNameDependencies) {
+public void addDependencies(String[] typeNameDependencies) {
 	// if each qualified type name is already known then all of its subNames can be skipped
 	// and its expected that very few qualified names in typeNameDependencies need to be added
 	// but could always take 'p1.p2.p3.X' and make all qualified names 'p1' 'p1.p2' 'p1.p2.p3' 'p1.p2.p3.X', then intern
@@ -54,19 +54,19 @@ void addDependencies(String[] typeNameDependencies) {
 	}
 }
 
-boolean includes(char[] simpleName) {
+public boolean includes(char[] simpleName) {
 	for (int i = 0, l = simpleNameReferences.length; i < l; i++)
 		if (simpleName == simpleNameReferences[i]) return true;
 	return false;
 }
 
-boolean includes(char[][] qualifiedName) {
+public boolean includes(char[][] qualifiedName) {
 	for (int i = 0, l = qualifiedNameReferences.length; i < l; i++)
 		if (qualifiedName == qualifiedNameReferences[i]) return true;
 	return false;
 }
 
-boolean includes(char[][][] qualifiedNames, char[][] simpleNames) {
+public boolean includes(char[][][] qualifiedNames, char[][] simpleNames) {
 	// if either collection of names is null, it means it contained a well known name so we know it already has a match
 	if (simpleNames == null || qualifiedNames == null) {
 		if (simpleNames == null && qualifiedNames == null) {
@@ -149,7 +149,7 @@ static {
 		InternedSimpleNames[i] = new NameSet(37);
 }
 
-static char[][][] internQualifiedNames(StringSet qualifiedStrings) {
+public static char[][][] internQualifiedNames(StringSet qualifiedStrings) {
 	if (qualifiedStrings == null) return EmptyQualifiedNames;
 	int length = qualifiedStrings.elementSize;
 	if (length == 0) return EmptyQualifiedNames;
@@ -162,7 +162,7 @@ static char[][][] internQualifiedNames(StringSet qualifiedStrings) {
 	return internQualifiedNames(result);
 }
 
-static char[][][] internQualifiedNames(char[][][] qualifiedNames) {
+public static char[][][] internQualifiedNames(char[][][] qualifiedNames) {
 	if (qualifiedNames == null) return EmptyQualifiedNames;
 	int length = qualifiedNames.length;
 	if (length == 0) return EmptyQualifiedNames;
@@ -194,7 +194,7 @@ static char[][][] internQualifiedNames(char[][][] qualifiedNames) {
 	return keepers;
 }
 
-static char[][] internSimpleNames(StringSet simpleStrings) {
+public static char[][] internSimpleNames(StringSet simpleStrings) {
 	if (simpleStrings == null) return EmptySimpleNames;
 	int length = simpleStrings.elementSize;
 	if (length == 0) return EmptySimpleNames;
@@ -207,7 +207,7 @@ static char[][] internSimpleNames(StringSet simpleStrings) {
 	return internSimpleNames(result, true);
 }
 
-static char[][] internSimpleNames(char[][] simpleNames, boolean removeWellKnown) {
+public static char[][] internSimpleNames(char[][] simpleNames, boolean removeWellKnown) {
 	if (simpleNames == null) return EmptySimpleNames;
 	int length = simpleNames.length;
 	if (length == 0) return EmptySimpleNames;
