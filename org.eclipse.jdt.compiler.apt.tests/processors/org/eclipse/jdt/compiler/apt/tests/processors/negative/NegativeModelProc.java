@@ -11,7 +11,9 @@
 
 package org.eclipse.jdt.compiler.apt.tests.processors.negative;
 
+import java.io.StringReader;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +36,12 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.eclipse.jdt.compiler.apt.tests.processors.base.XMLComparer;
+import org.eclipse.jdt.compiler.apt.tests.processors.base.XMLConverter;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 /**
  * An annotation processor that investigates the model produced by code containing
@@ -52,6 +60,58 @@ import javax.lang.model.util.Elements;
 public class NegativeModelProc extends AbstractProcessor
 {
 	/**
+	 * Reference model for class Negative6.
+	 */
+	private static final String NEGATIVE_6_MODEL = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
+		"<model>\n" + 
+		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative6\" sname=\"Negative6\">\n" + 
+		"  <executable-element kind=\"METHOD\" sname=\"method1\">\n" + 
+		"   <annotations>\n" + 
+		"    <annotation sname=\"M11\"/>\n" + 
+		"   </annotations>\n" + 
+		"   <variable-element kind=\"PARAMETER\" sname=\"arg0\" type=\"M16\">\n" + 
+		"    <annotations>\n" + 
+		"     <annotation sname=\"M13\"/>\n" + 
+		"    </annotations>\n" + 
+		"   </variable-element>\n" + 
+		"  </executable-element>\n" + 
+		"  <executable-element kind=\"METHOD\" sname=\"method2\">\n" + 
+		"   <annotations>\n" + 
+		"    <annotation sname=\"M21\"/>\n" + 
+		"   </annotations>\n" + 
+		"   <variable-element kind=\"PARAMETER\" sname=\"arg0\" type=\"int\">\n" + 
+		"    <annotations>\n" + 
+		"     <annotation sname=\"M22\"/>\n" + 
+		"    </annotations>\n" + 
+		"   </variable-element>\n" + 
+		"  </executable-element>\n" + 
+		"  <executable-element kind=\"METHOD\" sname=\"method3\">\n" + 
+		"   <variable-element kind=\"PARAMETER\" sname=\"arg0\" type=\"java.lang.String\">\n" + 
+		"    <annotations>\n" + 
+		"     <annotation sname=\"M31\"/>\n" + 
+		"    </annotations>\n" + 
+		"   </variable-element>\n" + 
+		"   <variable-element kind=\"PARAMETER\" sname=\"arg1\" type=\"java.lang.String\">\n" + 
+		"    <annotations>\n" + 
+		"     <annotation sname=\"M32\"/>\n" + 
+		"    </annotations>\n" + 
+		"   </variable-element>\n" + 
+		"  </executable-element>\n" + 
+		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\">\n" + 
+		"   <annotations>\n" + 
+		"    <annotation sname=\"M41\"/>\n" + 
+		"   </annotations>\n" + 
+		"   <variable-element kind=\"PARAMETER\" sname=\"arg0\" type=\"M43\">\n" + 
+		"    <annotations>\n" + 
+		"     <annotation sname=\"M42\"/>\n" + 
+		"    </annotations>\n" + 
+		"   </variable-element>\n" + 
+		"  </executable-element>\n" + 
+		" </type-element>\n" + 
+		"</model>";
+
+	/**
 	 * Declare this option (-AignoreJavacBugs) to ignore failures of cases that are
 	 * known to fail under javac, i.e., known bugs in javac.
 	 */
@@ -64,7 +124,9 @@ public class NegativeModelProc extends AbstractProcessor
 		"checkNegative2",
 		"checkNegative3",
 		"checkNegative4",
-		"checkNegative5"}; 
+		"checkNegative5",
+		"checkNegative6",
+		}; 
 	
 	private static final Method[] testMethods = new Method[testMethodNames.length];
 
@@ -182,7 +244,7 @@ public class NegativeModelProc extends AbstractProcessor
 	}
 
 	/**
-	 * Check the annotations in the model of targets.negative.pa.Negative1
+	 * Check the annotations in the model of resources/targets.negative.pa.Negative1
 	 * @return true if all tests passed
 	 */
 	public boolean checkNegative1() {
@@ -252,7 +314,7 @@ public class NegativeModelProc extends AbstractProcessor
 	}
 	
 	/**
-	 * Check the annotations in the model of targets.negative.pa.Negative2
+	 * Check the annotations in the model of resources/targets.negative.pa.Negative2
 	 * @return true if all tests passed
 	 */
 	public boolean checkNegative2() {
@@ -317,7 +379,7 @@ public class NegativeModelProc extends AbstractProcessor
 	}
 	
 	/**
-	 * Check the model of targets.negative.pa.Negative3
+	 * Check the model of resources/targets.negative.pa.Negative3
 	 * @return true if all tests passed
 	 */
 	public boolean checkNegative3() {
@@ -361,7 +423,7 @@ public class NegativeModelProc extends AbstractProcessor
 	}
 	
 	/**
-	 * Check the model of targets.negative.pa.Negative4
+	 * Check the model of resources/targets.negative.pa.Negative4
 	 * @return true if all tests passed
 	 */
 	public boolean checkNegative4() {
@@ -456,7 +518,7 @@ public class NegativeModelProc extends AbstractProcessor
 
 	
 	/**
-	 * Check the model of targets.negative.pa.Negative5
+	 * Check the model of resources/targets.negative.pa.Negative5
 	 * @return true if all tests passed
 	 */
 	public boolean checkNegative5() {
@@ -504,7 +566,32 @@ public class NegativeModelProc extends AbstractProcessor
 		
 		return true;
 	}
+	
+	/**
+	 * Check the model of resources/targets.negative.pa.Negative6
+	 * @return true if all tests passed
+	 */
+	public boolean checkNegative6() throws Exception {
+		
+		// Get the root of the Negative6 model
+		TypeElement element = _elementUtils.getTypeElement("targets.negative.pa.Negative6");
+		if (null == element || element.getKind() != ElementKind.CLASS) {
+			reportError("Element Negative6 was not found or was not a class");
+			return false;
+		}
+		
+		Document actual = XMLConverter.convertModel(Collections.singleton(element));
+		
+    	InputSource source = new InputSource(new StringReader(NEGATIVE_6_MODEL));
+    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        Document expected = factory.newDocumentBuilder().parse(source);
 
+        boolean success = XMLComparer.compare(actual, expected, System.out);
+        if (!success) {
+        	reportError("Test Negative6: mismatch between actual and expected models; see console for details.");
+        }
+        return success;
+	}
 	
 	/**
 	 * Find a particular annotation on a specified element.

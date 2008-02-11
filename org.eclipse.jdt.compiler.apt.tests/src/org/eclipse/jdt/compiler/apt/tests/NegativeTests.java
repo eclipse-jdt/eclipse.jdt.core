@@ -51,7 +51,7 @@ public class NegativeTests extends TestCase
 	}
 
 	/**
-	 * Attempt to report errors on model of targets.negative.pa.Negative1, 
+	 * Inspect model of resources/targets.negative.pa.Negative1, 
 	 * using the Eclipse compiler.
 	 * @throws IOException 
 	 */
@@ -61,7 +61,7 @@ public class NegativeTests extends TestCase
 	}
 
 	/**
-	 * Attempt to report errors on model of targets.negative.pa.Negative2, 
+	 * Inspect model of resources/targets.negative.pa.Negative2, 
 	 * using the Eclipse compiler.
 	 * @throws IOException 
 	 */
@@ -71,7 +71,7 @@ public class NegativeTests extends TestCase
 	}
 
 	/**
-	 * Attempt to report errors on model of targets.negative.pa.Negative3, 
+	 * Inspect model of resources/targets.negative.pa.Negative3, 
 	 * using the Eclipse compiler.
 	 * @throws IOException 
 	 */
@@ -81,7 +81,7 @@ public class NegativeTests extends TestCase
 	}
 
 	/**
-	 * Attempt to report errors on model of targets.negative.pa.Negative4, 
+	 * Inspect model of resources/targets.negative.pa.Negative4, 
 	 * using the Eclipse compiler.
 	 * @throws IOException 
 	 */
@@ -91,13 +91,23 @@ public class NegativeTests extends TestCase
 	}
 
 	/**
-	 * Attempt to report errors on model of targets.negative.pa.Negative5, 
+	 * Inspect model of resources/targets.negative.pa.Negative5, 
 	 * using the Eclipse compiler.
 	 * @throws IOException 
 	 */
 	public void testNegativeModel5WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestNegativeModel(compiler, 5, null);
+	}
+
+	/**
+	 * Inspect model of resources/targets.negative.pa.Negative6, 
+	 * using the Eclipse compiler.
+	 * @throws IOException 
+	 */
+	public void testNegativeModel6WithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestNegativeModel(compiler, 6, null);
 	}
 
 	/**
@@ -125,7 +135,7 @@ public class NegativeTests extends TestCase
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
 		String property = System.getProperty(NEGATIVEMODELPROCNAME);
-		assertNotNull("No property", property);
+		assertNotNull("No property - probably processing did not take place", property);
 		assertEquals("succeeded", property);
 		
 		// TODO: check "errors" against expected values to ensure that the problems were correctly reported
