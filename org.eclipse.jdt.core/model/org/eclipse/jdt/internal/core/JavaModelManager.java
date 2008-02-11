@@ -1041,7 +1041,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						Object target = JavaModel.getTarget(wRoot, path, true);
 						if (target instanceof java.io.File) {
 							long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
-							externalTimeStamps.put(path, new Long(timestamp));							
+							externalTimeStamps.put(path, new Long(timestamp));
 						}
 					}
 				}
