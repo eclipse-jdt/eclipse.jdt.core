@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
@@ -1514,96 +1513,6 @@ public CompilationUnitDeclaration parseCompilationUnit(
 		reset();
 	}
 	return parsedUnit;
-}
-public void parseTypeMemberDeclarations(
-	ISourceType type, 
-	ICompilationUnit sourceUnit, 
-	int start, 
-	int end, 
-	boolean needReferenceInfo) {
-	boolean old = diet;
-	
-	CompilationResult compilationUnitResult = 
-		new CompilationResult(sourceUnit, 0, 0, this.options.maxProblemsPerUnit); 
-	try {
-		diet = !needReferenceInfo;
-		reportReferenceInfo = needReferenceInfo;
-		CompilationUnitDeclaration unit = 
-			SourceTypeConverter.buildCompilationUnit(
-				new ISourceType[]{type}, 
-				// no need for field and methods
-				// no need for member types
-				// no need for field initialization
-				SourceTypeConverter.NONE,
-				problemReporter(), 
-				compilationUnitResult); 
-		if ((unit == null) || (unit.types == null) || (unit.types.length != 1))
-			return;
-		this.sourceType = type;
-		try {
-			/* automaton initialization */
-			initialize();
-			goForClassBodyDeclarations();
-			/* scanner initialization */
-			scanner.setSource(sourceUnit.getContents());
-			scanner.resetTo(start, end);
-			/* unit creation */
-			referenceContext = compilationUnit = unit;
-			/* initialize the astStacl */
-			// the compilationUnitDeclaration should contain exactly one type
-			pushOnAstStack(unit.types[0]);
-			/* run automaton */
-			parse();
-			notifySourceElementRequestor(unit);
-		} finally {
-			unit = compilationUnit;
-			compilationUnit = null; // reset parser
-		}
-	} catch (AbortCompilation e) {
-		// ignore this exception
-	} finally {
-		if (scanner.recordLineSeparator) {
-			requestor.acceptLineSeparatorPositions(compilationUnitResult.getLineSeparatorPositions());
-		}
-		diet = old;
-		reset();
-	}
-}
-
-public void parseTypeMemberDeclarations(
-	char[] contents, 
-	int start, 
-	int end) {
-
-	boolean old = diet;
-	
-	try {
-		diet = true;
-
-		/* automaton initialization */
-		initialize();
-		goForClassBodyDeclarations();
-		/* scanner initialization */
-		scanner.setSource(contents);
-		scanner.recordLineSeparator = false;
-		scanner.taskTags = null;
-		scanner.taskPriorities = null;
-		scanner.resetTo(start, end);
-
-		/* unit creation */
-		referenceContext = null;
-
-		/* initialize the astStacl */
-		// the compilationUnitDeclaration should contain exactly one type
-		/* run automaton */
-		parse();
-		notifySourceElementRequestor((CompilationUnitDeclaration)null);
-	} catch (AbortCompilation e) {
-		// ignore this exception
-	} finally {
-		diet = old;
-		reset();
-	}
 }
 /*
  * Sort the given ast nodes by their positions.
