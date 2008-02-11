@@ -405,7 +405,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"        ]\n" + 
 			"    )\n" + 
 			"    #12 @java.lang.annotation.Retention(\n" + 
-			"      #11 value=java.lang.annotation.RetentionPolicy.RUNTIME(enum type #13.#14)\n" + 
+			"      #11 value=RetentionPolicy.RUNTIME(enum type #13.#14)\n" + 
 			"    )\n" + 
 			"}";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);

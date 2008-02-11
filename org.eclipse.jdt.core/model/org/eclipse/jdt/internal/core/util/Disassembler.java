@@ -298,24 +298,24 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 	}
 
-	private void disassemble(IAnnotation annotation, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(IAnnotation annotation, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		final int typeIndex = annotation.getTypeIndex();
 		final char[] typeName = CharOperation.replaceOnCopy(annotation.getTypeName(), '/', '.');
 		buffer.append(
 			Messages.bind(Messages.disassembler_annotationentrystart, new String[] {
 				Integer.toString(typeIndex),
-				new String(Signature.toCharArray(typeName))
+				new String(returnClassName(Signature.toCharArray(typeName), '.', mode))
 			}));
 		final IAnnotationComponent[] components = annotation.getComponents();
 		for (int i = 0, max = components.length; i < max; i++) {
-			disassemble(components[i], buffer, lineSeparator, tabNumber + 1);
+			disassemble(components[i], buffer, lineSeparator, tabNumber + 1, mode);
 		}
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.disassembler_annotationentryend);
 	}
 
-	private void disassemble(IAnnotationComponent annotationComponent, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(IAnnotationComponent annotationComponent, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(
 			Messages.bind(Messages.disassembler_annotationcomponent,
@@ -323,10 +323,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					Integer.toString(annotationComponent.getComponentNameIndex()),
 					new String(annotationComponent.getComponentName())
 				}));
-		disassemble(annotationComponent.getComponentValue(), buffer, lineSeparator, tabNumber + 1);
+		disassemble(annotationComponent.getComponentValue(), buffer, lineSeparator, tabNumber + 1, mode);
 	}
 
-	private void disassemble(IAnnotationComponentValue annotationComponentValue, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(IAnnotationComponentValue annotationComponentValue, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		switch(annotationComponentValue.getTag()) {
 			case IAnnotationComponentValue.BYTE_TAG:
 			case IAnnotationComponentValue.CHAR_TAG:
@@ -381,7 +381,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					new String[] {
 						Integer.toString(enumConstantTypeNameIndex),
 						Integer.toString(enumConstantNameIndex),
-						new String(Signature.toCharArray(typeName)),
+						new String(returnClassName(Signature.toCharArray(typeName), '.', COMPACT)),
 						new String(constantName)
 					}));
 				break;
@@ -392,35 +392,35 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				buffer.append(Messages.bind(Messages.disassembler_annotationclassvalue,
 					new String[] {
 						Integer.toString(classIndex),
-						new String(Signature.toCharArray(className))
+						new String(returnClassName(Signature.toCharArray(className), '.', mode))
 					}));
 				break;
 			case IAnnotationComponentValue.ANNOTATION_TAG:
 				buffer.append(Messages.disassembler_annotationannotationvalue);
 				IAnnotation annotation = annotationComponentValue.getAnnotationValue();
-				disassemble(annotation, buffer, lineSeparator, tabNumber + 1);
+				disassemble(annotation, buffer, lineSeparator, tabNumber + 1, mode);
 				break;
 			case IAnnotationComponentValue.ARRAY_TAG:
 				buffer.append(Messages.disassembler_annotationarrayvaluestart);
 				final IAnnotationComponentValue[] annotationComponentValues = annotationComponentValue.getAnnotationComponentValues();
 				for (int i = 0, max = annotationComponentValues.length; i < max; i++) {
 					writeNewLine(buffer, lineSeparator, tabNumber + 1);
-					disassemble(annotationComponentValues[i], buffer, lineSeparator, tabNumber + 1);
+					disassemble(annotationComponentValues[i], buffer, lineSeparator, tabNumber + 1, mode);
 				}
 				writeNewLine(buffer, lineSeparator, tabNumber + 1);
 				buffer.append(Messages.disassembler_annotationarrayvalueend);
 		}
 	}
 
-	private void disassemble(IAnnotationDefaultAttribute annotationDefaultAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(IAnnotationDefaultAttribute annotationDefaultAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.disassembler_annotationdefaultheader);
 		IAnnotationComponentValue componentValue = annotationDefaultAttribute.getMemberValue();
 		writeNewLine(buffer, lineSeparator, tabNumber + 2);
-		disassemble(componentValue, buffer, lineSeparator, tabNumber + 1);
+		disassemble(componentValue, buffer, lineSeparator, tabNumber + 1, mode);
 	}
 
-	private void disassemble(IClassFileAttribute classFileAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(IClassFileAttribute classFileAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.bind(Messages.disassembler_genericattributeheader,
 			new String[] {
@@ -674,25 +674,25 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							&& attribute != runtimeVisibleParameterAnnotationsAttribute
 							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
 							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
-						disassemble(attribute, buffer, lineSeparator, tabNumber);
+						disassemble(attribute, buffer, lineSeparator, tabNumber, mode);
 						writeNewLine(buffer, lineSeparator, tabNumber);
 					}
 				}
 			}
 			if (annotationDefaultAttribute != null) {
-				disassemble((IAnnotationDefaultAttribute) annotationDefaultAttribute, buffer, lineSeparator, tabNumber);
+				disassemble((IAnnotationDefaultAttribute) annotationDefaultAttribute, buffer, lineSeparator, tabNumber, mode);
 			}
 			if (runtimeVisibleAnnotationsAttribute != null) {
-				disassemble((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber);
+				disassemble((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			}
 			if (runtimeInvisibleAnnotationsAttribute != null) {
-				disassemble((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber);
+				disassemble((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			}
 			if (runtimeVisibleParameterAnnotationsAttribute != null) {
-				disassemble((IRuntimeVisibleParameterAnnotationsAttribute) runtimeVisibleParameterAnnotationsAttribute, buffer, lineSeparator, tabNumber);
+				disassemble((IRuntimeVisibleParameterAnnotationsAttribute) runtimeVisibleParameterAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			}
 			if (runtimeInvisibleParameterAnnotationsAttribute != null) {
-				disassemble((IRuntimeInvisibleParameterAnnotationsAttribute) runtimeInvisibleParameterAnnotationsAttribute, buffer, lineSeparator, tabNumber);
+				disassemble((IRuntimeInvisibleParameterAnnotationsAttribute) runtimeInvisibleParameterAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			}
 		}
 	}
@@ -913,10 +913,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			if (checkMode(mode, SYSTEM)) {
 				if (runtimeVisibleAnnotationsAttribute != null) {
-					disassemble((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, 0);
+					disassemble((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, 0, mode);
 				}
 				if (runtimeInvisibleAnnotationsAttribute != null) {
-					disassemble((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, 0);
+					disassemble((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, 0, mode);
 				}
 				if (length != 0) {
 					for (int i = 0; i < length; i++) {
@@ -929,7 +929,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							&& attribute != runtimeVisibleAnnotationsAttribute
 							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
 							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
-							disassemble(attribute, buffer, lineSeparator, 0);
+							disassemble(attribute, buffer, lineSeparator, 0, mode);
 						}
 					}
 				}
@@ -1578,15 +1578,15 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						&& attribute != runtimeVisibleAnnotationsAttribute
 						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
 						&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
-						disassemble(attribute, buffer, lineSeparator, tabNumber);
+						disassemble(attribute, buffer, lineSeparator, tabNumber, mode);
 					}
 				}
 			}
 			if (runtimeVisibleAnnotationsAttribute != null) {
-				disassemble((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber);
+				disassemble((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			}
 			if (runtimeInvisibleAnnotationsAttribute != null) {
-				disassemble((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber);
+				disassemble((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			}
 		}
 	}
@@ -1654,49 +1654,49 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 	}
 
-	private void disassemble(int index, IParameterAnnotation parameterAnnotation, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(int index, IParameterAnnotation parameterAnnotation, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		IAnnotation[] annotations = parameterAnnotation.getAnnotations();
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(
 			Messages.bind(Messages.disassembler_parameterannotationentrystart, new String[] {Integer.toString(index), Integer.toString(annotations.length)}));
 		for (int i = 0, max = annotations.length; i < max; i++) {
-			disassemble(annotations[i], buffer, lineSeparator, tabNumber + 1);
+			disassemble(annotations[i], buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
 
-	private void disassemble(IRuntimeInvisibleAnnotationsAttribute runtimeInvisibleAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(IRuntimeInvisibleAnnotationsAttribute runtimeInvisibleAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.disassembler_runtimeinvisibleannotationsattributeheader);
 		IAnnotation[] annotations = runtimeInvisibleAnnotationsAttribute.getAnnotations();
 		for (int i = 0, max = annotations.length; i < max; i++) {
-			disassemble(annotations[i], buffer, lineSeparator, tabNumber + 1);
+			disassemble(annotations[i], buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
 
-	private void disassemble(IRuntimeInvisibleParameterAnnotationsAttribute runtimeInvisibleParameterAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(IRuntimeInvisibleParameterAnnotationsAttribute runtimeInvisibleParameterAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.disassembler_runtimeinvisibleparameterannotationsattributeheader);
 		IParameterAnnotation[] parameterAnnotations = runtimeInvisibleParameterAnnotationsAttribute.getParameterAnnotations();
 		for (int i = 0, max = parameterAnnotations.length; i < max; i++) {
-			disassemble(i, parameterAnnotations[i], buffer, lineSeparator, tabNumber + 1);
+			disassemble(i, parameterAnnotations[i], buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
 
-	private void disassemble(IRuntimeVisibleAnnotationsAttribute runtimeVisibleAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(IRuntimeVisibleAnnotationsAttribute runtimeVisibleAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.disassembler_runtimevisibleannotationsattributeheader);
 		IAnnotation[] annotations = runtimeVisibleAnnotationsAttribute.getAnnotations();
 		for (int i = 0, max = annotations.length; i < max; i++) {
-			disassemble(annotations[i], buffer, lineSeparator, tabNumber + 1);
+			disassemble(annotations[i], buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
 
-	private void disassemble(IRuntimeVisibleParameterAnnotationsAttribute runtimeVisibleParameterAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(IRuntimeVisibleParameterAnnotationsAttribute runtimeVisibleParameterAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.disassembler_runtimevisibleparameterannotationsattributeheader);
 		IParameterAnnotation[] parameterAnnotations = runtimeVisibleParameterAnnotationsAttribute.getParameterAnnotations();
 		for (int i = 0, max = parameterAnnotations.length; i < max; i++) {
-			disassemble(i, parameterAnnotations[i], buffer, lineSeparator, tabNumber + 1);
+			disassemble(i, parameterAnnotations[i], buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
 
@@ -1821,12 +1821,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			case IAnnotationComponentValue.ENUM_TAG:
 				final char[] typeName = CharOperation.replaceOnCopy(annotationComponentValue.getEnumConstantTypeName(), '/', '.');
 				final char[] constantName = annotationComponentValue.getEnumConstantName();
-				buffer.append(Signature.toCharArray(typeName)).append('.').append(constantName);
+				buffer.append(returnClassName(Signature.toCharArray(typeName), '.', mode)).append('.').append(constantName);
 				break;
 			case IAnnotationComponentValue.CLASS_TAG:
 				constantPoolEntry = annotationComponentValue.getClassInfo();
 				final char[] className = CharOperation.replaceOnCopy(constantPoolEntry.getUtf8Value(), '/', '.');
-				buffer.append(Signature.toCharArray(className));
+				buffer.append(returnClassName(Signature.toCharArray(className), '.', mode));
 				break;
 			case IAnnotationComponentValue.ANNOTATION_TAG:
 				IAnnotation annotation = annotationComponentValue.getAnnotationValue();
