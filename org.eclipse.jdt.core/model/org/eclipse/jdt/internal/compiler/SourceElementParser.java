@@ -1481,35 +1481,6 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 		nestedTypeIndex--;
 	}
 }
-public void parseCompilationUnit(
-	ICompilationUnit unit, 
-	int start, 
-	int end, 
-	boolean fullParse) {
-
-	this.reportReferenceInfo = fullParse;
-	boolean old = diet;
-	
-	try {
-		diet = true;
-		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
-		CompilationUnitDeclaration parsedUnit = parse(unit, compilationUnitResult, start, end);
-		if (scanner.recordLineSeparator) {
-			requestor.acceptLineSeparatorPositions(compilationUnitResult.getLineSeparatorPositions());
-		}
-		if (this.localDeclarationVisitor != null || fullParse){
-			diet = false;
-			this.getMethodBodies(parsedUnit);
-		}		
-		this.scanner.resetTo(start, end);
-		notifySourceElementRequestor(parsedUnit);
-	} catch (AbortCompilation e) {
-		// ignore this exception
-	} finally {
-		diet = old;
-		reset();
-	}
-}
 public CompilationUnitDeclaration parseCompilationUnit(
 	ICompilationUnit unit, 
 	boolean fullParse,
