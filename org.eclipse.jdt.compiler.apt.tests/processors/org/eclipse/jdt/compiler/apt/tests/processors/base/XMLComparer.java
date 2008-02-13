@@ -15,8 +15,10 @@ package org.eclipse.jdt.compiler.apt.tests.processors.base;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -38,7 +40,7 @@ import org.w3c.dom.Node;
  * 
  * @since 3.4
  */
-public class XMLComparer {
+public class XMLComparer implements IXMLNames {
 
 	/**
 	 * A structure to collect and organize all the contents of an &lt;elements&gt; node, that is,
@@ -55,29 +57,13 @@ public class XMLComparer {
 	 */
 	private class DeclarationContents {
 		Element annotations = null;
+		Element superclass = null;
+		Element interfaces = null;
 		final TreeMap<String, Element> typeDecls = new TreeMap<String, Element>();
 		final TreeMap<String, Element> executableDecls = new TreeMap<String, Element>();
 		final TreeMap<String, Element> variableDecls = new TreeMap<String, Element>();
 		// TODO: PACKAGE, TYPE_PARAMETER, OTHER
 	}
-
-	private static final String ANNOTATIONS = "annotations";
-	
-	private static final String ANNOTATION_VALUE = "annotation-value";
-	
-	private static final String ANNOTATION_VALUES = "annotation-values";
-
-	private static final String VARIABLE_ELEMENT = "variable-element";
-
-	private static final String TYPE_ELEMENT = "type-element";
-
-	private static final String EXECUTABLE_ELEMENT = "executable-element";
-
-	private static final String ANNOTATION = "annotation";
-
-	private static final String SNAME = "sname";
-
-	private static final String MODEL = "model";
 
 	/**
 	 * Compare two JSR269 language models, using the approximate criteria of the JSR269 spec. Ignore
@@ -91,25 +77,41 @@ public class XMLComparer {
 	 * @param out
 	 *            a stream to which detailed information on mismatches will be output. Can be null
 	 *            if no detailed information is desired.
+	 * @param summary
+	 *            a StringBuilder to which will be appended a brief summary of the problem if a
+	 *            problem was encountered. Can be null if no summary is desired.
+	 * @param ignoreJavacBugs
+	 *            true if mismatches corresponding to known javac bugs should be ignored.
 	 * @return true if the models match sufficiently to satisfy the spec.
 	 */
-	public static boolean compare(Document actual, Document expected, OutputStream out) {
-		XMLComparer comparer = new XMLComparer(actual, expected, out);
+	public static boolean compare(Document actual, Document expected, 
+			OutputStream out, StringBuilder summary, boolean ignoreJavacBugs) {
+		XMLComparer comparer = new XMLComparer(actual, expected, out, summary, ignoreJavacBugs);
 		return comparer._compare();
 	}
 
 	private final Document _actual;
 
 	private final Document _expected;
+	
+	/**
+	 * If true, don't complain about mismatches corresponding to known javac bugs,
+	 * even if they represent a violation of the spec.  This is useful when running
+	 * tests against the reference implementation.
+	 */
+	private final boolean _ignoreJavacBugs;
 
 	private final PrintStream _out;
+	
+	private final StringBuilder _summary;
 
 	/**
 	 * Clients should not construct instances of this object.
 	 */
-	private XMLComparer(Document actual, Document expected, OutputStream out) {
+	private XMLComparer(Document actual, Document expected, OutputStream out, StringBuilder summary, boolean ignoreJavacBugs) {
 		_actual = actual;
 		_expected = expected;
+		_ignoreJavacBugs = ignoreJavacBugs;
 		OutputStream os;
 		if (out != null) {
 			os = out;
@@ -121,6 +123,7 @@ public class XMLComparer {
 			};
 		}
 		_out = new PrintStream(os, true);
+		_summary = summary;
 	}
 
 	/**
@@ -155,6 +158,8 @@ public class XMLComparer {
 	 * the same name, report an error; if there are unexpected contents (e.g., declarations, which
 	 * should not be contained within an annotations node), report an error.
 	 * 
+	 * TODO: revisit this - we need to model duplications, in order to handle incorrect code.
+	 * 
 	 * @param annotsNode
 	 *            must not be null
 	 * @param map
@@ -171,7 +176,7 @@ public class XMLComparer {
 			String nodeName = e.getNodeName();
 
 			// get 'sname'
-			String sname = e.getAttribute(SNAME);
+			String sname = e.getAttribute(SNAME_TAG);
 			if (sname == null) {
 				printProblem("A child of an <annotations> node was missing the \"sname\" attribute");
 				printDifferences();
@@ -180,7 +185,7 @@ public class XMLComparer {
 
 			// categorize
 			Element old = null;
-			if (ANNOTATION.equals(nodeName)) {
+			if (ANNOTATION_TAG.equals(nodeName)) {
 				old = map.put(sname, e);
 			} else {
 				printProblem("An <annotations> node unexpectedly contained something other than <annotation>: "
@@ -201,6 +206,7 @@ public class XMLComparer {
 	 * Collect the contents of a declaration, including child declarations and annotations, into a
 	 * collection of maps. If there are declarations of the same type and simple name, report an
 	 * error; if there are unexpected contents), report an error.
+	 * TODO: revisit this - we need to model duplications, in order to handle incorrect code.
 	 * 
 	 * @param elementNode
 	 *            must not be null
@@ -216,16 +222,30 @@ public class XMLComparer {
 			Element e = (Element)n;
 			String nodeName = e.getNodeName();
 
-			if (ANNOTATIONS.equals(nodeName)) {
+			if (ANNOTATIONS_TAG.equals(nodeName)) {
 				if (contents.annotations != null) {
 					printProblem("XML syntax error: a declaration contained more than one <annotations> node");
 					printDifferences();
 					return false;
 				}
 				contents.annotations = e;
+			} else if (SUPERCLASS_TAG.equals(nodeName)) {
+				if (contents.superclass != null) {
+					printProblem("XML syntax error: a declaration contained more than one <superclass> node");
+					printDifferences();
+					return false;
+				}
+				contents.superclass = e;
+			} else if (INTERFACES_TAG.equals(nodeName)) {
+				if (contents.interfaces != null) {
+					printProblem("XML syntax error: a declaration contained more than one <interfaces> node");
+					printDifferences();
+					return false;
+				}
+				contents.interfaces = e;
 			} else {
 				// get 'sname'
-				String sname = e.getAttribute(SNAME);
+				String sname = e.getAttribute(SNAME_TAG);
 				if (sname == null) {
 					printProblem("A child of an <elements> node was missing the \"sname\" attribute");
 					printDifferences();
@@ -234,11 +254,11 @@ public class XMLComparer {
 
 				// categorize
 				Element old = null;
-				if (EXECUTABLE_ELEMENT.equals(nodeName)) {
+				if (EXECUTABLE_ELEMENT_TAG.equals(nodeName)) {
 					old = contents.executableDecls.put(sname, e);
-				} else if (TYPE_ELEMENT.equals(nodeName)) {
+				} else if (TYPE_ELEMENT_TAG.equals(nodeName)) {
 					old = contents.typeDecls.put(sname, e);
-				} else if (VARIABLE_ELEMENT.equals(nodeName)) {
+				} else if (VARIABLE_ELEMENT_TAG.equals(nodeName)) {
 					old = contents.variableDecls.put(sname, e);
 				} else {
 					printProblem("A declaration contained an unexpected child node: " + nodeName);
@@ -247,6 +267,38 @@ public class XMLComparer {
 				}
 				if (old != null) {
 					printProblem("Two elements of the same kind had the same sname: " + sname);
+					printDifferences();
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Collect the &lt;type-mirror&gt; children of a parent node into a map,
+	 * keyed and sorted by the canonicalized type name.
+	 * For now, we use the toString() output as the canonical name, even though
+	 * that is unspecified and implementation-dependent.
+	 * Reject duplicated types.
+	 * TODO: revisit this - we need to model duplications, in order to handle incorrect code.
+	 * @param parent the parent node
+	 * @param typesMap the map, presumed to be empty on entry
+	 * @return true if no errors were reported
+	 */
+	private boolean collectTypes(Node parent, Map<String, Element> typesMap) {
+		for (Node n = parent.getFirstChild(); n != null; n = n.getNextSibling()) {
+			if (n.getNodeType() == Node.ELEMENT_NODE & TYPE_MIRROR_TAG.equals(n.getNodeName())) {
+				Element typeMirror = (Element)n;
+				String toStringAttr = typeMirror.getAttribute(TO_STRING_TAG);
+				if (null == toStringAttr || toStringAttr.length() < 1) {
+					printProblem("<type-mirror> node was missing its \"to-string\" attribute");
+					printDifferences();
+					return false;
+				}
+				Element old = typesMap.put(toStringAttr, typeMirror);
+				if (null != old) {
+					printProblem("Two <type-mirror> nodes had the same \"to-string\" attribute: " + toStringAttr);
 					printDifferences();
 					return false;
 				}
@@ -293,24 +345,14 @@ public class XMLComparer {
 				printDifferences();
 				return false;
 			}
-			if (SNAME.equals(attrName)) {
+			if (SNAME_TAG.equals(attrName)) {
 				sname = actualValue;
 			}
 		}
 
 		// Examine member-value pairs
-		Element actualValues = null;
-		for (Node n = actualAnnot.getFirstChild(); n != null; n = n.getNextSibling()) {
-			if (n.getNodeType() == Node.ELEMENT_NODE && ANNOTATION_VALUES.equals(n.getNodeName())) {
-				actualValues = (Element)n;
-			}
-		}
-		Element expectedValues = null;
-		for (Node n = expectedAnnot.getFirstChild(); n != null; n = n.getNextSibling()) {
-			if (n.getNodeType() == Node.ELEMENT_NODE && ANNOTATION_VALUES.equals(n.getNodeName())) {
-				expectedValues = (Element)n;
-			}
-		}
+		Element actualValues = findNamedChildElement(actualAnnot, ANNOTATION_VALUES_TAG);
+		Element expectedValues = findNamedChildElement(expectedAnnot, ANNOTATION_VALUES_TAG);
 		if (actualValues != null && expectedValues != null) {
 			if (!compareAnnotationValuesNodes(actualValues, expectedValues)) {
 				return false;
@@ -383,10 +425,10 @@ public class XMLComparer {
 	private boolean compareAnnotationValuesNodes(Element actual, Element expected) {
 		Node nActual = actual.getFirstChild();
 		for (Node nExpected = expected.getFirstChild(); nExpected != null; nExpected = nExpected.getNextSibling()) {
-			if (nExpected.getNodeType() == Node.ELEMENT_NODE && ANNOTATION_VALUE.equals(nExpected.getNodeName())) {
+			if (nExpected.getNodeType() == Node.ELEMENT_NODE && ANNOTATION_VALUE_TAG.equals(nExpected.getNodeName())) {
 				while (nActual != null && 
 						(nActual.getNodeType() != Node.ELEMENT_NODE || 
-						!ANNOTATION_VALUE.equals(nActual.getNodeName()))) {
+						!ANNOTATION_VALUE_TAG.equals(nActual.getNodeName()))) {
 					nActual = nActual.getNextSibling();
 				}
 				if (nActual == null) {
@@ -530,17 +572,43 @@ public class XMLComparer {
 		} else if (actualContents.annotations != null) {
 			// expectedAnnots == null
 			printProblem("Unexpected annotations within element: "
-					+ expectedDecl.getAttribute(SNAME));
+					+ expectedDecl.getAttribute(SNAME_TAG));
 			printDifferences();
 			return false;
 		} else if (expectedContents.annotations != null) {
 			// actualAnnots == null
 			printProblem("Missing expected annotations within element: "
-					+ actualDecl.getAttribute(SNAME));
+					+ actualDecl.getAttribute(SNAME_TAG));
 			printDifferences();
 			return false;
 		}
 		// both null at the same time is okay, not a mismatch
+		
+		// compare superclasses.  Ignore if reference does not specify a superclass.
+		if (expectedContents.superclass != null) {
+			if (actualContents.superclass == null) {
+				printProblem("No superclass found for element: " + actualDecl.getAttribute(SNAME_TAG));
+				printDifferences();
+				return false;
+			}
+			if (!compareSuperclassNodes(actualContents.superclass, expectedContents.superclass)) {
+				return false;
+			}
+		}
+		
+		// compare interface lists.  Ignore if reference does not specify interfaces.
+		// TODO: javac fails to provide unresolved interfaces.  Here, we ignore interfaces altogether
+		// if we're ignoring javac bugs, which means we also ignore the non-error cases.
+		if (expectedContents.interfaces != null && !_ignoreJavacBugs) {
+			if (actualContents.interfaces == null) {
+				printProblem("No interfaces list found for element: " + actualDecl.getAttribute(SNAME_TAG));
+				printDifferences();
+				return false;
+			}
+			if (!compareInterfacesNodes(actualContents.interfaces, expectedContents.interfaces)) {
+				return false;
+			}
+		}
 
 		// compare the child elements
 		if (!compareDeclarationContents(actualContents, expectedContents)) {
@@ -549,7 +617,116 @@ public class XMLComparer {
 
 		return true;
 	}
+	
+	/** 
+	 * Compare two interface lists, i.e., &lt;interfaces&gt; nodes.  
+	 * Each is expected to contain zero or more &lt;type-mirror&gt; nodes. 
+	 * The spec for {@link javax.lang.model.element.TypeElement#getInterfaces()}
+	 * does not say anything about the order of the items returned, so here we
+	 * load them into a Map<String, Element> keyed by the type's toString()
+	 * output.  Note that toString() on a TypeMirror is not very well
+	 * specified either, so this is not guaranteed to produce good results.
+	 * @param actual the observed &lt;interfaces&gt; node, must be non-null.
+	 * @param expected the reference &lt;interfaces&gt; node, must be non-null
+	 * @return true if the nodes are equivalent.
+	 */
+	private boolean compareInterfacesNodes(Element actual, Element expected) {
+		Map<String, Element> expectedTypes = new TreeMap<String, Element>();
+		Map<String, Element> actualTypes = new TreeMap<String, Element>();
+		if (!collectTypes(expected, expectedTypes)) {
+			return false;
+		}
+		if (!collectTypes(actual, actualTypes)) {
+			return false;
+		}
+		if (expectedTypes.size() != actualTypes.size()) {
+			if (_ignoreJavacBugs) {
+				// javac has a known bug where it does not correctly model 
+				// unresolved interface types.  Ideally we could still verify
+				// the resolved ones but that seems like more work than it's worth.
+				return true;
+			}
+			printProblem("Actual and expected interface lists have different sizes: expected = " +
+					expectedTypes.size() + ", actual = " + actualTypes.size());
+			printDifferences();
+			return false;
+		}
+		Iterator<Entry<String, Element>> expectedIter = expectedTypes.entrySet().iterator();
+		Iterator<Entry<String, Element>> actualIter = actualTypes.entrySet().iterator();
+		// if we got this far, the two maps are the same size
+		while (expectedIter.hasNext()) {
+			Entry<String, Element> expectedEntry = expectedIter.next();
+			Entry<String, Element> actualEntry = actualIter.next();
+			if (!compareTypeMirrors(actualEntry.getValue(), expectedEntry.getValue())) {
+				return false;
+			}
+		}
+		return true;
+	}
 
+	/**
+	 * Compare two &lt;superclass&gt; nodes.  Each is expected to contain
+	 * exactly one &lt;type-mirror&gt; node.
+	 * 
+	 * @param actual the observed &lt;superclass&gt; node; must not be null
+	 * @param expected the reference &lt;superclass&gt; node; must not be null
+	 * @return true if the superclass types are equivalent
+	 */
+	private boolean compareSuperclassNodes(Element actual, Element expected) {
+		Element expectedType = findNamedChildElement(expected, TYPE_MIRROR_TAG);
+		if (expectedType == null) {
+			// Syntax error in the reference model, i.e., problem in test code
+			printProblem("Bug in reference model: a <superclass> node was missing its <type-mirror> element");
+			printDifferences();
+			return false;
+		}
+		Element actualType = findNamedChildElement(actual, TYPE_MIRROR_TAG);
+		if (actualType == null) {
+			// This probably indicates a problem in the XMLConverter class
+			printProblem("Bug in test code: a <superclass> node was missing its <type-mirror> element in the XML model of the observed language model");
+			printDifferences();
+			return false;
+		}
+		return compareTypeMirrors(actualType, expectedType);
+	}
+	
+	private boolean compareTypeMirrors(Element actual, Element expected) {
+		String expectedKind = expected.getAttribute(KIND_TAG);
+		if (expectedKind != null && expectedKind.length() > 0) {
+			String actualKind = actual.getAttribute(KIND_TAG);
+			if (!expectedKind.equals(actualKind)) {
+				printProblem("Superclasses had different kind: expected " + expectedKind + " but found " + actualKind);
+				printDifferences();
+				return false;
+			}
+		}
+		if (!TYPEKIND_ERROR.equals(expectedKind)) {
+			String expectedToString = expected.getAttribute(TO_STRING_TAG);
+			if (expectedToString != null && expectedToString.length() > 0) {
+				String actualToString = actual.getAttribute(TO_STRING_TAG);
+				if (!expectedToString.equals(actualToString)) {
+					printProblem("Superclasses had different toString() output: expected " + expectedToString + " but found " + actualToString);
+					printDifferences();
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * Given some non-null parent, find the first child element with a particular name
+	 * @return the child, or null if one was not found
+	 */
+	private Element findNamedChildElement(Node parent, String name) {
+		for (Node n = parent.getFirstChild(); n != null; n = n.getNextSibling()) {
+			if (n.getNodeType() == Node.ELEMENT_NODE && name.equals(n.getNodeName())) {
+				return (Element)n;
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 * Locate the outer &lt;model&gt; node. This node should always exist unless the model is
 	 * completely empty.
@@ -557,16 +734,7 @@ public class XMLComparer {
 	 * @return the root model node, or null if one could not be found.
 	 */
 	private Element findRootNode(Document doc) {
-		Node model = null;
-		for (Node n = doc.getFirstChild(); n != null; n = n.getNextSibling()) {
-			if (Node.ELEMENT_NODE == n.getNodeType()) {
-				if (MODEL.equals(n.getNodeName())) {
-					model = n;
-					break;
-				}
-			}
-		}
-		return (Element) model;
+		return findNamedChildElement(doc, MODEL_TAG);
 	}
 
 	/**
@@ -585,6 +753,9 @@ public class XMLComparer {
 	 * Report a specific problem.
 	 */
 	private void printProblem(String msg) {
+		if (_summary != null) {
+			_summary.append(msg);
+		}
 		_out.println(msg);
 	}
 }

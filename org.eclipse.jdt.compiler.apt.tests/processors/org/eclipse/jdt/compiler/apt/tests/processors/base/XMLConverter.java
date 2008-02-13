@@ -24,6 +24,7 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementScanner6;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -39,10 +40,20 @@ import org.w3c.dom.Node;
 
 /**
  * Generate an XML representation of a language model.
+ * Changes to this class will generally require changes to
+ * the XMLComparer class (which compares documents generated
+ * by this class) and possibly to the reference models of
+ * various tests.
  * 
  * @since 3.4
  */
-public class XMLConverter extends ElementScanner6<Void, Node> {
+public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNames {
+	
+	private final Document _doc;
+	
+	private XMLConverter(Document doc) {
+		_doc = doc;
+	}
 	
 	/**
 	 * Convert an XML DOM document to a canonical string representation
@@ -73,9 +84,9 @@ public class XMLConverter extends ElementScanner6<Void, Node> {
 	public static Document convertModel(Iterable<? extends javax.lang.model.element.Element> declarations) throws ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		Document model = factory.newDocumentBuilder().newDocument();
-		org.w3c.dom.Element modelNode = model.createElement("model");
+		org.w3c.dom.Element modelNode = model.createElement(MODEL_TAG);
 		
-		XMLConverter converter = new XMLConverter();
+		XMLConverter converter = new XMLConverter(model);
 		converter.scan(declarations, modelNode);
 		model.appendChild(modelNode);
 		return model;
@@ -89,11 +100,9 @@ public class XMLConverter extends ElementScanner6<Void, Node> {
 	 */
 	@Override
 	public Void visitExecutable(ExecutableElement e, Node target) {
-		Document doc = target.getOwnerDocument();
-
-		Element executableNode = doc.createElement("executable-element");
-		executableNode.setAttribute("kind", e.getKind().name());
-		executableNode.setAttribute("sname", e.getSimpleName().toString());
+		Element executableNode = _doc.createElement(EXECUTABLE_ELEMENT_TAG);
+		executableNode.setAttribute(KIND_TAG, e.getKind().name());
+		executableNode.setAttribute(SNAME_TAG, e.getSimpleName().toString());
 
 		convertAnnotationMirrors(e, executableNode);
 
@@ -123,13 +132,13 @@ public class XMLConverter extends ElementScanner6<Void, Node> {
 	 */
 	@Override
 	public Void visitType(TypeElement e, Node target) {
-		Document doc = target.getOwnerDocument();
-
-		Element typeNode = doc.createElement("type-element");
-		typeNode.setAttribute("kind", e.getKind().name());
-		typeNode.setAttribute("sname", e.getSimpleName().toString());
-		typeNode.setAttribute("qname", e.getQualifiedName().toString());
-
+		Element typeNode = _doc.createElement(TYPE_ELEMENT_TAG);
+		typeNode.setAttribute(KIND_TAG, e.getKind().name());
+		typeNode.setAttribute(SNAME_TAG, e.getSimpleName().toString());
+		typeNode.setAttribute(QNAME_TAG, e.getQualifiedName().toString());
+		
+		convertSuperclass(e, typeNode);
+		convertInterfaces(e, typeNode);
 		convertAnnotationMirrors(e, typeNode);
 
 		target.appendChild(typeNode);
@@ -158,13 +167,11 @@ public class XMLConverter extends ElementScanner6<Void, Node> {
 	 */
 	@Override
 	public Void visitVariable(VariableElement e, Node target) {
-		Document doc = target.getOwnerDocument();
-
-		Element variableNode = doc.createElement("variable-element");
-		variableNode.setAttribute("kind", e.getKind().name());
-		variableNode.setAttribute("sname", e.getSimpleName().toString());
+		Element variableNode = _doc.createElement(VARIABLE_ELEMENT_TAG);
+		variableNode.setAttribute(KIND_TAG, e.getKind().name());
+		variableNode.setAttribute(SNAME_TAG, e.getSimpleName().toString());
 		// TODO: the spec does not restrict the toString() implementation
-		variableNode.setAttribute("type", e.asType().toString());
+		variableNode.setAttribute(TYPE_TAG, e.asType().toString());
 
 		convertAnnotationMirrors(e, variableNode);
 
@@ -175,10 +182,9 @@ public class XMLConverter extends ElementScanner6<Void, Node> {
 	}
 	
 	private void convertAnnotationMirrors(javax.lang.model.element.Element e, Node target) {
-		Document doc = target.getOwnerDocument();
 		List<? extends AnnotationMirror> mirrors = e.getAnnotationMirrors();
 		if (mirrors != null && !mirrors.isEmpty()) {
-			Element annotationsNode = doc.createElement("annotations");
+			Element annotationsNode = _doc.createElement(ANNOTATIONS_TAG);
 			for (AnnotationMirror am : mirrors) {
 				convertAnnotationMirror(am, annotationsNode);
 			}
@@ -201,23 +207,22 @@ public class XMLConverter extends ElementScanner6<Void, Node> {
 		if (annoElement == null) {
 			return;
 		}
-		Document doc = target.getOwnerDocument();
-		Element annoNode = doc.createElement("annotation");
+		Element annoNode = _doc.createElement(ANNOTATION_TAG);
 		String sname = am.getAnnotationType().asElement().getSimpleName().toString();
-		annoNode.setAttribute("sname", sname);
+		annoNode.setAttribute(SNAME_TAG, sname);
 		Map<? extends ExecutableElement, ? extends AnnotationValue> values = am.getElementValues();
 		if (values.size() > 0) {
-			Element valuesNode = doc.createElement("annotation-values");
+			Element valuesNode = _doc.createElement(ANNOTATION_VALUES_TAG);
 			annoNode.appendChild(valuesNode);
 			for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values
 					.entrySet()) {
 				AnnotationValue valueHolder = entry.getValue();
 				if (valueHolder != null) {
 					Object value = valueHolder.getValue();
-					Element valueNode = doc.createElement("annotation-value");
-					valueNode.setAttribute("member", entry.getKey().getSimpleName().toString());
-					valueNode.setAttribute("type", value.getClass().getName());
-					valueNode.setAttribute("value", value.toString());
+					Element valueNode = _doc.createElement(ANNOTATION_VALUE_TAG);
+					valueNode.setAttribute(MEMBER_TAG, entry.getKey().getSimpleName().toString());
+					valueNode.setAttribute(TYPE_TAG, value.getClass().getName());
+					valueNode.setAttribute(VALUE_TAG, value.toString());
 					valuesNode.appendChild(valueNode);
 				}
 			}
@@ -225,4 +230,52 @@ public class XMLConverter extends ElementScanner6<Void, Node> {
 		target.appendChild(annoNode);
 	}
 
+	/**
+	 * Scan a type for its extended and implemented interfaces and represent them
+	 * in XML.
+	 * @param target the node representing the type; an &lt;interfaces&gt; node
+	 * will be added as a child of this node, if any interfaces are found.
+	 */
+	private void convertInterfaces(TypeElement e, Node target) {
+		List<? extends TypeMirror> interfaces = e.getInterfaces();
+		if (interfaces != null && !interfaces.isEmpty()) {
+			Element interfacesNode = _doc.createElement(INTERFACES_TAG);
+			for (TypeMirror intfc : interfaces) {
+				convertTypeMirror(intfc, interfacesNode);
+			}
+			target.appendChild(interfacesNode);
+		}
+	}
+
+	/**
+	 * Create a node representing a class declaration's superclass
+	 * @param tmSuper
+	 * @param target
+	 */
+	private void convertSuperclass(TypeElement e, Node target) {
+		TypeMirror tmSuper = e.getSuperclass();
+		if (null != tmSuper) {
+			Element node = _doc.createElement(SUPERCLASS_TAG);
+			convertTypeMirror(tmSuper, node);
+			target.appendChild(node);
+		}
+	}
+
+	/**
+	 * Represent an arbitrary TypeMirror in XML, and append it as a child to
+	 * the specified parent node.  
+	 * 
+	 * Note this is problematic, because TypeMirror has no well-specified ways 
+	 * to canonicalize an arbitrary (and possibly erroneous) type.
+	 * 
+	 * @param tm must be non-null
+	 * @param target the parent XML node, to which this new node will be appended
+	 */
+	private void convertTypeMirror(TypeMirror tm, Node target) {
+		Element n = _doc.createElement(TYPE_MIRROR_TAG);
+		n.setAttribute(KIND_TAG, tm.getKind().name());
+		n.setAttribute(TO_STRING_TAG, tm.toString());
+		// TODO: potentially walk type-variables here
+		target.appendChild(n);
+	}
 }

@@ -11,8 +11,10 @@
 
 package org.eclipse.jdt.compiler.apt.tests.processors.negative;
 
+import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -60,12 +62,114 @@ import org.xml.sax.InputSource;
 public class NegativeModelProc extends AbstractProcessor
 {
 	/**
+	 * Reference model for types in Negative5 test
+	 */
+	private static final String NEGATIVE_4_MODEL = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
+		"<model>\n" + 
+		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative4\" sname=\"Negative4\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" + 
+		"  </superclass>\n" + 
+		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" + 
+		"  <executable-element kind=\"METHOD\" sname=\"zorkRaw\"/>\n" + 
+		"  <executable-element kind=\"METHOD\" sname=\"zorkOfString\"/>\n" + 
+		"  <executable-element kind=\"METHOD\" sname=\"ifooOfString\"/>\n" + 
+		"  <executable-element kind=\"METHOD\" sname=\"ibarRaw\"/>\n" + 
+		"  <executable-element kind=\"METHOD\" sname=\"ibarOfT1T2\"/>\n" + 
+		" </type-element>\n" + 
+		"</model>\n";
+
+	/**
+	 * Reference model for types in Negative5 test
+	 */
+	private static final String NEGATIVE_5_MODEL = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
+		"<model>\n" + 
+		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative5\" sname=\"Negative5\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" + 
+		"  </superclass>\n" + 
+		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" + 
+		"  <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative5.C1\" sname=\"C1\">\n" + 
+		"   <superclass>\n" + 
+		"    <type-mirror kind=\"ERROR\" to-string=\"M1\"/>\n" + 
+		"   </superclass>\n" + 
+		"   <interfaces>\n" + 
+		"    <type-mirror kind=\"ERROR\" to-string=\"M2\"/>\n" + 
+		"   </interfaces>\n" + 
+		"   <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" + 
+		"  </type-element>\n" + 
+		"  <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative5.C2\" sname=\"C2\">\n" + 
+		"   <superclass>\n" + 
+		"    <type-mirror kind=\"ERROR\" to-string=\"java.lang.Object\"/>\n" + 
+		"   </superclass>\n" + 
+		"   <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" + 
+		"  </type-element>\n" + 
+		"  <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative5.I1\" sname=\"I1\">\n" + 
+		"   <superclass>\n" + 
+		"    <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   </superclass>\n" + 
+		"   <interfaces>\n" + 
+		"    <type-mirror kind=\"ERROR\" to-string=\"M10\"/>\n" + 
+		"   </interfaces>\n" + 
+		"  </type-element>\n" + 
+		"  <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative5.I2\" sname=\"I2\">\n" + 
+		"   <superclass>\n" + 
+		"    <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   </superclass>\n" + 
+		"  </type-element>\n" + 
+		" </type-element>\n" + 
+		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.INegative5\" sname=\"INegative5\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"  </superclass>\n" + 
+		"  <type-element kind=\"CLASS\" qname=\"targets.negative.pa.INegative5.C101\" sname=\"C101\">\n" + 
+		"   <superclass>\n" + 
+		"    <type-mirror kind=\"ERROR\" to-string=\"M101\"/>\n" + 
+		"   </superclass>\n" + 
+		"   <interfaces>\n" + 
+		"    <type-mirror kind=\"ERROR\" to-string=\"M103\"/>\n" + 
+		"    <type-mirror kind=\"ERROR\" to-string=\"M104\"/>\n" + 
+		"   </interfaces>\n" + 
+		"   <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" + 
+		"  </type-element>\n" + 
+		"  <type-element kind=\"CLASS\" qname=\"targets.negative.pa.INegative5.C102\" sname=\"C102\">\n" + 
+		"   <superclass>\n" + 
+		"    <type-mirror kind=\"ERROR\" to-string=\"java.lang.Object\"/>\n" + 
+		"   </superclass>\n" + 
+		"   <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" + 
+		"  </type-element>\n" + 
+		"  <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.INegative5.I101\" sname=\"I101\">\n" + 
+		"   <superclass>\n" + 
+		"    <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   </superclass>\n" + 
+		"   <interfaces>\n" + 
+		"    <type-mirror kind=\"ERROR\" to-string=\"M110\"/>\n" + 
+		"    <type-mirror kind=\"ERROR\" to-string=\"M111\"/>\n" + 
+		"   </interfaces>\n" + 
+		"  </type-element>\n" + 
+		"  <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.INegative5.I102\" sname=\"I102\">\n" + 
+		"   <superclass>\n" + 
+		"    <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   </superclass>\n" + 
+		"   <interfaces>\n" + 
+		"    <type-mirror kind=\"ERROR\" to-string=\"M112\"/>\n" + 
+		"   </interfaces>\n" + 
+		"  </type-element>\n" + 
+		" </type-element>\n" + 
+		"</model>";
+	
+	/**
 	 * Reference model for class Negative6.
 	 */
 	private static final String NEGATIVE_6_MODEL = 
 		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
 		"<model>\n" + 
 		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative6\" sname=\"Negative6\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" + 
+		"  </superclass>\n" + 
 		"  <executable-element kind=\"METHOD\" sname=\"method1\">\n" + 
 		"   <annotations>\n" + 
 		"    <annotation sname=\"M11\"/>\n" + 
@@ -426,145 +530,33 @@ public class NegativeModelProc extends AbstractProcessor
 	 * Check the model of resources/targets.negative.pa.Negative4
 	 * @return true if all tests passed
 	 */
-	public boolean checkNegative4() {
+	public boolean checkNegative4() throws Exception {
 		TypeElement elementN4 = _elementUtils.getTypeElement("targets.negative.pa.Negative4");
 		if (null == elementN4 || elementN4.getKind() != ElementKind.CLASS) {
 			reportError("Element Negative4 was not found or was not a class");
 			return false;
 		}
-		boolean foundZorkRaw = false;
-		boolean foundZorkOfString = false;
-		boolean foundIFooOfString = false;
-		boolean foundIBarRaw = false;
-		boolean foundIBarOfT1T2 = false;
-		List<? extends Element> enclosedElements = elementN4.getEnclosedElements();
-		for (Element element : enclosedElements) {
-			ElementKind kind = element.getKind();
-			if (kind != ElementKind.METHOD)
-				continue;
-			String name = element.getSimpleName().toString();
-			if ("zorkRaw".equals(name)) {
-				foundZorkRaw = true;
-				TypeMirror retType = ((ExecutableElement)element).getReturnType();
-				TypeKind retKind = retType.getKind();
-				// javac returns ERROR type
-				if (retKind != TypeKind.DECLARED && retKind != TypeKind.ERROR) {
-					reportError("Return type of Negative4." + name + " should be DECLARED or ERROR, but is reported as " + retKind);
-					return false;
-				}
-			}
-			else if ("zorkOfString".equals(name)) {
-				foundZorkOfString = true;
-				TypeMirror retType = ((ExecutableElement)element).getReturnType();
-				TypeKind retKind = retType.getKind();
-				// javac returns ERROR type
-				if (retKind != TypeKind.DECLARED && retKind != TypeKind.ERROR) {
-					reportError("Return type of Negative4." + name + " should be DECLARED or ERROR, but is reported as " + retKind);
-					return false;
-				}
-			}
-			else if ("ifooOfString".equals(name)) {
-				foundIFooOfString = true;
-				TypeMirror retType = ((ExecutableElement)element).getReturnType();
-				TypeKind retKind = retType.getKind();
-				// javac returns ERROR type
-				if (retKind != TypeKind.DECLARED && retKind != TypeKind.ERROR) {
-					reportError("Return type of Negative4." + name + " should be DECLARED or ERROR, but is reported as " + retKind);
-					return false;
-				}
-			}
-			else if ("ibarRaw".equals(name)) {
-				foundIBarRaw = true;
-				TypeMirror retType = ((ExecutableElement)element).getReturnType();
-				TypeKind retKind = retType.getKind();
-				if (retKind != TypeKind.DECLARED && retKind != TypeKind.ERROR) {
-					reportError("Return type of Negative4." + name + " should be DECLARED or ERROR, but is reported as " + retKind);
-					return false;
-				}
-			}
-			else if ("ibarOfT1T2".equals(name)) {
-				foundIBarOfT1T2 = true;
-				TypeMirror retType = ((ExecutableElement)element).getReturnType();
-				TypeKind retKind = retType.getKind();
-				// javac returns ERROR type
-				if (retKind != TypeKind.DECLARED && retKind != TypeKind.ERROR) {
-					reportError("Return type of Negative4." + name + " should be DECLARED or ERROR, but is reported as " + retKind);
-					return false;
-				}
-			}
-		}
-		if (!foundZorkRaw) {
-			reportError("Didn't find element Negative4.zorkRaw");
-			return false;
-		}
-		if (!foundZorkOfString) {
-			reportError("Didn't find element Negative4.zorkOfString");
-			return false;
-		}
-		if (!foundIFooOfString) {
-			reportError("Didn't find element Negative4.ifooOfString");
-			return false;
-		}
-		if (!foundIBarRaw) {
-			reportError("Didn't find element Negative4.ibarRaw");
-			return false;
-		}
-		if (!foundIBarOfT1T2) {
-			reportError("Didn't find element Negative4.ibarOfT1T2");
-			return false;
-		}
-		return true;
+		
+		return checkModel(Collections.singletonList(elementN4), NEGATIVE_4_MODEL, "Negative4");
 	}
 
 	
-	/**
-	 * Check the model of resources/targets.negative.pa.Negative5
-	 * @return true if all tests passed
-	 */
-	public boolean checkNegative5() {
-		class TestElement {
-			String name;
-			TypeElement element;
-			TestElement(String name) {
-				this.name = name;
-				this.element = null;
-			}
+	public boolean checkNegative5() throws Exception {
+		List<TypeElement> rootElements = new ArrayList<TypeElement>();
+		TypeElement element = _elementUtils.getTypeElement("targets.negative.pa.Negative5");
+		if (null == element) {
+			reportError("Element Negative5 was not found");
+			return false;
 		}
-		
-		TestElement elements[] = new TestElement[] {
-			new TestElement("targets.negative.pa.Negative5.C1"),
-			new TestElement("targets.negative.pa.Negative5.C2"),
-			new TestElement("targets.negative.pa.Negative5.I1"),
-			new TestElement("targets.negative.pa.Negative5.I2"),
-			new TestElement("targets.negative.pa.INegative5.C101"),
-			new TestElement("targets.negative.pa.INegative5.C102"),
-			new TestElement("targets.negative.pa.INegative5.I101"),
-			new TestElement("targets.negative.pa.INegative5.I102")
-		};
-		for (TestElement testElement : elements) {
-			testElement.element = _elementUtils.getTypeElement(testElement.name);
-			if (null == testElement.element) {
-				reportError("Element " + testElement.name + " was not found");
-				return false;
-			}
-			
-			// TODO: there are substantial differences between javac and Eclipse in how
-			// missing types are recovered (e.g., as error types or as declared types),
-			// and the toString() implementations are also different.  The JSR269 spec
-			// does not require these to match.  Do we want to enforce matching anyway?
-			TypeMirror superClass = testElement.element.getSuperclass();
-			if (_reportFailingCases && superClass == null) {
-				reportError("Element " + testElement.name + " has null superclass");
-				return false;
-			}
-			List<? extends TypeMirror> superInterfaces = testElement.element.getInterfaces();
-			if (_reportFailingCases && !_ignoreJavacBugs && (superInterfaces == null || superInterfaces.isEmpty())) {
-				reportError("Element " + testElement.name + " has empty list of superinterfaces");
-				return false;
-			}
+		rootElements.add(element);
+		element = _elementUtils.getTypeElement("targets.negative.pa.INegative5");
+		if (null == element) {
+			reportError("Element INegative5 was not found");
+			return false;
 		}
+		rootElements.add(element);
 		
-		return true;
+		return checkModel(rootElements, NEGATIVE_5_MODEL, "Negative5");
 	}
 	
 	/**
@@ -580,15 +572,38 @@ public class NegativeModelProc extends AbstractProcessor
 			return false;
 		}
 		
-		Document actual = XMLConverter.convertModel(Collections.singleton(element));
+		return checkModel(Collections.singletonList(element), NEGATIVE_6_MODEL, "Negative6");
+	}
+	
+	/**
+	 * Compare a set of elements to a reference model, and output error information if there is a
+	 * mismatch.
+	 * 
+	 * @param rootElements
+	 * @param expected
+	 *            a string representation of the XML reference model, as it would be serialized by
+	 *            XMLConverter
+	 * @param name
+	 *            the name of the test, which is used for human-readable output
+	 * @return true if the actual and expected models were equivalent
+	 * @throws Exception
+	 */
+	private boolean checkModel(List<TypeElement> rootElements, String expected, String name) throws Exception {
+		Document actualModel = XMLConverter.convertModel(rootElements);
 		
-    	InputSource source = new InputSource(new StringReader(NEGATIVE_6_MODEL));
+    	InputSource source = new InputSource(new StringReader(expected));
     	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        Document expected = factory.newDocumentBuilder().parse(source);
+        Document expectedModel = factory.newDocumentBuilder().parse(source);
 
-        boolean success = XMLComparer.compare(actual, expected, System.out);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        StringBuilder summary = new StringBuilder();
+        summary.append("Test ").append(name).append(" failed; see console for details.  ");
+        boolean success = XMLComparer.compare(actualModel, expectedModel, out, summary, _ignoreJavacBugs);
         if (!success) {
-        	reportError("Test Negative6: mismatch between actual and expected models; see console for details.");
+        	System.out.println("Test " + name + " failed.  Detailed output follows:");
+        	System.out.print(out.toString());
+        	System.out.println("=============== end output ===============");
+        	reportError(summary.toString());
         }
         return success;
 	}
