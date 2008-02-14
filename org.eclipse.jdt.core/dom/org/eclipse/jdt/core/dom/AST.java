@@ -248,6 +248,7 @@ public final class AST {
 	 *     or <code>null</code> if none
 	 * @param isResolved whether the given compilation unit declaration is resolved
 	 * @return the compilation unit node
+	 * @since 3.4
 	 */
 	public static CompilationUnit convertCompilationUnit(
 		int level,
