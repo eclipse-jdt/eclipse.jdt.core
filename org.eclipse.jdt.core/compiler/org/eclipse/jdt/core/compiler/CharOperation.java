@@ -1133,7 +1133,7 @@ public static final char[] concat(char prefix, char[] array, char suffix) {
 
 /**
  * Answers the concatenation of the given array parts using the given separator between each
- * part and appending the given name at the end.
+ * part and prepending the given name at the beginning.
  * <br>
  * <br>
  * For example:<br>
@@ -1163,7 +1163,7 @@ public static final char[] concat(char prefix, char[] array, char suffix) {
  * @param array the given array
  * @param separator the given separator
  * @return the concatenation of the given array parts using the given separator between each
- * part and appending the given name at the end
+ * part and prepending the given name at the beginning
  */
 public static final char[] concatWith(
 	char[] name,
