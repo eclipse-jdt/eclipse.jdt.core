@@ -1598,10 +1598,6 @@ public final class AST {
 	 * To create an interface, use this method and then call
 	 * <code>TypeDeclaration.setInterface(true)</code>.
 	 * </p>
-	 * <p>
-	 * To create an enum declaration, use this method and then call
-	 * <code>TypeDeclaration.setEnumeration(true)</code>.
-	 * </p>
 	 *
 	 * @return a new unparented type declaration node
 	 */
