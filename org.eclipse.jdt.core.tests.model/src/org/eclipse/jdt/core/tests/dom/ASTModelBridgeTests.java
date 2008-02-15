@@ -150,6 +150,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"}"
 			}, 
 			"1.5");
+		setUpWorkingCopy();
+	}
+
+	private void setUpWorkingCopy() throws JavaModelException {
+		if (this.workingCopy != null)
+			this.workingCopy.discardWorkingCopy();
 		IProblemRequestor problemRequestor = new IProblemRequestor() {
 			public void acceptProblem(IProblem problem) {}
 			public void beginReporting() {}
@@ -1351,6 +1357,37 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			expected,
 			element
 		);
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a local variable in an anonymous type
+	 * in a discarded working copy is null.
+	 * (regression test for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=212096 )
+	 */
+	public void testLocalVariable4() throws JavaModelException {
+		try {
+			ASTNode node = buildAST(
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    new Object() {\n" +
+				"      void bar() {\n" +
+				"        int /*start*/local/*end*/;\n" +
+				"      }\n" +
+				"    };\n" +
+				"  }\n" +
+				"}"
+			);
+			IBinding binding = ((VariableDeclaration) node).resolveBinding();
+			this.workingCopy.discardWorkingCopy();
+			IJavaElement element = binding.getJavaElement();
+			assertEquals(
+				"Unexpected Java element",
+				null,
+				element
+			);
+		} finally {
+			setUpWorkingCopy();
+		}
 	}
 
 	/*

@@ -199,6 +199,7 @@ class VariableBinding implements IVariableBinding {
 		IMethodBinding declaringMethod = getDeclaringMethod();
 		if (declaringMethod == null) return null;
 		JavaElement method = (JavaElement) declaringMethod.getJavaElement();
+		if (method == null) return null;
 		if (!(this.resolver instanceof DefaultBindingResolver)) return null;
 		VariableDeclaration localVar = (VariableDeclaration) ((DefaultBindingResolver) this.resolver).bindingsToAstNodes.get(this);
 		if (localVar == null) return null;
