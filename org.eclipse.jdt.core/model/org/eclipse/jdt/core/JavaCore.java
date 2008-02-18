@@ -764,10 +764,11 @@ public final class JavaCore extends Plugin {
 	 * Compiler option ID: Reporting Unused Declared Thrown Exception.
 	 * <p>When enabled, the compiler will issue an error or a warning when a 
 	 *    method or a constructor is declaring a thrown exception, but never 
-	 *    actually raises it in its body. Depending on
+	 *    actually raises it in its body.
+	 * <p>This diagnostic is further tuned by options
+	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE},
 	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_UNCHECKED_EXCEPTIONS},
-	 *    only checked exceptions will be considered (default), or all 
-	 *    exceptions, including unchecked ones, will be considered. 
+	 *    and {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING}.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
@@ -810,8 +811,11 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Reporting Unused Declared Thrown Unchecked Exceptions.
 	 * <p>When enabled, the compiler will report unused declared thrown 
-	 *    exceptions for all exceptions, including unchecked ones. When 
-	 *    disabled, only checked exceptions will be considered.
+	 *    exceptions for all exceptions, including {@link java.lang.Throwable},
+	 *    {@link java.lang.Exception} and unchecked exceptions. When 
+	 *    disabled, only the checked exceptions other than 
+	 *    {@link java.lang.Throwable} and {@link java.lang.Exception} will be 
+	 *    considered.
 	 * <p>The severity of the problem is controlled with option 
 	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION}.
 	 * <dl>
