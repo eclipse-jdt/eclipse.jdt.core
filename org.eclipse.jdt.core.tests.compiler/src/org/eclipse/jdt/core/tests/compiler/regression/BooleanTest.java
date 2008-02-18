@@ -2390,6 +2390,67 @@ public void test049() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+
+public void test050() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		boolean t1 = true, t2 = true;\n" + 
+			"		if (t1){\n" + 
+			"		    if (t2){\n" + 
+			"		       return;\n" + 
+			"		    }\n" + 
+			"		    // dead goto bytecode\n" + 
+			"		}else{\n" + 
+			"			System.out.println();\n" + 
+			"		}		\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 1, Locals: 3\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  iconst_1\n" + 
+		"     1  istore_1 [t1]\n" + 
+		"     2  iconst_1\n" + 
+		"     3  istore_2 [t2]\n" + 
+		"     4  iload_1 [t1]\n" + 
+		"     5  ifeq 13\n" + 
+		"     8  iload_2 [t2]\n" + 
+		"     9  ifeq 19\n" + 
+		"    12  return\n" + 
+		"    13  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    16  invokevirtual java.io.PrintStream.println() : void [22]\n" + 
+		"    19  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 4, line: 4]\n" + 
+		"        [pc: 8, line: 5]\n" + 
+		"        [pc: 12, line: 6]\n" + 
+		"        [pc: 13, line: 10]\n" + 
+		"        [pc: 19, line: 12]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 20] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 2, pc: 20] local: t1 index: 1 type: boolean\n" + 
+		"        [pc: 4, pc: 20] local: t2 index: 2 type: boolean\n";
+	
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
 public static Class testClass() {
 	return BooleanTest.class;
 }
