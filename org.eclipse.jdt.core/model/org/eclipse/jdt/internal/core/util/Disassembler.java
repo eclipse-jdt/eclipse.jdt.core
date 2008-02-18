@@ -562,28 +562,77 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 		CharOperation.replace(methodDescriptor, '/', '.');
 		final boolean isVarArgs = isVarArgs(methodInfo);
+		char[] methodHeader = null;
 		if (methodInfo.isConstructor()) {
 			if (checkMode(mode, WORKING_COPY) && signatureAttribute != null) {
 				final char[] signature = signatureAttribute.getSignature();
 				CharOperation.replace(signature, '/', '.');
 				disassembleGenericSignature(mode, buffer, signature);
 				buffer.append(' ');
-				buffer.append(Signature.toCharArray(signature, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), false, isVarArgs));
+				methodHeader = Signature.toCharArray(signature, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), false, isVarArgs);
 			} else {
-				buffer.append(Signature.toCharArray(methodDescriptor, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), false, isVarArgs));
+				methodHeader = Signature.toCharArray(methodDescriptor, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), false, isVarArgs);
 			}
 		} else if (methodInfo.isClinit()) {
-			buffer.append(Messages.bind(Messages.classfileformat_clinitname));
+			methodHeader = Messages.bind(Messages.classfileformat_clinitname).toCharArray();
 		} else {
 			if (checkMode(mode, WORKING_COPY) && signatureAttribute != null) {
 				final char[] signature = signatureAttribute.getSignature();
 				CharOperation.replace(signature, '/', '.');
 				disassembleGenericSignature(mode, buffer, signature);
 				buffer.append(' ');
-				buffer.append(Signature.toCharArray(signature, methodInfo.getName(), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), true, isVarArgs));
+				methodHeader = Signature.toCharArray(signature, methodInfo.getName(), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), true, isVarArgs);
 			} else {
-				buffer.append(Signature.toCharArray(methodDescriptor, methodInfo.getName(), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), true, isVarArgs));
+				methodHeader = Signature.toCharArray(methodDescriptor, methodInfo.getName(), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), true, isVarArgs);
 			}
+		}
+		if (checkMode(mode, DETAILED) && (runtimeInvisibleParameterAnnotationsAttribute != null || runtimeVisibleParameterAnnotationsAttribute != null)) {
+			IParameterAnnotation[] invisibleParameterAnnotations = null;
+			IParameterAnnotation[] visibleParameterAnnotations = null;
+			int length = -1;
+			if (runtimeInvisibleParameterAnnotationsAttribute != null) {
+				IRuntimeInvisibleParameterAnnotationsAttribute attribute = (IRuntimeInvisibleParameterAnnotationsAttribute) runtimeInvisibleParameterAnnotationsAttribute;
+				invisibleParameterAnnotations = attribute.getParameterAnnotations();
+				length = invisibleParameterAnnotations.length;
+			}
+			if (runtimeVisibleParameterAnnotationsAttribute != null) {
+				IRuntimeVisibleParameterAnnotationsAttribute attribute = (IRuntimeVisibleParameterAnnotationsAttribute) runtimeVisibleParameterAnnotationsAttribute;
+				visibleParameterAnnotations = attribute.getParameterAnnotations();
+				length = visibleParameterAnnotations.length;
+			}
+			int insertionPosition = CharOperation.indexOf('(', methodHeader) + 1;
+			int start = 0;
+			StringBuffer stringBuffer = new StringBuffer();
+			stringBuffer.append(methodHeader, 0, insertionPosition);
+			for (int i = 0; i < length; i++) {
+				if (i > 0) {
+					stringBuffer.append(' ');
+				}
+				int stringBufferSize = stringBuffer.length();
+				if (runtimeVisibleParameterAnnotationsAttribute != null) {
+					disassembleAsModifier((IRuntimeVisibleParameterAnnotationsAttribute) runtimeVisibleParameterAnnotationsAttribute, stringBuffer, i, lineSeparator, tabNumber, mode);
+				}
+				if (runtimeInvisibleParameterAnnotationsAttribute != null) {
+					if (stringBuffer.length() != stringBufferSize) {
+						stringBuffer.append(' ');
+						stringBufferSize = stringBuffer.length();
+					}
+					disassembleAsModifier((IRuntimeInvisibleParameterAnnotationsAttribute) runtimeInvisibleParameterAnnotationsAttribute, stringBuffer, i, lineSeparator, tabNumber, mode);
+				}
+				if (i == 0 && stringBuffer.length() != stringBufferSize) {
+					stringBuffer.append(' ');
+				}
+				start = insertionPosition;
+				insertionPosition = CharOperation.indexOf(',', methodHeader, start + 1) + 1;
+				if (insertionPosition == 0) {
+					stringBuffer.append(methodHeader, start, methodHeader.length - start);
+				} else {
+					stringBuffer.append(methodHeader, start, insertionPosition - start);
+				}
+			}
+			buffer.append(stringBuffer);
+		} else {
+			buffer.append(methodHeader);
 		}
 		IExceptionAttribute exceptionAttribute = methodInfo.getExceptionAttribute();
 		if (exceptionAttribute != null) {
@@ -1853,6 +1902,30 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	private void disassembleAsModifier(IRuntimeInvisibleAnnotationsAttribute runtimeInvisibleAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		IAnnotation[] annotations = runtimeInvisibleAnnotationsAttribute.getAnnotations();
 		for (int i = 0, max = annotations.length; i < max; i++) {
+			disassembleAsModifier(annotations[i], buffer, lineSeparator, tabNumber + 1, mode);
+		}
+	}
+
+	private void disassembleAsModifier(IRuntimeInvisibleParameterAnnotationsAttribute runtimeInvisibleParameterAnnotationsAttribute, StringBuffer buffer, int index, String lineSeparator, int tabNumber, int mode) {
+		IParameterAnnotation[] parameterAnnotations = runtimeInvisibleParameterAnnotationsAttribute.getParameterAnnotations();
+		if (parameterAnnotations.length > index) {
+			disassembleAsModifier(parameterAnnotations[index], buffer, lineSeparator, tabNumber + 1, mode);
+		}
+	}
+
+	private void disassembleAsModifier(IRuntimeVisibleParameterAnnotationsAttribute runtimeVisibleParameterAnnotationsAttribute, StringBuffer buffer, int index, String lineSeparator, int tabNumber, int mode) {
+		IParameterAnnotation[] parameterAnnotations = runtimeVisibleParameterAnnotationsAttribute.getParameterAnnotations();
+		if (parameterAnnotations.length > index) {
+			disassembleAsModifier(parameterAnnotations[index], buffer, lineSeparator, tabNumber + 1, mode);
+		}
+	}
+
+	private void disassembleAsModifier(IParameterAnnotation parameterAnnotation, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+		IAnnotation[] annotations = parameterAnnotation.getAnnotations();
+		for (int i = 0, max = annotations.length; i < max; i++) {
+			if (i > 0) {
+				buffer.append(' ');
+			}
 			disassembleAsModifier(annotations[i], buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
