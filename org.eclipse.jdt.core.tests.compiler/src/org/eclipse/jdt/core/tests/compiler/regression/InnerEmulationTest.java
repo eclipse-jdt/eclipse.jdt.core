@@ -6273,6 +6273,187 @@ public void test152() {
 				"");	
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=201487
+public void _test153() {
+	long compliance = new CompilerOptions(getCompilerOptions()).complianceLevel;
+	if (compliance <= ClassFileConstants.JDK1_4) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public class Test3 {\n" + 
+					"		protected void load() {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	public class Test2 {\n" + 
+					"		public Test2(String string, Test3 test3) {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	private String var1;\n" + 
+					"private class Test5 {\n" + 
+					"		private class Test4 extends Test2 {\n" + 
+					"			public Test4() {\n" + 
+					"				super(\"available\", new Test3() {\n" + 
+					"					protected void load() {\n" + 
+					"						System.out.println(X.this.var1.trim());\n" + 
+					"						System.out.println(var1.trim());\n" + 
+					"					}\n" + 
+					"				});\n" + 
+					"			}\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}", // =================
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 11)\n" + 
+				"	private class Test5 {\n" + 
+				"	              ^^^^^\n" + 
+				"The type X.Test5 is never used locally\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 12)\n" + 
+				"	private class Test4 extends Test2 {\n" + 
+				"	              ^^^^^\n" + 
+				"The type X.Test5.Test4 is never used locally\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 16)\n" + 
+				"	System.out.println(X.this.var1.trim());\n" + 
+				"	                   ^^^^^^\n" + 
+				"No enclosing instance of the type X is accessible in scope\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 16)\n" + 
+				"	System.out.println(X.this.var1.trim());\n" + 
+				"	                          ^^^^\n" + 
+				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+				"----------\n" + 
+				"5. WARNING in X.java (at line 17)\n" + 
+				"	System.out.println(var1.trim());\n" + 
+				"	                   ^^^^\n" + 
+				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 17)\n" + 
+				"	System.out.println(var1.trim());\n" + 
+				"	                   ^^^^\n" + 
+				"No enclosing instance of the type X is accessible in scope\n" + 
+				"----------\n");	
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public class Test3 {\n" + 
+					"		protected void load() {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	public class Test2 {\n" + 
+					"		public Test2(String string, Test3 test3) {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	private String var1;\n" + 
+					"private class Test5 {\n" + 
+					"		private class Test4 extends Test2 {\n" + 
+					"			public Test4() {\n" + 
+					"				super(\"available\", new Test3() {\n" + 
+					"					protected void load() {\n" + 
+					"						System.out.println(X.this.var1.trim());\n" + 
+					"						System.out.println(var1.trim());\n" + 
+					"					}\n" + 
+					"				});\n" + 
+					"			}\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}", // =================
+				},
+				"");	
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=201487 - variatiion
+public void test154() {
+	long compliance = new CompilerOptions(getCompilerOptions()).complianceLevel;
+	if (compliance <= ClassFileConstants.JDK1_4) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public class Test3 {\n" + 
+					"		protected void load() {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	public class Test2 {\n" + 
+					"		public Test2(String string, Test3 test3) {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	private String var1;\n" + 
+					"//	private class Test5 {\n" + 
+					"		private class Test4 extends Test2 {\n" + 
+					"			public Test4() {\n" + 
+					"				super(\"available\", new Test3() {\n" + 
+					"					protected void load() {\n" + 
+					"						System.out.println(X.this.var1.trim());\n" + 
+					"						System.out.println(var1.trim());\n" + 
+					"					}\n" + 
+					"				});\n" + 
+					"			}\n" + 
+					"		}\n" + 
+					"//	}\n" + 
+					"}", // =================
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 12)\n" + 
+				"	private class Test4 extends Test2 {\n" + 
+				"	              ^^^^^\n" + 
+				"The type X.Test4 is never used locally\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 16)\n" + 
+				"	System.out.println(X.this.var1.trim());\n" + 
+				"	                   ^^^^^^\n" + 
+				"No enclosing instance of the type X is accessible in scope\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 16)\n" + 
+				"	System.out.println(X.this.var1.trim());\n" + 
+				"	                          ^^^^\n" + 
+				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 17)\n" + 
+				"	System.out.println(var1.trim());\n" + 
+				"	                   ^^^^\n" + 
+				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 17)\n" + 
+				"	System.out.println(var1.trim());\n" + 
+				"	                   ^^^^\n" + 
+				"No enclosing instance of the type X is accessible in scope\n" + 
+				"----------\n");	
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public class Test3 {\n" + 
+					"		protected void load() {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	public class Test2 {\n" + 
+					"		public Test2(String string, Test3 test3) {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	private String var1;\n" + 
+					"//	private class Test5 {\n" + 
+					"		private class Test4 extends Test2 {\n" + 
+					"			public Test4() {\n" + 
+					"				super(\"available\", new Test3() {\n" + 
+					"					protected void load() {\n" + 
+					"						System.out.println(X.this.var1.trim());\n" + 
+					"						System.out.println(var1.trim());\n" + 
+					"					}\n" + 
+					"				});\n" + 
+					"			}\n" + 
+					"		}\n" + 
+					"//	}\n" + 
+					"}", // =================
+				},
+				"");	
+	}
+}
 
 public static Class testClass() {
 	return InnerEmulationTest.class;
