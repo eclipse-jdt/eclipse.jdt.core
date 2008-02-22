@@ -325,10 +325,10 @@ private void fixSupertypeBindings() {
 				TypeDeclaration typeDeclaration = scope.referenceContext;
 				TypeReference superclassRef = typeDeclaration == null ? null : typeDeclaration.superclass;
 				TypeBinding superclass = superclassRef == null ? null : superclassRef.resolvedType;
-				if (superclass instanceof ProblemReferenceBinding) {
-					superclass = ((ProblemReferenceBinding) superclass).closestMatch();
-				}
 				if (superclass != null) {
+					superclass = superclass.closestMatch();
+				}
+				if (superclass instanceof ReferenceBinding) {
 					// ensure we are not creating a cycle (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=215681 )
 					if (!(subTypeOfType((ReferenceBinding) superclass, typeBinding))) {
 						((SourceTypeBinding) typeBinding).superclass = (ReferenceBinding) superclass;
@@ -342,21 +342,14 @@ private void fixSupertypeBindings() {
 					interfaceBindings = new ReferenceBinding[length];
 					int index = 0;
 					for (int i = 0; i < length; i++) {
-						ReferenceBinding superInterface = (ReferenceBinding) superInterfaces[i].resolvedType;
+						TypeBinding superInterface = superInterfaces[i].resolvedType;
 						if (superInterface != null) {
-							if (!superInterface.isValidBinding()) {
-								TypeBinding closestMatch = superInterface.closestMatch();
-								if (closestMatch instanceof ReferenceBinding) {
-									superInterface = (ReferenceBinding) closestMatch;
-								} else {
-									superInterface = null;
-								}
-							}
-							if (superInterface != null) {
-								// ensure we are not creating a cycle (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=215681 )
-								if (!(subTypeOfType(superInterface, typeBinding))) {
-									interfaceBindings[index++] = superInterface;
-								}
+							superInterface = superInterface.closestMatch();
+						}
+						if (superInterface instanceof ReferenceBinding) {
+							// ensure we are not creating a cycle (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=215681 )
+							if (!(subTypeOfType((ReferenceBinding) superInterface, typeBinding))) {
+								interfaceBindings[index++] = (ReferenceBinding) superInterface;
 							}
 						}
 					}
