@@ -217,17 +217,10 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	synchronized IMethodBinding getMethodBinding(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
- 		if (methodBinding != null) {
-			//if ((methodBinding.tagBits & TagBits.HasMissingType) != 0 
-			//		&& !this.isRecoveringBindings()
-			//		&& !methodBinding.declaringClass.isBinaryBinding()) { // binaries have been resilient since 3.2.2
-			//	return null;
-			//}
-			if (!methodBinding.isValidBinding()) {
-				org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding problemMethodBinding =
-					(org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding) methodBinding;
-				methodBinding = problemMethodBinding.closestMatch;
- 			}
+ 		if (methodBinding != null && !methodBinding.isValidBinding()) {
+			org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding problemMethodBinding =
+				(org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding) methodBinding;
+			methodBinding = problemMethodBinding.closestMatch;
  		}
 
 		if (methodBinding != null) {
@@ -381,11 +374,6 @@ class DefaultBindingResolver extends BindingResolver {
 	synchronized IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding variableBinding, VariableDeclaration variableDeclaration) {
 		if (this.isRecoveringBindings) {
 			if (variableBinding != null) {
-				//if ((variableBinding.tagBits & TagBits.HasMissingType) != 0 
-				//		&& !this.isRecoveringBindings()
-				//		&& (variableBinding.kind() == Binding.FIELD && !((FieldBinding)variableBinding).declaringClass.isBinaryBinding())) { // binaries have been resilient since 3.2.2
-				//	return null;
-				//}				
 				if (variableBinding.isValidBinding()) {
 					IVariableBinding binding = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(variableBinding);
 					if (binding != null) {
@@ -479,9 +467,6 @@ class DefaultBindingResolver extends BindingResolver {
 
 	synchronized IAnnotationBinding getAnnotationInstance(org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalInstance) {
 		if (internalInstance == null) return null;
-		//if ((internalInstance.getAnnotationType().tagBits & TagBits.HasMissingType) != 0 && !this.isRecoveringBindings) {
-		//	return null;
-		//}
 		IAnnotationBinding domInstance =
 			(IAnnotationBinding) this.bindingTables.compilerBindingsToASTBindings.get(internalInstance);
 		if (domInstance != null)
@@ -491,9 +476,6 @@ class DefaultBindingResolver extends BindingResolver {
 		return domInstance;
 	}
 
-	boolean isRecoveringBindings() {
-		return this.isRecoveringBindings;
-	}
 	boolean isResolvedTypeInferredFromExpectedType(MethodInvocation methodInvocation) {
 		Object oldNode = this.newAstToOldAst.get(methodInvocation);
 		if (oldNode instanceof MessageSend) {
