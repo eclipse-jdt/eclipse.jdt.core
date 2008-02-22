@@ -46,6 +46,11 @@ Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
 <br>Project org.eclipse.jdt.core v_839
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_839">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>The compiler is now better resilient to missing types referenced from sources. This will improve secondary errors, 
+and all JDT stack manipulating DOM AST and bindings. Annotation processors are also now able to see such missing types
+(also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=196200">196200</a>). </li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 
