@@ -934,9 +934,7 @@ public void markAsNonNull() {
 		return null;
 	}
 
-	public TypeBinding resolveTypeExpecting(
-		BlockScope scope,
-		TypeBinding expectedType) {
+	public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedType) {
 
 		this.setExpectedType(expectedType); // needed in case of generic method invocation
 		TypeBinding expressionType = this.resolveType(scope);
@@ -947,7 +945,7 @@ public void markAsNonNull() {
 			if (scope.isBoxingCompatibleWith(expressionType, expectedType)) {
 				this.computeConversion(scope, expectedType, expressionType);
 			} else {
-				scope.problemReporter().typeMismatchError(expressionType, expectedType, this);
+				scope.problemReporter().typeMismatchError(expressionType, expectedType, this, null);
 				return null;
 			}
 		}

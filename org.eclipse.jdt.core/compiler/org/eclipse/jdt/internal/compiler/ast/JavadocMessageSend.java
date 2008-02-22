@@ -129,6 +129,10 @@ public class JavadocMessageSend extends MessageSend {
 			}
 		}
 		if (!this.binding.isValidBinding()) {
+			if (this.receiver.resolvedType instanceof ProblemReferenceBinding) {
+				// problem already got signaled on receiver, do not report secondary problem
+				return null;
+			}					
 			if (this.binding.declaringClass == null) {
 				if (this.actualReceiverType instanceof ReferenceBinding) {
 					this.binding.declaringClass = (ReferenceBinding) this.actualReceiverType;

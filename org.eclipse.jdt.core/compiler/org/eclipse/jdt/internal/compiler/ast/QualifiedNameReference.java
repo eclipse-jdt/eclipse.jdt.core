@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
@@ -980,7 +981,7 @@ public StringBuffer printExpression(int indent, StringBuffer output) {
 public TypeBinding reportError(BlockScope scope) {
 	if (this.binding instanceof ProblemFieldBinding) {
 		scope.problemReporter().invalidField(this, (FieldBinding) this.binding);
-	} else if (this.binding instanceof ProblemReferenceBinding) {
+	} else if (this.binding instanceof ProblemReferenceBinding || this.binding instanceof MissingTypeBinding) {
 		scope.problemReporter().invalidType(this, (TypeBinding) this.binding);
 	} else {
 		scope.problemReporter().unresolvableReference(this, this.binding);
@@ -999,13 +1000,23 @@ public TypeBinding resolveType(BlockScope scope) {
 			case Binding.VARIABLE : //============only variable===========
 			case Binding.TYPE | Binding.VARIABLE :
 				if (this.binding instanceof LocalVariableBinding) {
-					if (!((LocalVariableBinding) this.binding).isFinal() && ((this.bits & ASTNode.DepthMASK) != 0))
-						scope.problemReporter().cannotReferToNonFinalOuterLocal(
-							(LocalVariableBinding) this.binding,
-							this);
+					LocalVariableBinding local = (LocalVariableBinding) this.binding;
+					if (!local.isFinal() && ((this.bits & ASTNode.DepthMASK) != 0))
+						scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding) this.binding, this);
 					this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
 					this.bits |= Binding.LOCAL;
-					return this.resolvedType = getOtherFieldBindings(scope);
+					if (local.type != null && (local.type.tagBits & TagBits.HasMissingType) != 0) {
+						// only complain if field reference (for local, its type got flagged already)
+						return null;
+					}
+					this.resolvedType = getOtherFieldBindings(scope);
+					if (this.resolvedType != null 
+							&& (this.resolvedType.tagBits & TagBits.HasMissingType) != 0) {
+						FieldBinding lastField = this.otherBindings[this.otherBindings.length - 1];
+						scope.problemReporter().invalidField(this, new ProblemFieldBinding(lastField.declaringClass, lastField.name, ProblemReasons.NotFound), this.tokens.length, this.resolvedType.leafComponentType());
+						return null;
+					}
+					return this.resolvedType;					
 				}
 				if (this.binding instanceof FieldBinding) {
 					FieldBinding fieldBinding = (FieldBinding) this.binding;
@@ -1032,8 +1043,14 @@ public TypeBinding resolveType(BlockScope scope) {
 //							if (isTypeUseDeprecated(this.actualReceiverType, scope))
 //								scope.problemReporter().deprecatedType(this.actualReceiverType, this);
 //						}
-					
-					return this.resolvedType = getOtherFieldBindings(scope);
+					this.resolvedType = getOtherFieldBindings(scope);
+					if (this.resolvedType != null 
+							&& (this.resolvedType.tagBits & TagBits.HasMissingType) != 0) {
+						FieldBinding lastField = this.indexOfFirstFieldBinding == this.tokens.length ? (FieldBinding)this.binding : this.otherBindings[this.otherBindings.length - 1];
+						scope.problemReporter().invalidField(this, new ProblemFieldBinding(lastField.declaringClass, lastField.name, ProblemReasons.NotFound), this.tokens.length, this.resolvedType.leafComponentType());
+						return null;
+					}
+					return this.resolvedType;
 				}
 				// thus it was a type
 				this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits

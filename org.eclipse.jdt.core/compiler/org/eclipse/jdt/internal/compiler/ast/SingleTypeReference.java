@@ -59,12 +59,15 @@ public class SingleTypeReference extends TypeReference {
 	}
 
 	public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
-
-		TypeBinding memberType = scope.getMemberType(token, enclosingType);
+		TypeBinding memberType = this.resolvedType = scope.getMemberType(token, enclosingType);
+		boolean hasError = false;
 		if (!memberType.isValidBinding()) {
-			this.resolvedType = memberType;
+			hasError = true;		
 			scope.problemReporter().invalidEnclosingType(this, memberType, enclosingType);
-			return null;
+			memberType = ((ReferenceBinding)memberType).closestMatch();
+			if (memberType == null) {
+				return null;
+			}
 		}
 		if (isTypeUseDeprecated(memberType, scope))
 			scope.problemReporter().deprecatedType(memberType, this);
@@ -74,6 +77,10 @@ public class SingleTypeReference extends TypeReference {
 				&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore){
 			scope.problemReporter().rawTypeReference(this, memberType);
 		}
+		if (hasError) {
+			// do not store the computed type, keep the problem type instead
+			return memberType;
+		}		
 		return this.resolvedType = memberType;
 	}
 

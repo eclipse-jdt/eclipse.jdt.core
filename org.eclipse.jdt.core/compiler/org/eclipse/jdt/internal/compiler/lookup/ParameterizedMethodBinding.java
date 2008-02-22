@@ -109,6 +109,26 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		    // error case where exception type variable would have been substituted by a non-reference type (207573)
 		    if (this.thrownExceptions == null) this.thrownExceptions = Binding.NO_EXCEPTIONS;	    			
 		}
+		checkMissingType: {
+			if ((this.tagBits & TagBits.HasMissingType) != 0) 
+				break checkMissingType;
+			if ((this.returnType.tagBits & TagBits.HasMissingType) != 0) {
+				this.tagBits |=  TagBits.HasMissingType;
+				break checkMissingType;
+			}
+			for (int i = 0, max = this.parameters.length; i < max; i++) {
+				if ((this.parameters[i].tagBits & TagBits.HasMissingType) != 0) {
+					this.tagBits |=  TagBits.HasMissingType;
+					break checkMissingType;
+				}
+			}
+			for (int i = 0, max = this.thrownExceptions.length; i < max; i++) {
+				if ((this.thrownExceptions[i].tagBits & TagBits.HasMissingType) != 0) {
+					this.tagBits |=  TagBits.HasMissingType;
+					break checkMissingType;
+				}
+			}			
+		}
 	}
 	
 	/**
@@ -200,6 +220,26 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		    // error case where exception type variable would have been substituted by a non-reference type (207573)
 		    if (this.thrownExceptions == null) this.thrownExceptions = Binding.NO_EXCEPTIONS;	    			
 		}
+		checkMissingType: {
+			if ((this.tagBits & TagBits.HasMissingType) != 0) 
+				break checkMissingType;
+			if ((this.returnType.tagBits & TagBits.HasMissingType) != 0) {
+				this.tagBits |=  TagBits.HasMissingType;
+				break checkMissingType;
+			}
+			for (int i = 0, max = this.parameters.length; i < max; i++) {
+				if ((this.parameters[i].tagBits & TagBits.HasMissingType) != 0) {
+					this.tagBits |=  TagBits.HasMissingType;
+					break checkMissingType;
+				}
+			}
+			for (int i = 0, max = this.thrownExceptions.length; i < max; i++) {
+				if ((this.thrownExceptions[i].tagBits & TagBits.HasMissingType) != 0) {
+					this.tagBits |=  TagBits.HasMissingType;
+					break checkMissingType;
+				}
+			}			
+		}		
 	}
 
 	public ParameterizedMethodBinding() {
@@ -218,6 +258,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		method.originalMethod = originalMethod;
 		method.parameters = originalMethod.parameters;
 		method.thrownExceptions = originalMethod.thrownExceptions;
+		method.tagBits = originalMethod.tagBits;
 		ReferenceBinding genericClassType = scope.getJavaLangClass();
 		LookupEnvironment environment = scope.environment();
 		TypeBinding rawType = environment.convertToRawType(receiverType.erasure(), false /*do not force conversion of enclosing types*/);
@@ -225,6 +266,9 @@ public class ParameterizedMethodBinding extends MethodBinding {
 			genericClassType,
 			new TypeBinding[] {  environment.createWildcard(genericClassType, 0, rawType, null /*no extra bound*/, Wildcard.EXTENDS) },
 			null);
+		if ((method.returnType.tagBits & TagBits.HasMissingType) != 0) {
+			method.tagBits |=  TagBits.HasMissingType;
+		}
 		return method;
 	}
 

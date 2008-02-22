@@ -946,22 +946,32 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	public void p_foo(inr a, inx b, inq c) {\n"
 					+ "	}\n"
 					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 8)\n"
-				+ "	public void p_foo(inr a, inx b, inq c) {\n"
-				+ "	                  ^^^\n"
-				+ "inr cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 8)\n"
-				+ "	public void p_foo(inr a, inx b, inq c) {\n"
-				+ "	                         ^^^\n"
-				+ "inx cannot be resolved to a type\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 8)\n"
-				+ "	public void p_foo(inr a, inx b, inq c) {\n"
-				+ "	                                ^^^\n"
-				+ "inq cannot be resolved to a type\n"
-				+ "----------\n");
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	* @param b Valid param\n" + 
+				"	         ^\n" + 
+				"Javadoc: Duplicate tag for parameter\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	public void p_foo(inr a, inx b, inq c) {\n" + 
+				"	                  ^^^\n" + 
+				"inr cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 8)\n" + 
+				"	public void p_foo(inr a, inx b, inq c) {\n" + 
+				"	                      ^\n" + 
+				"Javadoc: Missing tag for parameter a\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
+				"	public void p_foo(inr a, inx b, inq c) {\n" + 
+				"	                         ^^^\n" + 
+				"inx cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 8)\n" + 
+				"	public void p_foo(inr a, inx b, inq c) {\n" + 
+				"	                                ^^^\n" + 
+				"inq cannot be resolved to a type\n" + 
+				"----------\n");
 	}
 
 	public void test037() {

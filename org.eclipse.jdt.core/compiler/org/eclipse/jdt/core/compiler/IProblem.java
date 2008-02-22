@@ -348,12 +348,10 @@ void setSourceStart(int sourceStart);
 	int IndirectAccessToStaticField = Internal + FieldRelated + 78;
 	/** @since 3.0 */
 	int UnqualifiedFieldAccess = Internal + FieldRelated + 79;
-	
-	// blank final fields
 	int FinalFieldAssignment = FieldRelated + 80;
 	int UninitializedBlankFinalField = FieldRelated + 81;
 	int DuplicateBlankFinalFieldInitialization = FieldRelated + 82;
-
+	
 	// variable hiding
 	/** @since 3.0 */
 	int LocalVariableHidingLocalVariable = Internal + 90;		
@@ -393,8 +391,12 @@ void setSourceStart(int sourceStart);
 	int UnusedPrivateMethod = Internal + MethodRelated + 118;
 	/** @since 3.0 */
 	int IndirectAccessToStaticMethod = Internal + MethodRelated + 119;
-
+	/** @since 3.4 */
+	int MissingTypeInMethod = MethodRelated + 120;
+	
 	// constructors
+	/** @since 3.4 */
+	int MissingTypeInConstructor = ConstructorRelated + 129;
 	int UndefinedConstructor = ConstructorRelated + 130;
 	int NotVisibleConstructor = ConstructorRelated + 131;
 	int AmbiguousConstructor = ConstructorRelated + 132;

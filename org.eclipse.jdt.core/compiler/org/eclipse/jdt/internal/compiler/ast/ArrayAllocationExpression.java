@@ -155,6 +155,9 @@ public class ArrayAllocationExpression extends Expression {
 				if ((this.initializer.resolveTypeExpecting(scope, this.resolvedType)) != null)
 					this.initializer.binding = (ArrayBinding)this.resolvedType;
 			}
+			if ((referenceType.tagBits & TagBits.HasMissingType) != 0) {
+				return null;
+			}
 		}
 		return this.resolvedType;
 	}

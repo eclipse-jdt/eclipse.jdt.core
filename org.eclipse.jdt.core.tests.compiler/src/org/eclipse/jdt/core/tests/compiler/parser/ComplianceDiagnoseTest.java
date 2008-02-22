@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -484,6 +484,11 @@ public void test0011() {
 		"	<Y1, Y2>this(null);\n" + 
 		"	     ^^\n" + 
 		"Y2 cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	<Y1, Y2>this(null);\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"The constructor X(null) is undefined\n" + 
 		"----------\n";
 	
 	runComplianceParserTest(
@@ -2029,11 +2034,6 @@ public void test0044() {
 		"	<String>super(\"SUCCESS\");\n" + 
 		"	 ^^^^^^\n" + 
 		"Syntax error, parameterized types are only available if source level is 1.5\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 9)\n" + 
-		"	<String>super(\"SUCCESS\");\n" + 
-		"	        ^^^^^^^^^^^^^^^^^\n" + 
-		"The constructor X(String) is undefined\n" + 
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -78,22 +80,6 @@ public final boolean areParameterErasuresEqual(MethodBinding method) {
 			return false;
 	return true;
 }
-/* Answer true if the argument types & the receiver's parameters are equal
-*/
-public final boolean areParametersEqual(MethodBinding method) {
-	TypeBinding[] args = method.parameters;
-	if (parameters == args)
-		return true;
-
-	int length = parameters.length;
-	if (length != args.length)
-		return false;
-	
-	for (int i = 0; i < length; i++)
-		if (parameters[i] != args[i])
-			return false;
-	return true;
-}
 /*
  * Returns true if given parameters are compatible with this method parameters.
  * Callers to this method should first check that the number of TypeBindings
@@ -125,24 +111,27 @@ public final boolean areParametersCompatibleWith(TypeBinding[] arguments) {
 			return false;
 	return true;
 }
+/* Answer true if the argument types & the receiver's parameters are equal
+*/
+public final boolean areParametersEqual(MethodBinding method) {
+	TypeBinding[] args = method.parameters;
+	if (parameters == args)
+		return true;
+
+	int length = parameters.length;
+	if (length != args.length)
+		return false;
+	
+	for (int i = 0; i < length; i++)
+		if (parameters[i] != args[i])
+			return false;
+	return true;
+}
 
 /* API
 * Answer the receiver's binding type from Binding.BindingID.
 */
 
-public final int kind() {
-	return Binding.METHOD;
-}
-/* Answer true if the receiver is visible to the invocationPackage.
-*/
-
-public final boolean canBeSeenBy(PackageBinding invocationPackage) {
-	if (isPublic()) return true;
-	if (isPrivate()) return false;
-
-	// isProtected() or isDefault()
-	return invocationPackage == declaringClass.getPackage();
-}
 /* Answer true if the type variables have the same erasure
 */
 public final boolean areTypeVariableErasuresEqual(MethodBinding method) {
@@ -202,6 +191,14 @@ public final boolean canBeSeenBy(InvocationSite invocationSite, Scope scope) {
 	// isDefault()
 	return invocationType.fPackage == declaringClass.fPackage;
 }
+public final boolean canBeSeenBy(PackageBinding invocationPackage) {
+	if (isPublic()) return true;
+	if (isPrivate()) return false;
+
+	// isProtected() or isDefault()
+	return invocationPackage == declaringClass.getPackage();
+}
+
 /* Answer true if the receiver is visible to the type provided by the scope.
 * InvocationSite implements isSuperAccess() to provide additional information
 * if the receiver is protected.
@@ -299,6 +296,28 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	} while ((currentType = currentType.superclass()) != null);
 	return false;
 }
+
+public List collectMissingTypes(List missingTypes) {
+	if ((this.tagBits & TagBits.HasMissingType) != 0) {
+		missingTypes = this.returnType.collectMissingTypes(missingTypes);
+		for (int i = 0, max = this.parameters.length; i < max; i++) {
+			missingTypes = this.parameters[i].collectMissingTypes(missingTypes);
+		}
+		for (int i = 0, max = this.thrownExceptions.length; i < max; i++) {
+			missingTypes = this.thrownExceptions[i].collectMissingTypes(missingTypes);
+		}
+		for (int i = 0, max = this.typeVariables.length; i < max; i++) {
+			TypeVariableBinding variable = this.typeVariables[i];
+			missingTypes = variable.superclass().collectMissingTypes(missingTypes);
+			ReferenceBinding[] interfaces = variable.superInterfaces();
+			for (int j = 0, length = interfaces.length; j < length; j++) {
+				missingTypes = interfaces[i].collectMissingTypes(missingTypes);
+			}
+		}
+	}
+	return missingTypes;
+}
+
 MethodBinding computeSubstitutedMethod(MethodBinding method, LookupEnvironment env) {
 	int length = this.typeVariables.length;
 	TypeVariableBinding[] vars = method.typeVariables;
@@ -315,6 +334,7 @@ MethodBinding computeSubstitutedMethod(MethodBinding method, LookupEnvironment e
 			return null;
 	return substitute;
 }
+
 /*
  * declaringUniqueKey dot selector genericSignature
  * p.X { <T> void bar(X<T> t) } --> Lp/X;.bar<T:Ljava/lang/Object;>(LX<TT;>;)V
@@ -368,9 +388,9 @@ public char[] computeUniqueKey(boolean isLeaf) {
 			}
 		}
 	}
-
 	return uniqueKey;
 }
+
 /* 
  * Answer the declaring class to use in the constant pool
  * may not be a reference binding (see subtypes)
@@ -378,6 +398,7 @@ public char[] computeUniqueKey(boolean isLeaf) {
 public TypeBinding constantPoolDeclaringClass() {
 	return this.declaringClass;
 }
+
 /* Answer the receiver's constant pool name.
 *
 * <init> for constructors
@@ -387,6 +408,7 @@ public TypeBinding constantPoolDeclaringClass() {
 public final char[] constantPoolName() {
 	return selector;
 }
+
 /**
  *<typeParam1 ... typeParamM>(param1 ... paramN)returnType thrownException1 ... thrownExceptionP
  * T foo(T t) throws X<T>   --->   (TT;)TT;LX<TT;>;
@@ -431,52 +453,14 @@ public char[] genericSignature() {
 	sig.getChars(0, sigLength, genericSignature, 0);	
 	return genericSignature;
 }
+
+public final int getAccessFlags() {
+	return modifiers & ExtraCompilerModifiers.AccJustFlag;
+}
+
 public AnnotationBinding[] getAnnotations() {
 	MethodBinding originalMethod = this.original();
 	return originalMethod.declaringClass.retrieveAnnotations(originalMethod);
-}
-/**
- * @return the annotations for each of the method parameters or <code>null></code>
- * 	if there's no parameter or no annotation at all.
- */
-public AnnotationBinding[][] getParameterAnnotations() {
-	int length = this.parameters.length;
-	if (this.parameters == null || length == 0) {
-		return null;
-	}
-	MethodBinding originalMethod = this.original();
-	AnnotationHolder holder = originalMethod.declaringClass.retrieveAnnotationHolder(originalMethod, true);
-	AnnotationBinding[][] allParameterAnnotations = holder == null ? null : holder.getParameterAnnotations();
-	if (allParameterAnnotations == null && (this.tagBits & TagBits.HasParameterAnnotations) != 0) {
-		allParameterAnnotations = new AnnotationBinding[length][];
-		// forward reference to method, where param annotations have not yet been associated to method
-		if (this.declaringClass instanceof SourceTypeBinding) {
-			SourceTypeBinding sourceType = (SourceTypeBinding) this.declaringClass;
-			if (sourceType.scope != null) {
-				AbstractMethodDeclaration methodDecl = sourceType.scope.referenceType().declarationOf(this);
-				for (int i = 0; i < length; i++) {
-					Argument argument = methodDecl.arguments[i];
-					if (argument.annotations != null) {
-						ASTNode.resolveAnnotations(methodDecl.scope, argument.annotations, argument.binding);
-						allParameterAnnotations[i] = argument.binding.getAnnotations();
-					}
-				}
-			} else {
-				for (int i = 0; i < length; i++) {
-					allParameterAnnotations[i] = Binding.NO_ANNOTATIONS;
-				}
-			}
-		} else {
-			for (int i = 0; i < length; i++) {
-				allParameterAnnotations[i] = Binding.NO_ANNOTATIONS;
-			}
-		}
-		this.setParameterAnnotations(allParameterAnnotations);
-	}
-	return allParameterAnnotations;
-}
-public final int getAccessFlags() {
-	return modifiers & ExtraCompilerModifiers.AccJustFlag;
 }
 
 /**
@@ -519,6 +503,47 @@ public Object getDefaultValue() {
 	AnnotationHolder holder = originalMethod.declaringClass.retrieveAnnotationHolder(originalMethod, true);
 	return holder == null ? null : holder.getDefaultValue();
 }
+
+/**
+ * @return the annotations for each of the method parameters or <code>null></code>
+ * 	if there's no parameter or no annotation at all.
+ */
+public AnnotationBinding[][] getParameterAnnotations() {
+	int length = this.parameters.length;
+	if (this.parameters == null || length == 0) {
+		return null;
+	}
+	MethodBinding originalMethod = this.original();
+	AnnotationHolder holder = originalMethod.declaringClass.retrieveAnnotationHolder(originalMethod, true);
+	AnnotationBinding[][] allParameterAnnotations = holder == null ? null : holder.getParameterAnnotations();
+	if (allParameterAnnotations == null && (this.tagBits & TagBits.HasParameterAnnotations) != 0) {
+		allParameterAnnotations = new AnnotationBinding[length][];
+		// forward reference to method, where param annotations have not yet been associated to method
+		if (this.declaringClass instanceof SourceTypeBinding) {
+			SourceTypeBinding sourceType = (SourceTypeBinding) this.declaringClass;
+			if (sourceType.scope != null) {
+				AbstractMethodDeclaration methodDecl = sourceType.scope.referenceType().declarationOf(this);
+				for (int i = 0; i < length; i++) {
+					Argument argument = methodDecl.arguments[i];
+					if (argument.annotations != null) {
+						ASTNode.resolveAnnotations(methodDecl.scope, argument.annotations, argument.binding);
+						allParameterAnnotations[i] = argument.binding.getAnnotations();
+					}
+				}
+			} else {
+				for (int i = 0; i < length; i++) {
+					allParameterAnnotations[i] = Binding.NO_ANNOTATIONS;
+				}
+			}
+		} else {
+			for (int i = 0; i < length; i++) {
+				allParameterAnnotations[i] = Binding.NO_ANNOTATIONS;
+			}
+		}
+		this.setParameterAnnotations(allParameterAnnotations);
+	}
+	return allParameterAnnotations;
+}
 public TypeVariableBinding getTypeVariable(char[] variableName) {
 	for (int i = this.typeVariables.length; --i >= 0;)
 		if (CharOperation.equals(this.typeVariables[i].sourceName, variableName))
@@ -532,7 +557,6 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
 public boolean hasSubstitutedParameters() {
 	return false;
 }
-
 /* Answer true if the return type got substituted.
  */
 public boolean hasSubstitutedReturnType() {
@@ -589,18 +613,6 @@ public final boolean isImplementing() {
 	return (modifiers & ExtraCompilerModifiers.AccImplementing) != 0;
 }
 
-/* Answer true if the receiver is a native method
-*/
-public final boolean isNative() {
-	return (modifiers & ClassFileConstants.AccNative) != 0;
-}
-
-/* Answer true if the receiver is overriding another method
- * Only set for source methods
-*/
-public final boolean isOverriding() {
-	return (modifiers & ExtraCompilerModifiers.AccOverriding) != 0;
-}
 /*
  * Answer true if the receiver is a "public static void main(String[])" method
  */
@@ -616,18 +628,24 @@ public final boolean isMain() {
 	}
 	return false;
 }
+
+/* Answer true if the receiver is a native method
+*/
+public final boolean isNative() {
+	return (modifiers & ClassFileConstants.AccNative) != 0;
+}
+
+/* Answer true if the receiver is overriding another method
+ * Only set for source methods
+*/
+public final boolean isOverriding() {
+	return (modifiers & ExtraCompilerModifiers.AccOverriding) != 0;
+}
 /* Answer true if the receiver has private visibility
 */
 public final boolean isPrivate() {
 	return (modifiers & ClassFileConstants.AccPrivate) != 0;
 }
-
-/* Answer true if the receiver has private visibility and is used locally
-*/
-public final boolean isUsed() {
-	return (modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0;
-}
-
 /* Answer true if the receiver has protected visibility
 */
 public final boolean isProtected() {
@@ -664,6 +682,12 @@ public final boolean isSynthetic() {
 	return (modifiers & ClassFileConstants.AccSynthetic) != 0;
 }
 
+/* Answer true if the receiver has private visibility and is used locally
+*/
+public final boolean isUsed() {
+	return (modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0;
+}
+
 /* Answer true if the receiver method has varargs
 */
 public final boolean isVarargs() {
@@ -675,6 +699,12 @@ public final boolean isVarargs() {
 public final boolean isViewedAsDeprecated() {
 	return (modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0;
 }
+
+public final int kind() {
+	return Binding.METHOD;
+}
+/* Answer true if the receiver is visible to the invocationPackage.
+*/
 
 /**
  * Returns the original method (as opposed to parameterized instances)
@@ -723,6 +753,11 @@ public void setParameterAnnotations(AnnotationBinding[][] parameterAnnotations) 
 	else
 		setAnnotations(holder.getAnnotations(), parameterAnnotations, holder.getDefaultValue());
 }
+protected final void setSelector(char[] selector) {
+	this.selector = selector;
+	this.signature = null;
+}
+
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
  */
@@ -745,11 +780,6 @@ public char[] shortReadableName() {
 	char[] shortReadableName = new char[nameLength];
 	buffer.getChars(0, nameLength, shortReadableName, 0);	    
 	return shortReadableName;
-}
-
-protected final void setSelector(char[] selector) {
-	this.selector = selector;
-	this.signature = null;
 }
 
 /* Answer the receiver's signature.
@@ -974,45 +1004,49 @@ public final int sourceStart() {
 	return method.sourceStart;
 }
 
-public String toString() {
-	String s = (returnType != null) ? returnType.debugName() : "NULL TYPE"; //$NON-NLS-1$
-	s += " "; //$NON-NLS-1$
-	s += (selector != null) ? new String(selector) : "UNNAMED METHOD"; //$NON-NLS-1$
-
-	s += "("; //$NON-NLS-1$
-	if (parameters != null) {
-		if (parameters != Binding.NO_PARAMETERS) {
-			for (int i = 0, length = parameters.length; i < length; i++) {
-				if (i  > 0)
-					s += ", "; //$NON-NLS-1$
-				s += (parameters[i] != null) ? parameters[i].debugName() : "NULL TYPE"; //$NON-NLS-1$
-			}
-		}
-	} else {
-		s += "NULL PARAMETERS"; //$NON-NLS-1$
-	}
-	s += ") "; //$NON-NLS-1$
-
-	if (thrownExceptions != null) {
-		if (thrownExceptions != Binding.NO_EXCEPTIONS) {
-			s += "throws "; //$NON-NLS-1$
-			for (int i = 0, length = thrownExceptions.length; i < length; i++) {
-				if (i  > 0)
-					s += ", "; //$NON-NLS-1$
-				s += (thrownExceptions[i] != null) ? thrownExceptions[i].debugName() : "NULL TYPE"; //$NON-NLS-1$
-			}
-		}
-	} else {
-		s += "NULL THROWN EXCEPTIONS"; //$NON-NLS-1$
-	}
-	return s;
-}
 /**
  * Returns the method to use during tiebreak (usually the method itself).
  * For generic method invocations, tiebreak needs to use generic method with erasure substitutes.
  */
 public MethodBinding tiebreakMethod() {
 	return this;
+}
+public String toString() {
+	StringBuffer output = new StringBuffer(10);
+	if ((this.modifiers & ExtraCompilerModifiers.AccUnresolved) != 0) {
+		output.append("[unresolved] "); //$NON-NLS-1$
+	}
+	ASTNode.printModifiers(this.modifiers, output);
+	output.append(returnType != null ? returnType.debugName() : "<no type>"); //$NON-NLS-1$
+	output.append(" "); //$NON-NLS-1$
+	output.append(selector != null ? new String(selector) : "<no selector>"); //$NON-NLS-1$
+	output.append("("); //$NON-NLS-1$
+	if (parameters != null) {
+		if (parameters != Binding.NO_PARAMETERS) {
+			for (int i = 0, length = parameters.length; i < length; i++) {
+				if (i  > 0)
+					output.append(", "); //$NON-NLS-1$
+				output.append(parameters[i] != null ? parameters[i].debugName() : "<no argument type>"); //$NON-NLS-1$
+			}
+		}
+	} else {
+		output.append("<no argument types>"); //$NON-NLS-1$
+	}
+	output.append(") "); //$NON-NLS-1$
+
+	if (thrownExceptions != null) {
+		if (thrownExceptions != Binding.NO_EXCEPTIONS) {
+			output.append("throws "); //$NON-NLS-1$
+			for (int i = 0, length = thrownExceptions.length; i < length; i++) {
+				if (i  > 0)
+					output.append(", "); //$NON-NLS-1$
+				output.append((thrownExceptions[i] != null) ? thrownExceptions[i].debugName() : "<no exception type>"); //$NON-NLS-1$
+			}
+		}
+	} else {
+		output.append("<no exception types>"); //$NON-NLS-1$
+	}
+	return output.toString();
 }
 public TypeVariableBinding[] typeVariables() {
 	return this.typeVariables;

@@ -186,13 +186,13 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	TypeBinding lhsType = lhs.resolveType(scope);
 	this.expression.setExpectedType(lhsType); // needed in case of generic method invocation
-	if (lhsType != null) 
+	if (lhsType != null) {
 		this.resolvedType = lhsType.capture(scope, this.sourceEnd);
+	}
 	TypeBinding rhsType = this.expression.resolveType(scope);
 	if (lhsType == null || rhsType == null) {
 		return null;
 	}
-	
 	// check for assignment with no effect
 	Binding left = getDirectBinding(this.lhs);
 	if (left != null && left == getDirectBinding(this.expression)) {
@@ -201,8 +201,9 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	// Compile-time conversion of base-types : implicit narrowing integer into byte/short/character
 	// may require to widen the rhs expression at runtime
-	if (lhsType != rhsType) // must call before computeConversion() and typeMismatchError()
+	if (lhsType != rhsType) { // must call before computeConversion() and typeMismatchError()
 		scope.compilationUnitScope().recordTypeConversion(lhsType, rhsType);
+	}
 	if ((this.expression.isConstantValueOfTypeAssignableToType(rhsType, lhsType)
 			|| (lhsType.isBaseType() && BaseTypeBinding.isWidening(lhsType.id, rhsType.id)))
 			|| rhsType.isCompatibleWith(lhsType)) {
@@ -224,8 +225,8 @@ public TypeBinding resolveType(BlockScope scope) {
 			CastExpression.checkNeedForAssignedCast(scope, lhsType, (CastExpression) this.expression);
 		}			
 		return this.resolvedType;
-	} 
-	scope.problemReporter().typeMismatchError(rhsType, lhsType, this.expression);
+	}
+	scope.problemReporter().typeMismatchError(rhsType, lhsType, this.expression, this.lhs);
 	return lhsType;
 }
 

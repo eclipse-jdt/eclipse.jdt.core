@@ -240,7 +240,10 @@ public void resolve(MethodScope initializationScope) {
 						CastExpression.checkNeedForAssignedCast(initializationScope, fieldType, (CastExpression) this.initialization);
 					}							
 				} else {
-					initializationScope.problemReporter().typeMismatchError(initializationType, fieldType, this.initialization);
+					if ((fieldType.tagBits & TagBits.HasMissingType) == 0) {
+						// if problem already got signaled on type, do not report secondary problem
+						initializationScope.problemReporter().typeMismatchError(initializationType, fieldType, this.initialization, null);
+					}		
 				}
 				if (this.binding.isFinal()){ // cast from constant actual type to variable type
 					this.binding.setConstant(this.initialization.constant.castTo((this.binding.type.id << 4) + this.initialization.constant.typeID()));

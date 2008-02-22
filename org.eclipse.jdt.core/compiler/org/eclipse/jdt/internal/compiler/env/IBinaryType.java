@@ -72,6 +72,12 @@ IBinaryNestedType[] getMemberTypes();
 IBinaryMethod[] getMethods();
 
 /**
+ * Answer the list of missing type names which were referenced from
+ * the problem classfile. This list is encoded via an extra attribute.
+ */
+char[][][] getMissingTypeNames();
+
+/**
  * Answer the resolved name of the type in the
  * class file format as specified in section 4.2 of the Java 2 VM spec.
  *

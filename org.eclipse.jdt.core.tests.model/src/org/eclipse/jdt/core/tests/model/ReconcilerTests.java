@@ -2206,8 +2206,12 @@ public void testMethodWithError08() throws CoreException {
 		this.workingCopy.open(null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" +
-			"----------\n" // shouldn't report problem against p2.X01
+			"----------\n" + 
+			"1. ERROR in /Reconciler/src/p2/X01.java (at line 2)\n" + 
+			"	public class X01 extends p1.X01 {\n" + 
+			"	             ^^^\n" + 
+			"The type X01 must implement the inherited abstract method X01.foo(Zork)\n" + 
+			"----------\n"
 		);
 	} finally {
 		deleteFile("/Reconciler/src/p1/X01.java");
@@ -3943,19 +3947,17 @@ public void test1001() throws CoreException, InterruptedException, IOException {
 		this.problemRequestor.initialize(sourcesAsCharArrays[2]);
 		this.workingCopies[2] = getCompilationUnit("/P3/Y.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems("Working copy should have problems:",
-			"----------\n" +
-			"1. ERROR in /P3/Y.java (at line 1)\n" +
-			"	class Y implements I {\n" +
-			"	      ^\n" +
-// we miss the first diagnostic - see justification in bugzilla
-//			"The type Y must implement the inherited abstract method I.bar(X)\n" +
-//			"----------\n" +
-//			"2. ERROR in /P3/Y.java (at line 1)\n" +
-//			"	class Y implements I {\n" +
-//			"	      ^\n" +
-			"The type Y must implement the inherited abstract method I.foo()\n" +
-			"----------\n"
-		);
+				"----------\n" + 
+				"1. ERROR in /P3/Y.java (at line 1)\n" + 
+				"	class Y implements I {\n" + 
+				"	      ^\n" + 
+				"The type Y must implement the inherited abstract method I.bar(X)\n" + 
+				"----------\n" + 
+				"2. ERROR in /P3/Y.java (at line 1)\n" + 
+				"	class Y implements I {\n" + 
+				"	      ^\n" + 
+				"The type Y must implement the inherited abstract method I.foo()\n" + 
+				"----------\n");
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");

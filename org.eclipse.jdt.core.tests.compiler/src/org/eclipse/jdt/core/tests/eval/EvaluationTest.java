@@ -80,6 +80,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 								}
 							}
 						} catch (ClassFormatException e) {
+							e.printStackTrace();
 						}
 					}
 				}

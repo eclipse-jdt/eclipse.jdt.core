@@ -267,7 +267,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		TypeBinding[] rawArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
 			rawArguments[i] =  environment.convertToRawType(originalVariables[i].erasure(), false /*do not force conversion of enclosing types*/);
-		}		
+		}
 	    this.isRaw = true;
 	    this.tagBits = originalMethod.tagBits;
 	    this.environment = environment;
@@ -311,6 +311,26 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    // error case where exception type variable would have been substituted by a non-reference type (207573)
 	    if (this.thrownExceptions == null) this.thrownExceptions = Binding.NO_EXCEPTIONS;	    
 	    this.returnType = Scope.substitute(this, originalMethod.returnType);
+		checkMissingType: {
+			if ((this.tagBits & TagBits.HasMissingType) != 0) 
+				break checkMissingType;
+			if ((this.returnType.tagBits & TagBits.HasMissingType) != 0) {
+				this.tagBits |=  TagBits.HasMissingType;
+				break checkMissingType;
+			}
+			for (int i = 0, max = this.parameters.length; i < max; i++) {
+				if ((this.parameters[i].tagBits & TagBits.HasMissingType) != 0) {
+					this.tagBits |=  TagBits.HasMissingType;
+					break checkMissingType;
+				}
+			}
+			for (int i = 0, max = this.thrownExceptions.length; i < max; i++) {
+				if ((this.thrownExceptions[i].tagBits & TagBits.HasMissingType) != 0) {
+					this.tagBits |=  TagBits.HasMissingType;
+					break checkMissingType;
+				}
+			}			
+		}			    
 	    this.wasInferred = true;// resulting from method invocation inferrence
 	}
 
@@ -335,7 +355,6 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		char[] result = new char[resultLength];
 		buffer.getChars(0, resultLength, result, 0);	
 		return result;
-		
 	}
 	
 	/**
@@ -438,6 +457,26 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.thrownExceptions = Scope.substitute(this, this.thrownExceptions);
 	    // error case where exception type variable would have been substituted by a non-reference type (207573)
 	    if (this.thrownExceptions == null) this.thrownExceptions = Binding.NO_EXCEPTIONS;
+		checkMissingType: {
+			if ((this.tagBits & TagBits.HasMissingType) != 0) 
+				break checkMissingType;
+			if ((this.returnType.tagBits & TagBits.HasMissingType) != 0) {
+				this.tagBits |=  TagBits.HasMissingType;
+				break checkMissingType;
+			}
+			for (int i = 0, max = this.parameters.length; i < max; i++) {
+				if ((this.parameters[i].tagBits & TagBits.HasMissingType) != 0) {
+					this.tagBits |=  TagBits.HasMissingType;
+					break checkMissingType;
+				}
+			}
+			for (int i = 0, max = this.thrownExceptions.length; i < max; i++) {
+				if ((this.thrownExceptions[i].tagBits & TagBits.HasMissingType) != 0) {
+					this.tagBits |=  TagBits.HasMissingType;
+					break checkMissingType;
+				}
+			}			
+		}			    
 	    return this;
 	}
 

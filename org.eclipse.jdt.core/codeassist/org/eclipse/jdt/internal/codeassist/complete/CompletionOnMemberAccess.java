@@ -55,7 +55,7 @@ public class CompletionOnMemberAccess extends FieldReference {
 		
 		this.receiverType = receiver.resolveType(scope);
 		
-		if (this.receiverType == null && receiver instanceof MessageSend) {
+		if ((this.receiverType == null || !this.receiverType.isValidBinding()) && receiver instanceof MessageSend) {
 			MessageSend messageSend = (MessageSend) receiver;
 			if(messageSend.receiver instanceof ThisReference) {
 				Expression[] arguments = messageSend.arguments;
@@ -73,7 +73,7 @@ public class CompletionOnMemberAccess extends FieldReference {
 			}
 		}
 		
-		if (this.receiverType == null || this.receiverType.isBaseType())
+		if (this.receiverType == null || this.receiverType.isBaseType() || !this.receiverType.isValidBinding())
 			throw new CompletionNodeFound();
 		else
 			throw new CompletionNodeFound(this, this.receiverType, scope);

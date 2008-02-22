@@ -107,20 +107,28 @@ class MethodBinding implements IMethodBinding {
 		if (this.annotations != null) {
 			return this.annotations;
 		}
-		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] annots = this.binding.getAnnotations();
-		int length = annots == null ? 0 : annots.length;
-		if (length == 0) {
-			return this.annotations = AnnotationBinding.NoAnnotations;
-		}
-		IAnnotationBinding[] domInstances = new AnnotationBinding[length];
-		for (int i = 0; i < length; i++) {
-			final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(annots[i]);
-			if (annotationInstance == null) {
-				return this.annotations = AnnotationBinding.NoAnnotations;
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations = this.binding.getAnnotations();
+		int length = internalAnnotations == null ? 0 : internalAnnotations.length;
+		if (length != 0) {
+			IAnnotationBinding[] tempAnnotations = new IAnnotationBinding[length];
+			int convertedAnnotationCount = 0;
+			for (int i = 0; i < length; i++) {
+				org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalAnnotation = internalAnnotations[i];
+				final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(internalAnnotation);
+				if (annotationInstance == null) {
+					continue;
+				}
+				tempAnnotations[convertedAnnotationCount++] = annotationInstance;
 			}
-			domInstances[i] = annotationInstance;
+			if (convertedAnnotationCount != length) {
+				if (convertedAnnotationCount == 0) {
+					return this.annotations = AnnotationBinding.NoAnnotations;
+				}
+				System.arraycopy(tempAnnotations, 0, (tempAnnotations = new IAnnotationBinding[convertedAnnotationCount]), 0, convertedAnnotationCount);
+			}
+			return this.annotations = tempAnnotations;
 		}
-		return this.annotations = domInstances;
+		return this.annotations = AnnotationBinding.NoAnnotations;
 	}
 
 	/**

@@ -209,7 +209,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 							CastExpression.checkNeedForAssignedCast(scope, variableType, (CastExpression) this.initialization);
 						}	
 					} else {
-						scope.problemReporter().typeMismatchError(initializationType, variableType, this.initialization);
+						if ((variableType.tagBits & TagBits.HasMissingType) == 0) {
+							// if problem already got signaled on type, do not report secondary problem
+							scope.problemReporter().typeMismatchError(initializationType, variableType, this.initialization, null);
+						}								
 					}
 				}
 			}

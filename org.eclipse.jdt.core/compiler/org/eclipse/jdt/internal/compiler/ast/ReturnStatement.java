@@ -250,7 +250,7 @@ public void resolve(BlockScope scope) {
 			CastExpression.checkNeedForAssignedCast(scope, methodType, (CastExpression) this.expression);
 		}			return;
 	}
-	scope.problemReporter().typeMismatchError(expressionType, methodType, this.expression);
+	scope.problemReporter().typeMismatchError(expressionType, methodType, this.expression, null);
 }
 
 public void traverse(ASTVisitor visitor, BlockScope scope) {

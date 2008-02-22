@@ -29,36 +29,28 @@ import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	
-	final static int BUILD_FIELDS_AND_METHODS = 4;
-	final static int BUILD_TYPE_HIERARCHY = 1;
-	final static int CHECK_AND_SET_IMPORTS = 2;
-	final static int CONNECT_TYPE_HIERARCHY = 3;
-	static final ProblemPackageBinding TheNotFoundPackage = new ProblemPackageBinding(CharOperation.NO_CHAR, NotFound);
-	static final ProblemReferenceBinding TheNotFoundType = new ProblemReferenceBinding(CharOperation.NO_CHAR, null, NotFound);
-	
 	/**
 	 * Map from typeBinding -> accessRestriction rule
 	 */
 	private Map accessRestrictions;
 	ImportBinding[] defaultImports;
-
 	public PackageBinding defaultPackage;
 	HashtableOfPackage knownPackages;
 	private int lastCompletedUnitIndex = -1;
 	private int lastUnitIndex = -1;
-
+	
 	public INameEnvironment nameEnvironment;
 	public CompilerOptions globalOptions;
+
 	public ProblemReporter problemReporter;
-
 	public ClassFilePool classFilePool;
-
 	// indicate in which step on the compilation we are.
 	// step 1 : build the reference binding
 	// step 2 : conect the hierarchy (connect bindings)
 	// step 3 : build fields and method bindings.
 	private int stepCompleted;
 	public ITypeRequestor typeRequestor;
+
 	private ArrayBinding[][] uniqueArrayBindings;
 	private SimpleLookupTable uniqueParameterizedTypeBindings;
 	private SimpleLookupTable uniqueRawTypeBindings;
@@ -67,9 +59,16 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	
 	public CompilationUnitDeclaration unitBeingCompleted = null; // only set while completing units
 	public Object missingClassFileLocation = null; // only set when resolving certain references, to help locating problems
-
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
 	private MethodVerifier verifier;
+	
+	final static int BUILD_FIELDS_AND_METHODS = 4;
+	final static int BUILD_TYPE_HIERARCHY = 1;
+	final static int CHECK_AND_SET_IMPORTS = 2;
+	final static int CONNECT_TYPE_HIERARCHY = 3;
+
+	static final ProblemPackageBinding TheNotFoundPackage = new ProblemPackageBinding(CharOperation.NO_CHAR, NotFound);
+	static final ProblemReferenceBinding TheNotFoundType = new ProblemReferenceBinding(CharOperation.NO_CHAR_CHAR, null, NotFound);
 
 public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOptions, ProblemReporter problemReporter, INameEnvironment nameEnvironment) {
 	this.typeRequestor = typeRequestor;
@@ -96,19 +95,18 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 
 public ReferenceBinding askForType(char[][] compoundName) {
 	NameEnvironmentAnswer answer = nameEnvironment.findType(compoundName);
-	if (answer == null)
-		return null;
+	if (answer == null) return null;
 
-	if (answer.isBinaryType())
+	if (answer.isBinaryType()) {
 		// the type was found as a .class file
-		typeRequestor.accept(answer.getBinaryType(), computePackageFrom(compoundName), answer.getAccessRestriction());
-	else if (answer.isCompilationUnit())
+		typeRequestor.accept(answer.getBinaryType(), computePackageFrom(compoundName, false /* valid pkg */), answer.getAccessRestriction());
+	} else if (answer.isCompilationUnit()) {
 		// the type was found as a .java file, try to build it then search the cache
 		typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
-	else if (answer.isSourceType())
+	} else if (answer.isSourceType()) {
 		// the type was found as a source model
-		typeRequestor.accept(answer.getSourceTypes(), computePackageFrom(compoundName), answer.getAccessRestriction());
-
+		typeRequestor.accept(answer.getSourceTypes(), computePackageFrom(compoundName, false /* valid pkg */), answer.getAccessRestriction());
+	}
 	return getCachedType(compoundName);
 }
 /* Ask the oracle for a type named name in the packageBinding.
@@ -125,88 +123,55 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name) {
 	if (answer == null)
 		return null;
 
-	if (answer.isBinaryType())
+	if (answer.isBinaryType()) {
 		// the type was found as a .class file
 		typeRequestor.accept(answer.getBinaryType(), packageBinding, answer.getAccessRestriction());
-	else if (answer.isCompilationUnit())
+	} else if (answer.isCompilationUnit()) {
 		// the type was found as a .java file, try to build it then search the cache
 		typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
-	else if (answer.isSourceType())
+	} else if (answer.isSourceType()) {
 		// the type was found as a source model
 		typeRequestor.accept(answer.getSourceTypes(), packageBinding, answer.getAccessRestriction());
-
+	}
 	return packageBinding.getType0(name);
 }
+
 /* Create the initial type bindings for the compilation unit.
 *
 * See completeTypeBindings() for a description of the remaining steps
 *
 * NOTE: This method can be called multiple times as additional source files are needed
 */
-
 public void buildTypeBindings(CompilationUnitDeclaration unit, AccessRestriction accessRestriction) {
 	CompilationUnitScope scope = new CompilationUnitScope(unit, this);
 	scope.buildTypeBindings(accessRestriction);
-
 	int unitsLength = units.length;
 	if (++lastUnitIndex >= unitsLength)
 		System.arraycopy(units, 0, units = new CompilationUnitDeclaration[2 * unitsLength], 0, unitsLength);
 	units[lastUnitIndex] = unit;
 }
+
 /* Cache the binary type since we know it is needed during this compile.
 *
 * Answer the created BinaryTypeBinding or null if the type is already in the cache.
 */
-
 public BinaryTypeBinding cacheBinaryType(IBinaryType binaryType, AccessRestriction accessRestriction) {
 	return cacheBinaryType(binaryType, true, accessRestriction);
 }
+
 /* Cache the binary type since we know it is needed during this compile.
 *
 * Answer the created BinaryTypeBinding or null if the type is already in the cache.
 */
-
 public BinaryTypeBinding cacheBinaryType(IBinaryType binaryType, boolean needFieldsAndMethods, AccessRestriction accessRestriction) {
 	char[][] compoundName = CharOperation.splitOn('/', binaryType.getName());
 	ReferenceBinding existingType = getCachedType(compoundName);
 
 	if (existingType == null || existingType instanceof UnresolvedReferenceBinding)
 		// only add the binary type if its not already in the cache
-		return createBinaryTypeFrom(binaryType, computePackageFrom(compoundName), needFieldsAndMethods, accessRestriction);
+		return createBinaryTypeFrom(binaryType, computePackageFrom(compoundName, false /* valid pkg */), needFieldsAndMethods, accessRestriction);
 	return null; // the type already exists & can be retrieved from the cache
 }
-public BinaryTypeBinding cacheMissingBinaryType(char[][] compoundName, CompilationUnitDeclaration unit) {
-	// report the missing class file first
-	problemReporter.isClassPathCorrect(
-		compoundName, 
-		unit == null ? this.unitBeingCompleted : unit, 
-		this.missingClassFileLocation);
-
-	PackageBinding packageBinding = computePackageFrom(compoundName);
-	// create a proxy for the missing BinaryType
-	MissingBinaryTypeBinding type = new MissingBinaryTypeBinding(packageBinding, compoundName, this);
-	if (type.id != TypeIds.T_JavaLangObject) {
-		// make Object be its superclass - it could in turn be missing as well
-		ReferenceBinding objectType = getType(TypeConstants.JAVA_LANG_OBJECT);
-		if (objectType == null)
-			objectType = cacheMissingBinaryType(TypeConstants.JAVA_LANG_OBJECT, unit);	// create a proxy for the missing Object type		
-		type.setMissingSuperclass(objectType);
-	}
-	packageBinding.addType(type);
-	return type;	
-}
-/*
-* 1. Connect the type hierarchy for the type bindings created for parsedUnits.
-* 2. Create the field bindings
-* 3. Create the method bindings
-*/
-
-/* We know each known compilationUnit is free of errors at this point...
-*
-* Each step will create additional bindings unless a problem is detected, in which
-* case either the faulty import/superinterface/field/method will be skipped or a
-* suitable replacement will be substituted (such as Object for a missing superclass)
-*/
 
 public void completeTypeBindings() {
 	stepCompleted = BUILD_TYPE_HIERARCHY;
@@ -231,18 +196,19 @@ public void completeTypeBindings() {
 	this.lastCompletedUnitIndex = this.lastUnitIndex;
 	this.unitBeingCompleted = null;
 }
+
 /*
 * 1. Connect the type hierarchy for the type bindings created for parsedUnits.
 * 2. Create the field bindings
 * 3. Create the method bindings
 */
 
-/*
+/* We know each known compilationUnit is free of errors at this point...
+*
 * Each step will create additional bindings unless a problem is detected, in which
 * case either the faulty import/superinterface/field/method will be skipped or a
 * suitable replacement will be substituted (such as Object for a missing superclass)
 */
-
 public void completeTypeBindings(CompilationUnitDeclaration parsedUnit) {
 	if (stepCompleted == BUILD_FIELDS_AND_METHODS) {
 		// This can only happen because the original set of units are completely built and
@@ -261,6 +227,7 @@ public void completeTypeBindings(CompilationUnitDeclaration parsedUnit) {
 		this.unitBeingCompleted = null;
 	}
 }
+
 /*
 * Used by other compiler tools which do not start by calling completeTypeBindings().
 *
@@ -269,6 +236,11 @@ public void completeTypeBindings(CompilationUnitDeclaration parsedUnit) {
 * 3. Create the method bindings
 */
 
+/*
+* Each step will create additional bindings unless a problem is detected, in which
+* case either the faulty import/superinterface/field/method will be skipped or a
+* suitable replacement will be substituted (such as Object for a missing superclass)
+*/
 public void completeTypeBindings(CompilationUnitDeclaration parsedUnit, boolean buildFieldsAndMethods) {
 	if (parsedUnit.scope == null) return; // parsing errors were too severe
 
@@ -279,6 +251,7 @@ public void completeTypeBindings(CompilationUnitDeclaration parsedUnit, boolean 
 		parsedUnit.scope.buildFieldsAndMethods();
 	this.unitBeingCompleted = null;
 }
+
 public TypeBinding computeBoxingType(TypeBinding type) {
 	TypeBinding boxedType;
 	switch (type.id) {
@@ -373,14 +346,16 @@ public TypeBinding computeBoxingType(TypeBinding type) {
 			}
 	}
 	return type;
-}	
-private PackageBinding computePackageFrom(char[][] constantPoolName) {
+}
+
+private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isMissing) {
 	if (constantPoolName.length == 1)
 		return defaultPackage;
 
 	PackageBinding packageBinding = getPackage0(constantPoolName[0]);
 	if (packageBinding == null || packageBinding == TheNotFoundPackage) {
 		packageBinding = new PackageBinding(constantPoolName[0], this);
+		if (isMissing) packageBinding.tagBits |= TagBits.HasMissingType;
 		knownPackages.put(constantPoolName[0], packageBinding);
 	}
 
@@ -388,34 +363,14 @@ private PackageBinding computePackageFrom(char[][] constantPoolName) {
 		PackageBinding parent = packageBinding;
 		if ((packageBinding = parent.getPackage0(constantPoolName[i])) == null || packageBinding == TheNotFoundPackage) {
 			packageBinding = new PackageBinding(CharOperation.subarray(constantPoolName, 0, i + 1), parent, this);
+			if (isMissing) {
+				packageBinding.tagBits |= TagBits.HasMissingType;
+			} 
 			parent.addPackage(packageBinding);
 		}
 	}
 	return packageBinding;
-}
-
-/**
- * Convert a given source type into a parameterized form if generic.
- * generic X<E> --> param X<E>
- */
-public ReferenceBinding convertToParameterizedType(ReferenceBinding originalType) {
-	if (originalType != null) {
-		boolean isGeneric = originalType.isGenericType();
-		ReferenceBinding originalEnclosingType = originalType.enclosingType();
-		ReferenceBinding convertedEnclosingType = originalEnclosingType;
-		boolean needToConvert = isGeneric;
-		if (originalEnclosingType != null) {
-			convertedEnclosingType = originalType.isStatic() 
-				? (ReferenceBinding) convertToRawType(originalEnclosingType, false /*do not force conversion of enclosing types*/) 
-				: convertToParameterizedType(originalEnclosingType);
-			needToConvert |= originalEnclosingType != convertedEnclosingType;
-		}
-		if (needToConvert) {
-			return createParameterizedType(originalType, isGeneric ? originalType.typeVariables() : null, convertedEnclosingType);
-		}
-	}
-	return originalType;
-}
+}	
 
 public TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, ReferenceBinding genericType, int rank, Set eliminatedVariables) {
 	if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
@@ -535,6 +490,29 @@ public TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, Ref
 }
 
 /**
+ * Convert a given source type into a parameterized form if generic.
+ * generic X<E> --> param X<E>
+ */
+public ReferenceBinding convertToParameterizedType(ReferenceBinding originalType) {
+	if (originalType != null) {
+		boolean isGeneric = originalType.isGenericType();
+		ReferenceBinding originalEnclosingType = originalType.enclosingType();
+		ReferenceBinding convertedEnclosingType = originalEnclosingType;
+		boolean needToConvert = isGeneric;
+		if (originalEnclosingType != null) {
+			convertedEnclosingType = originalType.isStatic() 
+				? (ReferenceBinding) convertToRawType(originalEnclosingType, false /*do not force conversion of enclosing types*/) 
+				: convertToParameterizedType(originalEnclosingType);
+			needToConvert |= originalEnclosingType != convertedEnclosingType;
+		}
+		if (needToConvert) {
+			return createParameterizedType(originalType, isGeneric ? originalType.typeVariables() : null, convertedEnclosingType);
+		}
+	}
+	return originalType;
+}
+
+/**
  * Returns the given binding's raw type binding.
  * @param type the TypeBinding to raw convert
  * @param forceRawEnclosingType forces recursive raw conversion of enclosing types (used in Javadoc references only)
@@ -606,6 +584,7 @@ public TypeBinding convertToRawType(TypeBinding type, boolean forceRawEnclosingT
 	return type;
 }
 
+
 // variation for unresolved types in binaries (consider generic type as raw)
 public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
 	int dimension;
@@ -664,6 +643,7 @@ public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
 	}
 	return type;
 }
+
 /*
  *  Used to guarantee annotation identity.
  */
@@ -673,7 +653,6 @@ public AnnotationBinding createAnnotation(ReferenceBinding annotationType, Eleme
 	}
 	return new AnnotationBinding(annotationType, pairs);
 }
-
 /*
  *  Used to guarantee array type identity.
  */
@@ -715,6 +694,7 @@ public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimension
 	uniqueArrayBindings[dimIndex] = arrayBindings;
 	return arrayBindings[length] = new ArrayBinding(leafComponentType, dimensionCount, this);
 }
+
 public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 	return createBinaryTypeFrom(binaryType, packageBinding, true, accessRestriction);
 }
@@ -734,15 +714,41 @@ public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBin
 			return null;
 		}
 	}
-
 	packageBinding.addType(binaryBinding);
 	setAccessRestriction(binaryBinding, accessRestriction);
 	binaryBinding.cachePartsFrom(binaryType, needFieldsAndMethods);
 	return binaryBinding;
 }
-/* Used to create packages from the package statement.
-*/
 
+/* 
+ * Used to create types denoting missing types.
+ * If package is given, then reuse the package; if not then infer a package from compound name.
+ * If the package is existing, then install the missing type in type cache
+*/
+public MissingTypeBinding createMissingType(PackageBinding packageBinding, char[][] compoundName) {
+	// create a proxy for the missing BinaryType
+	if (packageBinding == null) {
+		packageBinding = computePackageFrom(compoundName, true /* missing */);
+		if (packageBinding == TheNotFoundPackage) packageBinding = this.defaultPackage;
+	}
+	MissingTypeBinding missingType = new MissingTypeBinding(packageBinding, compoundName, this);
+	if (missingType.id != TypeIds.T_JavaLangObject) {
+		// make Object be its superclass - it could in turn be missing as well
+		ReferenceBinding objectType = getType(TypeConstants.JAVA_LANG_OBJECT);
+		if (objectType == null) {
+			objectType = createMissingType(null, TypeConstants.JAVA_LANG_OBJECT);	// create a proxy for the missing Object type		
+		}
+		missingType.setMissingSuperclass(objectType);
+	}
+	packageBinding.addType(missingType);
+	return missingType;	
+}
+
+/*
+* 1. Connect the type hierarchy for the type bindings created for parsedUnits.
+* 2. Create the field bindings
+* 3. Create the method bindings
+*/
 public PackageBinding createPackage(char[][] compoundName) {
 	PackageBinding packageBinding = getPackage0(compoundName[0]);
 	if (packageBinding == null || packageBinding == TheNotFoundPackage) {
@@ -778,7 +784,6 @@ public PackageBinding createPackage(char[][] compoundName) {
 }
 
 public ParameterizedGenericMethodBinding createParameterizedGenericMethod(MethodBinding genericMethod, RawTypeBinding rawType) {
-
 	// cached info is array of already created parameterized types for this type
 	ParameterizedGenericMethodBinding[] cachedInfo = (ParameterizedGenericMethodBinding[])this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
 	boolean needToGrow = false;
@@ -811,7 +816,6 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 }
 
 public ParameterizedGenericMethodBinding createParameterizedGenericMethod(MethodBinding genericMethod, TypeBinding[] typeArguments) {
-
 	// cached info is array of already created parameterized types for this type
 	ParameterizedGenericMethodBinding[] cachedInfo = (ParameterizedGenericMethodBinding[])this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
 	int argLength = typeArguments == null ? 0: typeArguments.length;
@@ -851,7 +855,6 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 }
 
 public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType) {
-
 	// cached info is array of already created parameterized types for this type
 	ParameterizedTypeBinding[] cachedInfo = (ParameterizedTypeBinding[])this.uniqueParameterizedTypeBindings.get(genericType);
 	int argLength = typeArguments == null ? 0: typeArguments.length;
@@ -926,7 +929,6 @@ public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBindi
 }
 
 public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind) {
-	
 	// cached info is array of already created wildcard  types for this type
 	if (genericType == null) // pseudo wildcard denoting composite bounds for lub computation
 		genericType = ReferenceBinding.LUB_GENERIC;
@@ -986,14 +988,12 @@ public AccessRestriction getAccessRestriction(TypeBinding type) {
  * NOTE: Do not use for nested types... the answer is NOT the same for a.b.C or a.b.C.D.E
  * assuming C is a type in both cases. In the a.b.C.D.E case, null is the answer.
  */
-
 public ReferenceBinding getCachedType(char[][] compoundName) {
 	if (compoundName.length == 1) {
 		if (defaultPackage == null)
 			return null;
 		return defaultPackage.getType0(compoundName[0]);
 	}
-
 	PackageBinding packageBinding = getPackage0(compoundName[0]);
 	if (packageBinding == null || packageBinding == TheNotFoundPackage)
 		return null;
@@ -1003,6 +1003,7 @@ public ReferenceBinding getCachedType(char[][] compoundName) {
 			return null;
 	return packageBinding.getType0(compoundName[compoundName.length - 1]);
 }
+
 /* Answer the top level package named name if it exists in the cache.
 * Answer theNotFoundPackage if it could not be resolved the first time
 * it was looked up, otherwise answer null.
@@ -1010,10 +1011,10 @@ public ReferenceBinding getCachedType(char[][] compoundName) {
 * NOTE: Senders must convert theNotFoundPackage into a real problem
 * package if its to returned.
 */
-
 PackageBinding getPackage0(char[] name) {
 	return knownPackages.get(name);
 }
+
 /* Answer the type corresponding to the compoundName.
 * Ask the name environment for the type if its not in the cache.
 * Fail with a classpath error if the type cannot be found.
@@ -1023,15 +1024,18 @@ public ReferenceBinding getResolvedType(char[][] compoundName, Scope scope) {
 	if (type != null) return type;
 
 	// create a proxy for the missing BinaryType
-	return cacheMissingBinaryType(
+	// report the missing class file first
+	problemReporter.isClassPathCorrect(
 		compoundName, 
-		scope == null ? this.unitBeingCompleted : scope.referenceCompilationUnit());
+		scope == null ? this.unitBeingCompleted : scope.referenceCompilationUnit(), 
+		this.missingClassFileLocation);	
+	return createMissingType(null, compoundName);
 }
+
 /* Answer the top level package named name.
 * Ask the oracle for the package if its not in the cache.
 * Answer null if the package cannot be found.
 */
-
 PackageBinding getTopLevelPackage(char[] name) {
 	PackageBinding packageBinding = getPackage0(name);
 	if (packageBinding != null) {
@@ -1048,11 +1052,11 @@ PackageBinding getTopLevelPackage(char[] name) {
 	knownPackages.put(name, TheNotFoundPackage); // saves asking the oracle next time
 	return null;
 }
+
 /* Answer the type corresponding to the compoundName.
 * Ask the name environment for the type if its not in the cache.
 * Answer null if the type cannot be found.
 */
-
 public ReferenceBinding getType(char[][] compoundName) {
 	ReferenceBinding referenceBinding;
 
@@ -1095,61 +1099,75 @@ public ReferenceBinding getType(char[][] compoundName) {
 		return new ProblemReferenceBinding(compoundName, referenceBinding, InternalNameProvided);
 	return referenceBinding;
 }
-private TypeBinding[] getTypeArgumentsFromSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType, ReferenceBinding genericType) {
+
+private TypeBinding[] getTypeArgumentsFromSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType, ReferenceBinding genericType, char[][][] missingTypeNames) {
 	java.util.ArrayList args = new java.util.ArrayList(2);
 	int rank = 0;
 	do {
-		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType, genericType, rank++));
+		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType, genericType, rank++, missingTypeNames));
 	} while (wrapper.signature[wrapper.start] != '>');
 	wrapper.start++; // skip '>'
 	TypeBinding[] typeArguments = new TypeBinding[args.size()];
 	args.toArray(typeArguments);
 	return typeArguments;
 }
+
 /* Answer the type corresponding to the compound name.
 * Does not ask the oracle for the type if its not found in the cache... instead an
 * unresolved type is returned which must be resolved before used.
 *
 * NOTE: Does NOT answer base types nor array types!
 */
-
-ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean isParameterized) {
+private ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean isParameterized, boolean wasMissingType) {
 	ReferenceBinding binding = getCachedType(compoundName);
 	if (binding == null) {
-		PackageBinding packageBinding = computePackageFrom(compoundName);
+		PackageBinding packageBinding = computePackageFrom(compoundName, false /* valid pkg */);
 		binding = new UnresolvedReferenceBinding(compoundName, packageBinding);
+		if (wasMissingType) {
+			binding.tagBits |= TagBits.HasMissingType; // record it was bound to a missing type
+		}
 		packageBinding.addType(binding);
 	} else if (binding == TheNotFoundType) {
+		// report the missing class file first
+		problemReporter.isClassPathCorrect(compoundName, this.unitBeingCompleted, this.missingClassFileLocation);		
 		// create a proxy for the missing BinaryType
-		binding = cacheMissingBinaryType(compoundName, this.unitBeingCompleted);
+		binding = createMissingType(null, compoundName);
 	} else if (!isParameterized) {
 	    // check raw type, only for resolved types
         binding = (ReferenceBinding) convertUnresolvedBinaryToRawType(binding);
 	}
 	return binding;
 }
+
 /* Answer the type corresponding to the name from the binary file.
 * Does not ask the oracle for the type if its not found in the cache... instead an
 * unresolved type is returned which must be resolved before used.
 *
 * NOTE: Does NOT answer base types nor array types!
 */
-
-ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end, boolean isParameterized) {
+ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end, boolean isParameterized, char[][][] missingTypeNames) {
 	if (end == -1)
 		end = signature.length;
-
 	char[][] compoundName = CharOperation.splitOn('/', signature, start, end);
-	return getTypeFromCompoundName(compoundName, isParameterized);
+	boolean wasMissingType = false;
+	if (missingTypeNames != null) {
+		for (int i = 0, max = missingTypeNames.length; i < max; i++) {
+			if (CharOperation.equals(compoundName, missingTypeNames[i])) {
+				wasMissingType = true;
+				break;
+			}
+		}
+	}
+	return getTypeFromCompoundName(compoundName, isParameterized, wasMissingType);
 }
+
 /* Answer the type corresponding to the signature from the binary file.
 * Does not ask the oracle for the type if its not found in the cache... instead an
 * unresolved type is returned which must be resolved before used.
 *
 * NOTE: Does answer base types & array types.
 */
-
-TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean isParameterized, TypeBinding enclosingType) {
+TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean isParameterized, TypeBinding enclosingType, char[][][] missingTypeNames) {
 	int dimension = 0;
 	while (signature[start] == '[') {
 		start++;
@@ -1194,14 +1212,15 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean i
 				// will never reach here, since error will cause abort
 		}
 	} else {
-		binding = getTypeFromConstantPoolName(signature, start + 1, end, isParameterized); // skip leading 'L' or 'T'
+		binding = getTypeFromConstantPoolName(signature, start + 1, end, isParameterized, missingTypeNames); // skip leading 'L' or 'T'
 	}
 
 	if (dimension == 0)
 		return binding;
 	return createArrayType(binding, dimension);
 }
-TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType) {
+
+TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType, char[][][] missingTypeNames) {
 	// TypeVariableSignature = 'T' Identifier ';'
 	// ArrayTypeSignature = '[' TypeSignature
 	// ClassTypeSignature = 'L' Identifier TypeArgs(optional) ';'
@@ -1212,7 +1231,6 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 		wrapper.start++;
 		dimension++;
 	}
-
 	if (wrapper.signature[wrapper.start] == 'T') {
 	    int varStart = wrapper.start + 1;
 	    int varEnd = wrapper.computeEnd();
@@ -1232,7 +1250,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 		return null; // cannot reach this, since previous problem will abort compilation
 	}
 	boolean isParameterized;
-	TypeBinding type = getTypeFromSignature(wrapper.signature, wrapper.start, wrapper.computeEnd(), isParameterized = (wrapper.end == wrapper.bracket), enclosingType);
+	TypeBinding type = getTypeFromSignature(wrapper.signature, wrapper.start, wrapper.computeEnd(), isParameterized = (wrapper.end == wrapper.bracket), enclosingType, missingTypeNames);
 	if (!isParameterized)
 		return dimension == 0 ? type : createArrayType(type, dimension);
 
@@ -1248,7 +1266,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 		// The actualType needs to be a ParameterizedTypeBinding when its a member type, whose enclosing type is a generic
 		genericType = createParameterizedType(actualType, null, actualEnclosing);
 	}
-	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, genericType);
+	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, genericType, missingTypeNames);
 	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, actualEnclosing);
 
 	while (wrapper.signature[wrapper.start] == '.') {
@@ -1258,7 +1276,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 		ReferenceBinding memberType = parameterizedType.genericType().getMemberType(memberName);
 		if (wrapper.signature[wrapper.start] == '<') {
 			wrapper.start++; // skip '<'
-			typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, memberType);
+			typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, memberType, missingTypeNames);
 		} else {
 			typeArguments = null;
 		}
@@ -1267,12 +1285,14 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 	wrapper.start++; // skip ';'
 	return dimension == 0 ? (TypeBinding) parameterizedType : createArrayType(parameterizedType, dimension);
 }
+
 TypeBinding getTypeFromVariantTypeSignature(
-	SignatureWrapper wrapper,
-	TypeVariableBinding[] staticVariables,
-	ReferenceBinding enclosingType,
-	ReferenceBinding genericType,
-	int rank) {
+		SignatureWrapper wrapper,
+		TypeVariableBinding[] staticVariables,
+		ReferenceBinding enclosingType,
+		ReferenceBinding genericType,
+		int rank,
+		char[][][] missingTypeNames) {
 	// VariantTypeSignature = '-' TypeSignature
 	//   or '+' TypeSignature
 	//   or TypeSignature
@@ -1281,19 +1301,19 @@ TypeBinding getTypeFromVariantTypeSignature(
 		case '-' :
 			// ? super aType
 			wrapper.start++;
-			TypeBinding bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
+			TypeBinding bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType, missingTypeNames);
 			return createWildcard(genericType, rank, bound, null /*no extra bound*/, Wildcard.SUPER);
 		case '+' :
 			// ? extends aType
 			wrapper.start++;
-			bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
+			bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType, missingTypeNames);
 			return createWildcard(genericType, rank, bound, null /*no extra bound*/, Wildcard.EXTENDS);
 		case '*' :
 			// ?
 			wrapper.start++;
 			return createWildcard(genericType, rank, null, null /*no extra bound*/, Wildcard.UNBOUND);
 		default :
-			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
+			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType, missingTypeNames);
 	}
 }
 
@@ -1304,8 +1324,8 @@ boolean isPackage(char[][] compoundName, char[] name) {
 		return nameEnvironment.isPackage(null, name);
 	return nameEnvironment.isPackage(compoundName, name);
 }
-// The method verifier is lazily initialized to guarantee the receiver, the compiler & the oracle are ready.
 
+// The method verifier is lazily initialized to guarantee the receiver, the compiler & the oracle are ready.
 public MethodVerifier methodVerifier() {
 	if (verifier == null)
 		verifier = this.globalOptions.sourceLevel < ClassFileConstants.JDK1_5
@@ -1313,6 +1333,7 @@ public MethodVerifier methodVerifier() {
 			: new MethodVerifier15(this); // covariance only if sourceLevel is >= 1.5
 	return verifier;
 }
+
 public void reset() {
 	this.defaultPackage = new PackageBinding(this); // assume the default package always exists
 	this.defaultImports = null;
@@ -1342,6 +1363,7 @@ public void reset() {
 	// name environment has a longer life cycle, and must be reset in
 	// the code which created it.
 }
+
 /**
  * Associate a given type with some access restriction
  * (did not store the restriction directly into binding, since sparse information)

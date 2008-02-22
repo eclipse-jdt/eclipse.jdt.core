@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -72,7 +74,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				for (int i = 0, length = typeVariables.length; i < length; i++) {
 				    if (typeVariables[i].boundCheck(this, this.arguments[i])  != TypeConstants.OK) {
 				    	hasErrors = true;
-						scope.problemReporter().typeMismatchError(this.arguments[i], typeVariables[i], this.type, argumentReferences[i]);
+				    	if ((this.arguments[i].tagBits & TagBits.HasMissingType) == 0) {
+				    		// do not report secondary error, if type reference already got complained against
+							scope.problemReporter().typeMismatchError(this.arguments[i], typeVariables[i], this.type, argumentReferences[i]);
+				    	}
 				    }
 				}
 			}	
@@ -118,6 +123,25 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}
 		return capturedParameterizedType;
 	}
+	
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#collectMissingTypes(java.util.List)
+	 */
+	public List collectMissingTypes(List missingTypes) {
+		if ((this.tagBits & TagBits.HasMissingType) != 0) {
+			if (this.enclosingType != null) {
+				missingTypes = this.enclosingType.collectMissingTypes(missingTypes);
+			}
+			missingTypes = this.genericType().collectMissingTypes(missingTypes);
+			if (this.arguments != null) {
+				for (int i = 0, max = this.arguments.length; i < max; i++) {
+					missingTypes = this.arguments[i].collectMissingTypes(missingTypes);
+				}
+			}
+		}
+		return missingTypes;
+	}
+	
 	/**
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
 	 * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
@@ -611,7 +635,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		} else if (this.enclosingType != null) {
 			this.modifiers |= (this.enclosingType.modifiers & ExtraCompilerModifiers.AccGenericSignature);
-			this.tagBits |= this.enclosingType.tagBits & TagBits.HasTypeVariable;
+			this.tagBits |= this.enclosingType.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType);
 		}
 		if (someArguments != null) {
 			this.arguments = someArguments;
@@ -631,10 +655,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 						this.tagBits |= TagBits.IsBoundParameterizedType;
 						break;
 				}
-			    this.tagBits |= someArgument.tagBits & TagBits.HasTypeVariable;
+			    this.tagBits |= someArgument.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType);
 			}
 		}	    
-		this.tagBits |= someType.tagBits & (TagBits.IsLocalType| TagBits.IsMemberType | TagBits.IsNestedType);
+		this.tagBits |= someType.tagBits & (TagBits.IsLocalType| TagBits.IsMemberType | TagBits.IsNestedType | TagBits.HasMissingType);
 		this.tagBits &= ~(TagBits.AreFieldsComplete|TagBits.AreMethodsComplete);
 	}
 	
@@ -806,7 +830,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			// arity check
 			TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
 			if (refTypeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
-				this.environment.problemReporter.nonGenericTypeCannotBeParameterized(null, resolvedType, this.arguments);
+				this.environment.problemReporter.nonGenericTypeCannotBeParameterized(0, null, resolvedType, this.arguments);
 				return this; // cannot reach here as AbortCompilation is thrown
 			} else if (argLength != refTypeVariables.length) { // check arity
 				this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, this.arguments);

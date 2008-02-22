@@ -57,6 +57,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -128,29 +129,32 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	WorkingCopyOwner workingCopyOwner;
 
-	boolean isRecoveredBinding;
+	/**
+	 * Toggle controlling whether DOM bindings should be created when missing internal compiler bindings..
+	 */
+	boolean isRecoveringBindings;
 
 	/**
 	 * Constructor for DefaultBindingResolver.
 	 */
-	DefaultBindingResolver(CompilationUnitScope scope, WorkingCopyOwner workingCopyOwner, BindingTables bindingTables, boolean isRecoveredBinding) {
+	DefaultBindingResolver(CompilationUnitScope scope, WorkingCopyOwner workingCopyOwner, BindingTables bindingTables, boolean isRecoveringBindings) {
 		this.newAstToOldAst = new HashMap();
 		this.astNodesToBlockScope = new HashMap();
 		this.bindingsToAstNodes = new HashMap();
 		this.bindingTables = bindingTables;
 		this.scope = scope;
 		this.workingCopyOwner = workingCopyOwner;
-		this.isRecoveredBinding = isRecoveredBinding;
+		this.isRecoveringBindings = isRecoveringBindings;
 	}
 
-	DefaultBindingResolver(LookupEnvironment lookupEnvironment, WorkingCopyOwner workingCopyOwner, BindingTables bindingTables, boolean isRecoveredBinding) {
+	DefaultBindingResolver(LookupEnvironment lookupEnvironment, WorkingCopyOwner workingCopyOwner, BindingTables bindingTables, boolean isRecoveringBindings) {
 		this.newAstToOldAst = new HashMap();
 		this.astNodesToBlockScope = new HashMap();
 		this.bindingsToAstNodes = new HashMap();
 		this.bindingTables = bindingTables;
 		this.scope = new CompilationUnitScope(new CompilationUnitDeclaration(null, null, -1), lookupEnvironment);
 		this.workingCopyOwner = workingCopyOwner;
-		this.isRecoveredBinding = isRecoveredBinding;
+		this.isRecoveringBindings = isRecoveringBindings;
 	}
 
 	/*
@@ -213,10 +217,17 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	synchronized IMethodBinding getMethodBinding(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
- 		if (methodBinding != null && !methodBinding.isValidBinding()) {
-			org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding problemMethodBinding =
-				(org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding) methodBinding;
-			methodBinding = problemMethodBinding.closestMatch;
+ 		if (methodBinding != null) {
+			//if ((methodBinding.tagBits & TagBits.HasMissingType) != 0 
+			//		&& !this.isRecoveringBindings()
+			//		&& !methodBinding.declaringClass.isBinaryBinding()) { // binaries have been resilient since 3.2.2
+			//	return null;
+			//}
+			if (!methodBinding.isValidBinding()) {
+				org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding problemMethodBinding =
+					(org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding) methodBinding;
+				methodBinding = problemMethodBinding.closestMatch;
+ 			}
  		}
 
 		if (methodBinding != null) {
@@ -246,7 +257,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	synchronized IPackageBinding getPackageBinding(org.eclipse.jdt.internal.compiler.lookup.PackageBinding packageBinding) {
-		if (packageBinding == null || !packageBinding.isValidBinding()) {
+		if (packageBinding == null) {
 			return null;
 		}
 		IPackageBinding binding = (IPackageBinding) this.bindingTables.compilerBindingsToASTBindings.get(packageBinding);
@@ -322,7 +333,7 @@ class DefaultBindingResolver extends BindingResolver {
 				case ProblemReasons.NonStaticReferenceInStaticContext :
 					if (referenceBinding instanceof ProblemReferenceBinding) {
 						ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) referenceBinding;
-						ReferenceBinding binding2 = problemReferenceBinding.closestMatch();
+						org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding2 = problemReferenceBinding.closestMatch();
 						ITypeBinding binding = (ITypeBinding) this.bindingTables.compilerBindingsToASTBindings.get(binding2);
 						if (binding != null) {
 							return binding;
@@ -333,15 +344,17 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 					break;
 				case ProblemReasons.NotFound :
-					if (this.isRecoveredBinding) {
-						ITypeBinding binding = (ITypeBinding) this.bindingTables.compilerBindingsToASTBindings.get(referenceBinding);
-						if (binding != null) {
-							return binding;
-						}
-						binding = new RecoveredTypeBinding(this, referenceBinding);
-						this.bindingTables.compilerBindingsToASTBindings.put(referenceBinding, binding);
+					ITypeBinding binding = (ITypeBinding) this.bindingTables.compilerBindingsToASTBindings.get(referenceBinding);
+					if (binding != null) {
 						return binding;
 					}
+					if ((referenceBinding.tagBits & TagBits.HasMissingType) != 0) {
+						binding = new TypeBinding(this, referenceBinding);
+					} else if (this.isRecoveringBindings) {
+						binding = new RecoveredTypeBinding(this, referenceBinding);
+					}
+					this.bindingTables.compilerBindingsToASTBindings.put(referenceBinding, binding);
+					return binding;
 			}
 			return null;
 		} else {
@@ -366,8 +379,13 @@ class DefaultBindingResolver extends BindingResolver {
 	}
 
 	synchronized IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding variableBinding, VariableDeclaration variableDeclaration) {
-		if (this.isRecoveredBinding) {
+		if (this.isRecoveringBindings) {
 			if (variableBinding != null) {
+				//if ((variableBinding.tagBits & TagBits.HasMissingType) != 0 
+				//		&& !this.isRecoveringBindings()
+				//		&& (variableBinding.kind() == Binding.FIELD && !((FieldBinding)variableBinding).declaringClass.isBinaryBinding())) { // binaries have been resilient since 3.2.2
+				//	return null;
+				//}				
 				if (variableBinding.isValidBinding()) {
 					IVariableBinding binding = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(variableBinding);
 					if (binding != null) {
@@ -461,6 +479,9 @@ class DefaultBindingResolver extends BindingResolver {
 
 	synchronized IAnnotationBinding getAnnotationInstance(org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalInstance) {
 		if (internalInstance == null) return null;
+		//if ((internalInstance.getAnnotationType().tagBits & TagBits.HasMissingType) != 0 && !this.isRecoveringBindings) {
+		//	return null;
+		//}
 		IAnnotationBinding domInstance =
 			(IAnnotationBinding) this.bindingTables.compilerBindingsToASTBindings.get(internalInstance);
 		if (domInstance != null)
@@ -470,6 +491,9 @@ class DefaultBindingResolver extends BindingResolver {
 		return domInstance;
 	}
 
+	boolean isRecoveringBindings() {
+		return this.isRecoveringBindings;
+	}
 	boolean isResolvedTypeInferredFromExpectedType(MethodInvocation methodInvocation) {
 		Object oldNode = this.newAstToOldAst.get(methodInvocation);
 		if (oldNode instanceof MessageSend) {
@@ -1283,17 +1307,18 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof FieldReference) {
 			return getVariableBinding(((FieldReference) node).binding);
 		} else if (node instanceof SingleTypeReference) {
+			if (node instanceof JavadocSingleTypeReference) {
+				JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) node;
+				if (typeRef.packageBinding != null) {
+					return getPackageBinding(typeRef.packageBinding);
+				}
+			}			
 			SingleTypeReference singleTypeReference = (SingleTypeReference) node;
 			org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = singleTypeReference.resolvedType;
-			if (binding != null) {
-				if (!binding.isValidBinding() && node instanceof JavadocSingleTypeReference) {
-					JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) node;
-					if (typeRef.packageBinding != null) {
-						return getPackageBinding(typeRef.packageBinding);
-					}
-				}
-				return this.getTypeBinding(binding.leafComponentType());
+			if (binding == null) {
+				return null;
 			}
+			return this.getTypeBinding(binding.leafComponentType());
 		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
 			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
 			return this.getVariableBinding(fieldDeclaration.binding);
@@ -1742,7 +1767,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @throws IllegalArgumentException if the type binding represents the <code>void</code> type binding
 	 */
 	ITypeBinding resolveArrayType(ITypeBinding typeBinding, int dimensions) {
-		if (typeBinding.isRecovered()) throw new IllegalArgumentException("Cannot be called on a recovered type binding"); //$NON-NLS-1$
+		if (typeBinding instanceof RecoveredTypeBinding) throw new IllegalArgumentException("Cannot be called on a recovered type binding"); //$NON-NLS-1$
 		ITypeBinding leafComponentType = typeBinding;
 		int actualDimensions = dimensions;
 		if (typeBinding.isArray()) {

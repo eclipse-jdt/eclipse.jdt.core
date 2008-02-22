@@ -17,10 +17,9 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+
 
 public class JavadocSingleTypeReference extends SingleTypeReference {
 	
@@ -34,36 +33,27 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 		this.bits |= ASTNode.InsideJavadoc;
 	}
 
-	protected void reportInvalidType(Scope scope) {
-		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getDeclarationModifiers());
-	}
-	protected void reportDeprecatedType(TypeBinding type, Scope scope) {
-		scope.problemReporter().javadocDeprecatedType(type, this, scope.getDeclarationModifiers());
-	}
-
-	/* (non-Javadoc)
-	 * Redefine to capture javadoc specific signatures
-	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
-	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		visitor.visit(this, scope);
-		visitor.endVisit(this, scope);
-	}
-	
-	public void traverse(ASTVisitor visitor, ClassScope scope) {
-		visitor.visit(this, scope);
-		visitor.endVisit(this, scope);
-	}
-
 	/*
 	 * We need to modify resolving behavior to handle package references
 	 */
-	TypeBinding internalResolveType(Scope scope) {
+	protected TypeBinding internalResolveType(Scope scope) {
 		// handle the error here
 		this.constant = Constant.NotAConstant;
-		if (this.resolvedType != null)// is a shared type reference which was already resolved
-			return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
-
+		if (this.resolvedType != null) { // is a shared type reference which was already resolved
+			if (this.resolvedType.isValidBinding()) {
+				return this.resolvedType;
+			} else {
+				switch (this.resolvedType.problemId()) {
+					case ProblemReasons.NotFound :
+					case ProblemReasons.NotVisible :
+					case ProblemReasons.InheritedNameHidesEnclosingName :						
+						TypeBinding type = this.resolvedType.closestMatch();
+						return type;			
+					default :
+						return null;
+				}			
+			}
+		}
 		this.resolvedType = getTypeBinding(scope);
 		// End resolution when getTypeBinding(scope) returns null. This may happen in
 		// certain circumstances, typically when an illegal access is done on a type 
@@ -77,7 +67,7 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 				this.packageBinding = (PackageBinding) binding;
 			} else {
 				if (this.resolvedType.problemId() == ProblemReasons.NonStaticReferenceInStaticContext) {
-					ReferenceBinding closestMatch = ((ProblemReferenceBinding)this.resolvedType).closestMatch();
+					TypeBinding closestMatch = this.resolvedType.closestMatch();
 					if (closestMatch != null && closestMatch.isTypeVariable()) {
 						this.resolvedType = closestMatch; // ignore problem as we want report specific javadoc one instead
 						return this.resolvedType;
@@ -89,24 +79,32 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 		}
 		if (isTypeUseDeprecated(this.resolvedType, scope))
 			reportDeprecatedType(this.resolvedType, scope);
-		
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=209936
 		// raw convert all enclosing types when dealing with Javadoc references
 		if (this.resolvedType.isGenericType() || this.resolvedType.isParameterizedType()) {
-			return this.resolvedType = scope.environment().convertToRawType(this.resolvedType, true /*force the conversion of enclosing types*/);
+			this.resolvedType = scope.environment().convertToRawType(this.resolvedType, true /*force the conversion of enclosing types*/);
 		}
 		return this.resolvedType;
 	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 * We need to override to handle package references
-	 */
-	public TypeBinding resolveType(BlockScope blockScope, boolean checkBounds) {
-		return internalResolveType(blockScope);
+	protected void reportDeprecatedType(TypeBinding type, Scope scope) {
+		scope.problemReporter().javadocDeprecatedType(type, this, scope.getDeclarationModifiers());
 	}
 
-	public TypeBinding resolveType(ClassScope classScope) {
-		return internalResolveType(classScope);
+	protected void reportInvalidType(Scope scope) {
+		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getDeclarationModifiers());
+	}
+	
+	/* (non-Javadoc)
+	 * Redefine to capture javadoc specific signatures
+	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
+	}
+
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
 	}
 }

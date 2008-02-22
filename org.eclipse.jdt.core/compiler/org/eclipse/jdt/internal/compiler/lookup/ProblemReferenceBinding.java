@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class ProblemReferenceBinding extends ReferenceBinding {
-	private ReferenceBinding closestMatch;
+	ReferenceBinding closestMatch;
 	private int problemReason;
 	
 // NOTE: must only answer the subset of the name related to the problem
@@ -25,14 +25,18 @@ public ProblemReferenceBinding(char[][] compoundName, ReferenceBinding closestMa
 	this.closestMatch = closestMatch;
 	this.problemReason = problemReason;
 }
-public ProblemReferenceBinding(char[] name, ReferenceBinding closestMatch, int problemReason) {
-	this(new char[][] {name}, closestMatch, problemReason);
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#closestMatch()
+ */
+public TypeBinding closestMatch() {
+	return this.closestMatch;
 }
 
 /**
- * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#closestMatch()
+ * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#closestMatch()
  */
-public ReferenceBinding closestMatch() {
+public ReferenceBinding closestReferenceMatch() {
 	return this.closestMatch;
 }
 

@@ -1167,20 +1167,14 @@ public void test027() {
 		"----------\n" + 
 		"2. ERROR in p2\\c2.java (at line 6)\n" + 
 		"	myC1a = new c1m().new c1a();	\n" + 
-		"	^^^^^\n" + 
-		"myC1a cannot be resolved\n" + 
-		"----------\n" + 
-		"3. ERROR in p2\\c2.java (at line 6)\n" + 
-		"	myC1a = new c1m().new c1a();	\n" + 
 		"	                      ^^^\n" + 
 		"The type c1.c1m.c1a is not visible\n" + 
 		"----------\n" + 
-		"4. ERROR in p2\\c2.java (at line 7)\n" + 
+		"3. ERROR in p2\\c2.java (at line 7)\n" + 
 		"	myC1a.foo();	\n" + 
 		"	^^^^^\n" + 
-		"myC1a cannot be resolved\n" + 
-		"----------\n"
-	);									
+		"The type c1.c1m.c1a is not visible\n" + 
+		"----------\n");									
 }
 /**
  * Compatability - Compiler does not comply with 1.1 standard.
@@ -1228,25 +1222,19 @@ public void test028() {
 		"----------\n" + 
 		"2. ERROR in p2\\c2.java (at line 6)\n" + 
 		"	myC1a = new c1m().new c1a();	\n" + 
-		"	^^^^^\n" + 
-		"myC1a cannot be resolved\n" + 
-		"----------\n" + 
-		"3. ERROR in p2\\c2.java (at line 6)\n" + 
-		"	myC1a = new c1m().new c1a();	\n" + 
 		"	        ^^^^^^^^^\n" + 
 		"The constructor c1.c1m() is not visible\n" + 
 		"----------\n" + 
-		"4. ERROR in p2\\c2.java (at line 6)\n" + 
+		"3. ERROR in p2\\c2.java (at line 6)\n" + 
 		"	myC1a = new c1m().new c1a();	\n" + 
 		"	                      ^^^\n" + 
 		"The type c1.c1m.c1a is not visible\n" + 
 		"----------\n" + 
-		"5. ERROR in p2\\c2.java (at line 7)\n" + 
+		"4. ERROR in p2\\c2.java (at line 7)\n" + 
 		"	myC1a.foo();	\n" + 
 		"	^^^^^\n" + 
-		"myC1a cannot be resolved\n" + 
-		"----------\n"
-	);									
+		"The type c1.c1m.c1a is not visible\n" + 
+		"----------\n");									
 }
 /**
  * Compatability - Compiler does not comply with 1.1 standard.
@@ -1336,7 +1324,7 @@ public void test030() {
 		"3. ERROR in p2\\c2.java (at line 6)\n" + 
 		"	myC1a = new c1a();	\n" + 
 		"	^^^^^\n" + 
-		"myC1a cannot be resolved\n" + 
+		"c1a cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"4. ERROR in p2\\c2.java (at line 6)\n" + 
 		"	myC1a = new c1a();	\n" + 
@@ -1346,12 +1334,11 @@ public void test030() {
 		"5. ERROR in p2\\c2.java (at line 7)\n" + 
 		"	myC1a.foo();	\n" + 
 		"	^^^^^\n" + 
-		"myC1a cannot be resolved\n" + 
-		"----------\n"
-	);									
+		"c1a cannot be resolved to a type\n" + 
+		"----------\n");									
 }
 /**
- * Compatability - Compiler does not comply with 1.1 standard.
+ * Compatibility - Compiler does not comply with 1.1 standard.
  */
 public void test031() {
 	this.runNegativeTest(
@@ -1399,21 +1386,14 @@ public void test031() {
 		"----------\n" + 
 		"3. ERROR in p2\\c2.java (at line 6)\n" + 
 		"	myC1a = new c1a();	\n" + 
-		"	^^^^^\n" + 
-		"myC1a cannot be resolved\n" + 
-		"----------\n" + 
-		"4. ERROR in p2\\c2.java (at line 6)\n" + 
-		"	myC1a = new c1a();	\n" + 
 		"	            ^^^\n" + 
 		"The type c1a is not visible\n" + 
 		"----------\n" + 
-		"5. ERROR in p2\\c2.java (at line 7)\n" + 
+		"4. ERROR in p2\\c2.java (at line 7)\n" + 
 		"	myC1a.foo();	\n" + 
 		"	^^^^^\n" + 
-		"myC1a cannot be resolved\n" + 
-		"----------\n"
-
-	);									
+		"The type c1.c1a is not visible\n" + 
+		"----------\n");									
 }
 /**
  * VerifyError using .class literal inside inner classes
@@ -5980,50 +5960,65 @@ public void test150() {
 			"	^^^^^\n" + 
 			"Zork1 cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"7. ERROR in X.java (at line 19)\n" + 
+			"7. WARNING in X.java (at line 14)\n" + 
+			"	Zork1 z;\n" + 
+			"	      ^\n" + 
+			"The local variable z is hiding a field from type X.Member\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 19)\n" + 
 			"	new X().new IM();\n" + 
 			"	            ^^\n" + 
 			"Cannot instantiate the type X.IM\n" + 
 			"----------\n" + 
-			"8. ERROR in X.java (at line 20)\n" + 
+			"9. ERROR in X.java (at line 20)\n" + 
 			"	class Local extends X { \n" + 
 			"	                    ^\n" + 
 			"The type Local cannot subclass the final class X\n" + 
 			"----------\n" + 
-			"9. ERROR in X.java (at line 21)\n" + 
+			"10. ERROR in X.java (at line 21)\n" + 
 			"	ZorkLocal z;\n" + 
 			"	^^^^^^^^^\n" + 
 			"ZorkLocal cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"10. ERROR in X.java (at line 23)\n" + 
+			"11. ERROR in X.java (at line 23)\n" + 
 			"	this.bar();\n" + 
 			"	     ^^^\n" + 
 			"The method bar() is undefined for the type Local\n" + 
 			"----------\n" + 
-			"11. ERROR in X.java (at line 24)\n" + 
+			"12. ERROR in X.java (at line 24)\n" + 
 			"	Zork3 z;\n" + 
 			"	^^^^^\n" + 
 			"Zork3 cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"12. ERROR in X.java (at line 27)\n" + 
+			"13. WARNING in X.java (at line 24)\n" + 
+			"	Zork3 z;\n" + 
+			"	      ^\n" + 
+			"The local variable z is hiding a field from type Local\n" + 
+			"----------\n" + 
+			"14. ERROR in X.java (at line 27)\n" + 
 			"	new X() {\n" + 
 			"	    ^\n" + 
 			"An anonymous class cannot subclass the final class X\n" + 
 			"----------\n" + 
-			"13. ERROR in X.java (at line 28)\n" + 
+			"15. ERROR in X.java (at line 28)\n" + 
 			"	ZorkAnonymous2 z;                       \n" + 
 			"	^^^^^^^^^^^^^^\n" + 
 			"ZorkAnonymous2 cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"14. ERROR in X.java (at line 30)\n" + 
+			"16. ERROR in X.java (at line 30)\n" + 
 			"	this.bar();\n" + 
 			"	     ^^^\n" + 
 			"The method bar() is undefined for the type new X(){}\n" + 
 			"----------\n" + 
-			"15. ERROR in X.java (at line 31)\n" + 
+			"17. ERROR in X.java (at line 31)\n" + 
 			"	Zork4 z;\n" + 
 			"	^^^^^\n" + 
 			"Zork4 cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"18. WARNING in X.java (at line 31)\n" + 
+			"	Zork4 z;\n" + 
+			"	      ^\n" + 
+			"The local variable z is hiding a field from type new X(){}\n" + 
 			"----------\n");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216683

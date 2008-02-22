@@ -28,14 +28,6 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public abstract class TypeReference extends Expression {
 
-public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	return flowInfo;
-}
-
-// allows us to trap completion & selection nodes
-public void aboutToResolve(Scope scope) {
-	// default implementation: do nothing
-}
 /*
  * Answer a base type reference (can be an array of base type).
  */
@@ -84,6 +76,14 @@ public static final TypeReference baseTypeReference(int baseType, int dim) {
 			return new ArrayTypeReference(TypeBinding.LONG.simpleName, dim, 0);
 	}
 }
+
+// allows us to trap completion & selection nodes
+public void aboutToResolve(Scope scope) {
+	// default implementation: do nothing
+}
+public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+	return flowInfo;
+}
 public void checkBounds(Scope scope) {
 	// only parameterized type references have bounds
 }
@@ -106,81 +106,99 @@ protected abstract TypeBinding getTypeBinding(Scope scope);
  * @return char[][]
  */
 public abstract char [][] getTypeName() ;
+
+protected TypeBinding internalResolveType(Scope scope) {
+	// handle the error here
+	this.constant = Constant.NotAConstant;
+	if (this.resolvedType != null) { // is a shared type reference which was already resolved
+		if (this.resolvedType.isValidBinding()) {
+			return this.resolvedType;
+		} else {
+			switch (this.resolvedType.problemId()) {
+				case ProblemReasons.NotFound :
+				case ProblemReasons.NotVisible :
+				case ProblemReasons.InheritedNameHidesEnclosingName :
+					TypeBinding type = this.resolvedType.closestMatch();
+					if (type == null) return null;
+					return scope.environment().convertToRawType(type, false /*do not force conversion of enclosing types*/);					
+				default :
+					return null;
+			}			
+		}
+	}
+	boolean hasError;
+	TypeBinding type = this.resolvedType = getTypeBinding(scope);
+	if (type == null) {
+		return null; // detected cycle while resolving hierarchy	
+	} else if ((hasError = !type.isValidBinding()) == true) {
+		reportInvalidType(scope);
+		switch (type.problemId()) {
+			case ProblemReasons.NotFound :
+			case ProblemReasons.NotVisible :
+			case ProblemReasons.InheritedNameHidesEnclosingName :
+				type = type.closestMatch();
+				if (type == null) return null;
+				break;
+			default :
+				return null;
+		}
+	}
+	if (type.isArrayType() && ((ArrayBinding) type).leafComponentType == TypeBinding.VOID) {
+		scope.problemReporter().cannotAllocateVoidArray(this);
+		return null;
+	}
+	if (isTypeUseDeprecated(type, scope)) {
+		reportDeprecatedType(type, scope);
+	}
+	type = scope.environment().convertToRawType(type, false /*do not force conversion of enclosing types*/);	
+	if (type.leafComponentType().isRawType() 
+			&& (this.bits & ASTNode.IgnoreRawTypeCheck) == 0 
+			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
+		scope.problemReporter().rawTypeReference(this, type);
+	}
+	if (hasError) {
+		// do not store the computed type, keep the problem type instead
+		return type;
+	}
+	return this.resolvedType = type;
+}
 public boolean isTypeReference() {
 	return true;
 }
+
+protected void reportDeprecatedType(TypeBinding type, Scope scope) {
+	scope.problemReporter().deprecatedType(type, this);
+}
+
+protected void reportInvalidType(Scope scope) {
+	scope.problemReporter().invalidType(this, this.resolvedType);
+}
+
 public TypeBinding resolveSuperType(ClassScope scope) {
 	// assumes the implementation of resolveType(ClassScope) will call back to detect cycles
-	if (resolveType(scope) == null) return null;
+	TypeBinding superType = resolveType(scope);
+	if (superType == null) return null;
 
-	if (this.resolvedType.isTypeVariable()) {
-		this.resolvedType = new ProblemReferenceBinding(getTypeName(), (ReferenceBinding) this.resolvedType, ProblemReasons.IllegalSuperTypeVariable);
-		reportInvalidType(scope);
+	if (superType.isTypeVariable()) {
+		if (this.resolvedType.isValidBinding()) {
+			this.resolvedType = new ProblemReferenceBinding(getTypeName(), (ReferenceBinding)this.resolvedType, ProblemReasons.IllegalSuperTypeVariable);
+			reportInvalidType(scope);
+		}
 		return null;
 	}
-	return this.resolvedType;
+	return superType;
 }
 
 public final TypeBinding resolveType(BlockScope blockScope) {
 	return resolveType(blockScope, true /* checkbounds if any */);
 }
-
+	
 public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
-	// handle the error here
-	this.constant = Constant.NotAConstant;
-	if (this.resolvedType != null) // is a shared type reference which was already resolved
-		return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
-
-	TypeBinding type = this.resolvedType = getTypeBinding(scope);
-	if (type == null)
-		return null; // detected cycle while resolving hierarchy	
-	if (!type.isValidBinding()) {
-		reportInvalidType(scope);
-		return null;
-	}
-	if (type.isArrayType() && ((ArrayBinding) type).leafComponentType == TypeBinding.VOID) {
-		scope.problemReporter().cannotAllocateVoidArray(this);
-		return null;
-	}
-
-	if (isTypeUseDeprecated(type, scope))
-		reportDeprecatedType(type, scope);
-	
-	type = scope.environment().convertToRawType(type, false /*do not force conversion of enclosing types*/);
-	if (type.leafComponentType().isRawType() 
-			&& (this.bits & ASTNode.IgnoreRawTypeCheck) == 0 
-			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {	
-		scope.problemReporter().rawTypeReference(this, type);
-	}			
-	return this.resolvedType = type;
+	return internalResolveType(scope);
 }
-public TypeBinding resolveType(ClassScope scope) {
-	// handle the error here
-	this.constant = Constant.NotAConstant;
-	if (this.resolvedType != null) // is a shared type reference which was already resolved
-		return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
 
-	TypeBinding type = this.resolvedType = getTypeBinding(scope);
-	if (type == null)
-		return null; // detected cycle while resolving hierarchy	
-	if (!type.isValidBinding()) {
-		reportInvalidType(scope);
-		return null;
-	}
-	if (type.isArrayType() && ((ArrayBinding) type).leafComponentType == TypeBinding.VOID) {
-		scope.problemReporter().cannotAllocateVoidArray(this);
-		return null;
-	}	
-	if (isTypeUseDeprecated(type, scope))
-		reportDeprecatedType(type, scope);
-	
-	type = scope.environment().convertToRawType(type, false /*do not force conversion of enclosing types*/);
-	if (type.leafComponentType().isRawType() 
-			&& (this.bits & ASTNode.IgnoreRawTypeCheck) == 0 
-			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
-		scope.problemReporter().rawTypeReference(this, type);
-	}			
-	return this.resolvedType = type;	
+public TypeBinding resolveType(ClassScope scope) {
+	return internalResolveType(scope);
 }
 
 public TypeBinding resolveTypeArgument(BlockScope blockScope, ReferenceBinding genericType, int rank) {
@@ -190,13 +208,8 @@ public TypeBinding resolveTypeArgument(BlockScope blockScope, ReferenceBinding g
 public TypeBinding resolveTypeArgument(ClassScope classScope, ReferenceBinding genericType, int rank) {
     return resolveType(classScope);
 }
-	
-protected void reportInvalidType(Scope scope) {
-	scope.problemReporter().invalidType(this, this.resolvedType);
-}
-protected void reportDeprecatedType(TypeBinding type, Scope scope) {
-	scope.problemReporter().deprecatedType(type, this);
-}
+
 public abstract void traverse(ASTVisitor visitor, BlockScope scope);
+
 public abstract void traverse(ASTVisitor visitor, ClassScope scope);
 }

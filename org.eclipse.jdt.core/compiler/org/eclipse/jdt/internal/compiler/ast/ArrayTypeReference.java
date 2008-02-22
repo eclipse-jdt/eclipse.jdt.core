@@ -53,7 +53,9 @@ public class ArrayTypeReference extends SingleTypeReference {
 	}	
 	protected TypeBinding getTypeBinding(Scope scope) {
 		
-		if (this.resolvedType != null) return this.resolvedType;
+		if (this.resolvedType != null) {
+			return this.resolvedType;
+		}
 		if (dimensions > 255) {
 			scope.problemReporter().tooManyDimensions(this);
 		}

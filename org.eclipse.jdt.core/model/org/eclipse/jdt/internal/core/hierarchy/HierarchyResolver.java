@@ -343,12 +343,20 @@ private void fixSupertypeBindings() {
 					int index = 0;
 					for (int i = 0; i < length; i++) {
 						ReferenceBinding superInterface = (ReferenceBinding) superInterfaces[i].resolvedType;
-						if (superInterface instanceof ProblemReferenceBinding)
-							superInterface = superInterface.closestMatch();
 						if (superInterface != null) {
-							// ensure we are not creating a cycle (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=215681 )
-							if (!(subTypeOfType(superInterface, typeBinding))) {
-								interfaceBindings[index++] = superInterface;
+							if (!superInterface.isValidBinding()) {
+								TypeBinding closestMatch = superInterface.closestMatch();
+								if (closestMatch instanceof ReferenceBinding) {
+									superInterface = (ReferenceBinding) closestMatch;
+								} else {
+									superInterface = null;
+								}
+							}
+							if (superInterface != null) {
+								// ensure we are not creating a cycle (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=215681 )
+								if (!(subTypeOfType(superInterface, typeBinding))) {
+									interfaceBindings[index++] = superInterface;
+								}
 							}
 						}
 					}

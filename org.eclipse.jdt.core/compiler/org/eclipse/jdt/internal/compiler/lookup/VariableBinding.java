@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
@@ -27,6 +28,9 @@ public abstract class VariableBinding extends Binding {
 		this.type = type;
 		this.modifiers = modifiers;
 		this.constant = constant;
+		if (type != null) {
+			this.tagBits |= (type.tagBits & TagBits.HasMissingType);
+		}
 	}
 	
 	public Constant constant() {
@@ -51,9 +55,14 @@ public abstract class VariableBinding extends Binding {
 		this.constant = constant;
 	}
 	public String toString() {
-		String s = (type != null) ? type.debugName() : "UNDEFINED TYPE"; //$NON-NLS-1$
-		s += " "; //$NON-NLS-1$
-		s += (name != null) ? new String(name) : "UNNAMED FIELD"; //$NON-NLS-1$
-		return s;
+		StringBuffer output = new StringBuffer(10);
+		ASTNode.printModifiers(this.modifiers, output);
+		if ((this.modifiers & ExtraCompilerModifiers.AccUnresolved) != 0) {
+			output.append("[unresolved] "); //$NON-NLS-1$
+		}
+		output.append(type != null ? type.debugName() : "<no type>"); //$NON-NLS-1$
+		output.append(" "); //$NON-NLS-1$
+		output.append((name != null) ? new String(name) : "<no name>"); //$NON-NLS-1$
+		return output.toString();
 	}
 }

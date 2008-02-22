@@ -5633,13 +5633,13 @@ public void test066() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\r\n" + 
-		"	Zork z = null;\r\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	Zork z = null;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\r\n" + 
-		"	} catch(Zork z) {\r\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	} catch(Zork z) {\n" + 
 		"	        ^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");

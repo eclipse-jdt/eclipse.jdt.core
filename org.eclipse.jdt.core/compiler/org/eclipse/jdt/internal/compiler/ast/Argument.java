@@ -125,7 +125,7 @@ public class Argument extends LocalDeclaration {
 					}
 					break;
 			}
-			if (exceptionType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangThrowable, true) == null) {
+			if (exceptionType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangThrowable, true) == null && exceptionType.isValidBinding()) {
 				scope.problemReporter().cannotThrowType(this.type, exceptionType);
 				hasError = true;
 				// fall thru to create the variable - avoids additional errors because the variable is missing

@@ -223,7 +223,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 	}
 	
 	// Try to find best selection for match
-	ReferenceBinding typeBinding = null;
+	TypeBinding typeBinding = null;
 	boolean lastButOne = false;
 	if (binding instanceof ReferenceBinding) {
 		typeBinding = (ReferenceBinding) binding;
@@ -601,7 +601,7 @@ protected void reportDeclaration(ASTNode reference, IJavaElement element, MatchL
 		typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
 	if (typeBinding == null || typeBinding instanceof BaseTypeBinding) return;
 	if (typeBinding instanceof ProblemReferenceBinding) {
-		ReferenceBinding original = ((ProblemReferenceBinding) typeBinding).closestMatch();
+		TypeBinding original = typeBinding.closestMatch();
 		if (original == null) return; // original may not be set (bug 71279)
 		typeBinding = original;
 	}

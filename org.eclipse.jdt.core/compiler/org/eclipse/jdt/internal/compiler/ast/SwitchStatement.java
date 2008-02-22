@@ -273,7 +273,10 @@ public class SwitchStatement extends Statement {
 			if (expressionType != null) {
 				expression.computeConversion(upperScope, expressionType, expressionType);
 				checkType: {
-					if (expressionType.isBaseType()) {
+					if (!expressionType.isValidBinding()) {
+						expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
+						break checkType;
+					} else if (expressionType.isBaseType()) {
 						if (expression.isConstantValueOfTypeAssignableToType(expressionType, TypeBinding.INT))
 							break checkType;
 						if (expressionType.isCompatibleWith(TypeBinding.INT))

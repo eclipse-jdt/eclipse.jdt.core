@@ -40,13 +40,13 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public ClassScope scope;
 
 	// Synthetics are separated into 5 categories: methods, super methods, fields, class literals, changed declaring type bindings and bridge methods
-	// if a new category is added, also increment EMUL_MAX_VALUE
+	// if a new category is added, also increment MAX_SYNTHETICS
 	private final static int METHOD_EMUL = 0;
 	private final static int FIELD_EMUL = 1;
 	private final static int CLASS_LITERAL_EMUL = 2;
 	private final static int RECEIVER_TYPE_EMUL = 3;
 	
-	private final static int EMUL_MAX_VALUE = 4;
+	private final static int MAX_SYNTHETICS = 4;
 
 	HashMap[] synthetics;
 	char[] genericReferenceTypeSignature;
@@ -144,7 +144,7 @@ private void addDefaultAbstractMethods() {
 */
 public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOuterLocalVariable) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[EMUL_MAX_VALUE];
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
 	
@@ -188,7 +188,7 @@ public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOu
 */
 public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingType) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[EMUL_MAX_VALUE];
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
 
@@ -235,7 +235,7 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 */
 public FieldBinding addSyntheticFieldForClassLiteral(TypeBinding targetType, BlockScope blockScope) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[EMUL_MAX_VALUE];
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.CLASS_LITERAL_EMUL] == null)
 		this.synthetics[SourceTypeBinding.CLASS_LITERAL_EMUL] = new HashMap(5);
 
@@ -272,7 +272,7 @@ public FieldBinding addSyntheticFieldForClassLiteral(TypeBinding targetType, Blo
 */
 public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[EMUL_MAX_VALUE];
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
 
@@ -315,7 +315,7 @@ public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
 */
 public FieldBinding addSyntheticFieldForEnumValues() {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[EMUL_MAX_VALUE];
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
 
@@ -358,7 +358,7 @@ public FieldBinding addSyntheticFieldForEnumValues() {
 */
 public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boolean isReadAccess) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[EMUL_MAX_VALUE];
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
 
@@ -381,7 +381,7 @@ public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boole
 */
 public SyntheticMethodBinding addSyntheticEnumMethod(char[] selector) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[EMUL_MAX_VALUE];
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
 
@@ -404,7 +404,7 @@ public SyntheticMethodBinding addSyntheticEnumMethod(char[] selector) {
  */
 public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, String key) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[EMUL_MAX_VALUE];
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
 
@@ -446,7 +446,7 @@ public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, St
 */
 public SyntheticMethodBinding addSyntheticMethodForSwitchEnum(TypeBinding enumBinding) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[EMUL_MAX_VALUE];
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
 
@@ -477,7 +477,7 @@ public SyntheticMethodBinding addSyntheticMethodForSwitchEnum(TypeBinding enumBi
 */
 public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boolean isSuperAccess) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[EMUL_MAX_VALUE];
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
 
@@ -506,7 +506,7 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 			return null; // do not need bridge method
 	}
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[EMUL_MAX_VALUE];
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null) {
 		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
 	} else {
@@ -543,6 +543,7 @@ public int kind() {
 	if (this.typeVariables != Binding.NO_TYPE_VARIABLES) return Binding.GENERIC_TYPE;
 	return Binding.TYPE;
 }
+
 public char[] computeUniqueKey(boolean isLeaf) {
 	char[] uniqueKey = super.computeUniqueKey(isLeaf);
 	if (uniqueKey.length == 2) return uniqueKey; // problem type's unique key is "L;"
@@ -577,6 +578,7 @@ public char[] computeUniqueKey(boolean isLeaf) {
 	}
 	return uniqueKey;
 }
+
 void faultInTypesForFieldsAndMethods() {
 	// check @Deprecated annotation
 	getAnnotationTagBits(); // marks as deprecated by side effect
@@ -1047,7 +1049,7 @@ public ReferenceBinding[] memberTypes() {
 }
 public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBinding newDeclaringClass) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[EMUL_MAX_VALUE];
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL] == null)
 		this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL] = new HashMap(5);
 
@@ -1065,7 +1067,7 @@ public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBi
 }
 public MethodBinding getUpdatedMethodBinding(MethodBinding targetMethod, ReferenceBinding newDeclaringClass) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[EMUL_MAX_VALUE];
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL] == null)
 		this.synthetics[SourceTypeBinding.RECEIVER_TYPE_EMUL] = new HashMap(5);
 
@@ -1292,6 +1294,9 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 					fieldDecl.binding = null;
 					return null;
 				}
+				if ((fieldType.tagBits & TagBits.HasMissingType) != 0) {
+					field.tagBits |= TagBits.HasMissingType;
+				}						
 				TypeBinding leafType = fieldType.leafComponentType();
 				if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
 					field.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
@@ -1341,11 +1346,15 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 				continue;
 			}
 			if (resolvedExceptionType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangThrowable, true) == null) {
-				methodDecl.scope.problemReporter().cannotThrowType(exceptionTypes[i], resolvedExceptionType);
-				continue;
+				if (resolvedExceptionType.isValidBinding()) {
+					methodDecl.scope.problemReporter().cannotThrowType(exceptionTypes[i], resolvedExceptionType);
+					continue;
+				}
 			}
-		    if ((resolvedExceptionType.modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
-				method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+			if ((resolvedExceptionType.tagBits & TagBits.HasMissingType) != 0) {
+				method.tagBits |= TagBits.HasMissingType;
+			}						
+			method.modifiers |= (resolvedExceptionType.modifiers & ExtraCompilerModifiers.AccGenericSignature);
 			method.thrownExceptions[count++] = resolvedExceptionType;
 		}
 		if (count < size)
@@ -1370,6 +1379,9 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 				methodDecl.scope.problemReporter().argumentTypeCannotBeVoid(this, methodDecl, arg);
 				foundArgProblem = true;
 			} else {
+				if ((parameterType.tagBits & TagBits.HasMissingType) != 0) {
+					method.tagBits |= TagBits.HasMissingType;
+				}						
 				TypeBinding leafType = parameterType.leafComponentType();
 				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 					method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
@@ -1400,6 +1412,9 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 				methodDecl.scope.problemReporter().returnTypeCannotBeVoidArray((MethodDeclaration) methodDecl);
 				foundReturnTypeProblem = true;
 			} else {
+				if ((methodType.tagBits & TagBits.HasMissingType) != 0) {
+					method.tagBits |= TagBits.HasMissingType;
+				}					
 				method.returnType = methodType;
 				TypeBinding leafType = methodType.leafComponentType();
 				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)

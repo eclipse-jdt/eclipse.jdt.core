@@ -83,7 +83,7 @@ public int resolveLevel(ASTNode node) {
 	if (typeBinding instanceof ProblemReferenceBinding)
 		typeBinding = ((ProblemReferenceBinding) typeBinding).closestMatch();
 
-	if (typeBinding == null) return INACCURATE_MATCH;
+	if (typeBinding == null || !typeBinding.isValidBinding()) return INACCURATE_MATCH;
 	return resolveLevelForType(this.pattern.superSimpleName, this.pattern.superQualification, typeBinding);
 }
 public int resolveLevel(Binding binding) {

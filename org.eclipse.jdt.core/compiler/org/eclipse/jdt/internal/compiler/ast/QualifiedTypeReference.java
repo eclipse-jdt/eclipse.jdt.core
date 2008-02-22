@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -41,11 +42,11 @@ public class QualifiedTypeReference extends TypeReference {
 				this.resolvedType = scope.getType(this.tokens[tokenIndex], packageBinding);
 			} else {
 				this.resolvedType = scope.getMemberType(this.tokens[tokenIndex], (ReferenceBinding) this.resolvedType);
-				if (this.resolvedType instanceof ProblemReferenceBinding) {
+				if (!this.resolvedType.isValidBinding()) {
 					ProblemReferenceBinding problemBinding = (ProblemReferenceBinding) this.resolvedType;
 					this.resolvedType = new ProblemReferenceBinding(
-						org.eclipse.jdt.core.compiler.CharOperation.subarray(this.tokens, 0, tokenIndex + 1),
-						problemBinding.closestMatch(),
+						CharOperation.subarray(this.tokens, 0, tokenIndex + 1),
+						problemBinding.closestReferenceMatch(),
 						this.resolvedType.problemId());
 				}
 			}
@@ -63,13 +64,18 @@ public class QualifiedTypeReference extends TypeReference {
 	}
 	protected TypeBinding getTypeBinding(Scope scope) {
 		
-		if (this.resolvedType != null)
+		if (this.resolvedType != null) {
 			return this.resolvedType;
-
+		}
 		Binding binding = scope.getPackage(this.tokens);
-		if (binding != null && !binding.isValidBinding())
+		if (binding != null && !binding.isValidBinding()) {
+			if (binding instanceof ProblemReferenceBinding && binding.problemId() == ProblemReasons.NotFound) {
+				ProblemReferenceBinding problemBinding = (ProblemReferenceBinding) binding;
+				Binding pkg = scope.getTypeOrPackage(this.tokens);
+				return new ProblemReferenceBinding(problemBinding.compoundName, pkg instanceof PackageBinding ? null : scope.environment().createMissingType(null, this.tokens), ProblemReasons.NotFound);
+			}
 			return (ReferenceBinding) binding; // not found
-
+		}
 	    PackageBinding packageBinding = binding == null ? null : (PackageBinding) binding;
 	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 	    ReferenceBinding qualifiedType = null;
@@ -79,7 +85,7 @@ public class QualifiedTypeReference extends TypeReference {
 				return this.resolvedType;
 			if (i == 0 && this.resolvedType.isTypeVariable() && ((TypeVariableBinding) this.resolvedType).firstBound == null) { // cannot select from a type variable
 				scope.problemReporter().illegalAccessFromTypeVariable((TypeVariableBinding) this.resolvedType, this);
-				return this.resolvedType = null;
+				return null;
 			}
 			if (i < last && isTypeUseDeprecated(this.resolvedType, scope)) {
 				reportDeprecatedType(this.resolvedType, scope);			

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -123,6 +124,9 @@ public class ClassFile
 	public int produceAttributes;
 	public SourceTypeBinding referenceBinding;
 	public long targetJDK;
+	
+	public List missingTypes = null;
+	
 	public static final int INITIAL_CONTENTS_SIZE = 400;
 	public static final int INITIAL_HEADER_SIZE = 1500;
 	public static final int INNER_CLASSES_SIZE = 5;
@@ -459,7 +463,7 @@ public class ClassFile
 		contents[methodCountOffset++] = (byte) (methodCount >> 8);
 		contents[methodCountOffset] = (byte) methodCount;
 
-		int attributeNumber = 0;
+		int attributesNumber = 0;
 		// leave two bytes for the number of attributes and store the current offset
 		int attributeOffset = contentsOffset;
 		contentsOffset += 2;
@@ -492,7 +496,7 @@ public class ClassFile
 			int fileNameIndex = constantPool.literalIndex(fullFileName.toCharArray());
 			contents[contentsOffset++] = (byte) (fileNameIndex >> 8);
 			contents[contentsOffset++] = (byte) fileNameIndex;
-			attributeNumber++;
+			attributesNumber++;
 		}
 		// Deprecated attribute
 		if (referenceBinding.isDeprecated()) {
@@ -510,7 +514,7 @@ public class ClassFile
 			contents[contentsOffset++] = 0;
 			contents[contentsOffset++] = 0;
 			contents[contentsOffset++] = 0;
-			attributeNumber++;
+			attributesNumber++;
 		}
 		// add signature attribute
 		char[] genericSignature = referenceBinding.genericSignature();
@@ -533,7 +537,7 @@ public class ClassFile
 				constantPool.literalIndex(genericSignature);
 			contents[contentsOffset++] = (byte) (signatureIndex >> 8);
 			contents[contentsOffset++] = (byte) signatureIndex;
-			attributeNumber++;
+			attributesNumber++;
 		}
 		if (targetJDK >= ClassFileConstants.JDK1_5
 				&& this.referenceBinding.isNestedType()
@@ -567,19 +571,27 @@ public class ClassFile
 			}
 			contents[contentsOffset++] = methodIndexByte1;
 			contents[contentsOffset++] = methodIndexByte2;
-			attributeNumber++;
+			attributesNumber++;
 		}
 		if (this.targetJDK >= ClassFileConstants.JDK1_5) {
 			TypeDeclaration typeDeclaration = referenceBinding.scope.referenceContext;
 			if (typeDeclaration != null) {
 				final Annotation[] annotations = typeDeclaration.annotations;
 				if (annotations != null) {
-					attributeNumber += generateRuntimeAnnotations(annotations);
+					attributesNumber += generateRuntimeAnnotations(annotations);
 				}
 			}
 		}
 
 		if (this.referenceBinding.isHierarchyInconsistent()) {
+			ReferenceBinding superclass = this.referenceBinding.superclass;
+			if (superclass != null) {
+				this.missingTypes = superclass.collectMissingTypes(this.missingTypes);
+			}
+			ReferenceBinding[] superInterfaces = this.referenceBinding.superInterfaces();
+			for (int i = 0, max = superInterfaces.length; i < max; i++) {
+				this.missingTypes = superInterfaces[i].collectMissingTypes(this.missingTypes);
+			}
 			// add an attribute for inconsistent hierarchy
 			if (contentsOffset + 6 >= contents.length) {
 				resizeContents(6);
@@ -593,7 +605,7 @@ public class ClassFile
 			contents[contentsOffset++] = 0;
 			contents[contentsOffset++] = 0;
 			contents[contentsOffset++] = 0;
-			attributeNumber++;
+			attributesNumber++;
 		}
 		// Inner class attribute
 		int numberOfInnerClasses = this.innerClassesBindings == null ? 0 : this.innerClassesBindings.size();
@@ -662,14 +674,18 @@ public class ClassFile
 				contents[contentsOffset++] = (byte) (accessFlags >> 8);
 				contents[contentsOffset++] = (byte) accessFlags;
 			}
-			attributeNumber++;
+			attributesNumber++;
+		}
+		if (this.missingTypes != null) {
+			generateMissingTypesAttribute();
+			attributesNumber++;
 		}
 		// update the number of attributes
 		if (attributeOffset + 2 >= this.contents.length) {
 			resizeContents(2);
 		}
-		contents[attributeOffset++] = (byte) (attributeNumber >> 8);
-		contents[attributeOffset] = (byte) attributeNumber;
+		contents[attributeOffset++] = (byte) (attributesNumber >> 8);
+		contents[attributeOffset] = (byte) attributesNumber;
 
 		// resynchronize all offsets of the classfile
 		header = constantPool.poolContent;
@@ -838,6 +854,9 @@ public class ClassFile
 				}
 			}
 		}
+		if ((fieldBinding.tagBits & TagBits.HasMissingType) != 0) {
+			this.missingTypes = fieldBinding.type.collectMissingTypes(this.missingTypes);
+		}
 		return attributesNumber;
 	}
 
@@ -880,6 +899,7 @@ public class ClassFile
 		contents[fieldAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[fieldAttributeOffset] = (byte) attributeNumber;
 	}
+
 	/**
 	 * INTERNAL USE-ONLY
 	 * This methods generate all the fields infos for the receiver.
@@ -922,6 +942,7 @@ public class ClassFile
 			}
 		}
 	}
+
 	private void addMissingAbstractProblemMethod(MethodDeclaration methodDeclaration, MethodBinding methodBinding, CategorizedProblem problem, CompilationResult compilationResult) {
 		// always clear the strictfp/native/abstract bit for a problem method
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
@@ -1008,7 +1029,6 @@ public class ClassFile
 		contents[attributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[attributeOffset] = (byte) attributeNumber;
 	}
-
 	/**
 	 * INTERNAL USE-ONLY
 	 * Generate the byte for a problem method info that correspond to a boggus constructor.
@@ -1070,7 +1090,6 @@ public class ClassFile
 			problemLine);
 		completeMethodInfo(methodAttributeOffset, attributeNumber);
 	}
-
 	/**
 	 * INTERNAL USE-ONLY
 	 * Generate the byte for a problem method info that correspond to a boggus constructor.
@@ -1365,6 +1384,7 @@ public class ClassFile
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
 	}
+
 	/**
 	 * INTERNAL USE-ONLY
 	 * Generate the byte for a problem method info that correspond to a synthetic method that
@@ -6304,32 +6324,7 @@ public class ClassFile
 			contentsOffset = attributeOffset;
 		}
 	}
-	public int generateMethodInfoAttribute(MethodBinding methodBinding, AnnotationMethodDeclaration declaration) {
-		int attributesNumber = generateMethodInfoAttribute(methodBinding);
-		int attributeOffset = contentsOffset;
-		if ((declaration.modifiers & ClassFileConstants.AccAnnotationDefault) != 0) {
-			// add an annotation default attribute
-			int annotationDefaultNameIndex =
-				constantPool.literalIndex(AttributeNamesConstants.AnnotationDefaultName);
-			contents[contentsOffset++] = (byte) (annotationDefaultNameIndex >> 8);
-			contents[contentsOffset++] = (byte) annotationDefaultNameIndex;
-			int attributeLengthOffset = contentsOffset;
-			contentsOffset += 4;
-			if (contentsOffset + 4 >= this.contents.length) {
-				resizeContents(4);
-			}
-			generateElementValue(declaration.defaultValue, declaration.binding.returnType, attributeOffset);
-			if (contentsOffset != attributeOffset) {
-				int attributeLength = contentsOffset - attributeLengthOffset - 4;
-				contents[attributeLengthOffset++] = (byte) (attributeLength >> 24);
-				contents[attributeLengthOffset++] = (byte) (attributeLength >> 16);
-				contents[attributeLengthOffset++] = (byte) (attributeLength >> 8);
-				contents[attributeLengthOffset++] = (byte) attributeLength;
-				attributesNumber++;
-			}
-		}
-		return attributesNumber;
-	}
+
 	/**
 	 * INTERNAL USE-ONLY
 	 * That method generates the attributes of a code attribute.
@@ -6483,9 +6478,38 @@ public class ClassFile
 				}
 			}
 		}
+		if ((methodBinding.tagBits & TagBits.HasMissingType) != 0) {
+			this.missingTypes = methodBinding.collectMissingTypes(this.missingTypes);
+		}
 		return attributeNumber;
 	}
 
+	public int generateMethodInfoAttribute(MethodBinding methodBinding, AnnotationMethodDeclaration declaration) {
+		int attributesNumber = generateMethodInfoAttribute(methodBinding);
+		int attributeOffset = contentsOffset;
+		if ((declaration.modifiers & ClassFileConstants.AccAnnotationDefault) != 0) {
+			// add an annotation default attribute
+			int annotationDefaultNameIndex =
+				constantPool.literalIndex(AttributeNamesConstants.AnnotationDefaultName);
+			contents[contentsOffset++] = (byte) (annotationDefaultNameIndex >> 8);
+			contents[contentsOffset++] = (byte) annotationDefaultNameIndex;
+			int attributeLengthOffset = contentsOffset;
+			contentsOffset += 4;
+			if (contentsOffset + 4 >= this.contents.length) {
+				resizeContents(4);
+			}
+			generateElementValue(declaration.defaultValue, declaration.binding.returnType, attributeOffset);
+			if (contentsOffset != attributeOffset) {
+				int attributeLength = contentsOffset - attributeLengthOffset - 4;
+				contents[attributeLengthOffset++] = (byte) (attributeLength >> 24);
+				contents[attributeLengthOffset++] = (byte) (attributeLength >> 16);
+				contents[attributeLengthOffset++] = (byte) (attributeLength >> 8);
+				contents[attributeLengthOffset++] = (byte) attributeLength;
+				attributesNumber++;
+			}
+		}
+		return attributesNumber;
+	}
 	/**
 	 * INTERNAL USE-ONLY
 	 * That method generates the header of a method info:
@@ -6499,7 +6523,6 @@ public class ClassFile
 	public void generateMethodInfoHeader(MethodBinding methodBinding) {
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers);
 	}
-
 	/**
 	 * INTERNAL USE-ONLY
 	 * That method generates the header of a method info:
@@ -6535,6 +6558,7 @@ public class ClassFile
 		contents[contentsOffset++] = (byte) (descriptorIndex >> 8);
 		contents[contentsOffset++] = (byte) descriptorIndex;
 	}
+
 	/**
 	 * INTERNAL USE-ONLY
 	 * That method generates the method info header of a clinit:
@@ -6594,6 +6618,42 @@ public class ClassFile
 					}
 				}
 			}
+		}
+	}
+
+	private void generateMissingTypesAttribute() {
+		int numberOfMissingTypes = this.missingTypes.size();
+		TypeBinding[] missingTypesArray;
+		this.missingTypes.toArray(missingTypesArray = new TypeBinding[numberOfMissingTypes]);
+		Arrays.sort(missingTypesArray, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				TypeBinding binding1 = (TypeBinding) o1;
+				TypeBinding binding2 = (TypeBinding) o2;
+				return CharOperation.compareTo(binding1.constantPoolName(), binding2.constantPoolName());
+			}
+		});
+		int attributeLength = numberOfMissingTypes * 2 + 2;
+		if (this.contentsOffset + attributeLength + 6 >= this.contents.length) {
+			resizeContents(attributeLength + 6);
+		}
+		int missingTypesNameIndex = this.constantPool.literalIndex(AttributeNamesConstants.MissingTypesName);
+		this.contents[this.contentsOffset++] = (byte) (missingTypesNameIndex >> 8);
+		this.contents[this.contentsOffset++] = (byte) missingTypesNameIndex;
+
+		// generate attribute length
+		this.contents[this.contentsOffset++] = (byte) (attributeLength >> 24);
+		this.contents[this.contentsOffset++] = (byte) (attributeLength >> 16);
+		this.contents[this.contentsOffset++] = (byte) (attributeLength >> 8);
+		this.contents[this.contentsOffset++] = (byte) attributeLength;
+		
+		// generate number of missing types
+		this.contents[this.contentsOffset++] = (byte) (numberOfMissingTypes >> 8);
+		this.contents[this.contentsOffset++] = (byte) numberOfMissingTypes;
+		// generate entry for each missing type
+		for (int i = 0; i < numberOfMissingTypes; i++) {
+			int missingTypeIndex = this.constantPool.literalIndexForType(missingTypesArray[i]);
+			this.contents[this.contentsOffset++] = (byte) (missingTypeIndex >> 8);
+			this.contents[this.contentsOffset++] = (byte) missingTypeIndex;
 		}
 	}
 
@@ -6875,6 +6935,67 @@ public class ClassFile
 		return CharOperation.splitOn('/', fileName());
 	}
 
+	private int getParametersCount(char[] methodSignature) {
+		int i = CharOperation.indexOf('(', methodSignature);
+		i++;
+		char currentCharacter = methodSignature[i];
+		if (currentCharacter == ')') {
+			return 0;
+		}
+		int result = 0;
+		while (true) {
+			currentCharacter = methodSignature[i];
+			if (currentCharacter == ')') {
+				return result;
+			}
+			switch (currentCharacter) {
+				case '[':
+					// array type
+					int scanType = scanType(methodSignature, i + 1);
+					result++;
+					i = scanType + 1;
+					break;
+				case 'L':
+					scanType = CharOperation.indexOf(';', methodSignature,
+							i + 1);
+					result++;
+					i = scanType + 1;
+					break;
+				case 'Z':
+				case 'B':
+				case 'C':
+				case 'D':
+				case 'F':
+				case 'I':
+				case 'J':
+				case 'S':
+					result++;
+					i++;
+					break;
+				default:
+					throw new IllegalArgumentException();
+			}
+		}
+	}
+
+	private char[] getReturnType(char[] methodSignature) {
+		// skip type parameters
+		int paren = CharOperation.lastIndexOf(')', methodSignature);
+		// there could be thrown exceptions behind, thus scan one type exactly
+		return CharOperation.subarray(methodSignature, paren + 1,
+				methodSignature.length);
+	}
+
+
+	private final int i4At(byte[] reference, int relativeOffset,
+			int structOffset) {
+		int position = relativeOffset + structOffset;
+		return ((reference[position++] & 0xFF) << 24)
+				+ ((reference[position++] & 0xFF) << 16)
+				+ ((reference[position++] & 0xFF) << 8)
+				+ (reference[position] & 0xFF);
+	}
+
 	protected void initByteArrays() {
 		int members = referenceBinding.methods().length + referenceBinding.fields().length;
 		this.header = new byte[INITIAL_HEADER_SIZE];
@@ -6963,6 +7084,193 @@ public class ClassFile
 		}
 	}
 
+	private void initializeDefaultLocals(StackMapFrame frame,
+			MethodBinding methodBinding,
+			int maxLocals,
+			int codeLength) {
+		if (maxLocals != 0) {
+			int resolvedPosition = 0;
+			// take into account enum constructor synthetic name+ordinal
+			final boolean isConstructor = methodBinding.isConstructor();
+			if (isConstructor) {
+				LocalVariableBinding localVariableBinding = new LocalVariableBinding("this".toCharArray(), methodBinding.declaringClass, 0, false); //$NON-NLS-1$
+				localVariableBinding.resolvedPosition = 0;
+				codeStream.record(localVariableBinding);
+				localVariableBinding.recordInitializationStartPC(0);
+				localVariableBinding.recordInitializationEndPC(codeLength);
+				frame.putLocal(resolvedPosition, new VerificationTypeInfo(
+						VerificationTypeInfo.ITEM_UNINITIALIZED_THIS,
+						methodBinding.declaringClass));
+				resolvedPosition++;
+			} else if (!methodBinding.isStatic()) {
+				LocalVariableBinding localVariableBinding = new LocalVariableBinding("this".toCharArray(), methodBinding.declaringClass, 0, false); //$NON-NLS-1$
+				localVariableBinding.resolvedPosition = 0;
+				codeStream.record(localVariableBinding);
+				localVariableBinding.recordInitializationStartPC(0);
+				localVariableBinding.recordInitializationEndPC(codeLength);
+				frame.putLocal(resolvedPosition, new VerificationTypeInfo(
+						VerificationTypeInfo.ITEM_OBJECT,
+						methodBinding.declaringClass));
+				resolvedPosition++;
+			}
+
+			if (isConstructor) {
+				if (methodBinding.declaringClass.isEnum()) {
+					LocalVariableBinding localVariableBinding = new LocalVariableBinding(" name".toCharArray(), this.referenceBinding.scope.getJavaLangString(), 0, false); //$NON-NLS-1$
+					localVariableBinding.resolvedPosition = resolvedPosition;
+					codeStream.record(localVariableBinding);
+					localVariableBinding.recordInitializationStartPC(0);
+					localVariableBinding.recordInitializationEndPC(codeLength);
+
+					frame.putLocal(resolvedPosition, new VerificationTypeInfo(
+							TypeIds.T_JavaLangString,
+							ConstantPool.JavaLangStringConstantPoolName));
+					resolvedPosition++;
+
+					localVariableBinding = new LocalVariableBinding(" ordinal".toCharArray(), TypeBinding.INT, 0, false); //$NON-NLS-1$
+					localVariableBinding.resolvedPosition = resolvedPosition;
+					codeStream.record(localVariableBinding);
+					localVariableBinding.recordInitializationStartPC(0);
+					localVariableBinding.recordInitializationEndPC(codeLength);
+					frame.putLocal(resolvedPosition, new VerificationTypeInfo(
+							TypeBinding.INT));
+					resolvedPosition++;
+				}
+
+				// take into account the synthetic parameters
+				if (methodBinding.declaringClass.isNestedType()) {
+					ReferenceBinding enclosingInstanceTypes[];
+					if ((enclosingInstanceTypes = methodBinding.declaringClass
+							.syntheticEnclosingInstanceTypes()) != null) {
+						for (int i = 0, max = enclosingInstanceTypes.length; i < max; i++) {
+							// an enclosingInstanceType can only be a reference
+							// binding. It cannot be
+							// LongBinding or DoubleBinding
+							LocalVariableBinding localVariableBinding = new LocalVariableBinding((" enclosingType" + i).toCharArray(), enclosingInstanceTypes[i], 0, false); //$NON-NLS-1$
+							localVariableBinding.resolvedPosition = resolvedPosition;
+							codeStream.record(localVariableBinding);
+							localVariableBinding.recordInitializationStartPC(0);
+							localVariableBinding.recordInitializationEndPC(codeLength);
+							
+							frame.putLocal(resolvedPosition,
+									new VerificationTypeInfo(
+											enclosingInstanceTypes[i]));
+							resolvedPosition++;
+						}
+					}
+
+					TypeBinding[] arguments;
+					if ((arguments = methodBinding.parameters) != null) {
+						for (int i = 0, max = arguments.length; i < max; i++) {
+							final TypeBinding typeBinding = arguments[i];
+							frame.putLocal(resolvedPosition,
+									new VerificationTypeInfo(typeBinding));
+							switch (typeBinding.id) {
+								case TypeIds.T_double:
+								case TypeIds.T_long:
+									resolvedPosition += 2;
+									break;
+								default:
+									resolvedPosition++;
+							}
+						}
+					}
+
+					SyntheticArgumentBinding syntheticArguments[];
+					if ((syntheticArguments = methodBinding.declaringClass.syntheticOuterLocalVariables()) != null) {
+						for (int i = 0, max = syntheticArguments.length; i < max; i++) {
+							final TypeBinding typeBinding = syntheticArguments[i].type;
+							LocalVariableBinding localVariableBinding = new LocalVariableBinding((" synthetic" + i).toCharArray(), typeBinding, 0, false); //$NON-NLS-1$
+							localVariableBinding.resolvedPosition = resolvedPosition;
+							codeStream.record(localVariableBinding);
+							localVariableBinding.recordInitializationStartPC(0);
+							localVariableBinding.recordInitializationEndPC(codeLength);
+
+							frame.putLocal(resolvedPosition,
+									new VerificationTypeInfo(typeBinding));
+							switch (typeBinding.id) {
+								case TypeIds.T_double:
+								case TypeIds.T_long:
+									resolvedPosition += 2;
+									break;
+								default:
+									resolvedPosition++;
+							}
+						}
+					}
+				} else {
+					TypeBinding[] arguments;
+					if ((arguments = methodBinding.parameters) != null) {
+						for (int i = 0, max = arguments.length; i < max; i++) {
+							final TypeBinding typeBinding = arguments[i];
+							frame.putLocal(resolvedPosition,
+									new VerificationTypeInfo(typeBinding));
+							switch (typeBinding.id) {
+								case TypeIds.T_double:
+								case TypeIds.T_long:
+									resolvedPosition += 2;
+									break;
+								default:
+									resolvedPosition++;
+							}
+						}
+					}
+				}
+			} else {
+				TypeBinding[] arguments;
+				if ((arguments = methodBinding.parameters) != null) {
+					for (int i = 0, max = arguments.length; i < max; i++) {
+						final TypeBinding typeBinding = arguments[i];
+						frame.putLocal(resolvedPosition,
+								new VerificationTypeInfo(typeBinding));
+						switch (typeBinding.id) {
+							case TypeIds.T_double:
+							case TypeIds.T_long:
+								resolvedPosition += 2;
+								break;
+							default:
+								resolvedPosition++;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private void initializeLocals(boolean isStatic, int currentPC, StackMapFrame currentFrame) {
+		VerificationTypeInfo[] locals = currentFrame.locals;
+		int localsLength = locals.length;
+		int i = 0;
+		if (!isStatic) {
+			// we don't want to reset the first local if the method is not static
+			i = 1;
+		}
+		for (; i < localsLength; i++) {
+			locals[i] = null;
+		}
+		i = 0;
+		locals: for (int max = codeStream.allLocalsCounter; i < max; i++) {
+			LocalVariableBinding localVariable = codeStream.locals[i];
+			if (localVariable == null) continue;
+			int resolvedPosition = localVariable.resolvedPosition;
+			final TypeBinding localVariableTypeBinding = localVariable.type;
+			inits: for (int j = 0; j < localVariable.initializationCount; j++) {
+				int startPC = localVariable.initializationPCs[j << 1];
+				int endPC = localVariable.initializationPCs[(j << 1) + 1];
+				if (currentPC < startPC) {
+					continue inits;
+				} else if (currentPC < endPC) {
+					// the current local is an active local
+					if (currentFrame.locals[resolvedPosition] == null) {
+						currentFrame.locals[resolvedPosition] =
+								new VerificationTypeInfo(
+										localVariableTypeBinding);
+					}
+					continue locals;
+				}
+			}
+		}
+	}
 
 	private boolean isRuntimeInvisible(Annotation annotation) {
 		final TypeBinding annotationBinding = annotation.resolvedType;
@@ -7000,7 +7308,7 @@ public class ClassFile
 			current = current.enclosingClassFile;
 		return current;
 	}
-
+	
 	public void recordInnerClasses(TypeBinding binding) {
 		if (this.innerClassesBindings == null) {
 			this.innerClassesBindings = new HashSet(INNER_CLASSES_SIZE);
@@ -7051,6 +7359,47 @@ public class ClassFile
 		if (toAdd < minimalSize)
 			toAdd = minimalSize;
 		System.arraycopy(this.contents, 0, this.contents = new byte[length + toAdd], 0, length);
+	}
+
+	private VerificationTypeInfo retrieveLocal(int currentPC, int resolvedPosition) {
+		for (int i = 0, max = codeStream.allLocalsCounter; i < max; i++) {
+			LocalVariableBinding localVariable = codeStream.locals[i];
+			if (localVariable == null) continue;
+			if (resolvedPosition == localVariable.resolvedPosition) {
+				inits: for (int j = 0; j < localVariable.initializationCount; j++) {
+					int startPC = localVariable.initializationPCs[j << 1];
+					int endPC = localVariable.initializationPCs[(j << 1) + 1];
+					if (currentPC < startPC) {
+						continue inits;
+					} else if (currentPC < endPC) {
+						// the current local is an active local
+						return new VerificationTypeInfo(localVariable.type);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	private int scanType(char[] methodSignature, int index) {
+		switch (methodSignature[index]) {
+			case '[':
+				// array type
+				return scanType(methodSignature, index + 1);
+			case 'L':
+				return CharOperation.indexOf(';', methodSignature, index + 1);
+			case 'Z':
+			case 'B':
+			case 'C':
+			case 'D':
+			case 'F':
+			case 'I':
+			case 'J':
+			case 'S':
+				return index;
+			default:
+				throw new IllegalArgumentException();
+		}
 	}
 
 	/**
@@ -8301,227 +8650,10 @@ public class ClassFile
 			}
 		}
 	}
-	
-	private void initializeDefaultLocals(StackMapFrame frame,
-			MethodBinding methodBinding,
-			int maxLocals,
-			int codeLength) {
-		if (maxLocals != 0) {
-			int resolvedPosition = 0;
-			// take into account enum constructor synthetic name+ordinal
-			final boolean isConstructor = methodBinding.isConstructor();
-			if (isConstructor) {
-				LocalVariableBinding localVariableBinding = new LocalVariableBinding("this".toCharArray(), methodBinding.declaringClass, 0, false); //$NON-NLS-1$
-				localVariableBinding.resolvedPosition = 0;
-				codeStream.record(localVariableBinding);
-				localVariableBinding.recordInitializationStartPC(0);
-				localVariableBinding.recordInitializationEndPC(codeLength);
-				frame.putLocal(resolvedPosition, new VerificationTypeInfo(
-						VerificationTypeInfo.ITEM_UNINITIALIZED_THIS,
-						methodBinding.declaringClass));
-				resolvedPosition++;
-			} else if (!methodBinding.isStatic()) {
-				LocalVariableBinding localVariableBinding = new LocalVariableBinding("this".toCharArray(), methodBinding.declaringClass, 0, false); //$NON-NLS-1$
-				localVariableBinding.resolvedPosition = 0;
-				codeStream.record(localVariableBinding);
-				localVariableBinding.recordInitializationStartPC(0);
-				localVariableBinding.recordInitializationEndPC(codeLength);
-				frame.putLocal(resolvedPosition, new VerificationTypeInfo(
-						VerificationTypeInfo.ITEM_OBJECT,
-						methodBinding.declaringClass));
-				resolvedPosition++;
-			}
-
-			if (isConstructor) {
-				if (methodBinding.declaringClass.isEnum()) {
-					LocalVariableBinding localVariableBinding = new LocalVariableBinding(" name".toCharArray(), this.referenceBinding.scope.getJavaLangString(), 0, false); //$NON-NLS-1$
-					localVariableBinding.resolvedPosition = resolvedPosition;
-					codeStream.record(localVariableBinding);
-					localVariableBinding.recordInitializationStartPC(0);
-					localVariableBinding.recordInitializationEndPC(codeLength);
-
-					frame.putLocal(resolvedPosition, new VerificationTypeInfo(
-							TypeIds.T_JavaLangString,
-							ConstantPool.JavaLangStringConstantPoolName));
-					resolvedPosition++;
-
-					localVariableBinding = new LocalVariableBinding(" ordinal".toCharArray(), TypeBinding.INT, 0, false); //$NON-NLS-1$
-					localVariableBinding.resolvedPosition = resolvedPosition;
-					codeStream.record(localVariableBinding);
-					localVariableBinding.recordInitializationStartPC(0);
-					localVariableBinding.recordInitializationEndPC(codeLength);
-					frame.putLocal(resolvedPosition, new VerificationTypeInfo(
-							TypeBinding.INT));
-					resolvedPosition++;
-				}
-
-				// take into account the synthetic parameters
-				if (methodBinding.declaringClass.isNestedType()) {
-					ReferenceBinding enclosingInstanceTypes[];
-					if ((enclosingInstanceTypes = methodBinding.declaringClass
-							.syntheticEnclosingInstanceTypes()) != null) {
-						for (int i = 0, max = enclosingInstanceTypes.length; i < max; i++) {
-							// an enclosingInstanceType can only be a reference
-							// binding. It cannot be
-							// LongBinding or DoubleBinding
-							LocalVariableBinding localVariableBinding = new LocalVariableBinding((" enclosingType" + i).toCharArray(), enclosingInstanceTypes[i], 0, false); //$NON-NLS-1$
-							localVariableBinding.resolvedPosition = resolvedPosition;
-							codeStream.record(localVariableBinding);
-							localVariableBinding.recordInitializationStartPC(0);
-							localVariableBinding.recordInitializationEndPC(codeLength);
-							
-							frame.putLocal(resolvedPosition,
-									new VerificationTypeInfo(
-											enclosingInstanceTypes[i]));
-							resolvedPosition++;
-						}
-					}
-
-					TypeBinding[] arguments;
-					if ((arguments = methodBinding.parameters) != null) {
-						for (int i = 0, max = arguments.length; i < max; i++) {
-							final TypeBinding typeBinding = arguments[i];
-							frame.putLocal(resolvedPosition,
-									new VerificationTypeInfo(typeBinding));
-							switch (typeBinding.id) {
-								case TypeIds.T_double:
-								case TypeIds.T_long:
-									resolvedPosition += 2;
-									break;
-								default:
-									resolvedPosition++;
-							}
-						}
-					}
-
-					SyntheticArgumentBinding syntheticArguments[];
-					if ((syntheticArguments = methodBinding.declaringClass.syntheticOuterLocalVariables()) != null) {
-						for (int i = 0, max = syntheticArguments.length; i < max; i++) {
-							final TypeBinding typeBinding = syntheticArguments[i].type;
-							LocalVariableBinding localVariableBinding = new LocalVariableBinding((" synthetic" + i).toCharArray(), typeBinding, 0, false); //$NON-NLS-1$
-							localVariableBinding.resolvedPosition = resolvedPosition;
-							codeStream.record(localVariableBinding);
-							localVariableBinding.recordInitializationStartPC(0);
-							localVariableBinding.recordInitializationEndPC(codeLength);
-
-							frame.putLocal(resolvedPosition,
-									new VerificationTypeInfo(typeBinding));
-							switch (typeBinding.id) {
-								case TypeIds.T_double:
-								case TypeIds.T_long:
-									resolvedPosition += 2;
-									break;
-								default:
-									resolvedPosition++;
-							}
-						}
-					}
-				} else {
-					TypeBinding[] arguments;
-					if ((arguments = methodBinding.parameters) != null) {
-						for (int i = 0, max = arguments.length; i < max; i++) {
-							final TypeBinding typeBinding = arguments[i];
-							frame.putLocal(resolvedPosition,
-									new VerificationTypeInfo(typeBinding));
-							switch (typeBinding.id) {
-								case TypeIds.T_double:
-								case TypeIds.T_long:
-									resolvedPosition += 2;
-									break;
-								default:
-									resolvedPosition++;
-							}
-						}
-					}
-				}
-			} else {
-				TypeBinding[] arguments;
-				if ((arguments = methodBinding.parameters) != null) {
-					for (int i = 0, max = arguments.length; i < max; i++) {
-						final TypeBinding typeBinding = arguments[i];
-						frame.putLocal(resolvedPosition,
-								new VerificationTypeInfo(typeBinding));
-						switch (typeBinding.id) {
-							case TypeIds.T_double:
-							case TypeIds.T_long:
-								resolvedPosition += 2;
-								break;
-							default:
-								resolvedPosition++;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	private void initializeLocals(boolean isStatic, int currentPC, StackMapFrame currentFrame) {
-		VerificationTypeInfo[] locals = currentFrame.locals;
-		int localsLength = locals.length;
-		int i = 0;
-		if (!isStatic) {
-			// we don't want to reset the first local if the method is not static
-			i = 1;
-		}
-		for (; i < localsLength; i++) {
-			locals[i] = null;
-		}
-		i = 0;
-		locals: for (int max = codeStream.allLocalsCounter; i < max; i++) {
-			LocalVariableBinding localVariable = codeStream.locals[i];
-			if (localVariable == null) continue;
-			int resolvedPosition = localVariable.resolvedPosition;
-			final TypeBinding localVariableTypeBinding = localVariable.type;
-			inits: for (int j = 0; j < localVariable.initializationCount; j++) {
-				int startPC = localVariable.initializationPCs[j << 1];
-				int endPC = localVariable.initializationPCs[(j << 1) + 1];
-				if (currentPC < startPC) {
-					continue inits;
-				} else if (currentPC < endPC) {
-					// the current local is an active local
-					if (currentFrame.locals[resolvedPosition] == null) {
-						currentFrame.locals[resolvedPosition] =
-								new VerificationTypeInfo(
-										localVariableTypeBinding);
-					}
-					continue locals;
-				}
-			}
-		}
-	}
-
-	private VerificationTypeInfo retrieveLocal(int currentPC, int resolvedPosition) {
-		for (int i = 0, max = codeStream.allLocalsCounter; i < max; i++) {
-			LocalVariableBinding localVariable = codeStream.locals[i];
-			if (localVariable == null) continue;
-			if (resolvedPosition == localVariable.resolvedPosition) {
-				inits: for (int j = 0; j < localVariable.initializationCount; j++) {
-					int startPC = localVariable.initializationPCs[j << 1];
-					int endPC = localVariable.initializationPCs[(j << 1) + 1];
-					if (currentPC < startPC) {
-						continue inits;
-					} else if (currentPC < endPC) {
-						// the current local is an active local
-						return new VerificationTypeInfo(localVariable.type);
-					}
-				}
-			}
-		}
-		return null;
-	}
 
 	private final int u1At(byte[] reference, int relativeOffset,
 			int structOffset) {
 		return (reference[relativeOffset + structOffset] & 0xFF);
-	}
-
-	private final int i4At(byte[] reference, int relativeOffset,
-			int structOffset) {
-		int position = relativeOffset + structOffset;
-		return ((reference[position++] & 0xFF) << 24)
-				+ ((reference[position++] & 0xFF) << 16)
-				+ ((reference[position++] & 0xFF) << 8)
-				+ (reference[position] & 0xFF);
 	}
 
 	private final int u2At(byte[] reference, int relativeOffset,
@@ -8568,77 +8700,5 @@ public class ClassFile
 					0, outputPos);
 		}
 		return outputBuf;
-	}
-
-	private char[] getReturnType(char[] methodSignature) {
-		// skip type parameters
-		int paren = CharOperation.lastIndexOf(')', methodSignature);
-		// there could be thrown exceptions behind, thus scan one type exactly
-		return CharOperation.subarray(methodSignature, paren + 1,
-				methodSignature.length);
-	}
-
-	private int getParametersCount(char[] methodSignature) {
-		int i = CharOperation.indexOf('(', methodSignature);
-		i++;
-		char currentCharacter = methodSignature[i];
-		if (currentCharacter == ')') {
-			return 0;
-		}
-		int result = 0;
-		while (true) {
-			currentCharacter = methodSignature[i];
-			if (currentCharacter == ')') {
-				return result;
-			}
-			switch (currentCharacter) {
-				case '[':
-					// array type
-					int scanType = scanType(methodSignature, i + 1);
-					result++;
-					i = scanType + 1;
-					break;
-				case 'L':
-					scanType = CharOperation.indexOf(';', methodSignature,
-							i + 1);
-					result++;
-					i = scanType + 1;
-					break;
-				case 'Z':
-				case 'B':
-				case 'C':
-				case 'D':
-				case 'F':
-				case 'I':
-				case 'J':
-				case 'S':
-					result++;
-					i++;
-					break;
-				default:
-					throw new IllegalArgumentException();
-			}
-		}
-	}
-
-	private int scanType(char[] methodSignature, int index) {
-		switch (methodSignature[index]) {
-			case '[':
-				// array type
-				return scanType(methodSignature, index + 1);
-			case 'L':
-				return CharOperation.indexOf(';', methodSignature, index + 1);
-			case 'Z':
-			case 'B':
-			case 'C':
-			case 'D':
-			case 'F':
-			case 'I':
-			case 'J':
-			case 'S':
-				return index;
-			default:
-				throw new IllegalArgumentException();
-		}
 	}
 }

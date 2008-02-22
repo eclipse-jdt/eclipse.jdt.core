@@ -42,7 +42,7 @@ class AnnotationBinding implements IAnnotationBinding {
 
 	public ITypeBinding getAnnotationType() {
 		ITypeBinding typeBinding = this.bindingResolver.getTypeBinding(this.binding.getAnnotationType());
-		if (typeBinding == null || !typeBinding.isAnnotation())
+		if (typeBinding == null)
 			return null;
 		return typeBinding;
 	}

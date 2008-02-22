@@ -60,7 +60,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (!binding.isValidBinding()) {
 		if (binding instanceof ProblemFieldBinding) {
 			scope.problemReporter().invalidField(this, (FieldBinding) binding);
-		} else if (binding instanceof ProblemReferenceBinding) {
+		} else if (binding instanceof ProblemReferenceBinding || binding instanceof MissingTypeBinding) {
 			scope.problemReporter().invalidType(this, (TypeBinding) binding);
 		} else {
 			scope.problemReporter().unresolvableReference(this, binding);

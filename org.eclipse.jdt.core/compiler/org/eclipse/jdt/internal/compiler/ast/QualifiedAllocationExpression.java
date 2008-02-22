@@ -256,7 +256,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			} else {
 				receiverType = this.type.resolveType(scope, true /* check bounds*/);
 				checkParameterizedAllocation: {
-					if (receiverType == null) break checkParameterizedAllocation;
+					if (receiverType == null || !receiverType.isValidBinding()) break checkParameterizedAllocation;
 					if (this.type instanceof ParameterizedQualifiedTypeReference) { // disallow new X<String>.Y<Integer>()
 						ReferenceBinding currentType = (ReferenceBinding)receiverType;
 						do {
@@ -275,23 +275,31 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				}				
 			}			
 		}
-		if (receiverType == null) {
+		if (receiverType == null || !receiverType.isValidBinding()) {
 			hasError = true;
 		}
+		
 		// resolve type arguments (for generic constructor call)
 		if (this.typeArguments != null) {
 			int length = this.typeArguments.length;
+			boolean argHasError = scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5;
 			this.genericTypeArguments = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
-				TypeReference typeReference = this.typeArguments[i];				
-				TypeBinding argType = typeReference.resolveType(scope, true /* check bounds*/);
-				if (argType == null) {
-					if (typeReference instanceof Wildcard) {
-						scope.problemReporter().illegalUsageOfWildcard(typeReference);
-					}
-					return null; // error already reported
+				TypeReference typeReference = this.typeArguments[i];
+				if ((this.genericTypeArguments[i] = typeReference.resolveType(scope, true /* check bounds*/)) == null) {
+					argHasError = true;
 				}
-				this.genericTypeArguments[i] = argType;
+				if (argHasError && typeReference instanceof Wildcard) {
+					scope.problemReporter().illegalUsageOfWildcard(typeReference);
+				}
+			}
+			if (argHasError) {
+				if (this.arguments != null) { // still attempt to resolve arguments
+					for (int i = 0, max = this.arguments.length; i < max; i++) {
+						this.arguments[i].resolveType(scope);
+					}
+				}					
+				return null;
 			}
 		}
 		
@@ -311,32 +319,37 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				}
 			}
 		}
+	
 		// limit of fault-tolerance
 		if (hasError) {
 			if (receiverType instanceof ReferenceBinding) {
 				ReferenceBinding referenceReceiver = (ReferenceBinding) receiverType;
-				// record a best guess, for clients who need hint about possible contructor match
-				int length = this.arguments  == null ? 0 : this.arguments.length;
-				TypeBinding[] pseudoArgs = new TypeBinding[length];
-				for (int i = length; --i >= 0;) {
-					pseudoArgs[i] = argumentTypes[i] == null ? TypeBinding.NULL : argumentTypes[i]; // replace args with errors with null type
-				}
-				this.binding = scope.findMethod(referenceReceiver, TypeConstants.INIT, pseudoArgs, this);
-				if (this.binding != null && !this.binding.isValidBinding()) {
-					MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
-					// record the closest match, for clients who may still need hint about possible method match
-					if (closestMatch != null) {
-						if (closestMatch.original().typeVariables != Binding.NO_TYPE_VARIABLES) { // generic method
-							// shouldn't return generic method outside its context, rather convert it to raw method (175409)
-							closestMatch = scope.environment().createParameterizedGenericMethod(closestMatch.original(), (RawTypeBinding)null);
-						}
-						this.binding = closestMatch;
-						MethodBinding closestMatchOriginal = closestMatch.original();
-						if ((closestMatchOriginal.isPrivate() || closestMatchOriginal.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatchOriginal)) {
-							// ignore cases where method is used from within inside itself (e.g. direct recursions)
-							closestMatchOriginal.modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+				if (receiverType.isValidBinding()) {
+					// record a best guess, for clients who need hint about possible contructor match
+					int length = this.arguments  == null ? 0 : this.arguments.length;
+					TypeBinding[] pseudoArgs = new TypeBinding[length];
+					for (int i = length; --i >= 0;) {
+						pseudoArgs[i] = argumentTypes[i] == null ? TypeBinding.NULL : argumentTypes[i]; // replace args with errors with null type
+					}
+					this.binding = scope.findMethod(referenceReceiver, TypeConstants.INIT, pseudoArgs, this);
+					if (this.binding != null && !this.binding.isValidBinding()) {
+						MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
+						// record the closest match, for clients who may still need hint about possible method match
+						if (closestMatch != null) {
+							if (closestMatch.original().typeVariables != Binding.NO_TYPE_VARIABLES) { // generic method
+								// shouldn't return generic method outside its context, rather convert it to raw method (175409)
+								closestMatch = scope.environment().createParameterizedGenericMethod(closestMatch.original(), (RawTypeBinding)null);
+							}
+							this.binding = closestMatch;
+							MethodBinding closestMatchOriginal = closestMatch.original();
+							if ((closestMatchOriginal.isPrivate() || closestMatchOriginal.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatchOriginal)) {
+								// ignore cases where method is used from within inside itself (e.g. direct recursions)
+								closestMatchOriginal.modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+							}
 						}
 					}
+				} else {
+					return null;
 				}
 				if (this.anonymousType != null) {
 					// insert anonymous type in scope (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=210070)
@@ -366,10 +379,16 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				if (this.binding.declaringClass == null) {
 					this.binding.declaringClass = allocationType;
 				}
+				if (this.type != null && !this.type.resolvedType.isValidBinding()) {
+					// problem already got signaled on type reference, do not report secondary problem
+					return null;
+				}					
 				scope.problemReporter().invalidConstructor(this, this.binding);
 				return this.resolvedType = receiverType;
 			}
-
+			if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
+				scope.problemReporter().missingTypeInConstructor(this, this.binding);
+			}
 			// The enclosing instance must be compatible with the innermost enclosing type
 			ReferenceBinding expectedType = this.binding.declaringClass.enclosingType();
 			if (expectedType != enclosingInstanceType) // must call before computeConversion() and typeMismatchError()
@@ -378,12 +397,12 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				this.enclosingInstance.computeConversion(scope, expectedType, enclosingInstanceType);
 				return this.resolvedType = receiverType;
 			}
-			scope.problemReporter().typeMismatchError(enclosingInstanceType, expectedType, this.enclosingInstance);
+			scope.problemReporter().typeMismatchError(enclosingInstanceType, expectedType, this.enclosingInstance, null);
 			return this.resolvedType = receiverType;
 		}
 		ReferenceBinding superType = (ReferenceBinding) receiverType;
 		if (superType.isTypeVariable()) {
-			superType = new ProblemReferenceBinding(superType.sourceName(), superType, ProblemReasons.IllegalSuperTypeVariable);
+			superType = new ProblemReferenceBinding(new char[][]{superType.sourceName()}, superType, ProblemReasons.IllegalSuperTypeVariable);
 			scope.problemReporter().invalidType(this, superType);
 			return null;
 		} else if (this.type != null && superType.isEnum()) { // tolerate enum constant body
@@ -407,8 +426,15 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			if (inheritedBinding.declaringClass == null) {
 				inheritedBinding.declaringClass = anonymousSuperclass;
 			}
+			if (this.type != null && !this.type.resolvedType.isValidBinding()) {
+				// problem already got signaled on type reference, do not report secondary problem
+				return null;
+			}		
 			scope.problemReporter().invalidConstructor(this, inheritedBinding);
 			return this.resolvedType;
+		}
+		if ((inheritedBinding.tagBits & TagBits.HasMissingType) != 0) {
+			scope.problemReporter().missingTypeInConstructor(this, inheritedBinding);
 		}
 		if (this.enclosingInstance != null) {
 			ReferenceBinding targetEnclosing = inheritedBinding.declaringClass.enclosingType();
@@ -416,7 +442,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				scope.problemReporter().unnecessaryEnclosingInstanceSpecification(this.enclosingInstance, superType);
 				return this.resolvedType;
 			} else if (!enclosingInstanceType.isCompatibleWith(targetEnclosing) && !scope.isBoxingCompatibleWith(enclosingInstanceType, targetEnclosing)) {
-				scope.problemReporter().typeMismatchError(enclosingInstanceType, targetEnclosing, this.enclosingInstance);
+				scope.problemReporter().typeMismatchError(enclosingInstanceType, targetEnclosing, this.enclosingInstance, null);
 				return this.resolvedType;
 			}
 			this.enclosingInstance.computeConversion(scope, targetEnclosing, enclosingInstanceType);

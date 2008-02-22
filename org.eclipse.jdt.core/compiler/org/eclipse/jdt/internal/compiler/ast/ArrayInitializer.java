@@ -176,7 +176,7 @@ public class ArrayInitializer extends Expression {
 											&& expression.isConstantValueOfTypeAssignableToType(expressionType, scope.environment().computeBoxingType(elementType)))) {
 					expression.computeConversion(scope, elementType, expressionType);
 				} else {
-					scope.problemReporter().typeMismatchError(expressionType, elementType, expression);
+					scope.problemReporter().typeMismatchError(expressionType, elementType, expression, null);
 				} 				
 			}
 			return this.binding;
@@ -212,7 +212,7 @@ public class ArrayInitializer extends Expression {
 		if (leafElementType != null) {
 			this.resolvedType = scope.createArrayType(leafElementType, dim);
 			if (expectedType != null)
-				scope.problemReporter().typeMismatchError(this.resolvedType, expectedType, this);
+				scope.problemReporter().typeMismatchError(this.resolvedType, expectedType, this, null);
 		}
 		return null;
 	}

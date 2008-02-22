@@ -164,6 +164,9 @@ public TypeBinding resolveType(BlockScope scope) {
 					if (this.binding.declaringClass == null) {
 						this.binding.declaringClass = allocatedType;
 					}
+					if (this.type != null && !this.type.resolvedType.isValidBinding()) {
+						return null;
+					}					
 					scope.problemReporter().invalidConstructor(this, this.binding);
 					return this.resolvedType;
 				}
@@ -171,6 +174,9 @@ public TypeBinding resolveType(BlockScope scope) {
 				if (this.binding.declaringClass == null) {
 					this.binding.declaringClass = allocatedType;
 				}
+				if (this.type != null && !this.type.resolvedType.isValidBinding()) {
+					return null;
+				}				
 				scope.problemReporter().invalidConstructor(this, this.binding);
 				return this.resolvedType;
 			}
@@ -180,6 +186,9 @@ public TypeBinding resolveType(BlockScope scope) {
 				if (this.binding.declaringClass == null) {
 					this.binding.declaringClass = allocatedType;
 				}
+				if (this.type != null && !this.type.resolvedType.isValidBinding()) {
+					return null;
+				}				
 				scope.problemReporter().invalidConstructor(this, this.binding);
 				return this.resolvedType;
 			} else {
@@ -189,6 +198,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			if (this.binding.declaringClass == null) {
 				this.binding.declaringClass = allocatedType;
 			}
+			if (this.type != null && !this.type.resolvedType.isValidBinding()) {
+				return null;
+			}			
 			scope.problemReporter().invalidConstructor(this, this.binding);
 			return this.resolvedType;
 		}

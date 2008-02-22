@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
@@ -61,7 +62,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				throw new SelectionNodeFound(binding);
 			}
 			scope.problemReporter().invalidField(this, (FieldBinding) binding);
-		} else if (binding instanceof ProblemReferenceBinding) {
+		} else if (binding instanceof ProblemReferenceBinding || binding instanceof MissingTypeBinding) {
 			// tolerate some error cases
 			if (binding.problemId() == ProblemReasons.NotVisible){
 				throw new SelectionNodeFound(binding);

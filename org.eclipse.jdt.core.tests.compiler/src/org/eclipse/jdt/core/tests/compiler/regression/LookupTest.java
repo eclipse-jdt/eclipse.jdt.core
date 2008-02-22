@@ -1121,7 +1121,7 @@ public void test032() {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	System.out.println(p.Bar.array.length);\n" + 
-		"	                   ^^^^^^^^^^^^^^^^^^\n" + 
+		"	                   ^^^^^^^^^^^\n" + 
 		"The type Z is not visible\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 5)\n" + 
@@ -1819,22 +1819,26 @@ public void test055() {
             "}\n",
         },
 		"----------\n" + 
-		"1. ERROR in A.java (at line 4)\r\n" + 
-		"	B b = new B();\r\n" + 
+		"1. ERROR in A.java (at line 4)\n" + 
+		"	B b = new B();\n" + 
 		"	^\n" + 
 		"The type B is not visible\n" + 
 		"----------\n" + 
-		"2. ERROR in A.java (at line 4)\r\n" + 
-		"	B b = new B();\r\n" + 
+		"2. ERROR in A.java (at line 4)\n" + 
+		"	B b = new B();\n" + 
 		"	          ^\n" + 
 		"The type B is not visible\n" + 
 		"----------\n" + 
-		"3. ERROR in A.java (at line 6)\r\n" + 
-		"	String s2 = B.str;\r\n" + 
+		"3. ERROR in A.java (at line 5)\n" + 
+		"	String s1 = b.str;\n" + 
 		"	            ^\n" + 
 		"The type B is not visible\n" + 
-		"----------\n"
-	);
+		"----------\n" + 
+		"4. ERROR in A.java (at line 6)\n" + 
+		"	String s2 = B.str;\n" + 
+		"	            ^\n" + 
+		"The type B is not visible\n" + 
+		"----------\n");
 }
 // final method in static inner class still found in extending classes
 public void test056() {
@@ -1940,7 +1944,7 @@ public void test059() {
 		"2. ERROR in X.java (at line 10)\n" + 
 		"	this.bb();\n" + 
 		"	     ^^\n" + 
-		"The method bb() is undefined for the type X\n" + 
+		"The method bb() from the type X refers to the missing type Zork\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=132813 - variation
@@ -1978,7 +1982,7 @@ public void test060() {
 		"3. ERROR in X.java (at line 10)\n" + 
 		"	this.bb();\n" + 
 		"	     ^^\n" + 
-		"The method bb() is undefined for the type X\n" + 
+		"The method bb() from the type X refers to the missing type Zork\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=134839
@@ -2867,6 +2871,30 @@ public void test084() {
 			"}\n", 		// =================
 		},
 		"set(1)");
+}
+
+public void test086() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",	//===================
+			"public class X {\n" + 
+			"	public static void main(String[] arguments) {\n" + 
+			"		Y y = new Y();\n" + 
+			"		System.out.println(y.array[0]);\n" + 
+			"		System.out.println(y.length);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"	private class Invisible {}\n" + 
+			"	Invisible[] array;\n" + 
+			"}\n", 		// =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	System.out.println(y.length);\n" + 
+		"	                   ^^^^^^^^\n" + 
+		"y.length cannot be resolved or is not a field\n" + 
+		"----------\n");
 }
 public static Class testClass() {	return LookupTest.class;
 }

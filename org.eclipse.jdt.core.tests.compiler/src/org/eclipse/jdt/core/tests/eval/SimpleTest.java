@@ -82,6 +82,7 @@ public class SimpleTest {
 								}
 							}
 						} catch (ClassFormatException e) {
+							e.printStackTrace();
 						}
 					}
 				}

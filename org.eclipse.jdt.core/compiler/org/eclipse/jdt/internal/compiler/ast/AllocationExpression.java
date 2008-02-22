@@ -241,7 +241,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		checkParameterizedAllocation: {
 			if (this.type instanceof ParameterizedQualifiedTypeReference) { // disallow new X<String>.Y<Integer>()
 				ReferenceBinding currentType = (ReferenceBinding)this.resolvedType;
-				if (currentType == null) return null;
+				if (currentType == null) return currentType;
 				do {
 					// isStatic() is answering true for toplevel types
 					if ((currentType.modifiers & ClassFileConstants.AccStatic) != 0) break checkParameterizedAllocation;
@@ -262,7 +262,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// resolve type arguments (for generic constructor call)
 	if (this.typeArguments != null) {
 		int length = this.typeArguments.length;
-		boolean argHasError = false; // typeChecks all arguments
+		boolean argHasError = scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5;
 		this.genericTypeArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
 			TypeReference typeReference = this.typeArguments[i];
@@ -274,6 +274,11 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 		if (argHasError) {
+			if (this.arguments != null) { // still attempt to resolve arguments
+				for (int i = 0, max = this.arguments.length; i < max; i++) {
+					this.arguments[i].resolveType(scope);
+				}
+			}					
 			return null;
 		}
 	}
@@ -323,8 +328,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			return this.resolvedType;
 		}
 	}
-	if (this.resolvedType == null)
+	if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
 		return null;
+	}
 
 	// null type denotes fake allocation for enum constant inits
 	if (this.type != null && !this.resolvedType.canBeInstantiated()) {
@@ -333,10 +339,17 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
 	if (!(binding = scope.getConstructor(allocationType, argumentTypes, this)).isValidBinding()) {
-		if (binding.declaringClass == null)
+		if (binding.declaringClass == null) {
 			binding.declaringClass = allocationType;
+		}
+		if (this.type != null && !this.type.resolvedType.isValidBinding()) {
+			return null;
+		}
 		scope.problemReporter().invalidConstructor(this, binding);
 		return this.resolvedType;
+	}
+	if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
+		scope.problemReporter().missingTypeInConstructor(this, this.binding);
 	}
 	if (isMethodUseDeprecated(binding, scope, true))
 		scope.problemReporter().deprecatedMethod(binding, this);

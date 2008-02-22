@@ -528,7 +528,9 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 2, throwsException.size()); //$NON-NLS-1$
 		Name name = (Name) throwsException.get(0);
 		IBinding binding = name.resolveBinding();
-		assertNull("Got a binding", binding); //$NON-NLS-1$
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("LIOException;", binding.getKey());
+		assertTrue("Binding should be marked as recovered", binding.isRecovered());
 	}
 
 	/**
@@ -6572,7 +6574,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertEquals("Wrong size", 1, fragments.size());
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 			IVariableBinding binding = fragment.resolveBinding();
-			assertNull("Got a binding", binding);
+			assertNotNull("No binding", binding);
+			assertEquals("LX;.foo(Z)V#z", binding.getKey());
 
 			node = getASTNode(unit, 0, 0, 1);
 			assertEquals("Not an if statement", ASTNode.IF_STATEMENT, node.getNodeType());
@@ -6593,11 +6596,13 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertEquals("Wrong size", 1, arguments.size());
 			Expression expression2 = (Expression) arguments.get(0);
 			ITypeBinding typeBinding = expression2.resolveTypeBinding();
-			assertNull("Got a binding", typeBinding);
+			assertNotNull("No binding", typeBinding);
+			assertEquals("LX;.foo(Z)V#z", binding.getKey());			
 			assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, expression2.getNodeType());
 			SimpleName simpleName = (SimpleName) expression2;
 			IBinding binding2 = simpleName.resolveBinding();
-			assertNull("Got a binding", binding2);
+			assertNotNull("Got a binding", binding2);
+			assertEquals("LX;.foo(Z)V#z", binding2.getKey());						
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
@@ -8303,7 +8308,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			Expression expression = returnStatement.getExpression();
 			assertNotNull("No expression", expression);
 			ITypeBinding binding = expression.resolveTypeBinding();
-			assertNull("No binding", binding);
+			assertNotNull("No binding", binding);
+			assertEquals("LString;", binding.getKey());
 		} finally {
 			deleteProject("P659");
 		}
@@ -8727,7 +8733,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				false);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
-			String expectedError = "List cannot be resolved to a type";
+			String expectedError = 
+				"List cannot be resolved to a type";
 			assertProblemsSize(unit, 1, expectedError);
 			node = getASTNode(unit, 0, 0, 0);
 			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
@@ -8736,7 +8743,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertEquals("No fragments", 1, fragments.size());
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 			IVariableBinding variableBinding = fragment.resolveBinding();
-			assertNull("No binding", variableBinding);
+			assertNotNull("No binding", variableBinding);
+			assertEquals("LX;.foo()Ljava/lang/String;#c", variableBinding.getKey());	
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
@@ -8770,7 +8778,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 			MethodDeclaration declaration = (MethodDeclaration) node;
 			IMethodBinding binding = declaration.resolveBinding();
-			assertNull("Got a binding", binding);
+			assertNotNull("No binding", binding);
+			assertEquals("LX;.foo()LList;", binding.getKey());				
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
@@ -8816,7 +8825,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
-			String expectedError = "List cannot be resolved to a type";
+			String expectedError = 
+				"List cannot be resolved to a type";
 			assertProblemsSize(unit, 1, expectedError);
 			node = getASTNode(unit, 0, 0, 0);
 			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
@@ -8826,7 +8836,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 			IVariableBinding variableBinding = fragment.resolveBinding();
 			assertNotNull("No binding", variableBinding);
-			assertTrue("Not a recovered binding", variableBinding.isRecovered());
+			assertFalse("Not a recovered binding", variableBinding.isRecovered());
 			ITypeBinding typeBinding = variableBinding.getType();
 			assertNotNull("No binding", typeBinding);
 			assertTrue("Not a recovered binding", typeBinding.isRecovered());
@@ -8858,7 +8868,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
-			String expectedError = "List cannot be resolved to a type";
+			String expectedError = 
+				"List cannot be resolved to a type"	;
 			assertProblemsSize(unit, 1, expectedError);
 			node = getASTNode(unit, 0, 0, 0);
 			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
@@ -8868,7 +8879,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 			IVariableBinding variableBinding = fragment.resolveBinding();
 			assertNotNull("No binding", variableBinding);
-			assertTrue("Not a recovered binding", variableBinding.isRecovered());
+			assertFalse("Unexpected recovered binding", variableBinding.isRecovered());
 			ITypeBinding typeBinding = variableBinding.getType();
 			assertNotNull("No binding", typeBinding);
 			assertTrue("Not a recovered binding", typeBinding.isRecovered());
@@ -8927,7 +8938,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
-			String expectedError = "List cannot be resolved to a type";
+			String expectedError = 
+				"List cannot be resolved to a type";
 			assertProblemsSize(unit, 1, expectedError);
 			assertTrue("No binding recovery", unit.getAST().hasBindingsRecovery());
 			node = getASTNode(unit, 0, 0, 0);
@@ -8938,7 +8950,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 			IVariableBinding variableBinding = fragment.resolveBinding();
 			assertNotNull("No binding", variableBinding);
-			assertTrue("Not a recovered binding", variableBinding.isRecovered());
+			assertFalse("Unexpected recovered binding", variableBinding.isRecovered());
 			ITypeBinding typeBinding = variableBinding.getType();
 			assertNotNull("No binding", typeBinding);
 			assertTrue("Not a recovered binding", typeBinding.isRecovered());

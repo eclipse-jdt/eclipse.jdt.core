@@ -528,7 +528,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		this.receiver.bits |= DisableUnnecessaryCastCheck; // will check later on
 		receiverCast = true;
 	}
-	this.receiverType = receiver.resolveType(scope);
+	this.receiverType = this.receiver.resolveType(scope);
 	if (this.receiverType == null) {
 		constant = Constant.NotAConstant;
 		return null;
@@ -543,6 +543,10 @@ public TypeBinding resolveType(BlockScope scope) {
 	FieldBinding fieldBinding = this.codegenBinding = this.binding = scope.getField(this.receiverType, token, this);
 	if (!fieldBinding.isValidBinding()) {
 		constant = Constant.NotAConstant;
+		if (this.receiver.resolvedType instanceof ProblemReferenceBinding) {
+			// problem already got signaled on receiver, do not report secondary problem
+			return null;
+		}
 		scope.problemReporter().invalidField(this, this.receiverType);
 		return null;
 	}
@@ -572,10 +576,17 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 	}
 	TypeBinding fieldType = fieldBinding.type;
-	if (fieldType != null && ((this.bits & IsStrictlyAssigned) == 0)) {
-		fieldType = fieldType.capture(scope, this.sourceEnd);	// perform capture conversion if read access
+	if (fieldType != null) {
+		if ((this.bits & IsStrictlyAssigned) == 0) {
+			fieldType = fieldType.capture(scope, this.sourceEnd);	// perform capture conversion if read access
+		}
+		this.resolvedType = fieldType;
+		if ((fieldType.tagBits & TagBits.HasMissingType) != 0) {
+			scope.problemReporter().invalidType(this, fieldType);
+			return null;
+		}	
 	}
-	return this.resolvedType = fieldType;
+	return fieldType;
 }
 
 public void setActualReceiverType(ReferenceBinding receiverType) {

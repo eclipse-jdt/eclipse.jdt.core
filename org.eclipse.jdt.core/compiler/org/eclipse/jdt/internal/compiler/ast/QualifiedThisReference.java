@@ -76,7 +76,7 @@ public class QualifiedThisReference extends ThisReference {
 		constant = Constant.NotAConstant;
 		// X.this is not a param/raw type as denoting enclosing instance
 		TypeBinding type = this.qualification.resolveType(scope, true /* check bounds*/);
-		if (type == null) return null;
+		if (type == null || !type.isValidBinding()) return null;
 		// X.this is not a param/raw type as denoting enclosing instance
 		type = type.erasure();
 		
@@ -109,7 +109,7 @@ public class QualifiedThisReference extends ThisReference {
 			checkAccess(scope.methodScope());
 		} // if depth>0, path emulation will diagnose bad scenarii
 		
-		return  this.resolvedType;
+		return this.resolvedType;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {

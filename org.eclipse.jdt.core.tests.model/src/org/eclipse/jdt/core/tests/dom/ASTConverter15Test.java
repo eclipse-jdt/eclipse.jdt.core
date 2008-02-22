@@ -2901,10 +2901,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"}",
 			this.workingCopy,
 			false);
-		IBinding binding = ((MethodDeclaration) node).resolveBinding();
-		assertEquals(
-			null,
-			binding);
+		IMethodBinding methodBinding = ((MethodDeclaration) node).resolveBinding();
+		assertNotNull("No binding", methodBinding);
+		assertEquals("LX;.foo<T:Ljava/lang/Object;>(LNonExisting;)V", methodBinding.getKey());
+		assertFalse("Method should not be flagged as recovered", methodBinding.isRecovered());
+		assertTrue("Method argument type should be flagged as recovered", methodBinding.getParameterTypes()[0].isRecovered());				
 	}
 
 	/*
@@ -4164,11 +4165,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertNotNull("No node", node);
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit compilationUnit = (CompilationUnit) node;
-    	assertProblemsSize(compilationUnit, 4,
-    		"URL cannot be resolved to a type\n" +
-			"URL cannot be resolved to a type\n" +
-			"URL cannot be resolved to a type\n" +
-			"URL cannot be resolved to a type");
+    	assertProblemsSize(compilationUnit, 5,
+    			"URL cannot be resolved to a type\n" + 
+    			"URL cannot be resolved to a type\n" + 
+    			"URL cannot be resolved to a type\n" + 
+    			"Cannot instantiate the type List<URL>\n" + 
+    			"URL cannot be resolved to a type");
     	compilationUnit.accept(new ASTVisitor() {
     		public boolean visit(ParameterizedType type) {
     			checkSourceRange(type, "java.util.List<URL>", contents);
@@ -6914,7 +6916,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IBinding binding2 = name.resolveBinding();
 		assertNull("Got a binding", binding2);
 		IAnnotationBinding annotationBinding = annotation.resolveAnnotationBinding();
-		assertNull("Got a binding", annotationBinding);
+		assertNotNull("No binding", annotationBinding);
+		assertEquals("LX;.fXoo)I@LTest;", annotationBinding.getKey());
+		assertFalse("Annotation should not be flagged as recovered", annotationBinding.isRecovered());
+		assertTrue("Annotation type should be flagged as recovered", annotationBinding.getAnnotationType().isRecovered());		
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=140318
@@ -7088,7 +7093,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
 		IAnnotationBinding[] annotations = methodBinding.getAnnotations();
-		assertEquals("Wrong size", 0, annotations.length);
+		assertEquals("Wrong size", 1, annotations.length);
+		assertNotNull("No binding", annotations[0]);
+		assertEquals("LX;.foo()V@LZork;", annotations[0].getKey());
+		assertFalse("Annotation should not be flagged as recovered", annotations[0].isRecovered());
+		assertTrue("Annotation type should be flagged as recovered", annotations[0].getAnnotationType().isRecovered());		
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=153303
@@ -7111,7 +7120,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		IAnnotationBinding[] annotations = typeBinding.getAnnotations();
-		assertEquals("Wrong size", 0, annotations.length);
+		assertEquals("Wrong size", 1, annotations.length);
+		assertNotNull("No binding", annotations[0]);
+		assertEquals("LX;@LZork;", annotations[0].getKey());
+		assertFalse("Annotation should not be flagged as recovered", annotations[0].isRecovered());
+		assertTrue("Annotation type should be flagged as recovered", annotations[0].getAnnotationType().isRecovered());
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=153303
@@ -7138,7 +7151,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
 		IVariableBinding variableBinding = singleVariableDeclaration.resolveBinding();
 		IAnnotationBinding[] bindings = variableBinding.getAnnotations();
-		assertEquals("Wrong size", 0, bindings.length);
+		assertEquals("Wrong size", 1, bindings.length);
+		assertNotNull("No binding", bindings[0]);
+		assertEquals("@LZork;", bindings[0].getKey());
+		assertFalse("Annotation should not be flagged as recovered", bindings[0].isRecovered());
+		assertTrue("Annotation type should be flagged as recovered", bindings[0].getAnnotationType().isRecovered());				
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=153303
@@ -7551,7 +7568,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding2 = interfaces[0];
 		interfaces = typeBinding2.getInterfaces();
 		assertNotNull("No interfaces", interfaces);
-		assertEquals("Wrong size", 0, interfaces.length);
+		assertEquals("Wrong size", 1, interfaces.length);
+		assertNotNull("No binding", interfaces[0]);
+		assertEquals("Ltest0235/Zork;", interfaces[0].getKey());
+		assertFalse("I should not be flagged as recovered", typeBinding2.isRecovered());
+		assertTrue("Zork should be flagged as recovered", interfaces[0].isRecovered());
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=172633
@@ -7577,8 +7598,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", typeBinding);
 		ITypeBinding[] interfaces = typeBinding.getInterfaces();
 		assertNotNull("No interfaces", interfaces);
-		assertEquals("Wrong size", 1, interfaces.length);
-		assertNotNull("Should not be null", interfaces[0]);
+		assertEquals("Wrong size", 2, interfaces.length);
+		assertEquals("Ljava/lang/Runnable;", interfaces[0].getKey());
+		assertFalse("Runnable should not be flagged as recovered", interfaces[0].isRecovered());
+		assertEquals("LZork;", interfaces[1].getKey());		
+		assertTrue("Zork should be flagged as recovered", interfaces[1].isRecovered());			
 	}
 
 	/*
@@ -7606,9 +7630,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", typeBinding);
 		IMethodBinding[] methodBindings = typeBinding.getDeclaredMethods();
 		assertNotNull("No method bindings", methodBindings);
-		assertEquals("wrong size", 1, methodBindings.length);
-		assertFalse("Method is not the method foo", "foo".equals(methodBindings[0].getName()));
-		assertNotNull("No return type", methodBindings[0].getReturnType());
+		assertEquals("wrong size", 2, methodBindings.length);
+		assertEquals("Ltest0237/X;.()V", methodBindings[0].getKey());
+		assertEquals("Ltest0237/X;.foo()LZork;", methodBindings[1].getKey());
+		assertFalse("#foo() should not be flagged as recovered", methodBindings[1].isRecovered());
+		assertTrue("Zork should be flagged as recovered", methodBindings[1].getReturnType().isRecovered());			
 	}
 
 	/*
@@ -9344,7 +9370,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		IAnnotationBinding[] annotations = typeBinding.getAnnotations();
-		assertEquals("wrong size", 1, annotations.length);
+		assertEquals("wrong size", 2, annotations.length);
+		assertEquals("LX;@LInvalid;", annotations[0].getKey());
+		assertFalse("Annotation should not be flagged as recovered", annotations[0].isRecovered());
+		assertTrue("Annotation type should be flagged as recovered", annotations[0].getAnnotationType().isRecovered());		
+		assertEquals("LX;@Ljava/lang/Deprecated;", annotations[1].getKey());
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=190622

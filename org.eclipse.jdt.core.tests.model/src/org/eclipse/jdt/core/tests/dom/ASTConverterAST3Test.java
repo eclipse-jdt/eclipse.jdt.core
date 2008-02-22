@@ -5419,7 +5419,8 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
-		assertNull("binding not null", variableBinding); //$NON-NLS-1$
+		assertNotNull("No binding", variableBinding); //$NON-NLS-1$
+		assertEquals("Ltest0234/Test;.field)LList;", variableBinding.getKey());
 	}
 
 	/**
@@ -6954,7 +6955,9 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		assertTrue("not a method invocation", expression instanceof MethodInvocation); //$NON-NLS-1$
 		MethodInvocation methodInvocation = (MethodInvocation) expression;
 		ITypeBinding typeBinding = methodInvocation.resolveTypeBinding();
-		assertNull("type binding is not null", typeBinding); //$NON-NLS-1$
+		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
+		assertEquals("LList;", typeBinding.getKey());
+		assertEquals("Ltest0295/Test;.g()LList;", methodInvocation.resolveMethodBinding().getKey());
 	}
 
 

@@ -193,10 +193,7 @@ public void testCorrectFieldType3() throws CoreException {
 	ICompilationUnit cu= getCompilationUnit("CodeCorrection", "src", "", "CorrectFieldType3.java");
 	IMarker marker = getMarker(cu, "AClassz cannot be resolved to a type");
 	assertTrue("Marker not found", marker != null);
-	try {
-		engine.computeCorrections(marker, null, 0, requestor);
-	} catch(CoreException e) {
-	}
+	engine.computeCorrections(marker, null, 0, requestor);
 	
 	String src = cu.getSource();
 	String error = "AClassz";
@@ -688,13 +685,13 @@ public void testCorrectArgument1() throws JavaModelException {
 		""+end,
 		requestor.getEnds());
 }
-public void testCorrectReturnType1() throws JavaModelException {
+public void testCorrectReturnType1() throws CoreException {
 	CorrectionEngine engine = new CorrectionEngine(JavaCore.getOptions());
 	CodeCorrectionTestsRequestor requestor = new CodeCorrectionTestsRequestor();
 	ICompilationUnit cu= getCompilationUnit("CodeCorrection", "src", "", "CorrectReturnType1.java");
-	IMarker[] markers = getMarkers(cu);
-	assertTrue("should have one problem",markers.length == 1);
-	engine.computeCorrections(markers[0], null, 0, requestor);
+	IMarker marker = getMarker(cu, "aaa.dddz cannot be resolved to a type");
+	assertTrue("Marker not found", marker != null);
+	engine.computeCorrections(marker, null, 0, requestor);
 
 	String src = cu.getSource();
 	String error = "dddz";
@@ -717,13 +714,14 @@ public void testCorrectReturnType1() throws JavaModelException {
 		end,
 		requestor.getEnds());
 }
-public void testCorrectReturnType2() throws JavaModelException {
+public void testCorrectReturnType2() throws CoreException {
 	CorrectionEngine engine = new CorrectionEngine(JavaCore.getOptions());
 	CodeCorrectionTestsRequestor requestor = new CodeCorrectionTestsRequestor();
 	ICompilationUnit cu= getCompilationUnit("CodeCorrection", "src", "", "CorrectReturnType2.java");
-	IMarker[] markers = getMarkers(cu);
-	assertTrue("should have one problem",markers.length == 1);
-	engine.computeCorrections(markers[0], null, 0, requestor);
+	IMarker marker = getMarker(cu, "aaa.ddd.AClassz cannot be resolved to a type");
+	assertTrue("Marker not found", marker != null);	
+	
+	engine.computeCorrections(marker, null, 0, requestor);
 
 	String src = cu.getSource();
 	String error = "AClassz";

@@ -484,7 +484,9 @@ public class CastExpression extends Expression {
 							}
 						}
 					} else { // illegal cast
-						scope.problemReporter().typeCastError(this, castType, expressionType);
+						if ((castType.tagBits & TagBits.HasMissingType) == 0) { // no complaint if secondary error
+							scope.problemReporter().typeCastError(this, castType, expressionType);
+						}
 						this.bits |= DisableUnnecessaryCastCheck; // disable further secondary diagnosis
 					}
 				}

@@ -106,8 +106,7 @@ public class IncrementalTests extends BuilderTests {
 		expectingNoProblems();
 	}
 
-	// TODO excluded test
-	public void _testNewJCL() {
+	public void testNewJCL() {
 		//----------------------------
 		//           Step 1
 		//----------------------------
@@ -128,7 +127,7 @@ public class IncrementalTests extends BuilderTests {
 			
 
 		incrementalBuild();
-		expectingSpecificProblemFor(object, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.Throwable (typically some required class file is referencing a type outside the classpath)", object, 1, 2, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingNoProblems();
 		
 		//----------------------------
 		//           Step 3
@@ -141,8 +140,7 @@ public class IncrementalTests extends BuilderTests {
 			
 
 		incrementalBuild();
-		expectingSpecificProblemFor(object, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.RuntimeException (typically some required class file is referencing a type outside the classpath)", object, 1, 2, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(throwable, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.RuntimeException (typically some required class file is referencing a type outside the classpath)", throwable, 1, 2, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingNoProblems();
 	}
 
 	/*
@@ -814,5 +812,134 @@ public class IncrementalTests extends BuilderTests {
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = max;
 		}
 		expectingNoProblems();
+	}
+	
+	// http://dev.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+	public void testMissingType001() throws JavaModelException {
+
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		fullBuild(projectPath);
+		
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		
+		IPath xPath = env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class X {\n"+ //$NON-NLS-1$
+			"	void foo(p2.Y y) {	\n" + //$NON-NLS-1$
+			"		y.bar(null);" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	void X() {}\n" + //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		IPath yPath = env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class Y {\n"+ //$NON-NLS-1$
+			"	public void bar(Z z) {}\n" + //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		fullBuild(projectPath);
+		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(yPath, new Problem("Y", "Z cannot be resolved to a type", yPath, 46, 47, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		env.addClass(root, "p2", "Z", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class Z {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		incrementalBuild(projectPath);
+		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	// http://dev.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+	public void testMissingType002() throws JavaModelException {
+
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		fullBuild(projectPath);
+		
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		
+		IPath yPath = env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p2;\n"+ //$NON-NLS-1$
+				"public class Y {\n"+ //$NON-NLS-1$
+				"	public void bar(Z z) {}\n" + //$NON-NLS-1$
+				"}\n" //$NON-NLS-1$
+				);
+		fullBuild(projectPath);
+		expectingSpecificProblemFor(yPath, new Problem("Y", "Z cannot be resolved to a type", yPath, 46, 47, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		IPath xPath = env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class X {\n"+ //$NON-NLS-1$
+			"	void foo(p2.Y y) {	\n" + //$NON-NLS-1$
+			"		y.bar(null);" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	void X() {}\n" + //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		incrementalBuild(projectPath);
+		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(yPath, new Problem("Y", "Z cannot be resolved to a type", yPath, 46, 47, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		env.addClass(root, "p2", "Z", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class Z {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		incrementalBuild(projectPath);
+		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	// http://dev.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+	public void testMissingType003() throws JavaModelException {
+
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		fullBuild(projectPath);
+		
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		
+		IPath yPath = env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+				"package p2;\n"+ //$NON-NLS-1$
+				"public class Y {\n"+ //$NON-NLS-1$
+				"	public void bar(p1.Z z) {}\n" + //$NON-NLS-1$
+				"}\n" //$NON-NLS-1$
+				);
+		fullBuild(projectPath);
+		expectingSpecificProblemFor(yPath, new Problem("Y", "p1 cannot be resolved to a type", yPath, 46, 48, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		IPath xPath = env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class X {\n"+ //$NON-NLS-1$
+			"	void foo(p2.Y y) {	\n" + //$NON-NLS-1$
+			"		y.bar(null);" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	void X() {}\n" + //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		incrementalBuild(projectPath);
+		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(yPath, new Problem("Y", "p1.Z cannot be resolved to a type", yPath, 46, 50, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		env.addClass(root, "p1", "Z", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class Z {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		incrementalBuild(projectPath);
+		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

@@ -853,28 +853,32 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 * Test fix for bug 54962.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=54962">54962</a>
 	 * @throws CoreException
+	 * TODO (frederic) should no longer get POTENTIAL after 196200 got fixed
 	 */
 	public void testBug54962() throws CoreException {
 		setJavadocOptions();
 		this.resultCollector.showInsideDoc = true;
+		this.resultCollector.showSelection = true;
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "j6", "Bug54962.java").getPackageDeclaration("j6");
 		search(packDecl, REFERENCES, getJavaSearchScope());
 		assertSearchResults(
-			"src/j6/Bug54962.java j6.Bug54962 [j6] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j6/Bug54962.java j6.Bug54962 [j6] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
-			"src/j6/Bug54962.java j6.Bug54962 [j6] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j7/qua/li/fied/Bug54962a.java [j6] EXACT_MATCH OUTSIDE_JAVADOC",
+				"src/j6/Bug54962.java j6.Bug54962 [ * @see §|j6|§] EXACT_MATCH INSIDE_JAVADOC\n" + 
+				"src/j6/Bug54962.java j6.Bug54962 [ * @see §|j6|§.BUG54962] EXACT_MATCH INSIDE_JAVADOC\n" + 
+				"src/j6/Bug54962.java j6.Bug54962 [ * @see §|j6|§.Bug54962] EXACT_MATCH INSIDE_JAVADOC\n" + 
+				"src/j7/qua/li/fied/Bug54962a.java [import §|j6|§.Bug54962;] EXACT_MATCH OUTSIDE_JAVADOC",
 			this.resultCollector);
 	}
+	//	TODO (frederic) should no longer get POTENTIAL after 196200 got fixed
 	public void testBug54962qualified() throws CoreException {
 		setJavadocOptions();
 		this.resultCollector.showInsideDoc = true;
+		this.resultCollector.showSelection = true;
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "j7.qua.li.fied", "Bug54962a.java").getPackageDeclaration("j7.qua.li.fied");
 		search(packDecl, REFERENCES, getJavaSearchScope());
 		assertSearchResults(
-			"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [j7.qua.li.fied] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [j7.qua.li.fied] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
-			"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [j7.qua.li.fied] EXACT_MATCH INSIDE_JAVADOC",
+				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see §|j7.qua.li.fied|§] EXACT_MATCH INSIDE_JAVADOC\n" + 
+				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see §|j7.qua.li.fied|§.BUG54962a] EXACT_MATCH INSIDE_JAVADOC\n" + 
+				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [ * @see §|j7.qua.li.fied|§.Bug54962a] EXACT_MATCH INSIDE_JAVADOC",
 			this.resultCollector);
 	}
 

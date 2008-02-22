@@ -1156,7 +1156,7 @@ public final class CompletionEngine
 			} else if (qualifiedBinding instanceof VariableBinding) {
 				setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 				TypeBinding receiverType = ((VariableBinding) qualifiedBinding).type;
-				if (receiverType != null) {
+				if (receiverType != null && (receiverType.tagBits & TagBits.HasMissingType) == 0) {
 					ObjectVector fieldsFound = new ObjectVector();
 					ObjectVector methodsFound = new ObjectVector();
 					
@@ -1194,22 +1194,33 @@ public final class CompletionEngine
 					boolean proposeField = !this.requestor.isIgnored(CompletionProposal.FIELD_REF);
 					boolean proposeMethod = !this.requestor.isIgnored(CompletionProposal.METHOD_REF);
 					if (proposeField || proposeMethod) {
-						if (qualifiedBinding instanceof LocalVariableBinding) {
-							// complete local variable members with missing variables type
-							// class X {
-							//   void foo() {
-							//     Missing f;
-							//     f.|
-							//   }
-							// }
-							LocalVariableBinding localVariableBinding = (LocalVariableBinding) qualifiedBinding;
+						if(ref.tokens.length == 1) {
+							if (qualifiedBinding instanceof LocalVariableBinding) {
+								// complete local variable members with missing variables type
+								// class X {
+								//   void foo() {
+								//     Missing f;
+								//     f.|
+								//   }
+								// }
+								LocalVariableBinding localVariableBinding = (LocalVariableBinding) qualifiedBinding;
+								findFieldsAndMethodsFromMissingType(
+										this.completionToken,
+										localVariableBinding.declaration.type,
+										localVariableBinding.declaringScope,
+										ref,
+										scope);
+							} else {
+								// complete field members with missing fields type
+								// class X {
+								//   Missing f;
+								//   void foo() {
+								//     f.|
+								//   }
+								// }
+								findFieldsAndMethodsFromMissingFieldType(ref.tokens[0], scope, ref, insideTypeAnnotation);
+							}
 							
-							findFieldsAndMethodsFromMissingType(
-									this.completionToken,
-									localVariableBinding.declaration.type,
-									localVariableBinding.declaringScope,
-									ref,
-									scope);
 						}
 					}
 				}
@@ -4106,7 +4117,8 @@ public final class CompletionEngine
 						for (int i = 0; i < fieldsCount; i++) {
 							FieldDeclaration fieldDeclaration = fields[i];
 							if (CharOperation.equals(fieldDeclaration.name, token)) {
-								if (fieldDeclaration.binding == null) {
+								FieldBinding fieldBinding = fieldDeclaration.binding;
+								if (fieldBinding == null || fieldBinding.type == null  || (fieldBinding.type.tagBits & TagBits.HasMissingType) != 0) {
 									foundSomeFields = true;
 									findFieldsAndMethodsFromMissingType(
 											this.completionToken,
@@ -4165,7 +4177,8 @@ public final class CompletionEngine
 							if (methodDeclaration instanceof MethodDeclaration &&
 									CharOperation.equals(methodDeclaration.selector, token)) {
 								MethodDeclaration method = (MethodDeclaration) methodDeclaration;
-								if (methodDeclaration.binding == null) {
+								MethodBinding methodBinding = method.binding;
+								if (methodBinding == null || methodBinding.returnType == null  || (methodBinding.returnType.tagBits & TagBits.HasMissingType) != 0) {
 									Argument[] parameters = method.arguments;
 									int parametersLength = parameters == null ? 0 : parameters.length;
 									int argumentsLength = arguments == null ? 0 : arguments.length;
@@ -4181,9 +4194,18 @@ public final class CompletionEngine
 											break done;
 										}
 									} else {
-										TypeBinding[] parametersBindings = new TypeBinding[parametersLength];
-										for (int j = 0; j < parametersLength; j++) {
-											parametersBindings[j] = parameters[j].type.resolvedType;
+										TypeBinding[] parametersBindings;
+										if (methodBinding == null) { // since no binding, extra types from type references
+											parametersBindings = new TypeBinding[parametersLength];
+											for (int j = 0; j < parametersLength; j++) {
+												TypeBinding parameterType = parameters[j].type.resolvedType;
+												if (!parameterType.isValidBinding() && parameterType.closestMatch() != null) {
+													parameterType = parameterType.closestMatch();
+												}
+												parametersBindings[j] = parameterType;
+											}
+										} else {
+											parametersBindings = methodBinding.parameters;
 										}
 										if(areParametersCompatibleWith(parametersBindings, arguments, parameters[parametersLength - 1].isVarArgs())) {
 											findFieldsAndMethodsFromMissingType(
@@ -4999,7 +5021,7 @@ public final class CompletionEngine
 				}
 			};
 		SingleTypeReference typeRef = new SingleTypeReference(token, pos);
-		typeRef.resolvedType = new ProblemReferenceBinding(token, null, ProblemReasons.NotFound);
+		typeRef.resolvedType = new ProblemReferenceBinding(new char[][]{ token }, null, ProblemReasons.NotFound);
 		missingTypesConverter.guess(typeRef, scope, substitutionRequestor);
 	}
 	
@@ -9400,7 +9422,7 @@ public final class CompletionEngine
 				}
 				typeBindings[nodeIndex] = scope.getJavaLangObject();
 				if(typeVariables == null || typeVariables.length == 0) {
-					scope.problemReporter().nonGenericTypeCannotBeParameterized(ref, ref.resolvedType, typeBindings);
+					scope.problemReporter().nonGenericTypeCannotBeParameterized(0, ref, ref.resolvedType, typeBindings);
 				} else {
 					scope.problemReporter().incorrectArityForParameterizedType(ref, ref.resolvedType, typeBindings);
 				}
@@ -9421,7 +9443,7 @@ public final class CompletionEngine
 						}
 						typeBindings[j] = scope.getJavaLangObject();
 						if(typeVariables == null || typeVariables.length == 0) {
-							scope.problemReporter().nonGenericTypeCannotBeParameterized(ref, ref.resolvedType, typeBindings);
+							scope.problemReporter().nonGenericTypeCannotBeParameterized(0, ref, ref.resolvedType, typeBindings);
 						} else {
 							scope.problemReporter().incorrectArityForParameterizedType(ref, ref.resolvedType, typeBindings);
 						}

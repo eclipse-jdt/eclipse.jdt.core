@@ -26,7 +26,8 @@ public interface TagBits {
 	long AnonymousTypeMask = LocalTypeMask | IsAnonymousType;
 	long IsBinaryBinding = ASTNode.Bit7;
 	
-	long HasInconsistentHierarchy = ASTNode.Bit8; // for binary type binding only
+	// set for all bindings either represeting a missing type (type), or directly referencing a missing type (field/method/variable)
+	long HasMissingType = ASTNode.Bit8;
 	
 	// for the type cycle hierarchy check used by ClassScope
 	long BeginHierarchyCheck = ASTNode.Bit9;  // type

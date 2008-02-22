@@ -1112,6 +1112,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	public Object<T> var;\n" + 
+			"	       ^^^^^^\n" + 
+			"The type Object is not generic; it cannot be parameterized with arguments <T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	public Object<T> var;\n" + 
 			"	              ^\n" + 
 			"T cannot be resolved to a type\n" + 
 			"----------\n");
@@ -3982,10 +3987,15 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	<T extends X<W>.Z> foo() {}\n" + 
+			"	           ^\n" + 
+			"The type X is not generic; it cannot be parameterized with arguments <W>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	<T extends X<W>.Z> foo() {}\n" + 
 			"	             ^\n" + 
 			"W cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 2)\n" + 
+			"3. ERROR in X.java (at line 2)\n" + 
 			"	<T extends X<W>.Z> foo() {}\n" + 
 			"	                   ^^^^^\n" + 
 			"Return type for the method is missing\n" + 
@@ -16977,7 +16987,12 @@ public void test0500(){
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	<T, U extends T, V extends T> T cond1(boolean z, U x1, V x2) {\n" + 
+			"	                                              ^\n" + 
+			"The parameter z is hiding a field from type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -18740,22 +18755,22 @@ public void test0500(){
 				"    private Bucket[] buckets = new X.Bucket[100];\n" + 
 				"}\n",
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	private static class Bucket extends LinkedList<MPair<K,V>> {}\n" + 
-			"	                                                     ^\n" + 
-			"Cannot make a static reference to the non-static type K\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	private static class Bucket extends LinkedList<MPair<K,V>> {}\n" + 
-			"	                                                       ^\n" + 
-			"Cannot make a static reference to the non-static type V\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 7)\n" + 
-			"	private Bucket[] buckets = new X.Bucket[100];\n" + 
-			"	                 ^^^^^^^\n" + 
-			"The field X<K,V>.buckets is never read locally\n" + 
-			"----------\n");
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 6)\n" + 
+    		"	private static class Bucket extends LinkedList<MPair<K,V>> {}\n" + 
+    		"	                                                     ^\n" + 
+    		"Cannot make a static reference to the non-static type K\n" + 
+    		"----------\n" + 
+    		"2. ERROR in X.java (at line 6)\n" + 
+    		"	private static class Bucket extends LinkedList<MPair<K,V>> {}\n" + 
+    		"	                                                       ^\n" + 
+    		"Cannot make a static reference to the non-static type V\n" + 
+    		"----------\n" + 
+    		"3. WARNING in X.java (at line 7)\n" + 
+    		"	private Bucket[] buckets = new X.Bucket[100];\n" + 
+    		"	                 ^^^^^^^\n" + 
+    		"The field X<K,V>.buckets is never read locally\n" + 
+    		"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973
 	public void test0613() {
@@ -31152,7 +31167,12 @@ public void test0975() {
 				"}", // =================
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	public class X extends ArrayList<Bean> {\n" + 
+			"	             ^\n" + 
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
 			"	public class X extends ArrayList<Bean> {\n" + 
 			"	                                 ^^^^\n" + 
 			"Bean cannot be resolved to a type\n" + 
@@ -39501,8 +39521,8 @@ public void test1184() {
 		"----------\n" + 
 		"3. ERROR in X.java (at line 4)\n" + 
 		"	Runnable r = x.get();\n" + 
-		"	             ^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Object to Runnable\n" + 
+		"	               ^^^\n" + 
+		"The method get() from the type X refers to the missing type Zork\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=203587
@@ -40050,6 +40070,11 @@ public void test1202() {
 			"	X.<Zork>foo();\n" + 
 			"	   ^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	X.<Zork>foo();\n" + 
+			"	        ^^^\n" + 
+			"The method foo() of type X is not generic; it cannot be parameterized with arguments <Zork>\n" + 
 			"----------\n"
 		: 	"----------\n" + 
 			"1. WARNING in X.java (at line 4)\n" + 
@@ -40061,6 +40086,11 @@ public void test1202() {
 			"	X.<Zork>foo();\n" + 
 			"	   ^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	X.<Zork>foo();\n" + 
+			"	   ^^^^\n" + 
+			"Unused type arguments for the non generic method foo() of type X; it should not be parameterized with arguments <Zork>\n" + 
 			"----------\n";
 	
 	this.runNegativeTest(
@@ -40549,7 +40579,7 @@ public void test1216() {
 		"----------\n" + 
 		"4. ERROR in X.java (at line 8)\n" + 
 		"	int pval = myA.box.t.pval;// intermediate access through P already flagged as error\n" + 
-		"	           ^^^^^^^^^^^^^^\n" + 
+		"	           ^^^^^^^^^\n" + 
 		"The type A.P is not visible\n" + 
 		"----------\n" + 
 		"----------\n" + 
@@ -40614,7 +40644,7 @@ public void test1217() {
 		"----------\n" + 
 		"4. ERROR in X.java (at line 8)\n" + 
 		"	int pval = myA.box.t.pval;// intermediate access through P already flagged as error\n" + 
-		"	           ^^^^^^^^^^^^^^\n" + 
+		"	           ^^^^^^^^^\n" + 
 		"The type A.P is not visible\n" + 
 		"----------\n");
 }	
@@ -40673,7 +40703,7 @@ public void test1218() {
 		"----------\n" + 
 		"4. ERROR in X.java (at line 8)\n" + 
 		"	int pval = myA.box.t.pval;// intermediate access through P already flagged as error\n" + 
-		"	           ^^^^^^^^^^^^^^\n" + 
+		"	           ^^^^^^^^^\n" + 
 		"The type A.P is not visible\n" + 
 		"----------\n");
 }	
@@ -40795,7 +40825,7 @@ public void test1221() {
 		"	                   ^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot cast from Set<String> to String\n" + 
 		"----------\n");
-}
+}	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207959
 public void test1222() {
 	this.runNegativeTest(
@@ -41570,11 +41600,6 @@ public void test1245() {
 		"	public class X<T extends Secondary.Private> {\n" + 
 		"	                         ^^^^^^^^^^^^^^^^^\n" + 
 		"The type Secondary.Private is not visible\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 4)\n" + 
-		"	static private class Private {}\n" + 
-		"	                     ^^^^^^^\n" + 
-		"The type Secondary.Private is never used locally\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100 - variation
@@ -42940,5 +42965,69 @@ public void test1290() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=218677
+public void test1291() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.ArrayList;\n" + 
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"    public static <D, E extends D> List<D> moreGeneric(List<E> list) {\n" + 
+					"        List<D> result = new ArrayList<D>();\n" + 
+					"        result.addAll( list );\n" + 
+					"        return result;\n" + 
+					"    }\n" + 
+					"    class A {}\n" + 
+					"    class B extends A {}\n" + 
+					"    class C extends B {}\n" + 
+					"    public static void main( String[] args ) {\n" + 
+					"        List<B> b = new ArrayList<B>();\n" + 
+					"        List<A> a = moreGeneric(b);\n" + 
+					"        List<C> c = moreGeneric(b);\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 15)\n" + 
+			"	List<C> c = moreGeneric(b);\n" + 
+			"	            ^^^^^^^^^^^\n" + 
+			"Bound mismatch: The generic method moreGeneric(List<E>) of type X is not applicable for the arguments (List<X.B>). The inferred type X.B is not a valid substitute for the bounded parameter <E extends D>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=218677 - variation
+public void test1292() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.ArrayList;\n" + 
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"    public static <D, E extends D> List<E> moreSpecific(List<D> list) {\n" + 
+					"        List<E> result = new ArrayList<E>();\n" + 
+					"        result.addAll( (List<?>)list );\n" + 
+					"        return result;\n" + 
+					"    }\n" + 
+					"    class A {}\n" + 
+					"    class B extends A {}\n" + 
+					"    class C extends B {}\n" + 
+					"    public static void main( String[] args ) {\n" + 
+					"        List<B> b = new ArrayList<B>();\n" + 
+					"        List<A> a = moreSpecific(b);\n" + 
+					"        List<C> c = moreSpecific(b);\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	result.addAll( (List<?>)list );\n" + 
+			"	       ^^^^^^\n" + 
+			"The method addAll(Collection<? extends E>) in the type List<E> is not applicable for the arguments (List<capture#1-of ?>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	List<A> a = moreSpecific(b);\n" + 
+			"	            ^^^^^^^^^^^^\n" + 
+			"Bound mismatch: The generic method moreSpecific(List<D>) of type X is not applicable for the arguments (List<X.B>). The inferred type X.A is not a valid substitute for the bounded parameter <E extends D>\n" + 
+			"----------\n");
+}
 }

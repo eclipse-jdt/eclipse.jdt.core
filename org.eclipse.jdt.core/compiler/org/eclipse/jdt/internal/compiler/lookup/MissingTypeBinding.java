@@ -10,22 +10,24 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
-public class MissingBinaryTypeBinding extends BinaryTypeBinding {
+public class MissingTypeBinding extends BinaryTypeBinding {
 
 /**
- * Special constructor for constructing proxies of missing binary types (114349)
+ * Special constructor for constructing proxies of missing types (114349)
  * @param packageBinding
  * @param compoundName
  * @param environment
  */
-public MissingBinaryTypeBinding(PackageBinding packageBinding, char[][] compoundName, LookupEnvironment environment) {
+public MissingTypeBinding(PackageBinding packageBinding, char[][] compoundName, LookupEnvironment environment) {
 	this.compoundName = compoundName;
 	computeId();
-	this.tagBits |= TagBits.IsBinaryBinding | TagBits.HierarchyHasProblems;
+	this.tagBits |= TagBits.IsBinaryBinding | TagBits.HierarchyHasProblems | TagBits.HasMissingType;
 	this.environment = environment;
 	this.fPackage = packageBinding;
 	this.fileName = CharOperation.concatWith(compoundName, '/');
@@ -37,8 +39,21 @@ public MissingBinaryTypeBinding(PackageBinding packageBinding, char[][] compound
 	this.memberTypes = Binding.NO_MEMBER_TYPES;
 	this.fields = Binding.NO_FIELDS;
 	this.methods = Binding.NO_METHODS;
-}	
-	
+}
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#collectMissingTypes(java.util.List)
+ */
+public List collectMissingTypes(List missingTypes) {
+	if (missingTypes == null) {
+		missingTypes = new ArrayList(5);
+	} else if (missingTypes.contains(this)) {
+		return missingTypes;
+	}
+	missingTypes.add(this);
+	return missingTypes;
+}
+
 /**
  * Missing binary type will answer <code>false</code> to #isValidBinding()
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#problemId()
@@ -50,9 +65,13 @@ public int problemId() {
 /**
  * Only used to fixup the superclass hierarchy of proxy binary types
  * @param missingSuperclass
- * @see LookupEnvironment#cacheMissingBinaryType(char[][], CompilationUnitDeclaration)
+ * @see LookupEnvironment#createMissingType(PackageBinding, char[][])
  */
 void setMissingSuperclass(ReferenceBinding missingSuperclass) {
 	this.superclass = missingSuperclass;
 }	
+
+public String toString() {
+		return "[MISSING:" + new String(CharOperation.concatWith(this.compoundName, '.')) + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+	}
 }

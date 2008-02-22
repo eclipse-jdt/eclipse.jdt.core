@@ -2989,6 +2989,8 @@ public void testTypeReference25() throws CoreException { // was testInnacurateTy
  */
 public void testTypeReference26() throws CoreException { // was testInnacurateTypeReference2
 
+	this.resultCollector.showAccuracy = true;
+	this.resultCollector.showSelection = true;
 	search(
 		"p.Zork", 
 		TYPE, 
@@ -2998,9 +3000,9 @@ public void testTypeReference26() throws CoreException { // was testInnacurateTy
 		}), 
 		this.resultCollector);
 	assertSearchResults(
-		"src/b5/A.java b5.A.{} [Zork]\n" +
-		"src/b5/A.java b5.A.{} [Zork]\n" +
-		"src/b5/A.java b5.A.{} [Zork]",
+			"src/b5/A.java b5.A.{} [    §|Zork|§[] zork = new Zork[0];] POTENTIAL_MATCH\n" + 
+			"src/b5/A.java b5.A.{} [    Zork[] zork = new §|Zork|§[0];] POTENTIAL_MATCH\n" + 
+			"src/b5/A.java b5.A.{} [    int i = §|Zork|§.foo;] POTENTIAL_MATCH",
 		this.resultCollector);
 }
 /**

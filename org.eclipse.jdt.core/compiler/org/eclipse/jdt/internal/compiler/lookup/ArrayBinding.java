@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -33,7 +35,28 @@ public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environm
 	if (type instanceof UnresolvedReferenceBinding)
 		((UnresolvedReferenceBinding) type).addWrapper(this, environment);
 	else
-    	this.tagBits |= type.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard);
+    	this.tagBits |= type.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard | TagBits.HasMissingType);
+}
+
+public TypeBinding closestMatch() {
+	if (this.isValidBinding()) {
+		return this;
+	}
+	TypeBinding leafClosestMatch = this.leafComponentType.closestMatch();
+	if (leafClosestMatch == null) {
+		return null;
+	}
+	return this.environment.createArrayType(this.leafComponentType.closestMatch(), this.dimensions);
+}
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#collectMissingTypes(java.util.List)
+ */
+public List collectMissingTypes(List missingTypes) {
+	if ((this.tagBits & TagBits.HasMissingType) != 0) {
+		missingTypes = this.leafComponentType.collectMissingTypes(missingTypes);
+	}
+	return missingTypes;
 }
 
 /**
@@ -241,7 +264,7 @@ public char[] sourceName() {
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
 	if (this.leafComponentType == unresolvedType) {
 		this.leafComponentType = env.convertUnresolvedBinaryToRawType(resolvedType);
-		this.tagBits |= this.leafComponentType.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard);
+		this.tagBits |= this.leafComponentType.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard | TagBits.HasMissingType);
 	}
 }
 public String toString() {

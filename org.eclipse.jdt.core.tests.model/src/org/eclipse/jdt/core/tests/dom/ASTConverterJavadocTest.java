@@ -2061,12 +2061,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug54424() throws JavaModelException {
 		stopOnFailure = false;
 		String [] unbound = { "tho",
-				"from",
 				"A#getList(int,long,boolean)",
 				"#getList(Object,java.util.AbstractList)",
-				"from",
-				"#getList(int from,long tho)",
-				"to"
 		};
 		verifyComments("testBug54424");
 		if (docCommentSupport.equals(JavaCore.ENABLED)) {

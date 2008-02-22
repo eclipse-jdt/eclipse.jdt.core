@@ -28,6 +28,56 @@ import org.eclipse.jdt.internal.core.util.Util;
  * throws checked exceptio without having to catch those.
  */
 public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
+	public static class BinaryMethodSkeleton implements IBinaryMethod {
+		char[][] exceptionTypeNames;
+		char[] methodDescriptor;
+		char[] selector;
+		boolean isConstructor;
+		
+		public BinaryMethodSkeleton(char[] selector, char[] methodDescriptor, char[][] exceptionTypeNames, boolean isConstructor) {
+			this.selector = selector;
+			this.methodDescriptor = methodDescriptor;
+			this.exceptionTypeNames = exceptionTypeNames;
+			this.isConstructor = isConstructor;
+		}
+		public IBinaryAnnotation[] getAnnotations() {
+			return null;
+		}
+		public char[][] getArgumentNames() {
+			return null;
+		}
+		public Object getDefaultValue() {
+			return null;
+		}
+		public char[][] getExceptionTypeNames() {
+			return this.exceptionTypeNames;
+		}
+		public char[] getGenericSignature() {
+			return null;
+		}
+		public char[] getMethodDescriptor() {
+			return this.methodDescriptor;
+		}
+		public int getModifiers() {
+			return ClassFileConstants.AccPublic;
+		}
+		public IBinaryAnnotation[] getParameterAnnotations(int index) {
+			return null;
+		}
+		public char[] getSelector() {
+			return this.selector;
+		}
+		public long getTagBits() {
+			return 0;
+		}
+		public boolean isClinit() {
+			return false;
+		}
+		public boolean isConstructor() {
+			return this.isConstructor;
+		}
+}
+
 	IBinaryMethod[] methods = new IBinaryMethod[] {
 		new BinaryMethodSkeleton(
 			"<init>".toCharArray(), //$NON-NLS-1$
@@ -48,62 +98,15 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 			false
 		)
 	};
-
-	public static class BinaryMethodSkeleton implements IBinaryMethod {
-		char[][] exceptionTypeNames;
-		char[] methodDescriptor;
-		char[] selector;
-		boolean isConstructor;
-		
-		public BinaryMethodSkeleton(char[] selector, char[] methodDescriptor, char[][] exceptionTypeNames, boolean isConstructor) {
-			this.selector = selector;
-			this.methodDescriptor = methodDescriptor;
-			this.exceptionTypeNames = exceptionTypeNames;
-			this.isConstructor = isConstructor;
-		}
-		public char[][] getExceptionTypeNames() {
-			return this.exceptionTypeNames;
-		}
-		public char[] getMethodDescriptor() {
-			return this.methodDescriptor;
-		}
-		public int getModifiers() {
-			return ClassFileConstants.AccPublic;
-		}
-		public char[] getSelector() {
-			return this.selector;
-		}
-		public boolean isClinit() {
-			return false;
-		}
-		public boolean isConstructor() {
-			return this.isConstructor;
-		}
-		public char[][] getArgumentNames() {
-			return null;
-		}
-		public char[] getGenericSignature() {
-			return null;
-		}
-		public long getTagBits() {
-			return 0;
-		}
-		public IBinaryAnnotation[] getAnnotations() {
-			return null;
-		}
-		public IBinaryAnnotation[] getParameterAnnotations(int index) {
-			return null;
-		}
-		public Object getDefaultValue() {
-			return null;
-		}
-}
 	
 /**
  * CodeSnippetSkeleton constructor comment.
  */
 public CodeSnippetSkeleton() {
 	super();
+}
+public IBinaryAnnotation[] getAnnotations() {
+	return null;
 }
 public char[] getEnclosingTypeName() {
 	return null;
@@ -123,6 +126,12 @@ public char[] getGenericSignature() {
 public char[][] getInterfaceNames() {
 	return null;
 }
+public String getJavadocContents() {
+	return null;
+}
+public String getJavadocContents(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
+	return null;
+}
 public IBinaryNestedType[] getMemberTypes() {
 	return null;
 }
@@ -132,6 +141,9 @@ public IBinaryMethod[] getMethods() {
 public int getModifiers() {
 	return ClassFileConstants.AccPublic;
 }
+public char[][][] getMissingTypeNames() {
+	return null;
+}
 public char[] getName() {
 	return CODE_SNIPPET_NAME;
 }
@@ -139,6 +151,12 @@ public char[] getSourceName() {
 	return ROOT_CLASS_NAME;
 }
 public char[] getSuperclassName() {
+	return null;
+}
+public long getTagBits() {
+	return 0;
+}
+public String getURLContents(String docUrlValue, String defaultEncoding) {
 	return null;
 }
 public boolean isAnonymous() {
@@ -154,21 +172,6 @@ public boolean isMember() {
 	return false;
 }
 public char[] sourceFileName() {
-	return null;
-}
-public IBinaryAnnotation[] getAnnotations() {
-	return null;
-}
-public long getTagBits() {
-	return 0;
-}
-public String getJavadocContents(IProgressMonitor monitor, String defaultEncoding) throws JavaModelException {
-	return null;
-}
-public String getJavadocContents() {
-	return null;
-}
-public String getURLContents(String docUrlValue, String defaultEncoding) {
 	return null;
 }
 }

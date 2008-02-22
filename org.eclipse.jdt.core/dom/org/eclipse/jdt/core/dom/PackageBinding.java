@@ -98,9 +98,10 @@ class PackageBinding implements IPackageBinding {
 							nameEnvironment.findType(TypeConstants.PACKAGE_INFO_NAME, this.binding.compoundName);
 						if (answer != null && answer.isBinaryType()) {
 							IBinaryType type = answer.getBinaryType();
+							char[][][] missingTypeNames = type.getMissingTypeNames();
 							IBinaryAnnotation[] binaryAnnotations = type.getAnnotations();
 							org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] binaryInstances =
-								BinaryTypeBinding.createAnnotations(binaryAnnotations, this.binding.environment);
+								BinaryTypeBinding.createAnnotations(binaryAnnotations, this.binding.environment, missingTypeNames);
 							org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] allInstances =
 								org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding.addStandardAnnotations(binaryInstances, type.getTagBits(), this.binding.environment);
 							int total = allInstances.length;

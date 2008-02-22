@@ -44,6 +44,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
@@ -51,7 +52,9 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.ClassFile;
+import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.PackageFragment;
 
 /**
  * Internal implementation of type bindings.
@@ -103,16 +106,20 @@ class TypeBinding implements ITypeBinding {
 			int length = internalAnnotations == null ? 0 : internalAnnotations.length;
 			if (length != 0) {
 				IAnnotationBinding[] tempAnnotations = new IAnnotationBinding[length];
-				int annotationsCounter = 0;
+				int convertedAnnotationCount = 0;
 				for (int i = 0; i < length; i++) {
-					final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(internalAnnotations[i]);
+					org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalAnnotation = internalAnnotations[i];
+					IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(internalAnnotation);
 					if (annotationInstance == null) {
 						continue;
 					}
-					tempAnnotations[annotationsCounter++] = annotationInstance;
+					tempAnnotations[convertedAnnotationCount++] = annotationInstance;
 				}
-				if (length != annotationsCounter) {
-					System.arraycopy(tempAnnotations, 0, (tempAnnotations = new IAnnotationBinding[annotationsCounter]), 0, annotationsCounter);
+				if (convertedAnnotationCount != length) {
+					if (convertedAnnotationCount == 0) {
+						return this.annotations = AnnotationBinding.NoAnnotations;
+					}
+					System.arraycopy(tempAnnotations, 0, (tempAnnotations = new IAnnotationBinding[convertedAnnotationCount]), 0, convertedAnnotationCount);
 				}
 				return this.annotations = tempAnnotations;
 			}
@@ -240,14 +247,23 @@ class TypeBinding implements ITypeBinding {
 				FieldBinding[] fieldBindings = referenceBinding.availableFields(); // resilience
 				int length = fieldBindings.length;
 				if (length != 0) {
+					int convertedFieldCount = 0;
 					IVariableBinding[] newFields = new IVariableBinding[length];
 					for (int i = 0; i < length; i++) {
-						IVariableBinding variableBinding = this.resolver.getVariableBinding(fieldBindings[i]);
+						FieldBinding fieldBinding = fieldBindings[i];
+						IVariableBinding variableBinding = this.resolver.getVariableBinding(fieldBinding);
 						if (variableBinding == null) {
 							return this.fields = NO_VARIABLE_BINDINGS;
 						}
-						newFields[i] = variableBinding;
+						newFields[convertedFieldCount++] = variableBinding;
 					}
+
+					if (convertedFieldCount != length) {
+						if (convertedFieldCount == 0) {
+							return this.fields = NO_VARIABLE_BINDINGS;
+						}						
+						System.arraycopy(newFields, 0, (newFields = new IVariableBinding[convertedFieldCount]), 0, convertedFieldCount);
+					}					
 					return this.fields = newFields;
 				}
 			}
@@ -275,19 +291,23 @@ class TypeBinding implements ITypeBinding {
 				org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] internalMethods = referenceBinding.availableMethods(); // be resilient
 				int length = internalMethods.length;
 				if (length != 0) {
-					int removeSyntheticsCounter = 0;
+					int convertedMethodCount = 0;
 					IMethodBinding[] newMethods = new IMethodBinding[length];
 					for (int i = 0; i < length; i++) {
 						org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding = internalMethods[i];
-						if (!shouldBeRemoved(methodBinding)) {
-							IMethodBinding methodBinding2 = this.resolver.getMethodBinding(methodBinding);
-							if (methodBinding2 != null) {
-								newMethods[removeSyntheticsCounter++] = methodBinding2;
-							}
+						if (methodBinding.isDefaultAbstract() || methodBinding.isSynthetic() || (methodBinding.isConstructor() && isInterface())) {
+							continue;
+						}
+						IMethodBinding methodBinding2 = this.resolver.getMethodBinding(methodBinding);
+						if (methodBinding2 != null) {
+							newMethods[convertedMethodCount++] = methodBinding2;
 						}
 					}
-					if (removeSyntheticsCounter != length) {
-						System.arraycopy(newMethods, 0, (newMethods = new IMethodBinding[removeSyntheticsCounter]), 0, removeSyntheticsCounter);
+					if (convertedMethodCount != length) {
+						if (convertedMethodCount == 0) {
+							return this.methods = NO_METHOD_BINDINGS;
+						}
+						System.arraycopy(newMethods, 0, (newMethods = new IMethodBinding[convertedMethodCount]), 0, convertedMethodCount);
 					}
 					return this.methods = newMethods;
 				}
@@ -501,6 +521,20 @@ class TypeBinding implements ITypeBinding {
 	}
 
 	public IJavaElement getJavaElement() {
+		if (this.isRecovered()) {
+			try {
+				IPackageBinding packageBinding = getPackage();
+				if (packageBinding != null) {
+					final IJavaElement javaElement = packageBinding.getJavaElement();
+					if (javaElement != null && javaElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
+						return new CompilationUnit((PackageFragment) javaElement, new String(this.binding.sourceName()), this.resolver.getWorkingCopyOwner()).getWorkingCopy(this.resolver.getWorkingCopyOwner(), null);
+					}
+				}
+			} catch (JavaModelException e) {
+				//ignore
+			}			
+			return null;
+		}
 		JavaElement element = getUnresolvedJavaElement();
 		if (element == null)
 			return null;
@@ -1309,7 +1343,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see IBinding#isRecovered()
 	 */
 	public boolean isRecovered() {
-		return false;
+		return (this.binding.tagBits & TagBits.HasMissingType) != 0;
 	}
 
 	/* (non-Javadoc)
@@ -1373,10 +1407,6 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public boolean isWildcardType() {
 		return this.binding.isWildcard();
-	}
-
-	private boolean shouldBeRemoved(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
-		return methodBinding.isDefaultAbstract() || methodBinding.isSynthetic() || (methodBinding.isConstructor() && isInterface());
 	}
 
 	/*

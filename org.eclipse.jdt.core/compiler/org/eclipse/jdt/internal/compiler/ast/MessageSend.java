@@ -57,7 +57,6 @@ public class MessageSend extends Expression implements InvocationSite {
 	public TypeBinding[] genericTypeArguments;
 	
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-
 	boolean nonStatic = !this.binding.isStatic();
 	flowInfo = this.receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
 	if (nonStatic) {
@@ -353,7 +352,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// resolve type arguments (for generic constructor call)
 	if (this.typeArguments != null) {
 		int length = this.typeArguments.length;
-		boolean argHasError = false; // typeChecks all arguments
+		boolean argHasError = scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5; // typeChecks all arguments
 		this.genericTypeArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
 			TypeReference typeReference = this.typeArguments[i];
@@ -365,6 +364,11 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 		if (argHasError) {
+			if (this.arguments != null) { // still attempt to resolve arguments
+				for (int i = 0, max = this.arguments.length; i < max; i++) {
+					this.arguments[i].resolveType(scope);
+				}
+			}					
 			return null;
 		}
 	}	
@@ -425,7 +429,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	this.binding = 
 		this.receiver.isImplicitThis()
 			? scope.getImplicitMethod(this.selector, argumentTypes, this)
-			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this); 
+			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
 	if (!this.binding.isValidBinding()) {
 		if (this.binding.declaringClass == null) {
 			if (this.actualReceiverType instanceof ReferenceBinding) {
@@ -458,11 +462,16 @@ public TypeBinding resolveType(BlockScope scope) {
 				closestMatchOriginal.modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 			}
 		}
-		return this.resolvedType;
+		return (this.resolvedType != null && (this.resolvedType.tagBits & TagBits.HasMissingType) == 0)
+						? this.resolvedType 
+						: null;
+	}
+	if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
+		scope.problemReporter().missingTypeInMethod(this, this.binding);
 	}
 	final CompilerOptions compilerOptions = scope.compilerOptions();
 	if (!this.binding.isStatic()) {
-		// the "receiver" must not be a type, in other words, a NameReference that the TC has bound to a Type
+		// the "receiver" must not be a type
 		if (receiverIsType) {
 			scope.problemReporter().mustUseAStaticMethod(this, this.binding);
 			if (this.actualReceiverType.isRawType() 
@@ -527,7 +536,9 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
 		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
 	}
-	return this.resolvedType;
+	return (this.resolvedType.tagBits & TagBits.HasMissingType) == 0
+				? this.resolvedType 
+				: null;
 }
 
 public void setActualReceiverType(ReferenceBinding receiverType) {

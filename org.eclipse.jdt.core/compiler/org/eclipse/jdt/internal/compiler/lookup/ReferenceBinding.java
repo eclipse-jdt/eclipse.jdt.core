@@ -319,14 +319,6 @@ public final boolean canBeSeenBy(Scope scope) {
 	return invocationType.fPackage == this.fPackage;
 }
 
-/**
- * In case of problems, returns the closest match found. It may not be perfect match, but the
- * result of a best effort to improve fault-tolerance.
-*/
-public ReferenceBinding closestMatch() {
-	return this; // by default, the closest match is the binding itself
-}
-
 public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
 
 	boolean isMemberOfGeneric = isMemberType() && (enclosingType().modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0;

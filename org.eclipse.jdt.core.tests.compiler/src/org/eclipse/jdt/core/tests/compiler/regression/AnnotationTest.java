@@ -5820,15 +5820,30 @@ public void test142c() {
     		"1. ERROR in X.java (at line 3)\n" + 
     		"	y.initialize(null, null, null);\n" + 
     		"	  ^^^^^^^^^^\n" + 
-    		"The method initialize(null, null, null) is undefined for the type Y\n" + 
+    		"The method initialize(Zork, String, Thread) from the type Y refers to the missing type Zork\n" + 
     		"----------\n" + 
     		"----------\n" + 
-    		"1. ERROR in Y.java (at line 6)\n" + 
+    		"1. WARNING in Y.java (at line 6)\n" + 
+    		"	public void initialize(Zork z, String s) {\n" + 
+    		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		"The deprecated method initialize(Zork, String) of type Y should be annotated with @Deprecated\n" + 
+    		"----------\n" + 
+    		"2. ERROR in Y.java (at line 6)\n" + 
     		"	public void initialize(Zork z, String s) {\n" + 
     		"	                       ^^^^\n" + 
     		"Zork cannot be resolved to a type\n" + 
     		"----------\n" + 
-    		"2. ERROR in Y.java (at line 9)\n" + 
+    		"3. ERROR in Y.java (at line 6)\n" + 
+    		"	public void initialize(Zork z, String s) {\n" + 
+    		"	                            ^\n" + 
+    		"Javadoc: Missing tag for parameter z\n" + 
+    		"----------\n" + 
+    		"4. ERROR in Y.java (at line 6)\n" + 
+    		"	public void initialize(Zork z, String s) {\n" + 
+    		"	                                      ^\n" + 
+    		"Javadoc: Missing tag for parameter s\n" + 
+    		"----------\n" + 
+    		"5. ERROR in Y.java (at line 9)\n" + 
     		"	public void initialize(Zork z, String s, Thread t) {\n" + 
     		"	                       ^^^^\n" + 
     		"Zork cannot be resolved to a type\n" + 
@@ -5859,13 +5874,23 @@ public void test142c() {
     		"1. ERROR in X.java (at line 3)\n" + 
     		"	int i = y.initialize;\n" + 
     		"	        ^^^^^^^^^^^^\n" + 
-    		"y.initialize cannot be resolved or is not a field\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 3)\n" + 
+    		"	int i = y.initialize;\n" + 
+    		"	          ^^^^^^^^^^\n" + 
+    		"The field Y.initialize is deprecated\n" + 
     		"----------\n" + 
     		"----------\n" + 
     		"1. ERROR in Y.java (at line 6)\n" + 
     		"	public Zork initialize;\n" + 
     		"	       ^^^^\n" + 
     		"Zork cannot be resolved to a type\n" + 
+    		"----------\n" + 
+    		"2. WARNING in Y.java (at line 6)\n" + 
+    		"	public Zork initialize;\n" + 
+    		"	            ^^^^^^^^^^\n" + 
+    		"The deprecated field Y.initialize should be annotated with @Deprecated\n" + 
     		"----------\n");
     }        
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=110593 - variation
@@ -6593,7 +6618,7 @@ public void test204() {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	@Ann(m=bar(null))\n" + 
 		"	       ^^^\n" + 
-		"The method bar(null) is undefined for the type X\n" + 
+		"The method bar(NonExisting) from the type X refers to the missing type NonExisting\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	private NonExisting bar(NonExisting ne){}\n" + 
@@ -6655,7 +6680,7 @@ public void test206() {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	@Ann(m=bar())\n" + 
 		"	       ^^^\n" + 
-		"The method bar() is undefined for the type X\n" + 
+		"The method bar() from the type X refers to the missing type NonExisting\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	private NonExisting bar(){}\n" + 
@@ -6681,14 +6706,19 @@ public void test207() {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	@Ann(m=foo)\n" + 
 		"	       ^^^\n" + 
-		"foo cannot be resolved\n" + 
+		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	@Ann(m=foo)\n" + 
+		"	       ^^^\n" + 
+		"NonExisting cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
 		"	private NonExisting foo;\n" + 
 		"	        ^^^^^^^^^^^\n" + 
 		"NonExisting cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 4)\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
 		"	private NonExisting bar;\n" + 
 		"	        ^^^^^^^^^^^\n" + 
 		"NonExisting cannot be resolved to a type\n" + 
@@ -7391,10 +7421,15 @@ public void test226() {
 		"----------\n" + 
 		"3. ERROR in X.java (at line 6)\n" + 
 		"	@Annot(value={x}, classe={Zork.class,zork})\n" + 
+		"	                          ^^^^^^^^^^\n" + 
+		"Class<Zork> cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	@Annot(value={x}, classe={Zork.class,zork})\n" + 
 		"	                                     ^^^^\n" + 
 		"zork cannot be resolved\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 6)\n" + 
+		"5. ERROR in X.java (at line 6)\n" + 
 		"	@Annot(value={x}, classe={Zork.class,zork})\n" + 
 		"	                                     ^^^^\n" + 
 		"The value for annotation attribute X.Annot.classe must be a class literal\n" + 
@@ -7655,7 +7690,7 @@ public void test236() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	List<String> ls = bar();\n" + 
 		"	                  ^^^\n" + 
-		"The method bar() is undefined for the type X\n" + 
+		"The method bar() from the type X refers to the missing type ArrayList\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 7)\n" + 
 		"	ArrayList bar() {\n" + 
@@ -8112,12 +8147,14 @@ public void test252() throws Exception {
 	String expectedOutput =
 		"    RuntimeVisibleParameterAnnotations: \n" + 
 		"      Number of annotations for parameter 0: 1\n" + 
-		"        #21 @java.lang.Deprecated(\n" + 
+		"        #22 @java.lang.Deprecated(\n" + 
 		"        )\n" + 
 		"    RuntimeInvisibleParameterAnnotations: \n" + 
-		"      Number of annotations for parameter 0: 1\n" + 
-		"        #17 @Annot(\n" + 
-		"          #18 value=(int) 2 (constant type)\n" + 
+		"      Number of annotations for parameter 0: 2\n" + 
+		"        #17 @Zork(\n" + 
+		"        )\n" + 
+		"        #18 @Annot(\n" + 
+		"          #19 value=(int) 2 (constant type)\n" + 
 		"        )\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
@@ -8152,10 +8189,14 @@ public void test253() throws Exception {
 	String expectedOutput =
 		"    RuntimeVisibleParameterAnnotations: \n" + 
 		"      Number of annotations for parameter 0: 2\n" + 
-		"        #17 @java.lang.Deprecated(\n" + 
+		"        #19 @java.lang.Deprecated(\n" + 
 		"        )\n" + 
-		"        #18 @Annot(\n" + 
-		"          #19 value=(int) 2 (constant type)\n" + 
+		"        #20 @Annot(\n" + 
+		"          #21 value=(int) 2 (constant type)\n" + 
+		"        )\n" + 
+		"    RuntimeInvisibleParameterAnnotations: \n" + 
+		"      Number of annotations for parameter 0: 1\n" + 
+		"        #17 @Zork(\n" + 
 		"        )\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
@@ -8190,11 +8231,16 @@ public void test254() throws Exception {
 	String expectedOutput =
 		"    RuntimeVisibleParameterAnnotations: \n" + 
 		"      Number of annotations for parameter 0: 1\n" + 
-		"        #17 @java.lang.Deprecated(\n" + 
+		"        #19 @java.lang.Deprecated(\n" + 
 		"        )\n" + 
 		"      Number of annotations for parameter 1: 1\n" + 
-		"        #18 @Annot(\n" + 
-		"          #19 value=(int) 3 (constant type)\n" + 
+		"        #20 @Annot(\n" + 
+		"          #21 value=(int) 3 (constant type)\n" + 
+		"        )\n" + 
+		"    RuntimeInvisibleParameterAnnotations: \n" + 
+		"      Number of annotations for parameter 0: 0\n" + 
+		"      Number of annotations for parameter 1: 1\n" + 
+		"        #17 @Zork(\n" + 
 		"        )\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }

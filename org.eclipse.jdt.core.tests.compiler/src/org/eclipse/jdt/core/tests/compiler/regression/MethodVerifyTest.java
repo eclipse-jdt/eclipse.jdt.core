@@ -7091,8 +7091,28 @@ public void test116() {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 6)\n" + 
 		"	Object foo() {\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with Y.foo()\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	Object foo() {\n" + 
 		"	       ^^^^^\n" + 
-		mustOverrideMessage("foo()", "X") + 
+		"The method X.foo() is overriding a method without making a super invocation\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	Object foo() {\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with Y.foo()\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 8)\n" + 
+		"	Object foo() {\n" + 
+		"	       ^^^^^\n" + 
+		"The method foo() of type new Y(){} should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 8)\n" + 
+		"	Object foo() {\n" + 
+		"	       ^^^^^\n" + 
+		"The method new Y(){}.foo() is overriding a method without making a super invocation\n" + 
 		"----------\n",
 		null,
 		true,

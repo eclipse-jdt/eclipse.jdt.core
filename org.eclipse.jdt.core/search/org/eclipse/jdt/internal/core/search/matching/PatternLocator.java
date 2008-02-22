@@ -713,7 +713,7 @@ protected int resolveLevelForType(char[] simpleNamePattern, char[] qualification
 //	return resolveLevelForType(qualifiedPattern(simpleNamePattern, qualificationPattern), type);
 	char[] qualifiedPattern = getQualifiedPattern(simpleNamePattern, qualificationPattern);
 	int level = resolveLevelForType(qualifiedPattern, binding);
-	if (level == ACCURATE_MATCH || binding == null) return level;
+	if (level == ACCURATE_MATCH || binding == null  || !binding.isValidBinding()) return level;
 	TypeBinding type = binding instanceof ArrayBinding ? ((ArrayBinding)binding).leafComponentType : binding;
 	char[] sourceName = null;
 	if (type.isMemberType() || type.isLocalType()) {
@@ -765,7 +765,7 @@ protected int resolveLevelForType(char[] simpleNamePattern, char[] qualification
  */
 protected int resolveLevelForType(char[] qualifiedPattern, TypeBinding type) {
 	if (qualifiedPattern == null) return ACCURATE_MATCH;
-	if (type == null) return INACCURATE_MATCH;
+	if (type == null || !type.isValidBinding()) return INACCURATE_MATCH;
 
 	// Type variable cannot be specified through pattern => this kind of binding cannot match it (see bug 79803)
 	if (type.isTypeVariable()) return IMPOSSIBLE_MATCH;

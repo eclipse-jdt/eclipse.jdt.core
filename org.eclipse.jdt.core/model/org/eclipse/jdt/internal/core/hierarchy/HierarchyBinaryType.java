@@ -46,6 +46,12 @@ public HierarchyBinaryType(int modifiers, char[] qualification, char[] sourceNam
 	CharOperation.replace(this.name, '.', '/');
 }
 /**
+ * @see org.eclipse.jdt.internal.compiler.env.IBinaryType
+ */
+public IBinaryAnnotation[] getAnnotations() {
+	return null;
+}
+/**
  * Answer the resolved name of the enclosing type in the
  * class file format as specified in section 4.2 of the Java 2 VM spec
  * or null if the receiver is a top level type.
@@ -112,6 +118,14 @@ public IBinaryNestedType[] getMemberTypes() {
 public IBinaryMethod[] getMethods() {
 	return null;
 }
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.env.IBinaryType#getMissingTypeNames()
+ */
+public char[][][] getMissingTypeNames() {
+	return null;
+}
+
 /**
  * Answer an int whose bits are set according the access constants
  * defined by the VM spec.
@@ -119,6 +133,7 @@ public IBinaryMethod[] getMethods() {
 public int getModifiers() {
 	return this.modifiers;
 }
+
 /**
  * Answer the resolved name of the type in the
  * class file format as specified in section 4.2 of the Java 2 VM spec.
@@ -132,7 +147,6 @@ public char[] getName() {
 public char[] getSourceName() {
 	return this.sourceName;
 }
-
 /**
  * Answer the resolved name of the receiver's superclass in the
  * class file format as specified in section 4.2 of the Java 2 VM spec
@@ -143,10 +157,14 @@ public char[] getSourceName() {
 public char[] getSuperclassName() {
 	return this.superclass;
 }
+
+// TODO (jerome) please verify that we don't need the tagbits for the receiver
+public long getTagBits() {
+	return 0;
+}
 public boolean isAnonymous() {
 	return false; // index did not record this information (since unused for hierarchies)
 }
-
 /**
  * Answer whether the receiver contains the resolved binary form
  * or the unresolved source form of the type.
@@ -154,6 +172,7 @@ public boolean isAnonymous() {
 public boolean isBinaryType() {
 	return true;
 }
+
 public boolean isLocal() {
 	return false;  // index did not record this information (since unused for hierarchies)
 }
@@ -192,6 +211,13 @@ public void recordSuperType(char[] superTypeName, char[] superQualification, cha
 		}
 	}
 }
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.env.IBinaryType
+ */
+public char[] sourceFileName() {
+	return null;
+}
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	if (this.modifiers == ClassFileConstants.AccPublic) {
@@ -226,23 +252,5 @@ public String toString() {
 		}
 	}
 	return buffer.toString();
-}
-
-/**
- * @see org.eclipse.jdt.internal.compiler.env.IBinaryType
- */
-public IBinaryAnnotation[] getAnnotations() {
-	return null;
-}
-
-/**
- * @see org.eclipse.jdt.internal.compiler.env.IBinaryType
- */
-public char[] sourceFileName() {
-	return null;
-}
-// TODO (jerome) please verify that we don't need the tagbits for the receiver
-public long getTagBits() {
-	return 0;
 }
 }

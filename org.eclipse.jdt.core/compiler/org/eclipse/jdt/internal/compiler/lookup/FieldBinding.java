@@ -27,10 +27,6 @@ public FieldBinding(char[] name, TypeBinding type, int modifiers, ReferenceBindi
 	super(name, type, modifiers, constant);
 	this.declaringClass = declaringClass;
 }
-public FieldBinding(FieldDeclaration field, TypeBinding type, int modifiers, ReferenceBinding declaringClass) {
-	this(field.name, type, modifiers, declaringClass, null);
-	field.binding = this; // record binding in declaration
-}
 // special API used to change field declaring class for runtime visibility check
 public FieldBinding(FieldBinding initialFieldBinding, ReferenceBinding declaringClass) {
 	super(initialFieldBinding.name, initialFieldBinding.type, initialFieldBinding.modifiers, initialFieldBinding.constant());
@@ -41,12 +37,10 @@ public FieldBinding(FieldBinding initialFieldBinding, ReferenceBinding declaring
 /* API
 * Answer the receiver's binding type from Binding.BindingID.
 */
-
-public final int kind() {
-	return FIELD;
+public FieldBinding(FieldDeclaration field, TypeBinding type, int modifiers, ReferenceBinding declaringClass) {
+	this(field.name, type, modifiers, declaringClass, null);
+	field.binding = this; // record binding in declaration
 }
-/* Answer true if the receiver is visible to the invocationPackage.
-*/
 
 public final boolean canBeSeenBy(PackageBinding invocationPackage) {
 	if (isPublic()) return true;
@@ -153,6 +147,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	} while ((currentType = currentType.superclass()) != null);
 	return false;
 }
+
 /*
  * declaringUniqueKey dot fieldName ) returnTypeUniqueKey
  * p.X { X<T> x} --> Lp/X;.x)p/X<TT;>;
@@ -183,7 +178,6 @@ public char[] computeUniqueKey(boolean isLeaf) {
 	System.arraycopy(returnTypeKey, 0, uniqueKey, index, returnTypeLength);
 	return uniqueKey;
 }
-
 public Constant constant() {
 	Constant fieldConstant = this.constant;
 	if (fieldConstant == null) {
@@ -215,6 +209,7 @@ public Constant constant() {
 	}
 	return fieldConstant;
 }
+
 /**
  * X<T> t   -->  LX<TT;>;
  */
@@ -222,9 +217,17 @@ public char[] genericSignature() {
     if ((this.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0) return null;
     return this.type.genericTypeSignature();
 }
-
 public final int getAccessFlags() {
 	return modifiers & ExtraCompilerModifiers.AccJustFlag;
+}
+
+public AnnotationBinding[] getAnnotations() {
+	FieldBinding originalField = this.original();
+	ReferenceBinding declaringClassBinding = originalField.declaringClass;
+	if (declaringClassBinding == null) {
+		return Binding.NO_ANNOTATIONS;
+	}	
+	return declaringClassBinding.retrieveAnnotations(originalField);
 }
 
 /**
@@ -259,22 +262,13 @@ public long getAnnotationTagBits() {
 	return originalField.tagBits;
 }
 
-public AnnotationBinding[] getAnnotations() {
-	FieldBinding originalField = this.original();
-	ReferenceBinding declaringClassBinding = originalField.declaringClass;
-	if (declaringClassBinding == null) {
-		return Binding.NO_ANNOTATIONS;
-	}	
-	return declaringClassBinding.retrieveAnnotations(originalField);
-}
-
-/* Answer true if the receiver has default visibility
-*/
-
 public final boolean isDefault() {
 	return !isPublic() && !isProtected() && !isPrivate();
 }
 /* Answer true if the receiver is a deprecated field
+*/
+
+/* Answer true if the receiver has default visibility
 */
 
 public final boolean isDeprecated() {
@@ -287,12 +281,6 @@ public final boolean isPrivate() {
 	return (modifiers & ClassFileConstants.AccPrivate) != 0;
 }
 /* Answer true if the receiver has private visibility and is used locally
-*/
-
-public final boolean isUsed() {
-	return (modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0;
-}
-/* Answer true if the receiver has protected visibility
 */
 
 public final boolean isProtected() {
@@ -325,6 +313,12 @@ public final boolean isTransient() {
 /* Answer true if the receiver's declaring type is deprecated (or any of its enclosing types)
 */
 
+public final boolean isUsed() {
+	return (modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0;
+}
+/* Answer true if the receiver has protected visibility
+*/
+
 public final boolean isViewedAsDeprecated() {
 	return (modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0;
 }
@@ -334,6 +328,12 @@ public final boolean isViewedAsDeprecated() {
 public final boolean isVolatile() {
 	return (modifiers & ClassFileConstants.AccVolatile) != 0;
 }
+
+public final int kind() {
+	return FIELD;
+}
+/* Answer true if the receiver is visible to the invocationPackage.
+*/
 /**
  * Returns the original field (as opposed to parameterized instances)
  */

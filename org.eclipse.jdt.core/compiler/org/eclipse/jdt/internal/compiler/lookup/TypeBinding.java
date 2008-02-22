@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
@@ -101,6 +103,23 @@ public boolean canBeInstantiated() {
  */
 public TypeBinding capture(Scope scope, int position) {
 	return this;
+}
+
+/**
+ * In case of problems, returns the closest match found. It may not be perfect match, but the
+ * result of a best effort to improve fault-tolerance.
+ */
+public TypeBinding closestMatch() {
+	return this; // by default no better type	
+}
+
+/**
+ * Iterate through the type components to collect instances of leaf missing types
+ * @param missingTypes
+ * @return missing types
+ */
+public List collectMissingTypes(List missingTypes) {
+	return missingTypes;	
 }
 
 /**

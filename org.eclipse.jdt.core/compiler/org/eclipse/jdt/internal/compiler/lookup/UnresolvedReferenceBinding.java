@@ -45,11 +45,19 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
     ReferenceBinding targetType = this.resolvedType;
 	if (targetType == null) {
 		targetType = this.fPackage.getType0(this.compoundName[this.compoundName.length - 1]);
-		if (targetType == this)
+		if (targetType == this) {
 			targetType = environment.askForType(this.compoundName);
+		}
 		if (targetType == null || targetType == this) { // could not resolve any better, error was already reported against it
+			// report the missing class file first - only if not resolving a previously missing type
+			if ((this.tagBits & TagBits.HasMissingType) == 0) {
+				environment.problemReporter.isClassPathCorrect(
+					this.compoundName, 
+					environment.unitBeingCompleted, 
+					environment.missingClassFileLocation);
+			}
 			// create a proxy for the missing BinaryType
-			targetType = environment.cacheMissingBinaryType(this.compoundName, null);
+			targetType = environment.createMissingType(null, this.compoundName);
 		}
 		setResolvedType(targetType, environment);
 	}

@@ -562,7 +562,11 @@ ImportBinding[] getDefaultImports() {
 
 	if (importBinding == null || !importBinding.isValidBinding()) {
 		// create a proxy for the missing BinaryType
-		BinaryTypeBinding missingObject = environment.cacheMissingBinaryType(JAVA_LANG_OBJECT, this.referenceContext);
+		problemReporter().isClassPathCorrect(
+			JAVA_LANG_OBJECT, 
+			this.referenceContext, 
+			environment.missingClassFileLocation);		
+		BinaryTypeBinding missingObject = environment.createMissingType(null, JAVA_LANG_OBJECT);
 		importBinding = missingObject.fPackage;
 	}
 

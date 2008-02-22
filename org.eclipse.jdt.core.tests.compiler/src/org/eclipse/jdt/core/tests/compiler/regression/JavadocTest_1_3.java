@@ -1450,25 +1450,20 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"----------\n" + 
 			"3. ERROR in X.java (at line 5)\n" + 
 			"	public class X extends G<Exception> {\n" + 
-			"	                       ^\n" + 
-			"The type G is not generic; it cannot be parameterized with arguments <Exception>\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 5)\n" + 
-			"	public class X extends G<Exception> {\n" + 
 			"	                         ^^^^^^^^^\n" + 
 			"Syntax error, parameterized types are only available if source level is 1.5\n" + 
 			"----------\n" + 
-			"5. ERROR in X.java (at line 6)\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
 			"	X(Exception exc) { super(exc);}\n" + 
 			"	                   ^^^^^^^^^^^\n" + 
-			"The constructor Object(Exception) is undefined\n" + 
+			"The constructor G(E) refers to the missing type E\n" + 
 			"----------\n" + 
-			"6. ERROR in X.java (at line 8)\n" + 
+			"5. ERROR in X.java (at line 8)\n" + 
 			"	class G<E extends Exception> {\n" + 
 			"	        ^^^^^^^^^^^^^^^^^^^\n" + 
 			"Syntax error, type parameters are only available if source level is 1.5\n" + 
 			"----------\n" + 
-			"7. ERROR in X.java (at line 9)\n" + 
+			"6. ERROR in X.java (at line 9)\n" + 
 			"	G(E e) {}\n" + 
 			"	  ^\n" + 
 			"E cannot be resolved to a type\n" + 
@@ -1523,15 +1518,10 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"	               ^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Syntax error, type parameters are only available if source level is 1.5\n" + 
 			"----------\n" + 
-			"5. ERROR in X.java (at line 13)\n" + 
-			"	/** Tests the method{@link ComparableUtils#compareTo(Object, Object, Class)} and\n" + 
-			"	                                           ^^^^^^^^^\n" + 
-			"Javadoc: The method compareTo(X, X) in the type ComparableUtils is not applicable for the arguments (Object, Object, Class)\n" + 
-			"----------\n" + 
-			"6. ERROR in X.java (at line 14)\n" + 
+			"5. ERROR in X.java (at line 14)\n" + 
 			"	*  {@link ComparableUtils#compareTo(Object, Object)}.\n" + 
 			"	                          ^^^^^^^^^\n" + 
-			"Javadoc: The method compareTo(X, X) in the type ComparableUtils is not applicable for the arguments (Object, Object)\n" + 
+			"Javadoc: The method compareTo(Object, Object, Class) in the type ComparableUtils is not applicable for the arguments (Object, Object)\n" + 
 			"----------\n");
 	}
 
@@ -1629,14 +1619,13 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"12. ERROR in Test.java (at line 19)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
 			"	           ^^^^^^^^^^^^\n" + 
-			"The constructor Object(null) is undefined\n" + 
+			"The constructor Test(T) refers to the missing type T\n" + 
 			"----------\n" + 
 			"13. ERROR in Test.java (at line 20)\n" + 
 			"	public boolean add(E e) {\n" + 
 			"	                   ^\n" + 
 			"E cannot be resolved to a type\n" + 
-			"----------\n"
-		);
+			"----------\n");
 	}
 	public void testBug83127b() {
 		reportMissingJavadocTags = CompilerOptions.IGNORE;
@@ -1718,14 +1707,13 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"10. ERROR in Test.java (at line 19)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
 			"	           ^^^^^^^^^^^^\n" + 
-			"The constructor Object(null) is undefined\n" + 
+			"The constructor Test(T) refers to the missing type T\n" + 
 			"----------\n" + 
 			"11. ERROR in Test.java (at line 20)\n" + 
 			"	public boolean add(E e) {\n" + 
 			"	                   ^\n" + 
 			"E cannot be resolved to a type\n" + 
-			"----------\n"
-		);
+			"----------\n");
 	}
 	public void testBug83127c() {
 		reportMissingJavadocTags = CompilerOptions.IGNORE;
@@ -1804,14 +1792,13 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"10. ERROR in Test.java (at line 16)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
 			"	           ^^^^^^^^^^^^\n" + 
-			"The constructor Object(null) is undefined\n" + 
+			"The constructor Test(T) refers to the missing type T\n" + 
 			"----------\n" + 
 			"11. ERROR in Test.java (at line 17)\n" + 
 			"	public boolean add(E e) {\n" + 
 			"	                   ^\n" + 
 			"E cannot be resolved to a type\n" + 
-			"----------\n"
-		);
+			"----------\n");
 	}
 	public void testBug83127d() {
 		reportMissingJavadocTags = CompilerOptions.IGNORE;
@@ -1911,14 +1898,13 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"10. ERROR in Test.java (at line 16)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
 			"	           ^^^^^^^^^^^^\n" + 
-			"The constructor Object(null) is undefined\n" + 
+			"The constructor Test(T) refers to the missing type T\n" + 
 			"----------\n" + 
 			"11. ERROR in Test.java (at line 17)\n" + 
 			"	public boolean add(E e) {\n" + 
 			"	                   ^\n" + 
 			"E cannot be resolved to a type\n" + 
-			"----------\n"
-		);
+			"----------\n");
 	}
 	public void testBug83127e() {
 		reportMissingJavadocTags = CompilerOptions.IGNORE;
@@ -1973,7 +1959,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"1. ERROR in Test.java (at line 2)\n" + 
 			"	* @see Unrelated1#add(Object)\n" + 
 			"	                  ^^^\n" + 
-			"Javadoc: The method add(Object) is undefined for the type Unrelated1\n" + 
+			"Javadoc: The method add(E) in the type Unrelated1 is not applicable for the arguments (Object)\n" + 
 			"----------\n" + 
 			"2. ERROR in Test.java (at line 3)\n" + 
 			"	* @see Unrelated1#Unrelated1(Object)\n" + 
@@ -2018,14 +2004,13 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"10. ERROR in Test.java (at line 16)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
 			"	           ^^^^^^^^^^^^\n" + 
-			"The constructor Object(null) is undefined\n" + 
+			"The constructor Test(T) refers to the missing type T\n" + 
 			"----------\n" + 
 			"11. ERROR in Test.java (at line 17)\n" + 
 			"	public boolean add(E e) {\n" + 
 			"	                   ^\n" + 
 			"E cannot be resolved to a type\n" + 
-			"----------\n"
-		);
+			"----------\n");
 	}
 	public void testBug83127f() {
 		reportMissingJavadocTags = CompilerOptions.IGNORE;
@@ -2060,74 +2045,74 @@ public class JavadocTest_1_3 extends JavadocTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in Unrelated1.java (at line 1)\r\n" + 
-			"	public class Unrelated1<E extends Number> {\r\n" + 
+			"1. ERROR in Unrelated1.java (at line 1)\n" + 
+			"	public class Unrelated1<E extends Number> {\n" + 
 			"	                        ^^^^^^^^^^^^^^^^\n" + 
 			"Syntax error, type parameters are only available if source level is 1.5\n" + 
 			"----------\n" + 
-			"2. ERROR in Unrelated1.java (at line 2)\r\n" + 
-			"	public Unrelated1(E e) {}\r\n" + 
+			"2. ERROR in Unrelated1.java (at line 2)\n" + 
+			"	public Unrelated1(E e) {}\n" + 
 			"	                  ^\n" + 
 			"E cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"3. ERROR in Unrelated1.java (at line 3)\r\n" + 
-			"	public boolean add(E e) { return false; }\r\n" + 
+			"3. ERROR in Unrelated1.java (at line 3)\n" + 
+			"	public boolean add(E e) { return false; }\n" + 
 			"	                   ^\n" + 
 			"E cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"----------\n" + 
-			"1. ERROR in Test.java (at line 2)\r\n" + 
-			"	* @see Unrelated1#add(Number)\r\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see Unrelated1#add(Number)\n" + 
 			"	                  ^^^\n" + 
-			"Javadoc: The method add(Number) is undefined for the type Unrelated1\n" + 
+			"Javadoc: The method add(E) in the type Unrelated1 is not applicable for the arguments (Number)\n" + 
 			"----------\n" + 
-			"2. ERROR in Test.java (at line 3)\r\n" + 
-			"	* @see Unrelated1#Unrelated1(Number)\r\n" + 
+			"2. ERROR in Test.java (at line 3)\n" + 
+			"	* @see Unrelated1#Unrelated1(Number)\n" + 
 			"	                  ^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: The constructor Unrelated1(Number) is undefined\n" + 
 			"----------\n" + 
-			"3. ERROR in Test.java (at line 8)\r\n" + 
-			"	public class Test<T>{\r\n" + 
+			"3. ERROR in Test.java (at line 8)\n" + 
+			"	public class Test<T>{\n" + 
 			"	                  ^\n" + 
 			"Syntax error, type parameters are only available if source level is 1.5\n" + 
 			"----------\n" + 
-			"4. ERROR in Test.java (at line 9)\r\n" + 
-			"	Test(T t) {}\r\n" + 
+			"4. ERROR in Test.java (at line 9)\n" + 
+			"	Test(T t) {}\n" + 
 			"	     ^\n" + 
 			"T cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"5. ERROR in Test.java (at line 10)\r\n" + 
-			"	public boolean add(T t) {\r\n" + 
+			"5. ERROR in Test.java (at line 10)\n" + 
+			"	public boolean add(T t) {\n" + 
 			"	                   ^\n" + 
 			"T cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"6. ERROR in Test.java (at line 14)\r\n" + 
-			"	class Sub<E extends Number> extends Test<E> {\r\n" + 
+			"6. ERROR in Test.java (at line 14)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
 			"	          ^^^^^^^^^^^^^^^^\n" + 
 			"Syntax error, type parameters are only available if source level is 1.5\n" + 
 			"----------\n" + 
-			"7. ERROR in Test.java (at line 14)\r\n" + 
-			"	class Sub<E extends Number> extends Test<E> {\r\n" + 
+			"7. ERROR in Test.java (at line 14)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
 			"	                                         ^\n" + 
 			"Syntax error, parameterized types are only available if source level is 1.5\n" + 
 			"----------\n" + 
-			"8. ERROR in Test.java (at line 14)\r\n" + 
-			"	class Sub<E extends Number> extends Test<E> {\r\n" + 
+			"8. ERROR in Test.java (at line 14)\n" + 
+			"	class Sub<E extends Number> extends Test<E> {\n" + 
 			"	                                         ^\n" + 
 			"E cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"9. ERROR in Test.java (at line 15)\r\n" + 
-			"	Sub (E e) {super(null);}\r\n" + 
+			"9. ERROR in Test.java (at line 15)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
 			"	     ^\n" + 
 			"E cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"10. ERROR in Test.java (at line 15)\r\n" + 
-			"	Sub (E e) {super(null);}\r\n" + 
+			"10. ERROR in Test.java (at line 15)\n" + 
+			"	Sub (E e) {super(null);}\n" + 
 			"	           ^^^^^^^^^^^^\n" + 
-			"The constructor Object(null) is undefined\n" + 
+			"The constructor Test(T) refers to the missing type T\n" + 
 			"----------\n" + 
-			"11. ERROR in Test.java (at line 16)\r\n" + 
-			"	public boolean add(E e) {\r\n" + 
+			"11. ERROR in Test.java (at line 16)\n" + 
+			"	public boolean add(E e) {\n" + 
 			"	                   ^\n" + 
 			"E cannot be resolved to a type\n" + 
 			"----------\n"
@@ -2187,7 +2172,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"1. ERROR in Test.java (at line 2)\n" + 
 			"	* @see Unrelated1#add(Integer)\n" + 
 			"	                  ^^^\n" + 
-			"Javadoc: The method add(Integer) is undefined for the type Unrelated1\n" + 
+			"Javadoc: The method add(E) in the type Unrelated1 is not applicable for the arguments (Integer)\n" + 
 			"----------\n" + 
 			"2. ERROR in Test.java (at line 3)\n" + 
 			"	* @see Unrelated1#Unrelated1(Integer)\n" + 
@@ -2232,7 +2217,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"10. ERROR in Test.java (at line 17)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
 			"	           ^^^^^^^^^^^^\n" + 
-			"The constructor Object(null) is undefined\n" + 
+			"The constructor Test(T) refers to the missing type T\n" + 
 			"----------\n" + 
 			"11. ERROR in Test.java (at line 18)\n" + 
 			"	public boolean add(E e) {\n" + 
@@ -2330,7 +2315,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"9. ERROR in Test.java (at line 18)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
 			"	           ^^^^^^^^^^^^\n" + 
-			"The constructor Object(null) is undefined\n" + 
+			"The constructor Test(T) refers to the missing type T\n" + 
 			"----------\n" + 
 			"10. ERROR in Test.java (at line 19)\n" + 
 			"	public boolean add(E e) {\n" + 
@@ -3707,32 +3692,21 @@ public class JavadocTest_1_3 extends JavadocTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in Test.java (at line 3)\n" + 
-			"	* @see Test#field\n" + 
-			"	            ^^^^^\n" + 
-			"Javadoc: field cannot be resolved or is not a field\n" + 
-			"----------\n" + 
-			"2. ERROR in Test.java (at line 4)\n" + 
-			"	* @see Test#foo()\n" + 
-			"	            ^^^\n" + 
-			"Javadoc: The method foo() is undefined for the type Test\n" + 
-			"----------\n" + 
-			"3. ERROR in Test.java (at line 6)\n" + 
+			"1. ERROR in Test.java (at line 6)\n" + 
 			"	public class Test<T> {\n" + 
 			"	                  ^\n" + 
 			"Syntax error, type parameters are only available if source level is 1.5\n" + 
 			"----------\n" + 
-			"4. ERROR in Test.java (at line 7)\n" + 
+			"2. ERROR in Test.java (at line 7)\n" + 
 			"	T field;\n" + 
 			"	^\n" + 
 			"T cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"5. ERROR in Test.java (at line 8)\n" + 
+			"3. ERROR in Test.java (at line 8)\n" + 
 			"	T foo() { return null; }\n" + 
 			"	^\n" + 
 			"T cannot be resolved to a type\n" + 
-			"----------\n"
-		);
+			"----------\n");
 	}
 
 	/**

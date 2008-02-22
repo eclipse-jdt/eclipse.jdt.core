@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -112,9 +113,22 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		// handle the error here
 		this.constant = Constant.NotAConstant;
 		if ((this.bits & ASTNode.DidResolve) != 0) { // is a shared type reference which was already resolved
-			if (this.resolvedType != null && !this.resolvedType.isValidBinding())
-				return null; // already reported error
-			return this.resolvedType;
+			if (this.resolvedType != null) { // is a shared type reference which was already resolved
+				if (this.resolvedType != null) { // is a shared type reference which was already resolved
+					if (this.resolvedType.isValidBinding()) {
+						return this.resolvedType;
+					} else {
+						switch (this.resolvedType.problemId()) {
+							case ProblemReasons.NotFound :
+							case ProblemReasons.NotVisible :
+								TypeBinding type = this.resolvedType.closestMatch();
+								return type;			
+							default :
+								return null;
+						}			
+					}
+				}
+			}
 		} 
 		this.bits |= ASTNode.DidResolve;
 		boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
@@ -210,8 +224,19 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 
 			    TypeVariableBinding[] typeVariables = currentType.typeVariables();
 				if (typeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
-					scope.problemReporter().nonGenericTypeCannotBeParameterized(i, this, currentType, argTypes);
-					return null;
+					if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) { // below 1.5, already reported as syntax error
+						scope.problemReporter().nonGenericTypeCannotBeParameterized(i, this, currentType, argTypes);
+						return null;
+					}
+					this.resolvedType =  (qualifiedType != null && qualifiedType.isParameterizedType())
+						? scope.environment().createParameterizedType(currentType, null, qualifiedType)
+						: currentType;
+					if (this.dimensions > 0) {
+						if (dimensions > 255)
+							scope.problemReporter().tooManyDimensions(this);
+						this.resolvedType = scope.createArrayType(this.resolvedType, dimensions);
+					}
+					return this.resolvedType;
 				} else if (argLength != typeVariables.length) { // check arity
 					scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
 					return null;
@@ -251,7 +276,6 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				reportDeprecatedType(qualifiedType, scope);		    
 			this.resolvedType = qualifiedType;
 		}
-//		this.resolvedType = qualifiedType;
 		// array type ?
 		if (this.dimensions > 0) {
 			if (dimensions > 255)

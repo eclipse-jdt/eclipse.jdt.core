@@ -17155,7 +17155,8 @@ public void testMethod1() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"bar1[METHOD_REF]{bar1(), Ltest.Test2;, ()Ljava.lang.Object;, bar1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"bar1[METHOD_REF]{bar1(), Ltest.Test2;, ()Ljava.lang.Object;, bar1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" + 
+			"bar2[METHOD_REF]{bar2(), Ltest.Test2;, ()LZork;, bar2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testMethod2() throws JavaModelException {

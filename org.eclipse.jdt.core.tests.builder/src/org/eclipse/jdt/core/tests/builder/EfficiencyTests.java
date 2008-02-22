@@ -337,4 +337,44 @@ public class EfficiencyTests extends BuilderTests {
 		expectingCompiledClasses(new String[]{"p1.X", "p1.X$1"}); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingCompilingOrder(new String[]{"p1.X", "p1.X$1" }); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+	// http://dev.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+	public void testMissingType001() throws JavaModelException {
+
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		fullBuild(projectPath);
+		
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		
+		env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class X {\n"+ //$NON-NLS-1$
+			"	void foo(p2.Y y) {	\n" + //$NON-NLS-1$
+			"		y.bar(null);" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		env.addClass(root, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class Y {\n"+ //$NON-NLS-1$
+			"	public void bar(Z z) {}\n" + //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+		fullBuild(projectPath);
+		
+		env.addClass(root, "p2", "Z", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class Z {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+			);
+			
+		incrementalBuild(projectPath);
+
+		expectingCompiledClasses(new String[]{"p1.X", "p2.Y","p2.Z"}); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompilingOrder(new String[]{"p2.Z", "p2.Y", "p1.X" }); //$NON-NLS-1$ //$NON-NLS-2$
+	}	
 }

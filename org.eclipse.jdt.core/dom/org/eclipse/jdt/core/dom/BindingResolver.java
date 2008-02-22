@@ -267,6 +267,15 @@ class BindingResolver {
 		return null;
 	}
 
+	/**
+	 * Return whether the binding resolution is recovering inconsistent types
+	 * @return a boolean telling if binding resolution is recovering inconsistent types
+	 */
+	boolean isRecoveringBindings() {
+		return false;
+	}
+	
+	
 	boolean isResolvedTypeInferredFromExpectedType(MethodInvocation methodInvocation) {
 		return false;
 	}

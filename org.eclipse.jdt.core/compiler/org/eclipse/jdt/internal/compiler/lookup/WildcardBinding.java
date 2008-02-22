@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -78,6 +80,16 @@ public class WildcardBinding extends ReferenceBinding {
 	public boolean canBeInstantiated() {
 		// cannot be asked per construction
 		return false;
+	}
+	
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#collectMissingTypes(java.util.List)
+	 */
+	public List collectMissingTypes(List missingTypes) {
+		if ((this.tagBits & TagBits.HasMissingType) != 0) {
+			missingTypes = this.bound.collectMissingTypes(missingTypes);
+		}
+		return missingTypes;
 	}
 	
 	/**
@@ -404,7 +416,7 @@ public class WildcardBinding extends ReferenceBinding {
 			this.fPackage = someGenericType.getPackage();
 		}
 		if (someBound != null) {
-			this.tagBits |= someBound.tagBits & TagBits.HasTypeVariable;
+			this.tagBits |= someBound.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType);
 		}
 	}
 

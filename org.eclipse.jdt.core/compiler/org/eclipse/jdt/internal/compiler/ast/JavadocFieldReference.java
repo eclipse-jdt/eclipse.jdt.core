@@ -41,7 +41,7 @@ public class JavadocFieldReference extends FieldReference {
 
 		this.constant = Constant.NotAConstant;
 		if (this.receiver == null) {
-			this.receiverType = scope.enclosingSourceType();
+			this.receiverType = scope.enclosingReceiverType();
 		} else if (scope.kind == Scope.CLASS_SCOPE) {
 			this.receiverType = this.receiver.resolveType((ClassScope) scope);
 		} else {
@@ -68,6 +68,10 @@ public class JavadocFieldReference extends FieldReference {
 		}
 		// When there's no valid field binding, try to resolve possible method reference without parenthesis
 		if (!fieldBinding.isValidBinding() || !(fieldBinding instanceof FieldBinding)) {
+			if (this.receiver.resolvedType instanceof ProblemReferenceBinding) {
+				// problem already got signaled on receiver, do not report secondary problem
+				return null;
+			}						
 			if (this.receiverType instanceof ReferenceBinding) {
 				ReferenceBinding refBinding = (ReferenceBinding) this.receiverType;
 				MethodBinding[] methodBindings = refBinding.getMethods(this.token);

@@ -452,7 +452,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("wrong size", 2, throwsException.size()); //$NON-NLS-1$
 		Name name = (Name) throwsException.get(0);
 		IBinding binding = name.resolveBinding();
-		assertNull("Got a binding", binding); //$NON-NLS-1$
+		assertNotNull("No binding", binding); //$NON-NLS-1$
+		assertEquals("LIOException;", binding.getKey());
 	}
 
 	/**

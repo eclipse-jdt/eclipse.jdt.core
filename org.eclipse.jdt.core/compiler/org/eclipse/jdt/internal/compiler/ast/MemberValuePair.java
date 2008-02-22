@@ -101,7 +101,7 @@ public class MemberValuePair extends ASTNode {
 				if (leafType.isAnnotationType() && !valueType.isAnnotationType()) {
 					scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, this.value, leafType);				
 				} else {
-					scope.problemReporter().typeMismatchError(valueType, requiredType, this.value);
+					scope.problemReporter().typeMismatchError(valueType, requiredType, this.value, null);
 				}
 				return; // may allow to proceed to find more errors at once
 			}

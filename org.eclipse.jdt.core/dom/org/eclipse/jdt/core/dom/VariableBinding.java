@@ -37,26 +37,39 @@ class VariableBinding implements IVariableBinding {
 	private String name;
 	private BindingResolver resolver;
 	private ITypeBinding type;
-
+	private IAnnotationBinding[] annotations;
+	
 	VariableBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding) {
 		this.resolver = resolver;
 		this.binding = binding;
 	}
 
 	public IAnnotationBinding[] getAnnotations() {
-		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations = this.binding.getAnnotations();
-		// the variable is not an enum constant nor a field nor an argument.
-		int length = internalAnnotations == null ? 0 : internalAnnotations.length;
-		IAnnotationBinding[] domInstances =
-			length == 0 ? AnnotationBinding.NoAnnotations : new AnnotationBinding[length];
-		for (int i = 0; i < length; i++) {
-			final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(internalAnnotations[i]);
-			if (annotationInstance == null) {// not resolving binding
-				return AnnotationBinding.NoAnnotations;
-			}
-			domInstances[i] = annotationInstance;
+		if (this.annotations != null) {
+			return this.annotations;
 		}
-		return domInstances;
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations = this.binding.getAnnotations();
+		int length = internalAnnotations == null ? 0 : internalAnnotations.length;
+		if (length != 0) {
+			IAnnotationBinding[] tempAnnotations = new IAnnotationBinding[length];
+			int convertedAnnotationCount = 0;
+			for (int i = 0; i < length; i++) {
+				org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalAnnotation = internalAnnotations[i];
+				final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(internalAnnotation);
+				if (annotationInstance == null) {
+					continue;
+				}
+				tempAnnotations[convertedAnnotationCount++] = annotationInstance;
+			}
+			if (convertedAnnotationCount != length) {
+				if (convertedAnnotationCount == 0) {
+					return this.annotations = AnnotationBinding.NoAnnotations;
+				}
+				System.arraycopy(tempAnnotations, 0, (tempAnnotations = new IAnnotationBinding[convertedAnnotationCount]), 0, convertedAnnotationCount);
+			}
+			return this.annotations = tempAnnotations;
+		}
+		return this.annotations = AnnotationBinding.NoAnnotations;
 	}
 
 	/* (non-Javadoc)

@@ -436,7 +436,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 				if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
-						((ReferenceBinding)binding).closestMatch(),
+						(ReferenceBinding)((ReferenceBinding)binding).closestMatch(),
 						binding.problemId());
 				if (!((ReferenceBinding) binding).canBeSeenBy(this))
 					return new ProblemReferenceBinding(
@@ -495,7 +495,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 		if (!binding.isValidBinding())
 			return new ProblemReferenceBinding(
 				CharOperation.subarray(compoundName, 0, currentIndex),
-				((ReferenceBinding)binding).closestMatch(),
+				(ReferenceBinding)((ReferenceBinding)binding).closestMatch(),
 				binding.problemId());
 		if (invocationSite instanceof ASTNode) {
 			referenceBinding = (ReferenceBinding) binding;
@@ -560,7 +560,7 @@ public final Binding getBinding(char[][] compoundName, InvocationSite invocation
 				if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
-						((ReferenceBinding)binding).closestMatch(),
+						(ReferenceBinding)((ReferenceBinding)binding).closestMatch(),
 						binding.problemId());
 				if (!((ReferenceBinding) binding).canBeSeenBy(this))
 					return new ProblemReferenceBinding(
@@ -602,7 +602,7 @@ public final Binding getBinding(char[][] compoundName, InvocationSite invocation
 			if (!binding.isValidBinding()) {
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
-					((ReferenceBinding)binding).closestMatch(),
+					(ReferenceBinding)((ReferenceBinding)binding).closestMatch(),
 					binding.problemId());
 			}
 		}
@@ -623,7 +623,7 @@ public final Binding getBinding(char[][] compoundName, InvocationSite invocation
 		if (variableBinding == null) {
 			return new ProblemFieldBinding(
 				null,
-				null,
+				typeBinding instanceof ReferenceBinding ? (ReferenceBinding) typeBinding : null,
 				CharOperation.concatWith(CharOperation.subarray(compoundName, 0, currentIndex), '.'),
 				ProblemReasons.NotFound);
 		}

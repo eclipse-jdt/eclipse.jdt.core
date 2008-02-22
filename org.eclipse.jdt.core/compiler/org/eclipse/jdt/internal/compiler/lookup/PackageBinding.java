@@ -25,6 +25,11 @@ public class PackageBinding extends Binding implements TypeConstants {
 protected PackageBinding() {
 	// for creating problem package
 }
+public PackageBinding(char[] topLevelPackageName, LookupEnvironment environment) {
+	this(new char[][] {topLevelPackageName}, null, environment);
+}
+/* Create the default package.
+*/
 public PackageBinding(char[][] compoundName, PackageBinding parent, LookupEnvironment environment) {
 	this.compoundName = compoundName;
 	this.parent = parent;
@@ -32,11 +37,6 @@ public PackageBinding(char[][] compoundName, PackageBinding parent, LookupEnviro
 	this.knownTypes = null; // initialized if used... class counts can be very large 300-600
 	this.knownPackages = new HashtableOfPackage(3); // sub-package counts are typically 0-3
 }
-public PackageBinding(char[] topLevelPackageName, LookupEnvironment environment) {
-	this(new char[][] {topLevelPackageName}, null, environment);
-}
-/* Create the default package.
-*/
 
 public PackageBinding(LookupEnvironment environment) {
 	this(CharOperation.NO_CHAR_CHAR, null, environment);
@@ -50,19 +50,21 @@ private void addNotFoundType(char[] simpleName) {
 	knownTypes.put(simpleName, LookupEnvironment.TheNotFoundType);
 }
 void addPackage(PackageBinding element) {
+	if ((element.tagBits & TagBits.HasMissingType) == 0) clearMissingTagBit();
 	knownPackages.put(element.compoundName[element.compoundName.length - 1], element);
 }
 void addType(ReferenceBinding element) {
+	if ((element.tagBits & TagBits.HasMissingType) == 0) clearMissingTagBit();
 	if (knownTypes == null)
 		knownTypes = new HashtableOfType(25);
 	knownTypes.put(element.compoundName[element.compoundName.length - 1], element);
 }
-/* API
-* Answer the receiver's binding type from Binding.BindingID.
-*/
 
-public final int kind() {
-	return Binding.PACKAGE;
+void clearMissingTagBit() {
+	PackageBinding current = this;
+	do {
+		current.tagBits &= ~TagBits.HasMissingType;
+	} while ((current = current.parent) != null);
 }
 /*
  * slash separated name
@@ -85,7 +87,6 @@ private PackageBinding findPackage(char[] name) {
 *
 * NOTE: This should only be used when we know there is NOT a type with the same name.
 */
-
 PackageBinding getPackage(char[] name) {
 	PackageBinding binding = getPackage0(name);
 	if (binding != null) {
@@ -135,7 +136,7 @@ ReferenceBinding getType(char[] name) {
 
 	typeBinding = BinaryTypeBinding.resolveType(typeBinding, environment, false); // no raw conversion for now
 	if (typeBinding.isNestedType())
-		return new ProblemReferenceBinding(name, typeBinding, ProblemReasons.InternalNameProvided);
+		return new ProblemReferenceBinding(new char[][]{ name }, typeBinding, ProblemReasons.InternalNameProvided);
 	return typeBinding;
 }
 /* Answer the type named name if it exists in the cache.
@@ -166,7 +167,7 @@ public Binding getTypeOrPackage(char[] name) {
 	if (typeBinding != null && typeBinding != LookupEnvironment.TheNotFoundType) {
 		typeBinding = BinaryTypeBinding.resolveType(typeBinding, environment, false); // no raw conversion for now
 		if (typeBinding.isNestedType())
-			return new ProblemReferenceBinding(name, typeBinding, ProblemReasons.InternalNameProvided);
+			return new ProblemReferenceBinding(new char[][]{name}, typeBinding, ProblemReasons.InternalNameProvided);
 		return typeBinding;
 	}
 
@@ -177,7 +178,7 @@ public Binding getTypeOrPackage(char[] name) {
 	if (typeBinding == null) { // have not looked for it before
 		if ((typeBinding = environment.askForType(this, name)) != null) {
 			if (typeBinding.isNestedType())
-				return new ProblemReferenceBinding(name, typeBinding, ProblemReasons.InternalNameProvided);
+				return new ProblemReferenceBinding(new char[][]{name}, typeBinding, ProblemReasons.InternalNameProvided);
 			return typeBinding;
 		}
 
@@ -194,13 +195,33 @@ public Binding getTypeOrPackage(char[] name) {
 
 	return null;
 }
+
+/* API
+* Answer the receiver's binding type from Binding.BindingID.
+*/
+public final int kind() {
+	return Binding.PACKAGE;
+}
+
+public int problemId() {
+	if ((this.tagBits & TagBits.HasMissingType) != 0)
+		return ProblemReasons.NotFound;
+	return ProblemReasons.NoError;
+}
+
 public char[] readableName() /*java.lang*/ {
 	return CharOperation.concatWith(compoundName, '.');
 }
 public String toString() {
-	if (compoundName == CharOperation.NO_CHAR_CHAR)
-		return "The Default Package"; //$NON-NLS-1$
-	else
-		return "package " + ((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED"); //$NON-NLS-1$ //$NON-NLS-2$
+	String str;
+	if (compoundName == CharOperation.NO_CHAR_CHAR) {
+		str = "The Default Package"; //$NON-NLS-1$
+	} else {
+		str = "package " + ((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	if ((this.tagBits & TagBits.HasMissingType) != 0) {
+		str += "[MISSING]"; //$NON-NLS-1$
+	}
+	return str;
 }
 }

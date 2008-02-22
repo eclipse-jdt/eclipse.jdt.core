@@ -135,7 +135,7 @@ public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, 
 		// constantExpression.computeConversion(scope, caseType, switchExpressionType); - do not report boxing/unboxing conversion
 		return this.constantExpression.constant;
 	}
-	scope.problemReporter().typeMismatchError(caseType, switchExpressionType, this.constantExpression);
+	scope.problemReporter().typeMismatchError(caseType, switchExpressionType, this.constantExpression, switchStatement.expression);
 	return Constant.NotAConstant;
 }
 

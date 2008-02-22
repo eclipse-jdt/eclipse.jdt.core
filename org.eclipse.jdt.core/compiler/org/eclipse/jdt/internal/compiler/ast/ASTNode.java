@@ -431,14 +431,15 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	*/
 	public final boolean isTypeUseDeprecated(TypeBinding type, Scope scope) {
 
-		if (type.isArrayType())
+		if (type.isArrayType()) {
 			type = ((ArrayBinding) type).leafComponentType;
+		}
 		if (type.isBaseType())
 			return false;
 
 		ReferenceBinding refType = (ReferenceBinding) type;
 		// ignore references insing Javadoc comments
-		if ((this.bits & ASTNode.InsideJavadoc) ==0 &&
+		if ((this.bits & ASTNode.InsideJavadoc) == 0 &&
 				(refType.isPrivate() || refType.isLocalType()) && !scope.isDefinedInType(refType)) {
 			// ignore cases where type is used from within inside itself
 			((ReferenceBinding)refType.erasure()).modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
