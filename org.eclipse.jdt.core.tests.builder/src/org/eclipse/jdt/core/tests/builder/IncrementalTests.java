@@ -119,7 +119,7 @@ public class IncrementalTests extends BuilderTests {
 		//----------------------------
 		//           Step 2
 		//----------------------------
-		IPath object = env.addClass(root, "java.lang", "Object", //$NON-NLS-1$ //$NON-NLS-2$
+		env.addClass(root, "java.lang", "Object", //$NON-NLS-1$ //$NON-NLS-2$
 			"package java.lang;\n" + //$NON-NLS-1$
 			"public class Object {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
@@ -132,7 +132,7 @@ public class IncrementalTests extends BuilderTests {
 		//----------------------------
 		//           Step 3
 		//----------------------------
-		IPath throwable = env.addClass(root, "java.lang", "Throwable", //$NON-NLS-1$ //$NON-NLS-2$
+		env.addClass(root, "java.lang", "Throwable", //$NON-NLS-1$ //$NON-NLS-2$
 			"package java.lang;\n" + //$NON-NLS-1$
 			"public class Throwable {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
