@@ -95,10 +95,7 @@ public class ClassLiteralAccess extends Expression {
 			// Integer.class --> Class<Integer>, perform boxing of base types (int.class --> Class<Integer>)
 			TypeBinding boxedType = null;
 			if (targetType.id == T_void) {
-				boxedType = scope.environment().getType(JAVA_LANG_VOID);
-				if (boxedType == null) {
-					boxedType = new ProblemReferenceBinding(JAVA_LANG_VOID, null, ProblemReasons.NotFound);
-				}
+				boxedType = scope.environment().getResolvedType(JAVA_LANG_VOID, scope);
 			} else {
 				boxedType = scope.boxing(targetType);
 			}
