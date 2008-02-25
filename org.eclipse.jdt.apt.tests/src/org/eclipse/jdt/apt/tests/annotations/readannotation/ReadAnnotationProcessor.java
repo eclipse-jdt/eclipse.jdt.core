@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorUtil;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.AnnotationMirror;
@@ -67,7 +68,7 @@ public class ReadAnnotationProcessor extends BaseProcessor
 					final String[] expected;
 					switch(counter){				
 					case 0:		
-						expected = new String[] { "@RTVisibleAnno(name = Foundation, boolValue = false, byteValue = 16, charValue = c, doubleValue = 99.0, floatValue = 9.0, intValue = 999, longValue = 3333, shortValue = 3, colors = {question.Color RED, question.Color BLUE}, anno = @SimpleAnnotation(value = core), simpleAnnos = {@SimpleAnnotation(value = org), @SimpleAnnotation(value = eclipse), @SimpleAnnotation(value = jdt)}, clazzes = {Object.class, String.class}, clazz = Object.class)",
+						expected = new String[] { "@RTVisibleAnno(name = Foundation, boolValue = false, byteValue = 16, charValue = c, doubleValue = 99.0, floatValue = 9.0, intValue = 999, longValue = 3333, shortValue = 3, colors = {RED, BLUE}, anno = @SimpleAnnotation(value = core), simpleAnnos = {@SimpleAnnotation(value = org), @SimpleAnnotation(value = eclipse), @SimpleAnnotation(value = jdt)}, clazzes = {java.lang.Object, java.lang.String}, clazz = java.lang.Object)",
 										          "@RTInvisibleAnno(value = org.eclipse.jdt.core)",
 										          "@Deprecated()" };
 						break;	
@@ -179,17 +180,17 @@ public class ReadAnnotationProcessor extends BaseProcessor
 			
 		int counter = 0;
 		for( AnnotationMirror mirror : annotations ){
+			String mirrorString = ProcessorUtil.annoMirrorToString(mirror);
 			if( counter >= expectedLen )
-				TestCase.assertEquals("", mirror.toString()); //$NON-NLS-1$
+				TestCase.assertEquals("", mirrorString); //$NON-NLS-1$
 			else{
-				final String mirrorToString = mirror.toString();
-				final boolean contains = expectedSet.contains(mirrorToString);
+				final boolean contains = expectedSet.contains(mirrorString);
 				if( !contains ){					
-					System.err.println(mirrorToString);
-					System.err.println(expectedSet);
+					System.err.println("found unexpected: " + mirrorString);
+					System.err.println("expected set: " + expectedSet);
 				}
-				TestCase.assertTrue("unexpected annotation " + mirrorToString, contains); //$NON-NLS-1$
-				expectedSet.remove(mirrorToString);
+				TestCase.assertTrue("unexpected annotation " + mirrorString, contains); //$NON-NLS-1$
+				expectedSet.remove(mirrorString);
 			}
 			counter ++;
 		}

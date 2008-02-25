@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -145,7 +145,7 @@ public class RegressionTests extends APTTestBase {
 		String a1Code = "package pkg; " + "\n"
 			+ "import org.eclipse.jdt.apt.tests.annotations.apitest.Common;\n" 
 			+ "import java.util.*;\n\n"
-			+ "@Commmon\n"
+			+ "@Common\n"
 			+ "public class A1<T> {\n "
 			+ "    @Common\n" 
 			+ "    Collection<String> collectionOfString;\n\n" 
@@ -162,7 +162,8 @@ public class RegressionTests extends APTTestBase {
 		fullBuild( project.getFullPath() );				
 		expectingSpecificProblemsFor(a1Path, new ExpectedProblem[]{
 				new ExpectedProblem("", "java.util.List is assignable to java.util.Collection", a1Path),
-				new ExpectedProblem("", "java.lang.String is not assignable to java.util.Collection", a1Path)
+				new ExpectedProblem("", "java.lang.String is not assignable to java.util.Collection", a1Path),
+				new ExpectedProblem("", "Type parameter 'T' belongs to org.eclipse.jdt.apt.core.internal.declaration.ClassDeclarationImpl A1", a1Path)
 				}
 		);
     }

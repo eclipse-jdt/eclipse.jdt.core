@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,7 +55,11 @@ public class Factory
 	public static final Short DUMMY_SHORT = 0;
     public static TypeDeclarationImpl createReferenceType(ITypeBinding binding, BaseProcessorEnv env)
     {
-        if(binding == null || binding.isNullType()) return null;        
+        if(binding == null || binding.isNullType()) return null;
+        // "Recovered" bindings are bindings to unresolved types.  The type itself may be considered
+        // to exist (as an ErrorType) but there is no declaration.
+        if (binding.isRecovered()) return null;
+        
         TypeDeclarationImpl mirror = null;
         // must test for annotation type before interface since annotation 
         // is an interface
