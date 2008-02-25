@@ -59,7 +59,7 @@ public class ConstantPoolEntry implements IConstantPoolEntry {
 		this.methodDescriptor = null;
 		this.utf8Value = null;
 		this.utf8Length = -1;
-		this.classInfoName = null;		
+		this.classInfoName = null;
 	}
 	
 	/**
