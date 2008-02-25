@@ -38,11 +38,91 @@
 	</td>
   </tr>
 </table>
+<a name="v_840"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
+<br>Project org.eclipse.jdt.core v_840
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_840">cvs</a>).
+<h2>What's new in this drop</h2>
+<ul>
+<li>Code Assist: Added API to give information about the completed token location.<br>
+Clients can call <code>CompletionContext#getTokenLocation()</code> to known if the completed token is at the start of the member
+or at the start of a statement. In the future this API could be improved and some others location could be recognized.
+<pre>
+public class CompletionContext {
+	...
+	
+	/**
+	 * The completed token is the first token of a member declaration.<br>
+	 * e.g.
+	 * <pre>
+	 * public class X {
+	 *   Foo| // completion occurs at |
+	 * }
+	 * </pre>
+	 * 
+	 * @see #getTokenLocation()
+	 * 
+	 * @since 3.4
+	 */
+	public static final int TL_MEMBER_START = 1;
+	
+	/**
+	 * The completed token is the first token of a statement.<br>
+	 * e.g.
+	 * <pre>
+	 * public class X {
+	 *   public void bar() {
+	 *     Foo| // completion occurs at |
+	 *   }
+	 * }
+	 * </pre>
+	 * 
+	 * @see #getTokenLocation()
+	 * 
+	 * @since 3.4
+	 */
+	public static final int TL_STATEMENT_START = 2;
+	
+	/**
+	 * Returns the location of completion token being proposed.
+	 * The returned location is a bit mask which can contain some values
+	 * of the constants declared on this class whose name starts with <code>TL</code>,
+	 * or possibly values unknown to the caller.
+	 * 
+	 * <p>
+	 * The set of different location values is expected to change over time.
+	 * It is strongly recommended that clients do <b>not</b> assume that
+	 * the location contains only known value, and code defensively for 
+	 * the possibility of unexpected future growth.
+	 * </p>
+	 * 
+	 * @return the location
+	 * 
+	 * @since 3.4
+	 */
+	public int getTokenLocation() {...}
+	
+	...
+}
+</pre>
+The addition of new lines after annotations has been discussed in <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=100278">bug 122247</a><br>
+Also note that previously available code formatter constant FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION has been deprecated.<br>
+All new options must be enabled to activate old strategy.
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=202467">202467</a>
+[assist] provide info what is completed
+
 <a name="v_839"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.4M6 - February 22, 2008 - 3.4 MILESTONE 6
+Eclipse SDK 3.4M6 - February 22, 2008
 <br>Project org.eclipse.jdt.core v_839
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_839">cvs</a>).
 <h2>What's new in this drop</h2>

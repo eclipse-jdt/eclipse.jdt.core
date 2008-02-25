@@ -25,6 +25,7 @@ public class InternalCompletionContext {
 	protected int tokenEnd = -1;
 	protected char[] token = null;
 	protected int tokenKind;
+	protected int tokenLocation;
 	
 	protected void setExpectedTypesSignatures(char[][] expectedTypesSignatures) {
 		this.expectedTypesSignatures = expectedTypesSignatures;
@@ -63,5 +64,9 @@ public class InternalCompletionContext {
 	
 	protected void setTokenKind(int tokenKind) {
 		this.tokenKind = tokenKind;
+	}
+	
+	protected void setTokenLocation(int tokenLocation) {
+		this.tokenLocation = tokenLocation;
 	}
 }

@@ -74,6 +74,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_LABEL = COMPLETION_PARSER + 36;
 	protected static final int K_MEMBER_VALUE_ARRAY_INITIALIZER = COMPLETION_PARSER + 37;
 	protected static final int K_CONTROL_STATEMENT_DELIMITER = COMPLETION_PARSER + 38;
+	protected static final int K_INSIDE_ASSERT_EXCEPTION = COMPLETION_PARSER + 39;
 
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
 	public final static char[] FAKE_METHOD_NAME = new char[]{' '};
@@ -129,6 +130,9 @@ public class CompletionParser extends AssistParser {
 	// last modifiers info
 	int lastModifiers = ClassFileConstants.AccDefault;
 	int lastModifiersStart = -1;
+	
+	// used to find if there is unused modifiers when building completion inside a method or an initializer
+	boolean hasUnusedModifiers;
 
 	// depth of '(', '{' and '[]'
 	int bracketDepth;
@@ -244,6 +248,18 @@ protected void attachOrphanCompletionNode(){
 					}
 
 					CompletionOnFieldType fieldDeclaration = new CompletionOnFieldType(fieldType, false);
+					
+					// retrieve annotations if any
+					int length;
+					if ((length = this.expressionLengthStack[this.expressionLengthPtr]) != 0 &&
+							this.expressionStack[this.expressionPtr] instanceof Annotation) {
+						System.arraycopy(
+							this.expressionStack,
+							this.expressionPtr - length + 1,
+							fieldDeclaration.annotations = new Annotation[length],
+							0,
+							length);
+					}
 
 					// retrieve available modifiers if any
 					if (intPtr >= 2 && intStack[intPtr-1] == this.lastModifiersStart && intStack[intPtr-2] == this.lastModifiers){
@@ -939,6 +955,42 @@ private void buildMoreCompletionContext(Expression expression) {
 					assistNodeParent = switchStatement;
 				}
 				break;
+			case K_BETWEEN_IF_AND_RIGHT_PAREN :
+				IfStatement ifStatement = new IfStatement(expression, new EmptyStatement(expression.sourceEnd, expression.sourceEnd), expression.sourceStart, expression.sourceEnd);
+				assistNodeParent = ifStatement;
+				break nextElement;
+			case K_BETWEEN_WHILE_AND_RIGHT_PAREN :
+				WhileStatement whileStatement = new WhileStatement(expression, new EmptyStatement(expression.sourceEnd, expression.sourceEnd), expression.sourceStart, expression.sourceEnd);
+				assistNodeParent = whileStatement;
+				break nextElement;
+			case K_BETWEEN_SWITCH_AND_RIGHT_PAREN:
+				SwitchStatement switchStatement = new SwitchStatement();
+				switchStatement.expression = expression;
+				switchStatement.statements = new Statement[0];
+				assistNodeParent = switchStatement;
+				break nextElement;
+			case K_BETWEEN_SYNCHRONIZED_AND_RIGHT_PAREN :
+				SynchronizedStatement synchronizedStatement = new SynchronizedStatement(expression, new Block(0), expression.sourceStart, expression.sourceEnd);
+				assistNodeParent = synchronizedStatement;
+				break nextElement;
+			case K_INSIDE_THROW_STATEMENT:
+				if(info == bracketDepth) {
+					ThrowStatement throwStatement = new ThrowStatement(expression, expression.sourceStart, expression.sourceEnd);
+					assistNodeParent = throwStatement;
+				}
+				break nextElement;
+			case K_INSIDE_ASSERT_STATEMENT:
+				if(info == bracketDepth) {
+					AssertStatement assertStatement = new AssertStatement(expression, expression.sourceStart);
+					assistNodeParent = assertStatement;
+				}
+				break nextElement;
+			case K_INSIDE_ASSERT_EXCEPTION:
+				if(info == bracketDepth) {
+					AssertStatement assertStatement = new AssertStatement(expression, new TrueLiteral(expression.sourceStart, expression.sourceStart), expression.sourceStart);
+					assistNodeParent = assertStatement;
+				}
+				break nextElement;
 		}
 	}
 	if(assistNodeParent != null) {
@@ -1086,6 +1138,13 @@ public int bodyEnd(AbstractMethodDeclaration method){
 }
 public int bodyEnd(Initializer initializer){
 	return cursorLocation;
+}
+protected void checkAndSetModifiers(int flag) {
+	super.checkAndSetModifiers(flag);
+	
+	if (this.isInsideMethod()) {
+		this.hasUnusedModifiers = true;
+	}
 }
 /**
  * Checks if the completion is on the exception type of a catch clause.
@@ -1526,6 +1585,10 @@ private boolean checkNameCompletion() {
 	this.assistNode = getUnspecifiedReferenceOptimized();
 	this.lastCheckPoint = this.assistNode.sourceEnd + 1;
 	this.isOrphanCompletionNode = true;
+	if (this.hasUnusedModifiers &&
+			this.assistNode instanceof CompletionOnSingleNameReference) {
+		((CompletionOnSingleNameReference)this.assistNode).isPrecededByModifiers = true;
+	}
 	return true;
 }
 private boolean checkParemeterizedMethodName() {
@@ -1968,6 +2031,7 @@ protected void consumeClassDeclaration() {
 }
 protected void consumeClassHeaderName1() {
 	super.consumeClassHeaderName1();
+	this.hasUnusedModifiers = false;
 	if (this.pendingAnnotation != null) {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
@@ -2106,6 +2170,7 @@ protected void consumeEnhancedForStatement() {
 }
 protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 	super.consumeEnhancedForStatementHeaderInit(hasModifiers);
+	this.hasUnusedModifiers = false;
 	if (this.pendingAnnotation != null) {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
@@ -2123,6 +2188,8 @@ protected void consumeEnterVariable() {
 	boolean isLocalDeclaration = nestedMethod[nestedType] != 0;
 	int variableIndex = variablesCounter[nestedType];
 	int extendedDimension = intStack[intPtr + 1];
+	
+	this.hasUnusedModifiers = false;
 
 	if(isLocalDeclaration || indexOfAssistIdentifier() < 0 || variableIndex != 0 || extendedDimension != 0) {
 		identifierPtr++;
@@ -2168,6 +2235,16 @@ protected void consumeEnterVariable() {
 				}
 
 				FieldDeclaration completionFieldDecl = new CompletionOnFieldType(type, false);
+				// consume annotations
+				int length;
+				if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+					System.arraycopy(
+						this.expressionStack,
+						(this.expressionPtr -= length) + 1,
+						completionFieldDecl.annotations = new Annotation[length],
+						0,
+						length);
+				}
 				completionFieldDecl.modifiers = intStack[intPtr--];
 				assistNode = completionFieldDecl;
 				lastCheckPoint = type.sourceEnd + 1;
@@ -2194,6 +2271,7 @@ protected void consumeEnumConstantHeaderName() {
 }
 protected void consumeEnumHeaderName() {
 	super.consumeEnumHeaderName();
+	this.hasUnusedModifiers = false;
 	if (this.pendingAnnotation != null) {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
@@ -2429,6 +2507,7 @@ protected void consumeInstanceOfExpressionWithName() {
 }
 protected void consumeInterfaceHeaderName1() {
 	super.consumeInterfaceHeaderName1();
+	this.hasUnusedModifiers = false;
 	if (this.pendingAnnotation != null) {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
@@ -2672,6 +2751,13 @@ protected void consumeMethodHeaderExtendedDims() {
 		}
 	}
 }
+protected void consumeAnnotationAsModifier() {
+	super.consumeAnnotationAsModifier();
+	
+	if (this.isInsideMethod()) {
+		this.hasUnusedModifiers = true;
+	}
+}
 protected void consumeAnnotationName() {
 	int index;
 
@@ -2728,6 +2814,7 @@ protected void consumeAnnotationName() {
 }
 protected void consumeAnnotationTypeDeclarationHeaderName() {
 	super.consumeAnnotationTypeDeclarationHeaderName();
+	this.hasUnusedModifiers = false;
 	if (this.pendingAnnotation != null) {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
@@ -2735,6 +2822,7 @@ protected void consumeAnnotationTypeDeclarationHeaderName() {
 }
 protected void consumeAnnotationTypeDeclarationHeaderNameWithTypeParameters() {
 	super.consumeAnnotationTypeDeclarationHeaderNameWithTypeParameters();
+	this.hasUnusedModifiers = false;
 	if (this.pendingAnnotation != null) {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
@@ -3256,6 +3344,12 @@ protected void consumeToken(int token) {
 							popElement(K_INSIDE_ASSERT_STATEMENT);
 						}
 						break;
+					case K_INSIDE_ASSERT_EXCEPTION :
+						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == this.bracketDepth) {
+							popElement(K_INSIDE_ASSERT_EXCEPTION);
+							popElement(K_INSIDE_ASSERT_STATEMENT);
+						}
+						break;
 					case K_INSIDE_BREAK_STATEMENT:
 						if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == this.bracketDepth) {
 							popElement(K_INSIDE_BREAK_STATEMENT);
@@ -3357,16 +3451,22 @@ protected void consumeToken(int token) {
 				}
 				break;
 			case TokenNameCOLON:
-				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_CONDITIONAL_OPERATOR
-					&& topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == QUESTION) {
-					popElement(K_CONDITIONAL_OPERATOR);
-					pushOnElementStack(K_CONDITIONAL_OPERATOR, COLON);
-				} else {
-					if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLON) {
+				switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
+					case K_CONDITIONAL_OPERATOR:
+						if (topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == QUESTION) {
+							popElement(K_CONDITIONAL_OPERATOR);
+							pushOnElementStack(K_CONDITIONAL_OPERATOR, COLON);
+						}
+						break;
+					case K_BETWEEN_CASE_AND_COLON:
 						popElement(K_BETWEEN_CASE_AND_COLON);
-					} else {
+						break;
+					case K_BETWEEN_DEFAULT_AND_COLON:
 						popElement(K_BETWEEN_DEFAULT_AND_COLON);
-					}
+						break;
+					case K_INSIDE_ASSERT_STATEMENT:
+						pushOnElementStack(K_INSIDE_ASSERT_EXCEPTION, this.bracketDepth);
+						break;
 				}
 				break;
 			case TokenNameif:
@@ -3438,6 +3538,10 @@ protected void consumeToken(int token) {
 
 		}
 	}
+}
+protected void consumeOnlySynchronized() {
+	super.consumeOnlySynchronized();
+	this.hasUnusedModifiers = false;
 }
 protected void consumeOnlyTypeArguments() {
 	super.consumeOnlyTypeArguments();
@@ -4238,22 +4342,6 @@ private void pushCompletionOnMemberAccessOnExpressionStack(boolean isSuperAccess
 		expressionStack[expressionPtr] = fr;
 	}
 }
-public void recordCompletionOnReference(){
-
-	if (currentElement instanceof RecoveredType){
-		RecoveredType recoveredType = (RecoveredType)currentElement;
-
-		/* filter out cases where scanner is still inside type header */
-		if (!recoveredType.foundOpeningBrace) return;
-
-		/* generate a pseudo field with a completion on type reference */
-		currentElement.add(
-			new CompletionOnFieldType(this.getTypeReference(0), false), 0);
-		return;
-	}
-	if (!diet) return; // only record references attached to types
-
-}
 private void recordReference(NameReference nameReference) {
 	if (!this.skipRecord &&
 			this.recordFrom <= nameReference.sourceStart &&
@@ -4345,6 +4433,7 @@ public void resetAfterCompletion() {
  * decide which grammar goal is activated.
  */
 protected boolean resumeAfterRecovery() {
+	this.hasUnusedModifiers = false;
 	if (this.assistNode != null) {
 		/* if reached [eof] inside method body, but still inside nested type,
 			or inside a field initializer, should continue in diet mode until

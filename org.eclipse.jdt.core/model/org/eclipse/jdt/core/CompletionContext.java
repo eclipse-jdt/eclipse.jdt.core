@@ -146,6 +146,27 @@ public final class CompletionContext extends InternalCompletionContext {
 	}
 	
 	/**
+	 * Returns the location of completion token being proposed.
+	 * The returned location is a bit mask which can contain some values
+	 * of the constants declared on this class whose name starts with <code>TL</code>,
+	 * or possibly values unknown to the caller.
+	 * 
+	 * <p>
+	 * The set of different location values is expected to change over time.
+	 * It is strongly recommended that clients do <b>not</b> assume that
+	 * the location contains only known value, and code defensively for 
+	 * the possibility of unexpected future growth.
+	 * </p>
+	 * 
+	 * @return the location
+	 * 
+	 * @since 3.4
+	 */
+	public int getTokenLocation() {
+		return this.tokenLocation;
+	}
+	
+	/**
 	 * Returns the character index of the start of the
 	 * subrange in the source file buffer containing the
 	 * relevant token being completed. This
@@ -188,6 +209,39 @@ public final class CompletionContext extends InternalCompletionContext {
 	public int getOffset() {
 		return this.offset;
 	}
+	
+	
+	/**
+	 * The completed token is the first token of a member declaration.<br>
+	 * e.g.
+	 * <pre>
+	 * public class X {
+	 *   Foo| // completion occurs at |
+	 * }
+	 * </pre>
+	 * 
+	 * @see #getTokenLocation()
+	 * 
+	 * @since 3.4
+	 */
+	public static final int TL_MEMBER_START = 1;
+	
+	/**
+	 * The completed token is the first token of a statement.<br>
+	 * e.g.
+	 * <pre>
+	 * public class X {
+	 *   public void bar() {
+	 *     Foo| // completion occurs at |
+	 *   }
+	 * }
+	 * </pre>
+	 * 
+	 * @see #getTokenLocation()
+	 * 
+	 * @since 3.4
+	 */
+	public static final int TL_STATEMENT_START = 2;
 	
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
@@ -236,6 +290,25 @@ public final class CompletionContext extends InternalCompletionContext {
 				if(i > 0) buffer.append(',');
 				buffer.append(this.expectedTypesKeys[i]);
 				
+			}
+			buffer.append('}');
+		}
+		buffer.append('\n');
+		
+		if (tokenLocation == 0) {
+			buffer.append("locationType=UNKNOWN"); //$NON-NLS-1$
+		} else {
+			buffer.append("locationType={"); //$NON-NLS-1$
+			boolean first = true;
+			if ((tokenLocation & CompletionContext.TL_MEMBER_START) != 0) {
+				if (!first) buffer.append(',');
+				buffer.append("MEMBER_START"); //$NON-NLS-1$
+				first = false;
+			}
+			if ((tokenLocation & CompletionContext.TL_STATEMENT_START) != 0) {
+				if (!first) buffer.append(',');
+				buffer.append("STATEMENT_START"); //$NON-NLS-1$
+				first = false;
 			}
 			buffer.append('}');
 		}

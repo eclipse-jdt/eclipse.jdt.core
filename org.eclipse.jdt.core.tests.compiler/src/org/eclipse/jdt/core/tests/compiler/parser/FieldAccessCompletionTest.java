@@ -840,7 +840,7 @@ public void testDoExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    while (<CompleteOnMemberAccess:fred().x>)      ;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1185,7 +1185,8 @@ public void testIfExpresionThen() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    if (<CompleteOnMemberAccess:fred().x>)\n" + 
+		"        ;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -1221,7 +1222,8 @@ public void testIfExpresionThenElse() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    if (<CompleteOnMemberAccess:fred().x>)\n" + 
+		"        ;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -2054,7 +2056,8 @@ public void testSwitchExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    switch (<CompleteOnMemberAccess:fred().x>) {\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -2126,7 +2129,9 @@ public void testSynchronizedStatement() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    synchronized (<CompleteOnMemberAccess:fred().x>)\n" + 
+		"      {\n" + 
+		"      }\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -2157,7 +2162,7 @@ public void testThrowExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    throw <CompleteOnMemberAccess:fred().x>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -2378,7 +2383,7 @@ public void testWhileExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    while (<CompleteOnMemberAccess:fred().x>)      ;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

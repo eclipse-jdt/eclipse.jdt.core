@@ -2261,7 +2261,7 @@ public void testH() {
 		"  public H() {\n" + 
 		"  }\n" + 
 		"  void foo(boolean bbbb) {\n" + 
-		"    <CompleteOnName:Xbm>;\n" + 
+		"    while (<CompleteOnName:Xbm>)      ;\n" + 
 		"  }\n" + 
 		"  void bar() {\n" + 
 		"  }\n" + 
@@ -3288,7 +3288,8 @@ public void testL_3() {
 		"  void foo() {\n" + 
 		"    x.y.Z[] field1;\n" + 
 		"    x.y.Z[] field2;\n" + 
-		"    <CompleteOnName:int>;\n" + 
+		"    if (<CompleteOnName:int>)\n" + 
+		"        ;\n" + 
 		"  }\n" + 
 		"}\n";
 

@@ -10920,7 +10920,8 @@ public void testEC001() throws JavaModelException {
 			"completion token=\"\"\n"+
 			"completion token kind=TOKEN_KIND_NAME\n"+
 			"expectedTypesSignatures={Ljava.lang.Object;}\n"+
-			"expectedTypesKeys={Ljava/lang/Object;}",
+			"expectedTypesKeys={Ljava/lang/Object;}\n"+
+			"completion token location=UNKNOWN",
             requestor.getContext());
     
 	assertResults(

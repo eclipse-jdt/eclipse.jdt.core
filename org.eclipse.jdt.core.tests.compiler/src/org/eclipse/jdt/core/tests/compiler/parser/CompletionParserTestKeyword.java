@@ -4200,7 +4200,7 @@ public void test0093_Method(){
 	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:try>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:try>)\n    ;";
 	String completionIdentifier = "try";
 	String expectedReplacedSource = "try";
 	String expectedUnitDisplayString =
@@ -4208,7 +4208,8 @@ public void test0093_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:try>;\n" +
+			"    if (<CompleteOnName:try>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -4273,7 +4274,7 @@ public void test0094_Method(){
 	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:do>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:do>)\n    ;";
 	String completionIdentifier = "do";
 	String expectedReplacedSource = "do";
 	String expectedUnitDisplayString =
@@ -4281,7 +4282,8 @@ public void test0094_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:do>;\n" +
+			"    if (<CompleteOnName:do>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -4346,7 +4348,7 @@ public void test0095_Method(){
 	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:for>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:for>)\n    ;";
 	String completionIdentifier = "for";
 	String expectedReplacedSource = "for";
 	String expectedUnitDisplayString =
@@ -4354,7 +4356,8 @@ public void test0095_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:for>;\n" +
+			"    if (<CompleteOnName:for>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -4419,7 +4422,7 @@ public void test0096_Method(){
 	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:if>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:if>)\n    ;";
 	String completionIdentifier = "if";
 	String expectedReplacedSource = "if";
 	String expectedUnitDisplayString =
@@ -4427,7 +4430,8 @@ public void test0096_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:if>;\n" +
+			"    if (<CompleteOnName:if>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -4492,16 +4496,17 @@ public void test0097_Method(){
 	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:swi>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:swi>)\n    ;";
 	String completionIdentifier = "swi";
 	String expectedReplacedSource = "swi";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-			"  public X() {\n" +
-			"  }\n" +
-			"  void foo() {\n" +
-			"    <CompleteOnName:swi>;\n" +
-			"  }\n" +
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    if (<CompleteOnName:swi>)\n" + 
+			"        ;\n" + 
+			"  }\n" + 
 			"}\n";
 	
 	checkMethodParse(
@@ -5065,7 +5070,7 @@ public void test0108_Method(){
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:whi>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:whi>)\n    ;";
 	String completionIdentifier = "whi";
 	String expectedReplacedSource = "whi";
 	String expectedUnitDisplayString =
@@ -5073,7 +5078,8 @@ public void test0108_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:whi>;\n" +
+			"    if (<CompleteOnName:whi>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -5211,7 +5217,7 @@ public void test0110_Method(){
 	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:ass>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:ass>)\n    ;";
 	String completionIdentifier = "ass";
 	String expectedReplacedSource = "ass";
 	String expectedUnitDisplayString =
@@ -5219,7 +5225,8 @@ public void test0110_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:ass>;\n" +
+			"    if (<CompleteOnName:ass>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -6513,7 +6520,7 @@ public void test0148_Method(){
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:syn>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:syn>)\n    ;";
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
@@ -6521,7 +6528,7 @@ public void test0148_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:syn>;\n" +
+			"    if (<CompleteOnName:syn>)\n        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -12825,7 +12832,7 @@ public void test0287_Method(){
 	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:try>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:try>)\n    ;";
 	String completionIdentifier = "try";
 	String expectedReplacedSource = "try";
 	String expectedUnitDisplayString =
@@ -12833,7 +12840,8 @@ public void test0287_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:try>;\n" +
+			"    if (<CompleteOnName:try>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -12900,7 +12908,7 @@ public void test0288_Method(){
 	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:do>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:do>)\n    ;";
 	String completionIdentifier = "do";
 	String expectedReplacedSource = "do";
 	String expectedUnitDisplayString =
@@ -12908,7 +12916,8 @@ public void test0288_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:do>;\n" +
+			"    if (<CompleteOnName:do>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -12975,7 +12984,7 @@ public void test0289_Method(){
 	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:for>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:for>)\n    ;";
 	String completionIdentifier = "for";
 	String expectedReplacedSource = "for";
 	String expectedUnitDisplayString =
@@ -12983,7 +12992,8 @@ public void test0289_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:for>;\n" +
+			"    if (<CompleteOnName:for>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -13050,7 +13060,7 @@ public void test0290_Method(){
 	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:if>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:if>)\n    ;";
 	String completionIdentifier = "if";
 	String expectedReplacedSource = "if";
 	String expectedUnitDisplayString =
@@ -13058,7 +13068,8 @@ public void test0290_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:if>;\n" +
+			"    if (<CompleteOnName:if>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -13125,7 +13136,7 @@ public void test0291_Method(){
 	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:swi>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:swi>)\n    ;";
 	String completionIdentifier = "swi";
 	String expectedReplacedSource = "swi";
 	String expectedUnitDisplayString =
@@ -13133,7 +13144,8 @@ public void test0291_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:swi>;\n" +
+			"    if (<CompleteOnName:swi>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -13714,7 +13726,7 @@ public void test0302_Method(){
 	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:whi>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:whi>)\n    ;";
 	String completionIdentifier = "whi";
 	String expectedReplacedSource = "whi";
 	String expectedUnitDisplayString =
@@ -13722,7 +13734,8 @@ public void test0302_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:whi>;\n" +
+			"    if (<CompleteOnName:whi>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -13864,7 +13877,7 @@ public void test0304_Method(){
 	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:ass>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:ass>)\n    ;";
 	String completionIdentifier = "ass";
 	String expectedReplacedSource = "ass";
 	String expectedUnitDisplayString =
@@ -13872,7 +13885,8 @@ public void test0304_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:ass>;\n" +
+			"    if (<CompleteOnName:ass>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	
@@ -15206,7 +15220,7 @@ public void test0342_Method(){
 	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:syn>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "if (<CompleteOnName:syn>)\n    ;";
 	String completionIdentifier = "syn";
 	String expectedReplacedSource = "syn";
 	String expectedUnitDisplayString =
@@ -15214,7 +15228,8 @@ public void test0342_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    <CompleteOnName:syn>;\n" +
+			"    if (<CompleteOnName:syn>)\n" + 
+			"        ;\n" + 
 			"  }\n" +
 			"}\n";
 	

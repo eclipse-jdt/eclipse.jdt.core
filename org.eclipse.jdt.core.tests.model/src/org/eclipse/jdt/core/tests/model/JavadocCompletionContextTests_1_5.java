@@ -60,7 +60,8 @@ public void test0001() throws JavaModelException {
 		"completion token=\"ZZZZ\"\n" +
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
-		"expectedTypesKeys=null",
+		"expectedTypesKeys=null\n"+
+		"completion token location=UNKNOWN",
 		result.context);
 }
 public void test0002() throws JavaModelException {
@@ -88,7 +89,8 @@ public void test0002() throws JavaModelException {
 		"completion token=\"\"\n" +
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
-		"expectedTypesKeys=null",
+		"expectedTypesKeys=null\n"+
+		"completion token location=UNKNOWN",
 		result.context);
 }
 public void test0003() throws JavaModelException {
@@ -116,7 +118,8 @@ public void test0003() throws JavaModelException {
 		"completion token=\"ZZ\"\n" +
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
-		"expectedTypesKeys=null",
+		"expectedTypesKeys=null\n"+
+		"completion token location=UNKNOWN",
 		result.context);
 }
 public void test0004() throws JavaModelException {
@@ -144,7 +147,8 @@ public void test0004() throws JavaModelException {
 		"completion token=\"\"\n" +
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
-		"expectedTypesKeys=null",
+		"expectedTypesKeys=null\n"+
+		"completion token location=UNKNOWN",
 		result.context);
 }
 }

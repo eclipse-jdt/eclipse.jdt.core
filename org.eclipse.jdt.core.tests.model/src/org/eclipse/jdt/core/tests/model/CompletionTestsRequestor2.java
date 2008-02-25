@@ -158,6 +158,29 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			}
 			buffer.append('}');
 		}
+		
+		if(!this.shortContext) {
+			buffer.append('\n');
+			
+			int locationType = this.context.getTokenLocation();
+			if (locationType == 0) {
+				buffer.append("completion token location=UNKNOWN"); //$NON-NLS-1$
+			} else {
+				buffer.append("completion token location={"); //$NON-NLS-1$
+				boolean first = true;
+				if ((locationType & CompletionContext.TL_MEMBER_START) != 0) {
+					if (!first) buffer.append(',');
+					buffer.append("MEMBER_START"); //$NON-NLS-1$
+					first = false;
+				}
+				if ((locationType & CompletionContext.TL_STATEMENT_START) != 0) {
+					if (!first) buffer.append(',');
+					buffer.append("STATEMENT_START"); //$NON-NLS-1$
+					first = false;
+				}
+				buffer.append('}');
+			}
+		}
 		//buffer.append('\n');
 		
 		

@@ -39,6 +39,7 @@ public class CompletionOnSingleNameReference extends SingleNameReference {
 	public char[][] possibleKeywords;
 	public boolean canBeExplicitConstructor;
 	public boolean isInsideAnnotationAttribute;
+	public boolean isPrecededByModifiers;
 
 	public CompletionOnSingleNameReference(char[] source, long pos, boolean isInsideAnnotationAttribute) {
 		this(source, pos, null, false, isInsideAnnotationAttribute);

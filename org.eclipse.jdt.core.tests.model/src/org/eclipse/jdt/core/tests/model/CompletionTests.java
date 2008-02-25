@@ -15921,7 +15921,8 @@ public void testEvaluationContextCompletion3() throws JavaModelException {
 			"completion token=\"TestEvaluationContextCompletion3\"\n"+
 			"completion token kind=TOKEN_KIND_NAME\n"+
 			"expectedTypesSignatures=null\n"+
-			"expectedTypesKeys=null",
+			"expectedTypesKeys=null\n"+
+			"completion token location={STATEMENT_START}",
             requestor.getContext());
     
 	assertResults(
@@ -15954,7 +15955,8 @@ public void testEvaluationContextCompletion4() throws JavaModelException {
 			"completion token=\"TestEvaluationContextCompletion4\"\n"+
 			"completion token kind=TOKEN_KIND_NAME\n"+
 			"expectedTypesSignatures=null\n"+
-			"expectedTypesKeys=null",
+			"expectedTypesKeys=null\n"+
+			"completion token location={STATEMENT_START}",
             requestor.getContext());
     
 	assertResults(
@@ -15988,7 +15990,8 @@ public void testEvaluationContextCompletion5() throws JavaModelException {
 			"completion token=\"to\"\n"+
 			"completion token kind=TOKEN_KIND_NAME\n"+
 			"expectedTypesSignatures=null\n"+
-			"expectedTypesKeys=null",
+			"expectedTypesKeys=null\n"+
+			"completion token location=UNKNOWN",
             requestor.getContext());
     
 	assertResults(
@@ -16022,7 +16025,8 @@ public void testEvaluationContextCompletion6() throws JavaModelException {
 			"completion token=\"\"\n"+
 			"completion token kind=TOKEN_KIND_NAME\n"+
 			"expectedTypesSignatures=null\n"+
-			"expectedTypesKeys=null",
+			"expectedTypesKeys=null\n"+
+			"completion token location={STATEMENT_START}",
             requestor.getContext());
 	
 	String varClassSignature = getVarClassSignature(context);

@@ -913,12 +913,67 @@ public final class CompletionEngine
 			context.setTokenKind(CompletionContext.TOKEN_KIND_NAME);
 		}
 		
+		buildTokenLocationContext(context, scope, astNode, astNodeParent);
+		
 		if(DEBUG) {
 			System.out.println(context.toString());
 		}
 		this.requestor.acceptContext(context);
 	}
 	
+	private void buildTokenLocationContext(CompletionContext context, Scope scope, ASTNode astNode, ASTNode astNodeParent) {
+		if (scope == null || context.isInJavadoc()) return;
+		
+		if (astNode instanceof CompletionOnFieldType) {
+			CompletionOnFieldType field = (CompletionOnFieldType) astNode;
+			if (!field.isLocalVariable &&
+					field.modifiers == ClassFileConstants.AccDefault &&
+					(field.annotations == null || field.annotations.length == 0)) {
+				context.setTokenLocation(CompletionContext.TL_MEMBER_START);
+			}
+		} else if (astNode instanceof CompletionOnMethodReturnType) {
+			CompletionOnMethodReturnType method = (CompletionOnMethodReturnType) astNode;
+			if (method.modifiers == ClassFileConstants.AccDefault &&
+					(method.annotations == null || method.annotations.length == 0)) {
+				context.setTokenLocation(CompletionContext.TL_MEMBER_START);
+			}
+		} else {
+			ReferenceContext referenceContext = scope.referenceContext();
+			if (referenceContext instanceof AbstractMethodDeclaration) {
+				AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration)referenceContext;
+				if (methodDeclaration.bodyStart <= astNode.sourceStart &&
+						astNode.sourceEnd <= methodDeclaration.bodyEnd) {
+					// completion is inside a method body
+					if (astNodeParent == null &&
+							astNode instanceof CompletionOnSingleNameReference &&
+							!((CompletionOnSingleNameReference)astNode).isPrecededByModifiers) {
+						context.setTokenLocation(CompletionContext.TL_STATEMENT_START);
+					}
+				}
+			} else if (referenceContext instanceof TypeDeclaration) {
+				TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
+				FieldDeclaration[] fields = typeDeclaration.fields;
+				if (fields != null) {
+					done : for (int i = 0; i < fields.length; i++) {
+						if (fields[i] instanceof Initializer) {
+							Initializer initializer = (Initializer) fields[i];
+							if (initializer.block.sourceStart <= astNode.sourceStart &&
+									astNode.sourceStart < initializer.bodyEnd) {
+								// completion is inside an initializer
+								if (astNodeParent == null &&
+										astNode instanceof CompletionOnSingleNameReference &&
+										!((CompletionOnSingleNameReference)astNode).isPrecededByModifiers) {
+									context.setTokenLocation(CompletionContext.TL_STATEMENT_START);
+								}
+								break done;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	private boolean complete(ASTNode astNode, ASTNode astNodeParent, ASTNode enclosingNode, Binding qualifiedBinding, Scope scope, boolean insideTypeAnnotation) {
 
 		setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd);
