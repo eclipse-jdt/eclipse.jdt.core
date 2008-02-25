@@ -48,8 +48,8 @@ Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
 <h2>What's new in this drop</h2>
 <ul>
 <li>Code Assist: Added API to give information about the completed token location.<br>
-Clients can call <code>CompletionContext#getTokenLocation()</code> to known if the completed token is at the start of the member
-or at the start of a statement. In the future this API could be improved and some others location could be recognized.
+Clients can call <code>CompletionContext#getTokenLocation()</code> to know if the completed token is at the start of the member
+or at the start of a statement. In the future this API could be improved and more locations could be recognized.
 <pre>
 public class CompletionContext {
 	...
@@ -108,9 +108,6 @@ public class CompletionContext {
 	...
 }
 </pre>
-The addition of new lines after annotations has been discussed in <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=100278">bug 122247</a><br>
-Also note that previously available code formatter constant FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION has been deprecated.<br>
-All new options must be enabled to activate old strategy.
 </li>
 </ul>
 
