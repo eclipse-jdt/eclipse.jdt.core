@@ -574,30 +574,7 @@ public class WildcardBinding extends ReferenceBinding {
 
 		return this.superclass;
     }
-  /*
-    public ReferenceBinding superclass2() {
-		if (this.superclass == null) {
-			TypeBinding superType = (this.boundKind == Wildcard.EXTENDS && !this.bound.isInterface()) 
-				? this.bound
-				: null;
-			this.superclass = superType instanceof ReferenceBinding && !superType.isInterface()
-				? (ReferenceBinding) superType
-				: environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
-			
-//			TypeBinding superType = null;
-//			if (this.boundKind == Wildcard.EXTENDS && !this.bound.isInterface()) {
-//				superType = this.bound;
-//			} else {
-//				TypeVariableBinding variable = this.typeVariable();
-//				if (variable != null) superType = variable.firstBound;
-//			}
-//			this.superclass = superType instanceof ReferenceBinding && !superType.isInterface()
-//				? (ReferenceBinding) superType
-//				: environment.getType(TypeConstants.JAVA_LANG_OBJECT);
-		}
-		return this.superclass;
-    }
-*/
+
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superInterfaces()
      */
@@ -625,31 +602,6 @@ public class WildcardBinding extends ReferenceBinding {
 					}
 				}
 			}
-        }
-        return this.superInterfaces;
-    }
-
-    public ReferenceBinding[] superInterfaces2() {
-        if (this.superInterfaces == null) {
-        	if (this.boundKind == Wildcard.EXTENDS) {
-        		if (this.bound.isInterface()) {
-        			if (this.otherBounds != null) {
-						// augment super interfaces with the wildcard otherBounds (interfaces per construction)
-						int otherLength = this.otherBounds.length;
-						System.arraycopy(this.otherBounds, 0, this.superInterfaces = new ReferenceBinding[otherLength+1], 1, otherLength);
-						this.superInterfaces[0] = (ReferenceBinding) this.bound;
-        			} else {
-        				this.superInterfaces = new ReferenceBinding[] { (ReferenceBinding) this.bound };
-        			}
-        		} else if (this.otherBounds != null) {
-					int otherLength = this.otherBounds.length;
-        			System.arraycopy(this.otherBounds, 0, this.superInterfaces = new ReferenceBinding[otherLength], 0, otherLength);
-        		} else {
-        			this.superInterfaces = Binding.NO_SUPERINTERFACES;
-        		}
-        	} else { 
-        		this.superInterfaces = Binding.NO_SUPERINTERFACES;
-        	}
         }
         return this.superInterfaces;
     }
