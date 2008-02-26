@@ -58,13 +58,12 @@ public class CompletionContext {
 	...
 	
 	/**
-	 * The completed token is the first token of a member declaration.<br>
+	 * The completed token is the first token of a member declaration.
 	 * e.g.
-	 * <pre>
+	 *
 	 * public class X {
 	 *   Foo| // completion occurs at |
 	 * }
-	 * </pre>
 	 * 
 	 * @see #getTokenLocation()
 	 * 
@@ -73,15 +72,14 @@ public class CompletionContext {
 	public static final int TL_MEMBER_START = 1;
 	
 	/**
-	 * The completed token is the first token of a statement.<br>
+	 * The completed token is the first token of a statement.
 	 * e.g.
-	 * <pre>
+	 *
 	 * public class X {
 	 *   public void bar() {
 	 *     Foo| // completion occurs at |
 	 *   }
 	 * }
-	 * </pre>
 	 * 
 	 * @see #getTokenLocation()
 	 * 
@@ -95,12 +93,10 @@ public class CompletionContext {
 	 * of the constants declared on this class whose name starts with <code>TL</code>,
 	 * or possibly values unknown to the caller.
 	 * 
-	 * <p>
 	 * The set of different location values is expected to change over time.
 	 * It is strongly recommended that clients do <b>not</b> assume that
 	 * the location contains only known value, and code defensively for 
 	 * the possibility of unexpected future growth.
-	 * </p>
 	 * 
 	 * @return the location
 	 * 
