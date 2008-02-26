@@ -787,20 +787,17 @@ public boolean isReifiable() {
 	ReferenceBinding current = (ReferenceBinding) leafType;
 	do {
 		switch (current.kind()) {
-
-		case Binding.TYPE_PARAMETER:
-		case Binding.WILDCARD_TYPE:
-		case Binding.INTERSECTION_TYPE:
-		case Binding.GENERIC_TYPE:
-			return false;
-
-		case Binding.PARAMETERIZED_TYPE:
-			if (current.isBoundParameterizedType())
+			case Binding.TYPE_PARAMETER:
+			case Binding.WILDCARD_TYPE:
+			case Binding.INTERSECTION_TYPE:
+			case Binding.GENERIC_TYPE:
 				return false;
-			break;
-
-		case Binding.RAW_TYPE:
-			return true;
+				case Binding.PARAMETERIZED_TYPE:
+				if (current.isBoundParameterizedType())
+					return false;
+				break;
+			case Binding.RAW_TYPE:
+				return true;
 		}
 		if (current.isStatic())
 			return true;
