@@ -3557,6 +3557,10 @@ protected void consumeOnlyTypeArgumentsForCastExpression() {
 	super.consumeOnlyTypeArgumentsForCastExpression();
 	pushOnElementStack(K_PARAMETERIZED_CAST);
 }
+protected void consumeOpenFakeBlock() {
+	super.consumeOpenFakeBlock();
+	pushOnElementStack(K_BLOCK_DELIMITER);
+}
 protected void consumeRightParen() {
 	super.consumeRightParen();
 }

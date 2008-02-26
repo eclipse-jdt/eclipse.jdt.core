@@ -17874,6 +17874,44 @@ public void testNameWithUnresolvedReferences017() throws JavaModelException {
 			"zzz2[LOCAL_VARIABLE_REF]{zzz2, null, Ljava.lang.Object;, zzz2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220171
+public void testNameWithUnresolvedReferences018() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	
+	String source =
+		"package test;\n" +
+		"public class Test {\n" +
+		"   void foo() {\n" +
+		"      boolean zzzz1 = false;\n" +
+		"      {\n" +
+		"         \n" +
+		"      }\n";
+	
+	for (int i = 0; i < 47; i++) {
+		source += "\n";
+	}
+	
+	source +=
+		"      boolean zzzz2 = false;\n" +
+		"      bar((Object)null, null);\n" +
+		"      if (zzzz) {}\n" +
+		"   }\n" +
+		"}";
+	
+	this.workingCopies[0] = getWorkingCopy("/Completion/src3/test/Test.java", source);
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"zzzz1[LOCAL_VARIABLE_REF]{zzzz1, null, Z, zzzz1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_RESOLVED + R_NON_RESTRICTED) + "}\n" +
+			"zzzz2[LOCAL_VARIABLE_REF]{zzzz2, null, Z, zzzz2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_RESOLVED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 public void testParameterNames1() throws CoreException, IOException {
 	Hashtable options = JavaCore.getOptions();
 	Object timeout = options.get(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC);
