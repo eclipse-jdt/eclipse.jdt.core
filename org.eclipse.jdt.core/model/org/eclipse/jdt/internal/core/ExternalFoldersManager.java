@@ -19,12 +19,10 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -158,26 +156,6 @@ public class ExternalFoldersManager {
 	
 	public synchronized IFolder getFolder(IPath externalFolderPath) {
 		return (IFolder) this.folders.get(externalFolderPath);
-	}
-	
-	public void refreshExternalFolders(IProgressMonitor monitor) throws CoreException {
-		final IProject project = getExternalFoldersProject();
-		
-		// workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=63782
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
-		DeltaProcessingState deltaState = JavaModelManager.getDeltaState();
-		for (int i = 0, length = projects.length; i < length; i++) {
-			JavaProject javaProject = (JavaProject) projects[i];
-			deltaState.addClasspathValidation(javaProject);
-		}
-		
-		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable(){
-			public void run(IProgressMonitor pm) throws CoreException {
-				project.touch(pm);
-				project.refreshLocal(IResource.DEPTH_INFINITE, pm);
-			}
-		}, monitor);
 	}
 	
 	public synchronized IFolder removeFolder(IPath externalFolderPath) {
