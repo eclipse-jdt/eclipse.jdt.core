@@ -9718,4 +9718,29 @@ public void testBug216875h() throws CoreException {
 		"src/test/X.java void test.X.foo() [		t2.field = §|t1|§.field;] READ ACCESS"
 	);
 }
+
+/**
+ * @bug 218397: [search] Can't find references of generic local class.
+ * @test Ensure that the generic local class reference is well found (no CCE)
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=218397"
+ */
+public void testBug218397() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Bug.java",
+		"class Bug{\n" + 
+		"	{\n" + 
+		"		class Inner<Type extends Number> {\n" + 
+		"			Row field;//LINE 3\n" + 
+		"			class Row{}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}"
+	);
+	this.resultCollector.showSelection = true;
+	IType type = selectType(this.workingCopies[0], "Row");
+	search(type, REFERENCES, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+	assertSearchResults(
+		"src/Bug.java Bug.{}:Inner#1.field [			§|Row|§ field;//LINE 3] EXACT_MATCH"
+	);
+}
 }
