@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -235,7 +234,7 @@ public IPath getPath() {
 /*
  * @see IJavaElement
  */
-public IResource getResource() {
+public IResource resource(PackageFragmentRoot root) {
 	return ResourcesPlugin.getWorkspace().getRoot();
 }
 /**
@@ -313,45 +312,59 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
  * or null if unbound
  * Internal items must be referred to using container relative paths.
  */
-public static Object getTarget(IContainer container, IPath path, boolean checkResourceExistence) {
-
-	if (path == null) return null;
-	
-	// lookup - inside the container
-	if (path.getDevice() == null) { // container relative paths should not contain a device 
-												// (see http://dev.eclipse.org/bugs/show_bug.cgi?id=18684)
-												// (case of a workspace rooted at d:\ )
-		IResource resource = container.findMember(path);
-		if (resource != null){
-			if (!checkResourceExistence ||resource.exists()) return resource;
-			return null;
-		}
-	}
-	
-	// if path is relative, it cannot be an external path
-	// (see http://dev.eclipse.org/bugs/show_bug.cgi?id=22517)
-	if (!path.isAbsolute()) return null; 
-
-	// lookup - outside the container
-	return getTargetAsExternalFile(path, checkResourceExistence);	
+public static Object getTarget(IPath path, boolean checkResourceExistence) {
+	Object target = getWorkspaceTarget(path); // Implicitly checks resource existence
+	if (target != null)
+		return target;
+	return getExternalTarget(path, checkResourceExistence);
 }
-private synchronized static Object getTargetAsExternalFile(IPath path, boolean checkResourceExistence) {
+public static Object getWorkspaceTarget(IPath path) {
+	if (path == null || path.getDevice() != null)
+		return null;
+	IWorkspace workspace = ResourcesPlugin.getWorkspace();
+	if (workspace == null)
+		return null;
+	return workspace.getRoot().findMember(path);
+}
+public static Object getExternalTarget(IPath path, boolean checkResourceExistence) {
+	if (path == null)
+		return null;
+	ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
+	Object linkedFolder = externalFoldersManager.getFolder(path);
+	if (linkedFolder != null) {
+		if (checkResourceExistence) {
+			// check if external folder is present
+			File externalFile = new File(path.toOSString());
+			if (!externalFile.isDirectory()) {
+				return null;
+			}
+		}
+		return linkedFolder;
+	}
 	File externalFile = new File(path.toOSString());
 	if (!checkResourceExistence) {
 		return externalFile;
-	} else if (existingExternalFiles.contains(externalFile)) {
+	} else if (existingExternalFilesContains(externalFile)) {
 		return externalFile;
 	} else { 
 		if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
 			System.out.println("(" + Thread.currentThread() + ") [JavaModel.getTarget(...)] Checking existence of " + path.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		if (externalFile.exists()) {
+		if (externalFile.isFile()) { // isFile() checks for existence (it returns false if a directory)
 			// cache external file
-			existingExternalFiles.add(externalFile);
+			existingExternalFilesAdd(externalFile);
 			return externalFile;
+		} else if (externalFile.isDirectory()) {
+			return externalFoldersManager.addFolder(path);
 		}
 	}
 	return null;
+}
+private synchronized static void existingExternalFilesAdd(File externalFile) {
+	existingExternalFiles.add(externalFile);
+}
+private synchronized static boolean existingExternalFilesContains(File externalFile) {
+	return existingExternalFiles.contains(externalFile);
 }
 
 /**

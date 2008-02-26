@@ -10,11 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.File;
 import java.io.IOException;
 
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -52,6 +55,9 @@ public class AttachSourceTests extends ModifyingResourceTests {
 public AttachSourceTests(String name) {
 	super(name);
 }
+protected String getExternalFolder() {
+	return getExternalFolderPath("externalFolder");
+}
 public ASTNode runConversion(IClassFile classFile, boolean resolveBindings) {
 	ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS2);
 	parser.setSource(classFile);
@@ -74,6 +80,19 @@ public void setUpSuite() throws Exception {
 	this.pkgFragmentRoot = this.currentProject.getPackageFragmentRoot(this.getFile("/AttachSourceTests/attach.jar"));
 	setUpGenericJar();
 	setUpInnerClassesJar();
+	setupExternalLibrary();
+}
+private void setupExternalLibrary() throws IOException {
+	String externalFolder = getExternalFolder();
+	String[] pathsAndContents = 
+		new String[] {
+			"p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		};
+	org.eclipse.jdt.core.tests.util.Util.createClassFolder(pathsAndContents, externalFolder + "lib", "1.4");
+	org.eclipse.jdt.core.tests.util.Util.createSourceDir(pathsAndContents, externalFolder + "src");
 }
 private void setUpGenericJar() throws IOException, CoreException {
 	String[] pathAndContents = new String[] {
@@ -161,6 +180,7 @@ protected void tearDown() throws Exception {
  * Reset the jar placeholder and delete project.
  */
 public void tearDownSuite() throws Exception {
+	org.eclipse.jdt.core.tests.util.Util.flushDirectoryContent(new File(getExternalFolder()));
 	deleteProject(this.currentProject);
 	super.tearDownSuite();
 }
@@ -321,6 +341,70 @@ public void testDetachSource() throws JavaModelException {
 	assertTrue("source range should no longer exist for A", cf.getType().getSourceRange().getOffset() == -1);
 	assertTrue("Source attachment path should be null", null == this.pkgFragmentRoot.getSourceAttachmentPath());
 	assertTrue("Source attachment root path should be null", null ==this.pkgFragmentRoot.getSourceAttachmentRootPath());
+}
+/*
+ * Ensures that one can attach an external source folder to a library folder.
+ */
+public void testExternalFolder1() throws CoreException {
+	try {
+		IProject p = createProject("P1");
+		IFolder lib = p.getFolder("lib");
+		lib.createLink(new Path(getExternalFolder() + "lib"), IResource.NONE, null);
+		IJavaProject javaProject = createJavaProject("P2", new String[0], new String[] {"/P1/lib"}, "");
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(lib);
+		attachSource(root, getExternalFolder() + "src", "");
+		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		assertSourceEquals(
+			"Unexpected source",
+			"public class X {\n" + 
+			"}",
+			type.getSource());
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/*
+ * Ensures that one can attach a source folder to an external library folder.
+ */
+public void testExternalFolder2() throws CoreException {
+	try {
+		IProject p = createProject("P1");
+		IFolder src = p.getFolder("src");
+		src.createLink(new Path(getExternalFolder() + "src"), IResource.NONE, null);
+		String externalLib = getExternalFolder() + "lib";
+		IJavaProject javaProject = createJavaProject("P2", new String[0], new String[] {externalLib}, "");
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(externalLib);
+		attachSource(root, "/P1/src", "");
+		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		assertSourceEquals(
+			"Unexpected source",
+			"public class X {\n" + 
+			"}",
+			type.getSource());
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/*
+ * Ensures that one can attach an external source folder to an external library folder.
+ */
+public void testExternalFolder3() throws CoreException {
+	try {
+		String externalLib = getExternalFolder() + "lib";
+		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {externalLib}, "");
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(externalLib);
+		attachSource(root, getExternalFolder() + "src", "");
+		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		assertSourceEquals(
+			"Unexpected source",
+			"public class X {\n" + 
+			"}",
+			type.getSource());
+	} finally {
+		deleteProject("P");
+	}
 }
 /*
  * Ensures that the source of a generic method can be retrieved.

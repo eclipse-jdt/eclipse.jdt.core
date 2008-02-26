@@ -58,7 +58,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 		final IWorkspaceRoot workspaceRoot)
 		throws JavaModelException {
 		final char[][] exclusionPatterns = ((ClasspathEntry)rootEntry).fullExclusionPatternChars();
-		IResource rootResource = root.getResource();
+		IResource rootResource = ((JavaElement) root).resource();
 		if (root.getKind() == IPackageFragmentRoot.K_BINARY || exclusionPatterns == null) {
 			try {
 				IResource destRes;
@@ -212,12 +212,12 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 		if (!status.isOK()) {
 			return status;
 		}
-		IPackageFragmentRoot root = (IPackageFragmentRoot)getElementToProcess();
+		PackageFragmentRoot root = (PackageFragmentRoot)getElementToProcess();
 		if (root == null || !root.exists()) {
 			return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, root);
 		}
 
-		IResource resource = root.getResource();
+		IResource resource = root.resource();
 		if (resource instanceof IFolder) {
 			if (resource.isLinked()) {
 				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE, root);

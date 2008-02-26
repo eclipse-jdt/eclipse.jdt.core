@@ -14,7 +14,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
@@ -31,10 +30,10 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class ClassFileWorkingCopy extends CompilationUnit {
 	
-	public IClassFile classFile;
+	public ClassFile classFile;
 	
-public ClassFileWorkingCopy(IClassFile classFile, WorkingCopyOwner owner) {
-	super((PackageFragment) classFile.getParent(), ((BinaryType) ((ClassFile) classFile).getType()).getSourceFileName(null/*no info available*/), owner);
+public ClassFileWorkingCopy(ClassFile classFile, WorkingCopyOwner owner) {
+	super((PackageFragment) classFile.getParent(), ((BinaryType) classFile.getType()).getSourceFileName(null/*no info available*/), owner);
 	this.classFile = classFile;
 }
 
@@ -70,8 +69,10 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 	return new ClassFileWorkingCopy(this.classFile, DefaultWorkingCopyOwner.PRIMARY);
 }
 
-public IResource getResource() {
-	return this.classFile.getResource();
+public IResource resource(PackageFragmentRoot root) {
+	if (root.isArchive())
+		return root.resource(root);
+	return this.classFile.resource(root);
 }
 
 /**

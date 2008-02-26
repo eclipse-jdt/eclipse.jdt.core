@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
@@ -20,6 +21,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
@@ -122,8 +124,13 @@ private void initializeIndexLocations() {
 	SimpleSet locations = new SimpleSet();
 	IJavaElement focus = MatchLocator.projectOrJarFocus(this.pattern);
 	if (focus == null) {
-		for (int i = 0; i < projectsAndJars.length; i++)
-			locations.add(manager.computeIndexLocation(projectsAndJars[i]));
+		for (int i = 0; i < projectsAndJars.length; i++) {
+			IPath path = projectsAndJars[i];
+			Object target = JavaModel.getTarget(path, false/*don't check existence*/);
+			if (target instanceof IFolder) // case of an external folder
+				path = ((IFolder) target).getFullPath();
+			locations.add(manager.computeIndexLocation(path));
+		}
 	} else {
 		try {
 			// find the projects from projectsAndJars that see the focus then walk those projects looking for the jars from projectsAndJars
@@ -131,7 +138,7 @@ private void initializeIndexLocations() {
 			JavaProject[] projectsCanSeeFocus = new JavaProject[length];
 			SimpleSet visitedProjects = new SimpleSet(length);
 			int projectIndex = 0;
-			SimpleSet jarsToCheck = new SimpleSet(length);
+			SimpleSet externalLibsToCheck = new SimpleSet(length);
 			IClasspathEntry[] focusEntries = null;
 			if (this.pattern instanceof MethodPattern) { // should consider polymorphic search for method patterns
 				JavaProject focusProject = focus instanceof JarPackageFragmentRoot ? (JavaProject) focus.getParent() : (JavaProject) focus;
@@ -148,26 +155,28 @@ private void initializeIndexLocations() {
 						projectsCanSeeFocus[projectIndex++] = project;
 					}
 				} else {
-					jarsToCheck.add(path);
+					externalLibsToCheck.add(path);
 				}
 			}
-			for (int i = 0; i < projectIndex && jarsToCheck.elementSize > 0; i++) {
+			for (int i = 0; i < projectIndex && externalLibsToCheck.elementSize > 0; i++) {
 				IClasspathEntry[] entries = projectsCanSeeFocus[i].getResolvedClasspath();
 				for (int j = entries.length; --j >= 0;) {
 					IClasspathEntry entry = entries[j];
 					if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 						IPath path = entry.getPath();
-						if (jarsToCheck.includes(path)) {
-							locations.add(manager.computeIndexLocation(entry.getPath()));
-							jarsToCheck.remove(path);
+						if (externalLibsToCheck.remove(path) != null) {
+							Object target = JavaModel.getTarget(path, false/*don't check existence*/);
+							if (target instanceof IFolder) // case of an external folder
+								path = ((IFolder) target).getFullPath();
+							locations.add(manager.computeIndexLocation(path));
 						}
 					}
 				}
 			}
 			// jar files can be included in the search scope without including one of the projects that references them, so scan all projects that have not been visited
-			if (jarsToCheck.elementSize > 0) {
+			if (externalLibsToCheck.elementSize > 0) {
 				IJavaProject[] allProjects = model.getJavaProjects();
-				for (int i = 0, l = allProjects.length; i < l && jarsToCheck.elementSize > 0; i++) {
+				for (int i = 0, l = allProjects.length; i < l && externalLibsToCheck.elementSize > 0; i++) {
 					JavaProject project = (JavaProject) allProjects[i];
 					if (!visitedProjects.includes(project)) {
 						IClasspathEntry[] entries = project.getResolvedClasspath();
@@ -175,9 +184,11 @@ private void initializeIndexLocations() {
 							IClasspathEntry entry = entries[j];
 							if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 								IPath path = entry.getPath();
-								if (jarsToCheck.includes(path)) {
-									locations.add(manager.computeIndexLocation(entry.getPath()));
-									jarsToCheck.remove(path);
+								if (externalLibsToCheck.remove(path) != null) {
+									Object target = JavaModel.getTarget(path, false/*don't check existence*/);
+									if (target instanceof IFolder) // case of an external folder
+										path = ((IFolder) target).getFullPath();
+									locations.add(manager.computeIndexLocation(path));
 								}
 							}
 						}

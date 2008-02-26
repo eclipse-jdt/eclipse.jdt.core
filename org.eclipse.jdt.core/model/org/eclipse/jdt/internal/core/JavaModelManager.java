@@ -407,6 +407,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/* whether an AbortCompilationUnit should be thrown when the source of a compilation unit cannot be retrieved */
 	public ThreadLocal abortOnMissingSource = new ThreadLocal();
 	
+	private ExternalFoldersManager externalFoldersManager = new ExternalFoldersManager();
+	
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
 	 * of the given project.
@@ -899,11 +901,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * the package fragment the given resource is located in, or <code>null</code>
 	 * if the given resource is not on the classpath of the given project.
 	 */
-	public static IJavaElement determineIfOnClasspath(
-		IResource resource,
-		IJavaProject project) {
-			
+	public static IJavaElement determineIfOnClasspath(IResource resource, IJavaProject project) {
 		IPath resourcePath = resource.getFullPath();
+		boolean isExternal = ExternalFoldersManager.isExternal(resourcePath);
+		if (isExternal)
+			resourcePath = resource.getLocation();
+		
 		try {
 			JavaProjectElementInfo projectInfo = (JavaProjectElementInfo) getJavaModelManager().getInfo(project);
 			ProjectCache projectCache = projectInfo == null ? null : projectInfo.projectCache;
@@ -927,7 +930,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						// allow creation of package fragment if it contains a .java file that is included
 						if (!Util.isExcluded(resource, ((ClasspathEntry)entry).fullInclusionPatternChars(), ((ClasspathEntry)entry).fullExclusionPatternChars())) {
 							// given we have a resource child of the root, it cannot be a JAR pkg root
-							PackageFragmentRoot root =(PackageFragmentRoot) ((JavaProject) project).getFolderPackageFragmentRoot(rootPath);
+							PackageFragmentRoot root = 
+								isExternal ? 
+									new ExternalPackageFragmentRoot(rootPath, (JavaProject) project) : 
+									(PackageFragmentRoot) ((JavaProject) project).getFolderPackageFragmentRoot(rootPath);
 							if (root == null) return null;
 							IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
 	
@@ -1031,15 +1037,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public void rememberExternalLibTimestamps() {
 			IClasspathEntry[] classpath = this.resolvedClasspath;
 			if (classpath == null) return;
-			IWorkspaceRoot wRoot = ResourcesPlugin.getWorkspace().getRoot();
 			Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaState.getExternalLibTimeStamps();
 			for (int i = 0, length = classpath.length; i < length; i++) {
 				IClasspathEntry entry = classpath[i];
 				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 					IPath path = entry.getPath();
 					if (externalTimeStamps.get(path) == null) {
-						Object target = JavaModel.getTarget(wRoot, path, true);
-						if (target instanceof java.io.File) {
+						Object target = JavaModel.getExternalTarget(path, true);
+						if (target instanceof File) {
 							long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
 							externalTimeStamps.put(path, new Long(timestamp));
 						}
@@ -1641,6 +1646,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	protected HashSet getElementsOutOfSynchWithBuffers() {
 		return this.elementsOutOfSynchWithBuffers;
+	}
+
+	public static ExternalFoldersManager getExternalManager() {
+		return MANAGER.externalFoldersManager;
 	}
 
 	public static IndexManager getIndexManager() {
@@ -3653,6 +3662,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					&& this.workspaceScope != null) { 
 				manager.cleanUpIndexes();
 			}
+			
+			// clean up external folders on full save
+			this.externalFoldersManager.cleanUp(null);
 		}
 	
 		IProject savedProject = context.getProject();
@@ -3689,6 +3701,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		
 		// save external libs timestamps
 		this.deltaState.saveExternalLibTimeStamps();
+		
 	}
 
 	/**
@@ -4073,8 +4086,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				while (names.hasNext()) {
 					Map.Entry entry2 = (Map.Entry) names.next();
 					String typeName = (String) entry2.getKey();
-					IType type = (IType) entry2.getValue();
-					if (file.equals(type.getResource())) {
+					JavaElement type = (JavaElement) entry2.getValue();
+					if (file.equals(type.resource())) {
 						if (removedNames == null) removedNames = new String[namesSize];
 						namesSize--;
 						removedNames[removedNamesCount++] = typeName;

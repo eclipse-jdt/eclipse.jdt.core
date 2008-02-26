@@ -47,6 +47,9 @@ Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_840">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>External library folders are now supported. One can use the existing API <code>JavaCore#newLibraryEntry(...)</code> with 
+     a file system path to an external library folder to add this folder on the build path. Note that one can also use an external source folder
+     as a source attachment using the same API.</li>
 <li>Code Assist: Added API to give information about the completed token location.<br>
 Clients can call <code>CompletionContext#getTokenLocation()</code> to know if the completed token is at the start of the member
 or at the start of a statement. In the future this API could be improved and more locations could be recognized.
@@ -112,7 +115,9 @@ public class CompletionContext {
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=202467">202467</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=182537">182537</a>
+Enhance classpath container to support external class folders
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=202467">202467</a>
 [assist] provide info what is completed
 
 <a name="v_839"></a>

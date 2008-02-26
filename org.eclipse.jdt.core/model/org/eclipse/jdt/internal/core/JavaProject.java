@@ -503,7 +503,7 @@ public class JavaProject
 
 				if (projectPath.isPrefixOf(entryPath)){
 					if (checkExistency) {
-						Object target = JavaModel.getTarget(workspaceRoot, entryPath, checkExistency);
+						Object target = JavaModel.getTarget(entryPath, checkExistency);
 						if (target == null) return;
 	
 						if (target instanceof IFolder || target instanceof IProject){
@@ -521,16 +521,18 @@ public class JavaProject
 				if (referringEntry != null  && !resolvedEntry.isExported()) return;
 				
 				if (checkExistency) {
-					Object target = JavaModel.getTarget(workspaceRoot, entryPath, checkExistency);
+					Object target = JavaModel.getTarget(entryPath, checkExistency);
 					if (target == null) return;
 	
 					if (target instanceof IResource){
 						// internal target
-						root = getPackageFragmentRoot((IResource) target);
-					} else {
-						// external target - only JARs allowed
+						root = getPackageFragmentRoot((IResource) target, entryPath);
+					} else if (target instanceof File) {
+						// external target
 						if (JavaModel.isFile(target) && (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(entryPath.lastSegment()))) {
 							root = new JarPackageFragmentRoot(entryPath, this);
+						} else if (((File) target).isDirectory()) {
+							root = new ExternalPackageFragmentRoot(entryPath, this);
 						}
 					}
 				} else {
@@ -672,10 +674,16 @@ public class JavaProject
 		IPath fullPath = resource.getFullPath();
 		IPath innerMostOutput = output.isPrefixOf(fullPath) ? output : null;
 		IClasspathEntry innerMostEntry = null;
+		ExternalFoldersManager foldersManager = JavaModelManager.getExternalManager();
 		for (int j = 0, cpLength = classpath.length; j < cpLength; j++) {
 			IClasspathEntry entry = classpath[j];
 		
 			IPath entryPath = entry.getPath();
+			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+				IResource linkedFolder = foldersManager.getFolder(entryPath);
+				if (linkedFolder != null)
+					entryPath = linkedFolder.getFullPath();
+			}
 			if ((innerMostEntry == null || innerMostEntry.getPath().isPrefixOf(entryPath))
 					&& entryPath.isPrefixOf(fullPath)) {
 				innerMostEntry = entry;
@@ -1641,7 +1649,10 @@ public class JavaProject
 	 * @see IJavaProject
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(IResource resource) {
-
+		return getPackageFragmentRoot(resource, null/*no entry path*/);
+	}
+		
+	private IPackageFragmentRoot getPackageFragmentRoot(IResource resource, IPath entryPath) {
 		switch (resource.getType()) {
 			case IResource.FILE:
 				if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resource.getName())) {
@@ -1650,6 +1661,8 @@ public class JavaProject
 					return null;
 				}
 			case IResource.FOLDER:
+				if (ExternalFoldersManager.isExternal(resource.getFullPath()))
+					return new ExternalPackageFragmentRoot(resource, entryPath, this);
 				return new PackageFragmentRoot(resource, this);
 			case IResource.PROJECT:
 				return new PackageFragmentRoot(resource, this);
@@ -1661,17 +1674,19 @@ public class JavaProject
 	/**
 	 * @see IJavaProject
 	 */
-	public IPackageFragmentRoot getPackageFragmentRoot(String jarPath) {
+	public IPackageFragmentRoot getPackageFragmentRoot(String libraryPath) {
 
-		return getPackageFragmentRoot0(JavaProject.canonicalizedPath(new Path(jarPath)));
+		return getPackageFragmentRoot0(JavaProject.canonicalizedPath(new Path(libraryPath)));
 	}
 
 	/*
 	 * no path canonicalization
 	 */
-	public IPackageFragmentRoot getPackageFragmentRoot0(IPath jarPath) {
-
-		return new JarPackageFragmentRoot(jarPath, this);
+	public IPackageFragmentRoot getPackageFragmentRoot0(IPath libraryPath) {
+		if (!org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(libraryPath.lastSegment()))
+			return new ExternalPackageFragmentRoot(libraryPath, this);
+		return new JarPackageFragmentRoot(libraryPath, this);
+		
 	}
 
 	/**
@@ -1879,7 +1894,7 @@ public class JavaProject
 	/**
 	 * @see IJavaElement
 	 */
-	public IResource getResource() {
+	public IResource resource(PackageFragmentRoot root) {
 		return this.project;
 	}
 

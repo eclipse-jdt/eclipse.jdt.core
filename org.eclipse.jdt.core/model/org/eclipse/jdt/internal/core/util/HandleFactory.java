@@ -33,18 +33,10 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.JavaModel;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.Openable;
-import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -128,7 +120,7 @@ public class HandleFactory {
 				if (root == null)
 					return null; // match is outside classpath
 				this.lastPkgFragmentRoot = root;
-				this.lastPkgFragmentRootPath = this.lastPkgFragmentRoot.getPath().toString();
+				this.lastPkgFragmentRootPath = this.lastPkgFragmentRoot.internalPath().toString();
 				this.packageHandles = new HashtableOfArrayToObject(5);
 			}
 			// create handle
@@ -252,7 +244,7 @@ public class HandleFactory {
 
 		IPath jarPath= new Path(jarPathString);
 		
-		Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), jarPath, false);
+		Object target = JavaModel.getTarget(jarPath, false);
 		if (target instanceof IFile) {
 			// internal jar: is it on the classpath of its project?
 			//  e.g. org.eclipse.swt.win32/ws/win32/swt.jar 
@@ -341,7 +333,7 @@ public class HandleFactory {
 				IPackageFragmentRoot[] roots= javaProject.getPackageFragmentRoots();
 				for (int j= 0, rootCount= roots.length; j < rootCount; j++) {
 					PackageFragmentRoot root= (PackageFragmentRoot)roots[j];
-					if (root.getPath().isPrefixOf(path) && !Util.isExcluded(path, root.fullInclusionPatternChars(), root.fullExclusionPatternChars(), false)) {
+					if (root.internalPath().isPrefixOf(path) && !Util.isExcluded(path, root.fullInclusionPatternChars(), root.fullExclusionPatternChars(), false)) {
 						return root;
 					}
 				}

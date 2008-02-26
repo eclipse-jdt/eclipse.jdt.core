@@ -232,6 +232,18 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, null, true, attributes, false));
 	}
 
+	public void addExternalFolders(IPath projectPath, String[] folders) throws JavaModelException {
+		addExternalFolders(projectPath, folders, false);
+	}
+
+	public void addExternalFolders(IPath projectPath, String[] folders, boolean isExported) throws JavaModelException {
+		for (int i = 0, max = folders.length; i < max; i++) {
+			String folder = folders[i];
+			checkAssertion("folder name must not end with .zip or .jar", !folder.endsWith(".zip") && !folder.endsWith(".jar")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			addEntry(projectPath, JavaCore.newLibraryEntry(new Path(folder), null, null, isExported));
+		}
+	}
+
 	public void addExternalJars(IPath projectPath, String[] jars) throws JavaModelException {
 		addExternalJars(projectPath, jars, false);
 	}

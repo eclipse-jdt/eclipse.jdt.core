@@ -3168,12 +3168,11 @@ public final class JavaCore extends Plugin {
 		if (entry.getEntryKind() != IClasspathEntry.CPE_VARIABLE)
 			return entry;
 
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		IPath resolvedPath = JavaCore.getResolvedVariablePath(entry.getPath());
 		if (resolvedPath == null)
 			return null;
 
-		Object target = JavaModel.getTarget(workspaceRoot, resolvedPath, false);
+		Object target = JavaModel.getTarget(resolvedPath, false);
 		if (target == null)
 			return null;
 
@@ -3214,10 +3213,10 @@ public final class JavaCore extends Plugin {
 							entry.isExported());
 			}
 		}
-		// outside the workspace
 		if (target instanceof File) {
 			File externalFile = JavaModel.getFile(target);
 			if (externalFile != null) {
+				// outside the workspace
 				String fileName = externalFile.getName().toLowerCase();
 				if (fileName.endsWith(SuffixConstants.SUFFIX_STRING_jar) || fileName.endsWith(SuffixConstants.SUFFIX_STRING_zip)) {
 					// external binary archive
@@ -3229,7 +3228,8 @@ public final class JavaCore extends Plugin {
 							entry.getExtraAttributes(),
 							entry.isExported());
 				}
-			} else { // external binary folder
+			} else { 
+				// non-existing file
 				if (resolvedPath.isAbsolute()){
 					return JavaCore.newLibraryEntry(
 							resolvedPath,
@@ -3240,7 +3240,7 @@ public final class JavaCore extends Plugin {
 							entry.isExported());
 				}
 			}
-		}
+		} 
 		return null;
 	}
 
@@ -3385,19 +3385,23 @@ public final class JavaCore extends Plugin {
 			}
 			
 			// avoid leaking source attachment properties (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=183413 )
+			// and recreate links for external folders if needed
 			if (monitor != null)
 				monitor.subTask(Messages.javamodel_resetting_source_attachment_properties);
+			boolean externalFoldersProjectExists = JavaModelManager.getExternalManager().getExternalFoldersProject().isAccessible();
 			final IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
 			HashSet visitedPaths = new HashSet();
 			for (int i = 0, length = projects.length; i < length; i++) {
+				JavaProject javaProject = (JavaProject) projects[i];
 				IClasspathEntry[] classpath;
 				try {
-					classpath = ((JavaProject) projects[i]).getResolvedClasspath();
+					classpath = javaProject.getResolvedClasspath();
 				} catch (JavaModelException e) {
 					// project no longer exist: ignore
 					continue;
 				}
 				if (classpath != null) {
+					boolean needExternalFolderCreation = false;
 					for (int j = 0, length2 = classpath.length; j < length2; j++) {
 						IClasspathEntry entry = classpath[j];
 						if (entry.getSourceAttachmentPath() != null) {
@@ -3407,7 +3411,14 @@ public final class JavaCore extends Plugin {
 							}
 						}
 						// else source might have been attached by IPackageFragmentRoot#attachSource(...), we keep it
+						if (!needExternalFolderCreation && !externalFoldersProjectExists && entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+							Object target = JavaModel.getTarget(entry.getPath(), false/*don't check existence*/);
+							if (target instanceof IFolder && ExternalFoldersManager.isExternal(((IFolder) target).getFullPath()))
+								needExternalFolderCreation = true;
+						}
 					}
+					if (needExternalFolderCreation)
+						manager.deltaState.addExternalFolderChange(javaProject, null/*act as if all external folders were new*/);
 				}
 			}
 			
@@ -3842,6 +3853,7 @@ public final class JavaCore extends Plugin {
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder,
 	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
+	 *    Since 3.4, this path can also denote a path external to the workspace.
 	 *   and will be automatically converted to <code>null</code>.
 	 * @param sourceAttachmentRootPath the location of the root of the source files within the source archive or folder
 	 *    or <code>null</code> if this location should be automatically detected.
@@ -3872,7 +3884,8 @@ public final class JavaCore extends Plugin {
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder,
 	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
-	 *   and will be automatically converted to <code>null</code>.
+	 *   and will be automatically converted to <code>null</code>. Since 3.4, this path can also denote a path external
+	 *   to the workspace.
 	 * @param sourceAttachmentRootPath the location of the root of the source files within the source archive or folder
 	 *    or <code>null</code> if this location should be automatically detected.
 	 * @param isExported indicates whether this entry is contributed to dependent
@@ -3902,15 +3915,15 @@ public final class JavaCore extends Plugin {
 	 * <p>
 	 * A library entry is used to denote a prerequisite JAR or root folder containing binaries.
 	 * The target JAR can either be defined internally to the workspace (absolute path relative
-	 * to the workspace root) or externally to the workspace (absolute path in the file system).
-	 * The target root folder can only be defined internally to the workspace (absolute path relative
-	 * to the workspace root). To use a binary folder external to the workspace, it must first be
-	 * linked (see IFolder#createLink(...)).
+	 * to the workspace root), or externally to the workspace (absolute path in the file system).
+	 * The target root folder can also be defined internally to the workspace (absolute path relative
+	 * to the workspace root), or - since 3.4 - externally to the workspace (absolute path in the file system). 
 	 * <p>
 	 * e.g. Here are some examples of binary path usage<ul>
 	 *	<li><code> "c:\jdk1.2.2\jre\lib\rt.jar" </code> - reference to an external JAR on Windows</li>
 	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR on Windows or Linux</li>
 	 *	<li><code> "/Project/classes/" </code> - reference to an internal binary folder on Windows or Linux</li>
+	 *	<li><code> "/home/usr/classes" </code> - reference to an external binary folder on Linux</li>
 	 * </ul>
 	 * Note that on non-Windows platform, a path <code>"/some/lib.jar"</code> is ambiguous.
 	 * It can be a path to an external JAR (its file system path being <code>"/some/lib.jar"</code>)
@@ -3943,7 +3956,8 @@ public final class JavaCore extends Plugin {
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder,
 	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
-	 *   and will be automatically converted to <code>null</code>.
+	 *   and will be automatically converted to <code>null</code>. Since 3.4, this path can also denote a path external
+	 *   to the workspace.
 	 * @param sourceAttachmentRootPath the location of the root of the source files within the source archive or folder
 	 *    or <code>null</code> if this location should be automatically detected.
 	 * @param accessRules the possibly empty list of access rules for this entry

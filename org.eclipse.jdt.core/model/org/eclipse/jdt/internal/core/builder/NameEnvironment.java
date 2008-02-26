@@ -96,7 +96,7 @@ private void computeClasspathLocations(
 	nextEntry : for (int i = 0, l = classpathEntries.length; i < l; i++) {
 		ClasspathEntry entry = (ClasspathEntry) classpathEntries[i];
 		IPath path = entry.getPath();
-		Object target = JavaModel.getTarget(root, path, true);
+		Object target = JavaModel.getTarget(path, true);
 		if (target == null) continue nextEntry;
 
 		switch(entry.getEntryKind()) {
@@ -128,7 +128,7 @@ private void computeClasspathLocations(
 				nextPrereqEntry: for (int j = 0, m = prereqClasspathEntries.length; j < m; j++) {
 					IClasspathEntry prereqEntry = prereqClasspathEntries[j];
 					if (prereqEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-						Object prereqTarget = JavaModel.getTarget(root, prereqEntry.getPath(), true);
+						Object prereqTarget = JavaModel.getTarget(prereqEntry.getPath(), true);
 						if (!(prereqTarget instanceof IContainer)) continue nextPrereqEntry;
 						IPath prereqOutputPath = prereqEntry.getOutputLocation() != null 
 							? prereqEntry.getOutputLocation() 

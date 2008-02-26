@@ -720,6 +720,25 @@ public void testDefaultValue4() throws JavaModelException {
 }
 
 /*
+ * Ensures that the resource of a .class file in an external folder is null
+ */
+public void testGetResource() throws Exception {
+	try {
+		createExternalFolder("externalLib/p");
+		createExternalFile("externalLib/p/X.class", "");
+		createJavaProject("P1", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IClassFile classFile1 = getClassFile("P1", getExternalFolderPath("externalLib"), "p", "X.class");
+		assertEquals(
+			"Unexpected resource",
+			null,
+			classFile1.getResource());
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P1");
+	}
+}
+
+/*
  * Ensures that IType#getSuperclassTypeSignature() is correct for a binary type.
  * (regression test for bug 78520 [model] IType#getSuperInterfaceTypeSignatures() doesn't include type arguments)
  */
@@ -761,7 +780,7 @@ public void testJarLikeRootFolder() throws CoreException {
 		// create an invalid package fragment root and an invalid package fragment
 		IPackageFragment invalidPkg = p.getPackageFragmentRoot("/P1/classFolder.jar").getPackageFragment("p");
 		
-		// ensure that the class fille cannot be opened with a valid excepption
+		// ensure that the class file cannot be opened with a valid exception
 		IClassFile openable = invalidPkg.getClassFile("X.class");
 		JavaModelException expected = null;
 		try {

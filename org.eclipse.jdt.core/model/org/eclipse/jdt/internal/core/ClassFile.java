@@ -321,7 +321,7 @@ public byte[] getBytes() throws JavaModelException {
 			JavaModelManager.getJavaModelManager().closeZipFile(zip);
 		}
 	} else {
-		IFile file = (IFile) getResource();
+		IFile file = (IFile) resource();
 		return Util.getResourceContentsAsByteArray(file);
 	}
 }
@@ -348,7 +348,7 @@ public IBuffer getBuffer() throws JavaModelException {
 		return super.getBuffer();
 	} else {
 		// .class file not on classpath, create a new buffer to be nice (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=41444)
-		Object info = ((ClassFile) getClassFile()).getBinaryTypeInfo((IFile) getResource());
+		Object info = ((ClassFile) getClassFile()).getBinaryTypeInfo((IFile) resource());
 		IBuffer buffer = openBuffer(null, info);
 		if (buffer != null && !(buffer instanceof NullBuffer))
 			return buffer;
@@ -488,13 +488,8 @@ public IPath getPath() {
 /*
  * @see IJavaElement
  */
-public IResource getResource() {
-	PackageFragmentRoot root = this.getPackageFragmentRoot();
-	if (root.isArchive()) {
-		return root.getResource();
-	} else {
-		return ((IContainer)this.getParent().getResource()).getFile(new Path(this.getElementName()));
-	}
+public IResource resource(PackageFragmentRoot root) {
+	return ((IContainer) ((Openable) this.parent).resource(root)).getFile(new Path(this.getElementName()));
 }
 /**
  * @see ISourceReference

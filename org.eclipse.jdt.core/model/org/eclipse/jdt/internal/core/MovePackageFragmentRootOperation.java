@@ -118,7 +118,7 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 	}
 	protected void executeOperation() throws JavaModelException {
 		
-		IPackageFragmentRoot root = (IPackageFragmentRoot)this.getElementToProcess();
+		IPackageFragmentRoot root = (IPackageFragmentRoot) getElementToProcess();
 		IClasspathEntry rootEntry = root.getRawClasspathEntry();
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		
@@ -160,7 +160,7 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 		throws JavaModelException {
 			
 		final char[][] exclusionPatterns = ((ClasspathEntry)rootEntry).fullExclusionPatternChars();
-		IResource rootResource = root.getResource();
+		IResource rootResource = ((JavaElement) root).resource();
 		if (rootEntry.getEntryKind() != IClasspathEntry.CPE_SOURCE || exclusionPatterns == null) {
 			try {
 				IResource destRes;

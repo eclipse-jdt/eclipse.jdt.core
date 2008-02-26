@@ -62,7 +62,6 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
 			monitor.beginTask(Messages.element_attachingSource, 2); 
 		}
 		SourceMapper oldMapper= getSourceMapper();
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		boolean rootNeedsToBeClosed= false;
 
 		if (sourcePath == null) {
@@ -80,7 +79,7 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
 		*/
 		} else {
 		/*
-			// fire a delta to notify the UI about the source attachement.
+			// fire a delta to notify the UI about the source attachment.
 			JavaModelManager manager = (JavaModelManager) JavaModelManager.getJavaModelManager();
 			JavaModel model = (JavaModel) getJavaModel();
 			JavaElementDelta attachedSourceDelta = new JavaElementDelta(model);
@@ -101,7 +100,7 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
 				}
 			}
 			// check if source path is valid
-			Object target = JavaModel.getTarget(workspace.getRoot(), sourcePath, false);
+			Object target = JavaModel.getTarget(sourcePath, false);
 			if (target == null) {
 				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, sourcePath));
 			}
@@ -153,7 +152,7 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
  */
 protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	((PackageFragmentRootInfo) info).setRootKind(determineKind(underlyingResource));
-	return computeChildren(info);
+	return computeChildren(info, underlyingResource);
 }
 
 SourceMapper createSourceMapper(IPath sourcePath, IPath rootPath) {
@@ -181,13 +180,12 @@ public void delete(
  * 
  * @exception JavaModelException  The resource associated with this package fragment root does not exist
  */
-protected boolean computeChildren(OpenableElementInfo info) throws JavaModelException {
+protected boolean computeChildren(OpenableElementInfo info, IResource underlyingResource) throws JavaModelException {
 	// Note the children are not opened (so not added to newElements) for a regular package fragment root
-	// Howver they are opened for a Jar package fragment root (see JarPackageFragmentRoot#computeChildren)
+	// However they are opened for a Jar package fragment root (see JarPackageFragmentRoot#computeChildren)
 	try {
 		// the underlying resource may be a folder or a project (in the case that the project folder
 		// is actually the package fragment root)
-		IResource underlyingResource = getResource();
 		if (underlyingResource.getType() == IResource.FOLDER || underlyingResource.getType() == IResource.PROJECT) {
 			ArrayList vChildren = new ArrayList(5);
 			IContainer rootFolder = (IContainer) underlyingResource;
@@ -324,7 +322,7 @@ public boolean equals(Object o) {
 	if (!(o instanceof PackageFragmentRoot))
 		return false;
 	PackageFragmentRoot other = (PackageFragmentRoot) o;
-	return getResource().equals(other.getResource()) && 
+	return resource().equals(other.resource()) && 
 			this.parent.equals(other.parent);
 }
 
@@ -332,14 +330,13 @@ private IClasspathEntry findSourceAttachmentRecommendation() {
 	try {
 		IPath rootPath = this.getPath();
 		IClasspathEntry entry;
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		
 		// try on enclosing project first
 		JavaProject parentProject = (JavaProject) getJavaProject();
 		try {
 			entry = parentProject.getClasspathEntryFor(rootPath);
 			if (entry != null){
-				Object target = JavaModel.getTarget(workspaceRoot, entry.getSourceAttachmentPath(), true);
+				Object target = JavaModel.getTarget(entry.getSourceAttachmentPath(), true);
 				if (target instanceof IResource) {
 					if (target instanceof IFile) {
 						IFile file = (IFile) target;
@@ -374,7 +371,7 @@ private IClasspathEntry findSourceAttachmentRecommendation() {
 			try {
 				entry = jProject.getClasspathEntryFor(rootPath);
 				if (entry != null){
-					Object target = JavaModel.getTarget(workspaceRoot, entry.getSourceAttachmentPath(), true);
+					Object target = JavaModel.getTarget(entry.getSourceAttachmentPath(), true);
 					if (target instanceof IResource) {
 						if (target instanceof IFile){
 							IFile file = (IFile) target;
@@ -386,12 +383,7 @@ private IClasspathEntry findSourceAttachmentRecommendation() {
 						}
 					} else if (target instanceof java.io.File){
 						java.io.File file = (java.io.File) target;
-						if (file.isFile()) {
-							if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
-								return entry;
-							}
-						} else {
-							// external directory
+						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
 							return entry;
 						}
 					}
@@ -441,7 +433,7 @@ public char[][] fullInclusionPatternChars() {
 	}
 }		
 public String getElementName() {
-	IResource res = getResource();
+	IResource res = resource();
 	if (res instanceof IFolder)
 		return ((IFolder) res).getName();
 	return ""; //$NON-NLS-1$
@@ -492,10 +484,10 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
  */
 protected void getHandleMemento(StringBuffer buff) {
 	IPath path;
-	IResource underlyingResource = getResource();
+	IResource underlyingResource = resource();
 	if (underlyingResource != null) {
 		// internal jar or regular root
-		if (getResource().getProject().equals(getJavaProject().getProject())) {
+		if (resource().getProject().equals(getJavaProject().getProject())) {
 			path = underlyingResource.getProjectRelativePath();
 		} else {
 			path = underlyingResource.getFullPath();
@@ -519,7 +511,7 @@ public int getKind() throws JavaModelException {
  * Returns an array of non-java resources contained in the receiver.
  */
 public Object[] getNonJavaResources() throws JavaModelException {
-	return ((PackageFragmentRootInfo) getElementInfo()).getNonJavaResources(getJavaProject(), getResource(), this);
+	return ((PackageFragmentRootInfo) getElementInfo()).getNonJavaResources(getJavaProject(), resource(), this);
 }
 
 /**
@@ -556,9 +548,12 @@ protected String getPackageName(IFolder folder) {
  * @see IJavaElement
  */
 public IPath getPath() {
-	return getResource().getFullPath();
+	return internalPath();
 }
 
+public IPath internalPath() {
+	return resource().getFullPath();
+}
 /*
  * @see IPackageFragmentRoot 
  */
@@ -580,7 +575,7 @@ public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
 /*
  * @see IJavaElement
  */
-public IResource getResource() {
+public IResource resource(PackageFragmentRoot root) {
 	return (IResource)this.resource;
 }
 
@@ -692,7 +687,7 @@ public SourceMapper getSourceMapper() {
  */
 public IResource getUnderlyingResource() throws JavaModelException {
 	if (!exists()) throw newNotPresentException();
-	return getResource();
+	return resource();
 }
 
 /**
@@ -704,7 +699,7 @@ public boolean hasChildren() throws JavaModelException {
 }
 
 public int hashCode() {
-	return getResource().hashCode();
+	return resource().hashCode();
 }
 
 /**

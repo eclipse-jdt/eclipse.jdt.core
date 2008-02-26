@@ -1140,7 +1140,7 @@ public class BasicSearchEngine {
 			Util.verbose("	- java element: "+enclosingElement); //$NON-NLS-1$
 		}
 		IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
-		IResource resource = enclosingElement.getResource();
+		IResource resource = ((JavaElement) enclosingElement).resource();
 		if (enclosingElement instanceof IMember) {
 			IMember member = (IMember) enclosingElement;
 			ICompilationUnit cu = member.getCompilationUnit();

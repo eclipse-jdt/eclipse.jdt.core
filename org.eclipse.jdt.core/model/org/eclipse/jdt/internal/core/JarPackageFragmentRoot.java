@@ -15,7 +15,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
@@ -67,7 +66,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 * These are all of the directory zip entries, and any directories implied
 	 * by the path of class files contained in the jar of this package fragment root.
 	 */
-	protected boolean computeChildren(OpenableElementInfo info) throws JavaModelException {
+	protected boolean computeChildren(OpenableElementInfo info, IResource underlyingResource) throws JavaModelException {
 		HashtableOfArrayToObject rawPackageInfo = new HashtableOfArrayToObject();
 		IJavaElement[] children;
 		ZipFile jar = null;
@@ -168,22 +167,19 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	public PackageFragment getPackageFragment(String[] pkgName) {
 		return new JarPackageFragment(this, pkgName);
 	}
-	/**
-	 * @see IPackageFragmentRoot
-	 */
-	public IPath getPath() {
+	public IPath internalPath() {
 		if (isExternal()) {
 			return this.jarPath;
 		} else {
-			return super.getPath();
+			return super.internalPath();
 		}
-	}
-	public IResource getResource() {
-		if (this.resource == null) {
-			this.resource = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.jarPath, false);
+	}	
+	public IResource resource(PackageFragmentRoot root) {
+		if (this.resource == null && org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(this.jarPath.lastSegment())) {
+			this.resource = JavaModel.getTarget(this.jarPath, false);
 		}
 		if (this.resource instanceof IResource) {
-			return super.getResource();
+			return super.resource(root);
 		} else {
 			// external jar
 			return null;
@@ -257,7 +253,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 * @see IPackageFragmentRoot
 	 */
 	public boolean isExternal() {
-		return getResource() == null;
+		return resource() == null;
 	}
 	/**
 	 * Jars and jar entries are all read only
@@ -273,7 +269,6 @@ protected boolean resourceExists(IResource underlyingResource) {
 	if (underlyingResource == null) {
 		return 
 			JavaModel.getTarget(
-				ResourcesPlugin.getWorkspace().getRoot(), 
 				getPath(), // don't make the path relative as this is an external archive
 				true) != null;
 	} else {

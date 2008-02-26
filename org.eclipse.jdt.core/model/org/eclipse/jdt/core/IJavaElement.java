@@ -310,7 +310,7 @@ public interface IJavaElement extends IAdaptable {
 	 * Returns the innermost resource enclosing this element.
 	 * If this element is included in an archive and this archive is not external,
 	 * this is the underlying resource corresponding to the archive.
-	 * If this element is included in an external archive, <code>null</code>
+	 * If this element is included in an external library, <code>null</code>
 	 * is returned.
 	 * This is a handle-only method.
 	 *

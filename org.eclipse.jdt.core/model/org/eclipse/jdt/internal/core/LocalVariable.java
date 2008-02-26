@@ -251,8 +251,8 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 		return this.parent.getPath();
 	}
 
-	public IResource getResource() {
-		return this.parent.getResource();
+	public IResource resource() {
+		return this.parent.resource();
 	}
 
 	/**

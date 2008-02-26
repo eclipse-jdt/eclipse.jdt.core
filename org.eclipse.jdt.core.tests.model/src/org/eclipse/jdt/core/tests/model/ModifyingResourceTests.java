@@ -31,7 +31,8 @@ public ModifyingResourceTests(String name, int tabs) {
 protected void assertElementDescendants(String message,  String expected, IJavaElement element) throws CoreException {
 	String actual = expandAll(element);
 	if (!expected.equals(actual)){
-	 	System.out.println(Util.displayString(actual, 4));
+	 	System.out.print(displayString(actual, 3));
+	 	System.out.println(",");
 	}
 	assertEquals(
 		message,
@@ -85,6 +86,14 @@ public static void generateClassFile(String className, String javaSource) throws
 	}
 }
 
+protected boolean createExternalFolder(String relativePath) {
+	return new File(getExternalPath(), relativePath).mkdirs();
+}
+
+protected void createExternalFile(String relativePath, String contents) {
+	Util.writeToFile(contents, getExternalPath() + relativePath);
+}
+
 protected IFile createFile(String path, InputStream content) throws CoreException {
 	IFile file = getFile(path);
 	file.create(content, true, null);
@@ -106,8 +115,16 @@ protected IFile createFile(String path, String content) throws CoreException {
 protected IFile createFile(String path, String content, String charsetName) throws CoreException, UnsupportedEncodingException {
 	return createFile(path, content.getBytes(charsetName));
 }
+protected File createFolder(File parent, String name) {
+	File file = new File(parent, name);
+	file.mkdirs();
+	return file;
+}
 protected IFolder createFolder(String path) throws CoreException {
 	return createFolder(new Path(path));
+}
+protected void deleteExternalFolder(String relativePath) {
+	deleteFile(new File(getExternalPath() + relativePath));
 }
 protected void deleteFile(String filePath) throws CoreException {
 	deleteResource(this.getFile(filePath));

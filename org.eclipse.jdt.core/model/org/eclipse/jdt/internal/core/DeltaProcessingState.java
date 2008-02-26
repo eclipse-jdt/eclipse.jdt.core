@@ -84,10 +84,13 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	private HashMap classpathValidations = new HashMap();
 	
 	/* A table from JavaProject to ProjectReferenceChange */
-	private HashMap projectReferenceChanges= new HashMap();
+	private HashMap projectReferenceChanges = new HashMap();
+
+	/* A table from JavaProject to ExternalFolderChange */
+	private HashMap externalFolderChanges = new HashMap();
 
 	/**
-	 * Workaround for bug 15168 circular errors not reported  
+	 * Workaround for bug 15168 circular errors not reported 
 	 * This is a cache of the projects before any project addition/deletion has started.
 	 */
 	private HashSet javaProjectNamesCache;
@@ -168,6 +171,14 @@ public class DeltaProcessingState implements IResourceChangeListener {
 			this.classpathValidations.put(project, validation);
 	    }
 		return validation;
+	}
+	
+	public synchronized void addExternalFolderChange(JavaProject project, IClasspathEntry[] oldResolvedClasspath) {
+		ExternalFolderChange change = (ExternalFolderChange) this.externalFolderChanges.get(project);
+		if (change == null) {
+			change = new ExternalFolderChange(project, oldResolvedClasspath);
+			this.externalFolderChanges.put(project, change);
+	    }
 	}
 	
 	public synchronized void addProjectReferenceChange(JavaProject project, IClasspathEntry[] oldResolvedClasspath) {
@@ -297,6 +308,15 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	    return validations;
 	}
 	
+	public synchronized ExternalFolderChange[] removeExternalFolderChanges() {
+	    int length = this.externalFolderChanges.size();
+	    if (length == 0) return null;
+	    ExternalFolderChange[]  updates = new ExternalFolderChange[length];
+	    this.externalFolderChanges.values().toArray(updates);
+	    this.externalFolderChanges.clear();
+	    return updates;
+	}
+	
 	public synchronized ProjectReferenceChange[] removeProjectReferenceChanges() {
 	    int length = this.projectReferenceChanges.size();
 	    if (length == 0) return null;
@@ -305,7 +325,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	    this.projectReferenceChanges.clear();
 	    return updates;
 	}
-	
+
 	public synchronized HashSet removeExternalElementsToRefresh() {
 		HashSet result = this.externalElementsToRefresh;
 		this.externalElementsToRefresh = null;

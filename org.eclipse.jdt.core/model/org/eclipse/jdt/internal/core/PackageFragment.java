@@ -297,7 +297,7 @@ public Object[] getNonJavaResources() throws JavaModelException {
 		// We don't want to show non java resources of the default package (see PR #1G58NB8)
 		return JavaElementInfo.NO_NON_JAVA_RESOURCES;
 	} else {
-		return ((PackageFragmentInfo) getElementInfo()).getNonJavaResources(getResource(), getPackageFragmentRoot());
+		return ((PackageFragmentInfo) getElementInfo()).getNonJavaResources(resource(), getPackageFragmentRoot());
 	}
 }
 /**
@@ -317,22 +317,17 @@ public IPath getPath() {
 	}
 }
 /**
- * @see IJavaElement#getResource()
+ * @see JavaElement#resource()
  */
-public IResource getResource() {
-	PackageFragmentRoot root = this.getPackageFragmentRoot();
-	if (root.isArchive()) {
-		return root.getResource();
+public IResource resource(PackageFragmentRoot root) {
+	int length = this.names.length;
+	if (length == 0) {
+		return root.resource(root);
 	} else {
-		int length = this.names.length;
-		if (length == 0) {
-			return root.getResource();
-		} else {
-			IPath path = new Path(this.names[0]);
-			for (int i = 1; i < length; i++)
-				path = path.append(this.names[i]);
-			return ((IContainer)root.getResource()).getFolder(path);
-		}
+		IPath path = new Path(this.names[0]);
+		for (int i = 1; i < length; i++)
+			path = path.append(this.names[i]);
+		return ((IContainer)root.resource(root)).getFolder(path);
 	}
 }
 /**

@@ -473,15 +473,16 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	IPath getOutputLocation() throws JavaModelException;
 
 	/**
-	 * Returns a package fragment root for the JAR at the specified file system path.
+	 * Returns a package fragment root for library (a JAR or - since 3.4 - a class folder)
+	 * at the specified file system path.
 	 * This is a handle-only method.  The underlying <code>java.io.File</code>
-	 * may or may not exist. No resource is associated with this local JAR
+	 * may or may not exist. No resource is associated with this local library
 	 * package fragment root.
 	 * 
-	 * @param jarPath the jars's file system path
-	 * @return a package fragment root for the JAR at the specified file system path
+	 * @param libraryPath the library's file system path
+	 * @return a package fragment root for the library at the specified file system path
 	 */
-	IPackageFragmentRoot getPackageFragmentRoot(String jarPath);
+	IPackageFragmentRoot getPackageFragmentRoot(String libraryPath);
 
 	/**
 	 * Returns a package fragment root for the given resource, which

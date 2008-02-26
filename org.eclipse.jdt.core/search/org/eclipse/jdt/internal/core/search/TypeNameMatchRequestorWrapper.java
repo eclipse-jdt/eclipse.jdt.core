@@ -153,10 +153,10 @@ private IType createTypeFromPath(String resourcePath, String simpleTypeName, cha
 		|| !(resourcePath.startsWith(this.lastPkgFragmentRootPath) 
 			&& (rootPathLength = this.lastPkgFragmentRootPath.length()) > 0
 			&& resourcePath.charAt(rootPathLength) == '/')) {
-		IPackageFragmentRoot root = ((JavaSearchScope)this.scope).packageFragmentRoot(resourcePath);
+		PackageFragmentRoot root = (PackageFragmentRoot) ((JavaSearchScope)this.scope).packageFragmentRoot(resourcePath);
 		if (root == null) return null;
 		this.lastPkgFragmentRoot = root;
-		this.lastPkgFragmentRootPath = this.lastPkgFragmentRoot.getPath().toString();
+		this.lastPkgFragmentRootPath = root.internalPath().toString();
 		this.packageHandles = new HashtableOfArrayToObject(5);
 	}
 	// create handle

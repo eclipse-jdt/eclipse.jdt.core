@@ -833,17 +833,12 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 	if (checkOwner && isPrimary()) return this;
 	return new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
 }
-/**
- * @see IJavaElement#getResource()
+/*
+ * @see Openable#resource(PackageFragmentRoot)
  */
-public IResource getResource() {
-	PackageFragmentRoot root = getPackageFragmentRoot();
+public IResource resource(PackageFragmentRoot root) {
 	if (root == null) return null; // working copy not in workspace
-	if (root.isArchive()) {
-		return root.getResource();
-	} else {
-		return ((IContainer) getParent().getResource()).getFile(new Path(getElementName()));
-	}
+	return ((IContainer) ((Openable) this.parent).resource(root)).getFile(new Path(getElementName()));
 }
 /**
  * @see ISourceReference#getSource()

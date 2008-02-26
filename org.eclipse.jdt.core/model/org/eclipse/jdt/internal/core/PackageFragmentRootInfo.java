@@ -54,6 +54,8 @@ public PackageFragmentRootInfo() {
  * @exception JavaModelException  The resource associated with this package fragment does not exist
  */
 static Object[] computeFolderNonJavaResources(JavaProject project, IContainer folder, char[][] inclusionPatterns, char[][] exclusionPatterns) throws JavaModelException {
+	if (ExternalFoldersManager.isExternal(folder.getFullPath()))
+		return NO_NON_JAVA_RESOURCES;
 	Object[] nonJavaResources = new IResource[5];
 	int nonJavaResourcesCounter = 0;
 	try {

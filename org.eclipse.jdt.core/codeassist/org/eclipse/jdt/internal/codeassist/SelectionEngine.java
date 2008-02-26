@@ -1133,7 +1133,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				} 
 			} else { // binary type
 				ClassFile classFile = (ClassFile) context.getClassFile();
-				ClassFileReader reader = (ClassFileReader) classFile.getBinaryTypeInfo((IFile) classFile.getResource(), false/*don't fully initialize so as to keep constant pool (used below)*/);
+				ClassFileReader reader = (ClassFileReader) classFile.getBinaryTypeInfo((IFile) classFile.resource(), false/*don't fully initialize so as to keep constant pool (used below)*/);
 				CompilationResult result = new CompilationResult(reader.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 				parsedUnit = new CompilationUnitDeclaration(this.parser.problemReporter(), result, 0);
 				HashSetOfCharArrayArray typeNames = new HashSetOfCharArrayArray();

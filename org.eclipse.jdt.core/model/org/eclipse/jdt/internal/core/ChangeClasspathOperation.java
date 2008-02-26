@@ -60,6 +60,9 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 			// since some clients rely on the project references when run inside an IWorkspaceRunnable
 			new ProjectReferenceChange(project, change.oldResolvedClasspath).updateProjectReferencesIfNecessary();
 			
+			// and ensure that external folders are updated as well
+			new ExternalFolderChange(project, change.oldResolvedClasspath).updateExternalFoldersIfNecessary(null);
+			
 		} else {
 			JavaElementDelta delta = new JavaElementDelta(getJavaModel());
 			int result = change.generateDelta(delta);
@@ -76,6 +79,10 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 			if ((result & ClasspathChange.HAS_PROJECT_CHANGE) != 0) {
 				// ensure project references are updated on next build
 				state.addProjectReferenceChange(project, change.oldResolvedClasspath);
+			}
+			if ((result & ClasspathChange.HAS_LIBRARY_CHANGE) != 0) {
+				// ensure external folders are updated on next build
+				state.addExternalFolderChange(project, change.oldResolvedClasspath);
 			}
 		}
 	}

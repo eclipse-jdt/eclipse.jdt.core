@@ -429,6 +429,7 @@ private IProject[] getRequiredProjects(boolean includeBinaryPrerequisites) {
 	if (javaProject == null || workspaceRoot == null) return new IProject[0];
 
 	ArrayList projects = new ArrayList();
+	ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
 	try {
 		IClasspathEntry[] entries = javaProject.getExpandedClasspath();
 		for (int i = 0, l = entries.length; i < l; i++) {
@@ -445,8 +446,13 @@ private IProject[] getRequiredProjects(boolean includeBinaryPrerequisites) {
 					if (includeBinaryPrerequisites && path.segmentCount() > 1) {
 						// some binary resources on the class path can come from projects that are not included in the project references
 						IResource resource = workspaceRoot.findMember(path.segment(0));
-						if (resource instanceof IProject)
+						if (resource instanceof IProject) {
 							p = (IProject) resource;
+						} else {
+							resource = externalFoldersManager.getFolder(path);
+							if (resource != null)
+								p = resource.getProject();
+						}
 					}
 			}
 			if (p != null && !projects.contains(p))

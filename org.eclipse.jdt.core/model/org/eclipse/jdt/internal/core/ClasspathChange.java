@@ -39,7 +39,8 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class ClasspathChange {
 	public static int NO_DELTA = 0x00;
 	public static int HAS_DELTA = 0x01;
-	public static int HAS_PROJECT_CHANGE = 0x10;
+	public static int HAS_PROJECT_CHANGE = 0x02;
+	public static int HAS_LIBRARY_CHANGE = 0x04;
 	
 	JavaProject project;
 	IClasspathEntry[] oldRawClasspath;
@@ -297,16 +298,20 @@ public class ClasspathChange {
 			int index = classpathContains(newResolvedClasspath, this.oldResolvedClasspath[i]);
 			if (index == -1) {
 				// remote project changes
-				if (this.oldResolvedClasspath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+				int entryKind = this.oldResolvedClasspath[i].getEntryKind();
+				if (entryKind == IClasspathEntry.CPE_PROJECT) {
 					result |= HAS_PROJECT_CHANGE;
 					continue; 
 				}
+				if (entryKind == IClasspathEntry.CPE_LIBRARY) {
+					result |= HAS_LIBRARY_CHANGE;
+				}
 
-				IPackageFragmentRoot[] pkgFragmentRoots = null;
+				PackageFragmentRoot[] pkgFragmentRoots = null;
 				if (removedRoots != null) {
-					IPackageFragmentRoot oldRoot = (IPackageFragmentRoot)  removedRoots.get(this.oldResolvedClasspath[i].getPath());
+					PackageFragmentRoot oldRoot = (PackageFragmentRoot)  removedRoots.get(this.oldResolvedClasspath[i].getPath());
 					if (oldRoot != null) { // use old root if any (could be none if entry wasn't bound)
-						pkgFragmentRoots = new IPackageFragmentRoot[] { oldRoot };
+						pkgFragmentRoots = new PackageFragmentRoot[] { oldRoot };
 					}
 				}
 				if (pkgFragmentRoots == null) {
@@ -319,22 +324,22 @@ public class ClasspathChange {
 							accumulatedRoots, 
 							rootIDs,
 							null, // inside original project
-							false, // don't check existency
+							true, // check existency
 							false, // don't retrieve exported roots
 							null); /*no reverse map*/
-						pkgFragmentRoots = new IPackageFragmentRoot[accumulatedRoots.size()];
+						pkgFragmentRoots = new PackageFragmentRoot[accumulatedRoots.size()];
 						accumulatedRoots.copyInto(pkgFragmentRoots);
 					} catch (JavaModelException e) {
-						pkgFragmentRoots =  new IPackageFragmentRoot[] {};
+						pkgFragmentRoots =  new PackageFragmentRoot[] {};
 					}
 				}
 				addClasspathDeltas(delta, pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH);
 				
 				// remember timestamp of jars that were removed (in case they are added as external jar in the same operation)
 				for (int j = 0, length = pkgFragmentRoots.length; j < length; j++) {
-					IPackageFragmentRoot root = pkgFragmentRoots[j];
+					PackageFragmentRoot root = pkgFragmentRoots[j];
 					if (root.isArchive() && !root.isExternal()) {
-						URI location = root.getResource().getLocationURI();
+						URI location = root.resource().getLocationURI();
 						File file = null;
 						try {
 							IFileStore fileStore = EFS.getStore(location);
@@ -391,9 +396,13 @@ public class ClasspathChange {
 			int index = classpathContains(this.oldResolvedClasspath, newResolvedClasspath[i]);
 			if (index == -1) {
 				// remote project changes
-				if (newResolvedClasspath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+				int entryKind = newResolvedClasspath[i].getEntryKind();
+				if (entryKind == IClasspathEntry.CPE_PROJECT) {
 					result |= HAS_PROJECT_CHANGE;
 					continue; 
+				}
+				if (entryKind == IClasspathEntry.CPE_LIBRARY) {
+					result |= HAS_LIBRARY_CHANGE;
 				}
 				addClasspathDeltas(delta, this.project.computePackageFragmentRoots(newResolvedClasspath[i]), IJavaElementDelta.F_ADDED_TO_CLASSPATH);
 			} // classpath reordering has already been generated in previous loop
@@ -403,7 +412,7 @@ public class ClasspathChange {
 		if ((newOutputLocation == null && this.oldOutputLocation != null) 
 				|| (newOutputLocation != null && !newOutputLocation.equals(this.oldOutputLocation))) {
 			try {
-				ArrayList added= determineAffectedPackageFragments(this.oldOutputLocation);
+				ArrayList added = determineAffectedPackageFragments(this.oldOutputLocation);
 				Iterator iter = added.iterator();
 				while (iter.hasNext()){
 					IPackageFragment frag= (IPackageFragment)iter.next();
@@ -412,7 +421,7 @@ public class ClasspathChange {
 				}
 			
 				// see if this will cause any package fragments to be removed
-				ArrayList removed= determineAffectedPackageFragments(newOutputLocation);
+				ArrayList removed = determineAffectedPackageFragments(newOutputLocation);
 				iter = removed.iterator();
 				while (iter.hasNext()) {
 					IPackageFragment frag= (IPackageFragment)iter.next();

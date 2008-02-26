@@ -197,7 +197,7 @@ public boolean exists() {
 			}
 			break;
 	}
-	return validateExistence(getResource()).isOK();
+	return validateExistence(resource()).isOK();
 }
 public String findRecommendedLineSeparator() throws JavaModelException {
 	IBuffer buffer = getBuffer();
@@ -234,7 +234,7 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	openAncestors(newElements, monitor);
 	
 	// validate existence
-	IResource underlResource = getResource();
+	IResource underlResource = resource();
 	IStatus status = validateExistence(underlResource);
 	if (!status.isOK())
 		throw newJavaModelException(status);
@@ -435,6 +435,26 @@ public void open(IProgressMonitor pm) throws JavaModelException {
 protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
 	return null;
 }
+
+public IResource getResource() {
+	PackageFragmentRoot root = getPackageFragmentRoot();
+	if (root != null) {
+		if (root.isExternal())
+			return null;
+		if (root.isArchive())
+			return root.resource(root);
+	}
+	return resource(root);
+}
+
+public IResource resource() {
+	PackageFragmentRoot root = getPackageFragmentRoot();
+	if (root != null && root.isArchive())
+		return root.resource(root);
+	return resource(root);
+}
+
+protected abstract IResource resource(PackageFragmentRoot root);
 
 /**
  * Returns whether the corresponding resource or associated file exists

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,14 +75,6 @@ public class SourceMapper
 	implements ISourceElementRequestor, SuffixConstants {
 		
 	public static boolean VERBOSE = false;
-	/**
-	 * Specifies the file name filter use to compute the root paths.
-	 */
-	private static final FilenameFilter FILENAME_FILTER = new FilenameFilter() {
-		public boolean accept(File dir, String name) {
-			return org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(name);
-		}
-	};
 	/**
 	 * Specifies the location of the package fragment roots within
 	 * the zip (empty specifies the default root). <code>null</code> is
@@ -401,7 +391,7 @@ public class SourceMapper
 				manager.closeZipFile(zip); // handle null case
 			}
 		} else {
-			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), root.getPath(), true);
+			Object target = JavaModel.getTarget(root.getPath(), true);
 			if (target instanceof IResource) {
 				IResource resource = (IResource) target;
 				if (resource instanceof IContainer) {
@@ -417,19 +407,6 @@ public class SourceMapper
 						}
 					} catch (CoreException e) {
 						// ignore
-					}
-				}
-			} else if (target instanceof File) {
-				File file = (File)target;
-				if (file.isDirectory()) {
-					File[] files = file.listFiles();
-					for (int i = 0, max = files.length; i < max; i++) {
-						File currentFile = files[i];
-						if (currentFile.isDirectory()) {
-							firstLevelPackageNames.add(currentFile.getName());
-						} else if (Util.isClassFileName(currentFile.getName())) {
-							containsADefaultPackage = true;
-						}
 					}
 				}
 			}
@@ -467,16 +444,9 @@ public class SourceMapper
 				manager.closeZipFile(zip); // handle null case
 			}
 		} else {
-			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.sourcePath, true);
-			if (target instanceof IResource) {
-				if (target instanceof IContainer) {
-					computeRootPath((IContainer)target, firstLevelPackageNames, containsADefaultPackage, tempRoots);
-				}
-			} else if (target instanceof File) {
-				File file = (File)target;
-				if (file.isDirectory()) {
-					computeRootPath(file, firstLevelPackageNames, containsADefaultPackage, tempRoots);
-				}
+			Object target = JavaModel.getTarget(this.sourcePath, true);
+			if (target instanceof IContainer) {
+				computeRootPath((IContainer)target, firstLevelPackageNames, containsADefaultPackage, tempRoots);
 			}
 		}
 		int size = tempRoots.size();
@@ -517,32 +487,6 @@ public class SourceMapper
 		}
 	}
 	
-	private void computeRootPath(File directory, HashSet firstLevelPackageNames, boolean hasDefaultPackage, Set set) {
-		File[] files = directory.listFiles();
-		boolean hasSubDirectories = false;
-		loop: for (int i = 0, max = files.length; i < max; i++) {
-			File file = files[i];
-			if (file.isDirectory()) {
-				hasSubDirectories = true;
-				if (firstLevelPackageNames.contains(file.getName())) {
-					IPath fullPath = new Path(file.getParentFile().getPath());
-					IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
-					set.add(rootPathEntry);
-					break loop;
-				} else {
-					computeRootPath(file, firstLevelPackageNames, hasDefaultPackage, set);
-				}
-			} else if (i == max - 1 && !hasSubDirectories && hasDefaultPackage) {
-				File parentDir = file.getParentFile();
-				if (parentDir.list(FILENAME_FILTER).length != 0) {
-					IPath fullPath = new Path(parentDir.getPath());
-					IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
-					set.add(rootPathEntry);
-				}
-			}
-		}
-	}	
-
 	private void computeRootPath(IContainer container, HashSet firstLevelPackageNames, boolean hasDefaultPackage, Set set) {
 		try {
 			IResource[] resources = container.members();
@@ -958,28 +902,14 @@ public class SourceMapper
 				manager.closeZipFile(zip); // handle null case
 			}
 		} else {
-			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.sourcePath, true);
-			if (target instanceof IResource) {
-				if (target instanceof IContainer) {
-					IResource res = ((IContainer)target).findMember(fullName);
-					if (res instanceof IFile) {
-						try {
-							source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res);
-						} catch (JavaModelException e) {
-							// ignore
-						}
-					}
-				}
-			} else if (target instanceof File) {
-				File file = (File)target;
-				if (file.isDirectory()) {
-					File sourceFile = new File(file, fullName);
-					if (sourceFile.isFile()) {
-						try {
-							source = Util.getFileCharContent(sourceFile, this.encoding);
-						} catch (IOException e) {
-							// ignore
-						}
+			Object target = JavaModel.getTarget(this.sourcePath, true);
+			if (target instanceof IContainer) {
+				IResource res = ((IContainer)target).findMember(fullName);
+				if (res instanceof IFile) {
+					try {
+						source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res);
+					} catch (JavaModelException e) {
+						// ignore
 					}
 				}
 			}

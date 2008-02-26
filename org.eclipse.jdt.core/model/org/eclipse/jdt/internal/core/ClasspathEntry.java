@@ -233,8 +233,8 @@ public class ClasspathEntry implements IClasspathEntry {
 				classpathEntryName = manager.intern(getPath().segment(0));
 			} else {
 				classpathEntryType = AccessRestriction.LIBRARY;
-				Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, false);
-				if (target instanceof java.io.File) {
+				Object target = JavaModel.getWorkspaceTarget(path);
+				if (target == null) {
 					classpathEntryName = manager.intern(path.toOSString());
 				} else {
 					classpathEntryName = manager.intern(path.makeRelative().toString());
@@ -1624,7 +1624,7 @@ public class ClasspathEntry implements IClasspathEntry {
 			case IClasspathEntry.CPE_LIBRARY :
 				if (path.isAbsolute() && !path.isEmpty()) {
 					IPath sourceAttachment = entry.getSourceAttachmentPath();
-					Object target = JavaModel.getTarget(workspaceRoot, path, true);
+					Object target = JavaModel.getTarget(path, true);
 					if (target != null && !JavaCore.IGNORE.equals(project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true))) {
 						long projectTargetJDK = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
 						long libraryJDK = Util.getJdkLevel(target);
@@ -1640,7 +1640,7 @@ public class ClasspathEntry implements IClasspathEntry {
 									if (checkSourceAttachment
 										&& sourceAttachment != null
 										&& !sourceAttachment.isEmpty()
-										&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
+										&& JavaModel.getTarget(sourceAttachment, true) == null){
 										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toString(), projectName}));
 									}
 								} else {
@@ -1651,7 +1651,7 @@ public class ClasspathEntry implements IClasspathEntry {
 								if (checkSourceAttachment
 									&& sourceAttachment != null
 									&& !sourceAttachment.isEmpty()
-									&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
+									&& JavaModel.getTarget(sourceAttachment, true) == null){
 									return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toString(), projectName}));
 								}
 						}
@@ -1664,7 +1664,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					    } else if (checkSourceAttachment
 								&& sourceAttachment != null
 								&& !sourceAttachment.isEmpty()
-								&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
+								&& JavaModel.getTarget(sourceAttachment, true) == null){
 								return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toOSString(), projectName}));
 					    }
 					} else {
@@ -1719,7 +1719,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				}
 				if (path.isAbsolute() && !path.isEmpty()) {
 					IPath projectPath= project.getProject().getFullPath();
-					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(workspaceRoot, path, true) == null){
+					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(path, true) == null){
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceFolder, new String[] {entryPathMsg, projectName}));
 					}
 				} else {

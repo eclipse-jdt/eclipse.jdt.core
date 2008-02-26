@@ -890,6 +890,26 @@ public void testContainerInitializer20() throws CoreException {
 	}
 }
 
+public void testContainerInitializer21() throws CoreException {
+	try {
+		createProject("P1");
+		createExternalFolder("externalLib");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", getExternalFolderPath("externalLib")}));
+		IJavaProject p2 = createJavaProject(
+				"P2", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+		IPackageFragmentRoot root = p2.getPackageFragmentRoot(getExternalFolderPath("externalLib"));
+		assertTrue(getExternalFolderPath("externalLib") + " should exist", root.exists());
+	} finally {
+		stopDeltas();
+		deleteExternalFolder("externalLib");
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
 public void testVariableInitializer01() throws CoreException {
 	try {
 		createProject("P1");

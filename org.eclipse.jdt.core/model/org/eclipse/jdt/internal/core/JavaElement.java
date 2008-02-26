@@ -350,6 +350,10 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public IJavaElement getPrimaryElement(boolean checkOwner) {
 		return this;
 	}
+	public IResource getResource() {
+		return resource();
+	}
+	public abstract IResource resource();
 	/**
 	 * Returns the element that is located at the given source position
 	 * in this element.  This is a helper method for <code>ICompilationUnit#getElementAt</code>,
@@ -410,7 +414,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * @see org.eclipse.jdt.core.IJavaElement#getSchedulingRule()
 	 */
 	public ISchedulingRule getSchedulingRule() {
-		IResource resource = getResource();
+		IResource resource = resource();
 		if (resource == null) {
 			class NoResourceSchedulingRule implements ISchedulingRule {
 				public IPath path;

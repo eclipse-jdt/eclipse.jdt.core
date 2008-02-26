@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
@@ -323,16 +324,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void addLibraryEntry(IJavaProject project, IPath path, boolean exported) throws JavaModelException {
 		addLibraryEntry(project, path, null, null, null, null, exported);
 	} 
-	protected void addLibraryEntry(IJavaProject project, String path, String srcAttachmentPath, String srcAttachmentPathRoot, boolean exported) throws JavaModelException{
+	protected void addLibraryEntry(IJavaProject project, String path, String srcAttachmentPath) throws JavaModelException{
 		addLibraryEntry(
 			project,
 			new Path(path),
 			srcAttachmentPath == null ? null : new Path(srcAttachmentPath),
-			srcAttachmentPathRoot == null ? null : new Path(srcAttachmentPathRoot),
+			null,
 			null,
 			null,
 			new IClasspathAttribute[0],
-			exported
+			false
 		);
 	}
 	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, boolean exported) throws JavaModelException{
@@ -543,7 +544,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		String actual = buffer.toString();
 		if (!expectedMarkers.equals(actual)) {
-		 	System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actual, 2));
+		 	System.out.println(displayString(actual, 2));
 		}
 		assertEquals(message, expectedMarkers, actual);
 	}
@@ -1042,12 +1043,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no project*/, 
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
+				true/*combine access restrictions by default*/,
 				null/*no exported project*/, 
 				output, 
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				"1.4"
+				"1.4",
+				false/*don't import*/
 			);
 	}
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output, String compliance) throws CoreException {
@@ -1185,7 +1188,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			sourceOutputs,
 			inclusionPatterns,
 			exclusionPatterns,
-			compliance);
+			compliance, 
+			false/*don't import*/);
 	}
 	protected IJavaProject createJavaProject(
 			final String projectName,
@@ -1202,7 +1206,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			final String[] sourceOutputs,
 			final String[][] inclusionPatterns,
 			final String[][] exclusionPatterns,
-			final String compliance) throws CoreException {
+			final String compliance, 
+			final boolean simulateImport) throws CoreException {
 		final IJavaProject[] result = new IJavaProject[1];
 		IWorkspaceRunnable create = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -1390,13 +1395,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				if (outputPath.segmentCount() > 0) {
 					IFolder output = project.getFolder(outputPath);
 					if (!output.exists()) {
-						output.create(true, true, null);
+						output.create(true, true, monitor);
 					}
 				}
 				
 				// set classpath and output location
-				IJavaProject javaProject = JavaCore.create(project);
-				javaProject.setRawClasspath(entries, projectPath.append(outputPath), null);
+				JavaProject javaProject = (JavaProject) JavaCore.create(project);
+				if (simulateImport)
+					javaProject.saveClasspath(entries, projectPath.append(outputPath));
+				else
+					javaProject.setRawClasspath(entries, projectPath.append(outputPath), monitor);
 				
 				// set compliance level options
 				if ("1.5".equals(compliance)) {
@@ -1412,6 +1420,27 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		};
 		getWorkspace().run(create, null);	
 		return result[0];
+	}
+	protected IJavaProject importJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output) throws CoreException {
+		return 
+			createJavaProject(
+				projectName, 
+				sourceFolders, 
+				libraries, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				null/*no project*/, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				true/*combine access restrictions by default*/,
+				null/*no exported project*/, 
+				output, 
+				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				"1.4",
+				true/*import*/
+			);
 	}
 	/*
 	 * Create simple project.
@@ -1603,6 +1632,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		return result;
+	}
+	
+	protected File getExternalFile(String relativePath) {
+		return new File(getExternalPath(), relativePath);
+	}
+	
+	protected String getExternalFolderPath(String name) {
+		return getExternalPath() + name + File.separatorChar;
 	}
 
 	/**
@@ -1886,6 +1923,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		toDisplay = 
     		CharOperation.replace(
     			toDisplay, 
+    			getExternalPath().toCharArray(), 
+    			"getExternalPath()".toCharArray());
+		
+		toDisplay = 
+    		CharOperation.replace(
+    			toDisplay, 
     			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString(), 0).toCharArray(), 
     			"getExternalJCLSourcePathString()".toCharArray());
 		toDisplay = 
@@ -1893,7 +1936,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
     			toDisplay, 
     			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString("1.5"), 0).toCharArray(), 
     			"getExternalJCLSourcePathString(\"1.5\")".toCharArray());
+		
     	toDisplay = org.eclipse.jdt.core.tests.util.Util.displayString(new String(toDisplay), indent).toCharArray();
+    	
     	toDisplay = 
     		CharOperation.replace(
     			toDisplay, 
@@ -1914,6 +1959,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
     			toDisplay, 
     			"getExternalJCLSourcePathString(\\\"1.5\\\")".toCharArray(), 
     			("\"+ getExternalJCLSourcePathString(\"1.5\") + \"").toCharArray());
+    	toDisplay = 
+    		CharOperation.replace(
+    			toDisplay, 
+    			"getExternalPath()".toCharArray(), 
+    			("\"+ getExternalPath() + \"").toCharArray());
     	return new String(toDisplay);
     }
 	
@@ -1962,6 +2012,19 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		stream.close();
 		return fileBytes;
 	}
+
+	public void refresh(final IJavaProject javaProject) throws CoreException {
+		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor pm) throws CoreException {
+				// work around for https://bugs.eclipse.org/bugs/show_bug.cgi?id=219566
+				IProject externalFoldersProject = JavaModelManager.getExternalManager().getExternalFoldersProject();
+				externalFoldersProject.refreshLocal(IResource.DEPTH_INFINITE, pm);
+				
+				javaProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, pm);
+			}
+		}, null);
+	}
+
 	protected void removeJavaNature(String projectName) throws CoreException {
 		IProject project = this.getProject(projectName);
 		IProjectDescription description = project.getDescription();
@@ -2552,7 +2615,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		return result;
 	}
-	protected String toString(String[] strings) {
+	protected void touch(File f) {
+		f.setLastModified(f.lastModified() + 10000);
+	}
+protected String toString(String[] strings) {
 		return toString(strings, false/*don't add extra new line*/);
 	}
 	protected String toString(String[] strings, boolean addExtraNewLine) {

@@ -44,9 +44,6 @@ static {
 //		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 }
-private void touch(File f) {
-	f.setLastModified(f.lastModified() + 10000);
-}
 
 /*
  * Ensures that passing an empty scope to refreshExternalArchives(..) doesn't throw a NPE

@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import junit.framework.Test;
@@ -526,6 +527,76 @@ public void testDeclarationsOfSentMessages02() throws CoreException { // was tes
 	assertSearchResults(
 		"", 
 		this.resultCollector);
+}
+/*
+ * Ensures that a method declaration in an external library folder can be found
+ */
+public void testExternalFolder1() throws CoreException {
+	try {
+		createExternalFolder("externalLib");
+		Util.compile(
+			new String[] {
+				"p/X.java", 
+				"package p;\n" +
+				"public class X {\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}"
+			},
+			new HashMap(),
+			getExternalFolderPath("externalLib")
+		);
+		createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")});
+		search("foo", METHOD, DECLARATIONS, scope);
+		assertSearchResults(
+			getExternalPath() + "externalLib void p.X.foo()",
+			this.resultCollector);
+	} finally {
+		deleteProject("P");
+		deleteExternalFolder("externalLib");
+	}
+}
+
+/*
+ * Ensures that search all type names returns the types in an external library folder
+ */
+public void testExternalFolder2() throws CoreException {
+	try {
+		createExternalFolder("externalLib");
+		Util.compile(
+			new String[] {
+				"p/ExternalType.java", 
+				"package p;\n" +
+				"public class ExternalType {\n" +
+				"}"
+			},
+			new HashMap(),
+			getExternalFolderPath("externalLib")
+		);
+		createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			"ExternalType".toCharArray(),
+			SearchPattern.R_EXACT_MATCH,
+			TYPE,
+			SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}),
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"ExternalType (not open) [in ExternalType.class [in p [in "+ getExternalPath() + "externalLib]]]",
+			collector
+		);
+	} finally {
+		deleteProject("P");
+		deleteExternalFolder("externalLib");
+	}
+
 }
 /**
  * Simple field declaration test.

@@ -11,9 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -43,7 +40,7 @@ protected DeleteResourceElementsOperation(IJavaElement[] elementsToProcess, bool
  */
 private void deletePackageFragment(IPackageFragment frag)
 	throws JavaModelException {
-	IResource res = frag.getResource();
+	IResource res = ((JavaElement) frag).resource();
 	if (res != null) {
 		// collect the children to remove
 		IJavaElement[] childrenOfInterest = frag.getChildren();
@@ -51,7 +48,7 @@ private void deletePackageFragment(IPackageFragment frag)
 			IResource[] resources = new IResource[childrenOfInterest.length];
 			// remove the children
 			for (int i = 0; i < childrenOfInterest.length; i++) {
-				resources[i] = childrenOfInterest[i].getCorrespondingResource();
+				resources[i] = ((JavaElement) childrenOfInterest[i]).resource();
 			}
 			deleteResources(resources, force);
 		}
@@ -86,7 +83,7 @@ private void deletePackageFragment(IPackageFragment frag)
 		}
 		if (isEmpty && !frag.isDefaultPackage()/*don't delete default package's folder: see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38450*/) {
 			// delete recursively empty folders
-			IResource fragResource =  frag.getResource();
+			IResource fragResource =  ((JavaElement) frag).resource();
 			if (fragResource != null) {
 				deleteEmptyPackageFragment(frag, false, fragResource.getParent());
 			}
@@ -132,7 +129,7 @@ protected void verify(IJavaElement element) throws JavaModelException {
 		error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
 	else if (type == IJavaElement.PACKAGE_FRAGMENT && element instanceof JarPackageFragment)
 		error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
-	IResource resource = element.getResource();
+	IResource resource = ((JavaElement) element).resource();
 	if (resource instanceof IFolder) {
 		if (resource.isLinked()) {
 			error(IJavaModelStatusConstants.INVALID_RESOURCE, element);

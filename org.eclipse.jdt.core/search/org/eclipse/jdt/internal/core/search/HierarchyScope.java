@@ -72,7 +72,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		IPackageFragmentRoot root = (IPackageFragmentRoot)type.getPackageFragment().getParent();
 		if (root.isArchive()) {
 			IPath jarPath = root.getPath();
-			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), jarPath, true);
+			Object target = JavaModel.getTarget(jarPath, true);
 			String zipFileName;
 			if (target instanceof IFile) {
 				// internal jar
@@ -101,10 +101,9 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		HashMap resources = new HashMap();
 		HashMap paths = new HashMap();
 		this.types = this.hierarchy.getAllTypes();
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		for (int i = 0; i < this.types.length; i++) {
 			IType type = this.types[i];
-			IResource resource = type.getResource();
+			IResource resource = ((JavaElement) type).resource();
 			if (resource != null && resources.get(resource) == null) {
 				resources.put(resource, resource);
 				add(resource);
@@ -115,7 +114,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 				// type in a jar
 				JarPackageFragmentRoot jar = (JarPackageFragmentRoot) root;
 				IPath jarPath = jar.getPath();
-				Object target = JavaModel.getTarget(workspaceRoot, jarPath, true);
+				Object target = JavaModel.getTarget(jarPath, true);
 				String zipFileName;
 				if (target instanceof IFile) {
 					// internal jar

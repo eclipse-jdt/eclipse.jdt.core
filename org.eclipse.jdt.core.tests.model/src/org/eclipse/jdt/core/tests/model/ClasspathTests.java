@@ -142,11 +142,6 @@ protected File createFile(File parent, String name, String content) throws IOExc
 	file.setLastModified(System.currentTimeMillis() + 2000);
 	return file;
 }
-protected File createFolder(File parent, String name) {
-	File file = new File(parent, name);
-	file.mkdirs();
-	return file;
-}
 protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreException {
 	IMarker[] markers = javaProject.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 	int result = 0;
@@ -158,6 +153,103 @@ protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreExceptio
 		}
 	}
 	return result;
+}
+
+/*
+ * Ensures that adding a library entry for an existing external library folder doesn't generate a marker
+ */
+public void testAddExternalLibFolder1() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P");
+		createExternalFolder("externalLib");
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalFolderPath("externalLib")), null, null)});
+		assertMarkers("Unexpected markers", "", p);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that creating a project with a library entry for an existing external library folder doesn't generate a marker
+ */
+public void testAddExternalLibFolder2() throws CoreException {
+	try {
+		createExternalFolder("externalLib");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		assertMarkers("Unexpected markers", "", p);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that adding a library entry for a non-existing external library folder generates a marker
+ */
+public void testAddExternalLibFolder3() throws CoreException {
+	try {
+		waitForAutoBuild();
+		IJavaProject p = createJavaProject("P");
+		IPath path = new Path(getExternalFolderPath("externalLib"));
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(path, null, null)});
+		assertMarkers(
+			"Unexpected markers", 
+			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib\'",
+			p);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that creating a project with a library entry for a non-existing external library folder generates a marker
+ */
+public void testAddExternalLibFolder4() throws CoreException {
+	try {
+		waitForAutoBuild();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		assertMarkers(
+			"Unexpected markers", 
+			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib\'",
+			p);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that creating an external library folder referenced by a library entry and refreshing removes the marker
+ */
+public void testAddExternalLibFolder5() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		waitForAutoBuild();
+		createExternalFolder("externalLib");
+		refresh(p);
+		assertMarkers("Unexpected markers", "", p);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that creating an external library folder referenced by a library entry and refreshing after a restart
+ * removes the marker
+ */
+public void testAddExternalLibFolder6() throws CoreException {
+	try {
+		simulateExitRestart();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		waitForAutoBuild();
+		createExternalFolder("externalLib");
+		refresh(p);
+		assertMarkers("Unexpected markers", "", p);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
 }
 
 /*
@@ -2528,18 +2620,19 @@ public void testInvalidClasspath2() throws CoreException {
 	}
 }
 /*
- * Ensures that an external class folder cannot be put on the classpath.
+ * Ensures that an attempting to put a non-existing external class folder on the classpath
+ * creates the correct marker.
  */
 public void testInvalidExternalClassFolder() throws CoreException {
 	try {
-		String externalPath = getExternalPath();
+		String externalPath = getExternalPath() + "nonExisting";
 		// remove trailing slash
 		if (Path.fromOSString(externalPath).segmentCount() > 0)
 			externalPath = externalPath.substring(0, externalPath.length()-1);
 		IJavaProject proj =  createJavaProject("P", new String[] {}, new String[] {externalPath}, "bin");
 		assertMarkers(
 			"Unexpected markers",
-			"Required library cannot denote external folder: \'" + externalPath + "\' for project 'P'",
+			"Project \'P\' is missing required library: \'" + externalPath + "\'",
 			proj);
 	} finally {
 		deleteProject("P");
@@ -3837,6 +3930,81 @@ public void testReplaceProject() throws CoreException {
 		IClasspathEntry[] classpath = javaProject.getRawClasspath();
 		assertEquals("classpath should have been refreshed", new Path("/P/src2"), classpath[0].getPath());
 	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing a library entry for an existing external library folder doesn't generate a marker
+ */
+public void testRemoveExternalLibFolder1() throws CoreException {
+	try {
+		createExternalFolder("externalLib");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		waitForAutoBuild();
+		setClasspath(p, new IClasspathEntry[] {});
+		assertMarkers("Unexpected markers", "", p);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing a library entry for a non-existing external library folder removes the marker
+ */
+public void testRemoveExternalLibFolder2() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		waitForAutoBuild();
+		setClasspath(p, new IClasspathEntry[] {});
+		assertMarkers(
+			"Unexpected markers", 
+			"",
+			p);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing an external library folder referenced by a library entry creates a marker
+ */
+public void testRemoveExternalLibFolder3() throws CoreException {
+	try {
+		createExternalFolder("externalLib");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		waitForAutoBuild();
+		deleteExternalFolder("externalLib");
+		refresh(p);
+		assertMarkers(
+			"Unexpected markers", 
+			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib\'",
+			p);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing an external library folder referenced by a library entry and refreshing after a restart
+ * creates a marker
+ */
+public void testRemoveExternalLibFolder4() throws CoreException {
+	try {
+		simulateExitRestart();
+		createExternalFolder("externalLib");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		waitForAutoBuild();
+		deleteExternalFolder("externalLib");
+		refresh(p);
+		assertMarkers(
+			"Unexpected markers", 
+			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib\'",
+			p);
+	} finally {
+		deleteExternalFolder("externalLib");
 		deleteProject("P");
 	}
 }

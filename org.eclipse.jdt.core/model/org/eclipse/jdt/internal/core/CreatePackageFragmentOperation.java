@@ -74,7 +74,7 @@ protected void executeOperation() throws JavaModelException {
 		JavaElementDelta delta = null;
 		PackageFragmentRoot root = (PackageFragmentRoot) getParentElement();
 		beginTask(Messages.operation_createPackageFragmentProgress, this.pkgName.length); 
-		IContainer parentFolder = (IContainer) root.getResource();
+		IContainer parentFolder = (IContainer) root.resource();
 		String[] sideEffectPackageName = CharOperation.NO_STRINGS; 
 		ArrayList results = new ArrayList(this.pkgName.length);
 		char[][] inclusionPatterns = root.fullInclusionPatternChars();
@@ -114,7 +114,7 @@ protected void executeOperation() throws JavaModelException {
 protected ISchedulingRule getSchedulingRule() {
 	if (this.pkgName.length == 0)
 		return null; // no resource is going to be created
-	IResource parentResource = getParentElement().getResource();
+	IResource parentResource = ((JavaElement) getParentElement()).resource();
 	IResource resource = ((IContainer) parentResource).getFolder(new Path(this.pkgName[0]));
 	return resource.getWorkspace().getRuleFactory().createRule(resource);
 }
@@ -143,11 +143,11 @@ public IJavaModelStatus verify() {
 	if (this.pkgName == null || (this.pkgName.length > 0 && JavaConventions.validatePackageName(packageName, project.getOption(JavaCore.COMPILER_SOURCE, true), project.getOption(JavaCore.COMPILER_COMPLIANCE, true)).getSeverity() == IStatus.ERROR)) {
 		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, packageName);
 	}
-	IPackageFragmentRoot root = (IPackageFragmentRoot) getParentElement();
+	IJavaElement root = getParentElement();
 	if (root.isReadOnly()) {
 		return new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, root);
 	}
-	IContainer parentFolder = (IContainer) root.getResource();
+	IContainer parentFolder = (IContainer) ((JavaElement) root).resource();
 	int i;
 	for (i = 0; i < this.pkgName.length; i++) {
 		IResource subFolder = parentFolder.findMember(this.pkgName[i]);

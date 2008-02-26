@@ -145,13 +145,6 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	protected JavaModelOperation(IJavaElement element) {
 		this.elementsToProcess = new IJavaElement[]{element};
 	}
-	/**
-	 * A common constructor for all Java Model operations.
-	 */
-	protected JavaModelOperation(IJavaElement element, boolean force) {
-		this.elementsToProcess = new IJavaElement[]{element};
-		this.force= force;
-	}
 	
 	/*
 	 * Registers the given action at the end of the list of actions to run.
@@ -292,7 +285,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		IResource rootResource)
 		throws JavaModelException {
 	
-		IContainer resource = (IContainer) fragment.getResource();
+		IContainer resource = (IContainer) ((JavaElement)fragment).resource();
 	
 		try {
 			resource.delete(
@@ -436,13 +429,6 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		if (buffer instanceof IDocument)
 			return (IDocument) buffer;
 		return new DocumentAdapter(buffer);
-	}
-	/**
-	 * Returns the elements to which this operation applies,
-	 * or <code>null</code> if not applicable.
-	 */
-	protected IJavaElement[] getElementsToProcess() {
-		return elementsToProcess;
 	}
 	/**
 	 * Returns the element to which this operation applies,

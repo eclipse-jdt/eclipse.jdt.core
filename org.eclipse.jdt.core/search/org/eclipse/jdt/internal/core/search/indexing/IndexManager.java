@@ -353,16 +353,12 @@ public void indexLibrary(IPath path, IProject requestingProject) {
 	// requestingProject is no longer used to cancel jobs but leave it here just in case
 	if (JavaCore.getPlugin() == null) return;
 
-	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
+	Object target = JavaModel.getTarget(path, true);
 	IndexRequest request = null;
 	if (target instanceof IFile) {
 		request = new AddJarFileToIndex((IFile) target, this);
 	} else if (target instanceof File) {
-		if (((File) target).isFile()) {
-			request = new AddJarFileToIndex(path, this);
-		} else {
-			return;
-		}
+		request = new AddJarFileToIndex(path, this);
 	} else if (target instanceof IContainer) {
 		request = new IndexBinaryFolder((IContainer) target, this);
 	} else {
@@ -417,9 +413,7 @@ public String processName(){
 	return Messages.process_name; 
 }
 private void rebuildIndex(IPath indexLocation, IPath containerPath) {
-	IWorkspace workspace = ResourcesPlugin.getWorkspace();
-	if (workspace == null) return;
-	Object target = JavaModel.getTarget(workspace.getRoot(), containerPath, true);
+	Object target = JavaModel.getTarget(containerPath, true);
 	if (target == null) return;
 
 	if (VERBOSE)

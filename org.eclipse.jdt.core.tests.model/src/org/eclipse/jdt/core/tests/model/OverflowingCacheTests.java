@@ -229,7 +229,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 			return null;
 		}
 
-		public IResource getResource() {
+		public IResource resource(PackageFragmentRoot root) {
 			return null;
 		}
 

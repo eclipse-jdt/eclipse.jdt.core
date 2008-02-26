@@ -16,7 +16,6 @@ import java.util.Enumeration;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IOpenable;
 
 /**
@@ -64,8 +63,8 @@ protected void addBuffer(IBuffer buffer) {
 	}
 }
 public static IBuffer createBuffer(IOpenable owner) {
-	IJavaElement element = (IJavaElement)owner;
-	IResource resource = element.getResource();
+	JavaElement element = (JavaElement) owner;
+	IResource resource = element.resource();
 	return 
 		new Buffer(
 			resource instanceof IFile ? (IFile)resource : null, 
@@ -73,8 +72,8 @@ public static IBuffer createBuffer(IOpenable owner) {
 			element.isReadOnly());
 }
 public static IBuffer createNullBuffer(IOpenable owner) {
-	IJavaElement element = (IJavaElement)owner;
-	IResource resource = element.getResource();
+	JavaElement element = (JavaElement) owner;
+	IResource resource = element.resource();
 	return 
 		new NullBuffer(
 			resource instanceof IFile ? (IFile)resource : null, 

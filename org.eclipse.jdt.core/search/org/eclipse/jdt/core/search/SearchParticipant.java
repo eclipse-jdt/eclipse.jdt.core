@@ -11,8 +11,6 @@
 package org.eclipse.jdt.core.search;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -196,8 +194,7 @@ public abstract class SearchParticipant {
 	 */
 	public final void scheduleDocumentIndexing(SearchDocument document, IPath indexLocation) {
 		IPath documentPath = new Path(document.getPath());
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		Object file = JavaModel.getTarget(root, documentPath, true);
+		Object file = JavaModel.getTarget(documentPath, true);
 		IPath containerPath = documentPath;
 		if (file instanceof IResource) {
 			containerPath = ((IResource)file).getProject().getFullPath();

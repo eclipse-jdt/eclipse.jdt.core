@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.util.ClassFileReader;
@@ -226,7 +227,7 @@ public class ToolFactory {
 				} else {
 					InputStream in = null;
 					try {
-						in = ((IFile) classfile.getResource()).getContents();
+						in = ((IFile) ((JavaElement) classfile).resource()).getContents();
 						return createDefaultClassFileReader(in, decodingFlag);
 					} finally {
 						if (in != null)

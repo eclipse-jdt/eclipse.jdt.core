@@ -278,7 +278,7 @@ public static ClassFileReader classFileReader(IType type) {
 	IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
 	try {
 		if (!root.isArchive())
-			return Util.newClassFileReader(type.getResource());
+			return Util.newClassFileReader(((JavaElement) type).resource());
 
 		ZipFile zipFile = null;
 		try {
@@ -425,7 +425,7 @@ protected BinaryTypeBinding cacheBinaryType(IType type, IBinaryType binaryType) 
 	if (binaryType == null) {
 		ClassFile classFile = (ClassFile) type.getClassFile();
 		try {
-			binaryType = getBinaryInfo(classFile, classFile.getResource());
+			binaryType = getBinaryInfo(classFile, classFile.resource());
 		} catch (CoreException e) {
 			if (e instanceof JavaModelException) {
 				throw (JavaModelException) e;
@@ -1186,7 +1186,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			JavaProject javaProject = (JavaProject) openable.getJavaProject();
 			resource = workingCopy != null ? workingCopy.getResource() : openable.getResource();
 			if (resource == null)
-				resource = javaProject.getProject(); // case of a file in an external jar
+				resource = javaProject.getProject(); // case of a file in an external jar or external folder
 			if (!javaProject.equals(previousJavaProject)) {
 				// locate matches in previous project
 				if (previousJavaProject != null) {
@@ -1559,7 +1559,7 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 		if (unit.isEmpty()) {
 			if (this.currentPossibleMatch.openable instanceof ClassFile) {
 				ClassFile classFile = (ClassFile) this.currentPossibleMatch.openable;
-				IBinaryType info = getBinaryInfo(classFile, this.currentPossibleMatch.resource);
+				IBinaryType info = getBinaryInfo(classFile, classFile.resource());
 				if (info != null) {
 					boolean mayBeGeneric = this.patternLocator.mayBeGeneric;
 					this.patternLocator.mayBeGeneric = false; // there's no longer generics in class files

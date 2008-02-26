@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.tests.builder;
 import junit.framework.*;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -38,7 +40,7 @@ public static Test suite() {
 }
 
 private String getJdkLevelProblem(String expectedRuntime, String path, int severity) {
-	Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(path).makeAbsolute(), true);
+	Object target = JavaModel.getTarget(new Path(path).makeAbsolute(), true);
 	long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
 	String jclRuntime = CompilerOptions.versionFromJdkLevel(libraryJDK);
 	StringBuffer jdkLevelProblem = new StringBuffer("Problem : Incompatible .class files version in required binaries. Project 'Project' is targeting a ");
@@ -255,6 +257,69 @@ public void testCorruptBuilder2() throws JavaModelException {
 
 	options.put(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, JavaCore.IGNORE);
 	JavaCore.setOptions(options);
+}
+
+/*
+ * Ensures that the changing a type in an external folder and refreshing triggers a rebuild
+ */
+public void testChangeExternalFolder() throws CoreException {
+	String externalLib = Util.getOutputDirectory() + File.separator + "externalLib";
+	try {
+		new File(externalLib).mkdirs();
+		Util.compile(
+			new String[] {
+				"p/X.java", 
+				"package p;\n" +
+				"public class X {\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}"
+			},
+			new HashMap(),
+			externalLib
+		);
+		
+		IPath projectPath = env.addProject("Project"); 
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.addExternalFolders(projectPath, new String[] {externalLib});
+
+		IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, ""); 
+
+		IPath classY = env.addClass(root, "q", "Y",  
+			"package q;\n"+ 
+			"public class Y {\n" +
+			"  void bar(p.X x) {\n" +
+			"    x.foo();\n" +
+			"  }\n" +
+			"}"
+		); 
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		Util.compile(
+			new String[] {
+				"p/X.java", 
+				"package p;\n" +
+				"public class X {\n" +
+				"}"
+			},
+			new HashMap(),
+			externalLib
+		);
+		// work around for https://bugs.eclipse.org/bugs/show_bug.cgi?id=219566
+		IProject externalFoldersProject = JavaModelManager.getExternalManager().getExternalFoldersProject();
+		externalFoldersProject.refreshLocal(IResource.DEPTH_INFINITE, null);
+
+		incrementalBuild(projectPath);
+		expectingProblemsFor(
+			classY,
+			"Problem : The method foo() is undefined for the type X [ resource : </Project/q/Y.java> range : <54,57> category : <50> severity : <2>]"
+		);
+	} finally {
+		new File(externalLib).delete();
+	}
 }
 
 /*
@@ -565,7 +630,7 @@ public void testIncompatibleJdkLEvelOnProject() throws JavaModelException {
 	List expectedProblems = new ArrayList();
 	for (int i = 0; i < max; i++) {
 		String path = project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString();
-		Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(path).makeAbsolute(), true);
+		Object target = JavaModel.getTarget(new Path(path).makeAbsolute(), true);
 		long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
 		if (libraryJDK > projectRuntimeJDKLevel) {
 			expectedProblems.add(getJdkLevelProblem(projectRuntime, path, IMarker.SEVERITY_WARNING));
@@ -580,7 +645,7 @@ public void testIncompatibleJdkLEvelOnProject() throws JavaModelException {
 	expectedProblems = new ArrayList();
 	for (int i = 0; i < max; i++) {
 		String path = project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString();
-		Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(path).makeAbsolute(), true);
+		Object target = JavaModel.getTarget(new Path(path).makeAbsolute(), true);
 		long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
 		if (libraryJDK > projectRuntimeJDKLevel) {
 			expectedProblems.add(getJdkLevelProblem(projectRuntime, path, IMarker.SEVERITY_ERROR));
@@ -625,7 +690,7 @@ public void testIncompatibleJdkLEvelOnWksp() throws JavaModelException {
 		int max = classlibs.length;
 		for (int i = 0; i < max; i++) {
 			String path = project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString();
-			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(path).makeAbsolute(), true);
+			Object target = JavaModel.getTarget(new Path(path).makeAbsolute(), true);
 			long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
 			if (libraryJDK > wkspRuntimeJDKLevel) {
 				expectedProblems.add(getJdkLevelProblem(wkspRuntime, path, IMarker.SEVERITY_WARNING));
@@ -640,7 +705,7 @@ public void testIncompatibleJdkLEvelOnWksp() throws JavaModelException {
 		expectedProblems = new ArrayList();
 		for (int i = 0; i < max; i++) {
 			String path = project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString();
-			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(path).makeAbsolute(), true);
+			Object target = JavaModel.getTarget(new Path(path).makeAbsolute(), true);
 			long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
 			if (libraryJDK > wkspRuntimeJDKLevel) {
 				expectedProblems.add(getJdkLevelProblem(wkspRuntime, path, IMarker.SEVERITY_ERROR));

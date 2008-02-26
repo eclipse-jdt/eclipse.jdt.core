@@ -13,26 +13,12 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.ElementChangedEvent;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IElementChangedListener;
-import org.eclipse.jdt.core.IJavaElementDelta;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.JavaProject;
 
 import junit.framework.Test;
 
@@ -275,6 +261,100 @@ public void testAddDotClasspathFile() throws CoreException {
 		deleteProject("P");
 	}
 }
+
+/*
+ * Ensures that adding a library entry for an existing external library folder triggers the correct delta
+ */
+public void testAddExternalLibFolder1() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P");
+		createExternalFolder("externalLib");
+		refresh(p);
+		startDeltas();
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalFolderPath("externalLib")), null, null)});
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	"+ getExternalPath() + "externalLib[*]: {ADDED TO CLASSPATH}\n" + 
+			"	"+ getExternalJCLPathString() + "[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		stopDeltas();
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that adding a library entry for a non-existing external library folder triggers the correct delta
+ */
+public void testAddExternalLibFolder2() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P");
+		refresh(p);
+		IPath path = new Path(getExternalFolderPath("externalLib"));
+		startDeltas();
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(path, null, null)});
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	"+ getExternalJCLPathString() + "[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that creating an external library folder referenced by a library entry and refreshing triggers the correct delta
+ */
+public void testAddExternalLibFolder3() throws CoreException {
+	try {
+		IJavaProject p =createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		waitForAutoBuild(); // wait for the creation of the linked folder
+		startDeltas();
+		createExternalFolder("externalLib");
+		refresh(p);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib[+]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that creating an external library folder referenced by a library entry and refreshing after a restart triggers the correct delta
+ */
+public void testAddExternalLibFolder4() throws CoreException {
+	try {
+		simulateExitRestart();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		waitForAutoBuild(); // wait for the creation of the linked folder
+		startDeltas();
+		createExternalFolder("externalLib");
+		refresh(p);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib[+]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
 /*
  * Ensure that a resource delta is fired when a file is added to a non-java project.
  * (regression test for bug 18698 Seeing non-java projects in package view)
@@ -695,6 +775,124 @@ public void testChangeExportFlag() throws CoreException {
 		stopDeltas();
 		deleteProject("P1");
 		deleteProject("P2");
+	}
+}
+
+/*
+ * Ensures that changing an external library folder referenced by a library entry and refreshing triggers the correct delta
+ */
+public void testChangeExternalLibFolder1() throws CoreException {
+	try {
+		createExternalFolder("externalLib");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		startDeltas();
+		createExternalFolder("externalLib/p");
+		refresh(p);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib[*]: {CHILDREN}\n" + 
+			"		p[+]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that changing an external library folder referenced by a library entry and refreshing triggers the correct delta
+ */
+public void testChangeExternalLibFolder2() throws CoreException {
+	try {
+		createExternalFolder("externalLib/p");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		startDeltas();
+		createExternalFile("externalLib/p/X.class", "");
+		refresh(p);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib[*]: {CHILDREN}\n" + 
+			"		p[*]: {CHILDREN}\n" + 
+			"			X.class[+]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that changing an external library folder referenced by a library entry and refreshing triggers the correct delta
+ */
+public void testChangeExternalLibFolder3() throws CoreException {
+	try {
+		createExternalFolder("externalLib/p");
+		createExternalFile("externalLib/p/X.class", "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		startDeltas();
+		touch(getExternalFile("externalLib/p/X.class"));
+		refresh(p);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib[*]: {CHILDREN}\n" + 
+			"		p[*]: {CHILDREN}\n" + 
+			"			X.class[*]: {CONTENT}"
+		);
+	} finally {
+		stopDeltas();
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that changing an external library folder referenced by a library entry and refreshing triggers the correct delta
+ */
+public void testChangeExternalLibFolder4() throws CoreException {
+	try {
+		createExternalFolder("externalLib/p");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		startDeltas();
+		createExternalFile("externalLib/p/test.txt", "test");
+		refresh(p);
+		assertDeltas(
+			"Unexpected delta", 
+			""
+		);
+	} finally {
+		stopDeltas();
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that changing an external source folder referenced by a library entry as source attachment and refreshing triggers the correct delta
+ */
+public void testChangeExternalSourceAttachment() throws CoreException {
+	try {
+		createExternalFolder("externalLib");
+		createExternalFolder("externalSrc");
+		IJavaProject project = createJavaProject("P");
+		addLibraryEntry(project, getExternalFolderPath("externalLib"), getExternalFolderPath("externalSrc"));
+		startDeltas();
+		createExternalFile("externalSrc/X.java", "public class X {}");
+		refresh(project);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib[*]: {SOURCE ATTACHED | SOURCE DETACHED}"
+			);
+	} finally {
+		stopDeltas();
+		deleteExternalFolder("externalLib");
+		deleteExternalFolder("externalSrc");
+		deleteProject("P");
 	}
 }
 
@@ -2053,9 +2251,98 @@ public void testRemoveDotClasspathFile() throws CoreException {
 			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[-]\n" +
 			"	ResourceDelta(/P/.classpath2)[+]"
-			);
+		);
 	} finally {
 		stopDeltas();
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing a library entry for an existing external library folder triggers the correct delta
+ */
+public void testRemoveExternalLibFolder1() throws CoreException {
+	try {
+		createExternalFolder("externalLib");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		startDeltas();
+		setClasspath(p, new IClasspathEntry[] {});
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	"+ getExternalPath() + "externalLib[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		stopDeltas();
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing a library entry for a non-existing external library folder triggers the correct delta
+ */
+public void testRemoveExternalLibFolder2() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		startDeltas();
+		setClasspath(p, new IClasspathEntry[] {});
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing an external library folder referenced by a library entry triggers the correct delta
+ */
+public void testRemoveExternalLibFolder3() throws CoreException {
+	try {
+		createExternalFolder("externalLib");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		waitForAutoBuild(); // wait for the creation of the linked folder
+		startDeltas();
+		deleteExternalFolder("externalLib");
+		refresh(p);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib[-]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing an external library folder referenced by a library entry after a restart
+ * triggers the correct delta
+ */
+public void testRemoveExternalLibFolder4() throws CoreException {
+	try {
+		simulateExitRestart();
+		createExternalFolder("externalLib");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		waitForAutoBuild(); // wait for the creation of the linked folder
+		startDeltas();
+		deleteExternalFolder("externalLib");
+		refresh(p);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib[-]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteExternalFolder("externalLib");
 		deleteProject("P");
 	}
 }

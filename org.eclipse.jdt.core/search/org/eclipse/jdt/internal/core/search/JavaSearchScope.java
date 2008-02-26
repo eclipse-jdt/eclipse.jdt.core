@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -36,6 +37,7 @@ import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.PackageFragment;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -146,9 +148,12 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 						if ((includeMask & APPLICATION_LIBRARIES) != 0) {
 							IPath path = entry.getPath();
 							if (pathToAdd == null || pathToAdd.equals(path)) {
+								Object target = JavaModel.getTarget(path, false/*don't check existence*/);
+								if (target instanceof IFolder) // case of an external folder
+									path = ((IFolder) target).getFullPath();
 								String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
 								add(projectPath.toString(), "", pathToString, false/*not a package*/, access); //$NON-NLS-1$
-								addEnclosingProjectOrJar(path);
+								addEnclosingProjectOrJar(entry.getPath());
 							}
 						}
 						break;
@@ -168,9 +173,12 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 						}
 						IPath path = entry.getPath();
 						if (pathToAdd == null || pathToAdd.equals(path)) {
+							Object target = JavaModel.getTarget(path, false/*don't check existence*/);
+							if (target instanceof IFolder) // case of an external folder
+								path = ((IFolder) target).getFullPath();
 							String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
 							add(projectPath.toString(), "", pathToString, false/*not a package*/, access); //$NON-NLS-1$
-							addEnclosingProjectOrJar(path);
+							addEnclosingProjectOrJar(entry.getPath());
 						}
 						break;
 				}
@@ -179,7 +187,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 				if ((includeMask & REFERENCED_PROJECTS) != 0) {
 					IPath path = entry.getPath();
 					if (pathToAdd == null || pathToAdd.equals(path)) {
-						add((JavaProject) model.getJavaProject(entry.getPath().lastSegment()), null, includeMask, visitedProjects, cpEntry);
+						add((JavaProject) model.getJavaProject(path.lastSegment()), null, includeMask, visitedProjects, cpEntry);
 					}
 				}
 				break;
@@ -202,6 +210,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 public void add(IJavaElement element) throws JavaModelException {
 	IPath containerPath = null;
 	String containerPathToString = null;
+	PackageFragmentRoot root = null;
 	int includeMask = SOURCES | APPLICATION_LIBRARIES | SYSTEM_LIBRARIES;
 	switch (element.getElementType()) {
 		case IJavaElement.JAVA_MODEL:
@@ -211,11 +220,11 @@ public void add(IJavaElement element) throws JavaModelException {
 			add((JavaProject)element, null, includeMask, new HashSet(2), null);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-			IPackageFragmentRoot root = (IPackageFragmentRoot)element;
-			IPath rootPath = root.getPath();
+			root = (PackageFragmentRoot)element;
+			IPath rootPath = root.internalPath();
 			containerPath = root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : rootPath;
 			containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
-			IResource rootResource = root.getResource();
+			IResource rootResource = root.resource();
 			String projectPath = root.getJavaProject().getPath().toString();
 			if (rootResource != null && rootResource.isAccessible()) {
 				String relativePath = Util.relativePath(rootResource.getFullPath(), containerPath.segmentCount());
@@ -225,7 +234,7 @@ public void add(IJavaElement element) throws JavaModelException {
 			}
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT:
-			root = (IPackageFragmentRoot)element.getParent();
+			root = (PackageFragmentRoot)element.getParent();
 			projectPath = root.getJavaProject().getPath().toString();
 			if (root.isArchive()) {
 				String relativePath = Util.concatWith(((PackageFragment) element).names, '/');
@@ -233,10 +242,10 @@ public void add(IJavaElement element) throws JavaModelException {
 				containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 				add(projectPath, relativePath, containerPathToString, true/*package*/, null);
 			} else {
-				IResource resource = element.getResource();
+				IResource resource = ((JavaElement) element).resource();
 				if (resource != null) {
 					if (resource.isAccessible()) {
-						containerPath = root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : root.getPath();
+						containerPath = root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : root.internalPath();
 					} else {
 						// for working copies, get resource container full path
 						containerPath = resource.getParent().getFullPath();
@@ -255,22 +264,22 @@ public void add(IJavaElement element) throws JavaModelException {
 				}
 				this.elements.add(element);
 			}
-			root = (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+			root = (PackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 			projectPath = root.getJavaProject().getPath().toString();
 			String relativePath;
 			if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
 				containerPath = root.getParent().getPath();
-				relativePath = Util.relativePath(getPath(element, false/*full path*/), 1/*remove project segmet*/);
+				relativePath = Util.relativePath(getPath(element, false/*full path*/), 1/*remove project segment*/);
 			} else {
-				containerPath = root.getPath();
+				containerPath = root.internalPath();
 				relativePath = getPath(element, true/*relative path*/).toString();
 			}
 			containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 			add(projectPath, relativePath, containerPathToString, false/*not a package*/, null);
 	}
 	
-	if (containerPath != null)
-		addEnclosingProjectOrJar(containerPath);
+	if (root != null)
+		addEnclosingProjectOrJar(root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : root.getPath());
 }
 
 /**
@@ -597,12 +606,12 @@ public IPackageFragmentRoot packageFragmentRoot(String resourcePathString) {
 			if (isJarFile) {
 				return project.getPackageFragmentRoot(this.containerPaths[index]);
 			}
-			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(this.containerPaths[index]+'/'+this.relativePaths[index]), false);
+			Object target = JavaModel.getWorkspaceTarget(new Path(this.containerPaths[index]+'/'+this.relativePaths[index]));
 			if (target instanceof IProject) {
 				return project.getPackageFragmentRoot((IProject) target);
 			}
 			if (target instanceof IResource) {
-				IJavaElement element = JavaCore.create((IResource)target);
+				IJavaElement element = JavaModelManager.create((IResource) target, project);
 				return (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 			}
 		}

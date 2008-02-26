@@ -62,7 +62,7 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 		IClasspathEntry rootEntry)
 		throws JavaModelException {
 		final char[][] exclusionPatterns = ((ClasspathEntry)rootEntry).fullExclusionPatternChars();
-		IResource rootResource = root.getResource();
+		IResource rootResource = ((JavaElement) root).resource();
 		if (rootEntry.getEntryKind() != IClasspathEntry.CPE_SOURCE || exclusionPatterns == null) {
 			try {
 				rootResource.delete(this.updateResourceFlags, progressMonitor);
@@ -147,12 +147,12 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 		if (!status.isOK()) {
 			return status;
 		}
-		IPackageFragmentRoot root = (IPackageFragmentRoot) this.getElementToProcess();
+		IJavaElement root = getElementToProcess();
 		if (root == null || !root.exists()) {
 			return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, root);
 		}
 
-		IResource resource = root.getResource();
+		IResource resource = ((JavaElement) root).resource();
 		if (resource instanceof IFolder) {
 			if (resource.isLinked()) {
 				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE, root);

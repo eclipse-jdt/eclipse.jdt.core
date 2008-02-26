@@ -98,7 +98,7 @@ private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject
 				ZipFile zipFile = manager.getZipFile(path);
 				cpLocations[index++] = new ClasspathJar(zipFile, ((ClasspathEntry) root.getRawClasspathEntry()).getAccessRuleSet());
 			} else {
-				Object target = JavaModel.getTarget(workspaceRoot, path, false);
+				Object target = JavaModel.getTarget(path, true);
 				if (target == null) {
 					// target doesn't exist any longer
 					// just resize cpLocations

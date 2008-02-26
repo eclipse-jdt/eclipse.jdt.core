@@ -697,7 +697,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					if (classFile.getPackageFragmentRoot().isArchive()) {
 						binaryType = this.builder.createInfoFromClassFileInJar(classFile);
 					} else {
-						IResource file = classFile.getResource();
+						IResource file = classFile.resource();
 						binaryType = this.builder.createInfoFromClassFile(classFile, file);
 					}
 				}

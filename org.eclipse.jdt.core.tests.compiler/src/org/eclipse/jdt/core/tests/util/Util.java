@@ -328,15 +328,18 @@ public static void createJar(String[] pathsAndContents, String jarPath, String c
 }
 public static void createSourceZip(String[] pathsAndContents, String zipPath) throws IOException {
     String sourcesPath = getOutputDirectory() + File.separator + "sources";
-    File sourcesDir = new File(sourcesPath);
-    flushDirectoryContent(sourcesDir);
+    createSourceDir(pathsAndContents, sourcesPath);
+    zip(new File(sourcesPath), zipPath);
+}
+
+public static void createSourceDir(String[] pathsAndContents, String sourcesPath) throws IOException {
+	flushDirectoryContent(new File(sourcesPath));
     for (int i = 0, length = pathsAndContents.length; i < length; i+=2) {
         String sourcePath = sourcesPath + File.separator + pathsAndContents[i];
         File sourceFile = new File(sourcePath);
         sourceFile.getParentFile().mkdirs();
         createFile(sourcePath, pathsAndContents[i+1]);
     }
-    zip(sourcesDir, zipPath);
 }
 /**
  * Delete a file or directory and insure that the file is no longer present

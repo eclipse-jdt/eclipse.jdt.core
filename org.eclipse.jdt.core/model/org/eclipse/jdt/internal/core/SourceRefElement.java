@@ -187,8 +187,8 @@ public IPath getPath() {
 /*
  * @see IJavaElement
  */
-public IResource getResource() {
-	return this.getParent().getResource();
+public IResource resource() {
+	return this.parent.resource();
 }
 /**
  * @see ISourceReference

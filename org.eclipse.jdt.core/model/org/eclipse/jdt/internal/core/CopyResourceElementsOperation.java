@@ -108,7 +108,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		for (int i = 0; i < children.length; i++) {
 			IJavaElement child = children[i];
 			if (child.getElementType() == childOfInterest) {
-				correctKindChildren.add(child.getResource());
+				correctKindChildren.add(((JavaElement) child).resource());
 			}
 		}
 		// Gather non-java resources
@@ -140,7 +140,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 */
 	private boolean createNeededPackageFragments(IContainer sourceFolder, PackageFragmentRoot root, String[] newFragName, boolean moveFolder) throws JavaModelException {
 		boolean containsReadOnlyPackageFragment = false;
-		IContainer parentFolder = (IContainer) root.getResource();
+		IContainer parentFolder = (IContainer) root.resource();
 		JavaElementDelta projectDelta = null;
 		String[] sideEffectPackageName = null;
 		char[][] inclusionPatterns = root.fullInclusionPatternChars();
@@ -368,12 +368,12 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	private void processPackageFragmentResource(PackageFragment source, PackageFragmentRoot root, String newName) throws JavaModelException {
 		try {
 			String[] newFragName = (newName == null) ? source.names : Util.getTrimmedSimpleNames(newName);
-			IPackageFragment newFrag = root.getPackageFragment(newFragName);
+			PackageFragment newFrag = root.getPackageFragment(newFragName);
 			IResource[] resources = collectResourcesOfInterest(source);
 			
 			// if isMove() can we move the folder itself ? (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=22458)
-			boolean shouldMoveFolder = isMove() && !newFrag.getResource().exists(); // if new pkg fragment exists, it is an override
-			IFolder srcFolder = (IFolder)source.getResource();
+			boolean shouldMoveFolder = isMove() && !newFrag.resource().exists(); // if new pkg fragment exists, it is an override
+			IFolder srcFolder = (IFolder)source.resource();
 			IPath destPath = newFrag.getPath();
 			if (shouldMoveFolder) {
 				// check if destination is not included in source
@@ -390,7 +390,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 					}
 				}	
 			}
-			boolean containsReadOnlySubPackageFragments = createNeededPackageFragments((IContainer) source.getParent().getResource(), root, newFragName, shouldMoveFolder);
+			boolean containsReadOnlySubPackageFragments = createNeededPackageFragments((IContainer) source.parent.resource(), root, newFragName, shouldMoveFolder);
 			boolean sourceIsReadOnly = Util.isReadOnly(srcFolder);
 	
 			// Process resources
@@ -479,7 +479,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			if (isMove()) {
 				// delete remaining files in this package (.class file in the case where Proj=src=bin)
 				// in case of a copy
-				updateReadOnlyPackageFragmentsForMove((IContainer) source.getParent().getResource(), root, newFragName, sourceIsReadOnly);
+				updateReadOnlyPackageFragmentsForMove((IContainer) source.parent.resource(), root, newFragName, sourceIsReadOnly);
 				if (srcFolder.exists()) {
 					IResource[] remaining = srcFolder.members();
 					for (int i = 0, length = remaining.length; i < length; i++) {
@@ -498,9 +498,9 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 					IResource rootResource;
 					// check if source is included in destination
 					if (destPath.isPrefixOf(srcFolder.getFullPath())) {
-						rootResource = newFrag.getResource();
+						rootResource = newFrag.resource();
 					} else {
-						rootResource =  source.getParent().getResource();
+						rootResource =  source.parent.resource();
 					}
 					
 					// delete recursively empty folders
@@ -508,7 +508,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				}
 			} else if (containsReadOnlySubPackageFragments) {
 				// in case of a copy
-				updateReadOnlyPackageFragmentsForCopy((IContainer) source.getParent().getResource(), root, newFragName);
+				updateReadOnlyPackageFragmentsForCopy((IContainer) source.parent.resource(), root, newFragName);
 			}
 			// workaround for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=24505
 			if (isEmpty && isMove() && !(Util.isExcluded(source) || Util.isExcluded(newFrag))) {
@@ -592,8 +592,8 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		}
 	}
 	
-	private void updateReadOnlyPackageFragmentsForCopy(IContainer sourceFolder, IPackageFragmentRoot root, String[] newFragName) {
-		IContainer parentFolder = (IContainer) root.getResource();
+	private void updateReadOnlyPackageFragmentsForCopy(IContainer sourceFolder, PackageFragmentRoot root, String[] newFragName) {
+		IContainer parentFolder = (IContainer) root.resource();
 		for (int i = 0, length = newFragName.length; i <length; i++) {
 			String subFolderName = newFragName[i];
 			parentFolder = parentFolder.getFolder(new Path(subFolderName));
@@ -604,8 +604,8 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		}
 	}
 
-	private void updateReadOnlyPackageFragmentsForMove(IContainer sourceFolder, IPackageFragmentRoot root, String[] newFragName, boolean sourceFolderIsReadOnly) {
-		IContainer parentFolder = (IContainer) root.getResource();
+	private void updateReadOnlyPackageFragmentsForMove(IContainer sourceFolder, PackageFragmentRoot root, String[] newFragName, boolean sourceFolderIsReadOnly) {
+		IContainer parentFolder = (IContainer) root.resource();
 		for (int i = 0, length = newFragName.length; i < length; i++) {
 			String subFolderName = newFragName[i];
 			parentFolder = parentFolder.getFolder(new Path(subFolderName));
@@ -682,7 +682,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		if (element.isReadOnly() && (isRename() || isMove()))
 			error(IJavaModelStatusConstants.READ_ONLY, element);
 
-		IResource resource = element.getResource();
+		IResource resource = ((JavaElement) element).resource();
 		if (resource instanceof IFolder) {
 			if (resource.isLinked()) {
 				error(IJavaModelStatusConstants.INVALID_RESOURCE, element);

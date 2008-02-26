@@ -55,6 +55,116 @@ public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
 }
 
+/*
+ * Ensures that adding a library entry for an existing empty external library folder updates the model
+ */
+public void testAddExternalLibFolder1() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P");
+		createExternalFolder("externalLib");
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalFolderPath("externalLib")), null, null)});
+		assertElementDescendants(
+			"Unexpected project content", 
+			"P\n" + 
+			"  "+ getExternalPath() + "externalLib\n" + 
+			"    <default> (...)",
+			p
+		);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that adding a library entry for an non-existing external library folder updates the model
+ */
+public void testAddExternalLibFolder2() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P");
+		IPath path = new Path(getExternalFolderPath("externalLib"));
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(path, null, null)});
+		assertElementDescendants(
+			"Unexpected project content", 
+			"P",
+			p
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that adding a library entry for an existing non-empty external library folder updates the model
+ */
+public void testAddExternalLibFolder3() throws CoreException, IOException {
+	try {
+		IJavaProject p = createJavaProject("P");
+		createExternalFolder("externalLib/p");
+		createExternalFile("externalLib/p/X.class", "");
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalFolderPath("externalLib")), null, null)});
+		assertElementDescendants(
+			"Unexpected project content", 
+			"P\n" + 
+			"  "+ getExternalPath() + "externalLib\n" + 
+			"    <default> (...)\n" + 
+			"    p (...)\n" + 
+			"      X.class",
+			p
+		);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that creating an external library folder referenced by a library entry and refreshing updates the model
+ */
+public void testAddExternalLibFolder4() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		expandAll(p);
+		createExternalFolder("externalLib");
+		refresh(p);
+		assertElementDescendants(
+			"Unexpected project content", 
+			"P\n" + 
+			"  "+ getExternalPath() + "externalLib\n" + 
+			"    <default> (...)",
+			p
+		);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that importing a Java project with a library entry for an existing empty external library folder after restart
+ * updates the model
+ */
+public void testAddExternalLibFolder5() throws CoreException {
+	try {
+		simulateExitRestart();
+		createExternalFolder("externalLib/p");
+		createExternalFile("externalLib/p/X.class", "");
+		IJavaProject p = importJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		waitForAutoBuild();
+		assertElementDescendants(
+			"Unexpected project content", 
+			"P\n" + 
+			"  "+ getExternalPath() + "externalLib\n" + 
+			"    <default> (...)\n" + 
+			"    p (...)\n" + 
+			"      X.class",
+			p
+		);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
 
 /**
  * Test adding a non-java resource in a package fragment root that correspond to
@@ -140,6 +250,59 @@ public void testBinaryTypeCorrespondingResource() throws CoreException {
 	IResource corr= type.getCorrespondingResource();
 	assertTrue("incorrect corresponding resource", corr == null);
 }
+
+/*
+ * Ensures that changing the content of an external library folder and refreshing updates the model
+ */
+public void testChangeExternalLibFolder1() throws CoreException, IOException {
+	try {
+		createExternalFolder("externalLib");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "bin");
+		expandAll(p);
+		
+		createExternalFolder("externalLib/p");
+		createExternalFile("externalLib/p/X.class", "");
+		refresh(p);
+		assertElementDescendants(
+			"Unexpected project content", 
+			"P\n" + 
+			"  "+ getExternalPath() + "externalLib\n" + 
+			"    <default> (...)\n" + 
+			"    p (...)\n" + 
+			"      X.class",
+			p
+		);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that changing the content of an external library folder and refreshing updates the model
+ */
+public void testChangeExternalLibFolder2() throws CoreException, IOException {
+	try {
+		createExternalFolder("externalLib/p");
+		createExternalFile("externalLib/p/X.class", "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "bin");
+		expandAll(p);
+		
+		deleteExternalFolder("externalLib/p");
+		refresh(p);
+		assertElementDescendants(
+			"Unexpected project content", 
+			"P\n" + 
+			"  "+ getExternalPath() + "externalLib\n" + 
+			"    <default> (...)",
+			p
+		);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
 /**
  * When the output location is changed, package fragments can be added/removed
  */
@@ -856,6 +1019,26 @@ public void testPackageFragmentNonJavaResources11() throws CoreException {
 }
 
 /*
+ * Ensure that the non-Java resources of a package in an external library folder are correct.
+ */
+public void testPackageFragmentNonJavaResources12() throws CoreException {
+	try {
+		createExternalFolder("externalLib/p/META-INF");
+		createExternalFile("externalLib/p/test.txt", "test");
+		createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IPackageFragment pkg = getPackageFragmentRoot("P", getExternalFolderPath("externalLib")).getPackageFragment("p");
+		Object[] resources = pkg.getNonJavaResources();
+		assertResourceTreeEquals(
+			"unexpected non java resources", 
+			"",
+			resources);
+	} finally {
+		deleteProject("P");
+		deleteExternalFolder("externalLib");
+	}
+}
+
+/*
  * Ensures that the package-info.class file doesn't appear as a child of a package if proj=src
  * (regression test for bug 99654 [5.0] JavaModel returns both IClassFile and ICompilationUnit for package-info.java)
  */
@@ -996,6 +1179,25 @@ public void testPackageFragmentRootNonJavaResources7() throws CoreException {
 		"unexpected package fragment root", 
 		"lib.jar [in JavaProjectTests]",
 		parentRoot);
+}
+/*
+ * Ensures that the non-Java resources of an external library package fragment root are correct
+ */
+public void testPackageFragmentRootNonJavaResources8() throws CoreException {
+	try {
+		createExternalFolder("externalLib/META-INF");
+		createExternalFile("externalLib/test.txt", "test");
+		createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IPackageFragmentRoot root = getPackageFragmentRoot("P", getExternalFolderPath("externalLib"));
+		Object[] resources = root.getNonJavaResources();
+		assertResourceTreeEquals(
+			"unexpected non java resources", 
+			"",
+			resources);
+	} finally {
+		deleteProject("P");
+		deleteExternalFolder("externalLib");
+	}
 }
 /**
  * Test raw entry inference performance for package fragment root
@@ -1392,6 +1594,66 @@ public void testProjectImport3() throws CoreException {
 	} finally {
 		JavaCore.removePreProcessingResourceChangedListener(resourceChangeListener);
 		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+
+/*
+ * Ensures that removing a library entry for an existing external library folder updates the model
+ */
+public void testRemoveExternalLibFolder1() throws CoreException {
+	try {
+		createExternalFolder("externalLib");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		expandAll(p);
+		setClasspath(p, new IClasspathEntry[] {});
+		assertElementDescendants(
+			"Unexpected project content", 
+			"P",
+			p
+		);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing a library entry for a non-existing external library folder updates the model
+ */
+public void testRemoveExternalLibFolder2() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		expandAll(p);
+		setClasspath(p, new IClasspathEntry[] {});
+		assertElementDescendants(
+			"Unexpected project content", 
+			"P",
+			p
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+
+/*
+ * Ensures that removing an external library folder referenced by a library entry and refreshing updates the model
+ */
+public void testRemoveExternalLibFolder3() throws CoreException {
+	try {
+		createExternalFolder("externalLib");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		expandAll(p);
+		deleteExternalFolder("externalLib");
+		refresh(p);
+		assertElementDescendants(
+			"Unexpected project content", 
+			"P",
+			p
+		);
+	} finally {
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
 	}
 }
 

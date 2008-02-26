@@ -696,6 +696,39 @@ public void testEmptyWorkingCopyPotentialSubtype() throws JavaModelException {
     }
 }
 /*
+ * Ensures that subtypes are found in an external library folder
+ */
+public void testExternalFolder() throws CoreException, IOException {
+	try {
+		createExternalFolder("externalLib");
+		Util.compile(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"}",
+				"p/Y.java",
+				"package p;\n" +
+				"public class Y extends X {\n" +
+				"}",
+			},
+			new HashMap(),
+			getExternalFolderPath("externalLib"));
+		createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IClassFile classFile = getClassFile("P", getExternalFolderPath("externalLib"), "p", "X.class");
+		ITypeHierarchy hierarchy = classFile.getType().newTypeHierarchy(null);
+		assertHierarchyEquals(
+			"Focus: X [in X.class [in p [in "+ getExternalPath() + "externalLib]]]\n" + 
+			"Super types:\n" + 
+			"Sub types:\n" + 
+			"  Y [in Y.class [in p [in "+ getExternalPath() + "externalLib]]]\n",
+			hierarchy);
+	} finally {
+		deleteProject("P");
+		deleteExternalFolder("externalLib");
+	}
+}
+/*
  * Ensures that a call to IJavaProject.findType("java.lang.Object") doesn't cause the hierarchy
  * computation to throw a StackOverFlow
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=209222)
