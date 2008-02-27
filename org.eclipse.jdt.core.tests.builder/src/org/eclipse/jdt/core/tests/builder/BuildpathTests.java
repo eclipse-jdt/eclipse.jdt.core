@@ -298,6 +298,12 @@ public void testChangeExternalFolder() throws CoreException {
 		fullBuild(projectPath);
 		expectingNoProblems();
 
+		String externalClassFile = externalLib + File.separator + "p" + File.separator + "X.class";
+		long lastModified = new java.io.File(externalClassFile).lastModified();
+		try {
+			Thread.sleep(1000);
+		} catch(InterruptedException e) {
+		}
 		Util.compile(
 			new String[] {
 				"p/X.java", 
@@ -308,6 +314,8 @@ public void testChangeExternalFolder() throws CoreException {
 			new HashMap(),
 			externalLib
 		);
+		new java.io.File(externalClassFile).setLastModified(lastModified + 1000); // to be sure its different
+		
 		// work around for https://bugs.eclipse.org/bugs/show_bug.cgi?id=219566
 		IProject externalFoldersProject = JavaModelManager.getExternalManager().getExternalFoldersProject();
 		externalFoldersProject.refreshLocal(IResource.DEPTH_INFINITE, null);
