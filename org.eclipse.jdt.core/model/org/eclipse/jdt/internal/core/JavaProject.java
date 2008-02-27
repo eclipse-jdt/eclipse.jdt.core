@@ -279,9 +279,13 @@ public class JavaProject
 			}
 		}
 		
-		// keep device only if it was specified (this is because File.getCanonicalPath() converts '/lib/classed.zip' to 'd:/lib/classes/zip')
+		// keep device only if it was specified (this is because File.getCanonicalPath() converts '/lib/classes.zip' to 'd:/lib/classes/zip')
 		if (externalPath.getDevice() == null) {
 			result = result.setDevice(null);
+		} 
+		// keep trailing separator only if it was specified (this is because File.getCanonicalPath() converts 'd:/lib/classes/' to 'd:/lib/classes')
+		if (externalPath.hasTrailingSeparator()) {
+			result = result.addTrailingSeparator();
 		} 
 //		if (JavaModelManager.VERBOSE) {
 //			System.out.println("JAVA MODEL - Canonical path is " + result.toString());

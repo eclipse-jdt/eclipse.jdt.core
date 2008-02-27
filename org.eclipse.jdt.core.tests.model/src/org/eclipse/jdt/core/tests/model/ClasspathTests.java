@@ -696,11 +696,11 @@ public void testClasspathDeleteNestedRootParent() throws CoreException {
 		this.deleteProject("P");
 	}
 }
-/**
- * Test that a classpath entry for an external jar is externalized
+/*
+ * Ensure that a classpath entry for an external jar is externalized
  * properly.
  */
-public void testClasspathExternalize() throws CoreException {
+public void testExternalize1() throws CoreException { // was testClasspathExternalize
 	try {
 		IJavaProject project= this.createJavaProject("P", new String[] {}, new String[] {getExternalJCLPathString()}, "");
 		IClasspathEntry[] classpath= project.getRawClasspath();
@@ -724,6 +724,15 @@ public void testClasspathExternalize() throws CoreException {
 	} finally {
 		this.deleteProject("P");
 	}
+}
+/*
+ * Ensures that a classpath entry for an external library is externalized properly.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=220542 )
+ */
+public void testExternalize2() throws CoreException {
+	String externalLibPath = getExternalFolderPath("externalLib") + File.separator;
+	IClasspathEntry entry = JavaCore.newLibraryEntry(new Path(externalLibPath), null, null);
+	assertEquals("Unexpected external path", externalLibPath, entry.getPath().toOSString());
 }
 /**
  * Move a root and ensure the classpath is not updated (i.e. entry not renamed).
