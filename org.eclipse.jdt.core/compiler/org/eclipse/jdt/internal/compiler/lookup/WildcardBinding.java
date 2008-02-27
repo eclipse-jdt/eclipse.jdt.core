@@ -44,6 +44,11 @@ public class WildcardBinding extends ReferenceBinding {
 		this.environment = environment;
 		initialize(genericType, bound, otherBounds);
 
+//		if (!genericType.isGenericType() && !(genericType instanceof UnresolvedReferenceBinding)) {
+//			RuntimeException e = new RuntimeException("WILDCARD with NON GENERIC");
+//			e.printStackTrace();
+//			throw e;
+//		}
 		if (genericType instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) genericType).addWrapper(this, environment);
 		if (bound instanceof UnresolvedReferenceBinding)
