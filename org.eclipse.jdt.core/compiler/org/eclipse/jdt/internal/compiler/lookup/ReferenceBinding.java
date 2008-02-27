@@ -173,13 +173,17 @@ public FieldBinding[] availableFields() {
 public MethodBinding[] availableMethods() {
 	return methods();
 }
-/* Answer true if the receiver can be instantiated
-*/
+
+/**
+ * Answer true if the receiver can be instantiated
+ */
 public boolean canBeInstantiated() {
 	return (this.modifiers & (ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation)) == 0;
 }
-/* Answer true if the receiver is visible to the invocationPackage.
-*/
+
+/**
+ * Answer true if the receiver is visible to the invocationPackage.
+ */
 public final boolean canBeSeenBy(PackageBinding invocationPackage) {
 	if (isPublic()) return true;
 	if (isPrivate()) return false;
@@ -187,9 +191,10 @@ public final boolean canBeSeenBy(PackageBinding invocationPackage) {
 	// isProtected() or isDefault()
 	return invocationPackage == this.fPackage;
 }
-/* Answer true if the receiver is visible to the receiverType and the invocationType.
-*/
 
+/**
+ * Answer true if the receiver is visible to the receiverType and the invocationType.
+ */
 public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding invocationType) {
 	if (isPublic()) return true;
 
@@ -264,7 +269,8 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 	} while ((currentType = currentType.superclass()) != null);
 	return false;
 }
-/*
+
+/**
  * Answer true if the receiver is visible to the type provided by the scope.
  */
 public final boolean canBeSeenBy(Scope scope) {
@@ -349,6 +355,7 @@ public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
 	sig.getChars(0, sigLength, result, 0);
 	return result;
 }
+
 public void computeId() {
 
 	switch (this.compoundName.length) {
@@ -521,24 +528,29 @@ public void computeId() {
 			break;
 	}
 }
-/*
+
+/**
  * p.X<T extends Y & I, U extends Y> {} -> Lp/X<TT;TU;>;
  */
 public char[] computeUniqueKey(boolean isLeaf) {
 	if (!isLeaf) return signature();
 	return genericTypeSignature();
 }
-/* Answer the receiver's constant pool name.
-*
-* NOTE: This method should only be used during/after code gen.
-*/
+
+/**
+ * Answer the receiver's constant pool name.
+ *
+ * NOTE: This method should only be used during/after code gen.
+ */
 public char[] constantPoolName() /* java/lang/Object */ {
 	if (this.constantPoolName != null) return this.constantPoolName;
 	return this.constantPoolName = CharOperation.concatWith(this.compoundName, '/');
 }
+
 public String debugName() {
 	return (this.compoundName != null) ? new String(readableName()) : "UNNAMED TYPE"; //$NON-NLS-1$
 }
+
 public final int depth() {
 	int depth = 0;
 	ReferenceBinding current = this;
@@ -546,6 +558,7 @@ public final int depth() {
 		depth++;
 	return depth;
 }
+
 public boolean detectAnnotationCycle() {
 	if ((this.tagBits & TagBits.EndAnnotationCheck) != 0) return false; // already checked
 	if ((this.tagBits & TagBits.BeginAnnotationCheck) != 0) return true; // in the middle of checking its methods
@@ -601,24 +614,29 @@ public FieldBinding[] fields() {
 public final int getAccessFlags() {
 	return this.modifiers & ExtraCompilerModifiers.AccJustFlag;
 }
+
 /**
  * @return the JSR 175 annotations for this type.
  */
 public AnnotationBinding[] getAnnotations() {
 	return retrieveAnnotations(this);
 }
+
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#getAnnotationTagBits()
  */
 public long getAnnotationTagBits() {
 	return this.tagBits;
 }
+
 public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	return null;
 }
+
 public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes, CompilationUnitScope refScope) {
 	return null;
 }
+
 public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	return null;
 }
@@ -718,9 +736,11 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 	}
 	return false;
 }
+
 public boolean hasMemberTypes() {
     return false;
 }
+
 public final boolean hasRestrictedAccess() {
 	return (this.modifiers & ExtraCompilerModifiers.AccRestrictedAccess) != 0;
 }
@@ -959,6 +979,7 @@ public final boolean isPublic() {
 public final boolean isStatic() {
 	return (this.modifiers & (ClassFileConstants.AccStatic | ClassFileConstants.AccInterface)) != 0 || (this.tagBits & TagBits.IsNestedType) == 0;
 }
+
 /**
  * Answer true if all float operations must adher to IEEE 754 float/double rules
  */
@@ -976,6 +997,7 @@ public boolean isSuperclassOf(ReferenceBinding otherType) {
 	}
 	return false;
 }
+
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isThrowable()
  */
@@ -992,6 +1014,7 @@ public boolean isThrowable() {
 	} while ((current = current.superclass()) != null);
 	return false;
 }
+
 /**
  * JLS 11.5 ensures that Throwable, Exception, RuntimeException and Error are directly connected.
  * (Throwable<- Exception <- RumtimeException, Throwable <- Error). Thus no need to check #isCompatibleWith
@@ -1022,6 +1045,7 @@ public boolean isUncheckedException(boolean includeSupertype) {
 	}
 	return false;
 }
+
 /**
  * Answer true if the receiver has private visibility and is used locally
  */
@@ -1029,18 +1053,22 @@ public final boolean isUsed() {
 	return (this.modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0;
 }
 
-/* Answer true if the receiver is deprecated (or any of its enclosing types)
-*/
+/**
+ * Answer true if the receiver is deprecated (or any of its enclosing types)
+ */
 public final boolean isViewedAsDeprecated() {
 	return (this.modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0
 			|| (this.getPackage().tagBits & TagBits.AnnotationDeprecated) != 0;
 }
+
 public ReferenceBinding[] memberTypes() {
 	return Binding.NO_MEMBER_TYPES;
 }
+
 public MethodBinding[] methods() {
 	return Binding.NO_METHODS;
 }
+
 public final ReferenceBinding outermostEnclosingType() {
 	ReferenceBinding current = this;
 	while (true) {
@@ -1049,23 +1077,23 @@ public final ReferenceBinding outermostEnclosingType() {
 			return last;
 	}
 }
-/**
-* Answer the source name for the type.
-* In the case of member types, as the qualified name from its top level type.
-* For example, for a member type N defined inside M & A: "A.M.N".
-*/
 
+/**
+ * Answer the source name for the type.
+ * In the case of member types, as the qualified name from its top level type.
+ * For example, for a member type N defined inside M & A: "A.M.N".
+ */
 public char[] qualifiedSourceName() {
 	if (isMemberType())
 		return CharOperation.concat(enclosingType().qualifiedSourceName(), sourceName(), '.');
 	return sourceName();
 }
 
-/* Answer the receiver's signature.
-*
-* NOTE: This method should only be used during/after code gen.
-*/
-
+/**
+ * Answer the receiver's signature.
+ *
+ * NOTE: This method should only be used during/after code gen.
+ */
 public char[] readableName() /*java.lang.Object,  p.X<T> */ {
     char[] readableName;
 	if (isMemberType()) {
@@ -1093,13 +1121,16 @@ public AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceI
 	SimpleLookupTable store = storedAnnotations(false);
 	return store == null ? null : (AnnotationHolder) store.get(binding);
 }
+
 AnnotationBinding[] retrieveAnnotations(Binding binding) {
 	AnnotationHolder holder = retrieveAnnotationHolder(binding, true);
 	return holder == null ? Binding.NO_ANNOTATIONS : holder.getAnnotations();
 }
+
 public void setAnnotations(AnnotationBinding[] annotations) {
 	storeAnnotations(this, annotations);
 }
+
 public char[] shortReadableName() /*Object*/ {
 	char[] shortReadableName;
 	if (isMemberType()) {
@@ -1122,15 +1153,18 @@ public char[] shortReadableName() /*Object*/ {
 	}
 	return shortReadableName;
 }
+
 public char[] signature() /* Ljava/lang/Object; */ {
 	if (this.signature != null)
 		return this.signature;
 
 	return this.signature = CharOperation.concat('L', constantPoolName(), ';');
 }
+
 public char[] sourceName() {
 	return this.sourceName;
 }
+
 void storeAnnotationHolder(Binding binding, AnnotationHolder holder) {
 	if (holder == null) {
 		SimpleLookupTable store = storedAnnotations(false);
@@ -1142,6 +1176,7 @@ void storeAnnotationHolder(Binding binding, AnnotationHolder holder) {
 			store.put(binding, holder);
 	}
 }
+
 void storeAnnotations(Binding binding, AnnotationBinding[] annotations) {
 	AnnotationHolder holder = null;
 	if (annotations == null || annotations.length == 0) {
@@ -1158,15 +1193,19 @@ void storeAnnotations(Binding binding, AnnotationBinding[] annotations) {
 	}
 	storeAnnotationHolder(binding, holder.setAnnotations(annotations));
 }
+
 SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 	return null; // overrride if interested in storing annotations for the receiver, its fields and methods
 }
+
 public ReferenceBinding superclass() {
 	return null;
 }
+
 public ReferenceBinding[] superInterfaces() {
 	return Binding.NO_SUPERINTERFACES;
 }
+
 public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
 	if (isStatic()) return null;
 
@@ -1175,6 +1214,7 @@ public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
 		return null;
 	return new ReferenceBinding[] {enclosingType};
 }
+
 public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 	return null;		// is null if no enclosing instances are required
 }
