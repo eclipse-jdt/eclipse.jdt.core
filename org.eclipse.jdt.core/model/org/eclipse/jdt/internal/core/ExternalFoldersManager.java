@@ -33,25 +33,6 @@ public class ExternalFoldersManager {
 	private HashMap folders;
 	private int counter = 0;
 	
-	{
-		this.folders = new HashMap();
-		IProject project = getExternalFoldersProject();
-		if (project.isAccessible()) {
-			try {
-				IResource[] members = project.members();
-				for (int i = 0, length = members.length; i < length; i++) {
-					IResource member = members[i];
-					if (member.getType() == IResource.FOLDER && member.isLinked() && member.getName().startsWith(LINKED_FOLDER_NAME)) {
-						IPath externalFolderPath = member.getLocation();
-						this.folders.put(externalFolderPath, member);
-					}
-				}
-			} catch (CoreException e) {
-				Util.log(e, "Exception while initializing external folders"); //$NON-NLS-1$
-			}
-		}
-	}
-	
 	public static boolean isExternal(IPath resourcePath) {
 		return EXTERNAL_PROJECT_NAME.equals(resourcePath.segment(0));
 	}
@@ -61,7 +42,8 @@ public class ExternalFoldersManager {
 	}
 
 	private synchronized IFolder addFolder(IPath externalFolderPath, IProject externalFoldersProject) {
-		Object existing = this.folders.get(externalFolderPath);
+		HashMap knownFolders = getFolders();
+		Object existing = knownFolders.get(externalFolderPath);
 		if (existing != null) {
 			return (IFolder) existing;
 		}
@@ -69,7 +51,7 @@ public class ExternalFoldersManager {
 		do {
 			result = externalFoldersProject.getFolder(LINKED_FOLDER_NAME + this.counter++);
 		} while (result.exists());
-		this.folders.put(externalFolderPath, result);
+		knownFolders.put(externalFolderPath, result);
 		return result;
 	}
 	
@@ -89,12 +71,13 @@ public class ExternalFoldersManager {
 		HashMap sourceAttachments = state.sourceAttachments;
 		if (roots == null && sourceAttachments == null)
 			return;
-		Iterator iterator = this.folders.keySet().iterator();
+		HashMap knownFolders = getFolders();
+		Iterator iterator = knownFolders.keySet().iterator();
 		while (iterator.hasNext()) {
 			IPath path = (IPath) iterator.next();
 			if ((roots != null && !roots.containsKey(path))
 					&& (sourceAttachments != null && !sourceAttachments.containsKey(path))) {
-				IFolder folder = (IFolder) this.folders.get(path);
+				IFolder folder = (IFolder) knownFolders.get(path);
 				if (folder != null)
 					folder.delete(true, monitor);
 			}
@@ -155,11 +138,33 @@ public class ExternalFoldersManager {
 	}
 	
 	public synchronized IFolder getFolder(IPath externalFolderPath) {
-		return (IFolder) this.folders.get(externalFolderPath);
+		return (IFolder) getFolders().get(externalFolderPath);
+	}
+	
+	private HashMap getFolders() {
+		if (this.folders == null) {
+			this.folders = new HashMap();
+			IProject project = getExternalFoldersProject();
+			if (project.isAccessible()) {
+				try {
+					IResource[] members = project.members();
+					for (int i = 0, length = members.length; i < length; i++) {
+						IResource member = members[i];
+						if (member.getType() == IResource.FOLDER && member.isLinked() && member.getName().startsWith(LINKED_FOLDER_NAME)) {
+							IPath externalFolderPath = member.getLocation();
+							this.folders.put(externalFolderPath, member);
+						}
+					}
+				} catch (CoreException e) {
+					Util.log(e, "Exception while initializing external folders"); //$NON-NLS-1$
+				}
+			}
+		}
+		return this.folders;
 	}
 	
 	public synchronized IFolder removeFolder(IPath externalFolderPath) {
-		return (IFolder) this.folders.remove(externalFolderPath);
+		return (IFolder) getFolders().remove(externalFolderPath);
 	}
 
 }
