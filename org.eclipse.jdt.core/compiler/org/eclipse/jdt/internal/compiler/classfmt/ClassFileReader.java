@@ -899,6 +899,24 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 		}
 		
 		// missing types
+		char[][][] missingTypes = getMissingTypeNames();
+		char[][][] newMissingTypes = newClassFile.getMissingTypeNames();
+		if (missingTypes != null) {
+			if (newMissingTypes == null) {
+				return true;
+			}
+			int length = missingTypes.length;
+			if (length != newMissingTypes.length) {
+				return true;
+			}
+			for (int i = 0; i < length; i++) {
+				if (!CharOperation.equals(missingTypes[i], newMissingTypes[i])) {
+					return true;
+				}
+			}
+		} else if (newMissingTypes != null) {
+			return true;
+		}
 		return false;
 	} catch (ClassFormatException e) {
 		return true;
