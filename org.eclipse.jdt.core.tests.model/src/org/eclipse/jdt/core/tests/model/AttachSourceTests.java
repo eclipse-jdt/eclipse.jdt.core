@@ -91,8 +91,8 @@ private void setupExternalLibrary() throws IOException {
 			"public class X {\n" +
 			"}"
 		};
-	org.eclipse.jdt.core.tests.util.Util.createClassFolder(pathsAndContents, externalFolder + "lib", "1.4");
-	org.eclipse.jdt.core.tests.util.Util.createSourceDir(pathsAndContents, externalFolder + "src");
+	org.eclipse.jdt.core.tests.util.Util.createClassFolder(pathsAndContents, externalFolder + "/lib", "1.4");
+	org.eclipse.jdt.core.tests.util.Util.createSourceDir(pathsAndContents, externalFolder + "/src");
 }
 private void setUpGenericJar() throws IOException, CoreException {
 	String[] pathAndContents = new String[] {
@@ -349,10 +349,10 @@ public void testExternalFolder1() throws CoreException {
 	try {
 		IProject p = createProject("P1");
 		IFolder lib = p.getFolder("lib");
-		lib.createLink(new Path(getExternalFolder() + "lib"), IResource.NONE, null);
+		lib.createLink(new Path(getExternalFolder() + "/lib"), IResource.NONE, null);
 		IJavaProject javaProject = createJavaProject("P2", new String[0], new String[] {"/P1/lib"}, "");
 		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(lib);
-		attachSource(root, getExternalFolder() + "src", "");
+		attachSource(root, getExternalFolder() + "/src", "");
 		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
 		assertSourceEquals(
 			"Unexpected source",
@@ -371,8 +371,8 @@ public void testExternalFolder2() throws CoreException {
 	try {
 		IProject p = createProject("P1");
 		IFolder src = p.getFolder("src");
-		src.createLink(new Path(getExternalFolder() + "src"), IResource.NONE, null);
-		String externalLib = getExternalFolder() + "lib";
+		src.createLink(new Path(getExternalFolder() + "/src"), IResource.NONE, null);
+		String externalLib = getExternalFolder() + "/lib";
 		IJavaProject javaProject = createJavaProject("P2", new String[0], new String[] {externalLib}, "");
 		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(externalLib);
 		attachSource(root, "/P1/src", "");
@@ -392,10 +392,10 @@ public void testExternalFolder2() throws CoreException {
  */
 public void testExternalFolder3() throws CoreException {
 	try {
-		String externalLib = getExternalFolder() + "lib";
+		String externalLib = getExternalFolder() + "/lib";
 		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {externalLib}, "");
 		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(externalLib);
-		attachSource(root, getExternalFolder() + "src", "");
+		attachSource(root, getExternalFolder() + "/src", "");
 		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
 		assertSourceEquals(
 			"Unexpected source",

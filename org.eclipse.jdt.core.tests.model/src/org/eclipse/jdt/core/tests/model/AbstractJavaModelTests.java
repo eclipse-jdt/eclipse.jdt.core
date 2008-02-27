@@ -1639,7 +1639,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	
 	protected String getExternalFolderPath(String name) {
-		return getExternalPath() + name + File.separatorChar;
+		return getExternalPath() + name;
 	}
 
 	/**
