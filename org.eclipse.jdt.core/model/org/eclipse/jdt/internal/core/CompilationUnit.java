@@ -31,6 +31,12 @@ import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
+import org.eclipse.jface.text.BadLocationException;
+
+import org.eclipse.text.edits.MalformedTreeException;
+import org.eclipse.text.edits.TextEdit;
+import org.eclipse.text.edits.UndoEdit;
+
 /**
  * @see ICompilationUnit
  */
@@ -56,6 +62,30 @@ public CompilationUnit(PackageFragment parent, String name, WorkingCopyOwner own
 	this.name = name;
 	this.owner = owner;
 }
+
+
+/*
+ * @see ICompilationUnit#applyTextEdit(TextEdit, IProgressMonitor)
+ */
+public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws JavaModelException {
+	IBuffer buffer= getBuffer();
+	if (buffer instanceof IBuffer.ITextEditCapability) {
+		return ((IBuffer.ITextEditCapability) buffer).applyTextEdit(edit, monitor);
+	} else if (buffer != null) {
+		DocumentAdapter document= new DocumentAdapter(buffer);
+		try {
+			UndoEdit undoEdit= edit.apply(document);
+			buffer.setContents(document.get());
+			return undoEdit;
+		} catch (MalformedTreeException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.BAD_TEXT_EDIT_LOCATION);
+		} catch (BadLocationException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.BAD_TEXT_EDIT_LOCATION);
+		}
+	}
+	return null; // can not happen, there are no compilation units without buffer
+}
+
 /*
  * @see ICompilationUnit#becomeWorkingCopy(IProblemRequestor, IProgressMonitor)
  */

@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import junit.framework.Test;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
@@ -22,10 +24,12 @@ import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
+import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.util.Util;
-
-import junit.framework.Test;
+import org.eclipse.text.edits.ReplaceEdit;
+import org.eclipse.text.edits.TextEdit;
+import org.eclipse.text.edits.UndoEdit;
 
 public class CompilationUnitTests extends ModifyingResourceTests {
 	ICompilationUnit cu;
@@ -2031,4 +2035,65 @@ public void test120902() throws CoreException {
 		deleteFile("/P/src/X.java");
 	}
 }
+
+public void testApplyEdit() throws CoreException {
+	try {
+		String source =
+			"public class X {\n" +
+			"}\n";
+		createFile("/P/src/X.java", source);
+		ICompilationUnit compilationUnit = getCompilationUnit("/P/src/X.java");
+		
+		ReplaceEdit edit= new ReplaceEdit(0, 6, "private");
+		
+		UndoEdit undoEdit= compilationUnit.applyTextEdit(edit, null);
+		
+		String newSource =
+			"private class X {\n" +
+			"}\n";
+		
+		assertEquals(newSource, compilationUnit.getSource());
+		
+		compilationUnit.applyTextEdit(undoEdit, null);
+		
+		assertEquals(source, compilationUnit.getSource());
+	} finally {
+		deleteFile("/P/src/X.java");
+	}
+}
+
+public void testApplyEdit2() throws CoreException {
+	try {
+		String source =
+			"public class X {\n" +
+			"}\n";
+		createFile("/P/src/X.java", source);
+		ICompilationUnit compilationUnit = getCompilationUnit("/P/src/X.java");
+		
+		ImportRewrite importRewrite= ImportRewrite.create(compilationUnit, true);
+		importRewrite.addImport("java.util.Vector");
+		importRewrite.addImport("java.util.ArrayList");
+		
+		TextEdit edit= importRewrite.rewriteImports(null);
+		
+		UndoEdit undoEdit= compilationUnit.applyTextEdit(edit, null);
+		
+		String newSource =
+			"import java.util.ArrayList;\n" +
+			"import java.util.Vector;\n" +
+			"\n" +
+			"public class X {\n" +
+			"}\n";
+		
+		assertEquals(newSource, compilationUnit.getSource());
+		
+		compilationUnit.applyTextEdit(undoEdit, null);
+		
+		assertEquals(source, compilationUnit.getSource());
+	} finally {
+		deleteFile("/P/src/X.java");
+	}
+}
+
+
 }

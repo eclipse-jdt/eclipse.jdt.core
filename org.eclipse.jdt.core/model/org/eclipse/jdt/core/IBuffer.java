@@ -12,6 +12,8 @@ package org.eclipse.jdt.core;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.text.edits.TextEdit;
+import org.eclipse.text.edits.UndoEdit;
 
 /**
  * A buffer contains the text contents of a resource. It is not language-specific.
@@ -32,6 +34,32 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * </p>
  */
 public interface IBuffer {
+	
+/**
+ * Implementors of {@link IBuffer} can additionally implement {@link IBuffer.ITextEditCapability}.
+ * This adds the capability to apply text edits to the buffer and will be used by
+ * {@link ICompilationUnit#applyTextEdit(TextEdit, IProgressMonitor)}. 
+ * 
+ * <p>
+ * This interface may be implemented by clients.
+ * </p>
+ * @since 3.4
+ */
+public interface ITextEditCapability {
+	/**
+	 * Applies a text edit to this underlying buffer. 
+	 * 
+	 * @param edit the edit to apply
+	 * @param monitor the progress monitor to use or <code>null</code> if no progress should be reported
+	 * @return the undo edit 
+	 * @throws JavaModelException if this edit can not be applied to the buffer. Reasons include:
+	 * <ul>
+	 * <li>The provided edit can not be applied as there is a problem with the text edit locations ({@link IJavaModelStatusConstants#BAD_TEXT_EDIT_LOCATION})}.</li>
+	 * </ul>
+	 */
+	public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws JavaModelException; 
+}
+	
 	
 /**
  * Adds the given listener for changes to this buffer.

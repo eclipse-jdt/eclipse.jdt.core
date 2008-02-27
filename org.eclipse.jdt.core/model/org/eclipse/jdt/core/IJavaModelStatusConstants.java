@@ -326,4 +326,12 @@ public interface IJavaModelStatusConstants {
 	 * @since 3.3
 	 */
 	public static final int DEPRECATED_VARIABLE = 1010;
+	
+	/**
+	 * <p>Status constant indicating that a text edit can not be applied as there
+	 * is a problem with the text edit location.</p>
+	 * 
+	 * @since 3.4
+	 */
+	public static final int BAD_TEXT_EDIT_LOCATION = 1011;
 }

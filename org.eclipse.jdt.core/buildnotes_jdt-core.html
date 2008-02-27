@@ -46,10 +46,47 @@ Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
 <br>Project org.eclipse.jdt.core v_841
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_841">cvs</a>).
 <h2>What's new in this drop</h2>
+<li>New API added on ICompilationUnit to apply text edits to its buffer. 
+<pre>
+public interface ICompilationUnit {
+	...
+	
+   /**
+    * Applies a text edit to the compilation unit's buffer. 
+    * 
+    * @param edit the edit to apply
+    * @param monitor the progress monitor to use or <code>null</code> if
+    *                no progress should be reported
+    * @return the undo edit 
+    * @throws JavaModelException if this edit can not be applied to the
+    *                            compilation unit's buffer. Reasons include:
+    * This compilation unit does not exist
+    * ({@link IJavaModelStatusConstants#ELEMENT_DOES_NOT_EXIST}).
+    * The provided edit can not be applied as there is a problem with the
+    * text edit locations ({@link IJavaModelStatusConstants#BAD_TEXT_EDIT_LOCATION}).
+    * 
+    * @since 3.4
+    */
+    public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws JavaModelException;
+    ...
+}
+</pre>
+Implementors of IBuffer can now additionally implement <code>IBuffer.ITextEditCapability</code>
+and provide the implementation for <code>applyTextEdit</code>. Calls to <code>ICompilationUnit.applyTextEdit</code>
+will then be forwarded to this API.
+</li>
+</ul>
+
+
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=220453">220453</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117694">117694</a>
+[api] Applying edits to a ICompilationUnit.
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=220453">220453</a>
 Addition of externalFoldersManager inside the java model manager breaks retrieval of JavaCore.getOptions() with no headless eclipse
+
+	
+
 
 <a name="v_840"></a>
 <hr><h1>
