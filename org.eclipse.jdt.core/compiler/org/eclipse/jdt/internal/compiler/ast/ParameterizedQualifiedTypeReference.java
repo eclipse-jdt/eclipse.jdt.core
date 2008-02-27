@@ -121,6 +121,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						switch (this.resolvedType.problemId()) {
 							case ProblemReasons.NotFound :
 							case ProblemReasons.NotVisible :
+							case ProblemReasons.InheritedNameHidesEnclosingName :
 								TypeBinding type = this.resolvedType.closestMatch();
 								return type;			
 							default :
@@ -181,13 +182,16 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
 			if (qualifiedType == null) {
 				qualifiedType = currentType.enclosingType(); // if member type
-				if (qualifiedType != null && (qualifiedType.isGenericType() || qualifiedType.isParameterizedType())) {
+				if (qualifiedType != null) {
 					qualifiedType = currentType.isStatic()
 						? (ReferenceBinding) scope.environment().convertToRawType(qualifiedType, false /*do not force conversion of enclosing types*/)
 						: scope.environment().convertToParameterizedType(qualifiedType);
 				}
 			}				
-			if (typeIsConsistent && currentType.isStatic() && qualifiedType != null && (qualifiedType.isParameterizedType() || qualifiedType.isGenericType())) {
+			if (typeIsConsistent 
+						&& currentType.isStatic() 
+						&& qualifiedType != null 
+						&& ((qualifiedType.isParameterizedType() && ((ParameterizedTypeBinding)qualifiedType).arguments != null) || qualifiedType.isGenericType())) {
 				scope.problemReporter().staticMemberOfParameterizedType(this, scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType));
 				typeIsConsistent = false;
 			}			
@@ -202,11 +206,12 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				int argLength = args.length;
 				TypeBinding[] argTypes = new TypeBinding[argLength];
 				boolean argHasError = false;
+				ReferenceBinding currentErasure = (ReferenceBinding)currentType.erasure();
 				for (int j = 0; j < argLength; j++) {
 				    TypeReference arg = args[j];
 				    TypeBinding argType = isClassScope
-						? arg.resolveTypeArgument((ClassScope) scope, currentType, j)
-						: arg.resolveTypeArgument((BlockScope) scope, currentType, j);
+						? arg.resolveTypeArgument((ClassScope) scope, currentErasure, j)
+						: arg.resolveTypeArgument((BlockScope) scope, currentErasure, j);
 					if (argType == null) {
 						argHasError = true;
 					} else {
@@ -218,18 +223,18 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				}
 				if (isClassScope) {
 					((ClassScope) scope).superTypeReference = keep;
-					if (((ClassScope) scope).detectHierarchyCycle(currentType, this))
+					if (((ClassScope) scope).detectHierarchyCycle(currentErasure, this))
 						return null;
 				}
 
-			    TypeVariableBinding[] typeVariables = currentType.typeVariables();
+			    TypeVariableBinding[] typeVariables = currentErasure.typeVariables();
 				if (typeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
 					if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) { // below 1.5, already reported as syntax error
 						scope.problemReporter().nonGenericTypeCannotBeParameterized(i, this, currentType, argTypes);
 						return null;
 					}
 					this.resolvedType =  (qualifiedType != null && qualifiedType.isParameterizedType())
-						? scope.environment().createParameterizedType(currentType, null, qualifiedType)
+						? scope.environment().createParameterizedType(currentErasure, null, qualifiedType)
 						: currentType;
 					if (this.dimensions > 0) {
 						if (dimensions > 255)
@@ -246,20 +251,20 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					ReferenceBinding actualEnclosing = currentType.enclosingType();
 					if (actualEnclosing != null && actualEnclosing.isRawType()) {
 						scope.problemReporter().rawMemberTypeCannotBeParameterized(
-								this, scope.environment().createRawType((ReferenceBinding)currentType.erasure(), actualEnclosing), argTypes);
+								this, scope.environment().createRawType(currentErasure, actualEnclosing), argTypes);
 						typeIsConsistent = false;				
 					}
 				}				
-				ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, qualifiedType);
+				ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentErasure, argTypes, qualifiedType);
 				// check argument type compatibility
 				if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 					parameterizedType.boundCheck(scope, args);
 				qualifiedType = parameterizedType;
 		    } else {
-				if (isClassScope)
-					if (((ClassScope) scope).detectHierarchyCycle(currentType, this))
-						return null;
 				ReferenceBinding currentErasure = (ReferenceBinding)currentType.erasure();
+				if (isClassScope)
+					if (((ClassScope) scope).detectHierarchyCycle(currentErasure, this))
+						return null;
 				if (currentErasure.isGenericType()) {
 	   			    if (typeIsConsistent && qualifiedType != null && qualifiedType.isParameterizedType()) {
 						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.environment().createParameterizedType(currentErasure, null, qualifiedType));

@@ -82,6 +82,46 @@ public class CaptureBinding extends TypeVariableBinding {
 	 */
 	public void initializeBounds(Scope scope, ParameterizedTypeBinding capturedParameterizedType) {
 		TypeVariableBinding wildcardVariable = wildcard.typeVariable();
+		if (wildcardVariable == null) {
+			// error resilience when capturing Zork<?>
+			// no substitution for wildcard bound (only formal bounds from type variables are to be substituted: 104082)
+			TypeBinding originalWildcardBound = wildcard.bound;			
+			switch (wildcard.boundKind) {
+				case Wildcard.EXTENDS :
+					// still need to capture bound supertype as well so as not to expose wildcards to the outside (111208)
+					TypeBinding capturedWildcardBound = originalWildcardBound.capture(scope, this.position);
+					if (originalWildcardBound.isInterface()) {
+						this.superclass = scope.getJavaLangObject();
+						this.superInterfaces = new ReferenceBinding[] { (ReferenceBinding) capturedWildcardBound };
+					} else {
+						// the wildcard bound should be a subtype of variable superclass
+						// it may occur that the bound is less specific, then consider glb (202404)
+						if (capturedWildcardBound.isArrayType() || capturedWildcardBound == this) {
+							this.superclass = scope.getJavaLangObject();
+						} else {
+							this.superclass = (ReferenceBinding) capturedWildcardBound;
+						}
+						this.superInterfaces = Binding.NO_SUPERINTERFACES;
+					}
+					this.firstBound =  capturedWildcardBound;
+					if ((capturedWildcardBound.tagBits & TagBits.HasTypeVariable) == 0)
+						this.tagBits &= ~TagBits.HasTypeVariable;
+					break;
+				case Wildcard.UNBOUND :
+					this.superclass = scope.getJavaLangObject();
+					this.superInterfaces = Binding.NO_SUPERINTERFACES;
+					this.tagBits &= ~TagBits.HasTypeVariable;
+					break;
+				case Wildcard.SUPER :
+					this.superclass = scope.getJavaLangObject();
+					this.superInterfaces = Binding.NO_SUPERINTERFACES;
+					this.lowerBound = wildcard.bound;
+					if ((originalWildcardBound.tagBits & TagBits.HasTypeVariable) == 0)
+						this.tagBits &= ~TagBits.HasTypeVariable;					
+					break;
+			}
+			return;
+		}
 		ReferenceBinding originalVariableSuperclass = wildcardVariable.superclass;
 		ReferenceBinding substitutedVariableSuperclass = (ReferenceBinding) Scope.substitute(capturedParameterizedType, originalVariableSuperclass);
 		// prevent cyclic capture: given X<T>, capture(X<? extends T> could yield a circular type
@@ -102,7 +142,7 @@ public class CaptureBinding extends TypeVariableBinding {
 			case Wildcard.EXTENDS :
 				// still need to capture bound supertype as well so as not to expose wildcards to the outside (111208)
 				TypeBinding capturedWildcardBound = originalWildcardBound.capture(scope, this.position);
-				if (wildcard.bound.isInterface()) {
+				if (originalWildcardBound.isInterface()) {
 					this.superclass = substitutedVariableSuperclass;
 					// merge wildcard bound into variable superinterfaces using glb
 					if (substitutedVariableInterfaces == Binding.NO_SUPERINTERFACES) {

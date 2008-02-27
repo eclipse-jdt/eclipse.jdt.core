@@ -8123,12 +8123,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		IVariableBinding variableBinding = fragment.resolveBinding();
 		assertNotNull("No binding", variableBinding);
-		assertTrue("Not a recovered binding", variableBinding.isRecovered());
+		assertFalse("A recovered binding", variableBinding.isRecovered());
 		ITypeBinding typeBinding = variableBinding.getType();
 		assertNotNull("No binding", typeBinding);
 		assertTrue("Not a recovered binding", typeBinding.isRecovered());
 		assertEquals("Wrong name", "List<String>", typeBinding.getName());
 		assertEquals("Wrong dimension", 0, typeBinding.getDimensions());
+		assertEquals("LList<Ljava/lang/String;>;", typeBinding.getKey());
 	}
 
 	/**

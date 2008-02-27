@@ -3286,4 +3286,410 @@ public void test072() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+public void test073() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * @see Foo.Private#foo()\n" + 
+				"	 * @param p\n" + 
+				"	 */\n" + 
+				"	void foo(Foo.Private p) {\n" + 
+				"		p.foo();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Foo {\n" + 
+				"	private class Private {\n" + 
+				"		private void foo(){}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	void foo(Foo.Private p) {\n" + 
+			"	         ^^^^^^^^^^^\n" + 
+			"The type Foo.Private is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	p.foo();\n" + 
+			"	^\n" + 
+			"The type Foo.Private is not visible\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 13)\n" + 
+			"	private void foo(){}\n" + 
+			"	             ^^^^^\n" + 
+			"The method foo() from the type Foo.Private is never used locally\n" + 
+			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+public void test074() {
+	String expected = this.complianceLevel <= ClassFileConstants.JDK1_4
+		? 		"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	bar1().foo();\n" + 
+				"	^^^^\n" + 
+				"The method bar1() from the type X refers to the missing type Zork\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	bar3(null);\n" + 
+				"	^^^^\n" + 
+				"The method bar3(Zork) from the type X refers to the missing type Zork\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	bar4(null,null);\n" + 
+				"	^^^^\n" + 
+				"The method bar4(Zork) from the type X refers to the missing type Zork\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 9)\n" + 
+				"	Zork<String> bar1() {}\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 9)\n" + 
+				"	Zork<String> bar1() {}\n" + 
+				"	     ^^^^^^\n" + 
+				"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 10)\n" + 
+				"	List<Zork> bar2() {}\n" + 
+				"	     ^^^^\n" + 
+				"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 10)\n" + 
+				"	List<Zork> bar2() {}\n" + 
+				"	     ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 11)\n" + 
+				"	void bar3(Zork<String> z) {}\n" + 
+				"	          ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"9. ERROR in X.java (at line 11)\n" + 
+				"	void bar3(Zork<String> z) {}\n" + 
+				"	               ^^^^^^\n" + 
+				"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+				"----------\n" + 
+				"10. ERROR in X.java (at line 12)\n" + 
+				"	void bar4(Zork<String,String> z) {}\n" + 
+				"	          ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"11. ERROR in X.java (at line 12)\n" + 
+				"	void bar4(Zork<String,String> z) {}\n" + 
+				"	               ^^^^^^^^^^^^^\n" + 
+				"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+				"----------\n"			
+		: 		"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	bar1().foo();\n" + 
+				"	^^^^\n" + 
+				"The method bar1() from the type X refers to the missing type Zork\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	bar2();\n" + 
+				"	^^^^\n" + 
+				"The method bar2() from the type X refers to the missing type Zork\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	bar3(null);\n" + 
+				"	^^^^\n" + 
+				"The method bar3(Zork<String>) from the type X refers to the missing type Zork\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 7)\n" + 
+				"	bar4(null,null);\n" + 
+				"	^^^^\n" + 
+				"The method bar4(Zork<String,String>) from the type X refers to the missing type Zork\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 9)\n" + 
+				"	Zork<String> bar1() {}\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 10)\n" + 
+				"	List<Zork> bar2() {}\n" + 
+				"	     ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 11)\n" + 
+				"	void bar3(Zork<String> z) {}\n" + 
+				"	          ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 12)\n" + 
+				"	void bar4(Zork<String,String> z) {}\n" + 
+				"	          ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n";
+	
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		bar1().foo();\n" + 
+				"		bar2();\n" + 
+				"		bar3(null);\n" + 
+				"		bar4(null,null);\n" + 
+				"	}\n" + 
+				"	Zork<String> bar1() {}\n" + 
+				"	List<Zork> bar2() {}\n" + 
+				"	void bar3(Zork<String> z) {}\n" + 
+				"	void bar4(Zork<String,String> z) {}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			expected);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+public void test075() {
+	String expected = this.complianceLevel <= ClassFileConstants.JDK1_4
+		? 		"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? extends Number>) o;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? extends Number>) o;\n" + 
+				"	     ^^^\n" + 
+				"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? extends Number>) o;\n" + 
+				"	               ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? extends Number>) o;\n" + 
+				"	                    ^^^^^^^^^^^^^^^^^^^\n" + 
+				"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? extends Number>) o;\n" + 
+				"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? extends Number>) o;\n" + 
+				"	            ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? extends Number>) o;\n" + 
+				"	                 ^^^^^^^^^^^^^^^^^^^\n" + 
+				"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+				"----------\n"			
+		: 		"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? extends Number>) o;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? extends Number>) o;\n" + 
+				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety: Unchecked cast from Object to Zork<?,? extends Number>\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? extends Number>) o;\n" + 
+				"	               ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? extends Number>) o;\n" + 
+				"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety: Unchecked cast from Object to Zork<?,? extends Number>\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? extends Number>) o;\n" + 
+				"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Zork<capture#3-of ?,capture#4-of ? extends Number> cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? extends Number>) o;\n" + 
+				"	            ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n";
+	
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" + 
+				"	void foo(Object o) {\n" + 
+				"		Zork<?,?> z = (Zork<?, ? extends Number>) o;\n" + 
+				"		String s = (Zork<?, ? extends Number>) o;\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			expected);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+public void test076() {
+	String expected = this.complianceLevel <= ClassFileConstants.JDK1_4
+		? 		"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number>) o;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number>) o;\n" + 
+				"	     ^^^\n" + 
+				"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number>) o;\n" + 
+				"	               ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number>) o;\n" + 
+				"	                    ^^^^^^^^^^^^^^^^^\n" + 
+				"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? super Number>) o;\n" + 
+				"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? super Number>) o;\n" + 
+				"	            ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? super Number>) o;\n" + 
+				"	                 ^^^^^^^^^^^^^^^^^\n" + 
+				"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+				"----------\n"
+		: 		"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number>) o;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number>) o;\n" + 
+				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety: Unchecked cast from Object to Zork<?,? super Number>\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number>) o;\n" + 
+				"	               ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? super Number>) o;\n" + 
+				"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety: Unchecked cast from Object to Zork<?,? super Number>\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? super Number>) o;\n" + 
+				"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Zork<capture#3-of ?,capture#4-of ? super Number> cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? super Number>) o;\n" + 
+				"	            ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n";
+	
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" + 
+				"	void foo(Object o) {\n" + 
+				"		Zork<?,?> z = (Zork<?, ? super Number>) o;\n" + 
+				"		String s = (Zork<?, ? super Number>) o;\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			expected);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
+public void test077() {
+	String expected = this.complianceLevel <= ClassFileConstants.JDK1_4
+		? 		"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number[]>) o;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number[]>) o;\n" + 
+				"	     ^^^\n" + 
+				"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number[]>) o;\n" + 
+				"	               ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number[]>) o;\n" + 
+				"	                    ^^^^^^^^^^^^^^^^^^^\n" + 
+				"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? extends Number[]>) o;\n" + 
+				"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? extends Number[]>) o;\n" + 
+				"	            ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? extends Number[]>) o;\n" + 
+				"	                 ^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+				"----------\n"			
+		: 		"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number[]>) o;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number[]>) o;\n" + 
+				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety: Unchecked cast from Object to Zork<?,? super Number[]>\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 3)\n" + 
+				"	Zork<?,?> z = (Zork<?, ? super Number[]>) o;\n" + 
+				"	               ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? extends Number[]>) o;\n" + 
+				"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety: Unchecked cast from Object to Zork<?,? extends Number[]>\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? extends Number[]>) o;\n" + 
+				"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Zork<capture#3-of ?,capture#4-of ? extends Number[]> cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 4)\n" + 
+				"	String s = (Zork<?, ? extends Number[]>) o;\n" + 
+				"	            ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n";
+	
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" + 
+				"	void foo(Object o) {\n" + 
+				"		Zork<?,?> z = (Zork<?, ? super Number[]>) o;\n" + 
+				"		String s = (Zork<?, ? extends Number[]>) o;\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			expected);
+}}

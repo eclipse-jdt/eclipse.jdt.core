@@ -75,12 +75,17 @@ Implementors of IBuffer can now additionally implement <code>IBuffer.ITextEditCa
 and provide the implementation for <code>applyTextEdit</code>. Calls to <code>ICompilationUnit.applyTextEdit</code>
 will then be forwarded to this API.
 </li>
+<li>Compiler is now also able to recover missing parameterized types (e.g. <code>Zork<String></code>).</li>
 </ul>
 
-
-
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117694">117694</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=196200">196200</a>
+[jsr269] Need annotation bindings even when code contains errors
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=220361">220361</a>
+[1.5][compiler] Compiler incorrectly rejects static raw member type as parameterized
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=220111">220111</a>
+[1.5][compiler] Type mismatch errors on identical types; code compiles with javac
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117694">117694</a>
 [api] Applying edits to a ICompilationUnit.
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=220453">220453</a>
 Addition of externalFoldersManager inside the java model manager breaks retrieval of JavaCore.getOptions() with no headless eclipse

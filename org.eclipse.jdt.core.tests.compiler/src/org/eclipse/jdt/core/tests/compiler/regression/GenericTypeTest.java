@@ -43030,4 +43030,221 @@ public void test1292() {
 			"Bound mismatch: The generic method moreSpecific(List<D>) of type X is not applicable for the arguments (List<X.B>). The inferred type X.A is not a valid substitute for the bounded parameter <E extends D>\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220111
+public void test1293() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<Token, NodeType> {\n" + 
+					"    class Table {\n" + 
+					"        State<Token>   s;\n" + 
+					"        Table() {\n" + 
+					"            this.s = new State<Token>();\n" + 
+					"        }\n" + 
+					"		class State<T> {\n" + 
+					"		}\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220111 - variation
+public void test1294() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<Token, NodeType> {\n" + 
+					"    static class Table {\n" + 
+					"        State<String>   s;\n" + 
+					"        Table() {\n" + 
+					"            this.s = new State<String>();\n" + 
+					"        }\n" + 
+					"		class State<T> {\n" + 
+					"		}\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303 - variation
+public void test1295() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"class Deejay {\n" + 
+					"	class Counter<T> {}\n" + 
+					"\n" + 
+					"	Deejay.Counter<Song> songCounter = new Deejay.Counter<Song>();\n" + 
+					"	Deejay.Counter<Genre> genreCounter = new Deejay.Counter<Genre>();\n" + 
+					"\n" + 
+					"	java.util.List<Counter<?>> list1 = java.util.Arrays.asList(songCounter, genreCounter);\n" + 
+					"	java.util.List<Counter<? extends Object>> list2 = java.util.Arrays.asList(songCounter, genreCounter);\n" + 
+					"	java.util.List<Counter<?>> list3 = java.util.Arrays.<Deejay.Counter<?>>asList(songCounter, genreCounter);\n" + 
+					"	java.util.List<Counter<?>> list4 = java.util.Arrays.asList(new Deejay.Counter<?>[] {songCounter, genreCounter});\n" + 
+					"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\n" + 
+					"}\n" + 
+					"class Genre {}\n" + 
+					"class Song {}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\r\n" + 
+			"	java.util.List<Counter<?>> list1 = java.util.Arrays.asList(songCounter, genreCounter);\r\n" + 
+			"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\r\n" + 
+			"	java.util.List<Counter<? extends Object>> list2 = java.util.Arrays.asList(songCounter, genreCounter);\r\n" + 
+			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 11)\r\n" + 
+			"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\r\n" + 
+			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 11)\r\n" + 
+			"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\r\n" + 
+			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<Deejay.Counter<? extends Object>> to List<Deejay.Counter<? extends String>>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220111 - variation
+public void test1296() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<Token, NodeType> {\n" + 
+					"	class Table {\n" + 
+					"		Table.State<Token> s;\n" + 
+					"\n" + 
+					"		Table() {\n" + 
+					"			this.s = new Table.State<Token>();\n" + 
+					"		}\n" + 
+					"\n" + 
+					"		class State<T> {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220111 - variation
+public void test1297() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<Token, NodeType> {\n" + 
+					"	class Table {\n" + 
+					"		X<Token, NodeType>.Table.State<Token> s;\n" + 
+					"\n" + 
+					"		Table() {\n" + 
+					"			this.s = new X<Token, NodeType>().new Table().new State<Token>();\n" + 
+					"		}\n" + 
+					"\n" + 
+					"		class State<T> {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220111 - variation
+public void test1298() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<Token, NodeType> {\n" + 
+					"	static class Table {\n" + 
+					"		X.Table.State<String> s;\n" + 
+					"\n" + 
+					"		Table() {\n" + 
+					"			this.s = new X.Table().new State<String>();\n" + 
+					"		}\n" + 
+					"\n" + 
+					"		class State<T> {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220361
+public void test1299() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<U, V> {\n" + 
+					"	static class Table {\n" + 
+					"		X.Table.State<String> s;\n" + 
+					"\n" + 
+					"		Table() {\n" + 
+					"			this.s = new X.Table.State<String>();\n" + 
+					"		}\n" + 
+					"\n" + 
+					"		static class State<T> {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220361 - variation
+public void test1300() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<U, V> {\n" + 
+					"	static class Table {\n" + 
+					"		State<String> s;\n" + 
+					"\n" + 
+					"		Table() {\n" + 
+					"			this.s = new State<String>();\n" + 
+					"		}\n" + 
+					"\n" + 
+					"		static class State<T> {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220361 - variation
+public void test1301() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<U, V> {\n" + 
+					"	static class Table {\n" + 
+					"		Table.State<String> s;\n" + 
+					"\n" + 
+					"		Table() {\n" + 
+					"			this.s = new Table.State<String>();\n" + 
+					"		}\n" + 
+					"\n" + 
+					"		static class State<T> {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220361 - variation
+public void test1302() {
+	this.runConformTest(
+			new String[] {
+					"EMap.java",
+					"import java.util.ArrayList;\n" + 
+					"import java.util.Map;\n" + 
+					"\n" + 
+					"public abstract class EMap<A, B> implements Map<A, B> {\n" + 
+					"  public abstract static class Unsettable<K, V> extends EMap<K, V> {\n" + 
+					"    protected class UnsettableEList<E extends Object & Entry<K, V>> extends EList<E> {\n" + 
+					"    }\n" + 
+					"  }\n" + 
+					"  protected class EList<E extends Object & Entry<A,B>> extends ArrayList<E>{\n" + 
+					"  }\n" + 
+					"}\n", // =================
+			},
+			"");
+}
 }

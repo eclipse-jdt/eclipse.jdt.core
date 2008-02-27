@@ -830,8 +830,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			// arity check
 			TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
 			if (refTypeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
-				this.environment.problemReporter.nonGenericTypeCannotBeParameterized(0, null, resolvedType, this.arguments);
-				return this; // cannot reach here as AbortCompilation is thrown
+				if ((resolvedType.tagBits & TagBits.HasMissingType) == 0) {
+					this.environment.problemReporter.nonGenericTypeCannotBeParameterized(0, null, resolvedType, this.arguments);
+				}
+				return this;
 			} else if (argLength != refTypeVariables.length) { // check arity
 				this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, this.arguments);
 				return this; // cannot reach here as AbortCompilation is thrown
