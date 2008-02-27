@@ -368,7 +368,7 @@ public interface IClasspathEntry {
 	 *      The path associated with this entry is the absolute path to the root folder. </li>
 	 *	<li>A binary library in the current project ({@link #CPE_LIBRARY}) - the path
 	 *		associated with this entry is the absolute path to the JAR (or root folder), and 
-	 *		in case it refers to an external JAR, then there is no associated resource in 
+	 *		in case it refers to an external library, then there is no associated resource in 
 	 *		the workbench.
 	 *	<li>A required project ({@link #CPE_PROJECT}) - the path of the entry denotes the
 	 *		path to the corresponding project resource.</li>

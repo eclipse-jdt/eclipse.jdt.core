@@ -281,10 +281,10 @@ public interface IJavaElement extends IAdaptable {
 
 	/**
 	 * Returns the path to the innermost resource enclosing this element.
-	 * If this element is not included in an external archive,
+	 * If this element is not included in an external library,
 	 * the path returned is the full, absolute path to the underlying resource,
 	 * relative to the workbench.
-	 * If this element is included in an external archive,
+	 * If this element is included in an external library,
 	 * the path returned is the absolute path to the archive in the file system.
 	 * This is a handle-only method.
 	 *
