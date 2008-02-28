@@ -43247,4 +43247,76 @@ public void test1302() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=219625
+public void _test1303() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"  interface Foo<T> {\n" + 
+					"    T getValue();\n" + 
+					"    void doSomething(T o);\n" + 
+					"  }\n" + 
+					"  public static abstract class AbstractFoo<T> implements Foo<T> {\n" + 
+					"    /**\n" + 
+					"     * If this is removed ConcreteFoo no longer compiles.\n" + 
+					"     */\n" + 
+					"    public void doSomething(final String o) {\n" + 
+					"    }\n" + 
+					"  }\n" + 
+					"  public static final class ConcreteFoo extends AbstractFoo<String> {\n" + 
+					"    public String getValue() {\n" + 
+					"      return \"I am a string\";\n" + 
+					"    }\n" + 
+					"  }\n" + 
+					"  /**\n" + 
+					"   * We lose the type infomation here so try but fail to call the doSomething(Object) method.\n" + 
+					"   */\n" + 
+					"  private static <T> void feedFoosValueIntoFoo(final Foo<T> foo) {\n" + 
+					"    foo.doSomething(foo.getValue());\n" + 
+					"  }\n" + 
+					"  private static void testTypedString() {\n" + 
+					"    final ConcreteFoo foo = new ConcreteFoo();\n" + 
+					"    foo.doSomething(foo.getValue());\n" + 
+					"  }\n" + 
+					"  /**\n" + 
+					"   * This gives an AbstractMethodError in Eclipse 3.3.1.1\n" + 
+					"   * but (interestingly) works fine in Sun Java 1.6.0_03.\n" + 
+					"   */\n" + 
+					"  private static void testGenericString() {\n" + 
+					"    feedFoosValueIntoFoo(new ConcreteFoo());\n" + 
+					"  }\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    testTypedString();\n" + 
+					"    testGenericString();\n" + 
+					"    System.out.println(\"Success.\");\n" + 
+					"  }\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=219625 - variation
+public void test1304() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface Foo<T> {\n" + 
+					"	T get();\n" + 
+					"	void doSomething(T t);\n" + 
+					"}\n" + 
+					"abstract class XSuper implements Foo<String> {\n" + 
+					"	public void doSomething(String s) { System.out.println(s); }\n" + 
+					"}\n" + 
+					"public class X extends XSuper {\n" + 
+					"	public String get() { return \"SUCCESS\"; }\n" + 
+					"	static <U> void doIt(Foo<U> f) {\n" + 
+					"		f.doSomething(f.get());\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		doIt(new X());\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"SUCCESS");
+}
 }
