@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -665,7 +667,7 @@ public void testEfficiencyMultipleProjects() throws CoreException {
 		}
 		ProgressCounter counter = new ProgressCounter();
 		type.newTypeHierarchy(counter);
-		assertEquals("Unexpected work count", 89, counter.count);
+		assertEquals("Unexpected work count", 77, counter.count);
 	} finally {
 		deleteProjects(new String[] {"P1", "P2", "P3"});
 	}
@@ -2157,5 +2159,47 @@ public void testBug186781() throws JavaModelException {
 		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
+}
+
+/**
+ * @bug 215841: [search] Opening Type Hierarchy extremely slow
+ * @test Ensure that the non-existing library referenced through a linked resource
+ * 	is not indexed on each search request while building the hierarchy
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=215841"
+ */
+public void testBug215841() throws JavaModelException, CoreException, InterruptedException {
+	final String linkedPath = "/TypeHierarchy/linked.jar";
+	class LocalProgressMonitor extends TestProgressMonitor {
+		int count = 0;
+		public boolean isCanceled() {
+	        return false;
+        }
+		public void subTask(String name) {
+			if (name.indexOf("files to index") > 0 && name.indexOf(linkedPath) > 0) {
+	        	count++;
+			}
+        }
+	}
+	IJavaProject project = getJavaProject("TypeHierarchy");
+	IClasspathEntry[] originalClasspath = project.getRawClasspath();
+	try {
+		// Add linked resource to an unknown jar file on the project classpath
+		int length = originalClasspath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[length+1];
+		System.arraycopy(originalClasspath, 0, newClasspath, 0, length);
+		IFile file = getFile(linkedPath);
+		file.createLink(new Path(getExternalPath()).append("unknown.jar"), IResource.ALLOW_MISSING_LOCAL, null);
+		newClasspath[length] = JavaCore.newLibraryEntry(new Path(linkedPath), null, null);
+		project.setRawClasspath(newClasspath, null);
+		waitUntilIndexesReady();
+		
+		// Build hierarchy of Throwable
+		IType type = getClassFile("TypeHierarchy", getExternalJCLPathString(), "java.lang", "Throwable.class").getType();
+		LocalProgressMonitor monitor = new LocalProgressMonitor();
+		type.newTypeHierarchy(monitor);
+		assertEquals("Unexpected indexing of non-existent external jar file while building hierarchy!", 2, monitor.count);
+	} finally {
+		project.setRawClasspath(originalClasspath, null);
+	}
 }
 }

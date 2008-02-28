@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.Index;
-import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
@@ -79,27 +78,8 @@ public Index[] getIndexes(IProgressMonitor progressMonitor) {
 	// acquire the in-memory indexes on the fly
 	IPath[] indexLocations = this.participant.selectIndexes(this.pattern, this.scope);
 	int length = indexLocations.length;
-	Index[] indexes = new Index[length];
-	int count = 0;
-	IndexManager indexManager = JavaModelManager.getIndexManager();
-	for (int i = 0; i < length; i++) {
-		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
-		// may trigger some index recreation work
-		IPath indexLocation = indexLocations[i];
-		Index index = indexManager.getIndex(indexLocation);
-		if (index == null) {
-			// only need containerPath if the index must be built
-			IPath containerPath = (IPath) indexManager.indexLocations.keyForValue(indexLocation);
-			if (containerPath != null) // sanity check
-				index = indexManager.getIndex(containerPath, indexLocation, true /*reuse index file*/, false /*do not create if none*/);
-		}
-		if (index != null)
-			indexes[count++] = index; // only consider indexes which are ready
-	}
-	if (count == length) 
-		this.areIndexesReady = true;
-	else
-		System.arraycopy(indexes, 0, indexes=new Index[count], 0, count);
+	Index[] indexes = JavaModelManager.getIndexManager().getIndexes(indexLocations, progressMonitor);
+	this.areIndexesReady = indexes.length == length;
 	return indexes;
 }	
 public String getJobFamily() {

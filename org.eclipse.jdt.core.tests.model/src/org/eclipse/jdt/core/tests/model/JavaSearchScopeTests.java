@@ -97,13 +97,27 @@ public void testApplicationLibrairiesExternalJar() throws CoreException {
 public void testApplicationLibrairiesJarAndClassFolder() throws CoreException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"/P/internal.jar", "/P/classfolder"}, "bin");
-		createFile("/P/internal.jar", new byte[0]);	// file must exist to be added to the scope since bug 215841
-		createFolder("/P/classfolder");	// folder must exist to be added to the scope since bug 215841
+		createFile("/P/internal.jar", new byte[0]);
+		createFolder("/P/classfolder");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
 			"JavaSearchScope on [\n" + 
 			"	/P/internal.jar\n" + 
 			"	/P/classfolder\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testApplicationLibrairiesNonExistingJarAndClassFolder() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"/P/internal.jar", "/P/classfolder"}, "bin");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P/internal.jar\n" + 
+			"	/.org.eclipse.jdt.core.external.folders/.link0\n" + 
 			"]",
 			scope);
 	} finally {
@@ -118,7 +132,22 @@ public void testApplicationLibrairiesClasspathVariable() throws CoreException {
 	try {
 		VariablesInitializer.setInitializer(new ClasspathInitializerTests.DefaultVariableInitializer(new String[] {"TEST_LIB", "/P/lib.jar"}));
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"TEST_LIB"}, "");
-		createFile("/P/lib.jar", new byte[0]);	// file must exist to be added to the scope since bug 215841
+		createFile("/P/lib.jar", new byte[0]);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P/lib.jar\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProject("P");
+		VariablesInitializer.reset();
+	}
+}
+public void testApplicationLibrairiesNonExistingClasspathVariable() throws CoreException {
+	try {
+		VariablesInitializer.setInitializer(new ClasspathInitializerTests.DefaultVariableInitializer(new String[] {"TEST_LIB", "/P/lib.jar"}));
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"TEST_LIB"}, "");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
 			"JavaSearchScope on [\n" + 
@@ -1026,38 +1055,6 @@ public void testBug179199() throws CoreException {
 	}
 	finally {
 		deleteProject("P1");
-	}
-}
-
-/**
- * @bug 215841: [search] Opening Type Hierarchy extremely slow
- * @test Ensure that a non-existing library is not added while building the Java search scope
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=215841"
- */
-// see #testApplicationLibrairiesJarAndClassFolder()
-public void _testBug215841() throws CoreException {
-	try {
-		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"/P/internal.jar", "/P/classfolder"}, "bin");
-		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
-		assertScopeEquals(
-			"JavaSearchScope on [empty scope]",
-			scope);
-	} finally {
-		deleteProject("P");
-	}
-}
-// see #testApplicationLibrairiesClasspathContainer()
-public void _testBug215841b() throws CoreException {
-	try {
-		VariablesInitializer.setInitializer(new ClasspathInitializerTests.DefaultVariableInitializer(new String[] {"TEST_LIB", "/P/lib.jar"}));
-		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"TEST_LIB"}, "");
-		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
-		assertScopeEquals(
-			"JavaSearchScope on [empty scope]",
-			scope);
-	} finally {
-		deleteProject("P");
-		VariablesInitializer.reset();
 	}
 }
 }

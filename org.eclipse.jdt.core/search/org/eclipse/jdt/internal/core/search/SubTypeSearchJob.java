@@ -28,6 +28,15 @@ public void finished() {
 		if (values[i] != null)
 			((Index) values[i]).stopQuery();
 }
+public Index[] getIndexes(IProgressMonitor progressMonitor) {
+	if (this.indexes.elementSize == 0) {
+		return super.getIndexes(progressMonitor);
+	}
+	this.areIndexesReady = true; // use stored indexes until the job's end
+	Index[] values = new Index[this.indexes.elementSize];
+	this.indexes.asArray(values);
+	return values;
+}	
 public boolean search(Index index, IProgressMonitor progressMonitor) {
 	if (index == null) return COMPLETE;
 	if (indexes.addIfNotIncluded(index) == index)

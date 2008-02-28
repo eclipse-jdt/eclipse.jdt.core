@@ -17,6 +17,7 @@ import java.util.zip.CRC32;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -191,6 +192,15 @@ public SourceElementParser getSourceElementParser(IJavaProject project, ISourceE
 	return parser;
 }
 /**
+ * Returns the index for a given index location
+ * 
+ * @param indexLocation The path of the index file
+ * @return The corresponding index or <code>null</code> if not found
+ */
+public synchronized Index getIndex(IPath indexLocation) {
+	return (Index) this.indexes.get(indexLocation); // is null if unknown, call if the containerPath must be computed
+}
+/**
  * Returns the index for a given project, according to the following algorithm:
  * - if index is already in memory: answers this one back
  * - if (reuseExistingFile) then read it and return this index and record it in memory
@@ -268,9 +278,39 @@ public synchronized Index getIndex(IPath containerPath, IPath indexLocation, boo
 	//System.out.println(" index name: " + path.toOSString() + " <----> " + index.getIndexFile().getName());	
 	return index;
 }
-public synchronized Index getIndex(IPath indexLocation) {
-	return (Index) this.indexes.get(indexLocation); // is null if unknown, call if the containerPath must be computed
-}
+/**
+ * Returns all the existing indexes for a list of index locations.
+ * Note that this may trigger some indexes recreation work
+ * 
+ * @param locations The list of of the index files path
+ * @return The corresponding indexes list.
+ */
+public Index[] getIndexes(IPath[] locations, IProgressMonitor progressMonitor) {
+	// acquire the in-memory indexes on the fly
+	int length = locations.length;
+	Index[] locatedIndexes = new Index[length];
+	int count = 0;
+	for (int i = 0; i < length; i++) {
+		if (progressMonitor != null && progressMonitor.isCanceled()) {
+			throw new OperationCanceledException();
+		}
+		// may trigger some index recreation work
+		IPath indexLocation = locations[i];
+		Index index = getIndex(indexLocation);
+		if (index == null) {
+			// only need containerPath if the index must be built
+			IPath containerPath = (IPath) indexLocations.keyForValue(indexLocation);
+			if (containerPath != null) // sanity check
+				index = getIndex(containerPath, indexLocation, true /*reuse index file*/, false /*do not create if none*/);
+		}
+		if (index != null)
+			locatedIndexes[count++] = index; // only consider indexes which are ready
+	}
+	if (count < length) {
+		System.arraycopy(locatedIndexes, 0, locatedIndexes=new Index[count], 0, count);
+	}
+	return locatedIndexes;
+}	
 public synchronized Index getIndexForUpdate(IPath containerPath, boolean reuseExistingFile, boolean createIfMissing) {
 	IPath indexLocation = computeIndexLocation(containerPath);
 	if (getIndexStates().get(indexLocation) == REBUILDING_STATE)
@@ -726,12 +766,16 @@ private synchronized void updateIndexState(IPath indexLocation, Integer indexSta
 	writeSavedIndexNamesFile();
 
 	if (VERBOSE) {
-		String state = "?"; //$NON-NLS-1$
-		if (indexState == SAVED_STATE) state = "SAVED"; //$NON-NLS-1$
-		else if (indexState == UPDATING_STATE) state = "UPDATING"; //$NON-NLS-1$
-		else if (indexState == UNKNOWN_STATE) state = "UNKNOWN"; //$NON-NLS-1$
-		else if (indexState == REBUILDING_STATE) state = "REBUILDING"; //$NON-NLS-1$
-		Util.verbose("-> index state updated to: " + state + " for: "+indexLocation); //$NON-NLS-1$ //$NON-NLS-2$
+		if (indexState == null) {
+			Util.verbose("-> index state removed for: "+indexLocation); //$NON-NLS-1$
+		} else {
+			String state = "?"; //$NON-NLS-1$
+			if (indexState == SAVED_STATE) state = "SAVED"; //$NON-NLS-1$
+			else if (indexState == UPDATING_STATE) state = "UPDATING"; //$NON-NLS-1$
+			else if (indexState == UNKNOWN_STATE) state = "UNKNOWN"; //$NON-NLS-1$
+			else if (indexState == REBUILDING_STATE) state = "REBUILDING"; //$NON-NLS-1$
+			Util.verbose("-> index state updated to: " + state + " for: "+indexLocation); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 }
 private void writeSavedIndexNamesFile() {
