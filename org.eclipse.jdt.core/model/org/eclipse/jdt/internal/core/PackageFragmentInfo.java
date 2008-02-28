@@ -43,7 +43,7 @@ Object[] getNonJavaResources(IResource underlyingResource, PackageFragmentRoot r
 		try {
 			this.nonJavaResources = 
 				PackageFragmentRootInfo.computeFolderNonJavaResources(
-					(JavaProject)rootHandle.getJavaProject(), 
+					rootHandle, 
 					(IContainer)underlyingResource, 
 					rootHandle.fullInclusionPatternChars(),
 					rootHandle.fullExclusionPatternChars());

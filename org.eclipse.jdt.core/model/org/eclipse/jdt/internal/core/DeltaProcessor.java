@@ -1584,16 +1584,14 @@ public class DeltaProcessor {
 	 * </ul>
 	 */
 	private void nonJavaResourcesChanged(Openable element, IResourceDelta delta) 	throws JavaModelException {
-		if (ExternalFoldersManager.isExternal(delta.getFullPath()))
-			return;
-
 		// reset non-java resources if element was open
 		if (element.isOpen()) {
 			JavaElementInfo info = (JavaElementInfo)element.getElementInfo();
 			switch (element.getElementType()) {
 				case IJavaElement.JAVA_MODEL :
 					((JavaModelInfo) info).nonJavaResources = null;
-					currentDelta().addResourceDelta(delta);
+					if (!ExternalFoldersManager.isExternal(delta.getFullPath()))
+						currentDelta().addResourceDelta(delta);
 					return;
 				case IJavaElement.JAVA_PROJECT :
 					((JavaProjectElementInfo) info).setNonJavaResources(null);
@@ -1603,8 +1601,7 @@ public class DeltaProcessor {
 					PackageFragmentRoot projectRoot =
 						(PackageFragmentRoot) project.getPackageFragmentRoot(project.getProject());
 					if (projectRoot.isOpen()) {
-						((PackageFragmentRootInfo) projectRoot.getElementInfo()).setNonJavaResources(
-							null);
+						((PackageFragmentRootInfo) projectRoot.getElementInfo()).setNonJavaResources(null);
 					}
 					break;
 				case IJavaElement.PACKAGE_FRAGMENT :
@@ -1621,7 +1618,8 @@ public class DeltaProcessor {
 			// don't use find after creating the delta as it can be null (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63434)
 			elementDelta = current.changed(element, IJavaElementDelta.F_CONTENT);
 		}
-		elementDelta.addResourceDelta(delta);
+		if (!ExternalFoldersManager.isExternal(delta.getFullPath()))
+			elementDelta.addResourceDelta(delta);
 	}
 	/*
 	 * Returns the other root infos for the given path. Look in the old other roots table if kind is REMOVED.

@@ -2553,9 +2553,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void sortResources(Object[] resources) {
 		Util.Comparer comparer = new Util.Comparer() {
 			public int compare(Object a, Object b) {
-				IResource resourceA = (IResource)a;
-				IResource resourceB = (IResource)b;
-				return resourceA.getFullPath().toString().compareTo(resourceB.getFullPath().toString());			}
+				if (a instanceof IResource) {
+					IResource resourceA = (IResource)a;
+					IResource resourceB = (IResource)b;
+					return resourceA.getFullPath().toString().compareTo(resourceB.getFullPath().toString());			
+				} else {
+					IJarEntryResource resourceA = (IJarEntryResource)a;
+					IJarEntryResource resourceB = (IJarEntryResource)b;
+					return resourceA.getFullPath().toString().compareTo(resourceB.getFullPath().toString());			
+				}
+			}
 		};
 		Util.sort(resources, comparer);
 	}

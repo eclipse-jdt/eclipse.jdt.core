@@ -1030,7 +1030,8 @@ public void testPackageFragmentNonJavaResources12() throws CoreException {
 		Object[] resources = pkg.getNonJavaResources();
 		assertResourceTreeEquals(
 			"unexpected non java resources", 
-			"",
+			"META-INF\n" + 
+			"test.txt",
 			resources);
 	} finally {
 		deleteProject("P");
@@ -1192,7 +1193,8 @@ public void testPackageFragmentRootNonJavaResources8() throws CoreException {
 		Object[] resources = root.getNonJavaResources();
 		assertResourceTreeEquals(
 			"unexpected non java resources", 
-			"",
+			"META-INF\n" + 
+			"test.txt",
 			resources);
 	} finally {
 		deleteProject("P");

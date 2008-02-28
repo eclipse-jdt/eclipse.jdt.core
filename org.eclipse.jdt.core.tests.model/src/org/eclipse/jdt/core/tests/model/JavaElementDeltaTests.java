@@ -855,6 +855,28 @@ public void testChangeExternalLibFolder3() throws CoreException {
  */
 public void testChangeExternalLibFolder4() throws CoreException {
 	try {
+		createExternalFolder("externalLib");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		startDeltas();
+		createExternalFile("externalLib/test.txt", "test");
+		refresh(p);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib[*]: {CONTENT}"
+		);
+	} finally {
+		stopDeltas();
+		deleteExternalFolder("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that changing an external library folder referenced by a library entry and refreshing triggers the correct delta
+ */
+public void testChangeExternalLibFolder5() throws CoreException {
+	try {
 		createExternalFolder("externalLib/p");
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
 		startDeltas();
@@ -862,7 +884,9 @@ public void testChangeExternalLibFolder4() throws CoreException {
 		refresh(p);
 		assertDeltas(
 			"Unexpected delta", 
-			""
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib[*]: {CHILDREN}\n" + 
+			"		p[*]: {CONTENT}"
 		);
 	} finally {
 		stopDeltas();
