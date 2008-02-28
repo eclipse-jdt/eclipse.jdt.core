@@ -39632,5 +39632,1552 @@ public void test1241() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100
+public void test1243() {
+	this.runConformTest(
+		new String[] {
+			"eclipse/modifier/impl/EclipseModifierBug.java",
+			"package eclipse.modifier.impl;\n" + 
+			"import eclipse.modifier.Pool;\n" + 
+			"public class EclipseModifierBug {\n" + 
+			"  static class MyEntry extends Pool.AbstractEntry<MyEntry> { }  \n" + 
+			"  static final Pool<MyEntry> pool=new Pool<MyEntry>() {\n" + 
+			"    @Override\n" + 
+			"    protected MyEntry delegate() {\n" + 
+			"      return new MyEntry();\n" + 
+			"    }  \n" + 
+			"  };\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    MyEntry entry=pool.m();  \n" + 
+			"  }\n" + 
+			"}", // =================
+			"eclipse/modifier/Pool.java",
+			"package eclipse.modifier;\n" + 
+			"public abstract class Pool<E extends Pool.Entry<E>> {\n" + 
+			"    static abstract class Entry<E extends Entry<E>> {\n" + 
+			"        E next;\n" + 
+			"    }\n" + 
+			"    static public class AbstractEntry<E extends AbstractEntry<E>> extends Entry<E> {\n" + 
+			"    }\n" + 
+			"    public E m() {\n" + 
+			"      return delegate();\n" + 
+			"    }\n" + 
+			"    protected abstract E delegate();\n" + 
+			"  }\n" + 
+			"\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100 - variation
+public void test1244() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  static class MyEntry extends Pool.AbstractEntry<MyEntry> { }  \n" + 
+				"  static final Pool<MyEntry> pool=new Pool<MyEntry>() {\n" + 
+				"    @Override\n" + 
+				"    protected MyEntry delegate() {\n" + 
+				"      return new MyEntry();\n" + 
+				"    }  \n" + 
+				"  };\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    MyEntry entry=pool.m();\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Pool<E extends Pool.Entry<E>> {\n" + 
+				"    private static abstract class Entry<E extends Entry<E>> {\n" + 
+				"        E next;\n" + 
+				"    }\n" + 
+				"    static public class AbstractEntry<E extends AbstractEntry<E>> extends Entry<E> {\n" + 
+				"    }\n" + 
+				"    public E m() {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"      return delegate();\n" + 
+				"    }\n" + 
+				"    protected abstract E delegate();\n" + 
+				"}\n", // =================
 
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100 - variation
+public void test1245() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X<T extends Secondary.Private> {\n" + 
+				"}\n" + 
+				"class Secondary {\n" + 
+				"	static private class Private {}\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends Secondary.Private> {\n" + 
+		"	                         ^^^^^^^^^^^^^^^^^\n" + 
+		"The type Secondary.Private is not visible\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	static private class Private {}\n" + 
+		"	                     ^^^^^^^\n" + 
+		"The type Secondary.Private is never used locally\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100 - variation
+public void test1246() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X<T extends X.Private> {\n" + 
+				"	static private class Private {}\n" + 
+				"	<U extends X.Private> void foo(U u) {}\n" + 
+				"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1254() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				" import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<String>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<String>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1255() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				" import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<?>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<?> ARRAY = new Sub() { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	static XList<Sub<?>> LIST = asList(ARRAY); \n" + 
+		"	                     ^^^^\n" + 
+		"Type mismatch: cannot convert from XList<X.Foo.Sub<capture#1-of ?>> to XList<X.Foo.Sub<?>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	static Sub<?> ARRAY = new Sub() { };\n" + 
+		"	                          ^^^\n" + 
+		"X.Foo.Sub is a raw type. References to generic type X.Foo<T>.Sub<T> should be parameterized\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1256() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<? extends Object>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<?>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1257() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<? extends Object>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<? extends Object>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"	Zork z;\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	static Sub<? extends Object>[] ARRAY = new Sub[] { };\n" + 
+		"	                                       ^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.Foo.Sub[] needs unchecked conversion to conform to X.Foo.Sub<? extends Object>[]\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 12)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1258() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<? extends Number>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<? extends Number>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1259() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<? extends Number>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<? extends Integer>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	static XList<Sub<? extends Number>> LIST = asList(ARRAY); \n" + 
+		"	                                    ^^^^\n" + 
+		"Type mismatch: cannot convert from XList<X.Foo.Sub<? extends Integer>> to XList<X.Foo.Sub<? extends Number>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	static Sub<? extends Integer>[] ARRAY = new Sub[] { };\n" + 
+		"	                                        ^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.Foo.Sub[] needs unchecked conversion to conform to X.Foo.Sub<? extends Integer>[]\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1260() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<? super Number>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<? super Number>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1261() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<?>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<? super Number>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	static XList<Sub<?>> LIST = asList(ARRAY); \n" + 
+		"	                     ^^^^\n" + 
+		"Type mismatch: cannot convert from XList<X.Foo.Sub<? super Number>> to XList<X.Foo.Sub<?>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	static Sub<? super Number>[] ARRAY = new Sub[] { };\n" + 
+		"	                                     ^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.Foo.Sub[] needs unchecked conversion to conform to X.Foo.Sub<? super Number>[]\n" + 
+		"----------\n"
+);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1262() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<? super Number>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<?>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	static XList<Sub<? super Number>> LIST = asList(ARRAY); \n" + 
+		"	                                  ^^^^\n" + 
+		"Type mismatch: cannot convert from XList<X.Foo.Sub<?>> to XList<X.Foo.Sub<? super Number>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1263() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    static <T> XList<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static XList<Sub<?>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static Sub<? super Object>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XList<T> {\n" + 
+				"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	static XList<Sub<?>> LIST = asList(ARRAY); \n" + 
+		"	                     ^^^^\n" + 
+		"Type mismatch: cannot convert from XList<X.Foo.Sub<? super Object>> to XList<X.Foo.Sub<?>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	static Sub<? super Object>[] ARRAY = new Sub[] { };\n" + 
+		"	                                     ^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.Foo.Sub[] needs unchecked conversion to conform to X.Foo.Sub<? super Object>[]\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1264() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"    static <T> List<T> asList(T[] x) { return null; }\n" + 
+				"    static interface Foo<T> {\n" + 
+				"        static interface Sub<T> extends Foo<T> {\n" + 
+				"            static List<X.Foo.Sub<?>> LIST = asList(ARRAY); \n" + 
+				"       }\n" + 
+				"        static X.Foo.Sub<?>[] ARRAY = new Sub[] { };\n" + 
+				"    }\n" + 
+				"}", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1265() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"    static <T> List<T> asList(T[] x) { return null; }\n" + 
+					"    static interface Foo<T> {\n" + 
+					"        static interface Sub<T> extends Foo<T> {\n" + 
+					"            static List<Foo.Sub<?>> LIST = asList(ARRAY); \n" + 
+					"       }\n" + 
+					"        static Sub<?>[] ARRAY = new Sub[] { };\n" + 
+					"    }\n" + 
+					"}", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216565 - variation
+public void test1266() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"    static <T> List<T> asList(T[] x) { return null; }\n" + 
+					"    static interface Foo<T> {\n" + 
+					"        static interface Sub<T> extends Foo<T> {\n" + 
+					"            static List<Sub<?>> LIST = asList(ARRAY); \n" + 
+					"       }\n" + 
+					"        static Foo.Sub<?>[] ARRAY = new Sub[] { };\n" + 
+					"    }\n" + 
+					"}", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216705
+public void test1267() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"	static interface Foo {\n" + 
+					"	}\n" + 
+					"	static interface SubFoo extends Foo {\n" + 
+					"	}\n" + 
+					"	static abstract class AbstractTest<T extends Foo> {\n" + 
+					"		protected static class Bar<T extends Foo> {\n" + 
+					"		}\n" + 
+					"		protected abstract List<Bar<? extends T>> get();\n" + 
+					"	}\n" + 
+					"	static class Test extends AbstractTest<SubFoo> {\n" + 
+					"		@Override\n" + 
+					"		protected List<Bar<? extends SubFoo>> get() {\n" + 
+					"			return null;\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216692
+public void test1268() {
+	this.runConformTest(
+			new String[] {
+					"pkg1/Foo.java",
+					"package pkg1;\n" + 
+					"import java.util.Map;\n" + 
+					"public class Foo<T> {\n" + 
+					"    protected final Map<String, Field> fields = null;\n" + 
+					"    protected static class Field { }\n" + 
+					"}\n",
+					"pkg2/SubFoo.java", 
+					"package pkg2;\n" + 
+					"import pkg1.Foo;\n" + 
+					"public class SubFoo<T> extends Foo<T> {\n" + 
+					"    private Field field = null;\n" + 
+					"    private void test() {\n" + 
+					"        Field field = fields.get(\"test\");\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686
+public void test1269() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1270() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { // # 2\n" + 
+					"		System.out.println(\"#2#\");\n" + 
+					"		return new TO<T>() { public String eval(T o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#2#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1271() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.println(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 24)\n" + 
+			"	put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+			"	^^^\n" + 
+			"The method put(Class<E>, X.TO<? super E>) in the type X is not applicable for the arguments (Class<Integer>, X.OO<String,Object>)\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1272() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.print(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"      try {\n" +
+					"		   put(Integer.class, (TO<Object>)combine(FUNC2, FUNC1));\n" + 
+					"      } catch(ClassCastException e) {\n" +
+					"		   System.out.println(\"#CLASSCAST#\");\n" + 
+					"		}\n" +
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#3##CLASSCAST#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1273() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { // # 2\n" + 
+					"		System.out.println(\"#2#\");\n" + 
+					"		return new TO<T>() { public String eval(T o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1274() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { // # 2\n" + 
+					"		System.out.println(\"#2#\");\n" + 
+					"		return new TO<T>() { public String eval(T o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, X.<Object>combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1275() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.println(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1276() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.println(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, X.<Object>combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1277() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { // # 2\n" + 
+					"		System.out.println(\"#2#\");\n" + 
+					"		return new TO<T>() { public String eval(T o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.println(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#2#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1278() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { // # 2\n" + 
+					"		System.out.println(\"#2#\");\n" + 
+					"		return new TO<T>() { public String eval(T o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.println(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1279() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	// some functor and functor instances definitions\n" + 
+					"	static interface OO<T, E> { \n" + 
+					"		public T eval(E x);\n" + 
+					"	}\n" + 
+					"	static interface TO<T> extends OO<String, T> {\n" + 
+					"		public String eval(T x);\n" + 
+					"	}\n" + 
+					"	static interface TT extends TO<String> {\n" + 
+					"		public String eval(String x);\n" + 
+					"	}\n" + 
+					"	static final TO<Object> FUNC1 = null;\n" + 
+					"	static final TT FUNC2 = null;\n" + 
+					"\n" + 
+					"	// some functor combinators\n" + 
+					"	static <E> TO<E> combine(final TT x, final TO<? super E> y) { // # 1\n" + 
+					"		System.out.println(\"#1#\");\n" + 
+					"		return new TO<E>() { public String eval(E o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { // # 2\n" + 
+					"		System.out.println(\"#2#\");\n" + 
+					"		return new TO<T>() { public String eval(T o) { return x.eval(y.eval(o)); } }; \n" + 
+					"	}\n" + 
+					"	static <E, T, V> OO<E, V> combine(final OO<E, ? super T> x, final OO<T, V> y) { // # 3\n" + 
+					"		System.out.println(\"#3#\");\n" + 
+					"		return new OO<E, V>() { public E eval(V o) { return x.eval(y.eval(o)); } };\n" + 
+					"	}\n" + 
+					"	// body of the test\n" + 
+					"	static <E> void put(Class<E> type, TO<? super E> func) {\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		put(Integer.class, X.<Object>combine(FUNC2, FUNC1));\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"#1#");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1280() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface OO<T,E> {}\n" + 
+					"interface TO<T> extends OO<String,T> {}\n" + 
+					"interface TT extends TO<String> {}\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"	<E, T> TO<T> combine(final TO<? super E> x, final OO<E, T> y) { return null; }\n" + 
+					"  void foo(TT tt, TO<? super Object> too) {\n" + 
+					"     combine(tt, too);\n" + 
+					"  }\n" + 
+					"}", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1281() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface OO<T,E> {}\n" + 
+					"interface TO<T> extends OO<String,T> {}\n" + 
+					"interface TT extends TO<String> {}\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"	<E, T> TO<T> combine(final TO<? super E> x, final OO<E, T>[] y) { return null; }\n" + 
+					"  void foo(TT tt, TO<? super Object>[] too) {\n" + 
+					"     combine(tt, too);\n" + 
+					"  }\n" + 
+					"}", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1282() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	static interface OO<T,E> {}\n" + 
+					"	static interface TO<T> extends OO<String,T> {}\n" + 
+					"	static interface TT extends TO<String> {}\n" + 
+					"	\n" + 
+					"	<E, T> TO<T> combine(TT x, TO<? super E> y) { return null; }\n" + 
+					"	void foo(TO<? super String> too, OO<String,Object> oo) {\n" + 
+					"		combine(too, oo);\n" + 
+					"	}\n" + 
+					"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\r\n" + 
+			"	combine(too, oo);\r\n" + 
+			"	^^^^^^^\n" + 
+			"The method combine(X.TT, X.TO<? super E>) in the type X is not applicable for the arguments (X.TO<capture#1-of ? super String>, X.OO<String,Object>)\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
+public void test1283() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	static interface OO<T,E> {}\n" + 
+					"	static interface TO<T> extends OO<String,T> {}\n" + 
+					"	static interface TT extends TO<String> {}\n" + 
+					"	\n" + 
+					"	<E, T> TO<T> combine(TT[] x, TO<? super E>[] y) { return null; }\n" + 
+					"	void foo(TO<? super String>[] too, OO<String,Object>[] oo) {\n" + 
+					"		combine(too, oo);\n" + 
+					"	}\n" + 
+					"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\r\n" + 
+			"	combine(too, oo);\r\n" + 
+			"	^^^^^^^\n" + 
+			"The method combine(X.TT[], X.TO<? super E>[]) in the type X is not applicable for the arguments (X.TO<? super String>[], X.OO<String,Object>[])\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425
+public void test1284() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Thread th = Thread.currentThread();\n" + 
+					"		Z<String, Thread> z1 = new Z<String, Thread>(th);\n" + 
+					"		Z<String, Exception> z2 = new Z<String, Exception>(new Exception());\n" + 
+					"		Y<String, Thread> y = new Y<String, Thread>() {};\n" + 
+					"		y.foo(z1).get().getThreadGroup();\n" + 
+					"		y.foo(z2).get().getThreadGroup(); // heap pollution: we get a CCE because we return a U2\n" + 
+					"		Zork z;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"abstract class Y<T, U> {\n" + 
+					"	I2<T, U> foo(I1<T> i) {\n" + 
+					"		return (I2<T, U>) i;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"interface I1<T> {\n" + 
+					"}\n" + 
+					"interface I2<T, U> extends I1<T> {\n" + 
+					"	U get();\n" + 
+					"}\n" + 
+					"class Z<V, W> implements I2<V, W> {\n" + 
+					"	W w;\n" + 
+					"	Z(W w) {\n" + 
+					"		this.w = w;\n" + 
+					"	}\n" + 
+					"	public W get() {\n" + 
+					"		return this.w;\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	return (I2<T, U>) i;\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from I1<T> to I2<T,U>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
+public void test1285() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Thread th = Thread.currentThread();\n" + 
+					"		Z<String, Thread> z1 = new Z<String, Thread>(th);\n" + 
+					"		Z<String, Exception> z2 = new Z<String, Exception>(new Exception());\n" + 
+					"		Y<String, Thread> y = new Y<String, Thread>() {};\n" + 
+					"		y.foo(z1).get().getThreadGroup();\n" + 
+					"		y.foo(z2).get().getThreadGroup();\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"abstract class Y<T, U> {\n" + 
+					"	I2<T, U> foo(I1<T,U> i) {\n" + 
+					"		return (I2<T, U>) i;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"interface I1<T, U> {\n" + 
+					"}\n" + 
+					"interface I2<T, U> extends I1<T,U> {\n" + 
+					"	U get();\n" + 
+					"}\n" + 
+					"class Z<V, W> implements I2<V, W> {\n" + 
+					"	W w;\n" + 
+					"	Z(W w) {\n" + 
+					"		this.w = w;\n" + 
+					"	}\n" + 
+					"	public W get() {\n" + 
+					"		return this.w;\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	y.foo(z2).get().getThreadGroup();\n" + 
+			"	  ^^^\n" + 
+			"The method foo(I1<String,Thread>) in the type Y<String,Thread> is not applicable for the arguments (Z<String,Exception>)\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
+public void test1286() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Thread th = Thread.currentThread();\n" + 
+					"		Z<String, Thread> z1 = new Z<String, Thread>(th);\n" + 
+					"		Z<String, Exception> z2 = new Z<String, Exception>(new Exception());\n" + 
+					"		Y<String, Thread> y = new Y<String, Thread>() {};\n" + 
+					"		y.foo(z1).get().getThreadGroup();\n" + 
+					"		y.foo(z2).get().getThreadGroup(); // heap pollution: we get a CCE because we return a U2\n" + 
+					"		Zork z;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"abstract class Y<T, U> {\n" + 
+					"	I2<U> foo(I1 i) {\n" + 
+					"		return (I2<U>) i;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"interface I1 {}\n" + 
+					"interface I2<U> extends I1 {\n" + 
+					"	U get();\n" + 
+					"}\n" + 
+					"class Z<V, W> implements I2<W> {\n" + 
+					"	W w;\n" + 
+					"	Z(W w) {\n" + 
+					"		this.w = w;\n" + 
+					"	}\n" + 
+					"	public W get() {\n" + 
+					"		return this.w;\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	return (I2<U>) i;\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from I1 to I2<U>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
+public void test1287() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Thread th = Thread.currentThread();\n" + 
+					"		Z<String, Thread> z1 = new Z<String, Thread>(th);\n" + 
+					"		Z<String, Exception> z2 = new Z<String, Exception>(new Exception());\n" + 
+					"		Y<String, Thread> y = new Y<String, Thread>() {};\n" + 
+					"		y.foo(z1).get().getThreadGroup();\n" + 
+					"		y.foo(z2).get().getThreadGroup(); // heap pollution: we get a CCE because we return a U2\n" + 
+					"		Zork z;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"abstract class Y<T, U> {\n" + 
+					"	I2<T,U> foo(I1<T,T> i) {\n" + 
+					"		return (I2<T,U>) i;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"interface I1<D,E> {}\n" + 
+					"interface I2<F,G> extends I1<F,F> {\n" + 
+					"	G get();\n" + 
+					"}\n" + 
+					"class Z<V, W> implements I2<V,W> {\n" + 
+					"	W w;\n" + 
+					"	Z(W w) {\n" + 
+					"		this.w = w;\n" + 
+					"	}\n" + 
+					"	public W get() {\n" + 
+					"		return this.w;\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	return (I2<T,U>) i;\n" + 
+			"	       ^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from I1<T,T> to I2<T,U>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
+public void test1288() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.Map;\n" + 
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Thread th = Thread.currentThread();\n" + 
+					"		Z<String, Thread> z1 = new Z<String, Thread>(th);\n" + 
+					"		Z<String, Exception> z2 = new Z<String, Exception>(new Exception());\n" + 
+					"		Y<String, Thread> y = new Y<String, Thread>() {};\n" + 
+					"		y.foo(z1).get().getThreadGroup();\n" + 
+					"		y.foo(z2).get().getThreadGroup(); // heap pollution: we get a CCE because we return a U2\n" + 
+					"		Zork z;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"abstract class Y<T, U> {\n" + 
+					"	I2<T,U> foo(I1<Map<T,T>> i) {\n" + 
+					"		return (I2<T,U>) i;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"interface I1<D> {}\n" + 
+					"interface I2<F,G> extends I1<Map<F,F>> {\n" + 
+					"	G get();\n" + 
+					"}\n" + 
+					"class Z<V, W> implements I2<V,W> {\n" + 
+					"	W w;\n" + 
+					"	Z(W w) {\n" + 
+					"		this.w = w;\n" + 
+					"	}\n" + 
+					"	public W get() {\n" + 
+					"		return this.w;\n" + 
+					"	}\n" + 
+					"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 15)\n" + 
+			"	return (I2<T,U>) i;\n" + 
+			"	       ^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from I1<Map<T,T>> to I2<T,U>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
+public void test1289() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.Map;\n" + 
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Thread th = Thread.currentThread();\n" + 
+					"		Z<String, Thread> z1 = new Z<String, Thread>(th);\n" + 
+					"		Z<String, Exception> z2 = new Z<String, Exception>(new Exception());\n" + 
+					"		Y<String, Thread> y = new Y<String, Thread>() {};\n" + 
+					"		y.foo(z1).get().getThreadGroup();\n" + 
+					"		y.foo(z2).get().getThreadGroup(); // heap pollution: we get a CCE because we return a U2\n" + 
+					"		Zork z;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"abstract class Y<T, U> {\n" + 
+					"	I2<T,U> foo(I1<Map<T,T>> i) {\n" + 
+					"		return (I2<T,U>) i;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"interface I1<D> {}\n" + 
+					"interface I2<F,G> extends I1<Map<F,G>> {\n" + 
+					"	G get();\n" + 
+					"}\n" + 
+					"class Z<V, W> implements I2<V,W> {\n" + 
+					"	W w;\n" + 
+					"	Z(W w) {\n" + 
+					"		this.w = w;\n" + 
+					"	}\n" + 
+					"	public W get() {\n" + 
+					"		return this.w;\n" + 
+					"	}\n" + 
+					"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	y.foo(z1).get().getThreadGroup();\n" + 
+			"	  ^^^\n" + 
+			"The method foo(I1<Map<String,String>>) in the type Y<String,Thread> is not applicable for the arguments (Z<String,Thread>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	y.foo(z2).get().getThreadGroup(); // heap pollution: we get a CCE because we return a U2\n" + 
+			"	  ^^^\n" + 
+			"The method foo(I1<Map<String,String>>) in the type Y<String,Thread> is not applicable for the arguments (Z<String,Exception>)\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 15)\n" + 
+			"	return (I2<T,U>) i;\n" + 
+			"	       ^^^^^^^^^^^\n" + 
+			"Cannot cast from I1<Map<T,T>> to I2<T,U>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=210425 - variation
+public void test1290() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X <T, U> {\n" + 
+					"  K<T> foo(I<T> i) {\n" + 
+					"        return (K<T>) i;\n" + 
+					"  }\n" + 
+					"  Zork z;\n" + 
+					"}\n" + 
+					"interface I<T> {\n" + 
+					"}\n" + 
+					"interface J<T, U> extends I<T> {\n" + 
+					"}\n" + 
+					"interface K<T> extends J<T, String> {\n" + 
+					"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=218677
+public void test1291() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.ArrayList;\n" + 
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"    public static <D, E extends D> List<D> moreGeneric(List<E> list) {\n" + 
+					"        List<D> result = new ArrayList<D>();\n" + 
+					"        result.addAll( list );\n" + 
+					"        return result;\n" + 
+					"    }\n" + 
+					"    class A {}\n" + 
+					"    class B extends A {}\n" + 
+					"    class C extends B {}\n" + 
+					"    public static void main( String[] args ) {\n" + 
+					"        List<B> b = new ArrayList<B>();\n" + 
+					"        List<A> a = moreGeneric(b);\n" + 
+					"        List<C> c = moreGeneric(b);\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 15)\n" + 
+			"	List<C> c = moreGeneric(b);\n" + 
+			"	            ^^^^^^^^^^^\n" + 
+			"Bound mismatch: The generic method moreGeneric(List<E>) of type X is not applicable for the arguments (List<X.B>). The inferred type X.B is not a valid substitute for the bounded parameter <E extends D>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=218677 - variation
+public void test1292() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.ArrayList;\n" + 
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"    public static <D, E extends D> List<E> moreSpecific(List<D> list) {\n" + 
+					"        List<E> result = new ArrayList<E>();\n" + 
+					"        result.addAll( (List<?>)list );\n" + 
+					"        return result;\n" + 
+					"    }\n" + 
+					"    class A {}\n" + 
+					"    class B extends A {}\n" + 
+					"    class C extends B {}\n" + 
+					"    public static void main( String[] args ) {\n" + 
+					"        List<B> b = new ArrayList<B>();\n" + 
+					"        List<A> a = moreSpecific(b);\n" + 
+					"        List<C> c = moreSpecific(b);\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	result.addAll( (List<?>)list );\n" + 
+			"	       ^^^^^^\n" + 
+			"The method addAll(Collection<? extends E>) in the type List<E> is not applicable for the arguments (List<capture#1-of ?>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	List<A> a = moreSpecific(b);\n" + 
+			"	            ^^^^^^^^^^^^\n" + 
+			"Bound mismatch: The generic method moreSpecific(List<D>) of type X is not applicable for the arguments (List<X.B>). The inferred type X.A is not a valid substitute for the bounded parameter <E extends D>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220111
+public void test1293() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<Token, NodeType> {\n" + 
+					"    class Table {\n" + 
+					"        State<Token>   s;\n" + 
+					"        Table() {\n" + 
+					"            this.s = new State<Token>();\n" + 
+					"        }\n" + 
+					"		class State<T> {\n" + 
+					"		}\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220111 - variation
+public void test1294() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<Token, NodeType> {\n" + 
+					"    static class Table {\n" + 
+					"        State<String>   s;\n" + 
+					"        Table() {\n" + 
+					"            this.s = new State<String>();\n" + 
+					"        }\n" + 
+					"		class State<T> {\n" + 
+					"		}\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303 - variation
+public void test1295() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"class Deejay {\n" + 
+					"	class Counter<T> {}\n" + 
+					"\n" + 
+					"	Deejay.Counter<Song> songCounter = new Deejay.Counter<Song>();\n" + 
+					"	Deejay.Counter<Genre> genreCounter = new Deejay.Counter<Genre>();\n" + 
+					"\n" + 
+					"	java.util.List<Counter<?>> list1 = java.util.Arrays.asList(songCounter, genreCounter);\n" + 
+					"	java.util.List<Counter<? extends Object>> list2 = java.util.Arrays.asList(songCounter, genreCounter);\n" + 
+					"	java.util.List<Counter<?>> list3 = java.util.Arrays.<Deejay.Counter<?>>asList(songCounter, genreCounter);\n" + 
+					"	java.util.List<Counter<?>> list4 = java.util.Arrays.asList(new Deejay.Counter<?>[] {songCounter, genreCounter});\n" + 
+					"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\n" + 
+					"}\n" + 
+					"class Genre {}\n" + 
+					"class Song {}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	java.util.List<Counter<?>> list1 = java.util.Arrays.asList(songCounter, genreCounter);\n" + 
+			"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	java.util.List<Counter<? extends Object>> list2 = java.util.Arrays.asList(songCounter, genreCounter);\n" + 
+			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 11)\n" + 
+			"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\n" + 
+			"	                                          ^^^^^\n" + 
+			"Type mismatch: cannot convert from List<Deejay.Counter<? extends Object>> to List<Deejay.Counter<? extends String>>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 11)\n" + 
+			"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\n" + 
+			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220111 - variation
+public void test1296() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<Token, NodeType> {\n" + 
+					"	class Table {\n" + 
+					"		Table.State<Token> s;\n" + 
+					"\n" + 
+					"		Table() {\n" + 
+					"			this.s = new Table.State<Token>();\n" + 
+					"		}\n" + 
+					"\n" + 
+					"		class State<T> {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220111 - variation
+public void test1297() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<Token, NodeType> {\n" + 
+					"	class Table {\n" + 
+					"		X<Token, NodeType>.Table.State<Token> s;\n" + 
+					"\n" + 
+					"		Table() {\n" + 
+					"			this.s = new X<Token, NodeType>().new Table().new State<Token>();\n" + 
+					"		}\n" + 
+					"\n" + 
+					"		class State<T> {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220111 - variation
+public void test1298() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<Token, NodeType> {\n" + 
+					"	static class Table {\n" + 
+					"		X.Table.State<String> s;\n" + 
+					"\n" + 
+					"		Table() {\n" + 
+					"			this.s = new X.Table().new State<String>();\n" + 
+					"		}\n" + 
+					"\n" + 
+					"		class State<T> {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220361
+public void test1299() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<U, V> {\n" + 
+					"	static class Table {\n" + 
+					"		X.Table.State<String> s;\n" + 
+					"\n" + 
+					"		Table() {\n" + 
+					"			this.s = new X.Table.State<String>();\n" + 
+					"		}\n" + 
+					"\n" + 
+					"		static class State<T> {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220361 - variation
+public void test1300() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<U, V> {\n" + 
+					"	static class Table {\n" + 
+					"		State<String> s;\n" + 
+					"\n" + 
+					"		Table() {\n" + 
+					"			this.s = new State<String>();\n" + 
+					"		}\n" + 
+					"\n" + 
+					"		static class State<T> {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220361 - variation
+public void test1301() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X<U, V> {\n" + 
+					"	static class Table {\n" + 
+					"		Table.State<String> s;\n" + 
+					"\n" + 
+					"		Table() {\n" + 
+					"			this.s = new Table.State<String>();\n" + 
+					"		}\n" + 
+					"\n" + 
+					"		static class State<T> {\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"");
+}
 }

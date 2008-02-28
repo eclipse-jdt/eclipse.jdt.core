@@ -179,7 +179,7 @@ public void enterCompilationUnit() {
 	// implements interface method
 }
 /**
- * @see ISourceElementRequestor#enterConstructor(MethodInfo)
+ * @see ISourceElementRequestor#enterConstructor(ISourceElementRequestor.MethodInfo)
  */
 public void enterConstructor(MethodInfo methodInfo) {
 	this.indexer.addConstructorDeclaration(methodInfo.name, methodInfo.parameterTypes, methodInfo.exceptionTypes);
@@ -203,7 +203,7 @@ private void enterEnum(TypeInfo typeInfo) {
 	this.pushTypeName(typeInfo.name);	
 }
 /**
- * @see ISourceElementRequestor#enterField(FieldInfo)
+ * @see ISourceElementRequestor#enterField(ISourceElementRequestor.FieldInfo)
  */
 public void enterField(FieldInfo fieldInfo) {
 	this.indexer.addFieldDeclaration(fieldInfo.type, fieldInfo.name);
@@ -241,14 +241,14 @@ private void enterInterface(TypeInfo typeInfo) {
 	this.pushTypeName(typeInfo.name);	
 }
 /**
- * @see ISourceElementRequestor#enterMethod(MethodInfo)
+ * @see ISourceElementRequestor#enterMethod(ISourceElementRequestor.MethodInfo)
  */
 public void enterMethod(MethodInfo methodInfo) {
 	this.indexer.addMethodDeclaration(methodInfo.name, methodInfo.parameterTypes, methodInfo.returnType, methodInfo.exceptionTypes);
 	this.methodDepth++;
 }
 /**
- * @see ISourceElementRequestor#enterType(TypeInfo)
+ * @see ISourceElementRequestor#enterType(ISourceElementRequestor.TypeInfo)
  */
 public void enterType(TypeInfo typeInfo) {
 	// TODO (jerome) might want to merge the 4 methods

@@ -2512,8 +2512,10 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 			break;
 		default :
 			TypeBinding accessErasure = accessMethod.returnType.erasure();
-			if (!targetMethod.returnType.isCompatibleWith(accessErasure))
+			TypeBinding match = targetMethod.returnType.findSuperTypeWithSameErasure(accessErasure);
+			if (match == null) {
 				this.checkcast(accessErasure); // for bridge methods
+			}
 			this.areturn();
 	}
 }

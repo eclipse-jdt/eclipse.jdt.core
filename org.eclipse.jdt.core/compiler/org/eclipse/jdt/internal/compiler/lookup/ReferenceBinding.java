@@ -204,8 +204,8 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 		if (invocationType == this) return true;
 		if (invocationType.fPackage == this.fPackage) return true;
 
-		ReferenceBinding currentType = invocationType;
-		ReferenceBinding declaringClass = enclosingType(); // protected types always have an enclosing one
+		TypeBinding currentType = invocationType.erasure();
+		TypeBinding declaringClass = enclosingType().erasure(); // protected types always have an enclosing one
 		if (declaringClass == invocationType) return true;
 		if (declaringClass == null) return false; // could be null if incorrect top-level protected type
 		//int depth = 0;
@@ -284,13 +284,13 @@ public final boolean canBeSeenBy(Scope scope) {
 		//    OR previous assertions are true for one of the enclosing type
 		if (invocationType.fPackage == this.fPackage) return true;
 
-		ReferenceBinding currentType = invocationType;
-		ReferenceBinding declaringClass = enclosingType(); // protected types always have an enclosing one
+		TypeBinding currentType = invocationType.erasure();
+		TypeBinding declaringClass = enclosingType().erasure(); // protected types always have an enclosing one
 		if (declaringClass == null) return false; // could be null if incorrect top-level protected type
 		// int depth = 0;
 		do {
 			if (declaringClass == invocationType) return true;
-			if (declaringClass.isSuperclassOf(currentType)) return true;
+			if (currentType.findSuperTypeWithSameErasure(declaringClass) != null) return true;
 			// depth++;
 			currentType = currentType.enclosingType();
 		} while (currentType != null);

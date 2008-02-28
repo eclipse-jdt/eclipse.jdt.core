@@ -112,11 +112,12 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				return null;
 			}
 			enclosingType = this.resolvedType.enclosingType(); // if member type
-			if (enclosingType != null && (enclosingType.isGenericType() || enclosingType.isParameterizedType())) {
+			if (enclosingType != null) {
 				ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
 				enclosingType = currentType.isStatic()
 					? (ReferenceBinding) scope.environment().convertToRawType(enclosingType)
 					: scope.environment().convertToParameterizedType(enclosingType);
+				this.resolvedType = scope.environment().createParameterizedType((ReferenceBinding) currentType.erasure(), null /* no arg */, enclosingType);
 			}
 		} else { // resolving member type (relatively to enclosingType)
 			this.resolvedType = scope.getMemberType(token, enclosingType);
@@ -136,14 +137,15 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	    	((ClassScope) scope).superTypeReference = null;
 	    }
 		ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
+		ReferenceBinding currentErasure = (ReferenceBinding)currentType.erasure();
 		int argLength = this.typeArguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argLength];
 		boolean argHasError = false;
 		for (int i = 0; i < argLength; i++) {
 		    TypeReference typeArgument = this.typeArguments[i];
 		    TypeBinding argType = isClassScope
-				? typeArgument.resolveTypeArgument((ClassScope) scope, currentType, i)
-				: typeArgument.resolveTypeArgument((BlockScope) scope, currentType, i);
+				? typeArgument.resolveTypeArgument((ClassScope) scope, currentErasure, i)
+				: typeArgument.resolveTypeArgument((BlockScope) scope, currentErasure, i);
 		     if (argType == null) {
 		         argHasError = true;
 		     } else {
@@ -168,12 +170,12 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			ReferenceBinding actualEnclosing = currentType.enclosingType();
 			if (actualEnclosing != null && actualEnclosing.isRawType()){
 				scope.problemReporter().rawMemberTypeCannotBeParameterized(
-						this, scope.environment().createRawType((ReferenceBinding)currentType.erasure(), actualEnclosing), argTypes);
+						this, scope.environment().createRawType(currentErasure, actualEnclosing), argTypes);
 				return null;
 			}
 		}
 
-    	ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, enclosingType);
+    	ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentErasure, argTypes, enclosingType);
 		// check argument type compatibility
 		if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 			parameterizedType.boundCheck(scope, this.typeArguments);

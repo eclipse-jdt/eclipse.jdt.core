@@ -5927,6 +5927,254 @@ public void test149() {
 		"     inner name: #56 Foo6, accessflags: 9 public static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216683
+public void test151() {
+	long compliance = new CompilerOptions(getCompilerOptions()).complianceLevel;
+	if (compliance <= ClassFileConstants.JDK1_3) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"\n" + 
+					"    public static interface Foo { }\n" + 
+					"    public static interface Bar { }\n" + 
+					"\n" + 
+					"    private static class B2F extends X { }\n" + 
+					"    private static class F2B extends X { }\n" + 
+					"\n" + 
+					"    public static abstract class Key {\n" + 
+					"\n" + 
+					"        public abstract Key flip();\n" + 
+					"\n" + 
+					"        private static class B2F extends Key {\n" + 
+					"            private static B2F create() { return new B2F(); }\n" + 
+					"            public Key flip() { return F2B.create(); }\n" + 
+					"        }\n" + 
+					"\n" + 
+					"        private static class F2B extends Key {\n" + 
+					"            private static F2B create() { return new F2B(); }\n" + 
+					"            public Key flip() { return B2F.create(); }\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"}", // =================
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 6)\n" + 
+				"	private static class B2F extends X { }\n" + 
+				"	                     ^^^\n" + 
+				"The type X.B2F is never used locally\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 7)\n" + 
+				"	private static class F2B extends X { }\n" + 
+				"	                     ^^^\n" + 
+				"The type X.F2B is never used locally\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 13)\n" + 
+				"	private static class B2F extends Key {\n" + 
+				"	                     ^^^\n" + 
+				"The type X.Key.B2F is never used locally\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 14)\n" + 
+				"	private static B2F create() { return new B2F(); }\n" + 
+				"	                   ^^^^^^^^\n" + 
+				"The method create() from the type X.Key.B2F is never used locally\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 15)\n" + 
+				"	public Key flip() { return F2B.create(); }\n" + 
+				"	                           ^^^\n" + 
+				"The type F2B is defined in an inherited type and an enclosing scope\n" + 
+				"----------\n" + 
+				"6. WARNING in X.java (at line 18)\n" + 
+				"	private static class F2B extends Key {\n" + 
+				"	                     ^^^\n" + 
+				"The type X.Key.F2B is never used locally\n" + 
+				"----------\n" + 
+				"7. WARNING in X.java (at line 19)\n" + 
+				"	private static F2B create() { return new F2B(); }\n" + 
+				"	                   ^^^^^^^^\n" + 
+				"The method create() from the type X.Key.F2B is never used locally\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 20)\n" + 
+				"	public Key flip() { return B2F.create(); }\n" + 
+				"	                           ^^^\n" + 
+				"The type B2F is defined in an inherited type and an enclosing scope\n" + 
+				"----------\n");	
+	} else if (compliance == ClassFileConstants.JDK1_4) {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"\n" + 
+					"    public static interface Foo { }\n" + 
+					"    public static interface Bar { }\n" + 
+					"\n" + 
+					"    private static class B2F extends X { }\n" + 
+					"    private static class F2B extends X { }\n" + 
+					"\n" + 
+					"    public static abstract class Key {\n" + 
+					"\n" + 
+					"        public abstract Key flip();\n" + 
+					"\n" + 
+					"        private static class B2F extends Key {\n" + 
+					"            private static B2F create() { return new B2F(); }\n" + 
+					"            public Key flip() { return F2B.create(); }\n" + 
+					"        }\n" + 
+					"\n" + 
+					"        private static class F2B extends Key {\n" + 
+					"            private static F2B create() { return new F2B(); }\n" + 
+					"            public Key flip() { return B2F.create(); }\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"}", // =================
+	
+				},
+				"");	
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X<U, V> {\n" + 
+					"\n" + 
+					"    public static interface Foo { }\n" + 
+					"    public static interface Bar { }\n" + 
+					"\n" + 
+					"    private static class B2F extends X<Bar, Foo> { }\n" + 
+					"    private static class F2B extends X<Foo, Bar> { }\n" + 
+					"\n" + 
+					"    public static abstract class Key<S, T> {\n" + 
+					"\n" + 
+					"        public abstract Key<T, S> flip();\n" + 
+					"\n" + 
+					"        private static class B2F extends Key<Bar, Foo> {\n" + 
+					"            private static B2F create() { return new B2F(); }\n" + 
+					"            public Key<Foo, Bar> flip() { return F2B.create(); }\n" + 
+					"        }\n" + 
+					"\n" + 
+					"        private static class F2B extends Key<Foo, Bar> {\n" + 
+					"            private static F2B create() { return new F2B(); }\n" + 
+					"            public Key<Bar, Foo> flip() { return B2F.create(); }\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"}", // =================
+				},
+				"");	
+	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=216683 - variation
+public void test152() {
+	long compliance = new CompilerOptions(getCompilerOptions()).complianceLevel;
+	if (compliance <= ClassFileConstants.JDK1_3) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"\n" + 
+					"    public static interface Foo { }\n" + 
+					"    public static interface Bar { }\n" + 
+					"\n" + 
+					"    public static class B2F extends X { }\n" + 
+					"    public static class F2B extends X { }\n" + 
+					"\n" + 
+					"    public static abstract class Key {\n" + 
+					"\n" + 
+					"        public abstract Key flip();\n" + 
+					"\n" + 
+					"        public static class B2F extends Key {\n" + 
+					"            private static B2F create() { return new B2F(); }\n" + 
+					"            public Key flip() { return F2B.create(); }\n" + 
+					"        }\n" + 
+					"\n" + 
+					"        public static class F2B extends Key {\n" + 
+					"            private static F2B create() { return new F2B(); }\n" + 
+					"            public Key flip() { return B2F.create(); }\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"}", // =================
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 14)\n" + 
+				"	private static B2F create() { return new B2F(); }\n" + 
+				"	                   ^^^^^^^^\n" + 
+				"The method create() from the type X.Key.B2F is never used locally\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 15)\n" + 
+				"	public Key flip() { return F2B.create(); }\n" + 
+				"	                           ^^^\n" + 
+				"The type F2B is defined in an inherited type and an enclosing scope\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 19)\n" + 
+				"	private static F2B create() { return new F2B(); }\n" + 
+				"	                   ^^^^^^^^\n" + 
+				"The method create() from the type X.Key.F2B is never used locally\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 20)\n" + 
+				"	public Key flip() { return B2F.create(); }\n" + 
+				"	                           ^^^\n" + 
+				"The type B2F is defined in an inherited type and an enclosing scope\n" + 
+				"----------\n");	
+	} else if (compliance == ClassFileConstants.JDK1_4) {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"\n" + 
+					"    public static interface Foo { }\n" + 
+					"    public static interface Bar { }\n" + 
+					"\n" + 
+					"    private static class B2F extends X { }\n" + 
+					"    private static class F2B extends X { }\n" + 
+					"\n" + 
+					"    public static abstract class Key {\n" + 
+					"\n" + 
+					"        public abstract Key flip();\n" + 
+					"\n" + 
+					"        private static class B2F extends Key {\n" + 
+					"            private static B2F create() { return new B2F(); }\n" + 
+					"            public Key flip() { return F2B.create(); }\n" + 
+					"        }\n" + 
+					"\n" + 
+					"        private static class F2B extends Key {\n" + 
+					"            private static F2B create() { return new F2B(); }\n" + 
+					"            public Key flip() { return B2F.create(); }\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"}", // =================
+	
+				},
+				"");	
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X<U, V> {\n" + 
+					"\n" + 
+					"    public static interface Foo { }\n" + 
+					"    public static interface Bar { }\n" + 
+					"\n" + 
+					"    private static class B2F extends X<Bar, Foo> { }\n" + 
+					"    private static class F2B extends X<Foo, Bar> { }\n" + 
+					"\n" + 
+					"    public static abstract class Key<S, T> {\n" + 
+					"\n" + 
+					"        public abstract Key<T, S> flip();\n" + 
+					"\n" + 
+					"        private static class B2F extends Key<Bar, Foo> {\n" + 
+					"            private static B2F create() { return new B2F(); }\n" + 
+					"            public Key<Foo, Bar> flip() { return F2B.create(); }\n" + 
+					"        }\n" + 
+					"\n" + 
+					"        private static class F2B extends Key<Foo, Bar> {\n" + 
+					"            private static F2B create() { return new F2B(); }\n" + 
+					"            public Key<Bar, Foo> flip() { return B2F.create(); }\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"}", // =================
+				},
+				"");	
+	}
+}
+
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }
