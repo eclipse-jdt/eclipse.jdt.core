@@ -51,6 +51,9 @@ protected void copy(IPackageFragmentRoot root, IPath destination, IClasspathEntr
 		null);
 }
 protected void delete(IPackageFragmentRoot root) throws JavaModelException {
+	// ensure indexing is not interferring with the deletion
+	waitUntilIndexesReady();
+	
 	root.delete(
 		IResource.NONE,
 		IPackageFragmentRoot.ORIGINATING_PROJECT_CLASSPATH
@@ -61,6 +64,9 @@ protected void move(IPackageFragmentRoot root, IPath destination) throws JavaMod
 	move(root, destination, null);
 }
 protected void move(IPackageFragmentRoot root, IPath destination, IClasspathEntry sibling) throws JavaModelException {
+	// ensure indexing is not interferring with the move
+	waitUntilIndexesReady();
+	
 	root.move(
 		destination, 
 		IResource.NONE, 
