@@ -295,6 +295,35 @@ public void testNonExistingCompilationUnit() throws CoreException {
 	}
 }
 /*
+ * Ensure that a non-existing external library root doesn't exists
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=220811 )
+ */
+public void testNonExistingExternalPackageFragmentRoot1() throws CoreException {
+	try {
+		createProject("P1");
+		createFolder("/P1/lib");
+		IJavaProject p = createJavaProject("P2", new String[0], new String[] {"/P1/lib"}, "");
+		IPackageFragmentRoot root = p.getPackageFragmentRoot("/P1/lib"); // external library
+		assertFalse("root should not exist", root.exists()); // /P1/lib is an internal library so it doesn't exist
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/*
+ * Ensure that a non-existing external library root doesn't exists
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=220811 )
+ */
+public void testNonExistingExternalPackageFragmentRoot2() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("nonExisting")}, "");
+		IPackageFragmentRoot root = p.getPackageFragmentRoot(getExternalFolderPath("nonExisting"));
+		assertFalse("root should not exist", root.exists());
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
  * Ensure that a non-existing package fragment cannot be opened.
  */
 public void testNonExistingPackageFragment1() throws CoreException {
