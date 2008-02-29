@@ -163,7 +163,8 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 //			if (!currentMethod.isAbstract() && inheritedMethod.isAbstract()) {
 //				if ((currentMethod.modifiers & CompilerModifiers.AccOverriding) == 0)
 //					currentMethod.modifiers |= CompilerModifiers.AccImplementing;
-			} else {
+			} else if (inheritedMethod.isPublic() || !type.isInterface()) {
+				// interface I { @Override Object clone(); } does not override Object#clone()
 				currentMethod.modifiers |= ExtraCompilerModifiers.AccOverriding;
 			}
 	
