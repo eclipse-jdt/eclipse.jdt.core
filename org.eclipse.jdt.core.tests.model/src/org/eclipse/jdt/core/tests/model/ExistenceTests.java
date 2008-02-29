@@ -295,6 +295,18 @@ public void testNonExistingCompilationUnit() throws CoreException {
 	}
 }
 /*
+ * Ensure that a non-existing external library root doesn't exists
+ */
+public void testNonExistingExternalPackageFragmentRoot() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("nonExisting")}, "");
+		IPackageFragmentRoot root = p.getPackageFragmentRoot(getExternalFolderPath("nonExisting"));
+		assertFalse(	"root should not exist", root.exists());
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
  * Ensure that a non-existing package fragment cannot be opened.
  */
 public void testNonExistingPackageFragment1() throws CoreException {

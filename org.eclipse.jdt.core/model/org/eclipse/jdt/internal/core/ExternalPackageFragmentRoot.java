@@ -105,6 +105,10 @@ public class ExternalPackageFragmentRoot extends PackageFragmentRoot {
 			return (IResource) (this.resource = JavaModelManager.getExternalManager().getFolder(this.externalPath));
 		return super.resource(root);
 	}
+	
+	protected boolean resourceExists(IResource underlyingResource) {
+		return underlyingResource != null && underlyingResource.getLocation().toFile().exists();
+	}
 
 	protected void toStringAncestors(StringBuffer buffer) {
 		// don't show project as it is irrelevant for external folders.
