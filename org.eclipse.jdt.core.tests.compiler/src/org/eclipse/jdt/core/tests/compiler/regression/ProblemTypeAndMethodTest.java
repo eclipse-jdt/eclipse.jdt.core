@@ -3692,4 +3692,66 @@ public void test077() {
 				"}\n",//-----------------------------------------------------------------------
 			},
 			expected);
-}}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220967
+public void test078() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.util.List;\n" + 
+				"interface B {\n" + 
+				"  B m(String seq);\n" + 
+				"}\n" + 
+				"public class X implements B {\n" + 
+				"	public Zork m(String arg0) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	public Zork m(String arg0) {\n" + 
+			"	       ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220967 - variation
+public void test079() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" + 
+				"	public Zork m(X x) {\n" + 
+				"		return x;\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public Zork m(X x) {\n" + 
+			"	       ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220967 - variation
+public void test080() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"import java.util.List;\n" + 
+				"interface B {\n" + 
+				"  void m() throws Exception;\n" + 
+				"}\n" + 
+				"public class X implements B {\n" + 
+				"	public void m() throws IOException {\n" + 
+				"	}\n" + 
+				"}\n",//-----------------------------------------------------------------------
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	public void m() throws IOException {\n" + 
+			"	                       ^^^^^^^^^^^\n" + 
+			"IOException cannot be resolved to a type\n" + 
+			"----------\n");
+}
+}

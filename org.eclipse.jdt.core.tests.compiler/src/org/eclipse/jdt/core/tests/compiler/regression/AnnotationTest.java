@@ -8363,4 +8363,44 @@ public void test257() {
 			},
 			"");		
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=167262
+public void test258() {
+	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
+	?	"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	void bar();//3\n" + 
+		"	     ^^^^^\n" + 
+		"The method bar() of type Bar must override a superclass method\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	public void bar() {}//4\n" + 
+		"	            ^^^^^\n" + 
+		"The method bar() of type BarImpl must override a superclass method\n" + 
+		"----------\n"
+	:	"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	void bar();//3\n" + 
+		"	     ^^^^^\n" + 
+		"The method bar() of type Bar must override or implement a supertype method\n" + 
+		"----------\n";	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Foo {\n" + 
+			"	@Override\n" + 
+			"	String toString();//1\n" + 
+			"}\n" + 
+			"interface Bar extends Foo {\n" + 
+			"	@Override\n" + 
+			"	String toString();//2\n" + 
+			"	@Override\n" + 
+			"	void bar();//3\n" + 
+			"}\n" + 
+			"class BarImpl implements Bar {\n" + 
+			"	@Override\n" + 
+			"	public void bar() {}//4\n" + 
+			"}\n"
+		},
+		expectedOutput);
+}
 }
