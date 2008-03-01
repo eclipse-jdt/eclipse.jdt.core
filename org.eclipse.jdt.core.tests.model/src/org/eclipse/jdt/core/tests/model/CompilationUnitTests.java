@@ -802,6 +802,23 @@ public void testAnnotations25() throws CoreException {
 }
 
 /*
+ * Ensure that a simple name member annotation with an array {null} value is correct.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=220940 )
+ */
+public void testAnnotations26() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(value={null})\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot([unknown]{<null>})\n",
+		annotations);
+}
+
+/*
  * Ensures that the categories for a class are correct.
  */
 public void testGetCategories01() throws CoreException {

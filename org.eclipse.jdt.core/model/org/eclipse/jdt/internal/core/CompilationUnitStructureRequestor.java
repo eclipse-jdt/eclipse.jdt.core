@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
+import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -610,7 +611,9 @@ private IMemberValuePair getMemberValuePair(MemberValuePair memberValuePair) {
  * Creates the value from the given expression, and sets the valueKind on the given memberValuePair
  */
 private Object getMemberValue(org.eclipse.jdt.internal.core.MemberValuePair memberValuePair, Expression expression) {
-	if (expression instanceof Literal) {
+	if (expression instanceof NullLiteral) {
+		return null;
+	} else if (expression instanceof Literal) {
 		((Literal) expression).computeConstant();
 		return Util.getAnnotationMemberValue(memberValuePair, expression.constant);
 	} else if (expression instanceof org.eclipse.jdt.internal.compiler.ast.Annotation) {

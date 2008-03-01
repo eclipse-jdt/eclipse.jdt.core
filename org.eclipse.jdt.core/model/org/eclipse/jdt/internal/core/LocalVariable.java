@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
 import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Literal;
+import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -154,7 +155,9 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	 * Creates the value wrapper from the given expression, and sets the valueKind on the given memberValuePair
 	 */
 	private Object getAnnotationMemberValue(MemberValuePair memberValuePair, Expression expression, JavaElement parentElement) {
-		if (expression instanceof Literal) {
+		if (expression instanceof NullLiteral) {
+			return null;
+		} else if (expression instanceof Literal) {
 			((Literal) expression).computeConstant();
 			return Util.getAnnotationMemberValue(memberValuePair, expression.constant);
 		} else if (expression instanceof org.eclipse.jdt.internal.compiler.ast.Annotation) {
