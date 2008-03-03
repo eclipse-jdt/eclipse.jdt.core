@@ -1236,5 +1236,29 @@ public void test085() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#BasicTestTextIns(int, float, Class)");
 	assertSortedResults("");
-	}
 }
+
+public void test086() throws JavaModelException {
+	String source =
+		"package javadoc.text;\n" + 
+		"public abstract class BasicTest extends BasicTestSecondaryClass implements BasicTestSecondaryInterface{\n" + 
+		"	/**\n" + 
+		"	 * Completion after:\n" + 
+		"	 * 	#meth\n" + 
+		"	 */\n" + 
+		"	BasicTest() {}\n" + 
+		"}\n" + 
+		"class BasicTestSecondaryClass\n" + 
+		"	void method1() {}\n" + 
+		"}\n" + 
+		"interface BasicTestSecondaryInterface\n" + 
+		"	void method2() {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "#meth");
+	assertSortedResults(
+			"method1[JAVADOC_METHOD_REF]{{@link #method1()}, Ljavadoc.text.BasicTestSecondaryClass;, ()V, method1, null, "+this.positions+R_DRICNRNSIT+"}\n" + 
+			"method2[JAVADOC_METHOD_REF]{{@link #method2()}, Ljavadoc.text.BasicTestSecondaryInterface;, ()V, method2, null, "+this.positions+R_DRICNRNSIT+"}"
+	);
+}
+}
+

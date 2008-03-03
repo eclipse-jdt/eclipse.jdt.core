@@ -7100,8 +7100,7 @@ public final class CompletionEngine
 				}
 			}
 			
-			if (notInJavadoc &&
-					hasPotentialDefaultAbstractMethods &&
+			if (hasPotentialDefaultAbstractMethods &&
 					(currentType.isAbstract() ||
 							currentType.isTypeVariable() ||
 							currentType.isIntersectionType() ||
