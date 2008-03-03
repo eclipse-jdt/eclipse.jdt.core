@@ -188,7 +188,7 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 	}
 
 	if (createElementInCUOperation && isMove() && !isRenamingMainType(element, destination)) {
-		DeleteElementsOperation deleteOp = new DeleteElementsOperation(new IJavaElement[] { element }, this.force);
+		JavaModelOperation deleteOp = new DeleteElementsOperation(new IJavaElement[] { element }, this.force);
 		executeNestedOperation(deleteOp, 1);
 	}
 }

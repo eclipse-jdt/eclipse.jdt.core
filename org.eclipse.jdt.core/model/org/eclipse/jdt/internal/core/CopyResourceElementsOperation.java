@@ -29,8 +29,6 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
 /**
@@ -228,7 +226,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	private void processCompilationUnitResource(ICompilationUnit source, PackageFragment dest) throws JavaModelException {
 		String newCUName = getNewNameFor(source);
 		String destName = (newCUName != null) ? newCUName : source.getElementName();
-		ASTRewrite rewrite = updateContent(source, dest, newCUName); // null if unchanged
+		TextEdit edit = updateContent(source, dest, newCUName); // null if unchanged
 	
 		// TODO (frederic) remove when bug 67606 will be fixed (bug 67823)
 		// store encoding (fix bug 66898)
@@ -265,7 +263,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 						flags |= IResource.KEEP_HISTORY;
 						sourceResource.move(destFile.getFullPath(), flags, getSubProgressMonitor(1));
 					} else {
-						if (rewrite != null) flags |= IResource.KEEP_HISTORY;
+						if (edit != null) flags |= IResource.KEEP_HISTORY;
 						sourceResource.copy(destFile.getFullPath(), flags, getSubProgressMonitor(1));
 					}
 					setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
@@ -279,10 +277,10 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			}
 	
 			// update new resource content
-			if (rewrite != null){
+			if (edit != null){
 				boolean wasReadOnly = destFile.isReadOnly();
 				try {
-					saveContent(dest, destName, rewrite, sourceEncoding, destFile);
+					saveContent(dest, destName, edit, sourceEncoding, destFile);
 				} catch (CoreException e) {
 					if (e instanceof JavaModelException) throw (JavaModelException) e;
 					throw new JavaModelException(e);
@@ -308,8 +306,8 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			// update new resource content
 			// in case we do a saveas on the same resource we have to simply update the contents
 			// see http://dev.eclipse.org/bugs/show_bug.cgi?id=9351
-			if (rewrite != null){
-				saveContent(dest, destName, rewrite, sourceEncoding, destFile);
+			if (edit != null){
+				saveContent(dest, destName, edit, sourceEncoding, destFile);
 			}
 		}
 	}
@@ -462,13 +460,8 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 						AST ast = astCU.getAST();
 						ASTRewrite rewrite = ASTRewrite.create(ast);
 						updatePackageStatement(astCU, newFragName, rewrite);
-						IDocument document = getDocument(cu);
-						TextEdit edits = rewrite.rewriteAST(document, null);
-						try {
-							edits.apply(document);
-						} catch (BadLocationException e) {
-							throw new JavaModelException(e, IJavaModelStatusConstants.INVALID_CONTENTS);
-						}			
+						TextEdit edits = rewrite.rewriteAST();
+						applyTextEdit(cu, edits);
 						cu.save(null, false);
 					}
 				}
@@ -523,7 +516,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			throw new JavaModelException(ce);
 		}
 	}
-	private void saveContent(PackageFragment dest, String destName, ASTRewrite rewrite, String sourceEncoding, IFile destFile) throws JavaModelException {
+	private void saveContent(PackageFragment dest, String destName, TextEdit edits, String sourceEncoding, IFile destFile) throws JavaModelException {
 		try {
 			// TODO (frederic) remove when bug 67606 will be fixed (bug 67823)
 			// fix bug 66898
@@ -534,17 +527,11 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			// use no encoding
 		}
 		// when the file was copied, its read-only flag was preserved -> temporary set it to false
-		// note this doesn't interfer with repository providers as this is a new resource that cannot be under
+		// note this doesn't interfere with repository providers as this is a new resource that cannot be under
 		// version control yet
 		Util.setReadOnly(destFile, false);
 		ICompilationUnit destCU = dest.getCompilationUnit(destName);
-		IDocument document = getDocument(destCU);
-		TextEdit edits = rewrite.rewriteAST(document, null);
-		try {
-			edits.apply(document);
-		} catch (BadLocationException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.INVALID_CONTENTS);
-		}
+		applyTextEdit(destCU, edits);
 		destCU.save(getSubProgressMonitor(1), this.force);
 	}
 	/**
@@ -553,7 +540,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 *
 	 * @return an AST rewrite or null if no rewrite needed
 	 */
-	private ASTRewrite updateContent(ICompilationUnit cu, PackageFragment dest, String newName) throws JavaModelException {
+	private TextEdit updateContent(ICompilationUnit cu, PackageFragment dest, String newName) throws JavaModelException {
 		String[] currPackageName = ((PackageFragment) cu.getParent()).names;
 		String[] destPackageName = dest.names;
 		if (Util.equalArraysOrNull(currPackageName, destPackageName) && newName == null) {
@@ -567,7 +554,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			ASTRewrite rewrite = ASTRewrite.create(ast);
 			updateTypeName(cu, astCU, cu.getElementName(), newName, rewrite);
 			updatePackageStatement(astCU, destPackageName, rewrite);
-			return rewrite;
+			return rewrite.rewriteAST();
 		}
 	}
 	private void updatePackageStatement(CompilationUnit astCU, String[] pkgName, ASTRewrite rewriter) throws JavaModelException {

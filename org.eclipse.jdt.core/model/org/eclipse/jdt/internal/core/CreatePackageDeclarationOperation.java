@@ -29,7 +29,6 @@ import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.core.util.Messages;
-import org.eclipse.jface.text.IDocument;
 
 /**
  * <p>This operation adds/replaces a package declaration in an existing compilation unit.
@@ -56,7 +55,7 @@ public CreatePackageDeclarationOperation(String name, ICompilationUnit parentEle
 protected StructuralPropertyDescriptor getChildPropertyDescriptor(ASTNode parent) {
 	return CompilationUnit.PACKAGE_PROPERTY;
 }
-protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, ICompilationUnit cu) throws JavaModelException {
+protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException {
 	//look for an existing package declaration
 	IJavaElement[] children = getCompilationUnit().getChildren();
 	for (int i = 0; i < children.length; i++) {

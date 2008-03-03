@@ -32,8 +32,6 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.TextUtilities;
 
 /**
  * Implements functionality common to
@@ -76,9 +74,9 @@ protected StructuralPropertyDescriptor getChildPropertyDescriptor(ASTNode parent
 			return TypeDeclaration.BODY_DECLARATIONS_PROPERTY;
 	}
 }
-protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, ICompilationUnit cu) throws JavaModelException {
+protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException {
 	if (this.createdNode == null) {
-		this.source = removeIndentAndNewLines(this.source, document, cu);
+		this.source = removeIndentAndNewLines(this.source, cu);
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setSource(this.source.toCharArray());
 		parser.setProject(getCompilationUnit().getJavaProject());
@@ -120,7 +118,7 @@ protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, IC
 	// return a string place holder (instead of the created node) so has to not lose comments and formatting
 	return rewriter.createStringPlaceholder(this.source, this.createdNode.getNodeType());
 }
-private String removeIndentAndNewLines(String code, IDocument document, ICompilationUnit cu) {
+private String removeIndentAndNewLines(String code, ICompilationUnit cu) throws JavaModelException {
 	IJavaProject project = cu.getJavaProject();
 	Map options = project.getOptions(true/*inherit JavaCore options*/);
 	int tabWidth = IndentManipulation.getTabWidth(options);
@@ -135,7 +133,7 @@ private String removeIndentAndNewLines(String code, IDocument document, ICompila
 	while (lastNonWhiteSpace > 0)
 		if (!ScannerHelper.isWhitespace(code.charAt(--lastNonWhiteSpace)))
 			break;
-	String lineDelimiter = TextUtilities.getDefaultLineDelimiter(document);
+	String lineDelimiter = cu.findRecommendedLineSeparator();
 	return IndentManipulation.changeIndent(code.substring(firstNonWhiteSpace, lastNonWhiteSpace+1), indent, tabWidth, indentWidth, "", lineDelimiter); //$NON-NLS-1$
 }
 /*
@@ -199,7 +197,7 @@ public IJavaModelStatus verify() {
 		//check for name collisions
 		try {
 			ICompilationUnit cu = getCompilationUnit();
-			generateElementAST(null, getDocument(cu), cu);
+			generateElementAST(null, cu);
 		} catch (JavaModelException jme) {
 			return jme.getJavaModelStatus();
 		}

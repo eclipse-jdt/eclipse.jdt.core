@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.core.util.Messages;
-import org.eclipse.jface.text.IDocument;
 
 /**
  * <p>This operation creates a initializer in a type.
@@ -47,8 +46,8 @@ public class CreateInitializerOperation extends CreateTypeMemberOperation {
 public CreateInitializerOperation(IType parentElement, String source) {
 	super(parentElement, source, false);
 }
-protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, ICompilationUnit cu) throws JavaModelException {
-	ASTNode node = super.generateElementAST(rewriter, document, cu);
+protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException {
+	ASTNode node = super.generateElementAST(rewriter, cu);
 	if (node.getNodeType() != ASTNode.INITIALIZER)
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
 	return node;

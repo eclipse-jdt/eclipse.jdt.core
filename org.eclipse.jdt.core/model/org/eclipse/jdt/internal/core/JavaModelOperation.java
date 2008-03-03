@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.util.Messages;
-import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * Defines behavior common to all Java Model operations
@@ -189,6 +189,18 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 */
 	protected void removeReconcileDelta(ICompilationUnit workingCopy) {
 		JavaModelManager.getJavaModelManager().getDeltaProcessor().reconcileDeltas.remove(workingCopy);		
+	}
+	protected void applyTextEdit(ICompilationUnit cu, TextEdit edits) throws JavaModelException {
+		try {
+			cu.applyTextEdit(edits, this.progressMonitor);
+		} catch (JavaModelException e) {
+			if (e.getJavaModelStatus().getCode() == IJavaModelStatusConstants.BAD_TEXT_EDIT_LOCATION) {
+				// content changed under us
+				throw new JavaModelException(e.getException(), IJavaModelStatusConstants.INVALID_CONTENTS);
+			} else {
+				throw e;
+			}
+		}
 	}
 	/**
 	 * @see IProgressMonitor
@@ -420,15 +432,6 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			operationStacks.set(stack);
 		}
 		return stack;
-	}
-	/*
-	 * Returns the existing document for the given cu, or a DocumentAdapter if none.
-	 */
-	protected IDocument getDocument(ICompilationUnit cu) throws JavaModelException {
-		IBuffer buffer = cu.getBuffer();
-		if (buffer instanceof IDocument)
-			return (IDocument) buffer;
-		return new DocumentAdapter(buffer);
 	}
 	/**
 	 * Returns the element to which this operation applies,

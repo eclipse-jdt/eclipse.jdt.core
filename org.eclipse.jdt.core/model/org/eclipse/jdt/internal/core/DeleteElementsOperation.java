@@ -29,8 +29,6 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.core.util.Messages;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
 /**
@@ -74,16 +72,11 @@ public class DeleteElementsOperation extends MultiOperation {
 		ASTNode node = ((JavaElement) elementToRemove).findNode(astCU);
 		if (node == null) 
 			Assert.isTrue(false, "Failed to locate " + elementToRemove.getElementName() + " in " + cu.getElementName()); //$NON-NLS-1$//$NON-NLS-2$
-		IDocument document = getDocument(cu);
 		AST ast = astCU.getAST();
 		ASTRewrite rewriter = ASTRewrite.create(ast);
 		rewriter.remove(node, null);
- 		TextEdit edits = rewriter.rewriteAST(document, null);
- 		try {
-	 		edits.apply(document);
- 		} catch (BadLocationException e) {
- 			throw new JavaModelException(e, IJavaModelStatusConstants.INVALID_CONTENTS);
- 		}
+ 		TextEdit edits = rewriter.rewriteAST();
+ 		applyTextEdit(cu, edits);
 	}
 
 	private void initASTParser() {

@@ -25,7 +25,6 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.core.util.Messages;
-import org.eclipse.jface.text.IDocument;
 
 /**
  * <p>This operation creates a field declaration in a type.
@@ -48,8 +47,8 @@ public class CreateFieldOperation extends CreateTypeMemberOperation {
 public CreateFieldOperation(IType parentElement, String source, boolean force) {
 	super(parentElement, source, force);
 }
-protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, ICompilationUnit cu) throws JavaModelException {
-	ASTNode node = super.generateElementAST(rewriter, document, cu);
+protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException {
+	ASTNode node = super.generateElementAST(rewriter, cu);
 	if (node.getNodeType() != ASTNode.FIELD_DECLARATION)
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
 	return node;

@@ -27,7 +27,6 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
-import org.eclipse.jface.text.IDocument;
 
 /**
  * <p>This operation creates an instance method. 
@@ -74,8 +73,8 @@ protected String[] convertASTMethodTypesToSignatures() {
 	}
 	return this.parameterTypes;
 }
-protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, ICompilationUnit cu) throws JavaModelException {
-	ASTNode node = super.generateElementAST(rewriter, document, cu);
+protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException {
+	ASTNode node = super.generateElementAST(rewriter, cu);
 	if (node.getNodeType() != ASTNode.METHOD_DECLARATION)
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS));
 	return node;

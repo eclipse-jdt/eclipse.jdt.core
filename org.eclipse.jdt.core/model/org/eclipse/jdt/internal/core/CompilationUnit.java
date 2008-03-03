@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
@@ -68,14 +69,13 @@ public CompilationUnit(PackageFragment parent, String name, WorkingCopyOwner own
  * @see ICompilationUnit#applyTextEdit(TextEdit, IProgressMonitor)
  */
 public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws JavaModelException {
-	IBuffer buffer= getBuffer();
+	IBuffer buffer = getBuffer();
 	if (buffer instanceof IBuffer.ITextEditCapability) {
 		return ((IBuffer.ITextEditCapability) buffer).applyTextEdit(edit, monitor);
 	} else if (buffer != null) {
-		DocumentAdapter document= new DocumentAdapter(buffer);
+		IDocument document = buffer instanceof IDocument ? (IDocument) buffer : new DocumentAdapter(buffer);
 		try {
 			UndoEdit undoEdit= edit.apply(document);
-			buffer.setContents(document.get());
 			return undoEdit;
 		} catch (MalformedTreeException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.BAD_TEXT_EDIT_LOCATION);

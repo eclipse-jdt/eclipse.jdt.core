@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.Map;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
@@ -29,8 +27,6 @@ import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.internal.core.util.Util;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
 /**
@@ -92,14 +88,6 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	public CreateElementInCUOperation(IJavaElement parentElement) {
 		super(null, new IJavaElement[]{parentElement});
 		initializeDefaultPosition();
-	}
-	protected void apply(ASTRewrite rewriter, IDocument document, Map options) throws JavaModelException {
-		TextEdit edits = rewriter.rewriteAST(document, options);
- 		try {
-	 		edits.apply(document);
- 		} catch (BadLocationException e) {
- 			throw new JavaModelException(e, IJavaModelStatusConstants.INVALID_CONTENTS);
- 		}
 	}
 	/**
 	 * Only allow cancelling if this operation is not nested.
@@ -168,7 +156,7 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	/*
 	 * Returns an AST node for the element being created.
 	 */
-	protected abstract ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, ICompilationUnit cu) throws JavaModelException;
+	protected abstract ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException;
 	/*
 	 * Generates a new AST for this operation and applies it to the given cu
 	 */
@@ -177,14 +165,14 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 		
 		AST ast = this.cuAST.getAST();
 		ASTRewrite rewriter = ASTRewrite.create(ast);
-		IDocument document = getDocument(cu);
-		ASTNode child = generateElementAST(rewriter, document, cu);
+		ASTNode child = generateElementAST(rewriter, cu);
 		if (child != null) {
 			ASTNode parent = ((JavaElement) getParentElement()).findNode(this.cuAST);
 			if (parent == null)
 				parent = this.cuAST;
 			insertASTNode(rewriter, parent, child);
-			apply(rewriter, document, cu.getJavaProject().getOptions(true));
+			TextEdit edits = rewriter.rewriteAST();
+			applyTextEdit(cu, edits);
 		}
 		worked(1);
 	}

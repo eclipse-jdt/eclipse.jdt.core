@@ -33,7 +33,6 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.core.util.Messages;
-import org.eclipse.jface.text.IDocument;
 
 /**
  * <p>This operation adds an import declaration to an existing compilation unit.
@@ -76,7 +75,7 @@ public CreateImportOperation(String importName, ICompilationUnit parentElement, 
 protected StructuralPropertyDescriptor getChildPropertyDescriptor(ASTNode parent) {
 	return CompilationUnit.IMPORTS_PROPERTY;
 }
-protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, ICompilationUnit cu) throws JavaModelException {
+protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException {
 	// ensure no duplicate
 	Iterator imports = this.cuAST.imports().iterator();
 	boolean onDemand = this.importName.endsWith(".*"); //$NON-NLS-1$
