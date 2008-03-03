@@ -46,8 +46,8 @@ public class QualifiedNameReference extends NameReference {
 	public FieldBinding[] otherBindings, otherCodegenBindings;
 	int[] otherDepths;
 	public int indexOfFirstFieldBinding;//points (into tokens) for the first token that corresponds to first FieldBinding
-	SyntheticMethodBinding syntheticWriteAccessor;
-	SyntheticMethodBinding[] syntheticReadAccessors;
+	public SyntheticMethodBinding syntheticWriteAccessor;
+	public SyntheticMethodBinding[] syntheticReadAccessors;
 	public TypeBinding genericCast;
 	public TypeBinding[] otherGenericCasts;
 	
