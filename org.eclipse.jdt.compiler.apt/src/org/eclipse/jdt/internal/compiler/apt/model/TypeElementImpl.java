@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 IBM Corporation and others.
+ * Copyright (c) 2005, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,13 +41,16 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypeElementImpl extends ElementImpl implements TypeElement {
 	
+	private final ElementKind _kindHint;
+	
 	/**
 	 * In general, clients should call {@link Factory#newDeclaredType(ReferenceBinding)} or
 	 * {@link Factory#newElement(org.eclipse.jdt.internal.compiler.lookup.Binding)} to
 	 * create new instances.
 	 */
-	TypeElementImpl(BaseProcessingEnvImpl env, ReferenceBinding binding) {
+	TypeElementImpl(BaseProcessingEnvImpl env, ReferenceBinding binding, ElementKind kindHint) {
 		super(env, binding);
+		_kindHint = kindHint;
 	}
 	
 	@Override
@@ -78,7 +81,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 			}
 		}
 		for (ReferenceBinding memberType : binding.memberTypes()) {
-			TypeElement type = new TypeElementImpl(_env, memberType);
+			TypeElement type = new TypeElementImpl(_env, memberType, null);
 			enclosed.add(type);
 		}
 		return Collections.unmodifiableList(enclosed);
@@ -121,6 +124,9 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 
 	@Override
 	public ElementKind getKind() {
+		if (null != _kindHint) {
+			return _kindHint;
+		}
 		ReferenceBinding refBinding = (ReferenceBinding)_binding;
 		// The order of these comparisons is important: e.g., enum is subset of class
 		if (refBinding.isEnum()) {

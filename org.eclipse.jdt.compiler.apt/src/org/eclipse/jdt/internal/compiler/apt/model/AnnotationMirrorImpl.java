@@ -97,7 +97,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 			return _env.getFactory().getErrorType();
 		}
 		ReferenceBinding annoType = _binding.getAnnotationType();
-		return _env.getFactory().newDeclaredType(annoType);
+		return _env.getFactory().newAnnotationType(annoType);
 	}
 	
 	/**

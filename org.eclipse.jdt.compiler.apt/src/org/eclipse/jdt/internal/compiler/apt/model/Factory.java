@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2008 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -243,7 +243,10 @@ public class Factory {
 		return new AnnotationMirrorImpl(_env, binding);
 	}
 	
-	public Element newElement(Binding binding) {
+	/**
+	 * Create a new element that knows what kind it is even if the binding is unresolved.
+	 */
+	public Element newElement(Binding binding, ElementKind kindHint) {
 		if (binding == null) {
 			return new ErrorTypeElement(this._env);
 		}
@@ -258,17 +261,17 @@ public class Factory {
 			if (referenceBinding.sourceName == TypeConstants.PACKAGE_INFO_NAME) {
 				return new PackageElementImpl(_env, referenceBinding.fPackage);
 			}
-			return new TypeElementImpl(_env, referenceBinding);
+			return new TypeElementImpl(_env, referenceBinding, kindHint);
 		case Binding.METHOD:
 			return new ExecutableElementImpl(_env, (MethodBinding)binding);
 		case Binding.RAW_TYPE:
 		case Binding.PARAMETERIZED_TYPE:
-			return new TypeElementImpl(_env, ((ParameterizedTypeBinding)binding).genericType());
+			return new TypeElementImpl(_env, ((ParameterizedTypeBinding)binding).genericType(), kindHint);
 		case Binding.PACKAGE:
 			return new PackageElementImpl(_env, (PackageBinding)binding);
 		case Binding.TYPE_PARAMETER:
 			return new TypeParameterElementImpl(_env, (TypeVariableBinding)binding);
-		// TODO: fill in the rest of these
+			// TODO: fill in the rest of these
 		case Binding.IMPORT:
 		case Binding.ARRAY_TYPE:
 		case Binding.BASE_TYPE:
@@ -277,6 +280,10 @@ public class Factory {
 			throw new UnsupportedOperationException("NYI: binding type " + binding.kind()); //$NON-NLS-1$
 		}
 		return null;
+	}
+	
+	public Element newElement(Binding binding) {
+		return newElement(binding, null);
 	}
 	
 	public DeclaredType newDeclaredType(ReferenceBinding binding) {
@@ -289,6 +296,24 @@ public class Factory {
 				throw new IllegalArgumentException("An intersection binding can't be turned into a DeclaredType"); //$NON-NLS-1$
 		}
 		return new DeclaredTypeImpl(_env, binding);
+	}
+
+	/**
+	 * When an annotation is of unresolved type, its binding won't know that it's an annotation type,
+	 * so later on if the caller tries to get the type asElement(), and then asks for the ElementKind,
+	 * they'll get back CLASS rather than ANNOTATION_TYPE.  If we know from context that the binding
+	 * is to an annotation type, calling this method allows us to hint to the underlying TypeElementImpl. 
+	 */
+	public DeclaredType newAnnotationType(ReferenceBinding binding) {
+		switch (binding.kind()) {
+			case Binding.WILDCARD_TYPE :
+				// JDT wildcard binding is a subclass of reference binding, but in JSR269 they're siblings
+				throw new IllegalArgumentException("A wildcard binding can't be turned into a DeclaredType"); //$NON-NLS-1$
+			case Binding.INTERSECTION_TYPE :
+				// JDT intersection binding is a subclass of reference binding, but in JSR269 they're siblings
+				throw new IllegalArgumentException("An intersection binding can't be turned into a DeclaredType"); //$NON-NLS-1$
+		}
+		return new DeclaredTypeImpl(_env, binding, ElementKind.ANNOTATION_TYPE);
 	}
 
 	/**

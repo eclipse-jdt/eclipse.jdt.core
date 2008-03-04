@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2008 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -36,14 +37,27 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
  */
 public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 	
+	private final ElementKind _elementKindHint;
+	
 	/* package */ DeclaredTypeImpl(BaseProcessingEnvImpl env, ReferenceBinding binding) {
 		super(env, binding);
+		_elementKindHint = null;
+	}
+
+	/**
+	 * Create a DeclaredType that knows in advance what kind of element to produce from asElement().
+	 * This is useful in the case where the type binding is to an unresolved type, but we know
+	 * from context what type it is - e.g., an annotation type.
+	 */
+	/* package */ DeclaredTypeImpl(BaseProcessingEnvImpl env, ReferenceBinding binding, ElementKind elementKindHint) {
+		super(env, binding);
+		_elementKindHint = elementKindHint;
 	}
 
 	@Override
 	public Element asElement() {
 		// The JDT compiler does not distinguish between type elements and declared types
-		return _env.getFactory().newElement((ReferenceBinding)_binding);
+		return _env.getFactory().newElement((ReferenceBinding)_binding, _elementKindHint);
 	}
 
 	@Override

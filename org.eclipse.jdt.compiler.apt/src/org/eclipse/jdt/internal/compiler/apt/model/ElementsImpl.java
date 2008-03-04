@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 BEA Systems, Inc.
+ * Copyright (c) 2006, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -605,7 +605,7 @@ public class ElementsImpl implements Elements {
 		if (null == binding) {
 			return null;
 		}
-		return new TypeElementImpl(_env, binding);
+		return new TypeElementImpl(_env, binding, null);
 	}
 
 	/* (non-Javadoc)
