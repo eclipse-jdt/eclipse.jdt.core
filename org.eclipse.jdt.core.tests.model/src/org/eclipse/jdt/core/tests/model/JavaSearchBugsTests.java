@@ -9743,4 +9743,51 @@ public void testBug218397() throws CoreException {
 		"src/Bug.java Bug.{}:Inner#1.field [			§|Row|§ field;//LINE 3] EXACT_MATCH"
 	);
 }
+
+/**
+ * @bug 221110: [search] NPE at org.eclipse.jdt.internal.compiler.util.SimpleLookupTable.removeKey
+ * @test Ensure that no NPE occurs while searching for reference to generic class
+ * 	when referenced in a unbound wildcard parameterized type
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=221110"
+ */
+public void testBug221110() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"public class X<T> {\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/Y.java",
+		"public class Y<T extends X<?>> {\n" + 
+		"}\n"
+	);
+	this.resultCollector.showSelection = true;
+	this.resultCollector.showRule = true;
+	IType type = this.workingCopies[0].getType("X");
+	search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+	assertSearchResults(
+		"src/Y.java Y [public class Y<T extends §|X|§<?>> {] ERASURE_MATCH"
+	);
+}
+public void testBug221110b() throws CoreException {
+	workingCopies = new ICompilationUnit[3];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/I.java",
+		"public interface I<T> {\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"public class X<T> {\n" + 
+		"}\n"
+	);
+	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/Z.java",
+		"public class Z<T extends X<?> & I<?>> {\n" + 
+		"}\n"
+	);
+	this.resultCollector.showSelection = true;
+	this.resultCollector.showRule = true;
+	IType type = this.workingCopies[0].getType("I");
+	search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH, getJavaSearchWorkingCopiesScope(), this.resultCollector);
+	assertSearchResults(
+		"src/Z.java Z [public class Z<T extends X<?> & §|I|§<?>> {] ERASURE_MATCH"
+	);
+}
 }

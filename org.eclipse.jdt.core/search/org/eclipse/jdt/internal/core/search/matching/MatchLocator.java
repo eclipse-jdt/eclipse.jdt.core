@@ -2575,11 +2575,13 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 							}
 							if (typeArgument instanceof Wildcard) {
 	                            TypeReference wildcardBound = ((Wildcard) typeArgument).bound;
-								level = (Integer) nodeSet.matchingNodes.removeKey(wildcardBound);
-								if (level != null) {
-									IJavaElement localElement = createHandle(typeParameter, enclosingElement);
-									this.patternLocator.matchReportReference(wildcardBound, enclosingElement, localElement, null, binding, level.intValue(), this);
-								}
+	                            if (wildcardBound != null) {
+									level = (Integer) nodeSet.matchingNodes.removeKey(wildcardBound);
+									if (level != null) {
+										IJavaElement localElement = createHandle(typeParameter, enclosingElement);
+										this.patternLocator.matchReportReference(wildcardBound, enclosingElement, localElement, null, binding, level.intValue(), this);
+									}
+	                            }
                             }
                     	}
                     }
@@ -2606,11 +2608,13 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 								}
 								if (typeArgument instanceof Wildcard) {
 		                            TypeReference wildcardBound = ((Wildcard) typeArgument).bound;
-									level = (Integer) nodeSet.matchingNodes.removeKey(wildcardBound);
-									if (level != null) {
-										IJavaElement localElement = createHandle(typeParameter, enclosingElement);
-										this.patternLocator.matchReportReference(wildcardBound, enclosingElement, localElement, null, binding, level.intValue(), this);
-									}
+		                            if (wildcardBound != null) {
+										level = (Integer) nodeSet.matchingNodes.removeKey(wildcardBound);
+										if (level != null) {
+											IJavaElement localElement = createHandle(typeParameter, enclosingElement);
+											this.patternLocator.matchReportReference(wildcardBound, enclosingElement, localElement, null, binding, level.intValue(), this);
+										}
+		                            }
 	                            }
 	                    	}
 	                    }
