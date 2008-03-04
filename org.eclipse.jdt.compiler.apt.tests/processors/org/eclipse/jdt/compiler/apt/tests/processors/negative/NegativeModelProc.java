@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc.
+ * Copyright (c) 2007, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -216,6 +216,47 @@ public class NegativeModelProc extends AbstractProcessor
 		"</model>";
 
 	/**
+	 * Reference model for class Negative7.
+	 */
+	private static final String NEGATIVE_7_MODEL = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
+		"<model>\n" + 
+		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative7\" sname=\"Negative7\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"  </superclass>\n" + 
+		"  <executable-element kind=\"METHOD\" sname=\"method1\">\n" + 
+		"   <annotations>\n" + 
+		"    <annotation sname=\"A1\"/>\n" + 
+		"   </annotations>\n" + 
+		"   <variable-element kind=\"PARAMETER\" sname=\"arg0\" type=\"int\">\n" + 
+		"    <annotations>\n" + 
+		"     <annotation sname=\"A1\"/>\n" + 
+		"    </annotations>\n" + 
+		"   </variable-element>\n" + 
+		"  </executable-element>\n" + 
+		" </type-element>\n" + 
+		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative7A\" sname=\"Negative7A\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"  </superclass>\n" + 
+		"  <interfaces>\n" + 
+		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Cloneable\"/>\n" + 
+		"  </interfaces>\n" + 
+		"  <executable-element kind=\"METHOD\" sname=\"method1\">\n" + 
+		"   <annotations>\n" + 
+		"    <annotation sname=\"A1\"/>\n" + 
+		"   </annotations>\n" + 
+		"   <variable-element kind=\"PARAMETER\" sname=\"arg0\" type=\"int\">\n" + 
+		"    <annotations>\n" + 
+		"     <annotation sname=\"A1\"/>\n" + 
+		"    </annotations>\n" + 
+		"   </variable-element>\n" + 
+		"  </executable-element>\n" + 
+		" </type-element>\n" + 
+		"</model>\n";
+	
+	/**
 	 * Declare this option (-AignoreJavacBugs) to ignore failures of cases that are
 	 * known to fail under javac, i.e., known bugs in javac.
 	 */
@@ -230,6 +271,7 @@ public class NegativeModelProc extends AbstractProcessor
 		"checkNegative4",
 		"checkNegative5",
 		"checkNegative6",
+		"checkNegative7",
 		}; 
 	
 	private static final Method[] testMethods = new Method[testMethodNames.length];
@@ -573,6 +615,30 @@ public class NegativeModelProc extends AbstractProcessor
 		}
 		
 		return checkModel(Collections.singletonList(element), NEGATIVE_6_MODEL, "Negative6");
+	}
+	
+	/**
+	 * Check the model of resources/targets.negative.pa.Negative7
+	 * @return true if all tests passed
+	 */
+	public boolean checkNegative7() throws Exception {
+		
+		// Get the roots of the Negative7 model
+		List<TypeElement> rootElements = new ArrayList<TypeElement>();
+		TypeElement element = _elementUtils.getTypeElement("targets.negative.pa.Negative7");
+		if (null == element) {
+			reportError("Element Negative7 was not found");
+			return false;
+		}
+		rootElements.add(element);
+		element = _elementUtils.getTypeElement("targets.negative.pa.Negative7A");
+		if (null == element) {
+			reportError("Element Negative7A was not found");
+			return false;
+		}
+		rootElements.add(element);
+		
+		return checkModel(rootElements, NEGATIVE_7_MODEL, "Negative7");
 	}
 	
 	/**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc.
+ * Copyright (c) 2007, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -108,6 +108,16 @@ public class NegativeTests extends TestCase
 	public void testNegativeModel6WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestNegativeModel(compiler, 6, null);
+	}
+
+	/**
+	 * Inspect model of resources/targets.negative.pa.Negative7, 
+	 * using the Eclipse compiler.
+	 * @throws IOException 
+	 */
+	public void testNegativeModel7WithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestNegativeModel(compiler, 7, null);
 	}
 
 	/**
