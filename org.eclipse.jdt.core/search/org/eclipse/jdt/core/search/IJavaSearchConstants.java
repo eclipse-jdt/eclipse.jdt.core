@@ -382,6 +382,17 @@ public interface IJavaSearchConstants {
 	 * @category limitTo
 	 */
 	int WILDCARD_BOUND_TYPE_REFERENCE = 0x80000;
+
+	/**
+	 * Return only type references used as an instance of.
+	 * <p>
+	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
+	 * returned.
+	 *</p>
+	 * @since 3.4
+	 * @category limitTo
+	 */
+	int INSTANCEOF_TYPE_REFERENCE = 0x100000;
 	
 	/**
 	 * Return only super field accesses or super method invocations (e.g. using the

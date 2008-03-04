@@ -436,6 +436,51 @@ public void testTypeRef_Variable() throws CoreException {
 	);
 }
 
+/**
+ * @bug 221130: [search] No fine-grain search for instanceof criteria
+ * @test Verify that type references are only reported in instanceof pattern when
+ * 	corresponding fine grain flag is set.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=221130"
+ */
+public void testTypeRef_InstanceOf() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/Test.java",
+		"public class Test {\n" + 
+		"	Object field;\n" + 
+		"	void foo(Object param) {\n" + 
+		"		if (field instanceof java.lang.String) {\n" + 
+		"		}\n" + 
+		"		if (param instanceof Test) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	search("*", TYPE, INSTANCEOF_TYPE_REFERENCE);
+	assertSearchResults(
+		"src/Test.java void Test.foo(Object) [		if (field instanceof §|java.lang.String|§) {@84] EXACT_MATCH\n" + 
+		"src/Test.java void Test.foo(Object) [		if (param instanceof §|Test|§) {@131] EXACT_MATCH"
+	);
+}
+public void testTypeRef_InstanceOfWithParenthesis() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearch15/src/Test.java",
+		"public class Test {\n" + 
+		"	Object field;\n" + 
+		"	void foo(Object param) {\n" + 
+		"		if ((field instanceof Test)) {\n" + 
+		"		}\n" + 
+		"		if ((param instanceof java.lang.Throwable)) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	search("*", TYPE, INSTANCEOF_TYPE_REFERENCE);
+	assertSearchResults(
+		"src/Test.java void Test.foo(Object) [		if ((field instanceof §|Test|§)) {@85] EXACT_MATCH\n" + 
+		"src/Test.java void Test.foo(Object) [		if ((param instanceof §|java.lang.Throwable|§)) {@122] EXACT_MATCH"
+	);
+}
+
 /*
  * References to a all types (using '*' string pattern)
  */

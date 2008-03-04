@@ -322,6 +322,20 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
 }
 
+protected void consumeInstanceOfExpression() {
+	super.consumeInstanceOfExpression();
+	if ((this.patternFineGrain & IJavaSearchConstants.INSTANCEOF_TYPE_REFERENCE) != 0) {
+		InstanceOfExpression expression = (InstanceOfExpression) this.expressionStack[this.expressionPtr];
+		this.patternLocator.match(expression.type, this.nodeSet);
+	}
+}
+protected void consumeInstanceOfExpressionWithName() {
+	super.consumeInstanceOfExpressionWithName();
+	if ((this.patternFineGrain & IJavaSearchConstants.INSTANCEOF_TYPE_REFERENCE) != 0) {
+		InstanceOfExpression expression = (InstanceOfExpression) this.expressionStack[this.expressionPtr];
+		this.patternLocator.match(expression.type, this.nodeSet);
+	}
+}
 protected void consumeInterfaceType() {
 	super.consumeInterfaceType();
 	if ((this.patternFineGrain & IJavaSearchConstants.SUPERTYPE_TYPE_REFERENCE) != 0) {

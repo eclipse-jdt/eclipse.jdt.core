@@ -46,9 +46,30 @@ Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
 <br>Project org.eclipse.jdt.core v_842
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_842">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Added one new <code>IJavaSearchConstants</code> fine grained search API
+constant to reduce the search to type references used in the <code>instanceof</code>
+pattern (see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=221130">bug 221130</a>):
+<pre>
+/**
+ * Return only type references used as an instance of.
+ *
+ * When this flag is set, only {@link TypeReferenceMatch} matches will be
+ * returned.
+ *
+ * @since 3.4
+ * @category limitTo
+ */
+int INSTANCEOF_TYPE_REFERENCE = 0x100000;
+</pre>
+</p>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=220565">220565</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=221130">221130</a>
+[search] No fine-grain search for instanceof criteria
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=220565">220565</a>
 adapt to new API ICompilationUnit.applyEdits
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=219937">219937</a>
 Javadoc content assist does not propose method inherited from interface
