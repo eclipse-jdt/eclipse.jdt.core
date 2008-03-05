@@ -2392,5 +2392,51 @@ public void testInvalidField2() throws JavaModelException {
 		elements
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=221215 - variation
+public void testInvalidMethod1() throws JavaModelException {
+	ICompilationUnit cu = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;"+
+		"public class Event {\n" + 
+		"        public int x;\n" + 
+		"\n" + 
+		"        public void handle(Event e) {\n" + 
+		"                e.x.e().foo();\n" + 
+		"        }\n" + 
+		"}");
+	String str = cu.getSource();
+	
+	int start = str.indexOf("foo") + "fo".length();
+	int length = 0;
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=221215 - variation
+public void testInvalidMethod2() throws JavaModelException {
+	ICompilationUnit cu = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;"+
+		"public class Event {\n" + 
+		"        public int x;\n" + 
+		"\n" + 
+		"        public void handle(Event e) {\n" + 
+		"                this.x.e().foo();\n" + 
+		"        }\n" + 
+		"}");
+	String str = cu.getSource();
+	
+	int start = str.indexOf("foo") + "fo".length();
+	int length = 0;
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
 
 }
