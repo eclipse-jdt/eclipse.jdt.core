@@ -3049,7 +3049,8 @@ public void invalidField(NameReference nameRef, FieldBinding field) {
 	int id = IProblem.UndefinedField;
 	switch (field.problemId()) {
 		case ProblemReasons.NotFound :
-			if ((field.declaringClass.tagBits & TagBits.HasMissingType) != 0) {
+			TypeBinding declaringClass = field.declaringClass;
+			if (declaringClass != null && (declaringClass.tagBits & TagBits.HasMissingType) != 0) {
 				this.handle(
 						IProblem.UndefinedType,
 						new String[] {new String(field.declaringClass.readableName())},
