@@ -827,6 +827,10 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionExemptExceptionAndThrowable"; //$NON-NLS-1$
 	/**
+	 * @deprecated
+	 */
+	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_UNCHECKED_EXCEPTIONS = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionIncludeUncheckedExceptions"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Reporting Unqualified Access to Field.
 	 * <p>When enabled, the compiler will issue an error or a warning when a field is access without any qualification.
 	 *    In order to improve code readability, it should be qualified, e.g. <code>'x'</code> should rather be written <code>'this.x'</code>.
