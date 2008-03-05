@@ -78,7 +78,7 @@
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_REDUNDANT_SUPERINTERFACE
  *     IBM Corporation - added the following constant:
- *                                 COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_UNCHECKED_EXCEPTIONS
+ *                                 COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -767,7 +767,7 @@ public final class JavaCore extends Plugin {
 	 *    actually raises it in its body.
 	 * <p>This diagnostic is further tuned by options
 	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE},
-	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_UNCHECKED_EXCEPTIONS},
+	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE},
 	 *    and {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING}.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException"</code></dd>
@@ -809,24 +809,23 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionIncludeDocCommentReference"; //$NON-NLS-1$
 	/**
-	 * Compiler option ID: Reporting Unused Declared Thrown Unchecked Exceptions.
-	 * <p>When enabled, the compiler will report unused declared thrown 
-	 *    exceptions for all exceptions, including {@link java.lang.Throwable},
-	 *    {@link java.lang.Exception} and unchecked exceptions. When 
-	 *    disabled, only the checked exceptions other than 
-	 *    {@link java.lang.Throwable} and {@link java.lang.Exception} will be 
-	 *    considered.
-	 * <p>The severity of the problem is controlled with option 
+	 * Compiler option ID: Reporting Unused Declared Thrown Exception Exempts Exception And Throwable.
+	 * <p>When enabled, the compiler will report neither 
+	 *    {@link java.lang.Throwable} nor {@link java.lang.Exception} as unused 
+	 *    declared thrown exceptions. When disabled, all declared thrown checked 
+	 *    exceptions will be considered.
+	 * <p>The severity of the unused declared thrown exception problem is 
+	 *    controlled with option 
 	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION}.
 	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeUncheckedExceptions"</code></dd>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionExemptExceptionAndThrowable"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * <dt>Default:</dt><dd><code>"enabled"</code></dd>
 	 * </dl>
 	 * @since 3.4
 	 * @category CompilerOptionID
 	 */
-	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_UNCHECKED_EXCEPTIONS = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionIncludeUncheckedExceptions"; //$NON-NLS-1$
+	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionExemptExceptionAndThrowable"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Unqualified Access to Field.
 	 * <p>When enabled, the compiler will issue an error or a warning when a field is access without any qualification.

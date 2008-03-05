@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 /**
  * Reflects the context of code analysis, keeping track of enclosing
@@ -58,12 +59,15 @@ public ExceptionHandlingFlowContext(
 	this.isReached = new int[cacheSize]; // none is reached by default
 	this.isNeeded = new int[cacheSize]; // none is needed by default
 	this.initsOnExceptions = new UnconditionalFlowInfo[count];
-	boolean markUncheckedExceptionsAsReached = 
-		!this.isMethodContext || !scope.compilerOptions().reportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions;
+	boolean markExceptionsAndThrowableAsReached = 
+		!this.isMethodContext || scope.compilerOptions().reportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable;
 	for (int i = 0; i < count; i++) {
-		this.indexes.put(handledExceptions[i], i); // key type  -> value index
-		if (handledExceptions[i].isUncheckedException(true)) {
-			if (markUncheckedExceptionsAsReached) {
+		ReferenceBinding handledException = handledExceptions[i]; 
+		this.indexes.put(handledException, i); // key type  -> value index
+		if (handledException.isUncheckedException(true)) {
+			if (markExceptionsAndThrowableAsReached || 
+					handledException.id != TypeIds.T_JavaLangThrowable &&
+					handledException.id != TypeIds.T_JavaLangException) {
 				this.isReached[i / ExceptionHandlingFlowContext.BitCacheSize] |= 1 << (i % ExceptionHandlingFlowContext.BitCacheSize);
 			}
 			this.initsOnExceptions[i] = flowInfo.unconditionalCopy();

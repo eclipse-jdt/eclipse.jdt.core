@@ -38,11 +38,46 @@
 	</td>
   </tr>
 </table>
+<a name="v_843"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
+<br>Project org.eclipse.jdt.core v_843
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_843">cvs</a>).
+<h2>What's new in this drop</h2>
+<ul>
+<li>Added new compiler option to control whether Exception and Throwable are
+    considered or not while reporting unused declared thrown exceptions.
+<pre>
+ * Compiler option ID: Reporting Unused Declared Thrown Exception Exempts Exception And Throwable.
+ *    When enabled, the compiler will report neither java.lang.Throwable nor 
+ *    java.lang.Exception as unused declared thrown exceptions. When disabled, 
+ *    all declared thrown checked exceptions will be considered.
+ *    The severity of the unused declared thrown exception problem is 
+ *    controlled with option COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION.
+ * 
+ *    Option id: "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionExemptExceptionAndThrowable"
+ *    Possible values: { "enabled", "disabled" }
+ *    Default: "enabled"
+ </pre>
+(note that the specification for unusedDeclaredThrownException has been
+amended accordingly, and that another option that had been added in 3.4M5 but
+never surfaced in the IDE has been withdrawn; see 
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461">bug 219461</a>
+for details)
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=219461">219461</a>
+[compiler][options] Limit warning for unecessary unchecked exceptions to Throwable and Exception
+
 <a name="v_842"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.4M6 - March 4, 2008 - 3.4 MILESTONE 6
+Eclipse SDK 3.4M6 - March 4, 2008
 <br>Project org.eclipse.jdt.core v_842
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_842">cvs</a>).
 <h2>What's new in this drop</h2>
@@ -355,24 +390,7 @@ Eclipse SDK 3.4M5 - January 29, 2008
 <br>Project org.eclipse.jdt.core v_834
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_834">cvs</a>).
 <h2>What's new in this drop</h2>
-<ul>
-<li>Added new compiler option to detect unused declared unchecked exceptions.
-<pre>
- * COMPILER / Reporting Unused Declared Thrown Unchecked Exceptions
- *    When enabled, the compiler will report unused declared thrown 
- *    exceptions for all exceptions, including unchecked ones. When 
- *    disabled, only checked exceptions will be considered.
- *
- *    The severity of the problem is controlled with option 
- *    "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException".
- *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeUncheckedExceptions"
- *     - possible values:   { "enabled", "disabled" }
- *     - default:           "disabled"
-</pre>
-(note that the specification for unusedDeclaredThrownException has been
-amended accordingly; see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=100278">bug 100278</a>)
-</li>
-</ul>
+
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=216692">216692</a>
 [1.5][compiler] Protected type not visible in subclass

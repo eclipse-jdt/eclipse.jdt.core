@@ -735,8 +735,8 @@ public void test0019_declared_thrown_unchecked_exceptions() {
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
-// default behavior upon unnecessary declaration of thrown unchecked exceptions
-public void test0020_declared_thrown_unchecked_exceptions() {
+// default behavior upon unnecessary declaration of Exception
+public void test0020_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
@@ -759,8 +759,8 @@ public void test0020_declared_thrown_unchecked_exceptions() {
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
-// default behavior upon unnecessary declaration of thrown unchecked exceptions
-public void test0021_declared_thrown_unchecked_exceptions() {
+// default behavior upon unnecessary declaration of Throwable
+public void test0021_declared_thrown_checked_exceptions() {
 	runTest(
 		new String[] {
 			"X.java",
@@ -783,124 +783,15 @@ public void test0021_declared_thrown_unchecked_exceptions() {
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
-// unnecessary declaration of thrown unchecked exceptions
-// setting OPTION_ReportUnusedDeclaredThrownException alone yields no warning
-public void test0022_declared_thrown_unchecked_exceptions() {
-	runTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws ArithmeticException {\n" + 
-			"  }\n" + 
-			"}\n"
-			},
-		null /* errorOptions */,
-		new String[] {
-			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
-		} /* warningOptions */,
-		null /* ignoreOptions */,
-		false /* expectingCompilerErrors */,
-		"" /* expectedCompilerLog */,
-		"" /* expectedOutputString */,
-		false /* forceExecution */,
-		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
-		null /* customOptions */,
-		null /* clientRequestor */,
-		true /* skipJavac */);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
-// unnecessary declaration of thrown unchecked exceptions
-// setting OPTION_ReportUnusedDeclaredThrownException alone yields no warning
-public void test0023_declared_thrown_unchecked_exceptions() {
-	runTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws RuntimeException {\n" + 
-			"  }\n" + 
-			"}\n"
-			},
-		null /* errorOptions */,
-		new String[] {
-			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
-		} /* warningOptions */,
-		null /* ignoreOptions */,
-		false /* expectingCompilerErrors */,
-		"" /* expectedCompilerLog */,
-		"" /* expectedOutputString */,
-		false /* forceExecution */,
-		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
-		null /* customOptions */,
-		null /* clientRequestor */,
-		true /* skipJavac */);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
-// unnecessary declaration of thrown unchecked exceptions
-// setting OPTION_ReportUnusedDeclaredThrownException alone yields no warning
-public void test0024_declared_thrown_unchecked_exceptions() {
-	runTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws Exception {\n" + 
-			"  }\n" + 
-			"}\n"
-			},
-		null /* errorOptions */,
-		new String[] {
-			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
-		} /* warningOptions */,
-		null /* ignoreOptions */,
-		false /* expectingCompilerErrors */,
-		"" /* expectedCompilerLog */,
-		"" /* expectedOutputString */,
-		false /* forceExecution */,
-		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
-		null /* customOptions */,
-		null /* clientRequestor */,
-		true /* skipJavac */);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
-// unnecessary declaration of thrown unchecked exceptions
-// setting OPTION_ReportUnusedDeclaredThrownException alone yields no warning
-public void test0025_declared_thrown_unchecked_exceptions() {
-	runTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws Throwable {\n" + 
-			"  }\n" + 
-			"}\n"
-			},
-		null /* errorOptions */,
-		new String[] {
-			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
-		} /* warningOptions */,
-		null /* ignoreOptions */,
-		false /* expectingCompilerErrors */,
-		"" /* expectedCompilerLog */,
-		"" /* expectedOutputString */,
-		false /* forceExecution */,
-		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
-		null /* customOptions */,
-		null /* clientRequestor */,
-		true /* skipJavac */);
-}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
 // reporting unnecessary declaration of thrown unchecked exceptions as warning
-public void test0026_declared_thrown_unchecked_exceptions() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+// suppressed the warning
+public void test0022_declared_thrown_unchecked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
-			CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
@@ -915,12 +806,7 @@ public void test0026_declared_thrown_unchecked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	public void foo() throws ArithmeticException {\n" + 
-		"	                         ^^^^^^^^^^^^^^^^^^^\n" + 
-		"The declared exception ArithmeticException is not actually thrown by the method foo() from type X\n" + 
-		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -933,80 +819,12 @@ public void test0026_declared_thrown_unchecked_exceptions() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
 // reporting unnecessary declaration of thrown unchecked exceptions as warning
 // the external API uses another string literal - had it wrong in first attempt
-public void test0026b_declared_thrown_unchecked_exceptions() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+// suppressed the warning for unchecked exceptions, using Exception instead
+public void test0023_declared_thrown_unchecked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(JavaCore.COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_UNCHECKED_EXCEPTIONS, 
-			CompilerOptions.ENABLED);
-	runTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws ArithmeticException {\n" + 
-			"  }\n" + 
-			"}\n"
-			},
-		null /* errorOptions */,
-		new String[] {
-			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
-			} /* warningOptions */,
-		null /* ignoreOptions */,
-		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	public void foo() throws ArithmeticException {\n" + 
-		"	                         ^^^^^^^^^^^^^^^^^^^\n" + 
-		"The declared exception ArithmeticException is not actually thrown by the method foo() from type X\n" + 
-		"----------\n" /* expectedCompilerLog */,
-		"" /* expectedOutputString */,
-		false /* forceExecution */,
-		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
-		customOptions,
-		null /* clientRequestor */,
-		true /* skipJavac */);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
-// reporting unnecessary declaration of thrown unchecked exceptions as warning
-public void test0027_declared_thrown_unchecked_exceptions() {
-	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
-			CompilerOptions.ENABLED);
-	runTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"  public void foo() throws RuntimeException {\n" + 
-			"  }\n" + 
-			"}\n"
-			},
-		null /* errorOptions */,
-		new String[] {
-			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
-			} /* warningOptions */,
-		null /* ignoreOptions */,
-		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	public void foo() throws RuntimeException {\n" + 
-		"	                         ^^^^^^^^^^^^^^^^\n" + 
-		"The declared exception RuntimeException is not actually thrown by the method foo() from type X\n" + 
-		"----------\n" /* expectedCompilerLog */,
-		"" /* expectedOutputString */,
-		false /* forceExecution */,
-		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
-		customOptions,
-		null /* clientRequestor */,
-		true /* skipJavac */);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
-// reporting unnecessary declaration of thrown unchecked exceptions as warning
-public void test0028_declared_thrown_unchecked_exceptions() {
-	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
-			CompilerOptions.ENABLED);
+	customOptions.put(JavaCore.COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE, 
+			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
@@ -1038,10 +856,83 @@ public void test0028_declared_thrown_unchecked_exceptions() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
 // reporting unnecessary declaration of thrown unchecked exceptions as warning
-public void test0029_declared_thrown_unchecked_exceptions() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+// suppressed the warning
+public void test0024_declared_thrown_unchecked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
-			CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+			CompilerOptions.DISABLED);
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public void foo() throws RuntimeException {\n" + 
+			"  }\n" + 
+			"}\n"
+			},
+		null /* errorOptions */,
+		new String[] {
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
+			} /* warningOptions */,
+		null /* ignoreOptions */,
+		false /* expectingCompilerErrors */,
+		"" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		customOptions,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
+// reporting unnecessary declaration of thrown unchecked exceptions as warning
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+// focused on Exception and Throwable, which are not unchecked but can catch
+// unchecked exceptions
+public void test0025_declared_thrown_checked_exceptions() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+			CompilerOptions.DISABLED);
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public void foo() throws Exception {\n" + 
+			"  }\n" + 
+			"}\n"
+			},
+		null /* errorOptions */,
+		new String[] {
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
+			} /* warningOptions */,
+		null /* ignoreOptions */,
+		false /* expectingCompilerErrors */,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	public void foo() throws Exception {\n" + 
+		"	                         ^^^^^^^^^\n" + 
+		"The declared exception Exception is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		customOptions,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
+// reporting unnecessary declaration of thrown unchecked exceptions as warning
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+// focused on Exception and Throwable, which are not unchecked but can catch
+// unchecked exceptions
+public void test0026_declared_thrown_checked_exceptions() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
@@ -1075,18 +966,20 @@ public void test0029_declared_thrown_unchecked_exceptions() {
 // disabling the reporting of unnecessary declaration of thrown unchecked 
 // exceptions using the Javadoc
 // @throws disables by default
-public void test0030_declared_thrown_unchecked_exceptions() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+// suppressed the warning for unchecked exceptions, using Exception instead
+public void test0027_declared_thrown_unchecked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
 			CompilerOptions.ENABLED);
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
-			CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
-			"/** @throws ArithmeticException mute warning **/\n" + 
-			"  public void foo() throws ArithmeticException {\n" + 
+			"/** @throws Exception mute warning **/\n" + 
+			"  public void foo() throws Exception {\n" + 
 			"  }\n" + 
 			"}\n"
 			},
@@ -1110,20 +1003,22 @@ public void test0030_declared_thrown_unchecked_exceptions() {
 // disabling the reporting of unnecessary declaration of thrown unchecked 
 // exceptions using the Javadoc
 // @throws disabling can be disabled
-public void test0031_declared_thrown_unchecked_exceptions() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+// suppressed the warning for unchecked exceptions, using Exception instead
+public void test0028_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
 			CompilerOptions.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference, 
 			CompilerOptions.DISABLED);
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
-			CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
-			"/** @throws ArithmeticException mute warning **/\n" + 
-			"  public void foo() throws ArithmeticException {\n" + 
+			"/** @throws Exception mute warning **/\n" + 
+			"  public void foo() throws Exception {\n" + 
 			"  }\n" + 
 			"}\n"
 			},
@@ -1135,9 +1030,9 @@ public void test0031_declared_thrown_unchecked_exceptions() {
 		false /* expectingCompilerErrors */,
 		"----------\n" + 
 		"1. WARNING in X.java (at line 3)\n" + 
-		"	public void foo() throws ArithmeticException {\n" + 
-		"	                         ^^^^^^^^^^^^^^^^^^^\n" + 
-		"The declared exception ArithmeticException is not actually thrown by the method foo() from type X\n" + 
+		"	public void foo() throws Exception {\n" + 
+		"	                         ^^^^^^^^^\n" + 
+		"The declared exception Exception is not actually thrown by the method foo() from type X\n" + 
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
@@ -1151,17 +1046,19 @@ public void test0031_declared_thrown_unchecked_exceptions() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
 // disabling the reporting of unnecessary declaration of thrown unchecked 
 // exceptions using SuppressWarnings
-public void test0032_declared_thrown_unchecked_exceptions() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+// suppressed the warning for unchecked exceptions, using Exception instead
+public void test0029_declared_thrown_checked_exceptions() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map customOptions = new HashMap();
-		customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
-				CompilerOptions.ENABLED);
+		customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+				CompilerOptions.DISABLED);
 		runTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
 				"@SuppressWarnings(\"all\")\n" + // no specific token
-				"  public void foo() throws ArithmeticException {\n" + 
+				"  public void foo() throws Exception {\n" + 
 				"  }\n" + 
 				"}\n"
 				},
@@ -1184,15 +1081,17 @@ public void test0032_declared_thrown_unchecked_exceptions() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
 // reporting unnecessary declaration of thrown unchecked exceptions as error
-public void test0033_declared_thrown_unchecked_exceptions() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+// suppressed the error for unchecked exceptions, using Exception instead
+public void test0030_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
-			CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
-			"  public void foo() throws ArithmeticException {\n" + 
+			"  public void foo() throws Exception {\n" + 
 			"  }\n" + 
 			"}\n"
 			},
@@ -1204,9 +1103,9 @@ public void test0033_declared_thrown_unchecked_exceptions() {
 		true /* expectingCompilerErrors */,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
-		"	public void foo() throws ArithmeticException {\n" + 
-		"	                         ^^^^^^^^^^^^^^^^^^^\n" + 
-		"The declared exception ArithmeticException is not actually thrown by the method foo() from type X\n" + 
+		"	public void foo() throws Exception {\n" + 
+		"	                         ^^^^^^^^^\n" + 
+		"The declared exception Exception is not actually thrown by the method foo() from type X\n" + 
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
@@ -1221,18 +1120,20 @@ public void test0033_declared_thrown_unchecked_exceptions() {
 // disabling the reporting of unnecessary declaration of thrown unchecked 
 // exceptions using the Javadoc
 // @throws disables by default, but only exact matches work
-public void test0034_declared_thrown_unchecked_exceptions() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+// suppressed the warning for unchecked exceptions, using Exception instead
+public void test0031_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, 
 			CompilerOptions.ENABLED);
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
-			CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
-			"/** @throws Exception does not mute warning for ArithmeticException **/\n" + 
-			"  public void foo() throws ArithmeticException {\n" + 
+			"/** @throws Throwable does not mute warning for Exception **/\n" + 
+			"  public void foo() throws Exception {\n" + 
 			"  }\n" + 
 			"}\n"
 			},
@@ -1244,9 +1145,9 @@ public void test0034_declared_thrown_unchecked_exceptions() {
 		false /* expectingCompilerErrors */,
 		"----------\n" + 
 		"1. WARNING in X.java (at line 3)\n" + 
-		"	public void foo() throws ArithmeticException {\n" + 
-		"	                         ^^^^^^^^^^^^^^^^^^^\n" + 
-		"The declared exception ArithmeticException is not actually thrown by the method foo() from type X\n" + 
+		"	public void foo() throws Exception {\n" + 
+		"	                         ^^^^^^^^^\n" + 
+		"The declared exception Exception is not actually thrown by the method foo() from type X\n" + 
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
@@ -1259,10 +1160,12 @@ public void test0034_declared_thrown_unchecked_exceptions() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
 // reporting unnecessary declaration of thrown unchecked exceptions as warning
-public void test0035_declared_thrown_unchecked_exceptions() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+// suppressed the warning for unchecked exceptions
+public void test0032_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
-			CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
@@ -1277,12 +1180,7 @@ public void test0035_declared_thrown_unchecked_exceptions() {
 			} /* warningOptions */,
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	public void foo() throws Error {\n" + 
-		"	                         ^^^^^\n" + 
-		"The declared exception Error is not actually thrown by the method foo() from type X\n" + 
-		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
 		null /* classLib */,
@@ -1294,17 +1192,19 @@ public void test0035_declared_thrown_unchecked_exceptions() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=100278
 // reporting unnecessary declaration of thrown unchecked exceptions as warning
-public void test0036_declared_thrown_unchecked_exceptions() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+// suppressed the warning for unchecked exceptions, using Exception instead
+public void test0033_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
-			CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
-			"  public void foo() throws Error {\n" +
+			"  public void foo() throws Exception {\n" +
 			"    if (bar()) {\n" +
-			"      throw new Error();\n" +
+			"      throw new Exception();\n" +
 			"    }\n" + 
 			"  }\n" + 
 			"  boolean bar() {\n" +
@@ -1330,10 +1230,11 @@ public void test0036_declared_thrown_unchecked_exceptions() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216897
 // reporting unnecessary declaration of thrown unchecked exceptions as warning
-public void test0037_declared_thrown_unchecked_exceptions() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+public void test0034_declared_thrown_checked_exceptions() {
 	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeUncheckedExceptions, 
-			CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+			CompilerOptions.DISABLED);
 	runTest(
 		new String[] {
 			"X.java",
