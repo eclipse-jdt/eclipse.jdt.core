@@ -123,18 +123,16 @@ public class CompletionContext {
 	/**
 	 * Returns the innermost enclosing Java element which contains the completion location or <code>null</code> if this element cannot be computed.
 	 * The returned Java element and all Java elements in the same compilation unit which can be navigated to from the returned Java element are special Java elements:
-	 * <ul>
-	 * <li>they are based on the current content of the compilation unit's buffer, they are not the result of a reconcile operation</li>
-	 * <li>they are not updated if the buffer changes.</li>
-	 * <li>they do not contain local types which are not visible from the completion location.</li>
-	 * <li>they do not give information about categories. {@link IMember#getCategories()} will return an empty array</li>
-	 * </ul>
+	 *
+	 * - they are based on the current content of the compilation unit's buffer, they are not the result of a reconcile operation
+	 * - they are not updated if the buffer changes.
+	 * - they do not contain local types which are not visible from the completion location.
+	 * - they do not give information about categories. {@link IMember#getCategories()} will return an empty array
 	 * 
 	 * Reasons for returning <code>null</code> include:
-	 * <ul>
-	 * <li>the compilation unit no longer exists</li>
-	 * <li>the completion occurred in a binary type. However this restriction might be relaxed in the future.</li>
-	 * </ul>
+	 * 
+	 * - the compilation unit no longer exists
+	 * - the completion occurred in a binary type. However this restriction might be relaxed in the future.
 	 * 
 	 * @return the innermost enclosing Java element which contains the completion location or <code>null</code> if this element cannot be computed.
 	 * 
@@ -150,25 +148,22 @@ public class CompletionContext {
 	 * of the given type, as specified in section 5.2 of <em>The Java Language
 	 * Specification, Third Edition</em> (JLS3).
 	 * A visible element is either:
-	 * <ul>
-	 * <li>a {@link ILocalVariable} - the element type is {@link ILocalVariable#getTypeSignature()}</li>
-	 * <li>a {@link IField} - the element type is {@link IField#getTypeSignature()}</li>
-	 * <li>a {@link IMethod} - the element type is {@link IMethod#getReturnType()}</li>
-	 * </ul>
+	 *
+	 * - a {@link ILocalVariable} - the element type is {@link ILocalVariable#getTypeSignature()}
+	 * - a {@link IField} - the element type is {@link IField#getTypeSignature()}
+	 * - a {@link IMethod} - the element type is {@link IMethod#getReturnType()}
 	 * 
 	 * Returned elements defined in the completed compilation unit are special Java elements:
-	 * <ul>
-	 * <li>they are based on the current content of the compilation unit's buffer, they are not the result of a reconcile operation</li>
-	 * <li>they are not updated if the buffer changes.</li>
-	 * <li>they do not contain local types which are not visible from the completion location.</li>
-	 * <li>they do not give information about categories. {@link IMember#getCategories()} will return an empty array</li>
-	 * </ul>
+	 * 
+	 * - they are based on the current content of the compilation unit's buffer, they are not the result of a reconcile operation
+	 * - they are not updated if the buffer changes.
+	 * - they do not contain local types which are not visible from the completion location.
+	 * - they do not give information about categories. {@link IMember#getCategories()} will return an empty array
 	 * 
 	 * Note the array can be empty if:
-	 * <ul>
-	 * <li>the compilation unit no longer exists</li>
-	 * <li>the completion occurred in a binary type. However this restriction might be relaxed in the future.</li>
-	 * </ul>
+	 *
+	 * - the compilation unit no longer exists
+	 * - the completion occurred in a binary type. However this restriction might be relaxed in the future.
 	 * 
 	 * @param typeSignature elements which can be assigned to this type are returned.
 	 * 		If <code>null</code> there is no constraint on the type of the returned elements.
