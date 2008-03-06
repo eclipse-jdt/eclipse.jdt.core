@@ -426,4 +426,29 @@ public void test12() {
 		expectedSyntaxErrorDiagnosis,
 		testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=221266
+public void test13() {
+
+	String s = 
+		"package a;										\n"+
+		"public class Test {							\n"+
+		"  public void foo() {							\n"+
+		"    foo(a  \"\\\"\");							\n"+
+		"  }											\n"+
+		"}												\n"; 	
+
+	String expectedSyntaxErrorDiagnosis =
+		"----------\n"+
+		"1. ERROR in <test> (at line 4)\n"+
+		"	foo(a  \"\\\"\");							\n"+
+		"	       ^^^^\n"+
+		"Syntax error on token \"\"\\\"\"\", delete this token\n"+
+		"----------\n";
+
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedSyntaxErrorDiagnosis,
+		testName);
+}
 }

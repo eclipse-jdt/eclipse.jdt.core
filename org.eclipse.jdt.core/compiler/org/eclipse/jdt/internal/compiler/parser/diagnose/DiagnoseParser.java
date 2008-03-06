@@ -424,6 +424,49 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		}
 		return;
 	}
+	
+	private static char[] displayEscapeCharacters(char[] tokenSource, int start, int end) {
+		StringBuffer tokenSourceBuffer = new StringBuffer();
+		for (int i = 0; i < start; i++) {
+			tokenSourceBuffer.append(tokenSource[i]);
+		}
+		for (int i = start; i < end; i++) {
+			char c = tokenSource[i];
+			
+			switch (c) {
+                case '\r' :
+                    tokenSourceBuffer.append("\\r"); //$NON-NLS-1$
+                    break;
+                case '\n' :
+                    tokenSourceBuffer.append("\\n"); //$NON-NLS-1$
+                    break;
+                case '\b' :
+                    tokenSourceBuffer.append("\\b"); //$NON-NLS-1$
+                    break;
+                case '\t' :
+                    tokenSourceBuffer.append("\t"); //$NON-NLS-1$
+                    break;
+                case '\f' :
+                    tokenSourceBuffer.append("\\f"); //$NON-NLS-1$
+                    break;
+                case '\"' :
+                    tokenSourceBuffer.append("\\\""); //$NON-NLS-1$
+                    break;
+                case '\'' :
+                    tokenSourceBuffer.append("\\'"); //$NON-NLS-1$
+                    break;
+                case '\\' :
+                    tokenSourceBuffer.append("\\\\"); //$NON-NLS-1$
+                    break;
+                default :
+                    tokenSourceBuffer.append(c);
+            }
+		}
+		for (int i = end; i < tokenSource.length; i++) {
+			tokenSourceBuffer.append(tokenSource[i]);
+		}
+		return tokenSourceBuffer.toString().toCharArray();
+	}
 
 	//
 //		This routine is invoked when an error is encountered.  It
@@ -2092,6 +2135,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 			reportPrimaryError(msgCode, nameIndex, rightToken, scopeNameIndex);
 		}
 	}
+	
 	private void reportPrimaryError(int msgCode, int nameIndex, int token, int scopeNameIndex) {
 		String name;
 		if (nameIndex >= 0) {
@@ -2105,6 +2149,9 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		int currentKind = lexStream.kind(token);
 		String errorTokenName = Parser.name[Parser.terminal_index[lexStream.kind(token)]];
 		char[] errorTokenSource = lexStream.name(token);
+		if (currentKind == TerminalTokens.TokenNameStringLiteral) {
+			errorTokenSource = displayEscapeCharacters(errorTokenSource, 1, errorTokenSource.length - 1);
+		}
 
 		int addedToken = -1;
 		if(recoveryScanner != null) {
