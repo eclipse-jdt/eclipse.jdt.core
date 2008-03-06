@@ -9745,6 +9745,47 @@ public void testBug218397() throws CoreException {
 }
 
 /**
+ * @bug 221081: [search] Java Search should default to widest scope
+ * @test Ensure that user can search to type/method/field references/declarations in only
+ * 	one call to SearchEngine
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=221081"
+ */
+public void testBug221081() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" + 
+		"	Test test;\n" + 
+		"	void test(Test test) {\n" + 
+		"		if (test == this.test) {\n" + 
+		"			//\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	this.resultCollector.showSelection = true;
+	this.resultCollector.showRule = true;
+	SearchPattern typePattern = SearchPattern.createPattern("test", TYPE, ALL_OCCURRENCES, SearchPattern.R_EXACT_MATCH);
+	SearchPattern methPattern = SearchPattern.createPattern("test", METHOD, ALL_OCCURRENCES, SearchPattern.R_EXACT_MATCH);
+	SearchPattern fieldPattern = SearchPattern.createPattern("test", FIELD, ALL_OCCURRENCES, SearchPattern.R_EXACT_MATCH);
+	SearchPattern pattern = SearchPattern.createOrPattern(typePattern, methPattern);
+	pattern = SearchPattern.createOrPattern(pattern, fieldPattern);
+	new SearchEngine(workingCopies).search(
+		pattern,
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+		getJavaSearchWorkingCopiesScope(),
+		this.resultCollector,
+		null);
+	assertSearchResults(
+		"src/Test.java Test [public class §|Test|§ {] EXACT_MATCH\n" + 
+		"src/Test.java Test.test [	Test §|test|§;] EXACT_MATCH\n" + 
+		"src/Test.java Test.test [	§|Test|§ test;] EXACT_MATCH\n" + 
+		"src/Test.java void Test.test(Test) [	void §|test|§(Test test) {] EXACT_MATCH\n" + 
+		"src/Test.java void Test.test(Test) [	void test(§|Test|§ test) {] EXACT_MATCH\n" + 
+		"src/Test.java void Test.test(Test) [		if (test == this.§|test|§) {] EXACT_MATCH"
+	);
+}
+
+/**
  * @bug 221110: [search] NPE at org.eclipse.jdt.internal.compiler.util.SimpleLookupTable.removeKey
  * @test Ensure that no NPE occurs while searching for reference to generic class
  * 	when referenced in a unbound wildcard parameterized type
