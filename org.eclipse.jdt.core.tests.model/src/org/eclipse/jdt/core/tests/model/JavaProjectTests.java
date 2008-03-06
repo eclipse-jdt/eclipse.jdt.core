@@ -150,7 +150,7 @@ public void testAddExternalLibFolder5() throws CoreException {
 		createExternalFolder("externalLib/p");
 		createExternalFile("externalLib/p/X.class", "");
 		IJavaProject p = importJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
-		waitForAutoBuild();
+		waitForAutoBuild(); // since the project is imported, the linked folder can only be created by auto-build
 		assertElementDescendants(
 			"Unexpected project content", 
 			"P\n" + 
