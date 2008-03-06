@@ -728,9 +728,9 @@ public void testGetResource() throws Exception {
 		createExternalFile("externalLib/p/X.class", "");
 		createJavaProject("P1", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
 		IClassFile classFile1 = getClassFile("P1", getExternalFolderPath("externalLib"), "p", "X.class");
-		assertEquals(
+		assertResourceEquals(
 			"Unexpected resource",
-			null,
+			"<null>",
 			classFile1.getResource());
 	} finally {
 		deleteExternalFolder("externalLib");

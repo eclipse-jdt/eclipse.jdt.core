@@ -363,6 +363,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertElementsEqual(message, expected, elements);
 	}
 	
+	protected void assertResourceEquals(String message, String expected, IResource resource) {
+		String actual = resource == null ? "<null>" : resource.getFullPath().toString();
+		if (!expected.equals(actual)) {
+			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual));
+			System.out.println(this.endChar);
+		}
+		assertEquals(message, expected, actual);
+	}
+	
 	protected void assertResourcesEqual(String message, String expected, Object[] resources) {
 		sortResources(resources);
 		StringBuffer buffer = new StringBuffer();
