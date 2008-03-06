@@ -27,6 +27,38 @@ import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadoc;
 public final class CompletionContext extends InternalCompletionContext {
 
 	/**
+	 * The completed token is the first token of a member declaration.<br>
+	 * e.g.
+	 * <pre>
+	 * public class X {
+	 *   Foo| // completion occurs at |
+	 * }
+	 * </pre>
+	 * 
+	 * @see #getTokenLocation()
+	 * 
+	 * @since 3.4
+	 */
+	public static final int TL_MEMBER_START = 1;
+	
+	/**
+	 * The completed token is the first token of a statement.<br>
+	 * e.g.
+	 * <pre>
+	 * public class X {
+	 *   public void bar() {
+	 *     Foo| // completion occurs at |
+	 *   }
+	 * }
+	 * </pre>
+	 * 
+	 * @see #getTokenLocation()
+	 * 
+	 * @since 3.4
+	 */
+	public static final int TL_STATEMENT_START = 2;
+	
+	/**
 	 * The completion token is unknown.
 	 * @since 3.2
 	 */
@@ -82,6 +114,18 @@ public final class CompletionContext extends InternalCompletionContext {
 	 */
 	public boolean isInJavadocFormalReference() {
 		return (this.javadoc & CompletionOnJavadoc.FORMAL_REFERENCE) != 0;
+	}
+	
+	/**
+	 * Returns whether this completion context is an extended context.
+	 * Some methods of this context can be used only if this context is an extended context but an extended context consumes more memory.
+	 * 
+	 * @return <code>true</code> if this completion context is an extended context.
+	 * 
+	 * @since 3.4
+	 */
+	public boolean isExtended() {
+		return this.extendedContext != null;
 	}
 
 	/**
@@ -210,38 +254,80 @@ public final class CompletionContext extends InternalCompletionContext {
 		return this.offset;
 	}
 	
-	
 	/**
-	 * The completed token is the first token of a member declaration.<br>
-	 * e.g.
-	 * <pre>
-	 * public class X {
-	 *   Foo| // completion occurs at |
-	 * }
-	 * </pre>
+	 * Returns the innermost enclosing Java element which contains the completion location or <code>null</code> if this element cannot be computed.
+	 * The returned Java element and all Java elements in the same compilation unit which can be navigated to from the returned Java element are special Java elements:
+	 * <ul>
+	 * <li>they are based on the current content of the compilation unit's buffer, they are not the result of a reconcile operation</li>
+	 * <li>they are not updated if the buffer changes.</li>
+	 * <li>they do not contain local types which are not visible from the completion location.</li>
+	 * <li>they do not give information about categories. {@link IMember#getCategories()} will return an empty array</li>
+	 * </ul>
 	 * 
-	 * @see #getTokenLocation()
+	 * Reasons for returning <code>null</code> include:
+	 * <ul>
+	 * <li>the compilation unit no longer exists</li>
+	 * <li>the completion occurred in a binary type. However this restriction might be relaxed in the future.</li>
+	 * </ul>
+	 * 
+	 * @return the innermost enclosing Java element which contains the completion location or <code>null</code> if this element cannot be computed.
+	 * 
+	 * @exception UnsupportedOperationException if the context is not an extended context
 	 * 
 	 * @since 3.4
 	 */
-	public static final int TL_MEMBER_START = 1;
+	public IJavaElement getEnclosingElement() {
+		if (!this.isExtended()) throw new UnsupportedOperationException("Operation only supported in extended context"); //$NON-NLS-1$
+		
+		if (this.extendedContext == null) return null;
+		
+		return this.extendedContext.getEnclosingElement();
+	}
 	
 	/**
-	 * The completed token is the first token of a statement.<br>
-	 * e.g.
-	 * <pre>
-	 * public class X {
-	 *   public void bar() {
-	 *     Foo| // completion occurs at |
-	 *   }
-	 * }
-	 * </pre>
+	 * Return the elements which are visible from the completion location and which can be assigned to the given type.
+	 * An element is assignable if its type can be assigned to a variable
+	 * of the given type, as specified in section 5.2 of <em>The Java Language
+	 * Specification, Third Edition</em> (JLS3).
+	 * A visible element is either:
+	 * <ul>
+	 * <li>a {@link ILocalVariable} - the element type is {@link ILocalVariable#getTypeSignature()}</li>
+	 * <li>a {@link IField} - the element type is {@link IField#getTypeSignature()}</li>
+	 * <li>a {@link IMethod} - the element type is {@link IMethod#getReturnType()}</li>
+	 * </ul>
 	 * 
-	 * @see #getTokenLocation()
+	 * Returned elements defined in the completed compilation unit are special Java elements:
+	 * <ul>
+	 * <li>they are based on the current content of the compilation unit's buffer, they are not the result of a reconcile operation</li>
+	 * <li>they are not updated if the buffer changes.</li>
+	 * <li>they do not contain local types which are not visible from the completion location.</li>
+	 * <li>they do not give information about categories. {@link IMember#getCategories()} will return an empty array</li>
+	 * </ul>
+	 * 
+	 * Note the array can be empty if:
+	 * <ul>
+	 * <li>the compilation unit no longer exists</li>
+	 * <li>the completion occurred in a binary type. However this restriction might be relaxed in the future.</li>
+	 * </ul>
+	 * 
+	 * @param typeSignature elements which can be assigned to this type are returned.
+	 * 		If <code>null</code> there is no constraint on the type of the returned elements.
+	 * 
+	 * @return elements which are visible from the completion location and which can be assigned to the given type.
+	 * 
+	 * @exception UnsupportedOperationException if the context is not an extended context
+	 * 
+	 * @see #isExtended()
 	 * 
 	 * @since 3.4
 	 */
-	public static final int TL_STATEMENT_START = 2;
+	public IJavaElement[] getVisibleElements(String typeSignature) {
+		if (!this.isExtended()) throw new UnsupportedOperationException("Operation only supported in extended context"); //$NON-NLS-1$
+		
+		if (this.extendedContext == null) return new IJavaElement[0];
+		
+		return this.extendedContext.getVisibleElements(typeSignature);
+	}
 	
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
@@ -296,9 +382,9 @@ public final class CompletionContext extends InternalCompletionContext {
 		buffer.append('\n');
 		
 		if (tokenLocation == 0) {
-			buffer.append("locationType=UNKNOWN"); //$NON-NLS-1$
+			buffer.append("tokenLocation=UNKNOWN"); //$NON-NLS-1$
 		} else {
-			buffer.append("locationType={"); //$NON-NLS-1$
+			buffer.append("tokenLocation={"); //$NON-NLS-1$
 			boolean first = true;
 			if ((tokenLocation & CompletionContext.TL_MEMBER_START) != 0) {
 				if (!first) buffer.append(',');
@@ -313,7 +399,7 @@ public final class CompletionContext extends InternalCompletionContext {
 			buffer.append('}');
 		}
 		buffer.append('\n');
-			
+		
 		return buffer.toString();
 	}
 }

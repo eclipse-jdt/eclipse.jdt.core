@@ -204,7 +204,8 @@ public void checkParse(
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					options, 
-					new DefaultProblemFactory(Locale.getDefault())));
+					new DefaultProblemFactory(Locale.getDefault())),
+				false);
 			
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	

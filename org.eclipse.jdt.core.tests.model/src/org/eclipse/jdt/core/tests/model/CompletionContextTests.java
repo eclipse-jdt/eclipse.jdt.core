@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
+
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
@@ -3912,6 +3915,828 @@ public void test0142() throws JavaModelException {
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null\n"+
 		"completion token location={STATEMENT_START}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0143() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"zzzz\n" + 
+		"public class X {\n" + 
+		"  public int field0;\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location=UNKNOWN\n" +
+		"visibleElements={}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0144() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  zzzz\n" + 
+		"  public int field0;\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={MEMBER_START}\n" +
+		"visibleElements={}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0145() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public int field0;\n" + 
+		"  public int field1 = zzzz;\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true);
+	
+	String jclPath = getExternalJCLPathString();
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures={I}\n" +
+		"expectedTypesKeys={I}\n" +
+		"completion token location=UNKNOWN\n" +
+		"visibleElements={\n" +
+		"	field1 {key=Ltest/X;.field1)I} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"	field0 {key=Ltest/X;.field0)I} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"	wait(long, int) {key=Ljava/lang/Object;.wait(JI)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait(long) {key=Ljava/lang/Object;.wait(J)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait() {key=Ljava/lang/Object;.wait()V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	toString() {key=Ljava/lang/Object;.toString()Ljava/lang/String;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0146() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public int field0;\n" + 
+		"  { zzzz }\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true);
+	
+	String jclPath = getExternalJCLPathString();
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	field0 {key=Ltest/X;.field0)I} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"	wait(long, int) {key=Ljava/lang/Object;.wait(JI)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait(long) {key=Ljava/lang/Object;.wait(J)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait() {key=Ljava/lang/Object;.wait()V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	toString() {key=Ljava/lang/Object;.toString()Ljava/lang/String;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0147() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public int field0;\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true);
+	
+	String jclPath = getExternalJCLPathString();
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	field0 {key=Ltest/X;.field0)I} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"	foo() {key=Ltest/X;.foo()V} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"	wait(long, int) {key=Ljava/lang/Object;.wait(JI)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait(long) {key=Ljava/lang/Object;.wait(J)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait() {key=Ljava/lang/Object;.wait()V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	toString() {key=Ljava/lang/Object;.toString()Ljava/lang/String;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0148() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public int field0;\n" + 
+		"  public int fieldX0;\n" + 
+		"  public class Y {\n" +
+		"    public int field0;\n" + 
+		"    public int fieldY0;\n" + 
+		"    public void fooY() {\n" +
+		"      int local0;\n" +
+		"      int localfooY0;\n" +
+		"      if (true) {\n" +
+		"        int local0;\n" +
+		"        int localfooY1;\n" +
+		"        zzzz\n" +
+		"      }\n" +
+		"  }\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true);
+	
+	String jclPath = getExternalJCLPathString();
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	local0 [in fooY() [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]]],\n" +
+		"	localfooY0 [in fooY() [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]]],\n" +
+		"	localfooY1 [in fooY() [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]]],\n" +
+		"	fieldY0 {key=Ltest/X$Y;.fieldY0)I} [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	field0 {key=Ltest/X$Y;.field0)I} [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	fieldX0 {key=Ltest/X;.fieldX0)I} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"	fooY() {key=Ltest/X$Y;.fooY()V} [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	wait(long, int) {key=Ljava/lang/Object;.wait(JI)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait(long) {key=Ljava/lang/Object;.wait(J)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait() {key=Ljava/lang/Object;.wait()V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	toString() {key=Ljava/lang/Object;.toString()Ljava/lang/String;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0149() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public void method0() {}\n" + 
+		"  public void method0(int i) {}\n" + 
+		"  public class Y {\n" +
+		"    public void method1() {}\n" + 
+		"    public void method0(int i) {}\n" + 
+		"    public void foo() {\n" +
+		"      zzzz\n" +
+		"    }\n" +
+		"  }\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true);
+	
+	String jclPath = getExternalJCLPathString();
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	method1() {key=Ltest/X$Y;.method1()V} [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	method0(int) {key=Ltest/X$Y;.method0(I)V} [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	foo() {key=Ltest/X$Y;.foo()V} [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	wait(long, int) {key=Ljava/lang/Object;.wait(JI)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait(long) {key=Ljava/lang/Object;.wait(J)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait() {key=Ljava/lang/Object;.wait()V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	toString() {key=Ljava/lang/Object;.toString()Ljava/lang/String;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	method0() {key=Ltest/X;.method0()V} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0150() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X extends A {\n" + 
+		"  public void method0() {}\n" + 
+		"  public void method0(int i) {}\n" + 
+		"  public class Y extends B {\n" +
+		"    public void method1() {}\n" + 
+		"    public void method0(int i) {}\n" + 
+		"    public void foo() {\n" +
+		"      zzzz\n" +
+		"    }\n" +
+		"  }\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/A.java",
+		"package test;\n" + 
+		"public class A {\n" + 
+		"  public void methodA() {}\n" + 
+		"  public void method0(int i) {}\n" + 
+		"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src3/test/B.java",
+		"package test;\n" + 
+		"public class B {\n" + 
+		"  public void methodB() {}\n" + 
+		"  public void method0(int i) {}\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true);
+	
+	String jclPath = getExternalJCLPathString();
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	method1() {key=Ltest/X$Y;.method1()V} [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	method0(int) {key=Ltest/X$Y;.method0(I)V} [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	foo() {key=Ltest/X$Y;.foo()V} [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	methodB() {key=Ltest/B;.methodB()V} [in B [in [Working copy] B.java [in test [in src3 [in Completion]]]]],\n" +
+		"	wait(long, int) {key=Ljava/lang/Object;.wait(JI)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait(long) {key=Ljava/lang/Object;.wait(J)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait() {key=Ljava/lang/Object;.wait()V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	toString() {key=Ljava/lang/Object;.toString()Ljava/lang/String;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	method0() {key=Ltest/X;.method0()V} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"	methodA() {key=Ltest/A;.methodA()V} [in A [in [Working copy] A.java [in test [in src3 [in Completion]]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0151() throws CoreException, IOException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X extends A {\n" + 
+		"  public void method0() {}\n" + 
+		"  public void method0(int i) {}\n" + 
+		"  public class Y extends B {\n" +
+		"    public void method1() {}\n" + 
+		"    public void method0(int i) {}\n" + 
+		"    public void foo() {\n" +
+		"      zzzz\n" +
+		"    }\n" +
+		"  }\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/B.java",
+		"package test;\n" + 
+		"public class B extends D {\n" + 
+		"  public void methodB() {}\n" + 
+		"  public void method0(int i) {}\n" + 
+		"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src3/test/D.java",
+		"package test;\n" + 
+		"public class D {\n" + 
+		"  public void methodD() {}\n" + 
+		"  public void method0(int i) {}\n" + 
+		"}");
+	
+	this.addLibrary(
+		getJavaProject("Completion"),
+		"test.jar",
+		"testsrc.zip",
+		new String[] {
+			"/Completion/test/A.java",
+			"package test;\n" + 
+			"public class A extends C {\n" + 
+			"  public void methodA() {}\n" + 
+			"  public void method0(int i) {}\n" + 
+			"}",
+			"/Completion/test/C.java",
+			"package test;\n" + 
+			"public class C {\n" + 
+			"  public void methodC() {}\n" + 
+			"  public void method0(int i) {}\n" + 
+			"}"
+		},
+		"1.4");
+
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true);
+	
+	String jclPath = getExternalJCLPathString();
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	method1() {key=Ltest/X$Y;.method1()V} [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	method0(int) {key=Ltest/X$Y;.method0(I)V} [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	foo() {key=Ltest/X$Y;.foo()V} [in Y [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	methodB() {key=Ltest/B;.methodB()V} [in B [in [Working copy] B.java [in test [in src3 [in Completion]]]]],\n" +
+		"	methodD() {key=Ltest/D;.methodD()V} [in D [in [Working copy] D.java [in test [in src3 [in Completion]]]]],\n" +
+		"	wait(long, int) {key=Ljava/lang/Object;.wait(JI)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait(long) {key=Ljava/lang/Object;.wait(J)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait() {key=Ljava/lang/Object;.wait()V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	toString() {key=Ljava/lang/Object;.toString()Ljava/lang/String;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	method0() {key=Ltest/X;.method0()V} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"	methodA() {key=Ltest/A;.methodA()V} [in A [in A.class [in test [in test.jar [in Completion]]]]],\n" +
+		"	methodC() {key=Ltest/C;.methodC()V} [in C [in C.class [in test [in test.jar [in Completion]]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0152() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public void method0() {}\n" + 
+		"  public void method0(int i) {}\n" + 
+		"  public class Y {\n" +
+		"    public void method1() {}\n" + 
+		"    public void method0(int i) {}\n" + 
+		"    public void foo() {\n" +
+		"      zzzz\n" +
+		"    }\n" +
+		"  }\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+	
+	boolean unsupported = false;
+	try {
+		contextComplete0(this.workingCopies[0], cursorLocation, false /*do not use extended context*/,true /*ask enclosing element*/, true /*ask visible elements*/, null);
+	} catch (UnsupportedOperationException e) {
+		// this is expected because visible elements computation require heavy context
+		unsupported = true;
+	}
+	assertTrue("getVisibleElements() shouldn't be supported", unsupported);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0153() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public A methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/A.java",
+		"package test;\n" + 
+		"public class A {\n" + 
+		"}");
+	
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "Ltest/A;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	methodX() {key=Ltest/X;.methodX()Ltest/A;} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0154() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public A methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/A.java",
+		"package test;\n" + 
+		"public class A {\n" + 
+		"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src3/test/B.java",
+		"package test;\n" + 
+		"public class B {\n" + 
+		"}");
+	
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "Ltest/B;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0155() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public A methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/A.java",
+		"package test;\n" + 
+		"public class A extends B {\n" + 
+		"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src3/test/B.java",
+		"package test;\n" + 
+		"public class B {\n" + 
+		"}");
+	
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "Ltest/B;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	methodX() {key=Ltest/X;.methodX()Ltest/A;} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0156() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public A methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "Ltest/Zork;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0157() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public test.Zork methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "Ltest/Zork;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	methodX() {key=Ltest/X;.methodX()Ltest/Zork;} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0158() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, true, false);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"enclosingElement=foo() {key=Ltest/X;.foo()V} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0159() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public void foo() {}\n" +
+		"  zzzz\n" +
+		"  public void bar() {}\n" +
+		"}");
+	
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, true, false);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={MEMBER_START}\n" +
+		"enclosingElement=X {key=Ltest/X;} [in [Working copy] X.java [in test [in src3 [in Completion]]]]",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0160() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"zzzz\n" +
+		"public class X {\n" + 
+		"}");
+	
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, true, false);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location=UNKNOWN\n" +
+		"enclosingElement=[Working copy] X.java [in test [in src3 [in Completion]]]",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0161() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public void foo() {}\n" +
+		"  public class Y {\n" + 
+		"    public void fooY() {}\n" +
+		"      zzzz\n" +
+		"    public void barY() {}\n" +
+		"  }\n" +
+		"  public void bar() {}\n" +
+		"}");
+	
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, true, false);
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={MEMBER_START}\n" +
+		"enclosingElement=Y {key=Ltest/X$Y;} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]",
 		result.context);
 }
 }

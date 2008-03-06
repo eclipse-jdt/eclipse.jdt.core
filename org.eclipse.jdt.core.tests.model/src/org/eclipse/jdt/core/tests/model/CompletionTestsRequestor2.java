@@ -16,8 +16,10 @@ import java.util.Comparator;
 import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.core.JavaElement;
 
 public class CompletionTestsRequestor2 extends CompletionRequestor {
 	private final char[] NULL_LITERAL = "null".toCharArray();//$NON-NLS-1$
@@ -34,6 +36,10 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	private boolean showTokenPositions;
 	private boolean shortContext;
 	private boolean showMissingTypes;
+	
+	private boolean computeVisibleElements;
+	private boolean computeEnclosingElement;
+	private String assignableType;
 	
 	public boolean fDebug = false;
 
@@ -181,6 +187,40 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				buffer.append('}');
 			}
 		}
+		
+		if (this.computeEnclosingElement) {
+			buffer.append('\n');
+			buffer.append("enclosingElement="); //$NON-NLS-1$
+			JavaElement enclosingElement = (JavaElement)this.context.getEnclosingElement();
+			if (enclosingElement == null) {
+				buffer.append("null"); //$NON-NLS-1$
+			} else {
+				buffer.append(enclosingElement.toStringWithAncestors(true /*show resolved info*/));
+			}
+		}
+		
+		if (this.computeVisibleElements) {
+			buffer.append('\n');
+			
+			IJavaElement[] visibleElements = this.context.getVisibleElements(this.assignableType);
+			buffer.append("visibleElements="); //$NON-NLS-1$
+			if (visibleElements == null) {
+				buffer.append("null"); //$NON-NLS-1$
+			} else if (visibleElements.length == 0) {
+				buffer.append("{}"); //$NON-NLS-1$
+			} else {
+				buffer.append('{');
+				buffer.append('\n');
+				for (int i = 0; i < visibleElements.length; i++) {
+					JavaElement element = (JavaElement) visibleElements[i];
+					buffer.append('\t');
+					buffer.append(element.toStringWithAncestors(true /*show resolved info*/));
+					buffer.append(",\n"); //$NON-NLS-1$
+				}
+				buffer.append('}');
+			}
+		}
+		
 		//buffer.append('\n');
 		
 		
@@ -521,5 +561,14 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	}
 	public String toString() {
 		return getResults();
+	}
+	public void setComputeVisibleElements(boolean computeVisibleElements) {
+		this.computeVisibleElements = computeVisibleElements;
+	}
+	public void setAssignableType(String typeSignature) {
+		this.assignableType = typeSignature;
+	}
+	public void setComputeEnclosingElement(boolean computeEnclosingElement) {
+		this.computeEnclosingElement = computeEnclosingElement;
 	}
 }

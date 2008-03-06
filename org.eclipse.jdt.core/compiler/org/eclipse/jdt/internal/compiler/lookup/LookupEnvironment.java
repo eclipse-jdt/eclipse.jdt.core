@@ -1220,7 +1220,7 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean i
 	return createArrayType(binding, dimension);
 }
 
-TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType, char[][][] missingTypeNames) {
+public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType, char[][][] missingTypeNames) {
 	// TypeVariableSignature = 'T' Identifier ';'
 	// ArrayTypeSignature = '[' TypeSignature
 	// ClassTypeSignature = 'L' Identifier TypeArgs(optional) ';'
@@ -1239,12 +1239,15 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 				return dimension == 0 ? (TypeBinding) staticVariables[i] : createArrayType(staticVariables[i], dimension);
 	    ReferenceBinding initialType = enclosingType;
 		do {
-		    if (enclosingType instanceof BinaryTypeBinding) { // per construction can only be binary type binding
-				TypeVariableBinding[] enclosingVariables = ((BinaryTypeBinding)enclosingType).typeVariables; // do not trigger resolution of variables
-				for (int i = enclosingVariables.length; --i >= 0;)
-					if (CharOperation.equals(enclosingVariables[i].sourceName, wrapper.signature, varStart, varEnd))
-						return dimension == 0 ? (TypeBinding) enclosingVariables[i] : createArrayType(enclosingVariables[i], dimension);
-		    }
+			TypeVariableBinding[] enclosingTypeVariables;
+			if (enclosingType instanceof BinaryTypeBinding) { // compiler normal case, no eager resolution of binary variables
+				enclosingTypeVariables = ((BinaryTypeBinding)enclosingType).typeVariables; // do not trigger resolution of variables
+			} else { // codepath only use by codeassist for decoding signatures
+				enclosingTypeVariables = enclosingType.typeVariables();
+			}
+			for (int i = enclosingTypeVariables.length; --i >= 0;)
+				if (CharOperation.equals(enclosingTypeVariables[i].sourceName, wrapper.signature, varStart, varEnd))
+					return dimension == 0 ? (TypeBinding) enclosingTypeVariables[i] : createArrayType(enclosingTypeVariables[i], dimension);
 		} while ((enclosingType = enclosingType.enclosingType()) != null);
 		problemReporter.undefinedTypeVariableSignature(CharOperation.subarray(wrapper.signature, varStart, varEnd), initialType);
 		return null; // cannot reach this, since previous problem will abort compilation

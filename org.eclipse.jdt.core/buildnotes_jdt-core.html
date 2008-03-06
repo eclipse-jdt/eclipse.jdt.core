@@ -49,7 +49,7 @@ Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
 <ul>
 <li>CodeAssist: Added new API to give more information about completion context:<br>
 <ul>
-<li>CompletionContext#getEnclosingElement() - This method returns the elements visible from the completion location.
+<li>CompletionContext#getEnclosingElement() - This method returns the innermost enclosing Java element which contains the completion location.
 <pre>
 public class X {
 	void foo() {
@@ -59,7 +59,7 @@ public class X {
 </pre>
 <code>getEnclosingElement()</code> returns the IMethod named foo.
 </li>
-<li>CompletionContext#getVisibleElements(String) - This method returns the innermost enclosing Java element which contains the completion location.
+<li>CompletionContext#getVisibleElements(String) - This method returns the elements visible from the completion location.
 <pre>
 public class X {
 	p.Y f1;

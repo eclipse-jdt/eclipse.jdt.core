@@ -68,6 +68,8 @@ public abstract class CompletionRequestor {
 	 * 1 << completionProposalKind
 	 */
 	private int requiredProposalAllowSet[] = null;
+			
+	private boolean requireExtendedContext = false;
 
 	/**
 	 * Creates a new completion requestor.
@@ -323,5 +325,34 @@ public abstract class CompletionRequestor {
 	 */
 	public void acceptContext(CompletionContext context) {
 		// do nothing
+	}
+	
+	/**
+	 * Returns whether this requestor requires an extended context.
+	 * 
+	 * By default this method return <code>false</code>.
+	 * 
+	 * @return <code>true</code> if this requestor requires an extended context.
+	 * 
+	 * @see CompletionContext#isExtended()
+	 * 
+	 * @since 3.4
+	 */
+	public boolean isExtendedContextRequired() {
+		return this.requireExtendedContext;
+	}
+	
+	
+	/**
+	 * Sets whether this requestor requires an extended context.
+	 * 
+	 * @param require <code>true</code> if this requestor requires an extended context.
+	 * 
+	 * @see CompletionContext#isExtended()
+	 * 
+	 * @since 3.4
+	 */
+	public void setRequireExtendedContext(boolean require) {
+		this.requireExtendedContext = require;
 	}
 }

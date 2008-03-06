@@ -101,7 +101,36 @@ protected CompletionResult complete(String path, String source, boolean showPosi
 	return result;
 }
 protected CompletionResult contextComplete(ICompilationUnit cu, int cursorLocation) throws JavaModelException {
+	return contextComplete0(cu, cursorLocation, false, false, false, null);
+}
+protected CompletionResult contextComplete(
+		ICompilationUnit cu,
+		int cursorLocation,
+		boolean computeEnclosingElement,
+		boolean computeVisibleElements) throws JavaModelException {
+	return contextComplete0(cu, cursorLocation, true, computeEnclosingElement, computeVisibleElements, null);
+}
+protected CompletionResult contextComplete(
+		ICompilationUnit cu,
+		int cursorLocation,
+		boolean computeEnclosingElement,
+		boolean computeVisibleElements,
+		String typeSignature) throws JavaModelException {
+	return contextComplete0(cu, cursorLocation, true, computeEnclosingElement, computeVisibleElements, typeSignature);
+}
+protected CompletionResult contextComplete0(
+		ICompilationUnit cu,
+		int cursorLocation,
+		boolean useExtendedContext,
+		boolean computeEnclosingElement,
+		boolean computeVisibleElements,
+		String typeSignature) throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false);
+	requestor.setRequireExtendedContext(useExtendedContext);
+	requestor.setComputeEnclosingElement(computeEnclosingElement);
+	requestor.setComputeVisibleElements(computeVisibleElements);
+	requestor.setAssignableType(typeSignature);
+	
 	cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	CompletionResult result =  new CompletionResult();

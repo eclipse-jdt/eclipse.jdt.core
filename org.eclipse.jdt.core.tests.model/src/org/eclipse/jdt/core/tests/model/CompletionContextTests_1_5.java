@@ -778,4 +778,356 @@ public void test0027() throws JavaModelException {
 		"completion token location=UNKNOWN",
 		result.context);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0028() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X<TX> extends A<String> {\n" + 
+		"  public void methodX(TX x) {}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/A.java",
+		"package test;\n" + 
+		"public class A<TA> {\n" + 
+		"  public void methodA(TA a) {}\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true);
+	
+	String jclPath = getExternalJCLPathString("1.5");
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	methodX(TX) {key=Ltest/X;.methodX(TTX;)V} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"	foo() {key=Ltest/X;.foo()V} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"	methodA(TA) {key=Ltest/A<Ljava/lang/String;>;.methodA(Ljava/lang/String;)V} [in A [in [Working copy] A.java [in test [in src3 [in Completion]]]]],\n" +
+		"	wait(long, int) {key=Ljava/lang/Object;.wait(JI)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait(long) {key=Ljava/lang/Object;.wait(J)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	wait() {key=Ljava/lang/Object;.wait()V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	toString() {key=Ljava/lang/Object;.toString()Ljava/lang/String;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0029() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public A<String> methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/A.java",
+		"package test;\n" + 
+		"public class A<TA> {\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "Ltest/A<Ljava/lang/String;>;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	methodX() {key=Ltest/X;.methodX()Ltest/A<Ljava/lang/String;>;} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0030() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public A<String> methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/A.java",
+		"package test;\n" + 
+		"public class A<TA> {\n" + 
+		"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src3/test/B.java",
+		"package test;\n" + 
+		"public class B<TB> {\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "Ltest/B<Ljava/lang/String;>;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0031() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public A<String> methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/A.java",
+		"package test;\n" + 
+		"public class A<TA> extends B<TA>{\n" + 
+		"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src3/test/B.java",
+		"package test;\n" + 
+		"public class B<TB> {\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "Ltest/B<Ljava/lang/String;>;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	methodX() {key=Ltest/X;.methodX()Ltest/A<Ljava/lang/String;>;} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0032() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public A<String> methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/A.java",
+		"package test;\n" + 
+		"public class A<TA> {\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "Ltest/Zork<Ljava/lang/String;>;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0033() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public A<String> methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/A.java",
+		"package test;\n" + 
+		"public class A<TA> {\n" + 
+		"}");
+	
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "Ltest/A<LZork;>;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0034() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X<T> {\n" + 
+		"  public T methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "TT;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	methodX() {key=Ltest/X;.methodX()TT;} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0035() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public <T> T methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "TT;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=202470
+public void test0036() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public <T> T methodX() {\n" + 
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "TT;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	methodX() {key=Ltest/X;.methodX<T:Ljava/lang/Object;>()TT;} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"}",
+		result.context);
+}
 }

@@ -98,7 +98,8 @@ protected void verifyCompletionInJavadoc(String source, String after) {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	CompletionParser parser = new CompletionParser(new ProblemReporter(DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 		options,
-		new DefaultProblemFactory(Locale.getDefault())));
+		new DefaultProblemFactory(Locale.getDefault())),
+		false);
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source.toCharArray(), "Test.java", null);
 	CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);

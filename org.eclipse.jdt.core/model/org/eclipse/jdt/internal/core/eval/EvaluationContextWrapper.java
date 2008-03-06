@@ -110,7 +110,8 @@ public void codeComplete(String codeSnippet, int position, CompletionRequestor r
 		environment,
 		requestor,
 		this.project.getOptions(true),
-		this.project
+		this.project,
+		owner
 	);
 }
 /**
