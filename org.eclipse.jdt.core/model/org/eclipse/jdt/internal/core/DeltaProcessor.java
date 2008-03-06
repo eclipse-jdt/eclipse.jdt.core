@@ -1292,7 +1292,7 @@ public class DeltaProcessor {
 
 	private IPath externalPath(IResource res) {
 		IPath resourcePath = res.getFullPath();
-		if (ExternalFoldersManager.isExternal(resourcePath))
+		if (ExternalFoldersManager.isInternalPathForExternalFolder(resourcePath))
 			return res.getLocation();
 		return resourcePath;
 	}
@@ -1590,7 +1590,7 @@ public class DeltaProcessor {
 			switch (element.getElementType()) {
 				case IJavaElement.JAVA_MODEL :
 					((JavaModelInfo) info).nonJavaResources = null;
-					if (!ExternalFoldersManager.isExternal(delta.getFullPath()))
+					if (!ExternalFoldersManager.isInternalPathForExternalFolder(delta.getFullPath()))
 						currentDelta().addResourceDelta(delta);
 					return;
 				case IJavaElement.JAVA_PROJECT :
@@ -1618,7 +1618,7 @@ public class DeltaProcessor {
 			// don't use find after creating the delta as it can be null (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63434)
 			elementDelta = current.changed(element, IJavaElementDelta.F_CONTENT);
 		}
-		if (!ExternalFoldersManager.isExternal(delta.getFullPath()))
+		if (!ExternalFoldersManager.isInternalPathForExternalFolder(delta.getFullPath()))
 			elementDelta.addResourceDelta(delta);
 	}
 	/*

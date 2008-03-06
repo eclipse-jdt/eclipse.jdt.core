@@ -96,7 +96,7 @@ static Object[] computeFolderNonJavaResources(IPackageFragmentRoot root, IContai
 				nonJavaResources[nonJavaResourcesCounter++] = member;
 			}	
 		}
-		if (ExternalFoldersManager.isExternal(folder.getFullPath())) {
+		if (ExternalFoldersManager.isInternalPathForExternalFolder(folder.getFullPath())) {
 			IJarEntryResource[] jarEntryResources = new IJarEntryResource[nonJavaResourcesCounter];
 			for (int i = 0; i < nonJavaResourcesCounter; i++) {
 				jarEntryResources[i] = new NonJavaResource(root, nonJavaResources[i]);

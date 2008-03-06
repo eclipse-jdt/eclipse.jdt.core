@@ -1665,7 +1665,7 @@ public class JavaProject
 					return null;
 				}
 			case IResource.FOLDER:
-				if (ExternalFoldersManager.isExternal(resource.getFullPath()))
+				if (ExternalFoldersManager.isInternalPathForExternalFolder(resource.getFullPath()))
 					return new ExternalPackageFragmentRoot(resource, entryPath, this);
 				return new PackageFragmentRoot(resource, this);
 			case IResource.PROJECT:
@@ -2513,6 +2513,7 @@ public class JavaProject
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			manager.setClasspathBeingResolved(this, true);
+			ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
 			
 			// get raw info inside a synchronized block to ensure that it is consistent
 			IClasspathEntry[] rawClasspath;
@@ -2544,7 +2545,7 @@ public class JavaProject
 						try {
 							resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
 						} catch (AssertionFailedException e) {
-							// Catch the assertion failure and set ststus instead
+							// Catch the assertion failure and set status instead
 							// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=55992
 							unresolvedEntryStatus = new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());
 							break;
@@ -2557,6 +2558,9 @@ public class JavaProject
 								rootPathToResolvedEntries.put(resolvedPath, resolvedEntry);
 							}
 							resolvedEntries.add(resolvedEntry);
+							if (resolvedEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && ExternalFoldersManager.isExternalFolderPath(resolvedPath)) {
+								externalFoldersManager.addFolder(resolvedPath); // no-op if not an external folder or if already registered 
+							}
 						}
 						break; 
 	
@@ -2586,6 +2590,9 @@ public class JavaProject
 								rootPathToResolvedEntries.put(resolvedPath, cEntry);
 							}
 							resolvedEntries.add(cEntry);
+							if (cEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && ExternalFoldersManager.isExternalFolderPath(resolvedPath)) {
+								externalFoldersManager.addFolder(resolvedPath); // no-op if not an external folder or if already registered 
+							}
 						}
 						break;
 											
@@ -2595,6 +2602,9 @@ public class JavaProject
 							rootPathToResolvedEntries.put(resolvedPath, rawEntry);
 						}
 						resolvedEntries.add(rawEntry);
+						if (rawEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && ExternalFoldersManager.isExternalFolderPath(resolvedPath)) {
+							externalFoldersManager.addFolder(resolvedPath); // no-op if not an external folder or if already registered 
+						}
 
 				}					
 			}

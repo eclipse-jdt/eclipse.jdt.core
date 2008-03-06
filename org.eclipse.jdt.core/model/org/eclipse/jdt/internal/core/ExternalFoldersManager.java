@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -33,7 +34,20 @@ public class ExternalFoldersManager {
 	private HashMap folders;
 	private int counter = 0;
 	
-	public static boolean isExternal(IPath resourcePath) {
+	public static boolean isExternalFolderPath(IPath externalPath) {
+		if (externalPath == null)
+			return false;
+		if (ResourcesPlugin.getWorkspace().getRoot().getProject(externalPath.segment(0)).exists())
+			return false;
+		File externalFolder = externalPath.toFile();
+		if (externalFolder.isFile())
+			return false;
+		if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(externalPath.lastSegment()) && !externalFolder.exists())
+			return false;
+		return true;
+	}
+
+	public static boolean isInternalPathForExternalFolder(IPath resourcePath) {
 		return EXTERNAL_PROJECT_NAME.equals(resourcePath.segment(0));
 	}
 

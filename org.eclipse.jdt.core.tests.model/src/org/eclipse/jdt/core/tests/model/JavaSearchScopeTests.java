@@ -117,7 +117,7 @@ public void testApplicationLibrairiesNonExistingJarAndClassFolder() throws CoreE
 		assertScopeEquals(
 			"JavaSearchScope on [\n" + 
 			"	/P/internal.jar\n" + 
-			"	/.org.eclipse.jdt.core.external.folders/.link0\n" + 
+			"	/P/classfolder\n" + 
 			"]",
 			scope);
 	} finally {

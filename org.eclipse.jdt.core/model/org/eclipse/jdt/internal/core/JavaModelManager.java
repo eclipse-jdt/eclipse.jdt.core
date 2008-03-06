@@ -903,7 +903,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	public static IJavaElement determineIfOnClasspath(IResource resource, IJavaProject project) {
 		IPath resourcePath = resource.getFullPath();
-		boolean isExternal = ExternalFoldersManager.isExternal(resourcePath);
+		boolean isExternal = ExternalFoldersManager.isInternalPathForExternalFolder(resourcePath);
 		if (isExternal)
 			resourcePath = resource.getLocation();
 		

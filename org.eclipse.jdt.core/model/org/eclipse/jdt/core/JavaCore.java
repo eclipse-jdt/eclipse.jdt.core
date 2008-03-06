@@ -3391,7 +3391,7 @@ public final class JavaCore extends Plugin {
 			// and recreate links for external folders if needed
 			if (monitor != null)
 				monitor.subTask(Messages.javamodel_resetting_source_attachment_properties);
-			boolean externalFoldersProjectExists = JavaModelManager.getExternalManager().getExternalFoldersProject().isAccessible();
+			ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
 			final IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
 			HashSet visitedPaths = new HashSet();
 			for (int i = 0, length = projects.length; i < length; i++) {
@@ -3414,10 +3414,11 @@ public final class JavaCore extends Plugin {
 							}
 						}
 						// else source might have been attached by IPackageFragmentRoot#attachSource(...), we keep it
-						if (!needExternalFolderCreation && !externalFoldersProjectExists && entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-							Object target = JavaModel.getTarget(entry.getPath(), false/*don't check existence*/);
-							if (target instanceof IFolder && ExternalFoldersManager.isExternal(((IFolder) target).getFullPath()))
+						if (!needExternalFolderCreation && entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+							IPath entryPath = entry.getPath();
+							if (ExternalFoldersManager.isExternalFolderPath(entryPath) && externalFoldersManager.getFolder(entryPath) == null) {
 								needExternalFolderCreation = true;
+							}
 						}
 					}
 					if (needExternalFolderCreation)

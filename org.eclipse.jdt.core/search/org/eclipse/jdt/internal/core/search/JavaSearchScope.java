@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.ExternalFoldersManager;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -658,7 +659,12 @@ public String toString() {
 				String path = this.relativePaths[i];
 				if (path == null) continue;
 				result.append("\n\t"); //$NON-NLS-1$
-				result.append(this.containerPaths[i]);
+				if (ExternalFoldersManager.isInternalPathForExternalFolder(new Path(this.containerPaths[i]))) {
+					Object target = JavaModel.getWorkspaceTarget(new Path(this.containerPaths[i]));
+					result.append(((IFolder) target).getLocation().toOSString());
+				} else {
+					result.append(this.containerPaths[i]);
+				}
 				if (path.length() > 0) {
 					result.append('/');
 					result.append(path);

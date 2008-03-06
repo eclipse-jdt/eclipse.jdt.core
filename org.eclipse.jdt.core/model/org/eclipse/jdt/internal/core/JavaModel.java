@@ -354,8 +354,6 @@ public static Object getExternalTarget(IPath path, boolean checkResourceExistenc
 			// cache external file
 			existingExternalFilesAdd(externalFile);
 			return externalFile;
-		} else if (externalFile.isDirectory()) {
-			return externalFoldersManager.addFolder(path);
 		}
 	}
 	return null;

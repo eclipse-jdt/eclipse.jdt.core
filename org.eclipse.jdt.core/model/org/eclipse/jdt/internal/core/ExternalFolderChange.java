@@ -10,17 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ExternalFolderChange {
 	
@@ -45,16 +42,9 @@ public class ExternalFolderChange {
 	}
 
 	private void addExternalFolder(IPath path, HashSet folders) {
-		if (path == null || Util.isArchiveFileName(path.lastSegment())) 
+		if (!ExternalFoldersManager.isExternalFolderPath(path))
 			return;
-		Object target = JavaModel.getTarget(path, false/*don't check resource existence*/);
-		if (target instanceof File) {
-			if (!((File) target).isFile()) {
-				folders.add(path);
-			}
-		} else if (target instanceof IFolder && ExternalFoldersManager.isExternal(((IFolder) target).getFullPath())) {
-			folders.add(path);
-		}
+		folders.add(path);
 	}
 
 	/*
