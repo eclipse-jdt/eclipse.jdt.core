@@ -316,7 +316,6 @@ public void testAddExternalLibFolder2() throws CoreException {
 public void testAddExternalLibFolder3() throws CoreException {
 	try {
 		IJavaProject p =createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
-		waitForAutoBuild(); // wait for the creation of the linked folder
 		startDeltas();
 		createExternalFolder("externalLib");
 		refresh(p);
@@ -339,7 +338,6 @@ public void testAddExternalLibFolder4() throws CoreException {
 	try {
 		simulateExitRestart();
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
-		waitForAutoBuild(); // wait for the creation of the linked folder
 		startDeltas();
 		createExternalFolder("externalLib");
 		refresh(p);
@@ -2330,7 +2328,6 @@ public void testRemoveExternalLibFolder3() throws CoreException {
 	try {
 		createExternalFolder("externalLib");
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
-		waitForAutoBuild(); // wait for the creation of the linked folder
 		startDeltas();
 		deleteExternalFolder("externalLib");
 		refresh(p);
@@ -2355,7 +2352,6 @@ public void testRemoveExternalLibFolder4() throws CoreException {
 		simulateExitRestart();
 		createExternalFolder("externalLib");
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
-		waitForAutoBuild(); // wait for the creation of the linked folder
 		startDeltas();
 		deleteExternalFolder("externalLib");
 		refresh(p);
