@@ -61,6 +61,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Internal class for resolving bindings using old ASTs.
@@ -207,6 +208,15 @@ class DefaultBindingResolver extends BindingResolver {
 				return getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) binding);
 		}
 		return null;
+	}
+	
+	Util.BindingsToNodesMap getBindingsToNodesMap() {
+		return new Util.BindingsToNodesMap() {
+			public org.eclipse.jdt.internal.compiler.ast.ASTNode get(Binding binding) {
+				return (org.eclipse.jdt.internal.compiler.ast.ASTNode)
+					DefaultBindingResolver.this.newAstToOldAst.get(DefaultBindingResolver.this.bindingsToAstNodes.get(binding));
+			}
+		};
 	}
 
 	synchronized org.eclipse.jdt.internal.compiler.ast.ASTNode getCorrespondingNode(ASTNode currentNode) {

@@ -53,7 +53,7 @@ public class ResolvedSourceType extends SourceType {
 		super.toStringInfo(tab, buffer, info, showResolvedInfo);
 		if (showResolvedInfo) {
 			buffer.append(" {key="); //$NON-NLS-1$
-			buffer.append(this.uniqueKey);
+			buffer.append(this.getKey());
 			buffer.append("}"); //$NON-NLS-1$
 		}
 	}

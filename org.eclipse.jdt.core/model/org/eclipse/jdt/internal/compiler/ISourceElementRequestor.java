@@ -11,9 +11,12 @@
 package org.eclipse.jdt.internal.compiler;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 
 /*
  * Part of the source element parser responsible for building the output. It
@@ -54,6 +57,7 @@ public interface ISourceElementRequestor {
 		public boolean secondary;
 		public boolean anonymousMember;
 		public Annotation[] annotations;
+		public TypeDeclaration node;
 	}
 	
 	public static class TypeParameterInfo {
@@ -80,6 +84,7 @@ public interface ISourceElementRequestor {
 		public TypeParameterInfo[] typeParameters;
 		public char[][] categories;
 		public Annotation[] annotations;
+		public AbstractMethodDeclaration node;
 	}
 	
 	public static class FieldInfo {
@@ -91,6 +96,7 @@ public interface ISourceElementRequestor {
 		public int nameSourceEnd;
 		public char[][] categories;
 		public Annotation[] annotations;
+		public FieldDeclaration node;
 	}
 
 	void acceptAnnotationTypeReference(char[][] annotation, int sourceStart, int sourceEnd);

@@ -12,7 +12,6 @@
 package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -22,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Internal implementation of variable bindings.
@@ -201,12 +201,15 @@ class VariableBinding implements IVariableBinding {
 
 	private JavaElement getUnresolvedJavaElement() {
 		if (isField()) {
-			// field
-			FieldBinding fieldBinding = (FieldBinding) this.binding;
-			if (fieldBinding.declaringClass == null) return null; // arraylength
-			IType declaringType = (IType) getDeclaringClass().getJavaElement();
-			if (declaringType == null) return null;
-			return (JavaElement) declaringType.getField(getName());
+			if (this.resolver instanceof DefaultBindingResolver) {
+				DefaultBindingResolver defaultBindingResolver = (DefaultBindingResolver) this.resolver;
+				return Util.getUnresolvedJavaElement(
+						(FieldBinding) this.binding,
+						defaultBindingResolver.workingCopyOwner,
+						defaultBindingResolver.getBindingsToNodesMap());
+			} else {
+				return Util.getUnresolvedJavaElement((FieldBinding) this.binding, null, null);
+			}
 		}
 		// local variable
 		IMethodBinding declaringMethod = getDeclaringMethod();

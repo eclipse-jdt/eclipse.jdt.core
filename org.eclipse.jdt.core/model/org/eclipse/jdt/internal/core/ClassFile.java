@@ -136,7 +136,7 @@ public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyO
 				null,
 				type.sourceFileName((IBinaryType) type.getElementInfo()),
 				getJavaProject()); // use project to retrieve corresponding .java IFile
-		codeComplete(cu, cu, offset, requestor, owner);
+		codeComplete(cu, cu, offset, requestor, owner, null/*extended context isn't computed*/);
 	}
 }
 

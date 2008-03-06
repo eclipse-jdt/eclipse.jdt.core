@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.impl.*;
@@ -160,10 +161,17 @@ public class CompletionParser extends AssistParser {
 	
 	CompletionOnAnnotationOfType pendingAnnotation;
 	
-public CompletionParser(ProblemReporter problemReporter) {
+	private boolean storeSourceEnds;
+	public HashtableOfObjectToInt sourceEnds;
+	
+public CompletionParser(ProblemReporter problemReporter, boolean storeExtraSourceEnds) {
 	super(problemReporter);
 	this.reportSyntaxErrorIsRequired = false;
 	this.javadocParser.checkDocComment = true;
+	if (storeExtraSourceEnds) {
+		this.storeSourceEnds = true;
+		this.sourceEnds = new HashtableOfObjectToInt();
+	}
 }
 private void addPotentialName(char[] potentialVariableName, int start, int end) {
 	int length = this.potentialVariableNames.length;
@@ -2118,6 +2126,9 @@ protected void consumeConstructorHeaderName() {
 
 	/* no need to take action if not inside assist identifiers */
 	if (indexOfAssistIdentifier() < 0) {
+		long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
+		int selectorSourceEnd = (int) selectorSourcePositions;
+		int currentAstPtr = this.astPtr;
 		/* recovering - might be an empty message send */
 		if (this.currentElement != null && this.lastIgnoredToken == TokenNamenew){ // was an allocation expression
 			super.consumeConstructorHeaderName();
@@ -2127,6 +2138,9 @@ protected void consumeConstructorHeaderName() {
 				this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 				this.pendingAnnotation = null;
 			}
+		}
+		if (this.sourceEnds != null && this.astPtr > currentAstPtr) { // if ast node was pushed on the ast stack
+			this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
 		}
 		return;
 	}
@@ -2140,6 +2154,9 @@ protected void consumeConstructorHeaderName() {
 	this.restartRecovery = true;
 }
 protected void consumeConstructorHeaderNameWithTypeParameters() {
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
+	int selectorSourceEnd = (int) selectorSourcePositions;
+	int currentAstPtr = this.astPtr;
 	if (this.currentElement != null && this.lastIgnoredToken == TokenNamenew){ // was an allocation expression
 		super.consumeConstructorHeaderNameWithTypeParameters();
 	} else {
@@ -2148,6 +2165,9 @@ protected void consumeConstructorHeaderNameWithTypeParameters() {
 			this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 			this.pendingAnnotation = null;
 		}
+	}
+	if (this.sourceEnds != null && this.astPtr > currentAstPtr) { // if ast node was pushed on the ast stack
+		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
 	}
 }
 protected void consumeDefaultLabel() {
@@ -2269,6 +2289,24 @@ protected void consumeEnumConstantHeaderName() {
 		this.pendingAnnotation = null;
 	}
 }
+protected void consumeEnumConstantNoClassBody() {
+	super.consumeEnumConstantNoClassBody();
+	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
+			&& this.astStack[this.astPtr] instanceof FieldDeclaration) {
+		if (this.sourceEnds != null) {
+			this.sourceEnds.put(this.astStack[this.astPtr], this.scanner.currentPosition - 1);
+		}
+	}
+}
+protected void consumeEnumConstantWithClassBody() {
+	super.consumeEnumConstantWithClassBody();
+	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
+			&& astStack[astPtr] instanceof FieldDeclaration) {
+		if (this.sourceEnds != null) {
+			this.sourceEnds.put(this.astStack[this.astPtr], this.scanner.currentPosition - 1);
+		}
+	}
+}
 protected void consumeEnumHeaderName() {
 	super.consumeEnumHeaderName();
 	this.hasUnusedModifiers = false;
@@ -2304,7 +2342,13 @@ protected void consumeEqualityExpressionWithName(int op) {
 }
 protected void consumeExitVariableWithInitialization() {
 	super.consumeExitVariableWithInitialization();
-
+	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
+			&& this.astStack[this.astPtr] instanceof FieldDeclaration) {
+		if (this.sourceEnds != null) {
+			this.sourceEnds.put(this.astStack[this.astPtr], this.scanner.currentPosition - 1);
+		}
+	}
+	
 	// does not keep the initialization if completion is not inside
 	AbstractVariableDeclaration variable = (AbstractVariableDeclaration) astStack[astPtr];
 	if (cursorLocation + 1 < variable.initialization.sourceStart ||
@@ -2312,6 +2356,17 @@ protected void consumeExitVariableWithInitialization() {
 		variable.initialization = null;
 	} else if (assistNode != null && assistNode == variable.initialization) {
 		assistNodeParent = variable;
+	}
+}
+protected void consumeExitVariableWithoutInitialization() {
+	// ExitVariableWithoutInitialization ::= $empty
+	// do nothing by default
+	super.consumeExitVariableWithoutInitialization();
+	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
+			&& astStack[astPtr] instanceof FieldDeclaration) {
+		if (this.sourceEnds != null) {
+			this.sourceEnds.put(this.astStack[this.astPtr], this.scanner.currentPosition - 1);
+		}
 	}
 }
 protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
@@ -2561,7 +2616,13 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 			this.identifierLengthStack[this.identifierLengthPtr] != this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr]) {
 			identifierPtr++;
 			identifierLengthPtr++;
+			long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
+			int selectorSourceEnd = (int) selectorSourcePositions;
+			int currentAstPtr = this.astPtr;
 			super.consumeMethodHeaderName(isAnnotationMethod);
+			if (this.sourceEnds != null && this.astPtr > currentAstPtr) { // if ast node was pushed on the ast stack
+				this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
+			}
 			if (this.pendingAnnotation != null) {
 				this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 				this.pendingAnnotation = null;
@@ -2681,7 +2742,13 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 	}
 }
 protected void consumeMethodHeaderNameWithTypeParameters( boolean isAnnotationMethod) {
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
+	int selectorSourceEnd = (int) selectorSourcePositions;
+	int currentAstPtr = this.astPtr;
 	super.consumeMethodHeaderNameWithTypeParameters(isAnnotationMethod);
+	if (this.sourceEnds != null && this.astPtr > currentAstPtr) {// if ast node was pushed on the ast stack
+		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
+	}
 	if (this.pendingAnnotation != null) {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
@@ -3730,7 +3797,15 @@ protected void consumeUnaryExpression(int op, boolean post) {
 		}
 	}
 }
-
+public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, CompilationResult compilationResult) {
+	MethodDeclaration methodDeclaration = super.convertToMethodDeclaration(c, compilationResult);
+	if (this.sourceEnds != null) {
+		int selectorSourceEnd = this.sourceEnds.removeKey(c);
+		if (selectorSourceEnd != -1)
+			this.sourceEnds.put(methodDeclaration, selectorSourceEnd);
+	}
+	return methodDeclaration;
+}
 public ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod){
 	return new CompletionOnImportReference(tokens, positions, mod);
 }
@@ -4420,6 +4495,9 @@ public void recoveryTokenCheck() {
 public void reset() {
 	super.reset();
 	this.cursorLocation = 0;
+	if (this.storeSourceEnds) {
+		this.sourceEnds = new HashtableOfObjectToInt();
+	}
 }
 /*
  * Reset internal state after completion is over

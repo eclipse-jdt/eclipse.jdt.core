@@ -81,7 +81,7 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 	
 	JavaProject project = (JavaProject) getJavaProject();
 	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
-	CompletionEngine engine = new CompletionEngine(environment, requestor, project.getOptions(true), project);
+	CompletionEngine engine = new CompletionEngine(environment, requestor, project.getOptions(true), project, owner);
 
 	String source = getCompilationUnit().getSource();
 	if (source != null && insertion > -1 && insertion < source.length()) {
@@ -97,7 +97,7 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 				getElementName(),
 				getParent());
 
-		engine.complete(cu, prefix.length + position, prefix.length);
+		engine.complete(cu, prefix.length + position, prefix.length, null/*extended context isn't computed*/);
 	} else {
 		engine.complete(this, snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
 	}

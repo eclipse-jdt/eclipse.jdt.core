@@ -16,7 +16,7 @@ import org.eclipse.jdt.core.IJavaElement;
  * Holds cached structure and properties for a Java element.
  * Subclassed to carry properties for specific kinds of elements.
  */
-/* package */ class JavaElementInfo {
+public class JavaElementInfo {
 
 	/**
 	 * Collection of handles of immediate children of this

@@ -737,7 +737,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				e.printStackTrace(System.out);
 			}
 		} finally {
-			reset();
+			reset(true);
 		}
 	}
 
@@ -1193,7 +1193,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 		} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
 		} finally {
-			reset();
+			reset(true);
 		}
 	}
 

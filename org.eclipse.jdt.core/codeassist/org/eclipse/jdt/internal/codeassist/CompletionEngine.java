@@ -23,8 +23,10 @@ import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -288,7 +290,9 @@ public final class CompletionEngine
 	
 	long targetedElement;
 	
+	WorkingCopyOwner owner;
 	IJavaProject javaProject;
+	ITypeRoot typeRoot; 
 	CompletionParser parser;
 	CompletionRequestor requestor;
 	CompletionProblemFactory problemFactory;
@@ -398,7 +402,8 @@ public final class CompletionEngine
 			SearchableEnvironment nameEnvironment,
 			CompletionRequestor requestor,
 			Map settings,
-			IJavaProject javaProject) {
+			IJavaProject javaProject,
+			WorkingCopyOwner owner) {
 		super(settings);
 		this.javaProject = javaProject;
 		this.requestor = requestor;
@@ -413,7 +418,7 @@ public final class CompletionEngine
 		this.lookupEnvironment =
 			new LookupEnvironment(this, this.compilerOptions, this.problemReporter, nameEnvironment);
 		this.parser =
-			new CompletionParser(this.problemReporter);
+			new CompletionParser(this.problemReporter, this.requestor.isExtendedContextRequired());
 		this.nameScanner =
 			new Scanner(
 				false /*comment*/, 
@@ -423,6 +428,7 @@ public final class CompletionEngine
 				null /*taskTags*/, 
 				null/*taskPriorities*/,
 				true/*taskCaseSensitive*/);
+		this.owner = owner;
 	}
 
 	/**
@@ -859,9 +865,20 @@ public final class CompletionEngine
 	private void buildContext(
 			ASTNode astNode,
 			ASTNode astNodeParent,
+			CompilationUnitDeclaration compilationUnitDeclaration,
 			Binding qualifiedBinding,
 			Scope scope) {
 		CompletionContext context = new CompletionContext();
+		if (this.requestor.isExtendedContextRequired()) {
+			context.setExtendedData(
+					this.typeRoot,
+					compilationUnitDeclaration,
+					this.lookupEnvironment,
+					scope,
+					astNode,
+					this.owner,
+					this.parser);
+		}
 		
 		// build expected types context
 		if (this.expectedTypesPtr > -1) {
@@ -974,7 +991,14 @@ public final class CompletionEngine
 		}
 	}
 
-	private boolean complete(ASTNode astNode, ASTNode astNodeParent, ASTNode enclosingNode, Binding qualifiedBinding, Scope scope, boolean insideTypeAnnotation) {
+	private boolean complete(
+			ASTNode astNode,
+			ASTNode astNodeParent,
+			ASTNode enclosingNode,
+			CompilationUnitDeclaration compilationUnitDeclaration,
+			Binding qualifiedBinding,
+			Scope scope,
+			boolean insideTypeAnnotation) {
 
 		setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd);
 
@@ -985,7 +1009,7 @@ public final class CompletionEngine
 			computeExpectedTypes(astNodeParent, astNode, scope);
 		}
 		
-		buildContext(astNode, astNodeParent, qualifiedBinding, scope);
+		buildContext(astNode, astNodeParent, compilationUnitDeclaration, qualifiedBinding, scope);
 		
 		if (astNode instanceof CompletionOnFieldType) {
 
@@ -2191,6 +2215,7 @@ public final class CompletionEngine
 									e.astNode,
 									this.parser.assistNodeParent,
 									this.parser.enclosingNode,
+									compilationUnit,
 									e.qualifiedBinding,
 									e.scope,
 									e.insideTypeAnnotation);
@@ -2290,7 +2315,7 @@ public final class CompletionEngine
 	 *      a position in the source where the completion is taking place. 
 	 *      This position is relative to the source provided.
 	 */
-	public void complete(ICompilationUnit sourceUnit, int completionPosition, int pos) {
+	public void complete(ICompilationUnit sourceUnit, int completionPosition, int pos, ITypeRoot root) {
 
 		if(DEBUG) {
 			System.out.print("COMPLETION IN "); //$NON-NLS-1$
@@ -2306,6 +2331,7 @@ public final class CompletionEngine
 			this.fileName = sourceUnit.getFileName();
 			this.actualCompletionPosition = completionPosition - 1;
 			this.offset = pos;
+			this.typeRoot = root;
 			// for now until we can change the UI.
 			CompilationResult result = new CompilationResult(sourceUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
 			CompilationUnitDeclaration parsedUnit = this.parser.dietParse(sourceUnit, result, this.actualCompletionPosition);
@@ -2320,7 +2346,7 @@ public final class CompletionEngine
 				// scan the package & import statements first
 				if (parsedUnit.currentPackage instanceof CompletionOnPackageReference) {
 					contextAccepted = true;
-					this.buildContext(parsedUnit.currentPackage, null, null, null);
+					this.buildContext(parsedUnit.currentPackage, null, parsedUnit, null, null);
 					if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
 						findPackages((CompletionOnPackageReference) parsedUnit.currentPackage);
 					}
@@ -2341,7 +2367,7 @@ public final class CompletionEngine
 							this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 							if ((this.unitScope = parsedUnit.scope) != null) {
 								contextAccepted = true;
-								this.buildContext(importReference, null, null, null);
+								this.buildContext(importReference, null, parsedUnit, null, null);
 								
 								long positions = importReference.sourcePositions[importReference.sourcePositions.length - 1];
 								setSourceAndTokenRange((int) (positions >>> 32), (int) positions);
@@ -2389,7 +2415,7 @@ public final class CompletionEngine
 							return;
 						} else if(importReference instanceof CompletionOnKeyword) {
 							contextAccepted = true;
-							this.buildContext(importReference, null, null, null);
+							this.buildContext(importReference, null, parsedUnit, null, null);
 							if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 								setSourceAndTokenRange(importReference.sourceStart, importReference.sourceEnd);
 								CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;
@@ -2438,6 +2464,7 @@ public final class CompletionEngine
 									e.astNode,
 									this.parser.assistNodeParent,
 									this.parser.enclosingNode,
+									parsedUnit,
 									e.qualifiedBinding,
 									e.scope,
 									e.insideTypeAnnotation);
@@ -8710,7 +8737,7 @@ public final class CompletionEngine
 
 	protected void reset() {
 
-		super.reset();
+		super.reset(false);
 		this.knownPkgs = new HashtableOfObject(10);
 		this.knownTypes = new HashtableOfObject(10);
 	}

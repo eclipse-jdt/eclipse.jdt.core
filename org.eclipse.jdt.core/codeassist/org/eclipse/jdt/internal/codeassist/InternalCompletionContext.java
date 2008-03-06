@@ -10,6 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
+import org.eclipse.jdt.core.ITypeRoot;
+import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+
 
 /**
  * Internal completion context
@@ -27,12 +35,34 @@ public class InternalCompletionContext {
 	protected int tokenKind;
 	protected int tokenLocation;
 	
+	protected InternalExtendedCompletionContext extendedContext;
+	
+	protected void setExpectedTypesKeys(char[][] expectedTypesKeys) {
+		this.expectedTypesKeys = expectedTypesKeys;
+	}
+	
 	protected void setExpectedTypesSignatures(char[][] expectedTypesSignatures) {
 		this.expectedTypesSignatures = expectedTypesSignatures;
 	}
 	
-	protected void setExpectedTypesKeys(char[][] expectedTypesKeys) {
-		this.expectedTypesKeys = expectedTypesKeys;
+	protected void setExtendedData(
+			ITypeRoot typeRoot,
+			CompilationUnitDeclaration compilationUnitDeclaration,
+			LookupEnvironment lookupEnvironment,
+			Scope scope,
+			ASTNode astNode,
+			WorkingCopyOwner owner,
+			CompletionParser parser) {
+		this.extendedContext =
+			new InternalExtendedCompletionContext(
+					this,
+					typeRoot,
+					compilationUnitDeclaration,
+					lookupEnvironment,
+					scope,
+					astNode,
+					owner,
+					parser);
 	}
 
 	protected void setJavadoc(int javadoc) {
@@ -42,10 +72,23 @@ public class InternalCompletionContext {
 	protected void setOffset(int offset) {
 		this.offset = offset;
 	}
+
+	protected void setToken(char[] token) {
+		this.token = token;
+	}
+
+	protected void setTokenKind(int tokenKind) {
+		this.tokenKind = tokenKind;
+	}
 	
+	protected void setTokenLocation(int tokenLocation) {
+		this.tokenLocation = tokenLocation;
+	}
+
 	protected void setTokenRange(int start, int end) {
 		this.setTokenRange(start, end, -1);
 	}
+
 	protected void setTokenRange(int start, int end, int endOfEmptyToken) {
 		this.tokenStart = start;
 		this.tokenEnd = endOfEmptyToken > end ? endOfEmptyToken : end;
@@ -56,17 +99,5 @@ public class InternalCompletionContext {
 		if(this.tokenEnd == -1) {
 			this.tokenEnd = 0;
 		}
-	}
-	
-	protected void setToken(char[] token) {
-		this.token = token;
-	}
-	
-	protected void setTokenKind(int tokenKind) {
-		this.tokenKind = tokenKind;
-	}
-	
-	protected void setTokenLocation(int tokenLocation) {
-		this.tokenLocation = tokenLocation;
 	}
 }

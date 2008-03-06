@@ -309,8 +309,8 @@ public abstract class Engine implements ITypeRequestor {
 		return null;
 	}
 
-	protected void reset() {
-		lookupEnvironment.reset();
+	protected void reset(boolean resetLookupEnvironment) {
+		if (resetLookupEnvironment) lookupEnvironment.reset();
 	}
 
 	public static char[] getTypeSignature(TypeBinding typeBinding) {

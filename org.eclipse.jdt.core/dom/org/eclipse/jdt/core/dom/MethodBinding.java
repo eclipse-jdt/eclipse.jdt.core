@@ -11,15 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
@@ -29,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.JavaElement;
-import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -252,68 +243,13 @@ class MethodBinding implements IMethodBinding {
 	}
 
 	private JavaElement getUnresolvedJavaElement() {
-		IType declaringType = (IType) getDeclaringClass().getJavaElement();
-		if (declaringType == null) return null;
 		if (!(this.resolver instanceof DefaultBindingResolver)) return null;
-		ASTNode node = (ASTNode) ((DefaultBindingResolver) this.resolver).bindingsToAstNodes.get(this);
-		if (node != null && declaringType.getParent().getElementType() != IJavaElement.CLASS_FILE) {
-			if (node instanceof MethodDeclaration) {
-				MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-				ArrayList parameterSignatures = new ArrayList();
-				Iterator iterator = methodDeclaration.parameters().iterator();
-				while (iterator.hasNext()) {
-					SingleVariableDeclaration parameter = (SingleVariableDeclaration) iterator.next();
-					Type type = parameter.getType();
-					String typeSig = Util.getSignature(type);
-					int arrayDim = parameter.getExtraDimensions();
-					if (parameter.getAST().apiLevel() >= AST.JLS3 && parameter.isVarargs()) {
-						arrayDim++;
-					}
-					if (arrayDim > 0) {
-						typeSig = Signature.createArraySignature(typeSig, arrayDim);
-					}
-					parameterSignatures.add(typeSig);
-				}
-				int parameterCount = parameterSignatures.size();
-				String[] parameters = new String[parameterCount];
-				parameterSignatures.toArray(parameters);
-				return (JavaElement) declaringType.getMethod(getName(), parameters);
-			} else {
-				// annotation type member declaration
-				AnnotationTypeMemberDeclaration typeMemberDeclaration = (AnnotationTypeMemberDeclaration) node;
-				return (JavaElement) declaringType.getMethod(typeMemberDeclaration.getName().getIdentifier(), CharOperation.NO_STRINGS); // annotation type members don't have parameters
-			}
-		} else {
-			// case of method not in the created AST, or a binary method
-			org.eclipse.jdt.internal.compiler.lookup.MethodBinding original = this.binding.original();
-			String selector = original.isConstructor() ? declaringType.getElementName() : new String(original.selector);
-			boolean isBinary = declaringType.isBinary();
-			ReferenceBinding enclosingType = original.declaringClass.enclosingType();
-			boolean isInnerBinaryTypeConstructor = isBinary && original.isConstructor() && enclosingType != null;
-			TypeBinding[] parameters = original.parameters;
-			int length = parameters == null ? 0 : parameters.length;
-			int declaringIndex = isInnerBinaryTypeConstructor ? 1 : 0;
-			String[] parameterSignatures = new String[declaringIndex + length];
-			if (isInnerBinaryTypeConstructor)
-				parameterSignatures[0] = new String(enclosingType.genericTypeSignature()).replace('/', '.');
-			for (int i = 0;  i < length; i++) {
-				parameterSignatures[declaringIndex + i] = new String(parameters[i].genericTypeSignature()).replace('/', '.');
-			}
-			IMethod result = declaringType.getMethod(selector, parameterSignatures);
-			if (isBinary)
-				return (JavaElement) result;
-			IMethod[] methods = null;
-			try {
-				methods = declaringType.getMethods();
-			} catch (JavaModelException e) {
-				// declaring type doesn't exist
-				return null;
-			}
-			IMethod[] candidates = Member.findMethods(result, methods);
-			if (candidates == null || candidates.length == 0)
-				return null;
-			return (JavaElement) candidates[0];
-		}
+		
+		DefaultBindingResolver defaultBindingResolver = (DefaultBindingResolver) this.resolver;
+		return Util.getUnresolvedJavaElement(
+				this.binding,
+				defaultBindingResolver.workingCopyOwner,
+				defaultBindingResolver.getBindingsToNodesMap());
 	}
 
 	/**

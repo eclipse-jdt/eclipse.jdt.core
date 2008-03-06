@@ -96,7 +96,12 @@ protected void closeBuffer() {
 protected void closing(Object info) {
 	closeBuffer();
 }
-protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, CompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
+protected void codeComplete(
+		org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu,
+		org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip,
+		int position, CompletionRequestor requestor,
+		WorkingCopyOwner owner,
+		ITypeRoot typeRoot) throws JavaModelException {
 	if (requestor == null) {
 		throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
 	}
@@ -120,8 +125,8 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 	environment.unitToSkip = unitToSkip;
 
 	// code complete
-	CompletionEngine engine = new CompletionEngine(environment, requestor, project.getOptions(true), project);
-	engine.complete(cu, position, 0);
+	CompletionEngine engine = new CompletionEngine(environment, requestor, project.getOptions(true), project, owner);
+	engine.complete(cu, position, 0, typeRoot);
 	if(performanceStats != null) {
 		performanceStats.endRun();
 	}

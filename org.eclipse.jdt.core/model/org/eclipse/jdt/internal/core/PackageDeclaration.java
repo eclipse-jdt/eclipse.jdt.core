@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.IPackageDeclaration;
  * @see IPackageDeclaration
  */
 
-/* package */ class PackageDeclaration extends SourceRefElement implements IPackageDeclaration {
+public class PackageDeclaration extends SourceRefElement implements IPackageDeclaration {
 	
 	String name;
 	

@@ -39,16 +39,26 @@ import org.eclipse.jdt.core.util.ICodeAttribute;
 import org.eclipse.jdt.core.util.IFieldInfo;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.MemberValuePair;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
@@ -76,6 +86,11 @@ public class Util {
 		 */
 		int compare(Object a, Object b);
 	}
+	
+	public static interface BindingsToNodesMap {
+		public org.eclipse.jdt.internal.compiler.ast.ASTNode get(Binding binding);
+	}
+	
 	private static final String ARGUMENTS_DELIMITER = "#"; //$NON-NLS-1$
 
 	private static final String EMPTY_ARGUMENT = "   "; //$NON-NLS-1$
@@ -747,6 +762,38 @@ public class Util {
 		return null;
 	}
 	
+	private static IClassFile getClassFile(char[] fileName) {
+		int jarSeparator = CharOperation.indexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
+		int pkgEnd = CharOperation.lastIndexOf('/', fileName); // pkgEnd is exclusive
+		if (pkgEnd == -1)
+			pkgEnd = CharOperation.lastIndexOf(File.separatorChar, fileName);
+		if (jarSeparator != -1 && pkgEnd < jarSeparator) // if in a jar and no slash, it is a default package -> pkgEnd should be equal to jarSeparator
+			pkgEnd = jarSeparator;
+		if (pkgEnd == -1)
+			return null;
+		IPackageFragment pkg = getPackageFragment(fileName, pkgEnd, jarSeparator);
+		if (pkg == null) return null;
+		int start;
+		return pkg.getClassFile(new String(fileName, start = pkgEnd + 1, fileName.length - start));
+	}
+	
+	private static ICompilationUnit getCompilationUnit(char[] fileName, WorkingCopyOwner workingCopyOwner) {
+		char[] slashSeparatedFileName = CharOperation.replaceOnCopy(fileName, File.separatorChar, '/');
+		int pkgEnd = CharOperation.lastIndexOf('/', slashSeparatedFileName); // pkgEnd is exclusive
+		if (pkgEnd == -1)
+			return null;
+		IPackageFragment pkg = getPackageFragment(slashSeparatedFileName, pkgEnd, -1/*no jar separator for .java files*/);
+		if (pkg == null) return null;
+		int start;
+		ICompilationUnit cu = pkg.getCompilationUnit(new String(slashSeparatedFileName, start =  pkgEnd+1, slashSeparatedFileName.length - start));
+		if (workingCopyOwner != null) {
+			ICompilationUnit workingCopy = cu.findWorkingCopy(workingCopyOwner);
+			if (workingCopy != null)
+				return workingCopy;
+		}
+		return cu;
+	}
+	
 	/**
 	 * Returns the registered Java like extensions.
 	 */
@@ -910,7 +957,36 @@ public class Util {
 		}
 		return lineSeparator;
 	}
-		
+	
+	private static IPackageFragment getPackageFragment(char[] fileName, int pkgEnd, int jarSeparator) {
+		if (jarSeparator != -1) {
+			String jarMemento = new String(fileName, 0, jarSeparator);
+			IPackageFragmentRoot root = (IPackageFragmentRoot) JavaCore.create(jarMemento);
+			if (pkgEnd == jarSeparator)
+				return root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+			char[] pkgName = CharOperation.subarray(fileName, jarSeparator+1, pkgEnd);
+			CharOperation.replace(pkgName, '/', '.');
+			return root.getPackageFragment(new String(pkgName));
+		} else {
+			Path path = new Path(new String(fileName, 0, pkgEnd));
+			IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+			IContainer folder = path.segmentCount() == 1 ? workspaceRoot.getProject(path.lastSegment()) : (IContainer) workspaceRoot.getFolder(path);
+			IJavaElement element = JavaCore.create(folder);
+			if (element == null) return null;
+			switch (element.getElementType()) {
+				case IJavaElement.PACKAGE_FRAGMENT:
+					return (IPackageFragment) element;
+				case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+					return ((IPackageFragmentRoot) element).getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+				case IJavaElement.JAVA_PROJECT:
+					IPackageFragmentRoot root = ((IJavaProject) element).getPackageFragmentRoot(folder);
+					if (root == null) return null;
+					return root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+			}
+			return null;
+		}
+	}
+	
 	/**
 	 * Returns the number of parameter types in a method signature.
 	 */
@@ -1204,7 +1280,182 @@ public class Util {
 		return result;
 	}
 	
-		/*
+	/**
+	 * Return the java element corresponding to the given compiler binding.
+	 */
+	public static JavaElement getUnresolvedJavaElement(FieldBinding binding, WorkingCopyOwner workingCopyOwner, BindingsToNodesMap bindingsToNodes) {
+		if (binding.declaringClass == null) return null; // arraylength
+		IType declaringType = (IType) getUnresolvedJavaElement(binding.declaringClass, workingCopyOwner, bindingsToNodes);
+		if (declaringType == null) return null;
+		return (JavaElement) declaringType.getField(String.valueOf(binding.name));
+	}
+	
+	/**
+	 * Return the java element corresponding to the given compiler binding.
+	 */
+	public static JavaElement getUnresolvedJavaElement(MethodBinding methodBinding, WorkingCopyOwner workingCopyOwner, BindingsToNodesMap bindingsToNodes) {
+		IType declaringType = (IType) getUnresolvedJavaElement(methodBinding.declaringClass, workingCopyOwner, bindingsToNodes);
+		
+		if (declaringType == null) return null;
+		
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = bindingsToNodes == null ? null : bindingsToNodes.get(methodBinding);
+		if (node != null && !declaringType.isBinary()) {
+			if (node instanceof AnnotationMethodDeclaration) {
+				// node is an AnnotationMethodDeclaration
+				AnnotationMethodDeclaration typeMemberDeclaration = (AnnotationMethodDeclaration) node;
+				return (JavaElement) declaringType.getMethod(String.valueOf(typeMemberDeclaration.selector), CharOperation.NO_STRINGS); // annotation type members don't have parameters
+			} else {
+				// node is an MethodDeclaration
+				MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+				
+				Argument[] arguments = methodDeclaration.arguments;
+				String[] parameterSignatures;
+				if (arguments != null) {
+					parameterSignatures = new String[arguments.length];
+					for (int i = 0; i < arguments.length; i++) {
+						Argument argument = arguments[i];
+						TypeReference typeReference = argument.type;
+						int arrayDim = typeReference.dimensions();
+						
+						String typeSig = 
+							Signature.createTypeSignature(
+									CharOperation.concatWith(
+											typeReference.getTypeName(), '.'), false);
+						if (arrayDim > 0) {
+							typeSig = Signature.createArraySignature(typeSig, arrayDim);
+						}
+						parameterSignatures[i] = typeSig;
+						
+					}
+				} else {
+					parameterSignatures = new String[0];
+				}
+				return (JavaElement) declaringType.getMethod(String.valueOf(methodDeclaration.selector), parameterSignatures);
+			}
+		} else {
+			// case of method not in the created AST, or a binary method
+			org.eclipse.jdt.internal.compiler.lookup.MethodBinding original = methodBinding.original();
+			String selector = original.isConstructor() ? declaringType.getElementName() : new String(original.selector);
+			boolean isBinary = declaringType.isBinary();
+			ReferenceBinding enclosingType = original.declaringClass.enclosingType();
+			boolean isInnerBinaryTypeConstructor = isBinary && original.isConstructor() && enclosingType != null;
+			TypeBinding[] parameters = original.parameters;
+			int length = parameters == null ? 0 : parameters.length;
+			int declaringIndex = isInnerBinaryTypeConstructor ? 1 : 0;
+			String[] parameterSignatures = new String[declaringIndex + length];
+			if (isInnerBinaryTypeConstructor)
+				parameterSignatures[0] = new String(enclosingType.genericTypeSignature()).replace('/', '.');
+			for (int i = 0;  i < length; i++) {
+				parameterSignatures[declaringIndex + i] = new String(parameters[i].genericTypeSignature()).replace('/', '.');
+			}
+			IMethod result = declaringType.getMethod(selector, parameterSignatures);
+			if (isBinary)
+				return (JavaElement) result;
+			IMethod[] methods = null;
+			try {
+				methods = declaringType.getMethods();
+			} catch (JavaModelException e) {
+				// declaring type doesn't exist
+				return null;
+			}
+			IMethod[] candidates = Member.findMethods(result, methods);
+			if (candidates == null || candidates.length == 0)
+				return null;
+			return (JavaElement) candidates[0];
+		}
+	}
+	
+	/**
+	 * Return the java element corresponding to the given compiler binding.
+	 */
+	public static JavaElement getUnresolvedJavaElement(TypeBinding typeBinding, WorkingCopyOwner workingCopyOwner, BindingsToNodesMap bindingsToNodes) {
+		if (typeBinding == null)
+			return null;
+		switch (typeBinding.kind()) {
+			case Binding.ARRAY_TYPE :
+				typeBinding = ((org.eclipse.jdt.internal.compiler.lookup.ArrayBinding) typeBinding).leafComponentType();
+				return getUnresolvedJavaElement(typeBinding, workingCopyOwner, bindingsToNodes);
+			case Binding.BASE_TYPE :
+			case Binding.WILDCARD_TYPE :
+			case Binding.INTERSECTION_TYPE:
+				return null;
+			default :
+				if (typeBinding.isCapture())
+					return null;
+		}
+		ReferenceBinding referenceBinding;
+		if (typeBinding.isParameterizedType() || typeBinding.isRawType())
+			referenceBinding = (ReferenceBinding) typeBinding.erasure();
+		else
+			referenceBinding = (ReferenceBinding) typeBinding;
+		char[] fileName = referenceBinding.getFileName();
+		if (referenceBinding.isLocalType() || referenceBinding.isAnonymousType()) {
+			// local or anonymous type
+			if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(fileName)) {
+				int jarSeparator = CharOperation.indexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
+				int pkgEnd = CharOperation.lastIndexOf('/', fileName); // pkgEnd is exclusive
+				if (pkgEnd == -1)
+					pkgEnd = CharOperation.lastIndexOf(File.separatorChar, fileName);
+				if (jarSeparator != -1 && pkgEnd < jarSeparator) // if in a jar and no slash, it is a default package -> pkgEnd should be equal to jarSeparator
+					pkgEnd = jarSeparator;
+				if (pkgEnd == -1)
+					return null;
+				IPackageFragment pkg = getPackageFragment(fileName, pkgEnd, jarSeparator);
+				char[] constantPoolName = referenceBinding.constantPoolName();
+				if (constantPoolName == null) {
+					ClassFile classFile = (ClassFile) getClassFile(fileName);
+					return classFile == null ? null : (JavaElement) classFile.getType();
+				}
+				pkgEnd = CharOperation.lastIndexOf('/', constantPoolName);
+				char[] classFileName = CharOperation.subarray(constantPoolName, pkgEnd+1, constantPoolName.length);
+				ClassFile classFile = (ClassFile) pkg.getClassFile(new String(classFileName) + SuffixConstants.SUFFIX_STRING_class);
+				return (JavaElement) classFile.getType();
+			}
+			ICompilationUnit cu = getCompilationUnit(fileName, workingCopyOwner);
+			if (cu == null) return null;
+			// must use getElementAt(...) as there is no back pointer to the defining method (scope is null after resolution has ended)
+			try {
+				int sourceStart = ((org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding) referenceBinding).sourceStart;
+				return (JavaElement) cu.getElementAt(sourceStart);
+			} catch (JavaModelException e) {
+				// does not exist
+				return null;
+			}
+		} else if (referenceBinding.isTypeVariable()) {
+			// type parameter
+			final String typeVariableName = new String(referenceBinding.sourceName());
+			org.eclipse.jdt.internal.compiler.lookup.Binding declaringElement = ((org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding) referenceBinding).declaringElement;
+			if (declaringElement instanceof MethodBinding) {
+				IMethod declaringMethod = (IMethod) getUnresolvedJavaElement((MethodBinding) declaringElement, workingCopyOwner, bindingsToNodes);
+				return (JavaElement) declaringMethod.getTypeParameter(typeVariableName);
+			} else {
+				IType declaringType = (IType) getUnresolvedJavaElement((TypeBinding) declaringElement, workingCopyOwner, bindingsToNodes);
+				return (JavaElement) declaringType.getTypeParameter(typeVariableName);
+			}
+		} else {
+			if (fileName == null) return null; // case of a WilCardBinding that doesn't have a corresponding Java element
+			// member or top level type
+			TypeBinding declaringTypeBinding = typeBinding.enclosingType();
+			if (declaringTypeBinding == null) {
+				// top level type
+				if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(fileName)) {
+					ClassFile classFile = (ClassFile) getClassFile(fileName);
+					if (classFile == null) return null;
+					return (JavaElement) classFile.getType();
+				}
+				ICompilationUnit cu = getCompilationUnit(fileName, workingCopyOwner);
+				if (cu == null) return null;
+				return (JavaElement) cu.getType(new String(referenceBinding.sourceName()));
+			} else {
+				// member type
+				IType declaringType = (IType) getUnresolvedJavaElement(declaringTypeBinding, workingCopyOwner, bindingsToNodes);
+				if (declaringType == null) return null;
+				return (JavaElement) declaringType.getType(new String(referenceBinding.sourceName()));
+			}
+		}
+	}
+	
+	/*
 	 * Returns the index of the most specific argument paths which is strictly enclosing the path to check
 	 */
 	public static int indexOfEnclosingPath(IPath checkedPath, IPath[] paths, int pathCount) {

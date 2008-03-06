@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
@@ -100,8 +101,11 @@ public GlobalVariable[] allVariables() {
  *
  *  @param options
  *		set of options used to configure the code assist engine.
+ *
+ *  @param owner
+ *  	the owner of working copies that take precedence over their original compilation units
  */
-public void complete(char[] codeSnippet, int completionPosition, SearchableEnvironment environment, CompletionRequestor requestor, Map options, IJavaProject project) {
+public void complete(char[] codeSnippet, int completionPosition, SearchableEnvironment environment, CompletionRequestor requestor, Map options, final IJavaProject project, WorkingCopyOwner owner) {
 	try {
 		IRequestor variableRequestor = new IRequestor() {
 			public boolean acceptClassFiles(ClassFile[] classFiles, char[] codeSnippetClassName) {
@@ -144,7 +148,7 @@ public void complete(char[] codeSnippet, int completionPosition, SearchableEnvir
 		}
 	};
 	
-	CompletionEngine engine = new CompletionEngine(environment, mapper.getCompletionRequestor(requestor), options, project);
+	CompletionEngine engine = new CompletionEngine(environment, mapper.getCompletionRequestor(requestor), options, project, owner);
 	
 	if (this.installedVars != null) {
 		IBinaryType binaryType = this.getRootCodeSnippetBinary();
@@ -165,7 +169,7 @@ public void complete(char[] codeSnippet, int completionPosition, SearchableEnvir
 		}
 	}
 	
-	engine.complete(sourceUnit, mapper.startPosOffset + completionPosition, mapper.startPosOffset);
+	engine.complete(sourceUnit, mapper.startPosOffset + completionPosition, mapper.startPosOffset, null/*extended context isn't computed*/);
 }
 /**
  * Deletes the given variable from this evaluation context. This will take effect in the target VM only

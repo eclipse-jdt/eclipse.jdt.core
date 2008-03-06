@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @see IInitializer
  */
 
-/* package */ class Initializer extends Member implements IInitializer {
+public class Initializer extends Member implements IInitializer {
 
 protected Initializer(JavaElement parent, int count) {
 	super(parent);

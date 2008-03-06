@@ -38,11 +38,166 @@
 	</td>
   </tr>
 </table>
+<a name="v_844"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
+<br>Project org.eclipse.jdt.core v_844
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_844">cvs</a>).
+<h2>What's new in this drop</h2>
+<ul>
+<li>CodeAssist: Added new API to give more information about completion context:<br>
+<ul>
+<li>CompletionContext#getEnclosingElement() - This method returns the elements visible from the completion location.
+<pre>
+public class X {
+	void foo() {
+		zzz| // ctrl+space at | location
+	}
+}
+</pre>
+<code>getEnclosingElement()</code> returns the IMethod named foo.
+</li>
+<li>CompletionContext#getVisibleElements(String) - This method returns the innermost enclosing Java element which contains the completion location.
+<pre>
+public class X {
+	p.Y f1;
+	p.Z f2;
+	void foo() {
+		p.Y l1;
+		p.Z l2;
+		zzz| // ctrl+space at | location
+	}
+}
+</pre>
+<code>getVisibleElements("Lp/Z;")</code> returns the IField named f2 and the ILocalVariable name l2.
+</li>
+</ul>
+
+<pre>
+public class CompletionRequestor {
+	...
+	
+	/**
+	 * Returns whether this requestor requires an extended context.
+	 * 
+	 * By default this method return <code>false</code>.
+	 * 
+	 * @return <code>true</code> if this requestor requires an extended context.
+	 * 
+	 * @see CompletionContext#isExtended()
+	 * 
+	 * @since 3.4
+	 */
+	public boolean isExtendedContextRequired() {...}
+	
+	/**
+	 * Sets whether this requestor requires an extended context.
+	 * 
+	 * @param require <code>true</code> if this requestor requires an extended context.
+	 * 
+	 * @see CompletionContext#isExtended()
+	 * 
+	 * @since 3.4
+	 */
+	public void setRequireExtendedContext(boolean require) {...}
+	
+	...
+}
+ </pre>
+ <pre>
+public class CompletionContext {
+	...
+	
+	/**
+	 * Returns whether this completion context is an extended context.
+	 * Some methods of this context can be used only if this context is an extended context but an extended context consumes more memory.
+	 * 
+	 * @return <code>true</code> if this completion context is an extended context.
+	 * 
+	 * @since 3.4
+	 */
+	public boolean isExtended() {...}
+	
+	/**
+	 * Returns the innermost enclosing Java element which contains the completion location or <code>null</code> if this element cannot be computed.
+	 * The returned Java element and all Java elements in the same compilation unit which can be navigated to from the returned Java element are special Java elements:
+	 * <ul>
+	 * <li>they are based on the current content of the compilation unit's buffer, they are not the result of a reconcile operation</li>
+	 * <li>they are not updated if the buffer changes.</li>
+	 * <li>they do not contain local types which are not visible from the completion location.</li>
+	 * <li>they do not give information about categories. {@link IMember#getCategories()} will return an empty array</li>
+	 * </ul>
+	 * 
+	 * Reasons for returning <code>null</code> include:
+	 * <ul>
+	 * <li>the compilation unit no longer exists</li>
+	 * <li>the completion occurred in a binary type. However this restriction might be relaxed in the future.</li>
+	 * </ul>
+	 * 
+	 * @return the innermost enclosing Java element which contains the completion location or <code>null</code> if this element cannot be computed.
+	 * 
+	 * @exception UnsupportedOperationException if the context is not an extended context
+	 * 
+	 * @since 3.4
+	 */
+	public IJavaElement getEnclosingElement() {...}
+	
+	/**
+	 * Return the elements which are visible from the completion location and which can be assigned to the given type.
+	 * An element is assignable if its type can be assigned to a variable
+	 * of the given type, as specified in section 5.2 of <em>The Java Language
+	 * Specification, Third Edition</em> (JLS3).
+	 * A visible element is either:
+	 * <ul>
+	 * <li>a {@link ILocalVariable} - the element type is {@link ILocalVariable#getTypeSignature()}</li>
+	 * <li>a {@link IField} - the element type is {@link IField#getTypeSignature()}</li>
+	 * <li>a {@link IMethod} - the element type is {@link IMethod#getReturnType()}</li>
+	 * </ul>
+	 * 
+	 * Returned elements defined in the completed compilation unit are special Java elements:
+	 * <ul>
+	 * <li>they are based on the current content of the compilation unit's buffer, they are not the result of a reconcile operation</li>
+	 * <li>they are not updated if the buffer changes.</li>
+	 * <li>they do not contain local types which are not visible from the completion location.</li>
+	 * <li>they do not give information about categories. {@link IMember#getCategories()} will return an empty array</li>
+	 * </ul>
+	 * 
+	 * Note the array can be empty if:
+	 * <ul>
+	 * <li>the compilation unit no longer exists</li>
+	 * <li>the completion occurred in a binary type. However this restriction might be relaxed in the future.</li>
+	 * </ul>
+	 * 
+	 * @param typeSignature elements which can be assigned to this type are returned.
+	 * 		If <code>null</code> there is no constraint on the type of the returned elements.
+	 * 
+	 * @return elements which are visible from the completion location and which can be assigned to the given type.
+	 * 
+	 * @exception UnsupportedOperationException if the context is not an extended context
+	 * 
+	 * @see #isExtended()
+	 * 
+	 * @since 3.4
+	 */
+	public IJavaElement[] getVisibleElements(String typeSignature) {...}
+	
+	...
+}
+ </pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=202470">202470</a>
+[assist] provide all elements that are visible
+
 <a name="v_843"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.4M6 - March 5, 2008 - 3.4 MILESTONE 6
+Eclipse SDK 3.4M6 - March 5, 2008
 <br>Project org.eclipse.jdt.core v_843
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_843">cvs</a>).
 <h2>What's new in this drop</h2>

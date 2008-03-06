@@ -126,7 +126,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[][] toke
 
 	ICompilationUnit parentCU= (ICompilationUnit)parentHandle;
 	//create the import container and its info
-	ImportContainer importContainer= (ImportContainer)parentCU.getImportContainer();
+	ImportContainer importContainer= createImportContainer(parentCU);
 	if (this.importContainerInfo == null) {
 		this.importContainerInfo = new JavaElementInfo();
 		JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
@@ -135,7 +135,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[][] toke
 	}
 	
 	String elementName = JavaModelManager.getJavaModelManager().intern(new String(CharOperation.concatWith(tokens, '.')));
-	ImportDeclaration handle = new ImportDeclaration(importContainer, elementName, onDemand);
+	ImportDeclaration handle = createImportDeclaration(importContainer, elementName, onDemand);
 	resolveDuplicates(handle);
 	
 	ImportDeclarationElementInfo info = new ImportDeclarationElementInfo();
@@ -167,7 +167,7 @@ public void acceptPackage(ImportReference importReference) {
 		
 		if (parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT) {
 			char[] name = CharOperation.concatWith(importReference.getImportName(), '.');
-			handle = new PackageDeclaration((CompilationUnit) parentHandle, new String(name));
+			handle = createPackageDeclaration(parentHandle, new String(name));
 		}
 		else {
 			Assert.isTrue(false); // Should not happen
@@ -200,11 +200,42 @@ private void addToChildren(JavaElementInfo parentInfo, JavaElement handle) {
 		this.children.put(parentInfo, childrenList = new ArrayList());
 	childrenList.add(handle);
 }
+protected Annotation createAnnotation(JavaElement parent, String name) {
+	return new Annotation(parent, name);
+}
+protected SourceField createField(JavaElement parent, FieldInfo fieldInfo) {
+	String fieldName = JavaModelManager.getJavaModelManager().intern(new String(fieldInfo.name));
+	return new SourceField(parent, fieldName);
+}
+protected ImportContainer createImportContainer(ICompilationUnit parent) {
+	return (ImportContainer)parent.getImportContainer();
+}
+protected ImportDeclaration createImportDeclaration(ImportContainer parent, String name, boolean onDemand) {
+	return new ImportDeclaration(parent, name, onDemand);
+}
+protected Initializer createInitializer(JavaElement parent) {
+	return new Initializer(parent, 1);
+}
+protected SourceMethod createMethod(JavaElement parent, MethodInfo methodInfo) {
+	String selector = JavaModelManager.getJavaModelManager().intern(new String(methodInfo.name));
+	String[] parameterTypeSigs = convertTypeNamesToSigs(methodInfo.parameterTypes);
+	return new SourceMethod(parent, selector, parameterTypeSigs);
+}
+protected PackageDeclaration createPackageDeclaration(JavaElement parent, String name) {
+	return new PackageDeclaration((CompilationUnit) parent, name);
+}
+protected SourceType createType(JavaElement parent, TypeInfo typeInfo) {
+	String nameString= new String(typeInfo.name);
+	return new SourceType(parent, nameString);
+}
+protected TypeParameter createTypeParameter(JavaElement parent, String name) {
+	return new TypeParameter(parent, name);
+}
 /**
  * Convert these type names to signatures.
  * @see Signature
  */
-/* default */ static String[] convertTypeNamesToSigs(char[][] typeNames) {
+protected static String[] convertTypeNamesToSigs(char[][] typeNames) {
 	if (typeNames == null)
 		return CharOperation.NO_STRINGS;
 	int n = typeNames.length;
@@ -219,7 +250,7 @@ private void addToChildren(JavaElementInfo parentInfo, JavaElement handle) {
 }
 protected IAnnotation enterAnnotation(org.eclipse.jdt.internal.compiler.ast.Annotation annotation, AnnotatableInfo parentInfo, JavaElement parentHandle) {
 	String nameString = new String(CharOperation.concatWith(annotation.type.getTypeName(), '.'));
-	Annotation handle = new Annotation(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
+	Annotation handle = createAnnotation(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
 	resolveDuplicates(handle);
 	
 	AnnotationInfo info = new AnnotationInfo();
@@ -237,11 +268,7 @@ protected IAnnotation enterAnnotation(org.eclipse.jdt.internal.compiler.ast.Anno
 	if (membersLength == 0) {
 		info.members = Annotation.NO_MEMBER_VALUE_PAIRS;
 	} else {
-		IMemberValuePair[] members = new IMemberValuePair[membersLength];
-		for (int j = 0; j < membersLength; j++) {
-			members[j] = getMemberValuePair(memberValuePairs[j]);
-		}
-		info.members = members;
+		info.members = getMemberValuePairs(memberValuePairs);
 	}
 	
 	if (parentInfo != null) {
@@ -278,8 +305,7 @@ public void enterField(FieldInfo fieldInfo) {
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 	SourceField handle = null;
 	if (parentHandle.getElementType() == IJavaElement.TYPE) {
-		String fieldName = JavaModelManager.getJavaModelManager().intern(new String(fieldInfo.name));
-		handle = new SourceField(parentHandle, fieldName);
+		handle = createField(parentHandle, fieldInfo);
 	}
 	else {
 		Assert.isTrue(false); // Should not happen
@@ -322,7 +348,7 @@ public void enterInitializer(
 		Initializer handle = null;
 		
 		if (parentHandle.getElementType() == IJavaElement.TYPE) {
-			handle = new Initializer(parentHandle, 1);
+			handle = createInitializer(parentHandle);
 		}
 		else {
 			Assert.isTrue(false); // Should not happen
@@ -359,10 +385,8 @@ public void enterMethod(MethodInfo methodInfo) {
 		methodInfo.exceptionTypes= CharOperation.NO_CHAR_CHAR;
 	}
 	
-	String[] parameterTypeSigs = convertTypeNamesToSigs(methodInfo.parameterTypes);
 	if (parentHandle.getElementType() == IJavaElement.TYPE) {
-		String selector = JavaModelManager.getJavaModelManager().intern(new String(methodInfo.name));
-		handle = new SourceMethod(parentHandle, selector, parameterTypeSigs);
+		handle = createMethod(parentHandle, methodInfo);
 	}
 	else {
 		Assert.isTrue(false); // Should not happen
@@ -422,8 +446,7 @@ public void enterType(TypeInfo typeInfo) {
 
 	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-	String nameString= new String(typeInfo.name);
-	SourceType handle = new SourceType(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
+	SourceType handle = this.createType(parentHandle, typeInfo); //NB: occurenceCount is computed in resolveDuplicates
 	resolveDuplicates(handle);
 	
 	SourceTypeElementInfo info = 
@@ -475,7 +498,7 @@ protected void enterTypeParameter(TypeParameterInfo typeParameterInfo) {
 	JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
 	String nameString = new String(typeParameterInfo.name);
-	TypeParameter handle = new TypeParameter(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
+	TypeParameter handle = createTypeParameter(parentHandle, nameString); //NB: occurenceCount is computed in resolveDuplicates
 	resolveDuplicates(handle);
 	
 	TypeParameterElementInfo info = new TypeParameterElementInfo();
@@ -601,16 +624,24 @@ protected void resolveDuplicates(SourceRefElement handle) {
 		handle.occurrenceCount++;
 	}
 }
-private IMemberValuePair getMemberValuePair(MemberValuePair memberValuePair) {
+protected IMemberValuePair getMemberValuePair(MemberValuePair memberValuePair) {
 	String memberName = new String(memberValuePair.name);
 	org.eclipse.jdt.internal.core.MemberValuePair result = new org.eclipse.jdt.internal.core.MemberValuePair(memberName);
 	result.value = getMemberValue(result, memberValuePair.value);
 	return result;
 }
+protected IMemberValuePair[] getMemberValuePairs(MemberValuePair[] memberValuePairs) {
+	int membersLength = memberValuePairs.length;
+	IMemberValuePair[] members = new IMemberValuePair[membersLength];
+	for (int j = 0; j < membersLength; j++) {
+		members[j] = getMemberValuePair(memberValuePairs[j]);
+	}
+	return members;
+}
 /*
  * Creates the value from the given expression, and sets the valueKind on the given memberValuePair
  */
-private Object getMemberValue(org.eclipse.jdt.internal.core.MemberValuePair memberValuePair, Expression expression) {
+protected Object getMemberValue(org.eclipse.jdt.internal.core.MemberValuePair memberValuePair, Expression expression) {
 	if (expression instanceof NullLiteral) {
 		return null;
 	} else if (expression instanceof Literal) {
