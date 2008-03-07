@@ -42,8 +42,8 @@ import java.util.StringTokenizer;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -59,6 +59,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.CompilerStats;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -66,28 +67,19 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.GenericXMLWriter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfInt;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class Main implements ProblemSeverities, SuffixConstants {
-	/**
-	 * Resource bundle factory to share bundles for the same locale
-	 */
-	public static class ResourceBundleFactory {
-		private static HashMap Cache = new HashMap();
-		public static synchronized ResourceBundle getBundle(Locale locale) {
-			ResourceBundle bundle = (ResourceBundle) Cache.get(locale);
-			if (bundle == null) {
-				bundle = ResourceBundle.getBundle(Main.bundleName, locale);
-				Cache.put(locale, bundle);
-			}
-			return bundle;
-		}
-	}
-
 	public static class Logger {
+		private PrintWriter err;
+		private PrintWriter log;
+		private Main main;
+		private PrintWriter out;
+		private HashMap parameters;
+		int tagBits;
 		private static final String CLASS = "class"; //$NON-NLS-1$
 		private static final String CLASS_FILE = "classfile"; //$NON-NLS-1$
 		private static final String CLASSPATH = "classpath"; //$NON-NLS-1$
@@ -142,15 +134,15 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String SOURCE_END = "sourceEnd"; //$NON-NLS-1$
 		private static final String SOURCE_START = "sourceStart"; //$NON-NLS-1$
 		private static final String SOURCES = "sources"; //$NON-NLS-1$
+
 		private static final String STATS = "stats"; //$NON-NLS-1$
+
 		private static final String TASK = "task"; //$NON-NLS-1$
 		private static final String TASKS = "tasks"; //$NON-NLS-1$
 		private static final String TIME = "time"; //$NON-NLS-1$
 		private static final String VALUE = "value"; //$NON-NLS-1$
 		private static final String WARNING = "WARNING"; //$NON-NLS-1$
-
 		public static final int XML = 1;
-
 		private static final String XML_DTD_DECLARATION = "<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.003 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_003.dtd\">"; //$NON-NLS-1$
 		static {
 			try {
@@ -171,12 +163,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				e.printStackTrace();
 			}
 		}
-		private PrintWriter err;
-		private PrintWriter log;
-		private Main main;
-		private PrintWriter out;
-		private HashMap parameters;
-		int tagBits;
 		public Logger(Main main, PrintWriter out, PrintWriter err) {
 			this.out = out;
 			this.err = err;
@@ -223,15 +209,15 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		public void compiling() {
 			this.printlnOut(this.main.bind("progress.compiling")); //$NON-NLS-1$
 		}
+		private void endLoggingExtraProblems() {
+			this.endTag(Logger.EXTRA_PROBLEMS);
+		}
 		/**
 		 * Used to stop logging problems.
 		 * Only use in xml mode.
 		 */
 		private void endLoggingProblems() {
 			this.endTag(Logger.PROBLEMS);
-		}
-		private void endLoggingExtraProblems() {
-			this.endTag(Logger.EXTRA_PROBLEMS);
 		}
 		public void endLoggingSource() {
 			if ((this.tagBits & Logger.XML) != 0) {
@@ -253,6 +239,75 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private void endTag(String name) {
 			((GenericXMLWriter) this.log).endTag(name, true, true);
 		}
+		private String errorReportSource(CategorizedProblem problem, char[] unitSource, int bits) {
+			//extra from the source the innacurate     token
+			//and "highlight" it using some underneath ^^^^^
+			//put some context around too.
+
+			//this code assumes that the font used in the console is fixed size
+
+			//sanity .....
+			int startPosition = problem.getSourceStart();
+			int endPosition = problem.getSourceEnd();
+			if (unitSource == null) {
+				if (problem.getOriginatingFileName() != null) {
+					try {
+						unitSource = Util.getFileCharContent(new File(new String(problem.getOriginatingFileName())), null);
+					} catch (IOException e) {
+						// ignore;
+					}
+				}
+			}
+			int length = unitSource == null ? 0 : unitSource.length;
+			if ((startPosition > endPosition)
+				|| ((startPosition < 0) && (endPosition < 0))
+				|| length == 0)
+				return Messages.problem_noSourceInformation; 
+
+			StringBuffer errorBuffer = new StringBuffer();
+			if ((bits & Main.Logger.EMACS) == 0) {
+				errorBuffer.append(' ').append(Messages.bind(Messages.problem_atLine, String.valueOf(problem.getSourceLineNumber()))); 
+				errorBuffer.append(Util.LINE_SEPARATOR);
+			}
+			errorBuffer.append('\t');
+			
+			char c;
+			final char SPACE = '\u0020';
+			final char MARK = '^';
+			final char TAB = '\t';
+			//the next code tries to underline the token.....
+			//it assumes (for a good display) that token source does not
+			//contain any \r \n. This is false on statements ! 
+			//(the code still works but the display is not optimal !)
+
+			// expand to line limits
+			int begin;
+			int end;
+			for (begin = startPosition >= length ? length - 1 : startPosition; begin > 0; begin--) {
+				if ((c = unitSource[begin - 1]) == '\n' || c == '\r') break;
+			}
+			for (end = endPosition >= length ? length - 1 : endPosition ; end+1 < length; end++) {
+				if ((c = unitSource[end + 1]) == '\r' || c == '\n') break;
+			}
+			
+			// trim left and right spaces/tabs
+			while ((c = unitSource[begin]) == ' ' || c == '\t') begin++;
+			//while ((c = unitSource[end]) == ' ' || c == '\t') end--; TODO (philippe) should also trim right, but all tests are to be updated
+			
+			// copy source
+			errorBuffer.append(unitSource, begin, end-begin+1);
+			errorBuffer.append(Util.LINE_SEPARATOR).append("\t"); //$NON-NLS-1$
+
+			// compute underline
+			for (int i = begin; i <startPosition; i++) {
+				errorBuffer.append((unitSource[i] == TAB) ? TAB : SPACE);
+			}
+			for (int i = startPosition; i <= (endPosition >= length ? length - 1 : endPosition); i++) {
+				errorBuffer.append(MARK);
+			}
+			return errorBuffer.toString();
+		}
+
 		private void extractContext(CategorizedProblem problem, char[] unitSource) {
 			//sanity .....
 			int startPosition = problem.getSourceStart();
@@ -306,7 +361,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.parameters.put(Logger.SOURCE_END, Integer.toString(endPosition - begin));
 			this.printTag(Logger.SOURCE_CONTEXT, this.parameters, true, true);
 		}
-
 		public void flush() {
 			this.out.flush();
 			this.err.flush();
@@ -314,6 +368,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.log.flush();
 			}
 		}
+
 		private String getFieldName(int id) {
 			return (String) Logger.FIELD_TABLE.get(id & IProblem.IgnoreCategoriesMask);
 		}
@@ -324,22 +379,59 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			return CompilerOptions.optionKeyFromIrritant(irritant);
 		}
 
-		public void logAverage(long[] times, long lineCount) {
-			Arrays.sort(times);
-			final int length = times.length;
-			long sum = 0;
+		public void logAverage() {
+			Arrays.sort(this.main.compilerStats);
+			long lineCount = this.main.compilerStats[0].lineCount;
+			final int length = this.main.maxRepetition;
+			long sum = 0, readSum = 0, writeSum = 0;
+			long parseSum = 0, resolveSum = 0, analyzeSum = 0, generateSum = 0;
 			for (int i = 1, max = length - 1; i < max; i++) {
-				sum += times[i];
+				CompilerStats stats = this.main.compilerStats[i];
+				sum += stats.elapsedTime();
+				readSum += stats.sourceInputTime + stats.binaryInputTime;
+				writeSum += stats.outputTime;
+				parseSum += stats.parseTime;
+				resolveSum += stats.resolveTime;
+				analyzeSum += stats.analyzeTime;
+				generateSum += stats.generateTime;
 			}
 			long time = sum / (length - 2);
+			long readTime = readSum/(length - 2);
+			long writeTime = writeSum/(length - 2);
+			long parseTime = parseSum/(length - 2);
+			long resolveTime = resolveSum/(length - 2);
+			long analyzeTime = analyzeSum/(length - 2);
+			long generateTime = generateSum/(length - 2);
 			this.printlnOut(this.main.bind(
 				"compile.averageTime", //$NON-NLS-1$
 				new String[] {
 					String.valueOf(lineCount),
 					String.valueOf(time),
-					String.valueOf(((int) (lineCount * 10000.0 / time)) / 10.0) }));
+					String.valueOf(((int) (lineCount * 10000.0 / time)) / 10.0),
+				}));
+			if ((this.main.timing & Main.TIMING_DETAILED) != 0) {
+				this.printlnOut(
+						this.main.bind("compile.detailedTime", //$NON-NLS-1$
+							new String[] {
+								String.valueOf(parseTime),
+								String.valueOf(((int) (parseTime * 1000.0 / time)) / 10.0),
+								String.valueOf(resolveTime),
+								String.valueOf(((int) (resolveTime * 1000.0 / time)) / 10.0),
+								String.valueOf(analyzeTime),
+								String.valueOf(((int) (analyzeTime * 1000.0 / time)) / 10.0),
+								String.valueOf(generateTime),
+								String.valueOf(((int) (generateTime * 1000.0 / time)) / 10.0),
+							}));
+				this.printlnOut(
+						this.main.bind("compile.ioTime", //$NON-NLS-1$
+							new String[] {
+								String.valueOf(readTime),
+								String.valueOf(((int) (readTime * 1000.0 / time)) / 10.0),
+								String.valueOf(writeTime),
+								String.valueOf(((int) (writeTime * 1000.0 / time)) / 10.0),
+							}));
+			}			
 		}
-
 		public void logClassFile(boolean generatePackagesStructure, String outputPath, String relativeFileName) {
 			if ((this.tagBits & Logger.XML) != 0) {
 				String fileName = null;
@@ -407,6 +499,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 
 		}
+
 		public void logCommandLineArguments(String[] commandLineArguments) {
 			if (commandLineArguments == null) return;
 			if ((this.tagBits & Logger.XML) != 0) {
@@ -461,6 +554,84 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.printlnErr(stackTrace);
 			} else {
 				this.printlnErr(message);
+			}
+		}
+
+		private void logExtraProblem(CategorizedProblem problem, int localErrorCount, int globalErrorCount) {
+			char[] originatingFileName = problem.getOriginatingFileName();
+			String fileName =
+				originatingFileName == null
+				? this.main.bind("requestor.noFileNameSpecified")//$NON-NLS-1$
+				: new String(originatingFileName);
+			if ((this.tagBits & Logger.EMACS) != 0) {
+				String result = fileName
+						+ ":" //$NON-NLS-1$
+						+ problem.getSourceLineNumber()
+						+ ": " //$NON-NLS-1$
+						+ (problem.isError() ? this.main.bind("output.emacs.error") : this.main.bind("output.emacs.warning")) //$NON-NLS-1$ //$NON-NLS-2$
+						+ ": " //$NON-NLS-1$
+						+ problem.getMessage();
+				this.printlnErr(result);
+				final String errorReportSource = errorReportSource(problem, null, this.tagBits);
+				this.printlnErr(errorReportSource);
+			} else {
+				if (localErrorCount == 0) {
+					this.printlnErr("----------"); //$NON-NLS-1$
+				}
+				this.printErr(problem.isError() ?
+						this.main.bind(
+								"requestor.error", //$NON-NLS-1$
+								Integer.toString(globalErrorCount),
+								new String(fileName))
+								: this.main.bind(
+										"requestor.warning", //$NON-NLS-1$
+										Integer.toString(globalErrorCount),
+										new String(fileName)));
+				final String errorReportSource = errorReportSource(problem, null, 0);
+				this.printlnErr(errorReportSource);
+				this.printlnErr(problem.getMessage());
+				this.printlnErr("----------"); //$NON-NLS-1$
+			}
+		}
+
+		public void loggingExtraProblems(Main currentMain) {
+			ArrayList problems = currentMain.extraProblems;
+			final int count = problems.size();
+			int localErrorCount = 0;
+			int localProblemCount = 0;
+			if (count != 0) {
+				int errors = 0;
+				int warnings = 0;
+				for (int i = 0; i < count; i++) {
+					CategorizedProblem problem = (CategorizedProblem) problems.get(i);
+					if (problem != null) {
+						currentMain.globalProblemsCount++;
+						this.logExtraProblem(problem, localProblemCount, currentMain.globalProblemsCount);
+						localProblemCount++;
+						if (problem.isError()) {
+							localErrorCount++;
+							errors++;
+							currentMain.globalErrorsCount++;
+						} else if (problem.isWarning()) {
+							currentMain.globalWarningsCount++;
+							warnings++;
+						}
+					}
+				}
+				if ((this.tagBits & Logger.XML) != 0) {
+					if ((errors + warnings) != 0) {
+						this.startLoggingExtraProblems(count);
+						for (int i = 0; i < count; i++) {
+							CategorizedProblem problem = (CategorizedProblem) problems.get(i);
+							if (problem!= null) {
+								if (problem.getID() != IProblem.Task) {
+									this.logXmlExtraProblem(problem, localProblemCount, currentMain.globalProblemsCount);
+								}
+							}
+						}
+						this.endLoggingExtraProblems();
+					}
+				}
 			}
 		}
 
@@ -726,12 +897,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.printlnOut(this.main.bind("compile.repetition", //$NON-NLS-1$
 				String.valueOf(i + 1), String.valueOf(repetitions)));
 		}
-
 		/**
-		 * @param time
-		 * @param lineCount
+		 * @param compilerStats
 		 */
-		public void logTiming(long time, long lineCount) {
+		public void logTiming(CompilerStats compilerStats) {
+			long time = compilerStats.elapsedTime();
+			long lineCount = compilerStats.lineCount;
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.parameters.put(Logger.VALUE, new Long(time));
 				this.printTag(Logger.TIME, this.parameters, true, true);
@@ -739,14 +910,42 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.printTag(Logger.NUMBER_OF_LINES, this.parameters, true, true);
 			}
 			if (lineCount != 0) {
-				this.printlnOut(this.main.bind(
-					"compile.instantTime", //$NON-NLS-1$
-					new String[] {
-						String.valueOf(lineCount),
-						String.valueOf(time),
-						String.valueOf(((int) (lineCount * 10000.0 / time)) / 10.0) }));
+				this.printlnOut(
+					this.main.bind("compile.instantTime", //$NON-NLS-1$
+						new String[] {
+							String.valueOf(lineCount),
+							String.valueOf(time),
+							String.valueOf(((int) (lineCount * 10000.0 / time)) / 10.0),
+						}));
 			} else {
-				this.printlnOut(this.main.bind("compile.totalTime", String.valueOf(time))); //$NON-NLS-1$
+				this.printlnOut(
+					this.main.bind("compile.totalTime", //$NON-NLS-1$
+						new String[] {
+							String.valueOf(time),
+						})); 
+			}
+			if ((this.main.timing & Main.TIMING_DETAILED) != 0) {
+				long readTime = compilerStats.sourceInputTime + compilerStats.binaryInputTime;
+				this.printlnOut(
+						this.main.bind("compile.detailedTime", //$NON-NLS-1$
+							new String[] {
+								String.valueOf(compilerStats.parseTime),
+								String.valueOf(((int) (compilerStats.parseTime * 1000.0 / time)) / 10.0),
+								String.valueOf(compilerStats.resolveTime),
+								String.valueOf(((int) (compilerStats.resolveTime * 1000.0 / time)) / 10.0),
+								String.valueOf(compilerStats.analyzeTime),
+								String.valueOf(((int) (compilerStats.analyzeTime * 1000.0 / time)) / 10.0),
+								String.valueOf(compilerStats.generateTime),
+								String.valueOf(((int) (compilerStats.generateTime * 1000.0 / time)) / 10.0),
+							}));
+				this.printlnOut(
+						this.main.bind("compile.ioTime", //$NON-NLS-1$
+							new String[] {
+								String.valueOf(readTime),
+								String.valueOf(((int) (readTime * 1000.0 / time)) / 10.0),
+								String.valueOf(compilerStats.outputTime),
+								String.valueOf(((int) (compilerStats.outputTime * 1000.0 / time)) / 10.0),
+							}));
 			}
 		}
 
@@ -787,6 +986,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.out.flush();
 			}
 		}
+
 		/**
 		 * Print the usage of wrong JDK
 		 */
@@ -798,6 +998,20 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.printlnErr(this.main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
 		}
 
+		private void logXmlExtraProblem(CategorizedProblem problem, int globalErrorCount, int localErrorCount) {
+			final int sourceStart = problem.getSourceStart();
+			final int sourceEnd = problem.getSourceEnd();
+			boolean isError = problem.isError();
+			this.parameters.put(Logger.PROBLEM_SEVERITY, isError ? Logger.ERROR : Logger.WARNING);
+			this.parameters.put(Logger.PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
+			this.parameters.put(Logger.PROBLEM_SOURCE_START, new Integer(sourceStart));
+			this.parameters.put(Logger.PROBLEM_SOURCE_END, new Integer(sourceEnd));
+			this.printTag(Logger.EXTRA_PROBLEM_TAG, this.parameters, true, false);
+			this.parameters.put(Logger.VALUE, problem.getMessage());
+			this.printTag(Logger.PROBLEM_MESSAGE, this.parameters, true, true);
+			extractContext(problem, null);
+			this.endTag(Logger.EXTRA_PROBLEM_TAG);
+		}
 		/**
 		 * @param problem
 		 *            the given problem to log
@@ -838,7 +1052,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 			this.endTag(Logger.PROBLEM_TAG);
 		}
-
 		/**
 		 * @param problem
 		 *            the given problem to log
@@ -873,12 +1086,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.log.println();
 			}
 		}
+
 		private void printlnErr(String s) {
 			this.err.println(s);
 			if ((this.tagBits & Logger.XML) == 0 && this.log != null) {
 				this.log.println(s);
 			}
 		}
+
 		private void printlnOut(String s) {
 			this.out.println(s);
 			if ((this.tagBits & Logger.XML) == 0 && this.log != null) {
@@ -898,16 +1113,15 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 
 		public void printStats() {
-			final boolean isTimed = this.main.timing;
+			final boolean isTimed = (this.main.timing & TIMING_ENABLED) != 0;
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.printTag(Logger.STATS, null, true, false);
 			}
 			if (isTimed) {
-				long time = System.currentTimeMillis() - this.main.startTime;
-				this.logTiming(time, this.main.lineCount);
-				if (this.main.times != null) {
-					this.main.times[this.main.timesCounter++] = time;
-				}
+				CompilerStats compilerStats = this.main.batchCompiler.stats;
+				compilerStats.startTime = this.main.startTime; // also include batch initialization times
+				compilerStats.endTime = System.currentTimeMillis(); // also include batch output times
+				this.logTiming(compilerStats);
 			}
 			if (this.main.globalProblemsCount > 0) {
 				this.logProblemsSummary(this.main.globalProblemsCount, this.main.globalErrorsCount, this.main.globalWarningsCount, main.globalTasksCount);
@@ -920,7 +1134,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.endTag(Logger.STATS);
 			}
 		}
-
+		
 		private void printTag(String name, HashMap params, boolean insertNewLine, boolean closeTag) {
 			((GenericXMLWriter) this.log).printTag(name, parameters, true, insertNewLine, closeTag);
 			this.parameters.clear();
@@ -929,7 +1143,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		public void setEmacs() {
 			this.tagBits |= Logger.EMACS;
 		}
-
 		public void setLog(String logFileName) throws InvalidInputException {
 			final Date date = new Date();
 			final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG, Locale.getDefault());
@@ -962,6 +1175,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				throw new InvalidInputException(this.main.bind("configure.cannotOpenLog", logFileName)); //$NON-NLS-1$
 			}
 		}
+		private void startLoggingExtraProblems(int count) {
+			this.parameters.put(Logger.NUMBER_OF_PROBLEMS, new Integer(count));
+			this.printTag(Logger.EXTRA_PROBLEMS, this.parameters, true, false);
+		}
 
 		/**
 		 * Used to start logging problems.
@@ -972,11 +1189,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.parameters.put(Logger.NUMBER_OF_ERRORS, new Integer(errors));
 			this.parameters.put(Logger.NUMBER_OF_WARNINGS, new Integer(warnings));
 			this.printTag(Logger.PROBLEMS, this.parameters, true, false);
-		}
-		
-		private void startLoggingExtraProblems(int count) {
-			this.parameters.put(Logger.NUMBER_OF_PROBLEMS, new Integer(count));
-			this.printTag(Logger.EXTRA_PROBLEMS, this.parameters, true, false);
 		}
 
 		public void startLoggingSource(CompilationResult compilationResult) {
@@ -1010,288 +1222,48 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.printTag(Logger.SOURCE, this.parameters, true, false);
 			}
 		}
+
 		public void startLoggingSources() {
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.printTag(Logger.SOURCES, null, true, false);
 			}
 		}
+
 		public void startLoggingTasks(int tasks) {
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.parameters.put(Logger.NUMBER_OF_TASKS, new Integer(tasks));
 				this.printTag(Logger.TASKS, this.parameters, true, false);
 			}
 		}
+	}
 
-		public void loggingExtraProblems(Main currentMain) {
-			ArrayList problems = currentMain.extraProblems;
-			final int count = problems.size();
-			int localErrorCount = 0;
-			int localProblemCount = 0;
-			if (count != 0) {
-				int errors = 0;
-				int warnings = 0;
-				for (int i = 0; i < count; i++) {
-					CategorizedProblem problem = (CategorizedProblem) problems.get(i);
-					if (problem != null) {
-						currentMain.globalProblemsCount++;
-						this.logExtraProblem(problem, localProblemCount, currentMain.globalProblemsCount);
-						localProblemCount++;
-						if (problem.isError()) {
-							localErrorCount++;
-							errors++;
-							currentMain.globalErrorsCount++;
-						} else if (problem.isWarning()) {
-							currentMain.globalWarningsCount++;
-							warnings++;
-						}
-					}
-				}
-				if ((this.tagBits & Logger.XML) != 0) {
-					if ((errors + warnings) != 0) {
-						this.startLoggingExtraProblems(count);
-						for (int i = 0; i < count; i++) {
-							CategorizedProblem problem = (CategorizedProblem) problems.get(i);
-							if (problem!= null) {
-								if (problem.getID() != IProblem.Task) {
-									this.logXmlExtraProblem(problem, localProblemCount, currentMain.globalProblemsCount);
-								}
-							}
-						}
-						this.endLoggingExtraProblems();
-					}
-				}
+	/**
+	 * Resource bundle factory to share bundles for the same locale
+	 */
+	public static class ResourceBundleFactory {
+		private static HashMap Cache = new HashMap();
+		public static synchronized ResourceBundle getBundle(Locale locale) {
+			ResourceBundle bundle = (ResourceBundle) Cache.get(locale);
+			if (bundle == null) {
+				bundle = ResourceBundle.getBundle(Main.bundleName, locale);
+				Cache.put(locale, bundle);
 			}
-		}
-
-		private void logXmlExtraProblem(CategorizedProblem problem, int globalErrorCount, int localErrorCount) {
-			final int sourceStart = problem.getSourceStart();
-			final int sourceEnd = problem.getSourceEnd();
-			boolean isError = problem.isError();
-			this.parameters.put(Logger.PROBLEM_SEVERITY, isError ? Logger.ERROR : Logger.WARNING);
-			this.parameters.put(Logger.PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
-			this.parameters.put(Logger.PROBLEM_SOURCE_START, new Integer(sourceStart));
-			this.parameters.put(Logger.PROBLEM_SOURCE_END, new Integer(sourceEnd));
-			this.printTag(Logger.EXTRA_PROBLEM_TAG, this.parameters, true, false);
-			this.parameters.put(Logger.VALUE, problem.getMessage());
-			this.printTag(Logger.PROBLEM_MESSAGE, this.parameters, true, true);
-			extractContext(problem, null);
-			this.endTag(Logger.EXTRA_PROBLEM_TAG);
-		}
-
-		private void logExtraProblem(CategorizedProblem problem, int localErrorCount, int globalErrorCount) {
-			char[] originatingFileName = problem.getOriginatingFileName();
-			String fileName =
-				originatingFileName == null
-				? this.main.bind("requestor.noFileNameSpecified")//$NON-NLS-1$
-				: new String(originatingFileName);
-			if ((this.tagBits & Logger.EMACS) != 0) {
-				String result = fileName
-						+ ":" //$NON-NLS-1$
-						+ problem.getSourceLineNumber()
-						+ ": " //$NON-NLS-1$
-						+ (problem.isError() ? this.main.bind("output.emacs.error") : this.main.bind("output.emacs.warning")) //$NON-NLS-1$ //$NON-NLS-2$
-						+ ": " //$NON-NLS-1$
-						+ problem.getMessage();
-				this.printlnErr(result);
-				final String errorReportSource = errorReportSource(problem, null, this.tagBits);
-				this.printlnErr(errorReportSource);
-			} else {
-				if (localErrorCount == 0) {
-					this.printlnErr("----------"); //$NON-NLS-1$
-				}
-				this.printErr(problem.isError() ?
-						this.main.bind(
-								"requestor.error", //$NON-NLS-1$
-								Integer.toString(globalErrorCount),
-								new String(fileName))
-								: this.main.bind(
-										"requestor.warning", //$NON-NLS-1$
-										Integer.toString(globalErrorCount),
-										new String(fileName)));
-				final String errorReportSource = errorReportSource(problem, null, 0);
-				this.printlnErr(errorReportSource);
-				this.printlnErr(problem.getMessage());
-				this.printlnErr("----------"); //$NON-NLS-1$
-			}
-		}
-
-		private String errorReportSource(CategorizedProblem problem, char[] unitSource, int bits) {
-			//extra from the source the innacurate     token
-			//and "highlight" it using some underneath ^^^^^
-			//put some context around too.
-
-			//this code assumes that the font used in the console is fixed size
-
-			//sanity .....
-			int startPosition = problem.getSourceStart();
-			int endPosition = problem.getSourceEnd();
-			if (unitSource == null) {
-				if (problem.getOriginatingFileName() != null) {
-					try {
-						unitSource = Util.getFileCharContent(new File(new String(problem.getOriginatingFileName())), null);
-					} catch (IOException e) {
-						// ignore;
-					}
-				}
-			}
-			int length = unitSource == null ? 0 : unitSource.length;
-			if ((startPosition > endPosition)
-				|| ((startPosition < 0) && (endPosition < 0))
-				|| length == 0)
-				return Messages.problem_noSourceInformation; 
-
-			StringBuffer errorBuffer = new StringBuffer();
-			if ((bits & Main.Logger.EMACS) == 0) {
-				errorBuffer.append(' ').append(Messages.bind(Messages.problem_atLine, String.valueOf(problem.getSourceLineNumber()))); 
-				errorBuffer.append(Util.LINE_SEPARATOR);
-			}
-			errorBuffer.append('\t');
-			
-			char c;
-			final char SPACE = '\u0020';
-			final char MARK = '^';
-			final char TAB = '\t';
-			//the next code tries to underline the token.....
-			//it assumes (for a good display) that token source does not
-			//contain any \r \n. This is false on statements ! 
-			//(the code still works but the display is not optimal !)
-
-			// expand to line limits
-			int begin;
-			int end;
-			for (begin = startPosition >= length ? length - 1 : startPosition; begin > 0; begin--) {
-				if ((c = unitSource[begin - 1]) == '\n' || c == '\r') break;
-			}
-			for (end = endPosition >= length ? length - 1 : endPosition ; end+1 < length; end++) {
-				if ((c = unitSource[end + 1]) == '\r' || c == '\n') break;
-			}
-			
-			// trim left and right spaces/tabs
-			while ((c = unitSource[begin]) == ' ' || c == '\t') begin++;
-			//while ((c = unitSource[end]) == ' ' || c == '\t') end--; TODO (philippe) should also trim right, but all tests are to be updated
-			
-			// copy source
-			errorBuffer.append(unitSource, begin, end-begin+1);
-			errorBuffer.append(Util.LINE_SEPARATOR).append("\t"); //$NON-NLS-1$
-
-			// compute underline
-			for (int i = begin; i <startPosition; i++) {
-				errorBuffer.append((unitSource[i] == TAB) ? TAB : SPACE);
-			}
-			for (int i = startPosition; i <= (endPosition >= length ? length - 1 : endPosition); i++) {
-				errorBuffer.append(MARK);
-			}
-			return errorBuffer.toString();
+			return bundle;
 		}
 	}
-	public final static String bundleName = "org.eclipse.jdt.internal.compiler.batch.messages"; //$NON-NLS-1$
-
-	// two uses: recognize 'none' in options; code the singleton none
-	// for the '-d none' option (wherever it may be found)
-	public static final int DEFAULT_SIZE_CLASSPATH = 4;
-	public static final String NONE = "none"; //$NON-NLS-1$
-	
 	// javadoc analysis tuning
 	boolean enableJavadocOn;
+
 	boolean warnJavadocOn;
 	boolean warnAllJavadocOn;
 	
-	/*
-	 * Internal IDE API
-	 */
-	public static boolean compile(String commandLine) {
-
-		return compile(commandLine, new PrintWriter(System.out), new PrintWriter(System.err));
-	}
-		/*
-	 * Internal IDE API for test harness purpose
-	 */
-	public static boolean compile(String commandLine, PrintWriter outWriter, PrintWriter errWriter) {
-
-		return new Main(outWriter, errWriter, false).compile(tokenize(commandLine));
-	}
-	public static File[][] getLibrariesFiles(File[] files) {
-		FilenameFilter filter = new FilenameFilter() {
-			public boolean accept(File dir, String name) {
-				String lowerCaseName = name.toLowerCase();
-				if (lowerCaseName.endsWith(SuffixConstants.SUFFIX_STRING_jar) || lowerCaseName.endsWith(SuffixConstants.SUFFIX_STRING_zip)) {
-					return true;
-				}
-				return false;
-			}
-		};
-		final int filesLength = files.length;
-		File[][] result = new File[filesLength][];
-		for (int i = 0; i < filesLength; i++) {
-			File currentFile = files[i];
-			if (currentFile.exists() && currentFile.isDirectory()) {
-				result[i] = currentFile.listFiles(filter);
-			}
-		}
-		return result;
-	}
-	public static void main(String[] argv) {
-		new Main(new PrintWriter(System.out), new PrintWriter(System.err), true).compile(argv);
-	}
-	public static String[] tokenize(String commandLine) {
-
-		int count = 0;
-		String[] arguments = new String[10];
-		StringTokenizer tokenizer = new StringTokenizer(commandLine, " \"", true); //$NON-NLS-1$
-		String token = Util.EMPTY_STRING;
-		boolean insideQuotes = false;
-		boolean startNewToken = true;
-
-		// take care to quotes on the command line
-		// 'xxx "aaa bbb";ccc yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
-		// 'xxx "aaa bbb;ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
-		// 'xxx "aaa bbb";"ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
-		// 'xxx/"aaa bbb";"ccc" yyy' --->  {"xxx/aaa bbb;ccc", "yyy" }
-		while (tokenizer.hasMoreTokens()) {
-			token = tokenizer.nextToken();
-
-			if (token.equals(" ")) { //$NON-NLS-1$
-				if (insideQuotes) {
-					arguments[count - 1] += token;
-					startNewToken = false;
-				} else {
-					startNewToken = true;
-				}
-			} else if (token.equals("\"")) { //$NON-NLS-1$
-				if (!insideQuotes && startNewToken) {
-					if (count == arguments.length)
-						System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
-					arguments[count++] = Util.EMPTY_STRING;
-				}
-				insideQuotes = !insideQuotes;
-				startNewToken = false;
-			} else {
-				if (insideQuotes) {
-					arguments[count - 1] += token;
-				} else {
-					if (token.length() > 0 && !startNewToken) {
-						arguments[count - 1] += token;
-					} else {
-						if (count == arguments.length)
-							System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
-						String trimmedToken = token.trim();
-						if (trimmedToken.length() != 0) {
-							arguments[count++] = trimmedToken;
-						}
-					}
-				}
-				startNewToken = false;
-			}
-		}
-		System.arraycopy(arguments, 0, arguments = new String[count], 0, count);
-		return arguments;
-	}
 	public Compiler batchCompiler;
 	/* Bundle containing messages */
 	public ResourceBundle bundle;
 	protected FileSystem.Classpath[] checkedClasspaths;
+	
 	public Locale compilerLocale;
-	public CompilerOptions compilerOptions; // read-only
+		public CompilerOptions compilerOptions; // read-only
 	public String destinationPath;
 	public String[] destinationPaths;
 	// destination path for compilation units that get no more specific
@@ -1304,23 +1276,23 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	//       be written.
 	private boolean didSpecifySource;
 	private boolean didSpecifyTarget;
-
 	public String[] encodings;
-
 	public int exportedClassFilesCounter;
 	public String[] filenames;
-
 	public String[] classNames;
-
 	// overrides of destinationPath on a directory argument basis
 	public int globalErrorsCount;
 	public int globalProblemsCount;
 	public int globalTasksCount;
 	public int globalWarningsCount;
+
 	private File javaHomeCache;
+
 	private boolean javaHomeChecked = false;
-	public long lineCount;
+	public long lineCount0;
+
 	public String log;
+
 	public Logger logger;
 	public int maxProblems;
 	public Map options;
@@ -1328,27 +1300,125 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public boolean proceed = true;
 	public boolean proceedOnError = false;
 	public boolean produceRefInfo = false;
-	public int repetitions;
-
+	public int currentRepetition, maxRepetition;
 	public boolean showProgress = false;
 	public long startTime;
 	public ArrayList pendingErrors;
+	public boolean systemExitWhenFinished = true;
 
-public boolean systemExitWhenFinished = true;
+	public static final int TIMING_DISABLED = 0;
+	public static final int TIMING_ENABLED = 1;
+	public static final int TIMING_DETAILED = 2;
+	
+	public int timing = TIMING_DISABLED;
+	public CompilerStats[] compilerStats;
+	public boolean verbose = false;
+	private String[] expandedCommandLine;
 
-public long[] times;
+	private PrintWriter err;
 
-public int timesCounter;
+	ArrayList extraProblems;
+	public final static String bundleName = "org.eclipse.jdt.internal.compiler.batch.messages"; //$NON-NLS-1$
+	// two uses: recognize 'none' in options; code the singleton none
+	// for the '-d none' option (wherever it may be found)
+	public static final int DEFAULT_SIZE_CLASSPATH = 4;
+	
+	public static final String NONE = "none"; //$NON-NLS-1$
 
-public boolean timing = false;
+/*
+ * Internal IDE API
+ */
+public static boolean compile(String commandLine) {
 
-public boolean verbose = false;
+	return compile(commandLine, new PrintWriter(System.out), new PrintWriter(System.err));
+}
 
-private String[] expandedCommandLine;
+/*
+ * Internal IDE API for test harness purpose
+ */
+public static boolean compile(String commandLine, PrintWriter outWriter, PrintWriter errWriter) {
 
-private PrintWriter err;
+	return new Main(outWriter, errWriter, false).compile(tokenize(commandLine));
+}
 
-ArrayList extraProblems;
+public static File[][] getLibrariesFiles(File[] files) {
+	FilenameFilter filter = new FilenameFilter() {
+		public boolean accept(File dir, String name) {
+			String lowerCaseName = name.toLowerCase();
+			if (lowerCaseName.endsWith(SuffixConstants.SUFFIX_STRING_jar) || lowerCaseName.endsWith(SuffixConstants.SUFFIX_STRING_zip)) {
+				return true;
+			}
+			return false;
+		}
+	};
+	final int filesLength = files.length;
+	File[][] result = new File[filesLength][];
+	for (int i = 0; i < filesLength; i++) {
+		File currentFile = files[i];
+		if (currentFile.exists() && currentFile.isDirectory()) {
+			result[i] = currentFile.listFiles(filter);
+		}
+	}
+	return result;
+}
+
+public static void main(String[] argv) {
+	new Main(new PrintWriter(System.out), new PrintWriter(System.err), true).compile(argv);
+}
+
+public static String[] tokenize(String commandLine) {
+
+	int count = 0;
+	String[] arguments = new String[10];
+	StringTokenizer tokenizer = new StringTokenizer(commandLine, " \"", true); //$NON-NLS-1$
+	String token = Util.EMPTY_STRING;
+	boolean insideQuotes = false;
+	boolean startNewToken = true;
+
+	// take care to quotes on the command line
+	// 'xxx "aaa bbb";ccc yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
+	// 'xxx "aaa bbb;ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
+	// 'xxx "aaa bbb";"ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
+	// 'xxx/"aaa bbb";"ccc" yyy' --->  {"xxx/aaa bbb;ccc", "yyy" }
+	while (tokenizer.hasMoreTokens()) {
+		token = tokenizer.nextToken();
+
+		if (token.equals(" ")) { //$NON-NLS-1$
+			if (insideQuotes) {
+				arguments[count - 1] += token;
+				startNewToken = false;
+			} else {
+				startNewToken = true;
+			}
+		} else if (token.equals("\"")) { //$NON-NLS-1$
+			if (!insideQuotes && startNewToken) {
+				if (count == arguments.length)
+					System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
+				arguments[count++] = Util.EMPTY_STRING;
+			}
+			insideQuotes = !insideQuotes;
+			startNewToken = false;
+		} else {
+			if (insideQuotes) {
+				arguments[count - 1] += token;
+			} else {
+				if (token.length() > 0 && !startNewToken) {
+					arguments[count - 1] += token;
+				} else {
+					if (count == arguments.length)
+						System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
+					String trimmedToken = token.trim();
+					if (trimmedToken.length() != 0) {
+						arguments[count++] = trimmedToken;
+					}
+				}
+			}
+			startNewToken = false;
+		}
+	}
+	System.arraycopy(arguments, 0, arguments = new String[count], 0, count);
+	return arguments;
+}
 
 public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
 	this(outWriter, errWriter, systemExitWhenFinished, null);
@@ -1554,23 +1624,22 @@ public boolean compile(String[] argv) {
 //					System.out.println(new CompilerOptions(this.options));
 //				}
 			if (this.showProgress) this.logger.compiling();
-			for (int i = 0; i < this.repetitions; i++) {
+			for (this.currentRepetition = 0; this.currentRepetition < this.maxRepetition; this.currentRepetition++) {
 				this.globalProblemsCount = 0;
 				this.globalErrorsCount = 0;
 				this.globalWarningsCount = 0;
 				this.globalTasksCount = 0;
-				this.lineCount = 0;
 				this.exportedClassFilesCounter = 0;
 
-				if (this.repetitions > 1) {
+				if (this.maxRepetition > 1) {
 					this.logger.flush();
-					this.logger.logRepetition(i, this.repetitions);
+					this.logger.logRepetition(this.currentRepetition, this.maxRepetition);
 				}
 				// request compilation
 				performCompilation();
 			}
-			if (this.times != null) {
-				this.logger.logAverage(this.times, this.lineCount);
+			if (this.compilerStats != null) {
+				this.logger.logAverage();
 			}
 			if (this.showProgress) this.logger.printNewLine();
 		}
@@ -1602,6 +1671,1372 @@ public boolean compile(String[] argv) {
 	if (this.globalErrorsCount == 0)
 		return true;
 	return false;
+}
+
+/*
+Decode the command line arguments
+ */
+public void configure(String[] argv) throws InvalidInputException {
+
+	if ((argv == null) || (argv.length == 0)) {
+		printUsage();
+		return;
+	}
+
+	final int INSIDE_CLASSPATH_start = 1;
+	final int INSIDE_DESTINATION_PATH = 3;
+	final int INSIDE_TARGET = 4;
+	final int INSIDE_LOG = 5;
+	final int INSIDE_REPETITION = 6;
+	final int INSIDE_SOURCE = 7;
+	final int INSIDE_DEFAULT_ENCODING = 8;
+	final int INSIDE_BOOTCLASSPATH_start = 9;
+	final int INSIDE_MAX_PROBLEMS = 11;
+	final int INSIDE_EXT_DIRS = 12;
+	final int INSIDE_SOURCE_PATH_start = 13;
+	final int INSIDE_ENDORSED_DIRS = 15;
+	final int INSIDE_SOURCE_DIRECTORY_DESTINATION_PATH = 16;
+	final int INSIDE_PROCESSOR_PATH_start = 17;
+	final int INSIDE_PROCESSOR_start = 18;
+	final int INSIDE_S_start = 19;
+	final int INSIDE_CLASS_NAMES = 20;
+
+	final int DEFAULT = 0;
+	ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+	String sourcepathClasspathArg = null;
+	ArrayList sourcepathClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+	ArrayList classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+	ArrayList extdirsClasspaths = null;
+	ArrayList endorsedDirClasspaths = null;
+
+	int index = -1;
+	int filesCount = 0;
+	int classCount = 0;
+	int argCount = argv.length;
+	int mode = DEFAULT;
+	this.maxRepetition = 0;
+	boolean printUsageRequired = false;
+	String usageSection = null;
+	boolean printVersionRequired = false;
+
+	boolean didSpecifyDefaultEncoding = false;
+	boolean didSpecifyDeprecation = false;
+	boolean didSpecifyCompliance = false;
+	boolean didSpecifyDisabledAnnotationProcessing = false;
+
+	String customEncoding = null;
+	String customDestinationPath = null;
+	String currentSourceDirectory = null;
+	String currentArg = Util.EMPTY_STRING;
+
+	// expand the command line if necessary
+	boolean needExpansion = false;
+	loop: for (int i = 0; i < argCount; i++) {
+			if (argv[i].startsWith("@")) { //$NON-NLS-1$
+				needExpansion = true;
+				break loop;
+			}
+	}
+
+	String[] newCommandLineArgs = null;
+	if (needExpansion) {
+		newCommandLineArgs = new String[argCount];
+		index = 0;
+		for (int i = 0; i < argCount; i++) {
+			String[] newArgs = null;
+			String arg = argv[i].trim();
+			if (arg.startsWith("@")) { //$NON-NLS-1$
+				try {
+					LineNumberReader reader = new LineNumberReader(new StringReader(new String(Util.getFileCharContent(new File(arg.substring(1)), null))));
+					StringBuffer buffer = new StringBuffer();
+					String line;
+					while((line = reader.readLine()) != null) {
+						line = line.trim();
+						if (!line.startsWith("#")) { //$NON-NLS-1$
+							buffer.append(line).append(" "); //$NON-NLS-1$
+						}
+					}
+					newArgs = tokenize(buffer.toString());
+				} catch(IOException e) {
+					throw new InvalidInputException(
+						this.bind("configure.invalidexpansionargumentname", arg)); //$NON-NLS-1$
+				}
+			}
+			if (newArgs != null) {
+				int newCommandLineArgsLength = newCommandLineArgs.length;
+				int newArgsLength = newArgs.length;
+				System.arraycopy(newCommandLineArgs, 0, (newCommandLineArgs = new String[newCommandLineArgsLength + newArgsLength - 1]), 0, index);
+				System.arraycopy(newArgs, 0, newCommandLineArgs, index, newArgsLength);
+				index += newArgsLength;
+			} else {
+				newCommandLineArgs[index++] = arg;
+			}
+		}
+		index = -1;
+	} else {
+		newCommandLineArgs = argv;
+		for (int i = 0; i < argCount; i++) {
+			newCommandLineArgs[i] = newCommandLineArgs[i].trim();
+		}
+	}
+	argCount = newCommandLineArgs.length;
+	this.expandedCommandLine = newCommandLineArgs;
+	while (++index < argCount) {
+
+		if (customEncoding != null) {
+			throw new InvalidInputException(
+				this.bind("configure.unexpectedCustomEncoding", currentArg, customEncoding)); //$NON-NLS-1$
+		}
+
+		currentArg = newCommandLineArgs[index];
+
+		switch(mode) {
+			case DEFAULT :
+				if (currentArg.startsWith("[")) { //$NON-NLS-1$
+					throw new InvalidInputException(
+						this.bind("configure.unexpectedBracket", //$NON-NLS-1$
+									currentArg));
+				}
+
+				if (currentArg.endsWith("]")) { //$NON-NLS-1$
+					// look for encoding specification
+					int encodingStart = currentArg.indexOf('[') + 1;
+					if (encodingStart <= 1) {
+						throw new InvalidInputException(
+								this.bind("configure.unexpectedBracket", currentArg)); //$NON-NLS-1$
+					}
+					int encodingEnd = currentArg.length() - 1;
+					if (encodingStart >= 1) {
+						if (encodingStart < encodingEnd) {
+							customEncoding = currentArg.substring(encodingStart, encodingEnd);
+							try { // ensure encoding is supported
+								new InputStreamReader(new ByteArrayInputStream(new byte[0]), customEncoding);
+							} catch (UnsupportedEncodingException e) {
+								throw new InvalidInputException(
+									this.bind("configure.unsupportedEncoding", customEncoding)); //$NON-NLS-1$
+							}
+						}
+						currentArg = currentArg.substring(0, encodingStart - 1);
+					}
+				}
+
+				if (currentArg.endsWith(SuffixConstants.SUFFIX_STRING_java)) {
+					if (this.filenames == null) {
+						this.filenames = new String[argCount - index];
+						this.encodings = new String[argCount - index];
+						this.destinationPaths = new String[argCount - index];
+					} else if (filesCount == this.filenames.length) {
+						int length = this.filenames.length;
+						System.arraycopy(
+							this.filenames,
+							0,
+							(this.filenames = new String[length + argCount - index]),
+							0,
+							length);
+						System.arraycopy(
+							this.encodings,
+							0,
+							(this.encodings = new String[length + argCount - index]),
+							0,
+							length);
+						System.arraycopy(
+							this.destinationPaths,
+							0,
+							(this.destinationPaths = new String[length + argCount - index]),
+							0,
+							length);
+					}
+					this.filenames[filesCount] = currentArg;
+					this.encodings[filesCount++] = customEncoding;
+					// destination path cannot be specified upon an individual file
+					customEncoding = null;
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-log")) { //$NON-NLS-1$
+					if (this.log != null)
+						throw new InvalidInputException(
+							this.bind("configure.duplicateLog", currentArg)); //$NON-NLS-1$
+					mode = INSIDE_LOG;
+					continue;
+				}
+				if (currentArg.equals("-repeat")) { //$NON-NLS-1$
+					if (this.maxRepetition > 0)
+						throw new InvalidInputException(
+							this.bind("configure.duplicateRepeat", currentArg)); //$NON-NLS-1$
+					mode = INSIDE_REPETITION;
+					continue;
+				}
+				if (currentArg.equals("-maxProblems")) { //$NON-NLS-1$
+					if (this.maxProblems > 0)
+						throw new InvalidInputException(
+							this.bind("configure.duplicateMaxProblems", currentArg)); //$NON-NLS-1$
+					mode = INSIDE_MAX_PROBLEMS;
+					continue;
+				}
+				if (currentArg.equals("-source")) { //$NON-NLS-1$
+					mode = INSIDE_SOURCE;
+					continue;
+				}
+				if (currentArg.equals("-encoding")) { //$NON-NLS-1$
+					mode = INSIDE_DEFAULT_ENCODING;
+					continue;
+				}
+				if (currentArg.equals("-1.3")) { //$NON-NLS-1$
+					if (didSpecifyCompliance) {
+						throw new InvalidInputException(
+							this.bind("configure.duplicateCompliance", currentArg));//$NON-NLS-1$
+					}
+					didSpecifyCompliance = true;
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-1.4")) { //$NON-NLS-1$
+					if (didSpecifyCompliance) {
+						throw new InvalidInputException(
+							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+					}
+					didSpecifyCompliance = true;
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-1.5") || currentArg.equals("-5") || currentArg.equals("-5.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					if (didSpecifyCompliance) {
+						throw new InvalidInputException(
+							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+					}
+					didSpecifyCompliance = true;
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-1.6") || currentArg.equals("-6") || currentArg.equals("-6.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					if (didSpecifyCompliance) {
+						throw new InvalidInputException(
+							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+					}
+					didSpecifyCompliance = true;
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-1.7") || currentArg.equals("-7") || currentArg.equals("-7.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					if (didSpecifyCompliance) {
+						throw new InvalidInputException(
+							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+					}
+					didSpecifyCompliance = true;
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-d")) { //$NON-NLS-1$
+					if (this.destinationPath != null) {
+						StringBuffer errorMessage = new StringBuffer();
+						errorMessage.append(currentArg);
+						if ((index + 1) < argCount) {
+							errorMessage.append(' ');
+							errorMessage.append(newCommandLineArgs[index + 1]);
+						}
+						throw new InvalidInputException(
+							this.bind("configure.duplicateOutputPath", errorMessage.toString())); //$NON-NLS-1$
+					}
+					mode = INSIDE_DESTINATION_PATH;
+					continue;
+				}
+				if (currentArg.equals("-classpath") //$NON-NLS-1$
+					|| currentArg.equals("-cp")) { //$NON-NLS-1$
+					mode = INSIDE_CLASSPATH_start;
+					continue;
+				}
+				if (currentArg.equals("-bootclasspath")) {//$NON-NLS-1$
+					if (bootclasspaths.size() > 0) {
+						StringBuffer errorMessage = new StringBuffer();
+						errorMessage.append(currentArg);
+						if ((index + 1) < argCount) {
+							errorMessage.append(' ');
+							errorMessage.append(newCommandLineArgs[index + 1]);
+						}
+						throw new InvalidInputException(
+							this.bind("configure.duplicateBootClasspath", errorMessage.toString())); //$NON-NLS-1$
+					}
+					mode = INSIDE_BOOTCLASSPATH_start;
+					continue;
+				}
+				if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
+					if (sourcepathClasspathArg != null) {
+						StringBuffer errorMessage = new StringBuffer();
+						errorMessage.append(currentArg);
+						if ((index + 1) < argCount) {
+							errorMessage.append(' ');
+							errorMessage.append(newCommandLineArgs[index + 1]);
+						}
+						throw new InvalidInputException(
+							this.bind("configure.duplicateSourcepath", errorMessage.toString())); //$NON-NLS-1$
+					}
+					mode = INSIDE_SOURCE_PATH_start;
+					continue;
+				}
+				if (currentArg.equals("-extdirs")) {//$NON-NLS-1$
+					if (extdirsClasspaths != null) {
+						StringBuffer errorMessage = new StringBuffer();
+						errorMessage.append(currentArg);
+						if ((index + 1) < argCount) {
+							errorMessage.append(' ');
+							errorMessage.append(newCommandLineArgs[index + 1]);
+						}
+						throw new InvalidInputException(
+							this.bind("configure.duplicateExtDirs", errorMessage.toString())); //$NON-NLS-1$
+					}
+					mode = INSIDE_EXT_DIRS;
+					continue;
+				}
+				if (currentArg.equals("-endorseddirs")) { //$NON-NLS-1$
+					if (endorsedDirClasspaths != null) {
+						StringBuffer errorMessage = new StringBuffer();
+						errorMessage.append(currentArg);
+						if ((index + 1) < argCount) {
+							errorMessage.append(' ');
+							errorMessage.append(newCommandLineArgs[index + 1]);
+						}
+						throw new InvalidInputException(
+							this.bind("configure.duplicateEndorsedDirs", errorMessage.toString())); //$NON-NLS-1$
+					}
+					mode = INSIDE_ENDORSED_DIRS;
+					continue;
+				}
+				if (currentArg.equals("-progress")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					this.showProgress = true;
+					continue;
+				}
+				if (currentArg.equals("-proceedOnError")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					this.proceedOnError = true;
+					continue;
+				}
+				if (currentArg.equals("-time")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					this.timing = TIMING_ENABLED;
+					continue;
+				}
+				if (currentArg.equals("-time:detail")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					this.timing = TIMING_ENABLED|TIMING_DETAILED;
+					continue;
+				}
+				if (currentArg.equals("-version") //$NON-NLS-1$
+						|| currentArg.equals("-v")) { //$NON-NLS-1$
+					this.logger.logVersion(true);
+					this.proceed = false;
+					return;
+				}
+				if (currentArg.equals("-showversion")) { //$NON-NLS-1$
+					printVersionRequired = true;
+					mode = DEFAULT;
+					continue;
+				}
+				if ("-deprecation".equals(currentArg)) { //$NON-NLS-1$
+					didSpecifyDeprecation = true;
+					this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-help") || currentArg.equals("-?")) { //$NON-NLS-1$ //$NON-NLS-2$
+					printUsageRequired = true;
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-help:warn") || //$NON-NLS-1$
+						currentArg.equals("-?:warn")) { //$NON-NLS-1$
+					printUsageRequired = true;
+					usageSection = "misc.usage.warn"; //$NON-NLS-1$
+					continue;
+				}
+				if (currentArg.equals("-noExit")) { //$NON-NLS-1$
+					this.systemExitWhenFinished = false;
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-verbose")) { //$NON-NLS-1$
+					this.verbose = true;
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-referenceInfo")) { //$NON-NLS-1$
+					this.produceRefInfo = true;
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-inlineJSR")) { //$NON-NLS-1$
+				    mode = DEFAULT;
+					this.options.put(
+							CompilerOptions.OPTION_InlineJsr,
+							CompilerOptions.ENABLED);
+					continue;
+				}
+				if (currentArg.startsWith("-g")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					String debugOption = currentArg;
+					int length = currentArg.length();
+					if (length == 2) {
+						this.options.put(
+							CompilerOptions.OPTION_LocalVariableAttribute,
+							CompilerOptions.GENERATE);
+						this.options.put(
+							CompilerOptions.OPTION_LineNumberAttribute,
+							CompilerOptions.GENERATE);
+						this.options.put(
+							CompilerOptions.OPTION_SourceFileAttribute,
+							CompilerOptions.GENERATE);
+						continue;
+					}
+					if (length > 3) {
+						this.options.put(
+							CompilerOptions.OPTION_LocalVariableAttribute,
+							CompilerOptions.DO_NOT_GENERATE);
+						this.options.put(
+							CompilerOptions.OPTION_LineNumberAttribute,
+							CompilerOptions.DO_NOT_GENERATE);
+						this.options.put(
+							CompilerOptions.OPTION_SourceFileAttribute,
+							CompilerOptions.DO_NOT_GENERATE);
+						if (length == 7 && debugOption.equals("-g:" + NONE)) //$NON-NLS-1$
+							continue;
+						StringTokenizer tokenizer =
+							new StringTokenizer(debugOption.substring(3, debugOption.length()), ","); //$NON-NLS-1$
+						while (tokenizer.hasMoreTokens()) {
+							String token = tokenizer.nextToken();
+							if (token.equals("vars")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_LocalVariableAttribute,
+									CompilerOptions.GENERATE);
+							} else if (token.equals("lines")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_LineNumberAttribute,
+									CompilerOptions.GENERATE);
+							} else if (token.equals("source")) { //$NON-NLS-1$
+								this.options.put(
+									CompilerOptions.OPTION_SourceFileAttribute,
+									CompilerOptions.GENERATE);
+							} else {
+								throw new InvalidInputException(
+									this.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
+							}
+						}
+						continue;
+					}
+					throw new InvalidInputException(
+						this.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
+				}
+				if (currentArg.startsWith("-nowarn")) { //$NON-NLS-1$
+					disableWarnings();
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.startsWith("-warn")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					String warningOption = currentArg;
+					int length = currentArg.length();
+					if (length == 10 && warningOption.equals("-warn:" + NONE)) { //$NON-NLS-1$
+						disableWarnings();
+						continue;
+					}
+					if (length <= 6) {
+						throw new InvalidInputException(
+							this.bind("configure.invalidWarningConfiguration", warningOption)); //$NON-NLS-1$
+					}
+					int warnTokenStart;
+					boolean isEnabling, allowPlusOrMinus;
+					switch (warningOption.charAt(6)) {
+						case '+' :
+							warnTokenStart = 7;
+							isEnabling = true;
+							allowPlusOrMinus = true;
+							break;
+						case '-' :
+							warnTokenStart = 7;
+							isEnabling = false; // mentionned warnings are disabled
+							allowPlusOrMinus = true;
+							break;
+						default:
+							disableWarnings();
+							warnTokenStart = 6;
+							isEnabling = true;
+							allowPlusOrMinus = false;
+					}
+
+					StringTokenizer tokenizer =
+						new StringTokenizer(warningOption.substring(warnTokenStart, warningOption.length()), ","); //$NON-NLS-1$
+					int tokenCounter = 0;
+
+					if (didSpecifyDeprecation) {  // deprecation could have also been set through -deprecation option
+						this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+					}
+
+					nextToken: while (tokenizer.hasMoreTokens()) {
+						String token = tokenizer.nextToken();
+						tokenCounter++;
+						switch(token.charAt(0)) {
+							case '+' :
+								if (allowPlusOrMinus) {
+									isEnabling = true;
+									token = token.substring(1);
+								} else {
+									tokenCounter = 0;
+									break nextToken;
+								}
+								break;
+							case '-' :
+								if (allowPlusOrMinus) {
+									isEnabling = false;
+									token = token.substring(1);
+								} else {
+									tokenCounter = 0;
+									break nextToken;
+								}
+								break;
+						}
+						handleWarningToken(token, isEnabling);
+					}
+					if (tokenCounter == 0) {
+						throw new InvalidInputException(
+							this.bind("configure.invalidWarningOption", currentArg)); //$NON-NLS-1$
+					}
+					continue;
+				}
+				if (currentArg.equals("-target")) { //$NON-NLS-1$
+					mode = INSIDE_TARGET;
+					continue;
+				}
+				if (currentArg.equals("-preserveAllLocals")) { //$NON-NLS-1$
+					this.options.put(
+						CompilerOptions.OPTION_PreserveUnusedLocal,
+						CompilerOptions.PRESERVE);
+				    mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-enableJavadoc")) {//$NON-NLS-1$
+				    mode = DEFAULT;
+					this.enableJavadocOn = true;
+					continue;
+				}
+				if (currentArg.equals("-Xemacs")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					this.logger.setEmacs();
+					continue;
+				}
+				// annotation processing
+				if (currentArg.startsWith("-A")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-processorpath")) { //$NON-NLS-1$
+					mode = INSIDE_PROCESSOR_PATH_start;
+					continue;
+				}
+				if (currentArg.equals("-processor")) { //$NON-NLS-1$
+					mode = INSIDE_PROCESSOR_start;
+					continue;
+				}
+				if (currentArg.equals("-proc:only")) { //$NON-NLS-1$
+					this.options.put(
+						CompilerOptions.OPTION_GenerateClassFiles,
+						CompilerOptions.DISABLED);
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-proc:none")) { //$NON-NLS-1$
+					didSpecifyDisabledAnnotationProcessing = true;
+					this.options.put(
+						CompilerOptions.OPTION_Process_Annotations,
+						CompilerOptions.DISABLED);
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-s")) { //$NON-NLS-1$
+					mode = INSIDE_S_start;
+					continue;
+				}
+				if (currentArg.equals("-XprintProcessorInfo") //$NON-NLS-1$
+						|| currentArg.equals("-XprintRounds")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					continue;
+				}
+				// tolerated javac options - quietly filtered out
+				if (currentArg.startsWith("-X")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.startsWith("-J")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-O")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-classNames")) { //$NON-NLS-1$
+					mode = INSIDE_CLASS_NAMES;
+					continue;
+				}
+				break;
+			case INSIDE_TARGET :
+				if (this.didSpecifyTarget) {
+					throw new InvalidInputException(
+						this.bind("configure.duplicateTarget", currentArg));//$NON-NLS-1$
+				}
+				this.didSpecifyTarget = true;
+				if (currentArg.equals("1.1")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+				} else if (currentArg.equals("1.2")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+				} else if (currentArg.equals("1.3")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
+				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+				} else if (currentArg.equals("1.5") || currentArg.equals("5") || currentArg.equals("5.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+				} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+				} else if (currentArg.equals("1.7") || currentArg.equals("7") || currentArg.equals("7.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+				} else if (currentArg.equals("jsr14")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_JSR14);
+				} else if (currentArg.equals("cldc1.1")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_CLDC1_1);
+					this.options.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.ENABLED);
+				}else {
+					throw new InvalidInputException(this.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
+				}
+				mode = DEFAULT;
+				continue;
+			case INSIDE_LOG :
+				this.log = currentArg;
+				mode = DEFAULT;
+				continue;
+			case INSIDE_REPETITION :
+				try {
+					this.maxRepetition = Integer.parseInt(currentArg);
+					if (this.maxRepetition <= 0) {
+						throw new InvalidInputException(this.bind("configure.repetition", currentArg)); //$NON-NLS-1$
+					}
+				} catch (NumberFormatException e) {
+					throw new InvalidInputException(this.bind("configure.repetition", currentArg)); //$NON-NLS-1$
+				}
+				mode = DEFAULT;
+				continue;
+			case INSIDE_MAX_PROBLEMS :
+				try {
+					this.maxProblems = Integer.parseInt(currentArg);
+					if (this.maxProblems <= 0) {
+						throw new InvalidInputException(this.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
+					}
+					this.options.put(CompilerOptions.OPTION_MaxProblemPerUnit, currentArg);
+				} catch (NumberFormatException e) {
+					throw new InvalidInputException(this.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
+				}
+				mode = DEFAULT;
+				continue;
+			case INSIDE_SOURCE :
+				if (this.didSpecifySource) {
+					throw new InvalidInputException(
+						this.bind("configure.duplicateSource", currentArg));//$NON-NLS-1$
+				}
+				this.didSpecifySource = true;
+				if (currentArg.equals("1.3")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+				} else if (currentArg.equals("1.5") || currentArg.equals("5") || currentArg.equals("5.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+				} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+				} else if (currentArg.equals("1.7") || currentArg.equals("7") || currentArg.equals("7.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+				} else {
+					throw new InvalidInputException(this.bind("configure.source", currentArg)); //$NON-NLS-1$
+				}
+				mode = DEFAULT;
+				continue;
+			case INSIDE_DEFAULT_ENCODING :
+				if (didSpecifyDefaultEncoding) {
+					throw new InvalidInputException(
+						this.bind("configure.duplicateDefaultEncoding", currentArg)); //$NON-NLS-1$
+				}
+				try { // ensure encoding is supported
+					new InputStreamReader(new ByteArrayInputStream(new byte[0]), currentArg);
+				} catch (UnsupportedEncodingException e) {
+					throw new InvalidInputException(
+						this.bind("configure.unsupportedEncoding", currentArg)); //$NON-NLS-1$
+				}
+				this.options.put(CompilerOptions.OPTION_Encoding, currentArg);
+				didSpecifyDefaultEncoding = true;
+				mode = DEFAULT;
+				continue;
+			case INSIDE_DESTINATION_PATH :
+				this.setDestinationPath(currentArg.equals(NONE) ? NONE : currentArg);
+				mode = DEFAULT;
+				continue;
+			case INSIDE_CLASSPATH_start:
+				mode = DEFAULT;
+				index += processPaths(newCommandLineArgs, index, currentArg, classpaths);
+				continue;
+			case INSIDE_BOOTCLASSPATH_start:
+				mode = DEFAULT;
+				index += processPaths(newCommandLineArgs, index, currentArg, bootclasspaths);
+				continue;
+			case INSIDE_SOURCE_PATH_start:
+				mode = DEFAULT;
+				String[] sourcePaths = new String[1];
+				index += processPaths(newCommandLineArgs, index, currentArg, sourcePaths);
+				sourcepathClasspathArg = sourcePaths[0];
+				continue;
+			case INSIDE_EXT_DIRS:
+				if (currentArg.indexOf("[-d") != -1) { //$NON-NLS-1$
+					throw new InvalidInputException(
+						this.bind("configure.unexpectedDestinationPathEntry", //$NON-NLS-1$
+							"-extdir")); //$NON-NLS-1$
+				}
+				StringTokenizer tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
+				extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+				while (tokenizer.hasMoreTokens())
+					extdirsClasspaths.add(tokenizer.nextToken());
+				mode = DEFAULT;
+				continue;
+			case INSIDE_ENDORSED_DIRS:
+				if (currentArg.indexOf("[-d") != -1) { //$NON-NLS-1$
+					throw new InvalidInputException(
+						this.bind("configure.unexpectedDestinationPathEntry", //$NON-NLS-1$
+							"-endorseddirs")); //$NON-NLS-1$
+				}				tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
+				endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+				while (tokenizer.hasMoreTokens())
+					endorsedDirClasspaths.add(tokenizer.nextToken());
+				mode = DEFAULT;
+				continue;
+			case INSIDE_SOURCE_DIRECTORY_DESTINATION_PATH:
+				if (currentArg.endsWith("]")) { //$NON-NLS-1$
+					customDestinationPath = currentArg.substring(0,
+						currentArg.length() - 1);
+				} else {
+					throw new InvalidInputException(
+						this.bind("configure.incorrectDestinationPathEntry", //$NON-NLS-1$
+							"[-d " + currentArg)); //$NON-NLS-1$
+				}
+				break;
+			case INSIDE_PROCESSOR_PATH_start :
+				// nothing to do here. This is consumed again by the AnnotationProcessorManager
+				mode = DEFAULT;
+				continue;
+			case INSIDE_PROCESSOR_start :
+				// nothing to do here. This is consumed again by the AnnotationProcessorManager
+				mode = DEFAULT;
+				continue;
+			case INSIDE_S_start :
+				// nothing to do here. This is consumed again by the AnnotationProcessorManager
+				mode = DEFAULT;
+				continue;
+			case INSIDE_CLASS_NAMES :
+				tokenizer = new StringTokenizer(currentArg, ","); //$NON-NLS-1$
+				if (this.classNames == null) {
+					this.classNames = new String[DEFAULT_SIZE_CLASSPATH];
+				}
+				while (tokenizer.hasMoreTokens()) {
+					if (this.classNames.length == classCount) {
+						// resize
+						System.arraycopy(
+							this.classNames,
+							0,
+							(this.classNames = new String[classCount * 2]),
+							0,
+							classCount);
+					}
+					this.classNames[classCount++] = tokenizer.nextToken();
+				}
+				mode = DEFAULT;
+				continue;
+		}
+
+		// default is input directory, if no custom destination path exists
+		if (customDestinationPath == null) {
+			if (File.separatorChar != '/') {
+				currentArg = currentArg.replace('/', File.separatorChar);
+			}
+			if (currentArg.endsWith("[-d")) { //$NON-NLS-1$
+				currentSourceDirectory = currentArg.substring(0,
+					currentArg.length() - 3);
+				mode = INSIDE_SOURCE_DIRECTORY_DESTINATION_PATH;
+				continue;
+			}
+			currentSourceDirectory = currentArg;
+		}
+		File dir = new File(currentSourceDirectory);
+		if (!dir.isDirectory()) {
+			throw new InvalidInputException(
+				this.bind("configure.unrecognizedOption", currentSourceDirectory)); //$NON-NLS-1$
+		}
+		String[] result = FileFinder.find(dir, SuffixConstants.SUFFIX_STRING_JAVA);
+		if (NONE.equals(customDestinationPath)) {
+			customDestinationPath = NONE; // ensure == comparison
+		}
+		if (this.filenames != null) {
+			// some source files were specified explicitly
+			int length = result.length;
+			System.arraycopy(
+				this.filenames,
+				0,
+				(this.filenames = new String[length + filesCount]),
+				0,
+				filesCount);
+			System.arraycopy(
+				this.encodings,
+				0,
+				(this.encodings = new String[length + filesCount]),
+				0,
+				filesCount);
+			System.arraycopy(
+				this.destinationPaths,
+				0,
+				(this.destinationPaths = new String[length + filesCount]),
+				0,
+				filesCount);
+			System.arraycopy(result, 0, this.filenames, filesCount, length);
+			for (int i = 0; i < length; i++) {
+				this.encodings[filesCount + i] = customEncoding;
+				this.destinationPaths[filesCount + i] = customDestinationPath;
+			}
+			filesCount += length;
+			customEncoding = null;
+			customDestinationPath = null;
+			currentSourceDirectory = null;
+		} else {
+			this.filenames = result;
+			filesCount = this.filenames.length;
+			this.encodings = new String[filesCount];
+			this.destinationPaths = new String[filesCount];
+			for (int i = 0; i < filesCount; i++) {
+				this.encodings[i] = customEncoding;
+				this.destinationPaths[i] = customDestinationPath;
+			}
+			customEncoding = null;
+			customDestinationPath = null;
+			currentSourceDirectory = null;
+		}
+		mode = DEFAULT;
+		continue;
+	}
+	
+	// set DocCommentSupport, with appropriate side effects on defaults if 
+	// javadoc is not enabled
+	if (this.enableJavadocOn) {
+		this.options.put(
+			CompilerOptions.OPTION_DocCommentSupport,
+			CompilerOptions.ENABLED);
+	} else if (this.warnJavadocOn || this.warnAllJavadocOn) {
+		this.options.put(
+			CompilerOptions.OPTION_DocCommentSupport,
+			CompilerOptions.ENABLED);
+		// override defaults: references that are embedded in javadoc are ignored
+		// from the perspective of parameters and thrown exceptions usage
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference,
+			CompilerOptions.DISABLED);
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference,
+			CompilerOptions.DISABLED);
+	}
+	// configure warnings for javadoc contents
+	if (this.warnJavadocOn) {
+		this.options.put(
+			CompilerOptions.OPTION_ReportInvalidJavadoc,
+			CompilerOptions.WARNING);
+		this.options.put(
+			CompilerOptions.OPTION_ReportInvalidJavadocTags,
+			CompilerOptions.ENABLED);
+		this.options.put(
+			CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef,
+			CompilerOptions.ENABLED);
+		this.options.put(
+			CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef,
+			CompilerOptions.ENABLED);
+		this.options.put(
+			CompilerOptions.OPTION_ReportMissingJavadocTags,
+			CompilerOptions.WARNING);
+		this.options.put(
+			CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
+			CompilerOptions.PRIVATE);
+	}
+	if (this.warnAllJavadocOn) {
+		this.options.put(
+			CompilerOptions.OPTION_ReportMissingJavadocComments,
+			CompilerOptions.WARNING);
+	}
+
+	if (printUsageRequired || (filesCount == 0 && classCount == 0)) {
+		if (usageSection ==  null) {
+			printUsage(); // default
+		} else {
+			printUsage(usageSection);
+		}
+		this.proceed = false;
+		return;
+	}
+
+	if (this.log != null) {
+		this.logger.setLog(this.log);
+	} else {
+		this.showProgress = false;
+	}
+	this.logger.logVersion(printVersionRequired);
+
+	validateOptions(didSpecifyCompliance);
+	
+	// Enable annotation processing by default in batch mode when compliance is at least 1.6
+	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=185768
+	if (!didSpecifyDisabledAnnotationProcessing
+			&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) >= ClassFileConstants.JDK1_6) {
+		this.options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	}
+
+	this.logger.logCommandLineArguments(newCommandLineArgs);
+	this.logger.logOptions(this.options);
+
+	if (this.maxRepetition == 0) {
+		this.maxRepetition = 1;
+	}
+	if (this.maxRepetition >= 3 && (this.timing & TIMING_ENABLED) != 0) {
+		this.compilerStats = new CompilerStats[this.maxRepetition];
+	}
+
+	if (filesCount != 0) {
+		System.arraycopy(
+			this.filenames,
+			0,
+			(this.filenames = new String[filesCount]),
+			0,
+			filesCount);
+	}
+
+	if (classCount != 0) {
+		System.arraycopy(
+			this.classNames,
+			0,
+			(this.classNames = new String[classCount]),
+			0,
+			classCount);
+	}
+	
+	setPaths(bootclasspaths,
+			sourcepathClasspathArg,
+			sourcepathClasspaths,
+			classpaths,
+			extdirsClasspaths,
+			endorsedDirClasspaths,
+			customEncoding);
+	
+	if (this.pendingErrors != null) {
+		for (Iterator iterator = this.pendingErrors.iterator(); iterator.hasNext(); ) {
+			String message = (String) iterator.next();
+			this.logger.logPendingError(message);
+		}
+		this.pendingErrors = null;
+	}
+}
+protected void disableWarnings() {
+	Object[] entries = this.options.entrySet().toArray();
+	for (int i = 0, max = entries.length; i < max; i++) {
+		Map.Entry entry = (Map.Entry) entries[i];
+		if (!(entry.getKey() instanceof String))
+			continue;
+		if (!(entry.getValue() instanceof String))
+			continue;
+		if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
+			this.options.put(entry.getKey(), CompilerOptions.IGNORE);
+		}
+	}
+	this.options.put(CompilerOptions.OPTION_TaskTags, Util.EMPTY_STRING);
+}
+public String extractDestinationPathFromSourceFile(CompilationResult result) {
+	ICompilationUnit compilationUnit = result.compilationUnit;
+	if (compilationUnit != null) {
+		char[] fileName = compilationUnit.getFileName();
+		int lastIndex = CharOperation.lastIndexOf(java.io.File.separatorChar, fileName);
+		if (lastIndex != -1) {
+			final String outputPathName = new String(fileName, 0, lastIndex);
+			final File output = new File(outputPathName);
+			if (output.exists() && output.isDirectory()) {
+				return outputPathName;
+			}
+		}
+	}
+	return System.getProperty("user.dir"); //$NON-NLS-1$
+}
+/*
+ * Answer the component to which will be handed back compilation results from the compiler
+ */
+public ICompilerRequestor getBatchRequestor() {
+	return new ICompilerRequestor() {
+		int lineDelta = 0;
+		public void acceptResult(CompilationResult compilationResult) {
+			if (compilationResult.lineSeparatorPositions != null) {
+				int unitLineCount = compilationResult.lineSeparatorPositions.length;
+				this.lineDelta += unitLineCount;
+				if (Main.this.showProgress && this.lineDelta > 2000) {
+					// in -log mode, dump a dot every 2000 lines compiled
+					Main.this.logger.logProgress();
+					this.lineDelta = 0;
+				}
+			}
+			Main.this.logger.startLoggingSource(compilationResult);
+			if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
+				int localErrorCount = Main.this.logger.logProblems(compilationResult.getAllProblems(), compilationResult.compilationUnit.getContents(), Main.this);
+				// exit?
+				if (Main.this.systemExitWhenFinished && !Main.this.proceedOnError && (localErrorCount > 0)) {
+					// ensure dumping problems for enqueued units as well, since may contain primary errors (123476)
+					CompilationUnitDeclaration[] queuedUnits = Main.this.batchCompiler.unitsToProcess;
+					for (int i = 0, length = Main.this.batchCompiler.totalUnits; i < length; i++) {
+						CompilationUnitDeclaration queuedUnit = queuedUnits[i];
+						if (queuedUnit == null) continue;
+						CompilationResult result = queuedUnit.compilationResult;
+						if (result.hasProblems() && !result.hasBeenAccepted) {
+							Main.this.logger.logProblems(result.getAllProblems(), result.compilationUnit.getContents(), Main.this);
+						}
+					}
+					Main.this.logger.endLoggingSource();
+					Main.this.logger.endLoggingSources();
+					Main.this.logger.printStats();
+					Main.this.logger.flush();
+					Main.this.logger.close();
+					System.exit(-1);
+				}
+			}
+			outputClassFiles(compilationResult);
+			Main.this.logger.endLoggingSource();
+		}
+	};
+}
+/*
+ *  Build the set of compilation source units
+ */
+public CompilationUnit[] getCompilationUnits()
+	throws InvalidInputException {
+	int fileCount = this.filenames.length;
+	CompilationUnit[] units = new CompilationUnit[fileCount];
+	HashtableOfObject knownFileNames = new HashtableOfObject(fileCount);
+
+	String defaultEncoding = (String) this.options.get(CompilerOptions.OPTION_Encoding);
+	if (Util.EMPTY_STRING.equals(defaultEncoding))
+		defaultEncoding = null;
+
+	for (int i = 0; i < fileCount; i++) {
+		char[] charName = this.filenames[i].toCharArray();
+		if (knownFileNames.get(charName) != null)
+			throw new InvalidInputException(this.bind("unit.more", this.filenames[i])); //$NON-NLS-1$
+		knownFileNames.put(charName, charName);
+		File file = new File(this.filenames[i]);
+		if (!file.exists())
+			throw new InvalidInputException(this.bind("unit.missing", this.filenames[i])); //$NON-NLS-1$
+		String encoding = this.encodings[i];
+		if (encoding == null)
+			encoding = defaultEncoding;
+		units[i] = new CompilationUnit(null, this.filenames[i], encoding,
+				this.destinationPaths[i]);
+	}
+	return units;
+}
+
+/*
+ *  Low-level API performing the actual compilation
+ */
+public IErrorHandlingPolicy getHandlingPolicy() {
+
+	// passes the initial set of files to the batch oracle (to avoid finding more than once the same units when case insensitive match)
+	return new IErrorHandlingPolicy() {
+		public boolean proceedOnErrors() {
+			return Main.this.proceedOnError; // stop if there are some errors
+		}
+		public boolean stopOnFirstError() {
+			return false;
+		}
+	};
+}
+
+/*
+ * External API
+ */
+public File getJavaHome() {
+	if (!javaHomeChecked) {
+		javaHomeChecked = true;
+		String javaHome = System.getProperty("java.home");//$NON-NLS-1$
+		if (javaHome != null) {
+			this.javaHomeCache = new File(javaHome);
+			if (!this.javaHomeCache.exists())
+				this.javaHomeCache = null;
+		}
+	}
+	return this.javaHomeCache;
+}
+
+public FileSystem getLibraryAccess() {
+	return new FileSystem(this.checkedClasspaths, this.filenames);
+}
+
+/*
+ *  Low-level API performing the actual compilation
+ */
+public IProblemFactory getProblemFactory() {
+	return new DefaultProblemFactory(this.compilerLocale);
+}
+
+/*
+ * External API
+ */
+protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customEncoding) throws InvalidInputException {
+ 	final int bootclasspathsSize = bootclasspaths == null ? 0 : bootclasspaths.size();
+	if (bootclasspathsSize != 0) {
+		String[] paths = new String[bootclasspathsSize];
+		bootclasspaths.toArray(paths);
+		bootclasspaths.clear();
+		for (int i = 0; i < bootclasspathsSize; i++) {
+			processPathEntries(DEFAULT_SIZE_CLASSPATH, bootclasspaths,
+				paths[i], customEncoding, false, true);
+		}
+	} else {
+	 	bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		/* no bootclasspath specified
+		 * we can try to retrieve the default librairies of the VM used to run
+		 * the batch compiler
+		 */
+		 String javaversion = System.getProperty("java.version");//$NON-NLS-1$
+		 if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
+			this.logger.logWrongJDK();
+			this.proceed = false;
+			return null;
+		 }
+
+	 	/*
+	 	 * Handle >= JDK 1.2.2 settings: retrieve the bootclasspath
+	 	 */
+		// check bootclasspath properties for Sun, JRockit and Harmony VMs
+		String bootclasspathProperty = System.getProperty("sun.boot.class.path"); //$NON-NLS-1$
+		if ((bootclasspathProperty == null) || (bootclasspathProperty.length() == 0)) {
+			// IBM J9 VMs
+			bootclasspathProperty = System.getProperty("vm.boot.class.path"); //$NON-NLS-1$
+			if ((bootclasspathProperty == null) || (bootclasspathProperty.length() == 0)) {
+				// Harmony using IBM VME
+				bootclasspathProperty = System.getProperty("org.apache.harmony.boot.class.path"); //$NON-NLS-1$
+			}
+		}
+		if ((bootclasspathProperty != null) && (bootclasspathProperty.length() != 0)) {
+			StringTokenizer tokenizer = new StringTokenizer(bootclasspathProperty, File.pathSeparator);
+			String token;
+			while (tokenizer.hasMoreTokens()) {
+				token = tokenizer.nextToken();
+				FileSystem.Classpath currentClasspath = FileSystem
+						.getClasspath(token, customEncoding, null);
+				if (currentClasspath != null) {
+					bootclasspaths.add(currentClasspath);
+				}
+			}
+		} else {
+			// try to get all jars inside the lib folder of the java home
+			final File javaHome = getJavaHome();
+			if (javaHome != null) {
+				File[] directoriesToCheck = null;
+				if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
+					directoriesToCheck = new File[] {
+						new File(javaHome, "../Classes"), //$NON-NLS-1$
+					};
+				} else {
+					// fall back to try to retrieve them out of the lib directory
+					directoriesToCheck = new File[] {
+						new File(javaHome, "lib") //$NON-NLS-1$
+					};
+				}
+				File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
+				if (systemLibrariesJars != null) {
+					for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
+						File[] current = systemLibrariesJars[i];
+						if (current != null) {
+							for (int j = 0, max2 = current.length; j < max2; j++) {
+								FileSystem.Classpath classpath =
+									FileSystem.getClasspath(current[j].getAbsolutePath(),
+										null, false, null, null);
+								if (classpath != null) {
+									bootclasspaths.add(classpath);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return bootclasspaths;
+}
+
+/*
+ * External API
+ */
+protected ArrayList handleClasspath(ArrayList classpaths, String customEncoding) throws InvalidInputException {
+	final int classpathsSize = classpaths == null ? 0 : classpaths.size();
+	if (classpathsSize != 0) {
+		String[] paths = new String[classpathsSize];
+		classpaths.toArray(paths);
+		classpaths.clear();
+		for (int i = 0; i < classpathsSize; i++) {
+			processPathEntries(DEFAULT_SIZE_CLASSPATH, classpaths, paths[i],
+					customEncoding, false, true);
+		}
+	} else {
+		// no user classpath specified.
+		classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
+		if ((classProp == null) || (classProp.length() == 0)) {
+			addPendingErrors(this.bind("configure.noClasspath")); //$NON-NLS-1$
+			final Classpath classpath = FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null);//$NON-NLS-1$
+			if (classpath != null) {
+				classpaths.add(classpath);
+			}
+		} else {
+			StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
+			String token;
+			while (tokenizer.hasMoreTokens()) {
+				token = tokenizer.nextToken();
+				FileSystem.Classpath currentClasspath = FileSystem
+						.getClasspath(token, customEncoding, null);
+				if (currentClasspath != null) {
+					classpaths.add(currentClasspath);
+				} else if (token.length() != 0) {
+					addPendingErrors(this.bind("configure.incorrectClasspath", token));//$NON-NLS-1$
+				}
+			}
+		}
+	}
+	return classpaths;
+}
+/*
+ * External API
+ */
+protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
+ 	final File javaHome = getJavaHome();
+	/*
+	 * Feed endorsedDirClasspath according to:
+	 * - -endorseddirs first if present;
+	 * - else java.endorsed.dirs if defined;
+	 * - else default extensions directory for the platform. (/lib/endorsed)
+	 */
+	if (endorsedDirClasspaths == null) {
+		endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		String endorsedDirsStr = System.getProperty("java.endorsed.dirs"); //$NON-NLS-1$
+		if (endorsedDirsStr == null) {
+			if (javaHome != null) {
+				endorsedDirClasspaths.add(javaHome.getAbsolutePath() + "/lib/endorsed"); //$NON-NLS-1$
+			}
+		} else {
+			StringTokenizer tokenizer = new StringTokenizer(endorsedDirsStr, File.pathSeparator);
+			while (tokenizer.hasMoreTokens()) {
+				endorsedDirClasspaths.add(tokenizer.nextToken());
+			}
+		}
+	}
+
+	/*
+	 * Feed extdirsClasspath with the entries found into the directories listed by
+	 * extdirsNames.
+	 */
+	if (endorsedDirClasspaths.size() != 0) {
+		File[] directoriesToCheck = new File[endorsedDirClasspaths.size()];
+		for (int i = 0; i < directoriesToCheck.length; i++)
+			directoriesToCheck[i] = new File((String) endorsedDirClasspaths.get(i));
+		endorsedDirClasspaths.clear();
+		File[][] endorsedDirsJars = getLibrariesFiles(directoriesToCheck);
+		if (endorsedDirsJars != null) {
+			for (int i = 0, max = endorsedDirsJars.length; i < max; i++) {
+				File[] current = endorsedDirsJars[i];
+				if (current != null) {
+					for (int j = 0, max2 = current.length; j < max2; j++) {
+						FileSystem.Classpath classpath =
+							FileSystem.getClasspath(
+									current[j].getAbsolutePath(),
+									null, null);
+						if (classpath != null) {
+							endorsedDirClasspaths.add(classpath);
+						}
+					}
+				} else if (directoriesToCheck[i].isFile()) {
+					addPendingErrors(
+						this.bind(
+							"configure.incorrectEndorsedDirsEntry", //$NON-NLS-1$
+							directoriesToCheck[i].getAbsolutePath()));
+				}
+			}
+		}
+	}
+	return endorsedDirClasspaths;
+}
+
+/*
+ * External API
+ * Handle extdirs processing
+ */
+protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
+ 	final File javaHome = getJavaHome();
+
+	/*
+	 * Feed extDirClasspath according to:
+	 * - -extdirs first if present;
+	 * - else java.ext.dirs if defined;
+	 * - else default extensions directory for the platform.
+	 */
+	if (extdirsClasspaths == null) {
+		extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		String extdirsStr = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
+		if (extdirsStr == null) {
+			extdirsClasspaths.add(javaHome.getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
+		} else {
+			StringTokenizer tokenizer = new StringTokenizer(extdirsStr, File.pathSeparator);
+			while (tokenizer.hasMoreTokens())
+				extdirsClasspaths.add(tokenizer.nextToken());
+		}
+	}
+
+	/*
+	 * Feed extdirsClasspath with the entries found into the directories listed by
+	 * extdirsNames.
+	 */
+	if (extdirsClasspaths.size() != 0) {
+		File[] directoriesToCheck = new File[extdirsClasspaths.size()];
+		for (int i = 0; i < directoriesToCheck.length; i++)
+			directoriesToCheck[i] = new File((String) extdirsClasspaths.get(i));
+		extdirsClasspaths.clear();
+		File[][] extdirsJars = getLibrariesFiles(directoriesToCheck);
+		if (extdirsJars != null) {
+			for (int i = 0, max = extdirsJars.length; i < max; i++) {
+				File[] current = extdirsJars[i];
+				if (current != null) {
+					for (int j = 0, max2 = current.length; j < max2; j++) {
+						FileSystem.Classpath classpath =
+							FileSystem.getClasspath(
+									current[j].getAbsolutePath(),
+									null, null);
+						if (classpath != null) {
+							extdirsClasspaths.add(classpath);
+						}
+					}
+				} else if (directoriesToCheck[i].isFile()) {
+					addPendingErrors(this.bind(
+							"configure.incorrectExtDirsEntry", //$NON-NLS-1$
+							directoriesToCheck[i].getAbsolutePath()));
+				}
+			}
+		}
+	}
+
+	return extdirsClasspaths;
 }
 
 /*
@@ -1918,1369 +3353,6 @@ protected void handleWarningToken(String token, boolean isEnabling) throws Inval
 /*
  * External API
  */
-protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customEncoding) throws InvalidInputException {
- 	final int bootclasspathsSize = bootclasspaths == null ? 0 : bootclasspaths.size();
-	if (bootclasspathsSize != 0) {
-		String[] paths = new String[bootclasspathsSize];
-		bootclasspaths.toArray(paths);
-		bootclasspaths.clear();
-		for (int i = 0; i < bootclasspathsSize; i++) {
-			processPathEntries(DEFAULT_SIZE_CLASSPATH, bootclasspaths,
-				paths[i], customEncoding, false, true);
-		}
-	} else {
-	 	bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-		/* no bootclasspath specified
-		 * we can try to retrieve the default librairies of the VM used to run
-		 * the batch compiler
-		 */
-		 String javaversion = System.getProperty("java.version");//$NON-NLS-1$
-		 if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
-			this.logger.logWrongJDK();
-			this.proceed = false;
-			return null;
-		 }
-
-	 	/*
-	 	 * Handle >= JDK 1.2.2 settings: retrieve the bootclasspath
-	 	 */
-		// check bootclasspath properties for Sun, JRockit and Harmony VMs
-		String bootclasspathProperty = System.getProperty("sun.boot.class.path"); //$NON-NLS-1$
-		if ((bootclasspathProperty == null) || (bootclasspathProperty.length() == 0)) {
-			// IBM J9 VMs
-			bootclasspathProperty = System.getProperty("vm.boot.class.path"); //$NON-NLS-1$
-			if ((bootclasspathProperty == null) || (bootclasspathProperty.length() == 0)) {
-				// Harmony using IBM VME
-				bootclasspathProperty = System.getProperty("org.apache.harmony.boot.class.path"); //$NON-NLS-1$
-			}
-		}
-		if ((bootclasspathProperty != null) && (bootclasspathProperty.length() != 0)) {
-			StringTokenizer tokenizer = new StringTokenizer(bootclasspathProperty, File.pathSeparator);
-			String token;
-			while (tokenizer.hasMoreTokens()) {
-				token = tokenizer.nextToken();
-				FileSystem.Classpath currentClasspath = FileSystem
-						.getClasspath(token, customEncoding, null);
-				if (currentClasspath != null) {
-					bootclasspaths.add(currentClasspath);
-				}
-			}
-		} else {
-			// try to get all jars inside the lib folder of the java home
-			final File javaHome = getJavaHome();
-			if (javaHome != null) {
-				File[] directoriesToCheck = null;
-				if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
-					directoriesToCheck = new File[] {
-						new File(javaHome, "../Classes"), //$NON-NLS-1$
-					};
-				} else {
-					// fall back to try to retrieve them out of the lib directory
-					directoriesToCheck = new File[] {
-						new File(javaHome, "lib") //$NON-NLS-1$
-					};
-				}
-				File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
-				if (systemLibrariesJars != null) {
-					for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
-						File[] current = systemLibrariesJars[i];
-						if (current != null) {
-							for (int j = 0, max2 = current.length; j < max2; j++) {
-								FileSystem.Classpath classpath =
-									FileSystem.getClasspath(current[j].getAbsolutePath(),
-										null, false, null, null);
-								if (classpath != null) {
-									bootclasspaths.add(classpath);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	return bootclasspaths;
-}
-/*
- * External API
- */
-protected ArrayList handleClasspath(ArrayList classpaths, String customEncoding) throws InvalidInputException {
-	final int classpathsSize = classpaths == null ? 0 : classpaths.size();
-	if (classpathsSize != 0) {
-		String[] paths = new String[classpathsSize];
-		classpaths.toArray(paths);
-		classpaths.clear();
-		for (int i = 0; i < classpathsSize; i++) {
-			processPathEntries(DEFAULT_SIZE_CLASSPATH, classpaths, paths[i],
-					customEncoding, false, true);
-		}
-	} else {
-		// no user classpath specified.
-		classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-		String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
-		if ((classProp == null) || (classProp.length() == 0)) {
-			addPendingErrors(this.bind("configure.noClasspath")); //$NON-NLS-1$
-			final Classpath classpath = FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null);//$NON-NLS-1$
-			if (classpath != null) {
-				classpaths.add(classpath);
-			}
-		} else {
-			StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
-			String token;
-			while (tokenizer.hasMoreTokens()) {
-				token = tokenizer.nextToken();
-				FileSystem.Classpath currentClasspath = FileSystem
-						.getClasspath(token, customEncoding, null);
-				if (currentClasspath != null) {
-					classpaths.add(currentClasspath);
-				} else if (token.length() != 0) {
-					addPendingErrors(this.bind("configure.incorrectClasspath", token));//$NON-NLS-1$
-				}
-			}
-		}
-	}
-	return classpaths;
-}
-/*
- * External API
- * Handle extdirs processing
- */
-protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
- 	final File javaHome = getJavaHome();
-
-	/*
-	 * Feed extDirClasspath according to:
-	 * - -extdirs first if present;
-	 * - else java.ext.dirs if defined;
-	 * - else default extensions directory for the platform.
-	 */
-	if (extdirsClasspaths == null) {
-		extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-		String extdirsStr = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
-		if (extdirsStr == null) {
-			extdirsClasspaths.add(javaHome.getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
-		} else {
-			StringTokenizer tokenizer = new StringTokenizer(extdirsStr, File.pathSeparator);
-			while (tokenizer.hasMoreTokens())
-				extdirsClasspaths.add(tokenizer.nextToken());
-		}
-	}
-
-	/*
-	 * Feed extdirsClasspath with the entries found into the directories listed by
-	 * extdirsNames.
-	 */
-	if (extdirsClasspaths.size() != 0) {
-		File[] directoriesToCheck = new File[extdirsClasspaths.size()];
-		for (int i = 0; i < directoriesToCheck.length; i++)
-			directoriesToCheck[i] = new File((String) extdirsClasspaths.get(i));
-		extdirsClasspaths.clear();
-		File[][] extdirsJars = getLibrariesFiles(directoriesToCheck);
-		if (extdirsJars != null) {
-			for (int i = 0, max = extdirsJars.length; i < max; i++) {
-				File[] current = extdirsJars[i];
-				if (current != null) {
-					for (int j = 0, max2 = current.length; j < max2; j++) {
-						FileSystem.Classpath classpath =
-							FileSystem.getClasspath(
-									current[j].getAbsolutePath(),
-									null, null);
-						if (classpath != null) {
-							extdirsClasspaths.add(classpath);
-						}
-					}
-				} else if (directoriesToCheck[i].isFile()) {
-					addPendingErrors(this.bind(
-							"configure.incorrectExtDirsEntry", //$NON-NLS-1$
-							directoriesToCheck[i].getAbsolutePath()));
-				}
-			}
-		}
-	}
-
-	return extdirsClasspaths;
-}
-/*
- * External API
- */
-protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
- 	final File javaHome = getJavaHome();
-	/*
-	 * Feed endorsedDirClasspath according to:
-	 * - -endorseddirs first if present;
-	 * - else java.endorsed.dirs if defined;
-	 * - else default extensions directory for the platform. (/lib/endorsed)
-	 */
-	if (endorsedDirClasspaths == null) {
-		endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-		String endorsedDirsStr = System.getProperty("java.endorsed.dirs"); //$NON-NLS-1$
-		if (endorsedDirsStr == null) {
-			if (javaHome != null) {
-				endorsedDirClasspaths.add(javaHome.getAbsolutePath() + "/lib/endorsed"); //$NON-NLS-1$
-			}
-		} else {
-			StringTokenizer tokenizer = new StringTokenizer(endorsedDirsStr, File.pathSeparator);
-			while (tokenizer.hasMoreTokens()) {
-				endorsedDirClasspaths.add(tokenizer.nextToken());
-			}
-		}
-	}
-
-	/*
-	 * Feed extdirsClasspath with the entries found into the directories listed by
-	 * extdirsNames.
-	 */
-	if (endorsedDirClasspaths.size() != 0) {
-		File[] directoriesToCheck = new File[endorsedDirClasspaths.size()];
-		for (int i = 0; i < directoriesToCheck.length; i++)
-			directoriesToCheck[i] = new File((String) endorsedDirClasspaths.get(i));
-		endorsedDirClasspaths.clear();
-		File[][] endorsedDirsJars = getLibrariesFiles(directoriesToCheck);
-		if (endorsedDirsJars != null) {
-			for (int i = 0, max = endorsedDirsJars.length; i < max; i++) {
-				File[] current = endorsedDirsJars[i];
-				if (current != null) {
-					for (int j = 0, max2 = current.length; j < max2; j++) {
-						FileSystem.Classpath classpath =
-							FileSystem.getClasspath(
-									current[j].getAbsolutePath(),
-									null, null);
-						if (classpath != null) {
-							endorsedDirClasspaths.add(classpath);
-						}
-					}
-				} else if (directoriesToCheck[i].isFile()) {
-					addPendingErrors(
-						this.bind(
-							"configure.incorrectEndorsedDirsEntry", //$NON-NLS-1$
-							directoriesToCheck[i].getAbsolutePath()));
-				}
-			}
-		}
-	}
-	return endorsedDirClasspaths;
-}
-
-/*
-Decode the command line arguments
- */
-public void configure(String[] argv) throws InvalidInputException {
-
-	if ((argv == null) || (argv.length == 0)) {
-		printUsage();
-		return;
-	}
-
-	final int INSIDE_CLASSPATH_start = 1;
-	final int INSIDE_DESTINATION_PATH = 3;
-	final int INSIDE_TARGET = 4;
-	final int INSIDE_LOG = 5;
-	final int INSIDE_REPETITION = 6;
-	final int INSIDE_SOURCE = 7;
-	final int INSIDE_DEFAULT_ENCODING = 8;
-	final int INSIDE_BOOTCLASSPATH_start = 9;
-	final int INSIDE_MAX_PROBLEMS = 11;
-	final int INSIDE_EXT_DIRS = 12;
-	final int INSIDE_SOURCE_PATH_start = 13;
-	final int INSIDE_ENDORSED_DIRS = 15;
-	final int INSIDE_SOURCE_DIRECTORY_DESTINATION_PATH = 16;
-	final int INSIDE_PROCESSOR_PATH_start = 17;
-	final int INSIDE_PROCESSOR_start = 18;
-	final int INSIDE_S_start = 19;
-	final int INSIDE_CLASS_NAMES = 20;
-
-	final int DEFAULT = 0;
-	ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-	String sourcepathClasspathArg = null;
-	ArrayList sourcepathClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-	ArrayList classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-	ArrayList extdirsClasspaths = null;
-	ArrayList endorsedDirClasspaths = null;
-
-	int index = -1;
-	int filesCount = 0;
-	int classCount = 0;
-	int argCount = argv.length;
-	int mode = DEFAULT;
-	this.repetitions = 0;
-	boolean printUsageRequired = false;
-	String usageSection = null;
-	boolean printVersionRequired = false;
-
-	boolean didSpecifyDefaultEncoding = false;
-	boolean didSpecifyDeprecation = false;
-	boolean didSpecifyCompliance = false;
-	boolean didSpecifyDisabledAnnotationProcessing = false;
-
-	String customEncoding = null;
-	String customDestinationPath = null;
-	String currentSourceDirectory = null;
-	String currentArg = Util.EMPTY_STRING;
-
-	// expand the command line if necessary
-	boolean needExpansion = false;
-	loop: for (int i = 0; i < argCount; i++) {
-			if (argv[i].startsWith("@")) { //$NON-NLS-1$
-				needExpansion = true;
-				break loop;
-			}
-	}
-
-	String[] newCommandLineArgs = null;
-	if (needExpansion) {
-		newCommandLineArgs = new String[argCount];
-		index = 0;
-		for (int i = 0; i < argCount; i++) {
-			String[] newArgs = null;
-			String arg = argv[i].trim();
-			if (arg.startsWith("@")) { //$NON-NLS-1$
-				try {
-					LineNumberReader reader = new LineNumberReader(new StringReader(new String(Util.getFileCharContent(new File(arg.substring(1)), null))));
-					StringBuffer buffer = new StringBuffer();
-					String line;
-					while((line = reader.readLine()) != null) {
-						line = line.trim();
-						if (!line.startsWith("#")) { //$NON-NLS-1$
-							buffer.append(line).append(" "); //$NON-NLS-1$
-						}
-					}
-					newArgs = tokenize(buffer.toString());
-				} catch(IOException e) {
-					throw new InvalidInputException(
-						this.bind("configure.invalidexpansionargumentname", arg)); //$NON-NLS-1$
-				}
-			}
-			if (newArgs != null) {
-				int newCommandLineArgsLength = newCommandLineArgs.length;
-				int newArgsLength = newArgs.length;
-				System.arraycopy(newCommandLineArgs, 0, (newCommandLineArgs = new String[newCommandLineArgsLength + newArgsLength - 1]), 0, index);
-				System.arraycopy(newArgs, 0, newCommandLineArgs, index, newArgsLength);
-				index += newArgsLength;
-			} else {
-				newCommandLineArgs[index++] = arg;
-			}
-		}
-		index = -1;
-	} else {
-		newCommandLineArgs = argv;
-		for (int i = 0; i < argCount; i++) {
-			newCommandLineArgs[i] = newCommandLineArgs[i].trim();
-		}
-	}
-	argCount = newCommandLineArgs.length;
-	this.expandedCommandLine = newCommandLineArgs;
-	while (++index < argCount) {
-
-		if (customEncoding != null) {
-			throw new InvalidInputException(
-				this.bind("configure.unexpectedCustomEncoding", currentArg, customEncoding)); //$NON-NLS-1$
-		}
-
-		currentArg = newCommandLineArgs[index];
-
-		switch(mode) {
-			case DEFAULT :
-				if (currentArg.startsWith("[")) { //$NON-NLS-1$
-					throw new InvalidInputException(
-						this.bind("configure.unexpectedBracket", //$NON-NLS-1$
-									currentArg));
-				}
-
-				if (currentArg.endsWith("]")) { //$NON-NLS-1$
-					// look for encoding specification
-					int encodingStart = currentArg.indexOf('[') + 1;
-					if (encodingStart <= 1) {
-						throw new InvalidInputException(
-								this.bind("configure.unexpectedBracket", currentArg)); //$NON-NLS-1$
-					}
-					int encodingEnd = currentArg.length() - 1;
-					if (encodingStart >= 1) {
-						if (encodingStart < encodingEnd) {
-							customEncoding = currentArg.substring(encodingStart, encodingEnd);
-							try { // ensure encoding is supported
-								new InputStreamReader(new ByteArrayInputStream(new byte[0]), customEncoding);
-							} catch (UnsupportedEncodingException e) {
-								throw new InvalidInputException(
-									this.bind("configure.unsupportedEncoding", customEncoding)); //$NON-NLS-1$
-							}
-						}
-						currentArg = currentArg.substring(0, encodingStart - 1);
-					}
-				}
-
-				if (currentArg.endsWith(SuffixConstants.SUFFIX_STRING_java)) {
-					if (this.filenames == null) {
-						this.filenames = new String[argCount - index];
-						this.encodings = new String[argCount - index];
-						this.destinationPaths = new String[argCount - index];
-					} else if (filesCount == this.filenames.length) {
-						int length = this.filenames.length;
-						System.arraycopy(
-							this.filenames,
-							0,
-							(this.filenames = new String[length + argCount - index]),
-							0,
-							length);
-						System.arraycopy(
-							this.encodings,
-							0,
-							(this.encodings = new String[length + argCount - index]),
-							0,
-							length);
-						System.arraycopy(
-							this.destinationPaths,
-							0,
-							(this.destinationPaths = new String[length + argCount - index]),
-							0,
-							length);
-					}
-					this.filenames[filesCount] = currentArg;
-					this.encodings[filesCount++] = customEncoding;
-					// destination path cannot be specified upon an individual file
-					customEncoding = null;
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-log")) { //$NON-NLS-1$
-					if (this.log != null)
-						throw new InvalidInputException(
-							this.bind("configure.duplicateLog", currentArg)); //$NON-NLS-1$
-					mode = INSIDE_LOG;
-					continue;
-				}
-				if (currentArg.equals("-repeat")) { //$NON-NLS-1$
-					if (this.repetitions > 0)
-						throw new InvalidInputException(
-							this.bind("configure.duplicateRepeat", currentArg)); //$NON-NLS-1$
-					mode = INSIDE_REPETITION;
-					continue;
-				}
-				if (currentArg.equals("-maxProblems")) { //$NON-NLS-1$
-					if (this.maxProblems > 0)
-						throw new InvalidInputException(
-							this.bind("configure.duplicateMaxProblems", currentArg)); //$NON-NLS-1$
-					mode = INSIDE_MAX_PROBLEMS;
-					continue;
-				}
-				if (currentArg.equals("-source")) { //$NON-NLS-1$
-					mode = INSIDE_SOURCE;
-					continue;
-				}
-				if (currentArg.equals("-encoding")) { //$NON-NLS-1$
-					mode = INSIDE_DEFAULT_ENCODING;
-					continue;
-				}
-				if (currentArg.equals("-1.3")) { //$NON-NLS-1$
-					if (didSpecifyCompliance) {
-						throw new InvalidInputException(
-							this.bind("configure.duplicateCompliance", currentArg));//$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-1.4")) { //$NON-NLS-1$
-					if (didSpecifyCompliance) {
-						throw new InvalidInputException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-1.5") || currentArg.equals("-5") || currentArg.equals("-5.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					if (didSpecifyCompliance) {
-						throw new InvalidInputException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-1.6") || currentArg.equals("-6") || currentArg.equals("-6.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					if (didSpecifyCompliance) {
-						throw new InvalidInputException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-1.7") || currentArg.equals("-7") || currentArg.equals("-7.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					if (didSpecifyCompliance) {
-						throw new InvalidInputException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-d")) { //$NON-NLS-1$
-					if (this.destinationPath != null) {
-						StringBuffer errorMessage = new StringBuffer();
-						errorMessage.append(currentArg);
-						if ((index + 1) < argCount) {
-							errorMessage.append(' ');
-							errorMessage.append(newCommandLineArgs[index + 1]);
-						}
-						throw new InvalidInputException(
-							this.bind("configure.duplicateOutputPath", errorMessage.toString())); //$NON-NLS-1$
-					}
-					mode = INSIDE_DESTINATION_PATH;
-					continue;
-				}
-				if (currentArg.equals("-classpath") //$NON-NLS-1$
-					|| currentArg.equals("-cp")) { //$NON-NLS-1$
-					mode = INSIDE_CLASSPATH_start;
-					continue;
-				}
-				if (currentArg.equals("-bootclasspath")) {//$NON-NLS-1$
-					if (bootclasspaths.size() > 0) {
-						StringBuffer errorMessage = new StringBuffer();
-						errorMessage.append(currentArg);
-						if ((index + 1) < argCount) {
-							errorMessage.append(' ');
-							errorMessage.append(newCommandLineArgs[index + 1]);
-						}
-						throw new InvalidInputException(
-							this.bind("configure.duplicateBootClasspath", errorMessage.toString())); //$NON-NLS-1$
-					}
-					mode = INSIDE_BOOTCLASSPATH_start;
-					continue;
-				}
-				if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
-					if (sourcepathClasspathArg != null) {
-						StringBuffer errorMessage = new StringBuffer();
-						errorMessage.append(currentArg);
-						if ((index + 1) < argCount) {
-							errorMessage.append(' ');
-							errorMessage.append(newCommandLineArgs[index + 1]);
-						}
-						throw new InvalidInputException(
-							this.bind("configure.duplicateSourcepath", errorMessage.toString())); //$NON-NLS-1$
-					}
-					mode = INSIDE_SOURCE_PATH_start;
-					continue;
-				}
-				if (currentArg.equals("-extdirs")) {//$NON-NLS-1$
-					if (extdirsClasspaths != null) {
-						StringBuffer errorMessage = new StringBuffer();
-						errorMessage.append(currentArg);
-						if ((index + 1) < argCount) {
-							errorMessage.append(' ');
-							errorMessage.append(newCommandLineArgs[index + 1]);
-						}
-						throw new InvalidInputException(
-							this.bind("configure.duplicateExtDirs", errorMessage.toString())); //$NON-NLS-1$
-					}
-					mode = INSIDE_EXT_DIRS;
-					continue;
-				}
-				if (currentArg.equals("-endorseddirs")) { //$NON-NLS-1$
-					if (endorsedDirClasspaths != null) {
-						StringBuffer errorMessage = new StringBuffer();
-						errorMessage.append(currentArg);
-						if ((index + 1) < argCount) {
-							errorMessage.append(' ');
-							errorMessage.append(newCommandLineArgs[index + 1]);
-						}
-						throw new InvalidInputException(
-							this.bind("configure.duplicateEndorsedDirs", errorMessage.toString())); //$NON-NLS-1$
-					}
-					mode = INSIDE_ENDORSED_DIRS;
-					continue;
-				}
-				if (currentArg.equals("-progress")) { //$NON-NLS-1$
-					mode = DEFAULT;
-					this.showProgress = true;
-					continue;
-				}
-				if (currentArg.equals("-proceedOnError")) { //$NON-NLS-1$
-					mode = DEFAULT;
-					this.proceedOnError = true;
-					continue;
-				}
-				if (currentArg.equals("-time")) { //$NON-NLS-1$
-					mode = DEFAULT;
-					this.timing = true;
-					continue;
-				}
-				if (currentArg.equals("-version") //$NON-NLS-1$
-						|| currentArg.equals("-v")) { //$NON-NLS-1$
-					this.logger.logVersion(true);
-					this.proceed = false;
-					return;
-				}
-				if (currentArg.equals("-showversion")) { //$NON-NLS-1$
-					printVersionRequired = true;
-					mode = DEFAULT;
-					continue;
-				}
-				if ("-deprecation".equals(currentArg)) { //$NON-NLS-1$
-					didSpecifyDeprecation = true;
-					this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-help") || currentArg.equals("-?")) { //$NON-NLS-1$ //$NON-NLS-2$
-					printUsageRequired = true;
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-help:warn") || //$NON-NLS-1$
-						currentArg.equals("-?:warn")) { //$NON-NLS-1$
-					printUsageRequired = true;
-					usageSection = "misc.usage.warn"; //$NON-NLS-1$
-					continue;
-				}
-				if (currentArg.equals("-noExit")) { //$NON-NLS-1$
-					this.systemExitWhenFinished = false;
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-verbose")) { //$NON-NLS-1$
-					this.verbose = true;
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-referenceInfo")) { //$NON-NLS-1$
-					this.produceRefInfo = true;
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-inlineJSR")) { //$NON-NLS-1$
-				    mode = DEFAULT;
-					this.options.put(
-							CompilerOptions.OPTION_InlineJsr,
-							CompilerOptions.ENABLED);
-					continue;
-				}
-				if (currentArg.startsWith("-g")) { //$NON-NLS-1$
-					mode = DEFAULT;
-					String debugOption = currentArg;
-					int length = currentArg.length();
-					if (length == 2) {
-						this.options.put(
-							CompilerOptions.OPTION_LocalVariableAttribute,
-							CompilerOptions.GENERATE);
-						this.options.put(
-							CompilerOptions.OPTION_LineNumberAttribute,
-							CompilerOptions.GENERATE);
-						this.options.put(
-							CompilerOptions.OPTION_SourceFileAttribute,
-							CompilerOptions.GENERATE);
-						continue;
-					}
-					if (length > 3) {
-						this.options.put(
-							CompilerOptions.OPTION_LocalVariableAttribute,
-							CompilerOptions.DO_NOT_GENERATE);
-						this.options.put(
-							CompilerOptions.OPTION_LineNumberAttribute,
-							CompilerOptions.DO_NOT_GENERATE);
-						this.options.put(
-							CompilerOptions.OPTION_SourceFileAttribute,
-							CompilerOptions.DO_NOT_GENERATE);
-						if (length == 7 && debugOption.equals("-g:" + NONE)) //$NON-NLS-1$
-							continue;
-						StringTokenizer tokenizer =
-							new StringTokenizer(debugOption.substring(3, debugOption.length()), ","); //$NON-NLS-1$
-						while (tokenizer.hasMoreTokens()) {
-							String token = tokenizer.nextToken();
-							if (token.equals("vars")) { //$NON-NLS-1$
-								this.options.put(
-									CompilerOptions.OPTION_LocalVariableAttribute,
-									CompilerOptions.GENERATE);
-							} else if (token.equals("lines")) { //$NON-NLS-1$
-								this.options.put(
-									CompilerOptions.OPTION_LineNumberAttribute,
-									CompilerOptions.GENERATE);
-							} else if (token.equals("source")) { //$NON-NLS-1$
-								this.options.put(
-									CompilerOptions.OPTION_SourceFileAttribute,
-									CompilerOptions.GENERATE);
-							} else {
-								throw new InvalidInputException(
-									this.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
-							}
-						}
-						continue;
-					}
-					throw new InvalidInputException(
-						this.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
-				}
-				if (currentArg.startsWith("-nowarn")) { //$NON-NLS-1$
-					disableWarnings();
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.startsWith("-warn")) { //$NON-NLS-1$
-					mode = DEFAULT;
-					String warningOption = currentArg;
-					int length = currentArg.length();
-					if (length == 10 && warningOption.equals("-warn:" + NONE)) { //$NON-NLS-1$
-						disableWarnings();
-						continue;
-					}
-					if (length <= 6) {
-						throw new InvalidInputException(
-							this.bind("configure.invalidWarningConfiguration", warningOption)); //$NON-NLS-1$
-					}
-					int warnTokenStart;
-					boolean isEnabling, allowPlusOrMinus;
-					switch (warningOption.charAt(6)) {
-						case '+' :
-							warnTokenStart = 7;
-							isEnabling = true;
-							allowPlusOrMinus = true;
-							break;
-						case '-' :
-							warnTokenStart = 7;
-							isEnabling = false; // mentionned warnings are disabled
-							allowPlusOrMinus = true;
-							break;
-						default:
-							disableWarnings();
-							warnTokenStart = 6;
-							isEnabling = true;
-							allowPlusOrMinus = false;
-					}
-
-					StringTokenizer tokenizer =
-						new StringTokenizer(warningOption.substring(warnTokenStart, warningOption.length()), ","); //$NON-NLS-1$
-					int tokenCounter = 0;
-
-					if (didSpecifyDeprecation) {  // deprecation could have also been set through -deprecation option
-						this.options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
-					}
-
-					nextToken: while (tokenizer.hasMoreTokens()) {
-						String token = tokenizer.nextToken();
-						tokenCounter++;
-						switch(token.charAt(0)) {
-							case '+' :
-								if (allowPlusOrMinus) {
-									isEnabling = true;
-									token = token.substring(1);
-								} else {
-									tokenCounter = 0;
-									break nextToken;
-								}
-								break;
-							case '-' :
-								if (allowPlusOrMinus) {
-									isEnabling = false;
-									token = token.substring(1);
-								} else {
-									tokenCounter = 0;
-									break nextToken;
-								}
-								break;
-						}
-						handleWarningToken(token, isEnabling);
-					}
-					if (tokenCounter == 0) {
-						throw new InvalidInputException(
-							this.bind("configure.invalidWarningOption", currentArg)); //$NON-NLS-1$
-					}
-					continue;
-				}
-				if (currentArg.equals("-target")) { //$NON-NLS-1$
-					mode = INSIDE_TARGET;
-					continue;
-				}
-				if (currentArg.equals("-preserveAllLocals")) { //$NON-NLS-1$
-					this.options.put(
-						CompilerOptions.OPTION_PreserveUnusedLocal,
-						CompilerOptions.PRESERVE);
-				    mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-enableJavadoc")) {//$NON-NLS-1$
-				    mode = DEFAULT;
-					this.enableJavadocOn = true;
-					continue;
-				}
-				if (currentArg.equals("-Xemacs")) { //$NON-NLS-1$
-					mode = DEFAULT;
-					this.logger.setEmacs();
-					continue;
-				}
-				// annotation processing
-				if (currentArg.startsWith("-A")) { //$NON-NLS-1$
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-processorpath")) { //$NON-NLS-1$
-					mode = INSIDE_PROCESSOR_PATH_start;
-					continue;
-				}
-				if (currentArg.equals("-processor")) { //$NON-NLS-1$
-					mode = INSIDE_PROCESSOR_start;
-					continue;
-				}
-				if (currentArg.equals("-proc:only")) { //$NON-NLS-1$
-					this.options.put(
-						CompilerOptions.OPTION_GenerateClassFiles,
-						CompilerOptions.DISABLED);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-proc:none")) { //$NON-NLS-1$
-					didSpecifyDisabledAnnotationProcessing = true;
-					this.options.put(
-						CompilerOptions.OPTION_Process_Annotations,
-						CompilerOptions.DISABLED);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-s")) { //$NON-NLS-1$
-					mode = INSIDE_S_start;
-					continue;
-				}
-				if (currentArg.equals("-XprintProcessorInfo") //$NON-NLS-1$
-						|| currentArg.equals("-XprintRounds")) { //$NON-NLS-1$
-					mode = DEFAULT;
-					continue;
-				}
-				// tolerated javac options - quietly filtered out
-				if (currentArg.startsWith("-X")) { //$NON-NLS-1$
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.startsWith("-J")) { //$NON-NLS-1$
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-O")) { //$NON-NLS-1$
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-classNames")) { //$NON-NLS-1$
-					mode = INSIDE_CLASS_NAMES;
-					continue;
-				}
-				break;
-			case INSIDE_TARGET :
-				if (this.didSpecifyTarget) {
-					throw new InvalidInputException(
-						this.bind("configure.duplicateTarget", currentArg));//$NON-NLS-1$
-				}
-				this.didSpecifyTarget = true;
-				if (currentArg.equals("1.1")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-				} else if (currentArg.equals("1.2")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-				} else if (currentArg.equals("1.3")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
-				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				} else if (currentArg.equals("1.5") || currentArg.equals("5") || currentArg.equals("5.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-				} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-				} else if (currentArg.equals("1.7") || currentArg.equals("7") || currentArg.equals("7.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-				} else if (currentArg.equals("jsr14")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_JSR14);
-				} else if (currentArg.equals("cldc1.1")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_CLDC1_1);
-					this.options.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.ENABLED);
-				}else {
-					throw new InvalidInputException(this.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
-				}
-				mode = DEFAULT;
-				continue;
-			case INSIDE_LOG :
-				this.log = currentArg;
-				mode = DEFAULT;
-				continue;
-			case INSIDE_REPETITION :
-				try {
-					this.repetitions = Integer.parseInt(currentArg);
-					if (this.repetitions <= 0) {
-						throw new InvalidInputException(this.bind("configure.repetition", currentArg)); //$NON-NLS-1$
-					}
-				} catch (NumberFormatException e) {
-					throw new InvalidInputException(this.bind("configure.repetition", currentArg)); //$NON-NLS-1$
-				}
-				mode = DEFAULT;
-				continue;
-			case INSIDE_MAX_PROBLEMS :
-				try {
-					this.maxProblems = Integer.parseInt(currentArg);
-					if (this.maxProblems <= 0) {
-						throw new InvalidInputException(this.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
-					}
-					this.options.put(CompilerOptions.OPTION_MaxProblemPerUnit, currentArg);
-				} catch (NumberFormatException e) {
-					throw new InvalidInputException(this.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
-				}
-				mode = DEFAULT;
-				continue;
-			case INSIDE_SOURCE :
-				if (this.didSpecifySource) {
-					throw new InvalidInputException(
-						this.bind("configure.duplicateSource", currentArg));//$NON-NLS-1$
-				}
-				this.didSpecifySource = true;
-				if (currentArg.equals("1.3")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-				} else if (currentArg.equals("1.5") || currentArg.equals("5") || currentArg.equals("5.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-				} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
-				} else if (currentArg.equals("1.7") || currentArg.equals("7") || currentArg.equals("7.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-				} else {
-					throw new InvalidInputException(this.bind("configure.source", currentArg)); //$NON-NLS-1$
-				}
-				mode = DEFAULT;
-				continue;
-			case INSIDE_DEFAULT_ENCODING :
-				if (didSpecifyDefaultEncoding) {
-					throw new InvalidInputException(
-						this.bind("configure.duplicateDefaultEncoding", currentArg)); //$NON-NLS-1$
-				}
-				try { // ensure encoding is supported
-					new InputStreamReader(new ByteArrayInputStream(new byte[0]), currentArg);
-				} catch (UnsupportedEncodingException e) {
-					throw new InvalidInputException(
-						this.bind("configure.unsupportedEncoding", currentArg)); //$NON-NLS-1$
-				}
-				this.options.put(CompilerOptions.OPTION_Encoding, currentArg);
-				didSpecifyDefaultEncoding = true;
-				mode = DEFAULT;
-				continue;
-			case INSIDE_DESTINATION_PATH :
-				this.setDestinationPath(currentArg.equals(NONE) ? NONE : currentArg);
-				mode = DEFAULT;
-				continue;
-			case INSIDE_CLASSPATH_start:
-				mode = DEFAULT;
-				index += processPaths(newCommandLineArgs, index, currentArg, classpaths);
-				continue;
-			case INSIDE_BOOTCLASSPATH_start:
-				mode = DEFAULT;
-				index += processPaths(newCommandLineArgs, index, currentArg, bootclasspaths);
-				continue;
-			case INSIDE_SOURCE_PATH_start:
-				mode = DEFAULT;
-				String[] sourcePaths = new String[1];
-				index += processPaths(newCommandLineArgs, index, currentArg, sourcePaths);
-				sourcepathClasspathArg = sourcePaths[0];
-				continue;
-			case INSIDE_EXT_DIRS:
-				if (currentArg.indexOf("[-d") != -1) { //$NON-NLS-1$
-					throw new InvalidInputException(
-						this.bind("configure.unexpectedDestinationPathEntry", //$NON-NLS-1$
-							"-extdir")); //$NON-NLS-1$
-				}
-				StringTokenizer tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
-				extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-				while (tokenizer.hasMoreTokens())
-					extdirsClasspaths.add(tokenizer.nextToken());
-				mode = DEFAULT;
-				continue;
-			case INSIDE_ENDORSED_DIRS:
-				if (currentArg.indexOf("[-d") != -1) { //$NON-NLS-1$
-					throw new InvalidInputException(
-						this.bind("configure.unexpectedDestinationPathEntry", //$NON-NLS-1$
-							"-endorseddirs")); //$NON-NLS-1$
-				}				tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
-				endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-				while (tokenizer.hasMoreTokens())
-					endorsedDirClasspaths.add(tokenizer.nextToken());
-				mode = DEFAULT;
-				continue;
-			case INSIDE_SOURCE_DIRECTORY_DESTINATION_PATH:
-				if (currentArg.endsWith("]")) { //$NON-NLS-1$
-					customDestinationPath = currentArg.substring(0,
-						currentArg.length() - 1);
-				} else {
-					throw new InvalidInputException(
-						this.bind("configure.incorrectDestinationPathEntry", //$NON-NLS-1$
-							"[-d " + currentArg)); //$NON-NLS-1$
-				}
-				break;
-			case INSIDE_PROCESSOR_PATH_start :
-				// nothing to do here. This is consumed again by the AnnotationProcessorManager
-				mode = DEFAULT;
-				continue;
-			case INSIDE_PROCESSOR_start :
-				// nothing to do here. This is consumed again by the AnnotationProcessorManager
-				mode = DEFAULT;
-				continue;
-			case INSIDE_S_start :
-				// nothing to do here. This is consumed again by the AnnotationProcessorManager
-				mode = DEFAULT;
-				continue;
-			case INSIDE_CLASS_NAMES :
-				tokenizer = new StringTokenizer(currentArg, ","); //$NON-NLS-1$
-				if (this.classNames == null) {
-					this.classNames = new String[DEFAULT_SIZE_CLASSPATH];
-				}
-				while (tokenizer.hasMoreTokens()) {
-					if (this.classNames.length == classCount) {
-						// resize
-						System.arraycopy(
-							this.classNames,
-							0,
-							(this.classNames = new String[classCount * 2]),
-							0,
-							classCount);
-					}
-					this.classNames[classCount++] = tokenizer.nextToken();
-				}
-				mode = DEFAULT;
-				continue;
-		}
-
-		// default is input directory, if no custom destination path exists
-		if (customDestinationPath == null) {
-			if (File.separatorChar != '/') {
-				currentArg = currentArg.replace('/', File.separatorChar);
-			}
-			if (currentArg.endsWith("[-d")) { //$NON-NLS-1$
-				currentSourceDirectory = currentArg.substring(0,
-					currentArg.length() - 3);
-				mode = INSIDE_SOURCE_DIRECTORY_DESTINATION_PATH;
-				continue;
-			}
-			currentSourceDirectory = currentArg;
-		}
-		File dir = new File(currentSourceDirectory);
-		if (!dir.isDirectory()) {
-			throw new InvalidInputException(
-				this.bind("configure.unrecognizedOption", currentSourceDirectory)); //$NON-NLS-1$
-		}
-		String[] result = FileFinder.find(dir, SuffixConstants.SUFFIX_STRING_JAVA);
-		if (NONE.equals(customDestinationPath)) {
-			customDestinationPath = NONE; // ensure == comparison
-		}
-		if (this.filenames != null) {
-			// some source files were specified explicitly
-			int length = result.length;
-			System.arraycopy(
-				this.filenames,
-				0,
-				(this.filenames = new String[length + filesCount]),
-				0,
-				filesCount);
-			System.arraycopy(
-				this.encodings,
-				0,
-				(this.encodings = new String[length + filesCount]),
-				0,
-				filesCount);
-			System.arraycopy(
-				this.destinationPaths,
-				0,
-				(this.destinationPaths = new String[length + filesCount]),
-				0,
-				filesCount);
-			System.arraycopy(result, 0, this.filenames, filesCount, length);
-			for (int i = 0; i < length; i++) {
-				this.encodings[filesCount + i] = customEncoding;
-				this.destinationPaths[filesCount + i] = customDestinationPath;
-			}
-			filesCount += length;
-			customEncoding = null;
-			customDestinationPath = null;
-			currentSourceDirectory = null;
-		} else {
-			this.filenames = result;
-			filesCount = this.filenames.length;
-			this.encodings = new String[filesCount];
-			this.destinationPaths = new String[filesCount];
-			for (int i = 0; i < filesCount; i++) {
-				this.encodings[i] = customEncoding;
-				this.destinationPaths[i] = customDestinationPath;
-			}
-			customEncoding = null;
-			customDestinationPath = null;
-			currentSourceDirectory = null;
-		}
-		mode = DEFAULT;
-		continue;
-	}
-	
-	// set DocCommentSupport, with appropriate side effects on defaults if 
-	// javadoc is not enabled
-	if (this.enableJavadocOn) {
-		this.options.put(
-			CompilerOptions.OPTION_DocCommentSupport,
-			CompilerOptions.ENABLED);
-	} else if (this.warnJavadocOn || this.warnAllJavadocOn) {
-		this.options.put(
-			CompilerOptions.OPTION_DocCommentSupport,
-			CompilerOptions.ENABLED);
-		// override defaults: references that are embedded in javadoc are ignored
-		// from the perspective of parameters and thrown exceptions usage
-		this.options.put(
-			CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference,
-			CompilerOptions.DISABLED);
-		this.options.put(
-			CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference,
-			CompilerOptions.DISABLED);
-	}
-	// configure warnings for javadoc contents
-	if (this.warnJavadocOn) {
-		this.options.put(
-			CompilerOptions.OPTION_ReportInvalidJavadoc,
-			CompilerOptions.WARNING);
-		this.options.put(
-			CompilerOptions.OPTION_ReportInvalidJavadocTags,
-			CompilerOptions.ENABLED);
-		this.options.put(
-			CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef,
-			CompilerOptions.ENABLED);
-		this.options.put(
-			CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef,
-			CompilerOptions.ENABLED);
-		this.options.put(
-			CompilerOptions.OPTION_ReportMissingJavadocTags,
-			CompilerOptions.WARNING);
-		this.options.put(
-			CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
-			CompilerOptions.PRIVATE);
-	}
-	if (this.warnAllJavadocOn) {
-		this.options.put(
-			CompilerOptions.OPTION_ReportMissingJavadocComments,
-			CompilerOptions.WARNING);
-	}
-
-	if (printUsageRequired || (filesCount == 0 && classCount == 0)) {
-		if (usageSection ==  null) {
-			printUsage(); // default
-		} else {
-			printUsage(usageSection);
-		}
-		this.proceed = false;
-		return;
-	}
-
-	if (this.log != null) {
-		this.logger.setLog(this.log);
-	} else {
-		this.showProgress = false;
-	}
-	this.logger.logVersion(printVersionRequired);
-
-	validateOptions(didSpecifyCompliance);
-	
-	// Enable annotation processing by default in batch mode when compliance is at least 1.6
-	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=185768
-	if (!didSpecifyDisabledAnnotationProcessing
-			&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) >= ClassFileConstants.JDK1_6) {
-		this.options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
-	}
-
-	this.logger.logCommandLineArguments(newCommandLineArgs);
-	this.logger.logOptions(this.options);
-
-	if (this.repetitions == 0) {
-		this.repetitions = 1;
-	}
-	if (this.repetitions >= 3 && this.timing) {
-		this.times = new long[this.repetitions];
-		this.timesCounter = 0;
-	}
-
-	if (filesCount != 0) {
-		System.arraycopy(
-			this.filenames,
-			0,
-			(this.filenames = new String[filesCount]),
-			0,
-			filesCount);
-	}
-
-	if (classCount != 0) {
-		System.arraycopy(
-			this.classNames,
-			0,
-			(this.classNames = new String[classCount]),
-			0,
-			classCount);
-	}
-	
-	setPaths(bootclasspaths,
-			sourcepathClasspathArg,
-			sourcepathClasspaths,
-			classpaths,
-			extdirsClasspaths,
-			endorsedDirClasspaths,
-			customEncoding);
-	
-	if (this.pendingErrors != null) {
-		for (Iterator iterator = this.pendingErrors.iterator(); iterator.hasNext(); ) {
-			String message = (String) iterator.next();
-			this.logger.logPendingError(message);
-		}
-		this.pendingErrors = null;
-	}
-}
-
-protected void disableWarnings() {
-	Object[] entries = this.options.entrySet().toArray();
-	for (int i = 0, max = entries.length; i < max; i++) {
-		Map.Entry entry = (Map.Entry) entries[i];
-		if (!(entry.getKey() instanceof String))
-			continue;
-		if (!(entry.getValue() instanceof String))
-			continue;
-		if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
-			this.options.put(entry.getKey(), CompilerOptions.IGNORE);
-		}
-	}
-	this.options.put(CompilerOptions.OPTION_TaskTags, Util.EMPTY_STRING);
-}
-
-public String extractDestinationPathFromSourceFile(CompilationResult result) {
-	ICompilationUnit compilationUnit = result.compilationUnit;
-	if (compilationUnit != null) {
-		char[] fileName = compilationUnit.getFileName();
-		int lastIndex = CharOperation.lastIndexOf(java.io.File.separatorChar, fileName);
-		if (lastIndex != -1) {
-			final String outputPathName = new String(fileName, 0, lastIndex);
-			final File output = new File(outputPathName);
-			if (output.exists() && output.isDirectory()) {
-				return outputPathName;
-			}
-		}
-	}
-	return System.getProperty("user.dir"); //$NON-NLS-1$
-}
-
-/*
- * Answer the component to which will be handed back compilation results from the compiler
- */
-public ICompilerRequestor getBatchRequestor() {
-	return new ICompilerRequestor() {
-		int lineDelta = 0;
-		public void acceptResult(CompilationResult compilationResult) {
-			if (compilationResult.lineSeparatorPositions != null) {
-				int unitLineCount = compilationResult.lineSeparatorPositions.length;
-				Main.this.lineCount += unitLineCount;
-				this.lineDelta += unitLineCount;
-				if (Main.this.showProgress && this.lineDelta > 2000) {
-					// in -log mode, dump a dot every 2000 lines compiled
-					Main.this.logger.logProgress();
-					this.lineDelta = 0;
-				}
-			}
-			Main.this.logger.startLoggingSource(compilationResult);
-			if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
-				int localErrorCount = Main.this.logger.logProblems(compilationResult.getAllProblems(), compilationResult.compilationUnit.getContents(), Main.this);
-				// exit?
-				if (Main.this.systemExitWhenFinished && !Main.this.proceedOnError && (localErrorCount > 0)) {
-					// ensure dumping problems for enqueued units as well, since may contain primary errors (123476)
-					CompilationUnitDeclaration[] queuedUnits = Main.this.batchCompiler.unitsToProcess;
-					for (int i = 0, length = Main.this.batchCompiler.totalUnits; i < length; i++) {
-						CompilationUnitDeclaration queuedUnit = queuedUnits[i];
-						if (queuedUnit == null) continue;
-						CompilationResult result = queuedUnit.compilationResult;
-						if (result.hasProblems() && !result.hasBeenAccepted) {
-							Main.this.logger.logProblems(result.getAllProblems(), result.compilationUnit.getContents(), Main.this);
-						}
-					}
-					Main.this.logger.endLoggingSource();
-					Main.this.logger.endLoggingSources();
-					Main.this.logger.printStats();
-					Main.this.logger.flush();
-					Main.this.logger.close();
-					System.exit(-1);
-				}
-			}
-			outputClassFiles(compilationResult);
-			Main.this.logger.endLoggingSource();
-		}
-	};
-}
-
-/*
- *  Build the set of compilation source units
- */
-public CompilationUnit[] getCompilationUnits()
-	throws InvalidInputException {
-	int fileCount = this.filenames.length;
-	CompilationUnit[] units = new CompilationUnit[fileCount];
-	HashtableOfObject knownFileNames = new HashtableOfObject(fileCount);
-
-	String defaultEncoding = (String) this.options.get(CompilerOptions.OPTION_Encoding);
-	if (Util.EMPTY_STRING.equals(defaultEncoding))
-		defaultEncoding = null;
-
-	for (int i = 0; i < fileCount; i++) {
-		char[] charName = this.filenames[i].toCharArray();
-		if (knownFileNames.get(charName) != null)
-			throw new InvalidInputException(this.bind("unit.more", this.filenames[i])); //$NON-NLS-1$
-		knownFileNames.put(charName, charName);
-		File file = new File(this.filenames[i]);
-		if (!file.exists())
-			throw new InvalidInputException(this.bind("unit.missing", this.filenames[i])); //$NON-NLS-1$
-		String encoding = this.encodings[i];
-		if (encoding == null)
-			encoding = defaultEncoding;
-		units[i] = new CompilationUnit(null, this.filenames[i], encoding,
-				this.destinationPaths[i]);
-	}
-	return units;
-}
-
-/*
- *  Low-level API performing the actual compilation
- */
-public IErrorHandlingPolicy getHandlingPolicy() {
-
-	// passes the initial set of files to the batch oracle (to avoid finding more than once the same units when case insensitive match)
-	return new IErrorHandlingPolicy() {
-		public boolean proceedOnErrors() {
-			return Main.this.proceedOnError; // stop if there are some errors
-		}
-		public boolean stopOnFirstError() {
-			return false;
-		}
-	};
-}
-/*
- * External API
- */
-public File getJavaHome() {
-	if (!javaHomeChecked) {
-		javaHomeChecked = true;
-		String javaHome = System.getProperty("java.home");//$NON-NLS-1$
-		if (javaHome != null) {
-			this.javaHomeCache = new File(javaHome);
-			if (!this.javaHomeCache.exists())
-				this.javaHomeCache = null;
-		}
-	}
-	return this.javaHomeCache;
-}
-
-public FileSystem getLibraryAccess() {
-	return new FileSystem(this.checkedClasspaths, this.filenames);
-}
-
-/*
- *  Low-level API performing the actual compilation
- */
-public IProblemFactory getProblemFactory() {
-	return new DefaultProblemFactory(this.compilerLocale);
-}
-/*
- * External API
- */
 protected void initialize(PrintWriter outWriter,
 		PrintWriter errWriter,
 		boolean systemExit) {
@@ -3309,9 +3381,32 @@ protected void initialize(PrintWriter outWriter,
 	}
 	this.classNames = null;
 }
+protected void initializeAnnotationProcessorManager() {
+	try {
+		Class c = Class.forName("org.eclipse.jdt.internal.compiler.apt.dispatch.BatchAnnotationProcessorManager"); //$NON-NLS-1$
+		AbstractAnnotationProcessorManager annotationManager = (AbstractAnnotationProcessorManager) c.newInstance();
+		annotationManager.configure(this, this.expandedCommandLine);
+		annotationManager.setErr(this.err);
+		annotationManager.setOut(this.out);
+		this.batchCompiler.annotationProcessorManager = annotationManager;
+	} catch (ClassNotFoundException e) {
+		// ignore
+	} catch (InstantiationException e) {
+		// should not happen
+		throw new org.eclipse.jdt.internal.compiler.problem.AbortCompilation();
+	} catch (IllegalAccessException e) {
+		// should not happen
+		throw new org.eclipse.jdt.internal.compiler.problem.AbortCompilation();
+	} catch(UnsupportedClassVersionError e) {
+		// report a warning
+		this.logger.logIncorrectVMVersionForAnnotationProcessing();
+	}
+}
+
 // Dump classfiles onto disk for all compilation units that where successful
 // and do not carry a -d none spec, either directly or inherited from Main.
 public void outputClassFiles(CompilationResult unitResult) {
+	long outputStart = System.currentTimeMillis();
 	if (!((unitResult == null) || (unitResult.hasErrors() && !this.proceedOnError))) {
 		ClassFile[] classFiles = unitResult.getClassFiles();
 		String currentDestinationPath = null;
@@ -3350,7 +3445,7 @@ public void outputClassFiles(CompilationResult unitResult) {
 									String.valueOf(this.exportedClassFilesCounter+1),
 									relativeStringName
 								}));
-					ClassFile.writeToDisk(
+					Util.writeToDisk(
 						generateClasspathStructure,
 						currentDestinationPath,
 						relativeStringName,
@@ -3368,8 +3463,8 @@ public void outputClassFiles(CompilationResult unitResult) {
 			}
 		}
 	}
+	this.batchCompiler.stats.outputTime += System.currentTimeMillis() - outputStart;
 }
-
 /*
  *  Low-level API performing the actual compilation
  */
@@ -3417,10 +3512,28 @@ public void performCompilation() throws InvalidInputException {
 		this.logger.loggingExtraProblems(this);
 		this.extraProblems = null;
 	}
+	if (this.compilerStats != null) {
+		this.compilerStats[this.currentRepetition] = this.batchCompiler.stats;
+	}
 	this.logger.printStats();
 
 	// cleanup
 	environment.cleanup();
+}
+public void printUsage() {
+	printUsage("misc.usage"); //$NON-NLS-1$
+}
+private void printUsage(String sectionID) {
+	this.logger.logUsage(
+		this.bind(
+			sectionID,
+			new String[] {
+				System.getProperty("path.separator"), //$NON-NLS-1$
+				this.bind("compiler.name"), //$NON-NLS-1$
+				this.bind("compiler.version"), //$NON-NLS-1$
+				this.bind("compiler.copyright") //$NON-NLS-1$
+			}));
+	this.logger.flush();
 }
 private ReferenceBinding[] processClassNames(LookupEnvironment environment) throws InvalidInputException {
 	// check for .class file presence in case of apt processing
@@ -3447,42 +3560,6 @@ private ReferenceBinding[] processClassNames(LookupEnvironment environment) thro
 		}
 	}
 	return referenceBindings;
-}
-protected void initializeAnnotationProcessorManager() {
-	try {
-		Class c = Class.forName("org.eclipse.jdt.internal.compiler.apt.dispatch.BatchAnnotationProcessorManager"); //$NON-NLS-1$
-		AbstractAnnotationProcessorManager annotationManager = (AbstractAnnotationProcessorManager) c.newInstance();
-		annotationManager.configure(this, this.expandedCommandLine);
-		annotationManager.setErr(this.err);
-		annotationManager.setOut(this.out);
-		this.batchCompiler.annotationProcessorManager = annotationManager;
-	} catch (ClassNotFoundException e) {
-		// ignore
-	} catch (InstantiationException e) {
-		// should not happen
-		throw new org.eclipse.jdt.internal.compiler.problem.AbortCompilation();
-	} catch (IllegalAccessException e) {
-		// should not happen
-		throw new org.eclipse.jdt.internal.compiler.problem.AbortCompilation();
-	} catch(UnsupportedClassVersionError e) {
-		// report a warning
-		this.logger.logIncorrectVMVersionForAnnotationProcessing();
-	}
-}
-public void printUsage() {
-	printUsage("misc.usage"); //$NON-NLS-1$
-}
-private void printUsage(String sectionID) {
-	this.logger.logUsage(
-		this.bind(
-			sectionID,
-			new String[] {
-				System.getProperty("path.separator"), //$NON-NLS-1$
-				this.bind("compiler.name"), //$NON-NLS-1$
-				this.bind("compiler.version"), //$NON-NLS-1$
-				this.bind("compiler.copyright") //$NON-NLS-1$
-			}));
-	this.logger.flush();
 }
 /*
  * External API
@@ -3806,14 +3883,14 @@ private void relocalize(Locale locale) {
 /*
  * External API
  */
-public void setLocale(Locale locale) {
-	relocalize(locale);
+public void setDestinationPath(String dest) {
+	this.destinationPath = dest;
 }
 /*
  * External API
  */
-public void setDestinationPath(String dest) {
-	this.destinationPath = dest;
+public void setLocale(Locale locale) {
+	relocalize(locale);
 }
 /*
  * External API

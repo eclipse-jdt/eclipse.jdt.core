@@ -10,17 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -133,124 +128,6 @@ public class ClassFile
 
 	/**
 	 * INTERNAL USE-ONLY
-	 * Build all the directories and subdirectories corresponding to the packages names
-	 * into the directory specified in parameters.
-	 *
-	 * outputPath is formed like:
-	 *	   c:\temp\ the last character is a file separator
-	 * relativeFileName is formed like:
-	 *     java\lang\String.class *
-	 *
-	 * @param outputPath java.lang.String
-	 * @param relativeFileName java.lang.String
-	 * @return java.lang.String
-	 */
-	public static String buildAllDirectoriesInto(
-		String outputPath,
-		String relativeFileName)
-		throws IOException {
-		char fileSeparatorChar = File.separatorChar;
-		String fileSeparator = File.separator;
-		File f;
-		outputPath = outputPath.replace('/', fileSeparatorChar);
-			// these could be optimized out if we normalized paths once and for
-			// all
-		relativeFileName = relativeFileName.replace('/', fileSeparatorChar);
-		String outputDirPath, fileName;
-		int separatorIndex = relativeFileName.lastIndexOf(fileSeparatorChar);
-		if (separatorIndex == -1) {
-			if (outputPath.endsWith(fileSeparator)) {
-				outputDirPath = outputPath.substring(0, outputPath.length() - 1);
-				fileName = outputPath + relativeFileName;
-			} else {
-				outputDirPath = outputPath;
-				fileName = outputPath + fileSeparator + relativeFileName;
-			}
-		} else {
-			if (outputPath.endsWith(fileSeparator)) {
-				outputDirPath = outputPath +
-					relativeFileName.substring(0, separatorIndex);
-				fileName = outputPath + relativeFileName;
-			} else {
-				outputDirPath = outputPath + fileSeparator +
-					relativeFileName.substring(0, separatorIndex);
-				fileName = outputPath + fileSeparator + relativeFileName;
-			}
-		}
-		f = new File(outputDirPath);
-		f.mkdirs();
-		if (f.isDirectory()) {
-			return fileName;
-		} else {
-			// the directory creation failed for some reason - retry using
-			// a slower algorithm so as to refine the diagnostic
-			if (outputPath.endsWith(fileSeparator)) {
-				outputPath = outputPath.substring(0, outputPath.length() - 1);
-			}
-			f = new File(outputPath);
-			boolean checkFileType = false;
-			if (f.exists()) {
-				  checkFileType = true; // pre-existed
-			} else {
-				// we have to create that directory
-				if (!f.mkdirs()) {
-					  if (f.exists()) {
-							// someone else created f -- need to check its type
-							checkFileType = true;
-					  } else {
-							// no one could create f -- complain
-						throw new IOException(Messages.bind(
-							Messages.output_notValidAll, f.getAbsolutePath()));
-					  }
-				}
-			}
-			if (checkFileType) {
-				  if (!f.isDirectory()) {
-					throw new IOException(Messages.bind(
-						Messages.output_isFile, f.getAbsolutePath()));
-				  }
-			}
-			StringBuffer outDir = new StringBuffer(outputPath);
-			outDir.append(fileSeparator);
-			StringTokenizer tokenizer =
-				new StringTokenizer(relativeFileName, fileSeparator);
-			String token = tokenizer.nextToken();
-			while (tokenizer.hasMoreTokens()) {
-				f = new File(outDir.append(token).append(fileSeparator).toString());
-				  checkFileType = false; // reset
-				if (f.exists()) {
-					  checkFileType = true; // this is suboptimal, but it catches corner cases
-											// in which a regular file pre-exists
-				} else {
-				// we have to create that directory
-					if (!f.mkdir()) {
-						  if (f.exists()) {
-								// someone else created f -- need to check its type
-								checkFileType = true;
-						  } else {
-								// no one could create f -- complain
-							throw new IOException(Messages.bind(
-								Messages.output_notValid,
-									outDir.substring(outputPath.length() + 1,
-										outDir.length() - 1),
-									outputPath));
-						  }
-					}
-				}
-				if (checkFileType) {
-					  if (!f.isDirectory()) {
-						throw new IOException(Messages.bind(
-							Messages.output_isFile, f.getAbsolutePath()));
-					  }
-				}
-				token = tokenizer.nextToken();
-			}
-			// token contains the last one
-			return outDir.append(token).toString();
-		}
-	}
-	/**
-	 * INTERNAL USE-ONLY
 	 * Request the creation of a ClassFile compatible representation of a problematic type
 	 *
 	 * @param typeDeclaration org.eclipse.jdt.internal.compiler.ast.TypeDeclaration
@@ -339,67 +216,6 @@ public class ClassFile
 	public static ClassFile getNewInstance(SourceTypeBinding typeBinding) {
 		LookupEnvironment env = typeBinding.scope.environment();
 		return env.classFilePool.acquire(typeBinding);
-	}
-
-	/**
-	 * INTERNAL USE-ONLY
-	 * outputPath is formed like:
-	 *	   c:\temp\ the last character is a file separator
-	 * relativeFileName is formed like:
-	 *     java\lang\String.class
-	 * @param generatePackagesStructure a flag to know if the packages structure has to be generated.
-	 * @param outputPath the given output directory
-	 * @param relativeFileName the given relative file name
-	 * @param classFile the given classFile to write
-	 *
-	 */
-	public static void writeToDisk(
-		boolean generatePackagesStructure,
-		String outputPath,
-		String relativeFileName,
-		ClassFile classFile) throws IOException {
-
-		BufferedOutputStream output = null;
-		if (generatePackagesStructure) {
-			output = new BufferedOutputStream(
-				new FileOutputStream(
-					new File(buildAllDirectoriesInto(outputPath, relativeFileName))));
-		} else {
-			String fileName = null;
-			char fileSeparatorChar = File.separatorChar;
-			String fileSeparator = File.separator;
-			// First we ensure that the outputPath exists
-			outputPath = outputPath.replace('/', fileSeparatorChar);
-			// To be able to pass the mkdirs() method we need to remove the extra file separator at the end of the outDir name
-			int indexOfPackageSeparator = relativeFileName.lastIndexOf(fileSeparatorChar);
-			if (indexOfPackageSeparator == -1) {
-				if (outputPath.endsWith(fileSeparator)) {
-					fileName = outputPath + relativeFileName;
-				} else {
-					fileName = outputPath + fileSeparator + relativeFileName;
-				}
-			} else {
-				int length = relativeFileName.length();
-				if (outputPath.endsWith(fileSeparator)) {
-					fileName = outputPath + relativeFileName.substring(indexOfPackageSeparator + 1, length);
-				} else {
-					fileName = outputPath + fileSeparator + relativeFileName.substring(indexOfPackageSeparator + 1, length);
-				}
-			}
-			output = new BufferedOutputStream(
-				new FileOutputStream(
-						new File(fileName)));
-		}
-		try {
-			// if no IOException occured, output cannot be null
-			output.write(classFile.header, 0, classFile.headerOffset);
-			output.write(classFile.contents, 0, classFile.contentsOffset);
-			output.flush();
-		} catch(IOException e) {
-			throw e;
-		} finally {
-			output.close();
-		}
 	}
 
 	/**

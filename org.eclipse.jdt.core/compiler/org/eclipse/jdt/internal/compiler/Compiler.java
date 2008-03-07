@@ -28,7 +28,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public CompilerOptions options;
 	public ProblemReporter problemReporter;
 	protected PrintWriter out; // output for messages that are not sent to problemReporter
-
+	public CompilerStats stats;
+	
 	// management of unit to be processed
 	//public CompilationUnitResult currentCompilationUnitResult;
 	public CompilationUnitDeclaration[] unitsToProcess;
@@ -260,6 +261,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		this.problemReporter = new ProblemReporter(policy, this.options, problemFactory);
 		this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, environment);
 		this.out = out == null ? new PrintWriter(System.out, true) : out;
+		this.stats = new CompilerStats();
 		initializeParser();
 	}
 	
@@ -363,6 +365,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 * -> recompile any required types for which we have an incomplete principle structure
 	 */
 	public void compile(ICompilationUnit[] sourceUnits) {
+		this.stats.startTime = System.currentTimeMillis();
 		CompilationUnitDeclaration unit = null;
 		int i = 0;
 		try {
@@ -395,7 +398,10 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					unit.cleanUp();
 				}
 				unitsToProcess[i] = null; // release reference to processed unit declaration
+				this.stats.lineCount += unit.compilationResult.lineSeparatorPositions.length;
+				long acceptStart = System.currentTimeMillis();
 				requestor.acceptResult(unit.compilationResult.tagAsAccepted());
+				this.stats.generateTime += System.currentTimeMillis() - acceptStart; // record accept time as part of generation
 				if (options.verbose)
 					this.out.println(
 						Messages.bind(Messages.compilation_done,
@@ -415,6 +421,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			throw e; // rethrow
 		} finally {
 			this.reset();
+			this.stats.endTime = System.currentTimeMillis();
 		}
 		if (options.verbose) {
 			if (this.totalUnits > 1) {
@@ -581,13 +588,17 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 						}));
 				}
 				// diet parsing for large collection of units
+				long parseStart = System.currentTimeMillis();
 				if (totalUnits < parseThreshold) {
 					parsedUnit = parser.parse(sourceUnits[i], unitResult);
 				} else {
 					parsedUnit = parser.dietParse(sourceUnits[i], unitResult);
 				}
+				long resolveStart = System.currentTimeMillis();
+				this.stats.parseTime += resolveStart - parseStart;
 				// initial type binding creation
 				lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+				this.stats.resolveTime += System.currentTimeMillis() - resolveStart;
 				this.addCompilationUnit(sourceUnits[i], parsedUnit);
 				ImportReference currentPackage = parsedUnit.currentPackage;
 				if (currentPackage != null) {
@@ -608,8 +619,12 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 */
 	public void process(CompilationUnitDeclaration unit, int i) {
 		this.lookupEnvironment.unitBeingCompleted = unit;
-
+		long parseStart = System.currentTimeMillis();
+		
 		this.parser.getMethodBodies(unit);
+
+		long resolveStart = System.currentTimeMillis();
+		this.stats.parseTime += resolveStart - parseStart;
 
 		// fault in fields & methods
 		if (unit.scope != null)
@@ -622,8 +637,14 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		// type checking
 		unit.resolve();
 
+		long analyzeStart = System.currentTimeMillis();
+		this.stats.resolveTime += analyzeStart - resolveStart;
+
 		// flow analysis
 		unit.analyseCode();
+
+		long generateStart = System.currentTimeMillis();
+		this.stats.analyzeTime += generateStart - analyzeStart;
 
 		// code generation
 		unit.generateCode();
@@ -634,6 +655,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 
 		// finalize problems (suppressWarnings)
 		unit.finalizeProblems();
+		
+		this.stats.generateTime += System.currentTimeMillis() - generateStart;
 		
 		// refresh the total number of units known at this stage
 		unit.compilationResult.totalUnitsKnown = totalUnits;

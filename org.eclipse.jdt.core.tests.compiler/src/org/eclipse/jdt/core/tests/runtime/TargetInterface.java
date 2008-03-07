@@ -11,6 +11,8 @@
 package org.eclipse.jdt.core.tests.runtime;
 
 import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.compiler.util.Util;
+
 import java.io.*;
 import java.net.*;
 /**
@@ -150,7 +152,7 @@ public void sendClasses(boolean mustRun, ClassFile[] classes) throws TargetExcep
 			if ((i == 0) && (className.indexOf("CodeSnippet") != -1)) {
 				codeSnippetClassName = className;
 				try {
-					ClassFile.writeToDisk(true, "d:\\eval\\snippets", className, classes[0]);
+					Util.writeToDisk(true, "d:\\eval\\snippets", className, classes[0]);
 				} catch(IOException e) {
 				}
 			} else {
@@ -161,7 +163,7 @@ public void sendClasses(boolean mustRun, ClassFile[] classes) throws TargetExcep
 					dirName = "d:\\eval\\" + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY;
 				}
 				try {
-					ClassFile.writeToDisk(true, dirName, className, classes[i]);
+					Util.writeToDisk(true, dirName, className, classes[i]);
 				} catch(IOException e) {
 				}
 			}
