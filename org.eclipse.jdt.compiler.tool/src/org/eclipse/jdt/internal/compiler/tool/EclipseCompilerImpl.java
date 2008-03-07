@@ -65,7 +65,6 @@ public class EclipseCompilerImpl extends Main {
 				this.globalErrorsCount = 0;
 				this.globalWarningsCount = 0;
 				this.globalTasksCount = 0;
-				this.lineCount = 0;
 				this.exportedClassFilesCounter = 0;
 				// request compilation
 				performCompilation();
