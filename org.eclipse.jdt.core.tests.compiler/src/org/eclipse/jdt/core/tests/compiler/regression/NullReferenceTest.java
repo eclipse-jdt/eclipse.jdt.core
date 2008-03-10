@@ -4187,6 +4187,28 @@ public void test0469_while_break() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=220788
+public void _test0470_while() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    Object o = new Object();\n" + 
+			"    while (bar()) {\n" + 
+			"      if (o != null && o.toString().equals(\"o\")) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    if (o.toString().equals(\"o\")) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  boolean bar() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"ERROR: o cannot be null on first if");
+}
 // null analysis -- try/finally
 public void test0500_try_finally() {
 	this.runConformTest(
