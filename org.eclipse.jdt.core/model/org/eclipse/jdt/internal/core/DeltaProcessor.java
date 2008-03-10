@@ -1622,6 +1622,25 @@ public class DeltaProcessor {
 			elementDelta.addResourceDelta(delta);
 	}
 	/*
+	 * Returns the old root info for the given path and project.
+	 */
+	private RootInfo oldRootInfo(IPath path, JavaProject project) {
+		RootInfo oldInfo = (RootInfo) this.state.oldRoots.get(path);
+		if (oldInfo == null)
+			return null;
+		if (oldInfo.project.equals(project))
+			return oldInfo;
+		ArrayList oldInfos = (ArrayList) this.state.oldOtherRoots.get(path);
+		if (oldInfos == null)
+			return null;
+		for (int i = 0, length = oldInfos.size(); i < length; i++) {
+			oldInfo = (RootInfo) oldInfos.get(i);
+			if (oldInfo.project.equals(project))
+				return oldInfo;
+		}
+		return null;
+	}
+	/*
 	 * Returns the other root infos for the given path. Look in the old other roots table if kind is REMOVED.
 	 */
 	private ArrayList otherRootsInfo(IPath path, int kind) {
@@ -1927,7 +1946,7 @@ public class DeltaProcessor {
 				if (folderChanges != null) {
 				    for (int i = 0, length = folderChanges.length; i < length; i++) {
 				        try {
-					        folderChanges[i].updateExternalFoldersIfNecessary(null);
+					        folderChanges[i].updateExternalFoldersIfNecessary(false/*do not refresh since we are not in the thread that added the external folder to the classpath*/, null);
 				        } catch (JavaModelException e) {
 				        	if (!e.isDoesNotExist())
 				        		Util.log(e, "Exception while updating external folders"); //$NON-NLS-1$
@@ -2332,6 +2351,10 @@ public class DeltaProcessor {
 				int flags = delta.getFlags();
 				if (elementType == IJavaElement.PACKAGE_FRAGMENT_ROOT && (flags & IResourceDelta.LOCAL_CHANGED) != 0) {
 					// external folder added or removed
+					if (oldRootInfo(rootInfo.rootPath, rootInfo.project) == null) {
+						// root just added to the classpath
+						break;
+					}
 					deltaRes = delta.getResource();
 					Object target = JavaModel.getExternalTarget(deltaRes.getLocation(), true/*check resource existence*/);
 					element = createElement(deltaRes, elementType, rootInfo);

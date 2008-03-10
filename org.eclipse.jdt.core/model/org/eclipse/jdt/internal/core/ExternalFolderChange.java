@@ -29,38 +29,22 @@ public class ExternalFolderChange {
 		this.oldResolvedClasspath = oldResolvedClasspath;
 	}
 	
-	private HashSet getExternalFolders(IClasspathEntry[] classpath) {
-		HashSet folders = new HashSet();
-		for (int i = 0; i < classpath.length; i++) {
-			IClasspathEntry entry = classpath[i];
-			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-				addExternalFolder(entry.getPath(), folders);
-				addExternalFolder(entry.getSourceAttachmentPath(), folders);
-			}
-		}
-		return folders;
-	}
-
-	private void addExternalFolder(IPath path, HashSet folders) {
-		if (!ExternalFoldersManager.isExternalFolderPath(path))
-			return;
-		folders.add(path);
-	}
-
 	/*
 	 * Update external folders
 	 */
-	public void updateExternalFoldersIfNecessary(IProgressMonitor monitor) throws JavaModelException {
-		HashSet oldFolders = this.oldResolvedClasspath == null ? new HashSet() : getExternalFolders(this.oldResolvedClasspath);
+	public void updateExternalFoldersIfNecessary(boolean refreshIfExistAlready, IProgressMonitor monitor) throws JavaModelException {
+		HashSet oldFolders = ExternalFoldersManager.getExternalFolders(this.oldResolvedClasspath);
 		IClasspathEntry[] newResolvedClasspath = this.project.getResolvedClasspath();
-		HashSet newFolders = getExternalFolders(newResolvedClasspath);
+		HashSet newFolders = ExternalFoldersManager.getExternalFolders(newResolvedClasspath);
+		if (newFolders == null)
+			return;
 		ExternalFoldersManager foldersManager = JavaModelManager.getExternalManager();
 		Iterator iterator = newFolders.iterator();
 		while (iterator.hasNext()) {
 			Object folderPath = iterator.next();
-			if (!oldFolders.remove(folderPath)) {
+			if (oldFolders == null || !oldFolders.remove(folderPath)) {
 				try {
-					foldersManager.createLinkFolder((IPath) folderPath, monitor);
+					foldersManager.createLinkFolder((IPath) folderPath, refreshIfExistAlready, monitor);
 				} catch (CoreException e) {
 					throw new JavaModelException(e);
 				}

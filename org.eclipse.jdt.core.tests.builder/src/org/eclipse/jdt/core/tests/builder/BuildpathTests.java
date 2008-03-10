@@ -13,8 +13,6 @@ package org.eclipse.jdt.core.tests.builder;
 import junit.framework.*;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -317,8 +315,7 @@ public void testChangeExternalFolder() throws CoreException {
 		new java.io.File(externalClassFile).setLastModified(lastModified + 1000); // to be sure its different
 		
 		// work around for https://bugs.eclipse.org/bugs/show_bug.cgi?id=219566
-		IProject externalFoldersProject = JavaModelManager.getExternalManager().getExternalFoldersProject();
-		externalFoldersProject.refreshLocal(IResource.DEPTH_INFINITE, null);
+		JavaModelManager.getExternalManager().refreshReferences(env.getProject(projectPath), null);
 
 		incrementalBuild(projectPath);
 		expectingProblemsFor(

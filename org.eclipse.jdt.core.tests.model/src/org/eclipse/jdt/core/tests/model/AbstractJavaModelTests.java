@@ -2026,8 +2026,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor pm) throws CoreException {
 				// work around for https://bugs.eclipse.org/bugs/show_bug.cgi?id=219566
-				IProject externalFoldersProject = JavaModelManager.getExternalManager().getExternalFoldersProject();
-				externalFoldersProject.refreshLocal(IResource.DEPTH_INFINITE, pm);
+				JavaModelManager.getExternalManager().refreshReferences(javaProject.getProject(), null);
 				
 				javaProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, pm);
 			}

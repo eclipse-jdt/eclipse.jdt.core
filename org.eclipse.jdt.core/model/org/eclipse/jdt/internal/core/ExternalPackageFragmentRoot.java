@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
@@ -107,7 +109,15 @@ public class ExternalPackageFragmentRoot extends PackageFragmentRoot {
 	}
 	
 	protected boolean resourceExists(IResource underlyingResource) {
-		return underlyingResource != null && underlyingResource.getLocation().toFile().exists();
+		if (underlyingResource == null)
+			return false;
+		IPath location = underlyingResource.getLocation();
+		if (location == null)
+			return false;
+		File file = location.toFile();
+		if (file == null)
+			return false;
+		return file.exists();
 	}
 
 	protected void toStringAncestors(StringBuffer buffer) {

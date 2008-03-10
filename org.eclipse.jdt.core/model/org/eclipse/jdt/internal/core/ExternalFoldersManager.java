@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IFolder;
@@ -24,6 +25,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -33,6 +35,35 @@ public class ExternalFoldersManager {
 	private static final String LINKED_FOLDER_NAME = ".link"; //$NON-NLS-1$
 	private HashMap folders;
 	private int counter = 0;
+	
+	/*
+	 * Returns a set of external path to external folders referred to on the given classpath.
+	 * Returns null if none.
+	 */
+	public static HashSet 	getExternalFolders(IClasspathEntry[] classpath) {
+		if (classpath == null)
+			return null;
+		HashSet folders = null;
+		for (int i = 0; i < classpath.length; i++) {
+			IClasspathEntry entry = classpath[i];
+			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+				IPath entryPath = entry.getPath();
+				if (isExternalFolderPath(entryPath)) {
+					if (folders == null)
+						folders = new HashSet();
+					folders.add(entryPath);
+				}
+				IPath attachmentPath = entry.getSourceAttachmentPath();
+				if (isExternalFolderPath(attachmentPath)) {
+					if (folders == null)
+						folders = new HashSet();
+					folders.add(attachmentPath);
+				}
+			}
+		}
+		return folders;
+	}
+
 	
 	public static boolean isExternalFolderPath(IPath externalPath) {
 		if (externalPath == null)
@@ -69,12 +100,12 @@ public class ExternalFoldersManager {
 		return result;
 	}
 	
-	public IFolder createLinkFolder(IPath externalFolderPath, IProgressMonitor monitor) throws CoreException {
+	public IFolder createLinkFolder(IPath externalFolderPath, boolean refreshIfExistAlready, IProgressMonitor monitor) throws CoreException {
 		IProject externalFoldersProject = createExternalFoldersProject(monitor); // run outside synchronized as this can create a resource
 		IFolder result = addFolder(externalFolderPath, externalFoldersProject);
 		if (!result.exists())
 			result.createLink(externalFolderPath, IResource.ALLOW_MISSING_LOCAL, monitor);
-		else
+		else if (refreshIfExistAlready)
 			result.refreshLocal(IResource.DEPTH_INFINITE,  monitor);
 		return result;
 	}
@@ -177,8 +208,35 @@ public class ExternalFoldersManager {
 		return this.folders;
 	}
 	
+	/*
+	 * Refreshes the external folders referenced on the classpath of the given source project
+	 */
+	public void refreshReferences(IProject source, IProgressMonitor monitor) {
+		IProject externalProject = getExternalFoldersProject();
+		if (source.equals(externalProject))
+			return;
+		if (!JavaProject.hasJavaNature(source))
+			return;
+		try {
+			HashSet externalFolders = getExternalFolders(JavaCore.create(source).getResolvedClasspath(true));
+			if (externalFolders == null)
+				return;
+			Iterator iterator = externalFolders.iterator();
+			while (iterator.hasNext()) {
+				IPath externalPath = (IPath) iterator.next();
+				IFolder folder = getFolder(externalPath);
+				if (folder != null)
+					folder.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+			}
+		} catch (CoreException e) {
+			Util.log(e, "Exception while refreshing external project"); //$NON-NLS-1$
+		}
+		return;
+	}
+
 	public synchronized IFolder removeFolder(IPath externalFolderPath) {
 		return (IFolder) getFolders().remove(externalFolderPath);
 	}
+
 
 }

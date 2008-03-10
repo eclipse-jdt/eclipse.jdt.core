@@ -61,7 +61,7 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 			new ProjectReferenceChange(project, change.oldResolvedClasspath).updateProjectReferencesIfNecessary();
 			
 			// and ensure that external folders are updated as well
-			new ExternalFolderChange(project, change.oldResolvedClasspath).updateExternalFoldersIfNecessary(null);
+			new ExternalFolderChange(project, change.oldResolvedClasspath).updateExternalFoldersIfNecessary(true/*refresh if external linked folder already exists*/, null);
 			
 		} else {
 			JavaElementDelta delta = new JavaElementDelta(getJavaModel());
