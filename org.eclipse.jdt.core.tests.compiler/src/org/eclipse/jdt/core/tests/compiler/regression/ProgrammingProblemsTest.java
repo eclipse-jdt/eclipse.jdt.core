@@ -1242,13 +1242,51 @@ public void test0034_declared_thrown_checked_exceptions() {
 			"  public static final class MyError extends Error {\n" + 
 			"    private static final long serialVersionUID = 1L;\n" + 
 			"  }\n" + 
-			"  public void foo() {\n" + 
+			"  public void foo() throws Throwable {\n" + 
 			"    try {\n" + 
 			"      bar();\n" + 
 			"    } catch (MyError e) {\n" + 
 			"    }\n" + 
 			"  }\n" + 
 			"  private void bar() {}\n" + 
+			"}"
+			},
+		null /* errorOptions */,
+		new String[] {
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
+			} /* warningOptions */,
+		null /* ignoreOptions */,
+		false /* expectingCompilerErrors */,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	public void foo() throws Throwable {\n" + 
+		"	                         ^^^^^^^^^\n" + 
+		"The declared exception Throwable is not actually thrown by the method foo() from type X\n" + 
+		"----------\n" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		customOptions,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+public void test0035_declared_thrown_checked_exceptions() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, 
+			CompilerOptions.DISABLED);
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static final class MyError extends Error {\n" + 
+			"    private static final long serialVersionUID = 1L;\n" + 
+			"  }\n" + 
+			"  public void foo() throws Throwable {\n" + 
+			"    throw new MyError();\n" + 
+			"  }\n" + 
 			"}"
 			},
 		null /* errorOptions */,
@@ -1264,6 +1302,39 @@ public void test0034_declared_thrown_checked_exceptions() {
 		true /* shouldFlushOutputDirectory */, 
 		null /* vmArguments */, 
 		customOptions,
+		null /* clientRequestor */,
+		true /* skipJavac */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=219461
+public void test0036_declared_thrown_checked_exceptions() {
+	runTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static class E1 extends Exception {\n" + 
+			"    private static final long serialVersionUID = 1L;\n" + 
+			"  }\n" + 
+			"  public static class E2 extends E1 {\n" + 
+			"    private static final long serialVersionUID = 1L;\n" + 
+			"  }\n" + 
+			"  public void foo() throws E1 {\n" + 
+			"    throw new E2();\n" + 
+			"  }\n" + 
+			"}"
+			},
+		null /* errorOptions */,
+		new String[] {
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException
+			} /* warningOptions */,
+		null /* ignoreOptions */,
+		false /* expectingCompilerErrors */,
+		"" /* expectedCompilerLog */,
+		"" /* expectedOutputString */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
