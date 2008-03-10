@@ -203,12 +203,21 @@ Eclipse SDK 3.4M6 - March 5, 2008
     considered or not while reporting unused declared thrown exceptions.
 <pre>
  * Compiler option ID: Reporting Unused Declared Thrown Exception Exempts Exception And Throwable.
- *    When enabled, the compiler will report neither java.lang.Throwable nor 
- *    java.lang.Exception as unused declared thrown exceptions. When disabled, 
- *    all declared thrown checked exceptions will be considered.
+ *    When enabled, the compiler will issue an error or a warning when a 
+ *    method or a constructor is declaring a checked exception else than
+ *    java.lang.Throwable or java.lang.Exception as thrown,
+ *    but its body actually raises neither that exception, nor any other 
+ *    exception extending it. When disabled, the compiler will issue an 
+ *    error or a warning when a method or a constructor is declaring a 
+ *    checked exception (including java.lang.Throwable and 
+ *    java.lang.Exception) as thrown, but its body actually raises 
+ *    neither that exception, nor any other exception extending it. 
  *    The severity of the unused declared thrown exception problem is 
  *    controlled with option COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION.
- * 
+ *    This diagnostic is further tuned by options
+ *    COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE
+ *    and COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING.
+ *
  *    Option id: "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionExemptExceptionAndThrowable"
  *    Possible values: { "enabled", "disabled" }
  *    Default: "enabled"

@@ -763,8 +763,9 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Reporting Unused Declared Thrown Exception.
 	 * <p>When enabled, the compiler will issue an error or a warning when a 
-	 *    method or a constructor is declaring a thrown exception, but never 
-	 *    actually raises it in its body.
+	 *    method or a constructor is declaring a checked exception as thrown,
+	 *    but its body actually raises neither that exception, nor any other 
+	 *    exception extending it.
 	 * <p>This diagnostic is further tuned by options
 	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE},
 	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE},
@@ -782,7 +783,11 @@ public final class JavaCore extends Plugin {
 	 * Compiler option ID: Reporting Unused Declared Thrown Exception in Overriding Method.
 	 * <p>When disabled, the compiler will report unused declared thrown
 	 *    exceptions neither on overriding methods nor on implementing methods.
-	 * <p>The severity of the problem is controlled with option {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION}.
+	 * <p>The severity of the unused declared thrown exception problem is 
+	 *    controlled with option {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION}.
+	 * <p>This diagnostic is further tuned by options
+	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE} and
+	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE}.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
@@ -794,11 +799,16 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionWhenOverriding"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Consider Reference in Doc Comment for Unused Declared Thrown Exception Check.
-	 * <p>When enabled, the compiler will consider doc comment references to exceptions (i.e. <code>@throws</code> clauses) for the unused
-	 *    declared thrown exception check. Thus, documented exceptions will be considered as mandated as per doc contract.
+	 * <p>When enabled, the compiler will consider doc comment references to 
+	 *    exceptions (i.e. <code>@throws</code> clauses) for the unused
+	 *    declared thrown exception check. Thus, documented exceptions will be 
+	 *    considered as mandated as per doc contract.
 	 * <p>The severity of the unused declared thrown exception problem is controlled with option {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION}.
 	 * <p>Note: this option has no effect until the doc comment support is enabled according to the 
 	 *    option {@link #COMPILER_DOC_COMMENT_SUPPORT}.
+	 * <p>This diagnostic is further tuned by options
+	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE}
+	 *    and {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING}.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeDocCommentReference"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
@@ -810,13 +820,21 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE = PLUGIN_ID + ".compiler.problem.unusedDeclaredThrownExceptionIncludeDocCommentReference"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Unused Declared Thrown Exception Exempts Exception And Throwable.
-	 * <p>When enabled, the compiler will report neither 
-	 *    {@link java.lang.Throwable} nor {@link java.lang.Exception} as unused 
-	 *    declared thrown exceptions. When disabled, all declared thrown checked 
-	 *    exceptions will be considered.
+	 * <p>When enabled, the compiler will issue an error or a warning when a 
+	 *    method or a constructor is declaring a checked exception else than
+	 *    {@link java.lang.Throwable} or {@link java.lang.Exception} as thrown,
+	 *    but its body actually raises neither that exception, nor any other 
+	 *    exception extending it. When disabled, the compiler will issue an 
+	 *    error or a warning when a method or a constructor is declaring a 
+	 *    checked exception (including {@link java.lang.Throwable} and 
+	 *    {@link java.lang.Exception}) as thrown, but its body actually raises 
+	 *    neither that exception, nor any other exception extending it. 
 	 * <p>The severity of the unused declared thrown exception problem is 
 	 *    controlled with option 
 	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION}.
+	 * <p>This diagnostic is further tuned by options
+	 *    {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_INCLUDE_DOC_COMMENT_REFERENCE}
+	 *    and {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING}.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionExemptExceptionAndThrowable"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
