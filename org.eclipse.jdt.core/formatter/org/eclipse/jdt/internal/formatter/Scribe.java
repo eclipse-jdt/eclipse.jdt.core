@@ -762,7 +762,9 @@ public class Scribe {
 		}
 		
 		if (this.line > 1 && numberOfLineEnds > 0) { // CU has more than one line
-			int lineNumber = Util.getLineNumber(offset, this.lineEnds, 0, this.line);
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=222182
+			// take the max number of line ends as right bound when searching for line number
+			int lineNumber = Util.getLineNumber(offset, this.lineEnds, 0, numberOfLineEnds);
 			int lineEnd = this.getLineEnd(lineNumber);
 			if (regionEnd > lineEnd) {
 				// if more than one line selected, check whether selection is at line end

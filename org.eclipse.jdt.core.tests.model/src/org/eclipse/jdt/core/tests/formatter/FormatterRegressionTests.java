@@ -10113,4 +10113,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			JavaCore.setOptions(javaCoreOptions);
 		}
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=222182
+	public void test713() {
+		String resourcePath = getResource("test713", "formatter.xml");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "Dani");
+		assertNotNull("No preferences", options);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test713", "A.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, 76, 27);//$NON-NLS-1$ //$NON-NLS-2$
+	}
 }
