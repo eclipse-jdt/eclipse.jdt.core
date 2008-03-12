@@ -950,13 +950,13 @@ public class NameLookup implements SuffixConstants {
 			findAllTypes(matchName, partialMatch, acceptFlags, requestor);
 			return;
 		}
-		IPackageFragmentRoot root= (IPackageFragmentRoot) pkg.getParent();
+		PackageFragmentRoot root= (PackageFragmentRoot) pkg.getParent();
 		try {
 
 			// look in working copies first
 			int firstDot = -1;
 			String topLevelTypeName = null;
-			int packageFlavor= root.getKind();
+			int packageFlavor= root.internalKind();
 			if (this.typesInWorkingCopies != null || packageFlavor == IPackageFragmentRoot.K_SOURCE) {
 				firstDot = matchName.indexOf('.');
 				if (!partialMatch)

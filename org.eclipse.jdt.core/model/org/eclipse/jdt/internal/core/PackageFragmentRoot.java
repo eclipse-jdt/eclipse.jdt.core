@@ -405,7 +405,7 @@ private IClasspathEntry findSourceAttachmentRecommendation() {
 public char[][] fullExclusionPatternChars() {
 	try {
 		if (this.isOpen() && this.getKind() != IPackageFragmentRoot.K_SOURCE) return null;
-		ClasspathEntry entry = (ClasspathEntry)getRawClasspathEntry();
+		ClasspathEntry entry = (ClasspathEntry) getRawClasspathEntry();
 		if (entry == null) {
 			return null;
 		} else {
@@ -507,6 +507,20 @@ public int getKind() throws JavaModelException {
 	return ((PackageFragmentRootInfo)getElementInfo()).getRootKind();
 }
 
+/*
+ * A version of getKind() that doesn't update the timestamp of the info in the Java model cache
+ * to speed things up
+ */
+int internalKind() throws JavaModelException {
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	PackageFragmentRootInfo info = (PackageFragmentRootInfo) manager.peekAtInfo(this);
+	if (info == null) {
+		// default to regular getKind()
+		return getKind();
+	}
+	return info.getRootKind();
+}
+
 /**
  * Returns an array of non-java resources contained in the receiver.
  */
@@ -572,6 +586,12 @@ public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
 	return rawEntry;
 }
 
+
+public IResource resource() {
+	if (this.resource instanceof IResource) // perf improvement to avoid message send in resource()
+		return (IResource) this.resource;
+	return super.resource();
+}
 /*
  * @see IJavaElement
  */
