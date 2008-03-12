@@ -414,7 +414,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * <li>the fully qualified name of a binary type whose class file is x/y/A$B.class
 	 *     using the '$' separator is "x.y.A$B"</li>
 	 * <li>the fully qualified name of an anonymous binary type whose class file is x/y/A$1.class
-	 *     using the '.' separator is "x.y.A$1"</li>
+	 *     using the '.' separator is "x.y.A.1"</li>
 	 * </ul>
 	 * 
 	 * This is a handle-only method.
@@ -669,8 +669,10 @@ public interface IType extends IMember, IAnnotatable {
 	 * but not including package qualification.
 	 * For source types, this consists of the simple names of any enclosing types, 
 	 * separated by <code>enclosingTypeSeparator</code>, followed by the 
-	 * simple name of this type  or the occurence count of this type if it is anonymous.
-	 * For binary types, this is the name of the class file without the ".class" suffix.
+	 * simple name of this type  or the occurrence count of this type if it is anonymous.
+	 * For binary types, this is the name of the class file without the ".class" suffix,
+	 * and - since 3.4 - the '$' characters in the class file name are replaced with the 
+	 * <code>enclosingTypeSeparator</code> character.
 	 * 
 	 * For example:
 	 * <ul>
@@ -679,11 +681,11 @@ public interface IType extends IMember, IAnnotatable {
 	 * <li>the type qualified name of a class B defined as a member of a class A
 	 *     using the '$' separator is "A$B"</li>
 	 * <li>the type qualified name of a binary type whose class file is A$B.class
-	 *     using the '.' separator is "A$B"</li>
+	 *     using the '.' separator is "A.B"</li>
 	 * <li>the type qualified name of a binary type whose class file is A$B.class
 	 *     using the '$' separator is "A$B"</li>
 	 * <li>the type qualified name of an anonymous binary type whose class file is A$1.class
-	 *     using the '.' separator is "A$1"</li>
+	 *     using the '.' separator is "A.1"</li>
 	 * </ul>
 	 *
 	 * This is a handle-only method.

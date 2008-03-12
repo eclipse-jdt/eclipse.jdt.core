@@ -37,7 +37,7 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 	String relativePath;
     if (root.isArchive()) {
         IType type = (IType)this.localVariable.getAncestor(IJavaElement.TYPE);
-        relativePath = (type.getFullyQualifiedName('/')).replace('.', '/') + SuffixConstants.SUFFIX_STRING_class;
+        relativePath = (type.getFullyQualifiedName('$')).replace('.', '/') + SuffixConstants.SUFFIX_STRING_class;
         documentPath = root.getPath() + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + relativePath;
     } else {
 		IPath path = this.localVariable.getPath();

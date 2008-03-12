@@ -205,7 +205,7 @@ public abstract class NamedMember extends Member {
 					typeName = this.name;
 				} else {
 					// anonymous or local class file
-					typeName = classFileName.substring(0, classFileName.lastIndexOf('.')); // remove .class
+					typeName = classFileName.substring(0, classFileName.lastIndexOf('.'))/*remove .class*/.replace('$', enclosingTypeSeparator);
 				}
 				if (showParameters) {
 					StringBuffer buffer = new StringBuffer(typeName);

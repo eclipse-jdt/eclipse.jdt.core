@@ -819,6 +819,70 @@ public void testAnnotations26() throws CoreException {
 }
 
 /*
+ * Ensures that getFullyQualifiedName() behaves correctly for a top level source type
+ */
+public void testGetFullyQualifiedName1() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
+	assertEquals("p.X", type.getFullyQualifiedName());
+}
+
+/*
+ * Ensures that getFullyQualifiedName() behaves correctly for a top level source type
+ */
+public void testGetFullyQualifiedName2() {
+	IType type = getCompilationUnit("/P/src/X.java").getType("X");
+	assertEquals("X", type.getFullyQualifiedName());
+}
+
+/*
+ * Ensures that getFullyQualifiedName() behaves correctly for a member type
+ */
+public void testGetFullyQualifiedName3() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X").getType("Member");
+	assertEquals("p.X$Member", type.getFullyQualifiedName());
+}
+
+/*
+ * Ensures that getFullyQualifiedName() behaves correctly for a local type
+ */
+public void testGetFullyQualifiedName4() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X").getMethod("foo", new String[0]).getType("Local", 1);
+	assertEquals("p.X$Local", type.getFullyQualifiedName());
+}
+
+/*
+ * Ensures that getFullyQualifiedName('.') behaves correctly for a top level source type
+ */
+public void testGetFullyQualifiedName5() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
+	assertEquals("p.X", type.getFullyQualifiedName('.'));
+}
+
+/*
+ * Ensures that getFullyQualifiedName('.') behaves correctly for a top level source type
+ */
+public void testGetFullyQualifiedName6() {
+	IType type = getCompilationUnit("/P/src/X.java").getType("X");
+	assertEquals("X", type.getFullyQualifiedName('.'));
+}
+
+/*
+ * Ensures that getFullyQualifiedName() behaves correctly for a member type
+ */
+public void testGetFullyQualifiedName7() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X").getType("Member");
+	assertEquals("p.X.Member", type.getFullyQualifiedName('.'));
+}
+
+/*
+ * Ensures that getFullyQualifiedName() behaves correctly for a local type
+ */
+public void testGetFullyQualifiedName8() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X").getMethod("foo", new String[0]).getType("Local", 1);
+	assertEquals("p.X.Local", type.getFullyQualifiedName('.'));
+}
+
+/*
  * Ensures that the categories for a class are correct.
  */
 public void testGetCategories01() throws CoreException {
@@ -1582,6 +1646,69 @@ public void testGetType() {
 	
 	type = this.cu.getType("I"); // secondary type
 	assertTrue("Type should exist " + type, type.exists());
+}
+/*
+ * Ensures that getTypeQualifiedName() behaves correctly for a top level source type
+ */
+public void testGetTypeQualifiedName1() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
+	assertEquals("X", type.getTypeQualifiedName());
+}
+
+/*
+ * Ensures that getTypeQualifiedName() behaves correctly for a top level source type
+ */
+public void testGetTypeQualifiedName2() {
+	IType type = getCompilationUnit("/P/src/X.java").getType("X");
+	assertEquals("X", type.getTypeQualifiedName());
+}
+
+/*
+ * Ensures that getTypeQualifiedName() behaves correctly for a member type
+ */
+public void testGetTypeQualifiedName3() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X").getType("Member");
+	assertEquals("X$Member", type.getTypeQualifiedName());
+}
+
+/*
+ * Ensures that getTypeQualifiedName() behaves correctly for a local type
+ */
+public void testGetTypeQualifiedName4() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X").getMethod("foo", new String[0]).getType("Local", 1);
+	assertEquals("X$Local", type.getTypeQualifiedName());
+}
+
+/*
+ * Ensures that getTypeQualifiedName('.') behaves correctly for a top level source type
+ */
+public void testGetTypeQualifiedName5() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
+	assertEquals("X", type.getTypeQualifiedName('.'));
+}
+
+/*
+ * Ensures that getTypeQualifiedName('.') behaves correctly for a top level source type
+ */
+public void testGetTypeQualifiedName6() {
+	IType type = getCompilationUnit("/P/src/X.java").getType("X");
+	assertEquals("X", type.getTypeQualifiedName('.'));
+}
+
+/*
+ * Ensures that getTypeQualifiedName() behaves correctly for a member type
+ */
+public void testGetTypeQualifiedName7() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X").getType("Member");
+	assertEquals("X.Member", type.getTypeQualifiedName('.'));
+}
+
+/*
+ * Ensures that getTypeQualifiedName() behaves correctly for a local type
+ */
+public void testGetTypeQualifiedName8() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X").getMethod("foo", new String[0]).getType("Local", 1);
+	assertEquals("X.Local", type.getTypeQualifiedName('.'));
 }
 /**
  * Ensures that correct number of types with the correct names and modifiers

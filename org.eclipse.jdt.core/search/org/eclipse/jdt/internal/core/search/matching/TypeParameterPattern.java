@@ -82,7 +82,7 @@ public class TypeParameterPattern extends JavaSearchPattern {
 		String relativePath;
 	    if (root.isArchive()) {
  	    	IType type = (IType) this.typeParameter.getAncestor(IJavaElement.TYPE);
-    	    relativePath = (type.getFullyQualifiedName('/')).replace('.', '/') + SuffixConstants.SUFFIX_STRING_class;
+    	    relativePath = (type.getFullyQualifiedName('$')).replace('.', '/') + SuffixConstants.SUFFIX_STRING_class;
 	        documentPath = root.getPath() + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + relativePath;
 	    } else {
 			IPath path = this.typeParameter.getPath();

@@ -48,7 +48,7 @@ public static Test suite() {
 
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	IJavaProject javaProject = createJavaProject("P");
+	IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {"JCL_LIB", "/P/lib"}, "");
 	String[] pathAndContents = new String[] {
 		"nongeneric/A.java",
 		"package nongeneric;\n" +
@@ -717,6 +717,70 @@ public void testDefaultValue4() throws JavaModelException {
 	assertMemberValuePairEquals(
 		"<null>",
 		method.getDefaultValue());
+}
+
+/*
+ * Ensures that getFullyQualifiedName() behaves correctly for a top level binary type
+ */
+public void testGetFullyQualifiedName1() {
+	IType type = getClassFile("/P/lib/p/X.class").getType();
+	assertEquals("p.X", type.getFullyQualifiedName());
+}
+
+/*
+ * Ensures that getFullyQualifiedName() behaves correctly for a top level binary type
+ */
+public void testGetFullyQualifiedName2() {
+	IType type = getClassFile("/P/lib/X.class").getType();
+	assertEquals("X", type.getFullyQualifiedName());
+}
+
+/*
+ * Ensures that getFullyQualifiedName() behaves correctly for a member type
+ */
+public void testGetFullyQualifiedName3() {
+	IType type = getClassFile("/P/lib/p/X$Member.class").getType();
+	assertEquals("p.X$Member", type.getFullyQualifiedName());
+}
+
+/*
+ * Ensures that getFullyQualifiedName() behaves correctly for a local type
+ */
+public void testGetFullyQualifiedName4() {
+	IType type = getClassFile("/P/lib/p/X$Local.class").getType();
+	assertEquals("p.X$Local", type.getFullyQualifiedName());
+}
+
+/*
+ * Ensures that getFullyQualifiedName('.') behaves correctly for a top level binary type
+ */
+public void testGetFullyQualifiedName5() {
+	IType type = getClassFile("/P/lib/p/X.class").getType();
+	assertEquals("p.X", type.getFullyQualifiedName('.'));
+}
+
+/*
+ * Ensures that getFullyQualifiedName('.') behaves correctly for a top level binary type
+ */
+public void testGetFullyQualifiedName6() {
+	IType type = getClassFile("/P/lib/X.class").getType();
+	assertEquals("X", type.getFullyQualifiedName('.'));
+}
+
+/*
+ * Ensures that getFullyQualifiedName() behaves correctly for a member type
+ */
+public void testGetFullyQualifiedName7() {
+	IType type = getClassFile("/P/lib/p/X$Member.class").getType();
+	assertEquals("p.X.Member", type.getFullyQualifiedName('.'));
+}
+
+/*
+ * Ensures that getFullyQualifiedName() behaves correctly for a local type
+ */
+public void testGetFullyQualifiedName8() {
+	IType type = getClassFile("/P/lib/p/X$Local.class").getType();
+	assertEquals("p.X.Local", type.getFullyQualifiedName('.'));
 }
 
 /*
