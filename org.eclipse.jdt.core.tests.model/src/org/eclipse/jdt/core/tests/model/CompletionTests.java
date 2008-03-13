@@ -1614,6 +1614,31 @@ public void testCompletionAfterCase4() throws JavaModelException {
 			"ZZZ1[FIELD_REF]{ZZZ1, Ltest.TestConstants;, I, ZZZ1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_QUALIFIED+ R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=222080
+public void testCompletionAfterEqualEqual1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterEqualEqual1.java",
+		"package test;\n" +
+		"public class CompletionAfterEqualEqual1 {\n" +
+		"	void foo(Object a){\n" +
+		"		Object zzvar1 = null;\n" +
+		"		int zzvar2 = 0;\n" +
+		"		if (a == zz) {}\n" +
+		"	}\n" +
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"zzvar1[LOCAL_VARIABLE_REF]{zzvar1, null, Ljava.lang.Object;, zzvar1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"zzvar2[LOCAL_VARIABLE_REF]{zzvar2, null, I, zzvar2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
 // supported case
 public void testCompletionAfterInstanceof01() throws JavaModelException {

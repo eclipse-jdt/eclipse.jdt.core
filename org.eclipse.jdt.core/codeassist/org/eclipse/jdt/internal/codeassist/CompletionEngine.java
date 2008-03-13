@@ -9028,6 +9028,9 @@ public final class CompletionEngine
 				}
 			} else if(parent instanceof BinaryExpression) {
 				switch(operator) {
+					case OperatorIds.EQUAL_EQUAL :
+						// expected type is not relevant in this case
+						break;
 					case OperatorIds.PLUS :
 						addExpectedType(TypeBinding.SHORT, scope);
 						addExpectedType(TypeBinding.INT, scope);
