@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -390,9 +390,15 @@ public interface IType extends IMember, IAnnotatable {
 	 * including qualification for any containing types and packages.
 	 * This is the name of the package, followed by <code>'.'</code>,
 	 * followed by the type-qualified name.
+	 * <p>
+	 * <b>Note</b>: The enclosing type separator used in the type-qualified
+	 * name is <code>'$'</code>, not <code>'.'</code>.
+	 * </p>
+	 * This method is fully equivalent to <code>getFullyQualifiedName('$')</code>.
 	 * This is a handle-only method.
 	 *
 	 * @see IType#getTypeQualifiedName()
+	 * @see IType#getFullyQualifiedName(char)
 	 * @return the fully qualified name of this type
 	 */
 	String getFullyQualifiedName();
@@ -655,10 +661,12 @@ public interface IType extends IMember, IAnnotatable {
 	 * but not including package qualification.
 	 * For source types, this consists of the simple names of any enclosing types, 
 	 * separated by <code>'$'</code>, followed by the simple name of this type
-	 * or the occurence count of this type if it is anonymous.
+	 * or the occurrence count of this type if it is anonymous.
 	 * For binary types, this is the name of the class file without the ".class" suffix.
+	 * This method is fully equivalent to <code>getTypeQualifiedName('$')</code>.
 	 * This is a handle-only method.
 	 * 
+	 * @see #getTypeQualifiedName(char)
 	 * @return the type-qualified name of this type
 	 */
 	String getTypeQualifiedName();
