@@ -1045,6 +1045,11 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 	// Internal use only - use findMethod()
 	public MethodBinding findMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
+		return findMethod(receiverType, selector, argumentTypes, invocationSite, false);
+	}
+
+	// Internal use only - use findMethod()
+	public MethodBinding findMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite, boolean inStaticContext) {
 		ReferenceBinding currentType = receiverType;
 		boolean receiverTypeIsInterface = receiverType.isInterface();
 		ObjectVector found = new ObjectVector(3);
@@ -1255,6 +1260,18 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						}
 					}
 			}
+		}
+
+		if (inStaticContext) {
+			MethodBinding[] staticCandidates = new MethodBinding[visiblesCount];
+			int staticCount = 0;
+			for (int i = 0; i < visiblesCount; i++)
+				if (candidates[i].isStatic())
+					staticCandidates[staticCount++] = candidates[i];
+			if (staticCount == 1)
+				return staticCandidates[0];
+			if (staticCount > 1)
+				return mostSpecificMethodBinding(staticCandidates, staticCount, argumentTypes, invocationSite, receiverType);
 		}
 
 		MethodBinding mostSpecificMethod = mostSpecificMethodBinding(candidates, visiblesCount, argumentTypes, invocationSite, receiverType);
@@ -1909,13 +1926,13 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						if (importBinding.onDemand) {
 							if (!skipOnDemand && resolvedImport instanceof ReferenceBinding)
 								// answers closest approximation, may not check argumentTypes or visibility
-								possible = findMethod((ReferenceBinding) resolvedImport, selector, argumentTypes, invocationSite);
+								possible = findMethod((ReferenceBinding) resolvedImport, selector, argumentTypes, invocationSite, true);
 						} else {
 							if (resolvedImport instanceof MethodBinding) {
 								MethodBinding staticMethod = (MethodBinding) resolvedImport;
 								if (CharOperation.equals(staticMethod.selector, selector))
 									// answers closest approximation, may not check argumentTypes or visibility
-									possible = findMethod(staticMethod.declaringClass, selector, argumentTypes, invocationSite);
+									possible = findMethod(staticMethod.declaringClass, selector, argumentTypes, invocationSite, true);
 							} else if (resolvedImport instanceof FieldBinding) {
 								// check to see if there are also methods with the same name
 								FieldBinding staticField = (FieldBinding) resolvedImport;
@@ -1925,7 +1942,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 									TypeBinding referencedType = getType(importName, importName.length - 1);
 									if (referencedType != null)
 										// answers closest approximation, may not check argumentTypes or visibility
-										possible = findMethod((ReferenceBinding) referencedType, selector, argumentTypes, invocationSite);
+										possible = findMethod((ReferenceBinding) referencedType, selector, argumentTypes, invocationSite, true);
 								}
 							}
 						}

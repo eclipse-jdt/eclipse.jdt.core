@@ -2099,5 +2099,27 @@ public class StaticImportTest extends AbstractComparableTest {
 				"	                   ^^^^\n" + 
 				"The method getZ() is undefined for the type X<T>\n" + 
 				"----------\n");		
-		}		
+		}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216930
+	public void test058() {
+		this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"import static p.A.a;\n" + 
+				"public class X {\n" + 
+				"   void foo(W w) { a(w).a(w); }\n" + 
+				"}\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A {\n" + 
+				"   public static A a(W... w) { return null; }\n" + 
+				"   public A a(W w) { return null; }\n" + 
+				"}\n",
+				"p/W.java",
+				"package p;\n" + 
+				"public class W {}\n"
+			},
+			"");		
+		}
 }
