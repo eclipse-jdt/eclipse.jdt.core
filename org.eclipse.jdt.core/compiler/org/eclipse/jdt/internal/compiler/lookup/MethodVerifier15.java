@@ -123,9 +123,10 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 			}
 		}
 		// check whether bridge method is already defined above for interface methods
-		if (originalInherited.declaringClass.isInterface()
-				&& this.type.superclass.erasure().findSuperTypeOriginatingFrom(originalInherited.declaringClass) == null) {
-			this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod.original());
+		if (originalInherited.declaringClass.isInterface()) {
+			if ((concreteMethod.declaringClass == this.type.superclass && this.type.superclass.isParameterizedType())
+				|| this.type.superclass.erasure().findSuperTypeOriginatingFrom(originalInherited.declaringClass) == null)
+					this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod.original());
 		}
 	}
 }
@@ -703,7 +704,7 @@ boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBindin
 	inheritedMethod = computeSubstituteMethod(inheritedMethod, existingMethod);
 	return inheritedMethod != null
 		&& inheritedMethod.returnType == existingMethod.returnType // keep around to produce bridge methods
-		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
+		&& doesMethodOverride(existingMethod, inheritedMethod);
 }
 public boolean isMethodSubsignature(MethodBinding method, MethodBinding inheritedMethod) {
 	if (!org.eclipse.jdt.core.compiler.CharOperation.equals(method.selector, inheritedMethod.selector))
