@@ -515,8 +515,7 @@ int internalKind() throws JavaModelException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	PackageFragmentRootInfo info = (PackageFragmentRootInfo) manager.peekAtInfo(this);
 	if (info == null) {
-		// default to regular getKind()
-		return getKind();
+		info = (PackageFragmentRootInfo) openWhenClosed(createElementInfo(), null);
 	}
 	return info.getRootKind();
 }
