@@ -48,7 +48,7 @@ Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
 <h2>What's new in this drop</h2>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=">219625</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=219625">219625</a>
 [1.5][compiler] Generics related AbstractMethodError that is not given by Sun Java
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=216930">216930</a>
 [1.5][compiler] Wrong compiler error when using static method with same signature as non static one but with variable arguments
@@ -283,7 +283,6 @@ pattern (see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=221130">bug 2
  */
 int INSTANCEOF_TYPE_REFERENCE = 0x100000;
 </pre>
-</p>
 </li>
 </ul>
 
@@ -867,9 +866,9 @@ int CATCH_TYPE_REFERENCE = 0x1000;
  *
  * Searching references to the type <code>Test</code> using this flag in the
  * above snippet will match only the reference in italic.
- * </p><p>
+ * 
  * Note that array creations are not returned when using this flag.
- * </p>
+ * 
  * @since 3.4
  * @category limitTo
  */
@@ -1004,7 +1003,6 @@ int THIS_REFERENCE = 0x4000000;
  */
 int IMPLICIT_THIS_REFERENCE = 0x8000000;
 </pre>
-</p>
 </li>
 <li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=209642">bug 209642</a> required the index version to be incremented. 
     Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress 
