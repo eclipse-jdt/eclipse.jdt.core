@@ -79,6 +79,7 @@
  *                                 COMPILER_PB_REDUNDANT_SUPERINTERFACE
  *     IBM Corporation - added the following constant:
  *                                 COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE
+ *     IBM Corporation - added getOptionForConfigurableSeverity(int)
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -117,6 +118,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -124,6 +126,7 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
@@ -3128,6 +3131,23 @@ public final class JavaCore extends Plugin {
 		return JavaModelManager.getJavaModelManager().getOption(optionName);
 	}
 
+	/**
+	 * Returns the option that can be used to configure the severity of the 
+	 * compiler problem identified by problemID if any, null otherwise. Non-null 
+	 * return values are taken from the constants defined by this class which 
+	 * names start with COMPILER_PB and for which the possible values of the 
+	 * option are defined by <code>{ "error", "warning", "ignore" }</code>. A 
+	 * null return value means that the problemID is unknown or that it matches 
+	 * a problem which severity cannot be configured.
+	 * @param problemID one of the problem IDs defined by {@link IProblem}
+	 * @return the option that can be used to configure the severity of the 
+	 *         compiler problem identified by problemID if any, null otherwise
+	 * @since 3.4
+	 */
+	public static String getOptionForConfigurableSeverity(int problemID) {
+		return CompilerOptions.optionKeyFromIrritant(ProblemReporter.getIrritant(problemID));
+	}
+	
 	/**
 	 * Returns the table of the current options. Initially, all options have their default values,
 	 * and this method returns a table that includes all known options.

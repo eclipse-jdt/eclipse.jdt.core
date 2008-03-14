@@ -46,9 +46,32 @@ Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
 <br>Project org.eclipse.jdt.core v_845
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_845">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Added new API <code>org.eclipse.jdt.core.JavaCore#getOptionForConfigurableSeverity(int)</code>
+    to link back problem IDs to options that configure problems:<br>
+<pre>
+	/**
+	 * Returns the option that can be used to configure the severity of the 
+	 * compiler problem identified by problemID if any, null otherwise. Non-null 
+	 * return values are taken from the constants defined by this class which 
+	 * names start with COMPILER_PB and for which the possible values of the 
+	 * option are defined by <code>{ "error", "warning", "ignore" }</code>. A 
+	 * null return value means that the problemID is unknown or that it matches 
+	 * a problem which severity cannot be configured.
+	 * @param problemID one of the problem IDs defined by {@link IProblem}
+	 * @return the option that can be used to configure the severity of the 
+	 *         compiler problem identified by problemID if any, null otherwise
+	 * @since 3.4
+	 */
+	public static String getOptionForConfigurableSeverity(int problemID) {...}
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=219625">219625</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=218603">218603</a>
+[api] provide a mapping from problem id to preference key
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=219625">219625</a>
 [1.5][compiler] Generics related AbstractMethodError that is not given by Sun Java
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=216930">216930</a>
 [1.5][compiler] Wrong compiler error when using static method with same signature as non static one but with variable arguments
