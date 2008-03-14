@@ -433,7 +433,8 @@ public interface IType extends IMember, IAnnotatable {
 	String getFullyQualifiedName(char enclosingTypeSeparator);
 	
 	/**
-	 * Returns this type's fully qualified name followed by its type parameters between angle brakets if it is a generic type.
+	 * Returns this type's fully qualified name using a '.' enclosing type separator 
+	 * followed by its type parameters between angle brackets if it is a generic type.
 	 * For example, "p.X&lt;T&gt;", "java.util.Map&lt;java.lang.String, p.X&gt;"
 	 * 
 	 * @exception JavaModelException if this element does not exist or if an

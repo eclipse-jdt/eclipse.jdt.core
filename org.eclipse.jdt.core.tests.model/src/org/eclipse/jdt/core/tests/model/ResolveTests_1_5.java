@@ -12,8 +12,11 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.*;
 
@@ -2552,5 +2555,59 @@ public void test0112() throws CoreException {
 			"arg [in m(int) [in T [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
 			elements
 		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=222458
+public void test0113() throws JavaModelException {
+	ICompilationUnit definition = null;
+	try {
+		definition = getWorkingCopy(
+			"/Resolve/src2/test0113/Test.java",
+			"package test0113;\n" +
+			"public class Test {\n" +
+			"  class Member<T> {\n" +
+			"  }\n" +
+			"}",
+			this.wcOwner
+		);
+		IJavaElement[] elements = select(
+				"/Resolve/src2/test0113/Test2.java",
+				"package test0113;\n" +
+				"public class Test2 {\n" +
+				"  Test.Member<String> field;\n" +
+				"}",
+				"Member");
+		assertEquals("test0113.Test.Member<java.lang.String>", ((IType)elements[0]).getFullyQualifiedParameterizedName());
+	} finally {
+		if (definition != null)
+			definition.discardWorkingCopy();
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=222458
+public void test0114() throws Exception {
+	IResource rootResource = getPackageFragmentRoot("Resolve", "/Resolve/class-folder").getResource();
+	IPath rootLocation = rootResource.getLocation();
+	try {
+		Util.createClassFolder(new String[] {
+			"test0114/Test.java",
+			"package test0114;\n" +
+			"public class Test {\n" +
+			"  class Member<T> {\n" +
+			"  }\n" +
+			"}"
+			},
+			rootLocation.toOSString(),
+			"1.5");
+		rootResource.refreshLocal(IResource.DEPTH_INFINITE, null);
+		IJavaElement[] elements = select(
+				"/Resolve/src2/test0114/Test2.java",
+				"package test0114;\n" +
+				"public class Test2 {\n" +
+				"  Test.Member<String> field;\n" +
+				"}",
+				"Member");
+		assertEquals("test0114.Test.Member<java.lang.String>", ((IType)elements[0]).getFullyQualifiedParameterizedName());
+	} finally {
+		deleteFile(rootLocation.append("test0114").toFile());
+	}
 }
 }

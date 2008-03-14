@@ -42,7 +42,7 @@ public class AssistSourceType extends ResolvedSourceType {
 	
 	public String getFullyQualifiedParameterizedName() throws JavaModelException {
 		if (this.isResolved()) {
-			return getFullyQualifiedParameterizedName(getFullyQualifiedName(), this.getKey());
+			return getFullyQualifiedParameterizedName(getFullyQualifiedName('.'), this.getKey());
 		}
 		return getFullyQualifiedName('.', true/*show parameters*/);
 	}

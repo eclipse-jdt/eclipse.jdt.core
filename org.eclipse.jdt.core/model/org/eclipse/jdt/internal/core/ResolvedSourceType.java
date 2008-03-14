@@ -29,7 +29,7 @@ public class ResolvedSourceType extends SourceType {
 	}
 	
 	public String getFullyQualifiedParameterizedName() throws JavaModelException {
-		return getFullyQualifiedParameterizedName(getFullyQualifiedName(), this.uniqueKey);
+		return getFullyQualifiedParameterizedName(getFullyQualifiedName('.'), this.uniqueKey);
 	}
 	
 	/* (non-Javadoc)
