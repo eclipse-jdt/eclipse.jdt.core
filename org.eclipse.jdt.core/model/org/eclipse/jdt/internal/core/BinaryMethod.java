@@ -251,19 +251,8 @@ public String[] getParameterNames() throws JavaModelException {
 			try {
 				javadocContents = extractJavadoc(declaringType, javadocContents);
 			} catch(JavaModelException e) {
-				// ignore
+				javadocContents = null;
 			}
-		} else {
-			// let's see if we can retrieve them from the debug infos
-			char[][] argumentNames = info.getArgumentNames();
-			if (argumentNames != null && argumentNames.length == paramCount) {
-				String[] names = new String[paramCount];
-				for (int i = 0; i < paramCount; i++) {
-					names[i] = new String(argumentNames[i]);
-				}
-				return this.parameterNames = names;
-			}
-			return getRawParameterNames(paramCount);
 		}
 		if (javadocContents != null && javadocContents != BinaryType.EMPTY_JAVADOC) {
 			final int indexOfOpenParen = javadocContents.indexOf('(');
@@ -651,8 +640,7 @@ private String extractJavadoc(IType declaringType, String contents) throws JavaM
 		indexOfBottom = contents.indexOf(JavadocConstants.END_OF_CLASS_DATA, indexOfEndLink);
 	}
 	if (indexOfBottom == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
-	indexOfNextMethod = Math.min(indexOfNextMethod, indexOfBottom);
-	if (indexOfNextMethod == -1) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this));
+	indexOfNextMethod = indexOfNextMethod == -1 ? indexOfBottom : Math.min(indexOfNextMethod, indexOfBottom);
 	return contents.substring(indexOfEndLink + JavadocConstants.ANCHOR_SUFFIX_LENGTH, indexOfNextMethod);
 }
 }

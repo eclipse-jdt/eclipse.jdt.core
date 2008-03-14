@@ -35,6 +35,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 public class AttachedJavadocTests extends ModifyingResourceTests {
+	private static final String DEFAULT_DOC_FOLDER = "doc";
+	
 	static {
 //		TESTS_NAMES = new String[] { "test010" };
 //		TESTS_NUMBERS = new int[] { 20 };
@@ -52,18 +54,9 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		super(name);
 	}
 
-	/**
-	 * Create project and set the jar placeholder.
-	 */
-	public void setUpSuite() throws Exception {
-		super.setUpSuite();
-
-		this.project = setUpJavaProject("AttachedJavadocProject", "1.5"); //$NON-NLS-1$
-		Map options = this.project.getOptions(true);
-		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "2000"); //$NON-NLS-1$
-		this.project.setOptions(options);
+	private void setJavadocLocationAttribute(String folderName) throws JavaModelException {
 		IClasspathEntry[] entries = this.project.getRawClasspath();
-		IResource resource = this.project.getProject().findMember("/doc/"); //$NON-NLS-1$
+		IResource resource = this.project.getProject().findMember("/"+folderName+"/"); //$NON-NLS-1$
 		assertNotNull("doc folder cannot be null", resource); //$NON-NLS-1$
 		URI locationURI = resource.getLocationURI();
 		assertNotNull("doc folder cannot be null", locationURI); //$NON-NLS-1$
@@ -85,6 +78,18 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			}
 		}
 		this.project.setRawClasspath(entries, null);
+	}
+	/**
+	 * Create project and set the jar placeholder.
+	 */
+	public void setUpSuite() throws Exception {
+		super.setUpSuite();
+
+		this.project = setUpJavaProject("AttachedJavadocProject", "1.5"); //$NON-NLS-1$
+		Map options = this.project.getOptions(true);
+		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "2000"); //$NON-NLS-1$
+		this.project.setOptions(options);
+		this.setJavadocLocationAttribute(DEFAULT_DOC_FOLDER);
 
 		IPackageFragmentRoot[] roots = this.project.getAllPackageFragmentRoots();
 		int count = 0;
@@ -503,5 +508,31 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertEquals("Wrong size", 2, paramNames.length); //$NON-NLS-1$
 		assertEquals("Wrong name", "arg0", paramNames[0]); //$NON-NLS-1$
 		assertEquals("Wrong name", "arg1", paramNames[1]); //$NON-NLS-1$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=221723
+	// for a method
+	public void test023() throws JavaModelException {
+		try {
+			this.setJavadocLocationAttribute("specialDoc");
+			
+			IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
+			assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
+			IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
+			assertNotNull(classFile);
+			IType type = classFile.getType();
+			IMethod method = type.getMethod("foo", new String[] {"I", "J", "Ljava.lang.String;"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			assertTrue(method.exists());
+			String javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+			assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
+			String[] paramNames = method.getParameterNames();
+			assertNotNull(paramNames);
+			assertEquals("Wrong size", 3, paramNames.length); //$NON-NLS-1$
+			assertEquals("Wrong name for first param", "i", paramNames[0]); //$NON-NLS-1$ //$NON-NLS-2$
+			assertEquals("Wrong name for second param", "l", paramNames[1]); //$NON-NLS-1$ //$NON-NLS-2$
+			assertEquals("Wrong name for third param", "s", paramNames[2]); //$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			this.setJavadocLocationAttribute(DEFAULT_DOC_FOLDER);
+		}
 	}
 }
