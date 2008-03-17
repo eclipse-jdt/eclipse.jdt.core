@@ -106,10 +106,10 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 						verbose_update_project(affectedProject);
 		
 					// force resolved classpath to be recomputed
-					affectedProject.getPerProjectInfo().resetResolvedClasspath();
+					ClasspathChange classpathChange = affectedProject.getPerProjectInfo().resetResolvedClasspath();
 					
 					// if needed, generate delta, update project ref, create markers, ...
-					classpathChanged(affectedProject);
+					classpathChanged(classpathChange);
 					
 					if (this.canChangeResources) {
 						// touch project to force a build if needed

@@ -1411,7 +1411,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				// set classpath and output location
 				JavaProject javaProject = (JavaProject) JavaCore.create(project);
 				if (simulateImport)
-					javaProject.saveClasspath(entries, projectPath.append(outputPath));
+					javaProject.writeFileEntries(entries, projectPath.append(outputPath));
 				else
 					javaProject.setRawClasspath(entries, projectPath.append(outputPath), monitor);
 				

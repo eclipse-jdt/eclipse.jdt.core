@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 
 /**
  * This operation sets an <code>IJavaProject</code>'s classpath.
@@ -50,13 +51,14 @@ public class SetClasspathOperation extends ChangeClasspathOperation {
 		checkCanceled();
 		try {
 			// set raw classpath and null out resolved info
-			this.project.getPerProjectInfo().setClasspath(this.newRawClasspath, this.newOutputLocation, JavaModelStatus.VERIFIED_OK/*format is ok*/, null, null, null, null);
+			PerProjectInfo perProjectInfo = this.project.getPerProjectInfo();
+			ClasspathChange classpathChange = perProjectInfo.setClasspath(this.newRawClasspath, this.newOutputLocation, JavaModelStatus.VERIFIED_OK/*format is ok*/, null, null, null, null);
 			
 			// if needed, generate delta, update project ref, create markers, ...
-			classpathChanged(this.project);
+			classpathChanged(classpathChange);
 			
 			// write .classpath file
-			if (this.canChangeResources && this.project.saveClasspath(this.newRawClasspath, this.newOutputLocation))
+			if (this.canChangeResources && perProjectInfo.writeAndCacheClasspath(this.project, this.newRawClasspath, this.newOutputLocation))
 				setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
 		} finally {		
 			done();

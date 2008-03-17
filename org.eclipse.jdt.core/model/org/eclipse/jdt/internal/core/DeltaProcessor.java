@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
@@ -458,12 +459,7 @@ public class DeltaProcessor {
 							// force to (re)read the .classpath file
 							// in case of removal (IResourceDelta.REMOVED) this will reset the classpath to its default and create the right delta
 							// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=211290)
-							try {
-								javaProject.getPerProjectInfo().readAndCacheClasspath(javaProject);
-							} catch (JavaModelException e) {
-								// project doesn't exist
-								return;
-							}
+							readRawClasspath(javaProject);
 							break;
 					}
 					this.state.rootsAreStale = true;
@@ -489,9 +485,11 @@ public class DeltaProcessor {
 	}
 
 	private void readRawClasspath(JavaProject javaProject) {
+		// force to (re)read the .classpath file
 		try {
-			// force to (re)read the .classpath file
-			javaProject.getPerProjectInfo().readAndCacheClasspath(javaProject);
+			PerProjectInfo perProjectInfo = javaProject.getPerProjectInfo();
+			if (!perProjectInfo.writtingRawClasspath) // to avoid deadlock, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=221680
+				perProjectInfo.readAndCacheClasspath(javaProject);
 		} catch (JavaModelException e) {	
 			if (VERBOSE) {
 				e.printStackTrace();

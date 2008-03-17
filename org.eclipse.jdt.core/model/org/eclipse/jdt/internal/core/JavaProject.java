@@ -2628,7 +2628,7 @@ public class JavaProject
 	}
 
 	/**
-	 * Saves the classpath in a shareable format (VCM-wise) only when necessary, that is, if  it is semantically different
+	 * Writes the classpath in a sharable format (VCM-wise) only when necessary, that is, if  it is semantically different
 	 * from the existing one in file. Will never write an identical one.
 	 * 
 	 * @param newClasspath IClasspathEntry[]
@@ -2636,7 +2636,7 @@ public class JavaProject
 	 * @return boolean Return whether the .classpath file was modified.
 	 * @throws JavaModelException
 	 */
-	public boolean saveClasspath(IClasspathEntry[] newClasspath, IPath newOutputLocation) throws JavaModelException {
+	public boolean writeFileEntries(IClasspathEntry[] newClasspath, IPath newOutputLocation) throws JavaModelException {
 
 		if (!this.project.isAccessible()) return false;
 

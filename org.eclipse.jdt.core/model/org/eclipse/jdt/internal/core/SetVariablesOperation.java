@@ -141,10 +141,10 @@ public class SetVariablesOperation extends ChangeClasspathOperation {
 						// force resolved classpath to be recomputed
 						if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
 							verbose_update_project(dbgVariableNames, affectedProject);
-						affectedProject.getPerProjectInfo().resetResolvedClasspath();
+						ClasspathChange classpathChange = affectedProject.getPerProjectInfo().resetResolvedClasspath();
 						
 						// if needed, generate delta, update project ref, create markers, ...
-						classpathChanged(affectedProject);
+						classpathChanged(classpathChange);
 
 						if (this.canChangeResources) {
 							// touch project to force a build if needed

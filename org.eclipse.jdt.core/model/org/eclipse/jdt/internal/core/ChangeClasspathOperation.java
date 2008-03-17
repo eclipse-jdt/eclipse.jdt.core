@@ -39,14 +39,12 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 	 * - update project references
 	 * - create resolved classpath markers
 	 */
-	protected void classpathChanged(JavaProject project) throws JavaModelException {
+	protected void classpathChanged(ClasspathChange change) throws JavaModelException {
 		// reset the project's caches early since some clients rely on the project's caches being up-to-date when run inside an IWorkspaceRunnable
 		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=212769#c5 )
+		JavaProject project = change.project;
 		project.resetCaches();
 		
-		DeltaProcessingState state = JavaModelManager.getDeltaState();
-		DeltaProcessor deltaProcessor = state.getDeltaProcessor();
-		ClasspathChange change = (ClasspathChange) deltaProcessor.classpathChanges.get(project.getProject());
 		if (this.canChangeResources) {
 			// workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=177922
 			if (isTopLevelOperation() && !ResourcesPlugin.getWorkspace().isTreeLocked()) {
@@ -64,6 +62,7 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 			new ExternalFolderChange(project, change.oldResolvedClasspath).updateExternalFoldersIfNecessary(true/*refresh if external linked folder already exists*/, null);
 			
 		} else {
+			DeltaProcessingState state = JavaModelManager.getDeltaState();
 			JavaElementDelta delta = new JavaElementDelta(getJavaModel());
 			int result = change.generateDelta(delta);
 			if ((result & ClasspathChange.HAS_DELTA) != 0) {

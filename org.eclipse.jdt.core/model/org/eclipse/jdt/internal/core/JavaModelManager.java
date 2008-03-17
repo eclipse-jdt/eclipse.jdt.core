@@ -1015,6 +1015,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public boolean triedRead;
 		public IClasspathEntry[] rawClasspath;
 		public IJavaModelStatus rawClasspathStatus;
+		public boolean writtingRawClasspath = false;
 		public IClasspathEntry[] resolvedClasspath;
 		public IJavaModelStatus unresolvedEntryStatus;
 		public Map rootPathToRawEntries; // reverse map from a package fragment root's path to the raw entry
@@ -1053,16 +1054,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 		}
 		
-		public synchronized void resetResolvedClasspath() {
+		public synchronized ClasspathChange resetResolvedClasspath() {
 			// null out resolved information
-			setClasspath(this.rawClasspath, this.outputLocation, this.rawClasspathStatus, null, null, null, null);
+			return setClasspath(this.rawClasspath, this.outputLocation, this.rawClasspathStatus, null, null, null, null);
 		}
 		
-		public synchronized void setClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus, IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries, Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus) {
+		public synchronized ClasspathChange setClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus, IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries, Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus) {
 			// remember old info
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			DeltaProcessor deltaProcessor = manager.deltaState.getDeltaProcessor();
-			deltaProcessor.addClasspathChange(this.project, this.rawClasspath, this.outputLocation, this.resolvedClasspath);
+			ClasspathChange classpathChange = deltaProcessor.addClasspathChange(this.project, this.rawClasspath, this.outputLocation, this.resolvedClasspath);
 			
 			this.rawClasspath = newRawClasspath;
 			this.outputLocation = newOutputLocation;
@@ -1072,12 +1073,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.rootPathToResolvedEntries = newRootPathToResolvedEntries;
 			this.unresolvedEntryStatus = newUnresolvedEntryStatus;
 			this.javadocCache = new LRUCache(JAVADOC_CACHE_INITIAL_SIZE);
+			
+			return classpathChange;
 		}
 		
-		/*
-		 * Reads the raw classpath and output location from disk, and remember them.
-		 * Return the raw classpath, or JavaProject#INVALID_CLASSPATH if unable to read it.
-		 */
 		public synchronized IClasspathEntry[] readAndCacheClasspath(JavaProject javaProject) {
 			// read file entries and update status
 			IClasspathEntry[] classpath;
@@ -1161,6 +1160,39 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				buffer.append(this.outputLocation);
 			}
 			return buffer.toString();
+		}
+		
+		public boolean writeAndCacheClasspath(final JavaProject javaProject, final IClasspathEntry[] newRawClasspath, final IPath newOutputLocation) throws JavaModelException {
+			final boolean[] result = new boolean[1];
+			try {
+				// use a workspace runnable so that the notification of .classpath file change is done outside the synchronized block (to avoid deadlocks)
+				IWorkspace workspace = 	ResourcesPlugin.getWorkspace();
+				workspace.run(new IWorkspaceRunnable() {
+					public void run(IProgressMonitor monitor) throws CoreException {
+						// ensure that the writing of the .classpath file and the caching in memory are synchronized (see also readAnCacheClasspath which is synchronized)
+						try {
+							PerProjectInfo.this.writtingRawClasspath = true;
+							synchronized (PerProjectInfo.this) {
+								if (!javaProject.writeFileEntries(newRawClasspath, newOutputLocation)) {
+									result[0] = false;
+									return;
+								}
+								// store new raw classpath, new output and new status, and null out resolved info
+								setClasspath(newRawClasspath, newOutputLocation, JavaModelStatus.VERIFIED_OK, null, null, null, null);
+								result[0] = true;
+							}
+						} finally {
+							PerProjectInfo.this.writtingRawClasspath = false;
+						}
+					}
+				}, 
+				this.project, // use project scheduling rule as this is needed to create the .classpath file if it doesn't exist yet
+				IWorkspace.AVOID_UPDATE,
+				null);
+			} catch (CoreException e) {
+				Util.log(e, "Exception while writing the .classpath file for " + javaProject); //$NON-NLS-1$
+			}
+			return result[0];
 		}
 	}
 	
