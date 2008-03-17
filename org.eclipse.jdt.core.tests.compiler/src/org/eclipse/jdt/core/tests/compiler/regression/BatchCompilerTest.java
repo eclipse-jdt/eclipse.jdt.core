@@ -170,17 +170,19 @@ private String getLibraryClassesAsQuotedString() {
 			if (!outputDirectory.isDirectory()) {
 				outputDirectory.mkdirs();
 			}
-			PrintWriter sourceFileWriter;
-			for (int i = 0; i < testFiles.length; i += 2) {
-				String fileName = OUTPUT_DIR + File.separator + testFiles[i];
-				File file = new File(fileName), innerOutputDirectory = file
-						.getParentFile();
-				if (!innerOutputDirectory.isDirectory()) {
-					innerOutputDirectory.mkdirs();
+			if (testFiles != null) {
+				PrintWriter sourceFileWriter;
+				for (int i = 0; i < testFiles.length; i += 2) {
+					String fileName = OUTPUT_DIR + File.separator + testFiles[i];
+					File file = new File(fileName), innerOutputDirectory = file
+							.getParentFile();
+					if (!innerOutputDirectory.isDirectory()) {
+						innerOutputDirectory.mkdirs();
+					}
+					sourceFileWriter = new PrintWriter(new FileOutputStream(file));
+					sourceFileWriter.write(testFiles[i + 1]);
+					sourceFileWriter.close();
 				}
-				sourceFileWriter = new PrintWriter(new FileOutputStream(file));
-				sourceFileWriter.write(testFiles[i + 1]);
-				sourceFileWriter.close();
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -230,11 +232,13 @@ private String getLibraryClassesAsQuotedString() {
 		}
 		if (compileOK != shouldCompileOK || !compareOK) {
 			System.out.println(getClass().getName() + '#' + getName());
-			for (int i = 0; i < testFiles.length; i += 2) {
-				System.out.print(testFiles[i]);
-				System.out.println(" [");
-				System.out.println(testFiles[i + 1]);
-				System.out.println("]");
+			if (testFiles != null) {
+				for (int i = 0; i < testFiles.length; i += 2) {
+					System.out.print(testFiles[i]);
+					System.out.println(" [");
+					System.out.println(testFiles[i + 1]);
+					System.out.println("]");
+				}
 			}
 		}
 		if (compileOK != shouldCompileOK)
@@ -1699,7 +1703,7 @@ public void test019(){
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - repeated -sourcepath fails - even if the error is more
 // explicit here than what javac does
-	public void test022(){
+	public void test022_repeated_sourcepath(){
 		this.runNegativeTest(
 			new String[] {
 					"src1/X.java",
@@ -8349,5 +8353,333 @@ public void test229_warn_options() {
 		"----------\n" + 
 		"1 problem (1 warning)",
 		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// .java/.class files precedence depending on sourcepath
+// different from javac: we select sourcepath over classpath, while javac
+// does the opposite
+public void test230_sourcepath_vs_classpath() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
+		"[reading    java/lang/Object.class]\n" + 
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
+		"[writing    X.class - #1]\n" + 
+		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
+		"[1 unit compiled]\n" + 
+		"[1 .class file generated]\n",
+		"",
+		true);
+	// ensure that class file is newer than source file (some file systems
+	// store the modification time at a second precision)
+	File sourceFile = new File(OUTPUT_DIR + File.separator + "X.java"),
+	  classFile = new File(OUTPUT_DIR + File.separator + "X.class");
+	while (classFile.lastModified() <= sourceFile.lastModified()) {
+		runConformTest(
+			null,
+			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+			+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"",
+			false);
+	}
+	// compile with classpath only: X.class gets selected
+	runConformTest(
+		new String[] {
+			"Y.java",
+			"public class Y {\n" +
+			"  X x;\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+		+ " -classpath \"" + OUTPUT_DIR + "\""
+		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[reading    java/lang/Object.class]\n" + 
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[reading    X.class]\n" + 
+		"[writing    Y.class - #1]\n" + 
+		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[1 unit compiled]\n" + 
+		"[1 .class file generated]\n",
+		"",
+		false);
+	// compile with sourcepath and classpath: X.java is preferred
+	// this matches -Xprefer:source option of javac - except that
+	// javac then does it for classpath too; by default, javac would select
+	// X.class
+	runConformTest(
+		null,
+		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+		+ " -classpath \"" + OUTPUT_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[reading    java/lang/Object.class]\n" + 
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #2/2]\n" + 
+		"[writing    Y.class - #1]\n" + 
+		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/2]\n" + 
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #2/2]\n" + 
+		"[writing    X.class - #2]\n" + 
+		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #2/2]\n" + 
+		"[2 units compiled]\n" + 
+		"[2 .class files generated]\n",
+		"",
+		false);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// .java/.class files precedence depending on sourcepath
+// different from javac: we select sourcepath over classpath, while javac
+// does the opposite
+// here, class file is newer than source file
+public void test231_sourcepath_vs_classpath() {
+	runConformTest(
+		new String[] {
+			"src1/X.java",
+			"public class X {\n" +
+			"}\n",
+			"src2/X.java",
+			"public class X {\n" +
+			"  Zork error;\n" +
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src1" + File.separator + "X.java\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1\"",
+		"",
+		"",
+		true);
+	// sourcepath preferred over classpath
+	runTest(
+		false /* shouldCompileOK */,
+		new String[] { /* testFiles */
+			"Y.java",
+			"public class Y {\n" +
+			"  X x;\n" +
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1\""
+		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"" /* expectedOutOutputString */,
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java (at line 2)\n" + 
+		"	Zork error;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"1 problem (1 error)" /* expectedErrOutputString */,
+		false /* shouldFlushOutputDirectory */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// .java/.class files precedence depending on sourcepath
+// different from javac: we select sourcepath over classpath, while javac
+// does the opposite
+// here, class file is older than source file (but javac still select class 
+// file)
+public void test232_sourcepath_vs_classpath() {
+	runConformTest(
+		new String[] {
+			"src1/X.java",
+			"public class X {\n" +
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src1" + File.separator + "X.java\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1\"",
+		"",
+		"",
+		true);
+	// sourcepath preferred over classpath
+	runTest(
+		false /* shouldCompileOK */,
+		new String[] { /* testFiles */
+			"Y.java",
+			"public class Y {\n" +
+			"  X x;\n" +
+			"}\n",
+			"src2/X.java",
+			"public class X {\n" +
+			"  Zork error;\n" +
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1\""
+		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"" /* expectedOutOutputString */,
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java (at line 2)\n" + 
+		"	Zork error;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"1 problem (1 error)" /* expectedErrOutputString */,
+		false /* shouldFlushOutputDirectory */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// different from javac: repeated -classpath concatenate entries, while javac 
+// only only keeps the last one (and swallows the others silently)
+// see also test#22 for repeated sourcepath: we emit an error while javac
+// keeps the last one
+public void test233_repeated_classpath() {
+	String expectedLog =
+		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[reading    java/lang/Object.class]\n" + 
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
+		"[writing    Y.class - #1]\n" + 
+		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/2]\n" + 
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
+		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
+		"[2 units compiled]\n" + 
+		"[1 .class file generated]\n";
+	runConformTest(
+		new String[] {
+			"src1/X.java",
+			"public class X {\n" +
+			"}\n",
+			"src2/X.java",
+			"public class X {\n" +
+			"  Zork error;\n" +
+			"}\n",
+			"Y.java",
+			"public class Y {\n" +
+			"  X x;\n" +
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src1[-d none]\""
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src2\""
+		+ " -verbose -proc:none",
+		expectedLog,
+		"",
+		true);
+	runConformTest(
+		null,
+		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src1[-d none]\""
+		+ File.pathSeparator + "\"" + OUTPUT_DIR + File.separator + "src2\""
+		+ " -verbose -proc:none",
+		expectedLog,
+		"",
+		false);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// different from javac: javac sourcepath inhibits compile in classpath, while 
+// we do not do this
+public void test234_sourcepath_vs_classpath() {
+	// we find Z via sourcepath, javac wouldn't
+	runTest(
+		true /* shouldCompileOK */,
+		new String[] { /* testFiles */
+			"Y.java",
+			"public class Y {\n" +
+			"  X x;\n" +
+			"  Z z;\n" +
+			"}\n",
+			"src1/X.java",
+			"public class X {\n" +
+			"}\n",
+			"src2/Z.java",
+			"public class Z {\n" +
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src2\""
+		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src1\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */);
+	// using only classpath, both ecj and javac find X and Z
+	runTest(
+		true /* shouldCompileOK */,
+		null /* testFiles */,
+		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src2\""
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src1\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		false /* shouldFlushOutputDirectory */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// different from javac: with javac, newer class file down the classpath wins 
+// over source file upstream, while we select the first source or binary found
+// in classpath order
+public void test235_classpath() {
+	runTest(
+		true /* shouldCompileOK */,
+		new String[] { /* testFiles */
+			"Y.java",
+			"public class Y {\n" +
+			"  X x;\n" +
+			"}\n",
+			"src1/X.java",
+			"public class X {\n" +
+			"}\n",
+			"src2/X.java",
+			"public class X {\n" +
+			"  Zork z;\n" +
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src1\"[-d \"" + OUTPUT_DIR + File.separator + "bin1\"]"
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */);
+	// X.class found before X.java in classpath order entry
+	runTest(
+		true /* shouldCompileOK */,
+		null,
+		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1\""
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src2\""
+		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[reading    java/lang/Object.class]\n" + 
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[reading    X.class]\n" + 
+		"[writing    Y.class - #1]\n" + 
+		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[1 unit compiled]\n" + 
+		"[1 .class file generated]\n" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		false /* shouldFlushOutputDirectory */);
+	// X.java found before X.class in classpath order entry; javac would select
+	// X.class since it is more recent (except if using -Xprefer:source)
+	runTest(
+		false /* shouldCompileOK */,
+		null,
+		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src2\""
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1\""
+		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[reading    java/lang/Object.class]\n" + 
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" + 
+		"[writing    Y.class - #1]\n" + 
+		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/2]\n" + 
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" + 
+		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" + 
+		"[2 units compiled]\n" + 
+		"[1 .class file generated]\n" /* expectedOutOutputString */,
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java (at line 2)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"1 problem (1 error)" /* expectedErrOutputString */,
+		false /* shouldFlushOutputDirectory */);
 }
 }
