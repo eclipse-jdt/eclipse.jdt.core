@@ -3133,15 +3133,17 @@ public final class JavaCore extends Plugin {
 
 	/**
 	 * Returns the option that can be used to configure the severity of the 
-	 * compiler problem identified by problemID if any, null otherwise. Non-null 
-	 * return values are taken from the constants defined by this class which 
-	 * names start with COMPILER_PB and for which the possible values of the 
+	 * compiler problem identified by <code>problemID</code> if any, 
+	 * <code>null</code> otherwise. Non-null return values are taken from the 
+	 * constants defined by this class whose names start with 
+	 * <code>COMPILER_PB</code> and for which the possible values of the 
 	 * option are defined by <code>{ "error", "warning", "ignore" }</code>. A 
-	 * null return value means that the problemID is unknown or that it matches 
-	 * a problem which severity cannot be configured.
+	 * null return value means that the provided problem ID is unknown or that 
+	 * it matches a problem whose severity cannot be configured.
 	 * @param problemID one of the problem IDs defined by {@link IProblem}
 	 * @return the option that can be used to configure the severity of the 
-	 *         compiler problem identified by problemID if any, null otherwise
+	 *         compiler problem identified by <code>problemID</code> if any, 
+	 *         <code>null</code> otherwise
 	 * @since 3.4
 	 */
 	public static String getOptionForConfigurableSeverity(int problemID) {
