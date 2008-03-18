@@ -15,8 +15,10 @@ package org.eclipse.jdt.compiler.apt.tests.processors.base;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
@@ -459,6 +461,10 @@ public class XMLComparer implements IXMLNames {
 		for (int i = 0; i < expectedAttrs.getLength(); ++i) {
 			Node expectedAttr = expectedAttrs.item(i);
 			String attrName = expectedAttr.getNodeName();
+			if (OPTIONAL_TAG.equals(attrName)) {
+				// "optional" is an instruction to the comparer, not a model attribute
+				continue;
+			}
 			Node actualAttr = actualAttrs.getNamedItem(attrName);
 			if (actualAttr == null) {
 				printProblem("Actual element was missing expected attribute: " + attrName);
@@ -481,6 +487,9 @@ public class XMLComparer implements IXMLNames {
 	 * Compare the sets of element declarations nested within an actual and an expected element.
 	 * Note that the DeclarationContents object also may contain an &lt;annotations&gt; node,
 	 * but that must be compared separately.
+	 * If an expected element has the "optional" attribute, it is allowed to be missing from
+	 * the actual contents.  It is always a mismatch if the actual contents include an element 
+	 * that is not in the expected contents, though.
 	 * 
 	 * @param actual
 	 *            must not be null
@@ -491,17 +500,18 @@ public class XMLComparer implements IXMLNames {
 	private boolean compareDeclarationContents(DeclarationContents actual, DeclarationContents expected) {
 
 		// Compare each collection at this level
-		if (!actual.typeDecls.keySet().equals(expected.typeDecls.keySet())) {
+		
+		if (!optionalMatch(actual.typeDecls, expected.typeDecls)) {
 			printProblem("Contents of <elements> nodes did not match: different sets of type-elements");
 			printDifferences();
 			return false;
 		}
-		if (!actual.executableDecls.keySet().equals(expected.executableDecls.keySet())) {
+		if (!optionalMatch(actual.executableDecls, expected.executableDecls)) {
 			printProblem("Contents of <elements> nodes did not match: different sets of executable-elements");
 			printDifferences();
 			return false;
 		}
-		if (!actual.variableDecls.keySet().equals(expected.variableDecls.keySet())) {
+		if (!optionalMatch(actual.variableDecls, expected.variableDecls)) {
 			printProblem("Contents of <elements> nodes did not match: different sets of variable-elements");
 			printDifferences();
 			return false;
@@ -511,21 +521,21 @@ public class XMLComparer implements IXMLNames {
 		for (Map.Entry<String, Element> expectedEntry : expected.typeDecls.entrySet()) {
 			String sname = expectedEntry.getKey();
 			Element actualElement = actual.typeDecls.get(sname);
-			if (!compareDeclarations(actualElement, expectedEntry.getValue())) {
+			if (actualElement != null && !compareDeclarations(actualElement, expectedEntry.getValue())) {
 				return false;
 			}
 		}
 		for (Map.Entry<String, Element> expectedEntry : expected.executableDecls.entrySet()) {
 			String sname = expectedEntry.getKey();
 			Element actualElement = actual.executableDecls.get(sname);
-			if (!compareDeclarations(actualElement, expectedEntry.getValue())) {
+			if (actualElement != null && !compareDeclarations(actualElement, expectedEntry.getValue())) {
 				return false;
 			}
 		}
 		for (Map.Entry<String, Element> expectedEntry : expected.variableDecls.entrySet()) {
 			String sname = expectedEntry.getKey();
 			Element actualElement = actual.variableDecls.get(sname);
-			if (!compareDeclarations(actualElement, expectedEntry.getValue())) {
+			if (actualElement != null && !compareDeclarations(actualElement, expectedEntry.getValue())) {
 				return false;
 			}
 		}
@@ -735,6 +745,34 @@ public class XMLComparer implements IXMLNames {
 	 */
 	private Element findRootNode(Document doc) {
 		return findNamedChildElement(doc, MODEL_TAG);
+	}
+
+	/**
+	 * Compare actual and expected.  Ignore the presence of any elements in
+	 * 'expected' that are absent from 'actual' iff the elements are tagged
+	 * with the "optional" attribute.
+	 * @return true if the collections match. 
+	 */
+	private boolean optionalMatch(Map<String, Element> actual, Map<String, Element> expected) {
+		// Does actual contain anything that is not in expected?
+		Set<String> extraActuals = new HashSet<String>(actual.keySet());
+		extraActuals.removeAll(expected.keySet());
+		if (!extraActuals.isEmpty()) {
+			return false;
+		}
+		
+		// Does expected contain anything that is not in actual, that is not optional?
+		Set<String> extraExpecteds = new HashSet<String>(expected.keySet());
+		extraExpecteds.removeAll(actual.keySet());
+		Iterator<String> iter = extraExpecteds.iterator();
+		while (iter.hasNext()) {
+			Element e = expected.get(iter.next());
+			boolean optional = Boolean.parseBoolean(e.getAttribute(OPTIONAL_TAG));
+			if (optional) {
+				iter.remove();
+			}
+		}
+		return extraExpecteds.isEmpty();
 	}
 
 	/**

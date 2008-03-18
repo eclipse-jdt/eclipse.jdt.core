@@ -27,6 +27,7 @@ public interface IXMLNames {
 	static final String KIND_TAG = "kind";
 	static final String MEMBER_TAG = "member";
 	static final String MODEL_TAG = "model";
+	static final String OPTIONAL_TAG = "optional";
 	static final String QNAME_TAG = "qname";
 	static final String SNAME_TAG = "sname";
 	static final String SUPERCLASS_TAG = "superclass";
@@ -36,6 +37,6 @@ public interface IXMLNames {
 	static final String TYPE_TAG = "type";
 	static final String VALUE_TAG = "value";
 	static final String VARIABLE_ELEMENT_TAG = "variable-element";
-
+	
 	static final String TYPEKIND_ERROR = "ERROR"; // see javax.lang.model.type.TypeKind
 }

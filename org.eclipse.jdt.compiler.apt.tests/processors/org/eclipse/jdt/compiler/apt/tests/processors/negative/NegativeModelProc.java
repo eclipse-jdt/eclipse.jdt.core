@@ -74,9 +74,9 @@ public class NegativeModelProc extends AbstractProcessor
 		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" + 
 		"  <executable-element kind=\"METHOD\" sname=\"zorkRaw\"/>\n" + 
 		"  <executable-element kind=\"METHOD\" sname=\"zorkOfString\"/>\n" + 
-		"  <executable-element kind=\"METHOD\" sname=\"ifooOfString\"/>\n" + 
+		"  <executable-element kind=\"METHOD\" sname=\"ifooOfString\" optional=\"true\"/>\n" + 
 		"  <executable-element kind=\"METHOD\" sname=\"ibarRaw\"/>\n" + 
-		"  <executable-element kind=\"METHOD\" sname=\"ibarOfT1T2\"/>\n" + 
+		"  <executable-element kind=\"METHOD\" sname=\"ibarOfT1T2\" optional=\"true\"/>\n" + 
 		" </type-element>\n" + 
 		"</model>\n";
 
