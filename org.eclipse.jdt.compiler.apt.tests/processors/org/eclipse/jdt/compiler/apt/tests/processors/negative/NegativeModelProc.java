@@ -62,7 +62,49 @@ import org.xml.sax.InputSource;
 public class NegativeModelProc extends AbstractProcessor
 {
 	/**
-	 * Reference model for types in Negative5 test
+	 * Reference model for types in Negative1 test
+	 */
+	private static final String NEGATIVE_1_MODEL = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
+		"<model>\n" + 
+		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative1\" sname=\"Negative1\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" + 
+		"  </superclass>\n" + 
+		"  <annotations>\n" + 
+		"   <annotation sname=\"A3\"/>\n" + 
+		"  </annotations>\n" + 
+		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" + 
+		"  <variable-element kind=\"FIELD\" sname=\"s1\" type=\"java.lang.String\">\n" + 
+		"   <annotations>\n" + 
+		"    <annotation sname=\"Anno1\">\n" + 
+		"     <annotation-values>\n" + 
+		"      <annotation-value member=\"value\" type=\"java.lang.String\" value=\"spud\"/>\n" + 
+		"     </annotation-values>\n" + 
+		"    </annotation>\n" + 
+		"   </annotations>\n" + 
+		"  </variable-element>\n" + 
+		"  <variable-element kind=\"FIELD\" sname=\"m1\" type=\"Missing1\">\n" + 
+		"   <annotations>\n" + 
+		"    <annotation sname=\"A4\"/>\n" + 
+		"   </annotations>\n" + 
+		"  </variable-element>\n" + 
+		"  <variable-element kind=\"FIELD\" sname=\"i1\" type=\"int\">\n" + 
+		"   <annotations>\n" + 
+		"    <annotation sname=\"A5\"/>\n" + 
+		"   </annotations>\n" + 
+		"  </variable-element>\n" + 
+		"  <variable-element kind=\"FIELD\" sname=\"m2\" type=\"Missing2.Missing3.Missing4\">\n" + 
+		"   <annotations>\n" + 
+		"    <annotation sname=\"A8\"/>\n" + 
+		"   </annotations>\n" + 
+		"  </variable-element>\n" + 
+		" </type-element>\n" + 
+		"</model>\n" + 
+		"";
+
+	/**
+	 * Reference model for types in Negative4 test
 	 */
 	private static final String NEGATIVE_4_MODEL = 
 		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
@@ -390,74 +432,90 @@ public class NegativeModelProc extends AbstractProcessor
 	}
 
 	/**
-	 * Check the annotations in the model of resources/targets.negative.pa.Negative1
+	 * Check the model of resources/targets.negative.pa.Negative6
 	 * @return true if all tests passed
 	 */
-	public boolean checkNegative1() {
-		TypeElement elementN1 = _elementUtils.getTypeElement("targets.negative.pa.Negative1");
-		if (null == elementN1 || elementN1.getKind() != ElementKind.CLASS) {
+	public boolean checkNegative1() throws Exception {
+		
+		// Get the root of the Negative1 model
+		TypeElement element = _elementUtils.getTypeElement("targets.negative.pa.Negative1");
+		if (null == element || element.getKind() != ElementKind.CLASS) {
 			reportError("Element Negative1 was not found or was not a class");
 			return false;
 		}
-		AnnotationMirror am3 = findAnnotation(elementN1, "A3");
-		if (_reportFailingCases && null == am3) {
-			reportError("Couldn't find annotation A3 on class Negative1");
-			return false;
-		}
-		List<? extends Element> enclosedElements = elementN1.getEnclosedElements();
-		boolean foundM1 = false; // do we find an element of unresolved type?
-		for (Element element : enclosedElements) {
-			String name = element.getSimpleName().toString();
-			if ("m1".equals(name)) {
-				foundM1 = true;
-				TypeKind tk = element.asType().getKind();
-				if (tk != TypeKind.ERROR && tk != TypeKind.DECLARED) {
-					reportError("Field Negative1.m1 has a type of unexpected kind " + tk);
-					return false;
-				}
-				AnnotationMirror am4 = findAnnotation(element, "A4");
-				if (_reportFailingCases && null == am4) {
-					reportError("Couldn't find annotation A4 on field Negative1.m1");
-					return false;
-				}
-			}
-			else if ("i1".equals(name)) {
-				AnnotationMirror am5 = findAnnotation(element, "A5");
-				if (_reportFailingCases && null == am5) {
-					reportError("Couldn't find annotation A5 on field Negative1.i1");
-					return false;
-				}
-			}
-			else if ("m2".equals(name)) {
-				AnnotationMirror am8 = findAnnotation(element, "A8");
-				if (_reportFailingCases && null == am8) {
-					reportError("Couldn't find annotation A8 on field Negative1.m2");
-					return false;
-				}
-			}
-			else if ("s1".equals(name)) {
-				AnnotationMirror am = findAnnotation(element, "Anno1");
-				if (null == am) {
-					reportError("Couldn't find annotation Anno on field Negative1.s1");
-					return false;
-				}
-				Map<? extends ExecutableElement, ? extends AnnotationValue> values = am.getElementValues();
-				for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
-					if ("value".equals(entry.getKey().getSimpleName().toString())) {
-						if (!"spud".equals(entry.getValue().getValue())) {
-							reportError("Unexpected value for Anno1 on Negative1.s1: " + entry.getValue().getValue());
-							return false;
-						}
-					}
-				}
-			}
-		}
-		if (_reportFailingCases && !foundM1) {
-			reportError("Couldn't find field Negative1.m1, presumably because its type is missing");
-			return false;
-		}
-		return true;
+		
+		return checkModel(Collections.singletonList(element), NEGATIVE_1_MODEL, "Negative1");
 	}
+	
+	/**
+	 * Check the annotations in the model of resources/targets.negative.pa.Negative1
+	 * @return true if all tests passed
+	 */
+//	public boolean checkNegative1() {
+//		TypeElement elementN1 = _elementUtils.getTypeElement("targets.negative.pa.Negative1");
+//		if (null == elementN1 || elementN1.getKind() != ElementKind.CLASS) {
+//			reportError("Element Negative1 was not found or was not a class");
+//			return false;
+//		}
+//		AnnotationMirror am3 = findAnnotation(elementN1, "A3");
+//		if (_reportFailingCases && null == am3) {
+//			reportError("Couldn't find annotation A3 on class Negative1");
+//			return false;
+//		}
+//		List<? extends Element> enclosedElements = elementN1.getEnclosedElements();
+//		boolean foundM1 = false; // do we find an element of unresolved type?
+//		for (Element element : enclosedElements) {
+//			String name = element.getSimpleName().toString();
+//			if ("m1".equals(name)) {
+//				foundM1 = true;
+//				TypeKind tk = element.asType().getKind();
+//				if (tk != TypeKind.ERROR && tk != TypeKind.DECLARED) {
+//					reportError("Field Negative1.m1 has a type of unexpected kind " + tk);
+//					return false;
+//				}
+//				AnnotationMirror am4 = findAnnotation(element, "A4");
+//				if (_reportFailingCases && null == am4) {
+//					reportError("Couldn't find annotation A4 on field Negative1.m1");
+//					return false;
+//				}
+//			}
+//			else if ("i1".equals(name)) {
+//				AnnotationMirror am5 = findAnnotation(element, "A5");
+//				if (_reportFailingCases && null == am5) {
+//					reportError("Couldn't find annotation A5 on field Negative1.i1");
+//					return false;
+//				}
+//			}
+//			else if ("m2".equals(name)) {
+//				AnnotationMirror am8 = findAnnotation(element, "A8");
+//				if (_reportFailingCases && null == am8) {
+//					reportError("Couldn't find annotation A8 on field Negative1.m2");
+//					return false;
+//				}
+//			}
+//			else if ("s1".equals(name)) {
+//				AnnotationMirror am = findAnnotation(element, "Anno1");
+//				if (null == am) {
+//					reportError("Couldn't find annotation Anno on field Negative1.s1");
+//					return false;
+//				}
+//				Map<? extends ExecutableElement, ? extends AnnotationValue> values = am.getElementValues();
+//				for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
+//					if ("value".equals(entry.getKey().getSimpleName().toString())) {
+//						if (!"spud".equals(entry.getValue().getValue())) {
+//							reportError("Unexpected value for Anno1 on Negative1.s1: " + entry.getValue().getValue());
+//							return false;
+//						}
+//					}
+//				}
+//			}
+//		}
+//		if (_reportFailingCases && !foundM1) {
+//			reportError("Couldn't find field Negative1.m1, presumably because its type is missing");
+//			return false;
+//		}
+//		return true;
+//	}
 	
 	/**
 	 * Check the annotations in the model of resources/targets.negative.pa.Negative2
