@@ -118,6 +118,7 @@ public class ClassFile
 	// debug and stack map attributes
 	public int produceAttributes;
 	public SourceTypeBinding referenceBinding;
+	public boolean isNestedType;
 	public long targetJDK;
 	
 	public List missingTypes = null;
@@ -233,6 +234,7 @@ public class ClassFile
 		this.targetJDK = options.targetJDK;
 		this.produceAttributes = options.produceDebugAttributes;
 		this.referenceBinding = typeBinding;
+		this.isNestedType = typeBinding.isNestedType();
 		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
 			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
 			this.codeStream = new StackMapFrameCodeStream(this);
@@ -6438,16 +6440,18 @@ public class ClassFile
 	}
 
 	private void generateMissingTypesAttribute() {
-		int numberOfMissingTypes = this.missingTypes.size();
-		TypeBinding[] missingTypesArray;
-		this.missingTypes.toArray(missingTypesArray = new TypeBinding[numberOfMissingTypes]);
-		Arrays.sort(missingTypesArray, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				TypeBinding binding1 = (TypeBinding) o1;
-				TypeBinding binding2 = (TypeBinding) o2;
-				return CharOperation.compareTo(binding1.constantPoolName(), binding2.constantPoolName());
-			}
-		});
+		int initialSize = this.missingTypes.size();
+		int[] missingTypesIndexes = new int[initialSize];
+		int numberOfMissingTypes = 0;
+		next : for (int i = 0; i < initialSize; i++) {
+			int missingTypeIndex = this.constantPool.literalIndexForType((TypeBinding) this.missingTypes.get(i));
+			for (int j = 0; j < numberOfMissingTypes; j++)
+				if (missingTypesIndexes[j] == missingTypeIndex)
+					continue next;
+			missingTypesIndexes[numberOfMissingTypes++] = missingTypeIndex;
+		}
+		if (numberOfMissingTypes > 1)
+			Arrays.sort(missingTypesIndexes);
 		int attributeLength = numberOfMissingTypes * 2 + 2;
 		if (this.contentsOffset + attributeLength + 6 >= this.contents.length) {
 			resizeContents(attributeLength + 6);
@@ -6467,7 +6471,7 @@ public class ClassFile
 		this.contents[this.contentsOffset++] = (byte) numberOfMissingTypes;
 		// generate entry for each missing type
 		for (int i = 0; i < numberOfMissingTypes; i++) {
-			int missingTypeIndex = this.constantPool.literalIndexForType(missingTypesArray[i]);
+			int missingTypeIndex = missingTypesIndexes[i];
 			this.contents[this.contentsOffset++] = (byte) (missingTypeIndex >> 8);
 			this.contents[this.contentsOffset++] = (byte) missingTypeIndex;
 		}
@@ -7143,6 +7147,7 @@ public class ClassFile
 		// the code stream is reinitialized for each method
 		final CompilerOptions options = typeBinding.scope.compilerOptions();
 		this.referenceBinding = typeBinding;
+		this.isNestedType = typeBinding.isNestedType();
 		this.targetJDK = options.targetJDK;
 		this.produceAttributes = options.produceDebugAttributes;
 		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
@@ -7164,6 +7169,7 @@ public class ClassFile
 		if (this.innerClassesBindings != null) {
 			this.innerClassesBindings.clear();
 		}
+		this.missingTypes = null;
 	}
 
 	/**

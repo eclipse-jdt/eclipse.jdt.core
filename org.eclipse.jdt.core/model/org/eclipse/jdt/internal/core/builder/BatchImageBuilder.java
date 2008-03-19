@@ -259,14 +259,17 @@ protected void rebuildTypesAffectedBySecondaryTypes() {
 	if (this.incrementalBuilder == null)
 		this.incrementalBuilder = new IncrementalImageBuilder(this);
 
-	for (int i = this.secondaryTypes.size(); --i >=0;) {
-		char[] secondaryTypeName = (char[]) this.secondaryTypes.get(i);
+	int count = this.secondaryTypes.size();
+	StringSet qualifiedNames = new StringSet(count * 2);
+	StringSet simpleNames = new StringSet(count);
+	while (--count >=0) {
+		char[] secondaryTypeName = (char[]) this.secondaryTypes.get(count);
 		IPath path = new Path(null, new String(secondaryTypeName));
-		this.incrementalBuilder.addDependentsOf(path, false);
+		this.incrementalBuilder.addDependentsOf(path, false, qualifiedNames, simpleNames);
 	}
 	this.incrementalBuilder.addAffectedSourceFiles(
-		this.incrementalBuilder.qualifiedStrings,
-		this.incrementalBuilder.simpleStrings,
+		qualifiedNames,
+		simpleNames,
 		this.typeLocatorsWithUndefinedTypes);
 }
 

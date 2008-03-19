@@ -286,6 +286,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		// Switch the current policy and compilation result for this unit to the requested one.
 		CompilationResult unitResult =
 			new CompilationResult(sourceUnit, totalUnits, totalUnits, this.options.maxProblemsPerUnit);
+		unitResult.checkSecondaryTypes = true;
 		try {
 			if (options.verbose) {
 				String count = String.valueOf(totalUnits + 1);
@@ -574,9 +575,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	protected void internalBeginToCompile(ICompilationUnit[] sourceUnits, int maxUnits) {
 		// Switch the current policy and compilation result for this unit to the requested one.
 		for (int i = 0; i < maxUnits; i++) {
-			CompilationUnitDeclaration parsedUnit;
-			CompilationResult unitResult =
-				new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
 			try {
 				if (options.verbose) {
 					this.out.println(
@@ -588,6 +586,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 						}));
 				}
 				// diet parsing for large collection of units
+				CompilationUnitDeclaration parsedUnit;
+				CompilationResult unitResult =
+					new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
 				long parseStart = System.currentTimeMillis();
 				if (totalUnits < parseThreshold) {
 					parsedUnit = parser.parse(sourceUnits[i], unitResult);

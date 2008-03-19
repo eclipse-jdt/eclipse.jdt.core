@@ -70,6 +70,7 @@ public class CompilationResult {
 	public boolean hasInconsistentToplevelHierarchies = false; // record the fact some toplevel types have inconsistent hierarchies
 	public boolean hasSyntaxError = false;
 	public char[][] packageName;
+	public boolean checkSecondaryTypes = false; // check for secondary types which were created after the initial buildTypeBindings call
 	
 private static final int[] EMPTY_LINE_ENDS = Util.EMPTY_INT_ARRAY;
 private static final Comparator PROBLEM_COMPARATOR = new Comparator() {

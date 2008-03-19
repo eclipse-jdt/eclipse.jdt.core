@@ -147,7 +147,7 @@ public void acceptResult(CompilationResult result) {
 
 			char[][] compoundName = classFile.getCompoundName();
 			char[] typeName = compoundName[compoundName.length - 1];
-			boolean isNestedType = classFile.enclosingClassFile != null;
+			boolean isNestedType = classFile.isNestedType;
 
 			// Look for a possible collision, if one exists, report an error but do not write the class file
 			if (isNestedType) {
@@ -179,7 +179,7 @@ public void acceptResult(CompilationResult result) {
 					continue;
 				}
 				newState.recordLocatorForType(qualifiedTypeName, typeLocator);
-				if (!qualifiedTypeName.equals(compilationUnit.initialTypeName))
+				if (result.checkSecondaryTypes && !qualifiedTypeName.equals(compilationUnit.initialTypeName))
 					acceptSecondaryType(classFile);
 			}
 			try {

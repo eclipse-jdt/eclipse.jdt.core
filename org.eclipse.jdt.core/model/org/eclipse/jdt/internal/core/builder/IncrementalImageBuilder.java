@@ -216,6 +216,10 @@ protected void addAffectedSourceFiles(StringSet qualifiedSet, StringSet simpleSe
 }
 
 protected void addDependentsOf(IPath path, boolean isStructuralChange) {
+	addDependentsOf(path, isStructuralChange, this.qualifiedStrings, this.simpleStrings);
+}
+
+protected void addDependentsOf(IPath path, boolean isStructuralChange, StringSet qualifiedNames, StringSet simpleNames) {
 	if (isStructuralChange && !this.hasStructuralChanges) {
 		newState.tagAsStructurallyChanged();
 		this.hasStructuralChanges = true;
@@ -223,12 +227,12 @@ protected void addDependentsOf(IPath path, boolean isStructuralChange) {
 	// the qualifiedStrings are of the form 'p1/p2' & the simpleStrings are just 'X'
 	path = path.setDevice(null);
 	String packageName = path.removeLastSegments(1).toString();
-	qualifiedStrings.add(packageName);
+	qualifiedNames.add(packageName);
 	String typeName = path.lastSegment();
 	int memberIndex = typeName.indexOf('$');
 	if (memberIndex > 0)
 		typeName = typeName.substring(0, memberIndex);
-	if (simpleStrings.add(typeName) && JavaBuilder.DEBUG)
+	if (simpleNames.add(typeName) && JavaBuilder.DEBUG)
 		System.out.println("  will look for dependents of " //$NON-NLS-1$
 			+ typeName + " in " + packageName); //$NON-NLS-1$
 }
