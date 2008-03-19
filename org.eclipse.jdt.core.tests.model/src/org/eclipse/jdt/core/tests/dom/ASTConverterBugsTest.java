@@ -822,4 +822,116 @@ public void testBug218824a() throws JavaModelException {
 			"Syntax error, insert \";\" to complete Statement\n",
 			result);
 }
+/**
+ * @bug 215137: [AST]Some malformed MethodDeclaration, their Block is null, but they actually have Block
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=215137"
+ */
+public void testBug215137a() throws JavaModelException {
+	ASTResult result = this.buildMarkedAST(
+			"/Converter15/src/a/X.java",
+			"package a;\n" +
+			"public class X {\n"+
+			"        public void foo() [*1*]{\n"+
+			"                System.out.println(\"hello);\n"+
+			"        }[*1*]\n"+
+			"}\n");
+	
+	assertASTResult(
+			"===== AST =====\n" + 
+			"package a;\n" + 
+			"public class X {\n" + 
+			"  public void foo()[*1*]{\n" + 
+			"  }[*1*]\n" + 
+			"}\n" + 
+			"\n" + 
+			"===== Details =====\n" + 
+			"1:BLOCK,[54,55],,RECOVERED,[N/A]\n" + 
+			"===== Problems =====\n" + 
+			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" + 
+			"	System.out.println(\"hello);\n" + 
+			"	                   ^^^^^^^^\n" + 
+			"String literal is not properly closed by a double-quote\n",
+			result);
+}
+public void testBug215137b() throws JavaModelException {
+	ASTResult result = this.buildMarkedAST(
+			"/Converter15/src/a/X.java",
+			"package a;\n" +
+			"public class X {\n"+
+			"        public void foo() [*1*]{\n"+
+			"                System.out.println('a);\n"+
+			"        }[*1*]\n"+
+			"}\n");
+	
+	assertASTResult(
+			"===== AST =====\n" + 
+			"package a;\n" + 
+			"public class X {\n" + 
+			"  public void foo()[*1*]{\n" + 
+			"  }[*1*]\n" + 
+			"}\n" + 
+			"\n" + 
+			"===== Details =====\n" + 
+			"1:BLOCK,[54,51],,RECOVERED,[N/A]\n" + 
+			"===== Problems =====\n" + 
+			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" + 
+			"	System.out.println(\'a);\n" + 
+			"	                   ^^\n" + 
+			"Invalid character constant\n",
+			result);
+}
+public void testBug215137c() throws JavaModelException {
+	ASTResult result = this.buildMarkedAST(
+			"/Converter15/src/a/X.java",
+			"package a;\n" +
+			"public class X {\n"+
+			"        public void foo() [*1*]{\n"+
+			"                System.out.println(''a);\n"+
+			"        }[*1*]\n"+
+			"}\n");
+	
+	assertASTResult(
+			"===== AST =====\n" + 
+			"package a;\n" + 
+			"public class X {\n" + 
+			"  public void foo()[*1*]{\n" + 
+			"  }[*1*]\n" + 
+			"}\n" + 
+			"\n" + 
+			"===== Details =====\n" + 
+			"1:BLOCK,[54,52],,RECOVERED,[N/A]\n" + 
+			"===== Problems =====\n" + 
+			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" + 
+			"	System.out.println(\'\'a);\n" + 
+			"	                   ^^\n" + 
+			"Invalid character constant\n",
+			result);
+}
+public void testBug215137d() throws JavaModelException {
+	ASTResult result = this.buildMarkedAST(
+			"/Converter15/src/a/X.java",
+			"package a;\n" +
+			"public class X {\n"+
+			"        public void foo() [*1*]{\n"+
+			"                7eSystem.out.println();\n"+
+			"        }[*1*]\n"+
+			"}\n");
+	
+	assertASTResult(
+			"===== AST =====\n" + 
+			"package a;\n" + 
+			"public class X {\n" + 
+			"  public void foo()[*1*]{\n" + 
+			"  }[*1*]\n" + 
+			"}\n" + 
+			"\n" + 
+			"===== Details =====\n" + 
+			"1:BLOCK,[54,51],,RECOVERED,[N/A]\n" + 
+			"===== Problems =====\n" + 
+			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" + 
+			"	7eSystem.out.println();\n" + 
+			"	^^^\n" + 
+			"Invalid float literal number\n",
+			result);
+}
 }
