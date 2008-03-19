@@ -1093,4 +1093,20 @@ public void cleanBuild() {
 			}
 		} while (wasInterrupted);
 	}	
+	
+	public void waitForManualRefresh() {
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
+		boolean wasInterrupted = false;
+		do {
+			try {
+				Job.getJobManager().join(ResourcesPlugin.FAMILY_MANUAL_REFRESH, null);
+				wasInterrupted = false;
+			} catch (OperationCanceledException e) {
+				handle(e);
+			} catch (InterruptedException e) {
+				wasInterrupted = true;
+			}
+		} while (wasInterrupted);
+	}	
+
 }

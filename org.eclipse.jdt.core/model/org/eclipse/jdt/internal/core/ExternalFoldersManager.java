@@ -25,8 +25,12 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ExternalFoldersManager {
@@ -221,13 +225,26 @@ public class ExternalFoldersManager {
 			HashSet externalFolders = getExternalFolders(JavaCore.create(source).getResolvedClasspath(true));
 			if (externalFolders == null)
 				return;
-			Iterator iterator = externalFolders.iterator();
-			while (iterator.hasNext()) {
-				IPath externalPath = (IPath) iterator.next();
-				IFolder folder = getFolder(externalPath);
-				if (folder != null)
-					folder.refreshLocal(IResource.DEPTH_INFINITE, monitor);
-			}
+			final Iterator iterator = externalFolders.iterator();
+			Job refreshJob = new Job(Messages.refreshing_external_folders) { 
+				public boolean belongsTo(Object family) {
+					return family == ResourcesPlugin.FAMILY_MANUAL_REFRESH;
+				}
+				protected IStatus run(IProgressMonitor pm) {
+					try {
+						while (iterator.hasNext()) {
+							IPath externalPath = (IPath) iterator.next();
+							IFolder folder = getFolder(externalPath);
+							if (folder != null)
+								folder.refreshLocal(IResource.DEPTH_INFINITE, pm);
+						}
+					} catch (CoreException e) {
+						return e.getStatus();
+					}
+					return Status.OK_STATUS;
+				}
+			};
+			refreshJob.schedule();
 		} catch (CoreException e) {
 			Util.log(e, "Exception while refreshing external project"); //$NON-NLS-1$
 		}

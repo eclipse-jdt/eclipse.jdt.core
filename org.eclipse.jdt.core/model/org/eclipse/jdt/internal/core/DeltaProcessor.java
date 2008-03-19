@@ -1844,7 +1844,7 @@ public class DeltaProcessor {
 	 * @see IResource 
 	 */
 	public void resourceChanged(IResourceChangeEvent event) {
-
+	
 		int eventType = this.overridenEventType == -1 ? event.getType() : this.overridenEventType;
 		IResource resource = event.getResource();
 		IResourceDelta delta = event.getDelta();
@@ -1860,6 +1860,10 @@ public class DeltaProcessor {
 				} catch(CoreException e){
 					// project doesn't exist or is not open: ignore
 				}
+				return;
+				
+			case IResourceChangeEvent.PRE_REFRESH:
+				JavaModelManager.getExternalManager().refreshReferences((IProject) resource, null);
 				return;
 				
 			case IResourceChangeEvent.POST_CHANGE :
@@ -1938,7 +1942,7 @@ public class DeltaProcessor {
 			case IResourceChangeEvent.PRE_BUILD :
 				boolean isAffected = isAffectedBy(delta);
 				boolean needCycleValidation = isAffected && validateClasspaths(delta);
-
+	
 				// update external folders if necessary
 			    ExternalFolderChange[] folderChanges = this.state.removeExternalFolderChanges();
 				if (folderChanges != null) {
@@ -1991,7 +1995,7 @@ public class DeltaProcessor {
 				
 				// does not fire any deltas
 				return;
-
+	
 			case IResourceChangeEvent.POST_BUILD :
 				JavaBuilder.buildFinished();
 				return;

@@ -4269,13 +4269,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			
 			// initialize Java model cache
 			this.cache = new JavaModelCache();
-
+	
 			// request state folder creation (workaround 19885)
 			JavaCore.getPlugin().getStateLocation();
-
+	
 			// Initialize eclipse preferences
 			initializePreferences();
-
+	
 			// Listen to preference changes
 			this.propertyListener = new Preferences.IPropertyChangeListener() {
 				public void propertyChange(Preferences.PropertyChangeEvent event) {
@@ -4286,15 +4286,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			
 			// Listen to content-type changes
 			 Platform.getContentTypeManager().addContentTypeChangeListener(this);
-
+	
 			// retrieve variable values
 			long start = -1;
 			if (VERBOSE)
 				start = System.currentTimeMillis();
- 			loadVariablesAndContainers();
- 			if (VERBOSE)
+			loadVariablesAndContainers();
+			if (VERBOSE)
 				traceVariableAndContainers("Loaded", start); //$NON-NLS-1$
-
+	
 			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			workspace.addResourceChangeListener(
 				this.deltaState,
@@ -4303,8 +4303,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					| IResourceChangeEvent.POST_BUILD
 					| IResourceChangeEvent.POST_CHANGE
 					| IResourceChangeEvent.PRE_DELETE
-					| IResourceChangeEvent.PRE_CLOSE);
-
+					| IResourceChangeEvent.PRE_CLOSE
+					| IResourceChangeEvent.PRE_REFRESH);
+	
 			startIndexing();
 			
 			// process deltas since last activated in indexer thread so that indexes are up-to-date.

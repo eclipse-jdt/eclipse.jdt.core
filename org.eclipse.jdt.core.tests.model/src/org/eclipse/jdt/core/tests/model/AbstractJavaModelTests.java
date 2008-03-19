@@ -2023,14 +2023,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	public void refresh(final IJavaProject javaProject) throws CoreException {
-		ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
-			public void run(IProgressMonitor pm) throws CoreException {
-				// work around for https://bugs.eclipse.org/bugs/show_bug.cgi?id=219566
-				JavaModelManager.getExternalManager().refreshReferences(javaProject.getProject(), null);
-				
-				javaProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, pm);
-			}
-		}, null);
+		javaProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+		waitForManualRefresh();
 	}
 
 	protected void removeJavaNature(String projectName) throws CoreException {
@@ -2361,6 +2355,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		try {
 			javaProject.setRawClasspath(classpath, null);
 		} catch (JavaModelException e) {
+			e.printStackTrace();
 			assertTrue("failed to set classpath", false);
 		}
 	}
@@ -2677,6 +2672,20 @@ protected String toString(String[] strings) {
 		do {
 			try {
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+				wasInterrupted = false;
+			} catch (OperationCanceledException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				wasInterrupted = true;
+			}
+		} while (wasInterrupted);
+	}
+
+	public static void waitForManualRefresh() {
+		boolean wasInterrupted = false;
+		do {
+			try {
+				Job.getJobManager().join(ResourcesPlugin.FAMILY_MANUAL_REFRESH, null);
 				wasInterrupted = false;
 			} catch (OperationCanceledException e) {
 				e.printStackTrace();
