@@ -4656,7 +4656,7 @@ public void test75() {
 		"      void foo() {\n" + 
 		"      }\n" + 
 		"    }\n" + 
-		"    int hello;\n" + 
+		"    ba = $missing$;\n" + 
 		"  }\n" + 
 		"}\n";
 		

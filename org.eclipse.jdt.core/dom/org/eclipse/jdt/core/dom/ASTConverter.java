@@ -531,6 +531,7 @@ class ASTConverter {
 			}
 		} else {
 			// syntax error in this method declaration
+			methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
 			if (!methodDeclaration.isNative() && !methodDeclaration.isAbstract()) {
 				start = retrieveStartBlockPosition(methodHeaderEnd, declarationSourceEnd);
 				if (start == -1) start = methodDeclaration.bodyStart; // use recovery position for body start

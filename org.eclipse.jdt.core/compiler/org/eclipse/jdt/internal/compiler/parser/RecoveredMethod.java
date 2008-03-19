@@ -384,6 +384,18 @@ public AbstractMethodDeclaration updatedMethodDeclaration(){
 					}
 			}
 		}
+	} else {
+		if (methodDeclaration.declarationSourceEnd == 0) {
+			if (methodDeclaration.sourceEnd + 1 == methodDeclaration.bodyStart) {
+				// right brace is missing
+				methodDeclaration.declarationSourceEnd = methodDeclaration.sourceEnd;
+				methodDeclaration.bodyStart = methodDeclaration.sourceEnd;
+				methodDeclaration.bodyEnd = methodDeclaration.sourceEnd;
+			} else {
+				methodDeclaration.declarationSourceEnd = methodDeclaration.bodyStart;
+				methodDeclaration.bodyEnd = methodDeclaration.bodyStart;
+			}
+		}
 	}
 	if (localTypeCount > 0) methodDeclaration.bits |= ASTNode.HasLocalType;
 	return methodDeclaration;
