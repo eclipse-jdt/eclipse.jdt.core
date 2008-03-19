@@ -152,6 +152,7 @@ public class CompilationUnitDeclaration
 			// null out the classfile backpointer to a type binding
 			classFile.referenceBinding = null;
 			classFile.innerClassesBindings = null;
+			classFile.missingTypes = null;
 		}
 		
 		this.suppressWarningAnnotations = null;
