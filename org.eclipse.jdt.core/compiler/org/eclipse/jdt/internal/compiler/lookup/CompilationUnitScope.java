@@ -540,20 +540,6 @@ private Binding findSingleStaticImport(char[][] compoundName) {
 		return new ProblemReferenceBinding(compoundName, type, ProblemReasons.NotVisible);
 	return type;
 }
-FieldBinding findStaticField(ReferenceBinding currentType, char[] name) {
-	if (!currentType.canBeSeenBy(this))
-		return null;
-
-	do {
-		FieldBinding field = currentType.getField(name, true);
-		if (field.isStatic() && field.canBeSeenBy(fPackage)) {
-			return field;
-		}
-		if (currentType.superInterfaces() == null) // needed for statically imported types which don't know their hierarchy yet
-			((SourceTypeBinding) currentType).scope.connectTypeHierarchy();
-	} while ((currentType = currentType.superclass()) != null);
-	return null;
-}
 MethodBinding findStaticMethod(ReferenceBinding currentType, char[] selector) {
 	if (!currentType.canBeSeenBy(this))
 		return null;
