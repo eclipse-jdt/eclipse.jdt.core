@@ -2122,4 +2122,98 @@ public class StaticImportTest extends AbstractComparableTest {
 			},
 			"");		
 		}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211
+	public void test059() {
+		this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"import static q.A.a;\n" + 
+				"public class X {\n" + 
+				"}\n",
+				"q/A.java",
+				"package q;\n" + 
+				"interface I {\n" +
+				"	String a = \"\";\n" +
+				"}\n" +
+				"class B {\n" +
+				"	public static String a;\n" +
+				"}\n" +
+				"public class A extends B implements I{\n" + 
+				"}\n",
+			},
+			"");		
+		}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
+	public void test060() {
+		this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"import static q.A.a;\n" + 
+				"public class X {\n" + 
+				"}\n",
+				"q/A.java",
+				"package q;\n" + 
+				"interface I {\n" +
+				"	String a(Object o);\n" +
+				"}\n" +
+				"class B {\n" +
+				"	public static void a(){}\n" +
+				"}\n" +
+				"public abstract class A extends B implements I{\n" + 
+				"}\n",
+			},
+			"");		
+		}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211
+	public void test061() {
+		this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"import static q.A.a;\n" + 
+				"public class X {\n" + 
+				"}\n",
+				"q/A.java",
+				"package q;\n" + 
+				"interface I {\n" +
+				"	String a = \"\";\n" +
+				"}\n" +
+				"interface B {\n" +
+				"	String a = \"2\";\n" +
+				"}\n" +
+				"public class A implements B, I {\n" + 
+				"}\n",
+			},
+			"");		
+		}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211
+	public void test062() {
+		this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"import static q.A.a;\n" + 
+				"public class X {\n" + 
+				"}\n",
+				"q/A.java",
+				"package q;\n" + 
+				"interface I {\n" +
+				"	String a(Object o);\n" +
+				"}\n" +
+				"interface B {\n" +
+				"	void a();\n" +
+				"}\n" +
+				"public abstract class A implements B, I{\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 2)\r\n" + 
+			"	import static q.A.a;\r\n" + 
+			"	              ^^^^^\n" + 
+			"The import q.A.a cannot be resolved\n" + 
+			"----------\n");		
+	}	
 }
+
