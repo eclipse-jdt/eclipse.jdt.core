@@ -7968,14 +7968,14 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
-
+	
 	/**
-	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=149126
+	 * @bug 149126: IllegalArgumentException in ASTConverter
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=149126"
 	 */
-	public void _test0652() throws JavaModelException {
-		ICompilationUnit workingCopy = null;
-		try {
-			String contents =
+	public void test0652() throws CoreException {
+		ASTResult result = this.buildMarkedAST(
+				"/Converter/src/TestCharset.java",
 				"import java.nio.ByteBuffer;\n" +
 				"import java.nio.CharBuffer;\n" +
 				"import java.nio.charset.Charset;\n" +
@@ -7995,21 +7995,81 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"        public CharsetEncoder newEncoder() {\n" +
 				"                return null;\n" +
 				"        }\n" +
-				"}";
-			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
-			ASTNode node = buildAST(
-				contents,
-				workingCopy,
-				false,
-				true);
-			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-			CompilationUnit unit = (CompilationUnit) node;
-			assertProblemsSize(unit, 1);
-		} finally {
-			if (workingCopy != null)
-				workingCopy.discardWorkingCopy();
+				"}");
+		
+		assertASTResult(
+				"===== AST =====\n" + 
+				"import java.nio.ByteBuffer;\n" + 
+				"import java.nio.CharBuffer;\n" + 
+				"import java.nio.charset.Charset;\n" + 
+				"import java.nio.charset.CharsetDecoder;\n" + 
+				"import java.nio.charset.CharsetEncoder;\n" + 
+				"import java.nio.charset.CoderResult;\n" + 
+				"public class TestCharset extends Charset {\n" + 
+				"  public CharsetDecoder newDecoder(){\n" + 
+				"    return new CharsetDecoder(this,2.0,2.0){\n" + 
+				"      void CharsetDecoder(){\n" + 
+				"      }\n" + 
+				"      protected CoderResult decodeLoop(      ByteBuffer in,      CharBuffer out){\n" + 
+				"        return null;\n" + 
+				"      }\n" + 
+				"    }\n" + 
+				";\n" + 
+				"    ;\n" + 
+				"  }\n" + 
+				"  public CharsetEncoder newEncoder(){\n" + 
+				"    return null;\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n" + 
+				"===== Details =====\n" + 
+				"===== Problems =====\n" + 
+				"1. ERROR in /Converter/src/TestCharset.java (at line 1)\n" + 
+				"	import java.nio.ByteBuffer;\n" + 
+				"	       ^^^^^^^^\n" + 
+				"The import java.nio cannot be resolved\n" + 
+				"2. ERROR in /Converter/src/TestCharset.java (at line 2)\n" + 
+				"	import java.nio.CharBuffer;\n" + 
+				"	       ^^^^^^^^\n" + 
+				"The import java.nio cannot be resolved\n" + 
+				"3. ERROR in /Converter/src/TestCharset.java (at line 3)\n" + 
+				"	import java.nio.charset.Charset;\n" + 
+				"	       ^^^^^^^^\n" + 
+				"The import java.nio cannot be resolved\n" + 
+				"4. ERROR in /Converter/src/TestCharset.java (at line 4)\n" + 
+				"	import java.nio.charset.CharsetDecoder;\n" + 
+				"	       ^^^^^^^^\n" + 
+				"The import java.nio cannot be resolved\n" + 
+				"5. ERROR in /Converter/src/TestCharset.java (at line 5)\n" + 
+				"	import java.nio.charset.CharsetEncoder;\n" + 
+				"	       ^^^^^^^^\n" + 
+				"The import java.nio cannot be resolved\n" + 
+				"6. ERROR in /Converter/src/TestCharset.java (at line 6)\n" + 
+				"	import java.nio.charset.CoderResult;\n" + 
+				"	       ^^^^^^^^\n" + 
+				"The import java.nio cannot be resolved\n" + 
+				"7. ERROR in /Converter/src/TestCharset.java (at line 7)\n" + 
+				"	public class TestCharset extends Charset {\n" + 
+				"	                                 ^^^^^^^\n" + 
+				"Charset cannot be resolved to a type\n" + 
+				"8. ERROR in /Converter/src/TestCharset.java (at line 8)\n" + 
+				"	public CharsetDecoder newDecoder() {\n" + 
+				"	       ^^^^^^^^^^^^^^\n" + 
+				"CharsetDecoder cannot be resolved to a type\n" + 
+				"9. ERROR in /Converter/src/TestCharset.java (at line 9)\n" + 
+				"	return new CharsetDecoder(this, 2.0, 2.0) {\n" + 
+				"	           ^^^^^^^^^^^^^^\n" + 
+				"CharsetDecoder cannot be resolved to a type\n" + 
+				"10. ERROR in /Converter/src/TestCharset.java (at line 10)\n" + 
+				"	CharsetDecoder(CharSet\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Syntax error on token(s), misplaced construct(s)\n" + 
+				"11. ERROR in /Converter/src/TestCharset.java (at line 17)\n" + 
+				"	public CharsetEncoder newEncoder() {\n" + 
+				"	       ^^^^^^^^^^^^^^\n" + 
+				"CharsetEncoder cannot be resolved to a type\n",
+				result);
 		}
-	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=150409
