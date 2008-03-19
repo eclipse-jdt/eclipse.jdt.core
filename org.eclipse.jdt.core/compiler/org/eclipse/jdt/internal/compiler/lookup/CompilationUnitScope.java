@@ -358,8 +358,12 @@ void faultInImports() {
 		} else {
 			Binding importBinding = findSingleImport(compoundName, importReference.isStatic());
 			if (!importBinding.isValidBinding()) {
-				problemReporter().importProblem(importReference, importBinding);
-				continue nextImport;
+				if (importBinding instanceof ProblemFieldBinding && importBinding.problemId() == ProblemReasons.Ambiguous) {
+					// keep it unless a duplicate can be found below
+				} else {
+					problemReporter().importProblem(importReference, importBinding);
+					continue nextImport;
+				}
 			}
 			if (importBinding instanceof PackageBinding) {
 				problemReporter().cannotImportPackage(importReference);
@@ -518,12 +522,10 @@ private Binding findSingleStaticImport(char[][] compoundName) {
 	ReferenceBinding type = (ReferenceBinding) binding;
 	FieldBinding field = findField(type, name, null, true);
 	if (field != null) {
-		if (field.problemId() == ProblemReasons.Ambiguous) {
-			field = ((ProblemFieldBinding)field).closestMatch;
-		}
-		if (field.isStatic() && field.canBeSeenBy(type, null, this)) {
+		if (field.problemId() == ProblemReasons.Ambiguous && ((ProblemFieldBinding) field).closestMatch.isStatic())
+			return field; // keep the ambiguous field instead of a possible method match
+		if (field.isValidBinding() && field.isStatic() && field.canBeSeenBy(type, null, this))
 			return field;
-		}
 	}
 
 	// look to see if there is a static method with the same selector
@@ -705,6 +707,8 @@ Binding resolveSingleImport(ImportBinding importBinding) {
 	if (importBinding.resolvedImport == null) {
 		importBinding.resolvedImport = findSingleImport(importBinding.compoundName, importBinding.isStatic());
 		if (!importBinding.resolvedImport.isValidBinding() || importBinding.resolvedImport instanceof PackageBinding) {
+			if (importBinding.resolvedImport instanceof ProblemFieldBinding && importBinding.resolvedImport.problemId() == ProblemReasons.Ambiguous)
+				return importBinding.resolvedImport;
 			if (this.imports != null) {
 				ImportBinding[] newImports = new ImportBinding[imports.length - 1];
 				for (int i = 0, n = 0, max = this.imports.length; i < max; i++)

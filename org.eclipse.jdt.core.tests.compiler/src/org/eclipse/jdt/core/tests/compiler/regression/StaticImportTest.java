@@ -2214,6 +2214,50 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	              ^^^^^\n" + 
 			"The import q.A.a cannot be resolved\n" + 
 			"----------\n");		
-	}	
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
+	public void test063() {
+		this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"import static q.A.a;\n" + 
+				"import static q.A.b;\n" + 
+				"public class X {\n" + 
+				"	void test() {\n" + 
+				"		System.out.println(a);\n" + 
+				"		System.out.println(b);\n" + 
+				"		System.out.println(b(1));\n" +
+				"	}\n" +
+				"}\n",
+				"q/A.java",
+				"package q;\n" + 
+				"interface I {\n" +
+				"	String a = \"1\";\n" +
+				"	String b = \"2\";\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	String a = \"3\";\n" +
+				"}\n" +
+				"class B {\n" +
+				"	public static String a = \"4\";\n" +
+				"	public static String b = \"5\";\n" +
+				"	public static String b(int i) { return \"6\"; }\n" +
+				"}\n" +
+				"public class A extends B implements J, I {}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 6)\n" + 
+			"	System.out.println(a);\n" + 
+			"	                   ^\n" + 
+			"The field a is ambiguous\n" + 
+			"----------\n" + 
+			"2. ERROR in p\\X.java (at line 7)\n" + 
+			"	System.out.println(b);\n" + 
+			"	                   ^\n" + 
+			"The field b is ambiguous\n" + 
+			"----------\n"
+		);		
+	}
 }
 
