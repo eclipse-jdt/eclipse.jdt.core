@@ -583,7 +583,46 @@ public void testBug214002b() throws CoreException, IOException {
 		methodDeclaration.resolveBinding()
 	);
 }
-
+	/**
+	 * @bug 212434: [dom] IllegalArgumentException during AST Creation
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212434"
+	 */
+	public void testBug212434a() throws CoreException, IOException {
+		try {
+			createJavaProject("P", new String[] {""}, new String[0], "");
+			createFile("P/A.java",
+					"public class A {\n"+
+					"\n"+
+					"	public void foo() {\n"+
+					"		new Object() { \n"+
+					"			public void bar() { \n"+
+					"				if (true) {\n"+
+					"					final\n"+
+					"				}\n"+
+					"			}\n"+
+					"\n"+
+					"		};  \n"+
+					"\n"+
+					"		if (false) {\n"+
+					"			Object var = new Object() {\n"+
+					"				void toto() {\n"+
+					"					\n"+
+					"				}\n"+
+					"			};\n"+
+					"		}\n"+
+					"	}\n"+
+					"}"
+			);
+			ICompilationUnit cuA = getCompilationUnit("P/A.java");
+			try {
+				runConversion(AST.JLS3, cuA, true, true, true);
+			} catch(IllegalArgumentException e) {
+				assertTrue("Unexpected IllegalArgumentException", false);
+			}
+		} finally {
+			deleteProject("P");
+		}
+	}
 /**
  * @bug 214647: [dom] NPE in MethodBinding.getParameterAnnotations(..)
  * @test Ensures that no NPE occurs when parameters have no annotation
