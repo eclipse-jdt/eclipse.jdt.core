@@ -633,8 +633,12 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 	/**
 	 * Performance tests for search: Package Declarations.
+	 * @deprecated because this test does not last enough to be pertinent
+	 * @see #testSearchPackageDeclarationsWorkspace() This test is the only
+	 * 	valid test to ensure that no regression occurs while searching for package
+	 * 	declarations
 	 */
-	public void testSearchPackageDeclarations() throws CoreException {
+	public void _testSearchPackageDeclarations() throws CoreException {
 		tagAsSummary("Search package declarations", false); // do NOT put in fingerprint
 
 		// Wait for indexing end
@@ -707,6 +711,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * This action searches all package declarations on the entire workspace.
 	 * Not activated, as this is more a JDT/UI performance tests, but released
 	 * to keep a trace in the repository...
+	 * @deprecated
 	 */
 	public void _testGotoPackage() throws CoreException {
 
