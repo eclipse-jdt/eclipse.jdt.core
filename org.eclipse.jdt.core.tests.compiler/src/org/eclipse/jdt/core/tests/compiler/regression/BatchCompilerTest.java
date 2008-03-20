@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class BatchCompilerTest extends AbstractRegressionTest {
 	public static final String OUTPUT_DIR_PLACEHOLDER = "---OUTPUT_DIR_PLACEHOLDER---";
+	public static final String LIB_DIR_PLACEHOLDER = "---LIB_DIR_PLACEHOLDER---";
 	static final String JRE_HOME_DIR = Util.getJREDirectory();
 	private static final Main MAIN = new Main(null, null, false);
 
@@ -53,6 +54,283 @@ public BatchCompilerTest(String name) {
  */
 public static Test suite() {
 	return buildUniqueComplianceTestSuite(testClass(), ClassFileConstants.JDK1_5);
+}
+
+private static boolean CASCADED_JARS_CREATED;
+private void createCascadedJars() {
+	if (!CASCADED_JARS_CREATED) {
+		File libDir = new File(LIB_DIR);
+		Util.delete(libDir); // make sure we recycle the libs
+ 		libDir.mkdirs();
+		try {
+			Util.createJar(
+				new String[] {
+					"p/A.java",
+					"package p;\n" +
+					"public class A {\n" +
+					"}",
+				},
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path: lib2.jar\n",
+					"p/S1.java",
+					"package p;\n" +
+					"public class S1 {\n" +
+					"}",
+				},
+				LIB_DIR + "/lib1.jar",
+				JavaCore.VERSION_1_4);
+			Util.createJar(
+				new String[] {
+					"p/B.java",
+					"package p;\n" +
+					"public class B {\n" +
+					"}",
+					"p/R.java",
+					"package p;\n" +
+					"public class R {\n" +
+					"  public static final int R2 = 2;\n" +
+					"}",
+				},
+				new String[] {
+					"p/S2.java",
+					"package p;\n" +
+					"public class S2 {\n" +
+					"}",
+				},
+				LIB_DIR + "/lib2.jar",
+				JavaCore.VERSION_1_4);
+			Util.createJar(
+				new String[] {
+					"p/C.java",
+					"package p;\n" +
+					"public class C {\n" +
+					"}",
+					"p/R.java",
+					"package p;\n" +
+					"public class R {\n" +
+					"  public static final int R3 = 3;\n" +
+					"}",
+				},
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path: lib4.jar\n",
+				},
+				LIB_DIR + "/lib3.jar",
+				JavaCore.VERSION_1_4);
+			Util.createJar(
+				new String[] {
+					"p/D.java",
+					"package p;\n" +
+					"public class D {\n" +
+					"}",
+				},
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path: lib1.jar lib3.jar\n",
+				},
+				LIB_DIR + "/lib4.jar",
+				JavaCore.VERSION_1_4);
+			Util.createJar(
+				new String[] {
+					"p/C.java",
+					"package p;\n" +
+					"public class C {\n" +
+					"}",
+					"p/R.java",
+					"package p;\n" +
+					"public class R {\n" +
+					"  public static final int R3 = 3;\n" +
+					"}",
+				},
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path: s/lib6.jar\n",
+				},
+				LIB_DIR + "/lib5.jar",
+				JavaCore.VERSION_1_4);
+			new File(LIB_DIR + "/s").mkdir();
+			Util.createJar(
+				new String[] {
+					"p/D.java",
+					"package p;\n" +
+					"public class D {\n" +
+					"}",
+				},
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path: ../lib7.jar\n",
+				},
+				LIB_DIR + "/s/lib6.jar",
+				JavaCore.VERSION_1_4);
+			Util.createJar(
+				new String[] {
+					"p/A.java",
+					"package p;\n" +
+					"public class A {\n" +
+					"}",
+				},
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path: lib2.jar\n",
+				},
+				LIB_DIR + "/lib7.jar",
+				JavaCore.VERSION_1_4);
+			Util.createJar(
+				new String[] {
+					"p/F.java",
+					"package p;\n" +
+					"public class F {\n" +
+					"}",
+				},
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path: " + LIB_DIR + "/lib3.jar lib1.jar\n",
+				},
+				LIB_DIR + "/lib8.jar",
+				JavaCore.VERSION_1_4);
+			Util.createJar(
+				new String[] {
+					"p/G.java",
+					"package p;\n" +
+					"public class G {\n" +
+					"}",
+				},
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path: lib1.jar\n" +
+					"Class-Path: lib3.jar\n",
+				},
+				LIB_DIR + "/lib9.jar",
+				JavaCore.VERSION_1_4);
+			Util.createJar(
+				new String[] {
+					"p/A.java",
+					"package p;\n" +
+					"public class A {\n" +
+					"}",
+				},
+				// spoiled jar: MANIFEST.MF is a directory
+				new String[] {
+					"META-INF/MANIFEST.MF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path: lib2.jar\n",
+				},
+				LIB_DIR + "/lib10.jar",
+				JavaCore.VERSION_1_4);
+			Util.createJar(
+				new String[] {
+					"p/A.java",
+					"package p;\n" +
+					"public class A {\n" +
+					"}",
+				},
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path:\n",
+				},
+				LIB_DIR + "/lib11.jar",
+				JavaCore.VERSION_1_4);
+			Util.createJar(
+				null,
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path:lib1.jar\n", // missing space
+				},
+				LIB_DIR + "/lib12.jar",
+				JavaCore.VERSION_1_4);
+			Util.createJar(
+				null,
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path:lib1.jar lib1.jar\n", // missing space
+				},
+				LIB_DIR + "/lib13.jar",
+				JavaCore.VERSION_1_4);			
+			Util.createJar(
+				null,
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					" Class-Path: lib1.jar\n", // extra space at line start
+				},
+				LIB_DIR + "/lib14.jar",
+				JavaCore.VERSION_1_4);			
+			Util.createJar(
+				null,
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path: lib1.jar", // missing newline at end
+				},
+				LIB_DIR + "/lib15.jar",
+				JavaCore.VERSION_1_4);			
+			Util.createJar(
+				new String[] {
+					"p/A.java",
+					"package p;\n" +
+					"public class A {\n" +
+					"}",
+				},
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path: \n" +
+					" lib2.jar\n",
+					"p/S1.java",
+					"package p;\n" +
+					"public class S1 {\n" +
+					"}",
+				},
+				LIB_DIR + "/lib16.jar",
+				JavaCore.VERSION_1_4);
+			new File(LIB_DIR + "/dir").mkdir();
+			Util.createJar(
+				new String[] {
+					"p/A.java",
+					"package p;\n" +
+					"public class A {\n" +
+					"}",
+				},
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path: ../lib2.jar\n",
+				},
+				LIB_DIR + "/dir/lib17.jar",
+				JavaCore.VERSION_1_4);
+			CASCADED_JARS_CREATED = true;
+		} catch (IOException e) {
+			// ignore
+		}
+	}
 }
 
 private String getLibraryClassesAsQuotedString() {
@@ -159,7 +437,10 @@ private String getLibraryClassesAsQuotedString() {
 	 *            pass true to get the output directory flushed before the test
 	 *            runs
 	 */
-	private void runTest(boolean shouldCompileOK, String[] testFiles, String commandLine,
+	private void runTest(
+			boolean shouldCompileOK, 
+			String[] testFiles, 
+			String commandLine,
 			String expectedOutOutputString,
 			String expectedErrOutputString,
 			boolean shouldFlushOutputDirectory) {
@@ -285,6 +566,140 @@ private String getLibraryClassesAsQuotedString() {
 					errOutputString);
 		}
 	}
+private void runTest(
+		boolean shouldCompileOK, 
+		String[] testFiles, 
+		String commandLine,
+		Matcher outOutputStringMatcher,
+		Matcher errOutputStringMatcher,
+		boolean shouldFlushOutputDirectory) {
+	File outputDirectory = new File(OUTPUT_DIR);
+	if (shouldFlushOutputDirectory)
+		Util.flushDirectoryContent(outputDirectory);
+	try {
+		if (!outputDirectory.isDirectory()) {
+			outputDirectory.mkdirs();
+		}
+		PrintWriter sourceFileWriter;
+		for (int i = 0; i < testFiles.length; i += 2) {
+			String fileName = OUTPUT_DIR + File.separator + testFiles[i];
+			File file = new File(fileName), innerOutputDirectory = file
+					.getParentFile();
+			if (!innerOutputDirectory.isDirectory()) {
+				innerOutputDirectory.mkdirs();
+			}
+			sourceFileWriter = new PrintWriter(new FileOutputStream(file));
+			sourceFileWriter.write(testFiles[i + 1]);
+			sourceFileWriter.close();
+		}
+	} catch (FileNotFoundException e) {
+		e.printStackTrace();
+		throw new RuntimeException(e);
+	}
+	String printerWritersNameRoot = OUTPUT_DIR + File.separator + testName();
+	String outFileName = printerWritersNameRoot + "out.txt",
+		   errFileName = printerWritersNameRoot + "err.txt";
+	Main batchCompiler;
+	PrintWriter out = null;
+	PrintWriter err = null;
+	boolean compileOK;
+	try {
+		try {
+			out = new PrintWriter(new FileOutputStream(outFileName));
+			err = new PrintWriter(new FileOutputStream(errFileName));
+			batchCompiler = new Main(out, err, false);
+		} catch (FileNotFoundException e) {
+			System.out.println(getClass().getName() + '#' + getName());
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		try {
+			final String[] tokenizeCommandLine = Main.tokenize(commandLine);
+			compileOK = batchCompiler.compile(tokenizeCommandLine);
+		} catch (RuntimeException e) {
+			compileOK = false;
+			System.out.println(getClass().getName() + '#' + getName());
+			e.printStackTrace();
+			throw e;
+		}
+	} finally {
+		if (out != null)
+			out.close();
+		if (err != null)
+			err.close();
+	}
+	String outOutputString = Util.fileContent(outFileName),
+	       errOutputString = Util.fileContent(errFileName);
+	boolean compareOK = false, outCompareOK = false, errCompareOK = false;
+	String expectedErrOutputString = null, expectedOutOutputString = null;
+	if (compileOK == shouldCompileOK) {
+		if (outOutputStringMatcher == null) {
+			outCompareOK = true;
+		} else {
+			outCompareOK = outOutputStringMatcher.match(outOutputString);
+			expectedOutOutputString = outOutputStringMatcher.expected();
+		}
+		if (errOutputStringMatcher == null) {
+			errCompareOK = true;
+		} else {
+			errCompareOK = errOutputStringMatcher.match(errOutputString);
+			expectedErrOutputString = errOutputStringMatcher.expected();
+		}
+		compareOK = outCompareOK && errCompareOK;
+	}
+	if (compileOK != shouldCompileOK || !compareOK) {
+		System.out.println(getClass().getName() + '#' + getName());
+		for (int i = 0; i < testFiles.length; i += 2) {
+			System.out.print(testFiles[i]);
+			System.out.println(" [");
+			System.out.println(testFiles[i + 1]);
+			System.out.println("]");
+		}
+	}
+	if (compileOK != shouldCompileOK)
+		System.out.println(errOutputString);
+	if (compileOK == shouldCompileOK && !compareOK) {
+		System.out.println(
+				    "------------ [START OUT] ------------\n"
+				+   "------------- Expected: -------------\n"
+				+ expectedOutOutputString
+				+ "\n------------- but was:  -------------\n"
+				+ outOutputString
+				+ "\n--------- (cut and paste:) ----------\n"
+				+ Util.displayString(outputDirNormalizer
+						.normalized(outOutputString))
+				+ "\n------------- [END OUT] -------------\n"
+				+   "------------ [START ERR] ------------\n"
+				+   "------------- Expected: -------------\n"
+				+ expectedErrOutputString
+				+ "\n------------- but was:  -------------\n"
+				+ errOutputString
+				+ "\n--------- (cut and paste:) ----------\n"
+				+ Util.displayString(outputDirNormalizer
+						.normalized(errOutputString))
+				+ "\n------------- [END ERR] -------------\n");
+	}
+	if (shouldCompileOK)
+		assertTrue("Unexpected problems: " + errOutputString, compileOK);
+	else
+		assertTrue("Unexpected success: " + errOutputString, !compileOK);
+	if (!outCompareOK) {
+		// calling assertEquals to benefit from the comparison UI
+		// (need appropriate exception)
+		assertEquals(
+				"Unexpected standard output for invocation with arguments ["
+					+ commandLine + "]",
+				expectedOutOutputString,
+				outOutputString);
+	}
+	if (!errCompareOK) {
+		assertEquals(
+				"Unexpected error output for invocation with arguments ["
+					+ commandLine + "]",
+				expectedErrOutputString,
+				errOutputString);
+	}
+}	
 private void runClasspathTest(String classpathInput, String[] expectedClasspathEntries,
 		String expectedError) {
 	File outputDirectory = new File(OUTPUT_DIR);
@@ -362,6 +777,53 @@ private void checkWidth(String message, int width) {
 	}
 }
 
+static abstract class Matcher {
+	abstract boolean match(String effective);
+	abstract String expected(); // for use in JUnit comparison framework
+}
+static class StringMatcher extends Matcher {
+	private String expected;
+	private Normalizer normalizer;
+	StringMatcher(String expected, Normalizer normalizer) {
+		this.expected = expected;
+		this.normalizer = normalizer;
+	}
+	boolean match(String effective) {
+		if (this.expected == null) {
+			return effective == null;
+		}
+		if (this.normalizer == null) {
+			return this.expected.equals(effective);
+		}
+		return this.expected.equals(this.normalizer.normalized(effective));
+	}
+	String expected() {
+		return this.expected;
+	}
+}
+static class SubstringMatcher extends Matcher {
+	private String substring;
+	SubstringMatcher(String substring) {
+		this.substring = substring;
+	}
+	boolean match(String effective) {
+		effective = outputDirNormalizer.normalized(effective);
+		return effective.indexOf(this.substring) != -1;
+	}
+	String expected() {
+		return "*" + this.substring + "*";
+	}
+}
+static final Matcher EMPTY_STRING_MATCHER = new Matcher() {
+	String expected() {
+		return org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING;
+	}
+	boolean match(String effective) {
+		return effective != null && effective.length() == 0;
+	}
+};
+static final Matcher ONE_FILE_GENERATED_MATCHER = new SubstringMatcher("[1 .class file generated]");
+static final Matcher TWO_FILES_GENERATED_MATCHER = new SubstringMatcher("[2 .class files generated]");
 	/**
 	 * Abstract normalizer for output comparison. This class merely embodies a
 	 * chain of responsibility, plus the signature of the method of interest
@@ -562,17 +1024,23 @@ private void checkWidth(String message, int width) {
 	 * OUTPUT_DIR_PLACEHOLDER and changes file separator to / if the
 	 * platform file separator is different from /.
 	 */
-	private static Normalizer outputDirNormalizer;
+	static Normalizer outputDirNormalizer;
 	static {
 		if (File.separatorChar == '/') {
-			outputDirNormalizer = new StringNormalizer(
-					null, OUTPUT_DIR, OUTPUT_DIR_PLACEHOLDER);
+			outputDirNormalizer = 
+				new StringNormalizer(
+					new StringNormalizer(
+						null, OUTPUT_DIR, OUTPUT_DIR_PLACEHOLDER),
+					LIB_DIR, LIB_DIR_PLACEHOLDER);
 		}
 		else {
-			outputDirNormalizer = new StringNormalizer(
+			outputDirNormalizer = 
+				new StringNormalizer(
 					new StringNormalizer(
+						new StringNormalizer(
 							null, File.separator, "/"),
-					OUTPUT_DIR, OUTPUT_DIR_PLACEHOLDER);
+						OUTPUT_DIR, OUTPUT_DIR_PLACEHOLDER),
+					LIB_DIR, LIB_DIR_PLACEHOLDER);
 		}
 	}
 
@@ -1510,82 +1978,159 @@ public void test017(){
 	        "incorrect classpath: dummmy_dir\n",
 	        true);
 	}
-// we tolerate inexisting jars on the classpath
-// TODO (maxime) check and document
-public void _test017b(){
-	this.runConformTest(
+// we tolerate inexisting jars on the classpath, and we don't even warn about
+// them (javac does the same as us)
+public void test017b(){
+	this.runTest(
+		true,
 		new String[] {
-				"X.java",
-				"/** */\n" +
-				"public class X {\n" +
-				"	OK1 ok1;\n" +
-				"}",
-				"OK1.java",
-				"/** */\n" +
-				"public class OK1 {\n" +
-				"	// empty\n" +
-				"}"
+			"X.java",
+			"/** */\n" +
+			"public class X {\n" +
+			"	OK1 ok1;\n" +
+			"}",
+			"OK1.java",
+			"/** */\n" +
+			"public class OK1 {\n" +
+			"	// empty\n" +
+			"}"
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -cp dummy.jar" + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
         + " -verbose -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
-        "[2 .class files generated]\n",
-        "incorrect classpath: dummmy.jar\n",
+        TWO_FILES_GENERATED_MATCHER,
+        EMPTY_STRING_MATCHER,
         true);
 }
-// we tolerate empty classpath entries
-// TODO (maxime) check and document
-public void _test017c(){
-	this.runConformTest(
+// we tolerate empty classpath entries, and we don't even warn about
+// them (javac does the same as us)
+public void test017c(){
+	this.runTest(
+		true,
 		new String[] {
-				"X.java",
-				"/** */\n" +
-				"public class X {\n" +
-				"	OK1 ok1;\n" +
-				"}",
-				"OK1.java",
-				"/** */\n" +
-				"public class OK1 {\n" +
-				"	// empty\n" +
-				"}"
+			"X.java",
+			"/** */\n" +
+			"public class X {\n" +
+			"	OK1 ok1;\n" +
+			"}",
+			"OK1.java",
+			"/** */\n" +
+			"public class OK1 {\n" +
+			"	// empty\n" +
+			"}"
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -cp " + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
         + " -verbose -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
-        "[2 .class files generated]\n",
-        "incorrect classpath\n",
+        TWO_FILES_GENERATED_MATCHER,
+        EMPTY_STRING_MATCHER,
         true);
 }
-// command line - unusual classpath (empty, but using current directory, still OK provided
-//	that we execute from the appropriate directory); since there is no notion
-// of current directory for this tests suite, the test is not executed
-// TODO (maxime) enforce working directory
-	public void _test018(){
-		this.runConformTest(
-			new String[] {
-					"X.java",
-					"/** */\n" +
-					"public class X {\n" +
-					"	OK1 ok1;\n" +
-					"}",
-					"OK1.java",
-					"/** */\n" +
-					"public class OK1 {\n" +
-					"	// empty\n" +
-					"}"
-			},
-	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-	        + " -1.5 -g -preserveAllLocals"
-	        + " -verbose -proceedOnError -referenceInfo"
-	        + " -d \"" + OUTPUT_DIR + "\"",
-	        "[2 .class files generated]\n",
-	        "",
-	        true);
+// command line - unusual classpath (empty)
+// ok provided we explicit the sourcepath
+public void test018a(){
+	String currentWorkingDirectoryPath = System.getProperty("user.dir");
+	if (currentWorkingDirectoryPath == null) {
+		System.err.println("BatchCompilerTest#18a could not access the current working directory " + currentWorkingDirectoryPath);
+	} else if (!new File(currentWorkingDirectoryPath).isDirectory()) {
+		System.err.println("BatchCompilerTest#18a current working directory is not a directory " + currentWorkingDirectoryPath);
+	} else {
+		String xPath = currentWorkingDirectoryPath + File.separator + "X.java";
+		String ok1Path = currentWorkingDirectoryPath + File.separator + "OK1.java";
+		PrintWriter sourceFileWriter;
+		try {
+			File file = new File(xPath);
+			sourceFileWriter = new PrintWriter(new FileOutputStream(file));
+			sourceFileWriter.write(
+				"/** */\n" +
+				"public class X {\n" +
+				"	OK1 ok1;\n" +
+				"}");
+			sourceFileWriter.close();
+			file = new File(ok1Path);
+			sourceFileWriter = new PrintWriter(new FileOutputStream(file));
+			sourceFileWriter.write(
+				"/** */\n" +
+				"public class OK1 {\n" +
+				"	// empty\n" +
+				"}");
+			sourceFileWriter.close();
+			this.runTest(
+				true,
+				new String[] {
+					"dummy.java", // enforce output directory creation
+					""
+				},
+		        "X.java"
+		        + " -1.5 -g -preserveAllLocals"
+		        + " -verbose -proceedOnError"
+		        + " -sourcepath ."
+		        + " -d \"" + OUTPUT_DIR + "\"",
+		        TWO_FILES_GENERATED_MATCHER,
+		        EMPTY_STRING_MATCHER,
+		        false);
+		} catch (FileNotFoundException e) {
+			System.err.println("BatchCompilerTest#18a could not write to current working directory " + currentWorkingDirectoryPath);
+		} finally {
+			new File(xPath).delete();
+			new File(ok1Path).delete();
+		}
 	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=214725
+// empty sourcepath works with javac but not with ecj
+public void _test018b(){
+	String currentWorkingDirectoryPath = System.getProperty("user.dir");
+	if (currentWorkingDirectoryPath == null) {
+		System.err.println("BatchCompilerTest#18b could not access the current working directory " + currentWorkingDirectoryPath);
+	} else if (!new File(currentWorkingDirectoryPath).isDirectory()) {
+		System.err.println("BatchCompilerTest#18b current working directory is not a directory " + currentWorkingDirectoryPath);
+	} else {
+		String xPath = currentWorkingDirectoryPath + File.separator + "X.java";
+		String ok1Path = currentWorkingDirectoryPath + File.separator + "OK1.java";
+		PrintWriter sourceFileWriter;
+		try {
+			File file = new File(xPath);
+			sourceFileWriter = new PrintWriter(new FileOutputStream(file));
+			sourceFileWriter.write(
+				"/** */\n" +
+				"public class X {\n" +
+				"	OK1 ok1;\n" +
+				"}");
+			sourceFileWriter.close();
+			file = new File(ok1Path);
+			sourceFileWriter = new PrintWriter(new FileOutputStream(file));
+			sourceFileWriter.write(
+				"/** */\n" +
+				"public class OK1 {\n" +
+				"	// empty\n" +
+				"}");
+			sourceFileWriter.close();
+			this.runTest(
+				true,
+				new String[] {
+					"dummy.java", // enforce output directory creation
+					""
+				},
+		        "X.java"
+		        + " -1.5 -g -preserveAllLocals"
+		        + " -verbose -proceedOnError"
+		        + " -d \"" + OUTPUT_DIR + "\"",
+		        TWO_FILES_GENERATED_MATCHER,
+		        EMPTY_STRING_MATCHER,
+		        false);
+		} catch (FileNotFoundException e) {
+			System.err.println("BatchCompilerTest#18b could not write to current working directory " + currentWorkingDirectoryPath);
+		} finally {
+			new File(xPath).delete();
+			new File(ok1Path).delete();
+		}
+	}
+}
 public void test019(){
 		this.runNegativeTest(
 			new String[] {
@@ -8049,6 +8594,987 @@ public void test219_batch_classpath_apis() {
 		CharOperation.indexOf('/', 
 			new ClasspathJar(new File("relative.jar"), true, null, null).
 			normalizedPath()) == -1);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// basic link: a jar only referenced in the manifest of the first one is found
+public void test216_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"  B b;\n" +
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -proceedOnError -referenceInfo"
+        + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+        "",
+        "",
+        true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// may want a specific option to mimick javac 1.4
+// caveat: javac 1.5 with -source 1.4 and -target 1.4 still uses the links
+public void _test216_jar_ref_in_jar_suppress(){
+	createCascadedJars();
+	this.runNegativeTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"  B b;\n" +
+			"}",
+		},
+     "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+     + " -ignoreJarClassPath -g -preserveAllLocals"
+     + " -proceedOnError -referenceInfo"
+     + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+     "",
+     "----------\n" + 
+     "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" + 
+     "	B b;\n" + 
+     "	^\n" + 
+     "B cannot be resolved to a type\n" + 
+     "----------\n" + 
+     "1 problem (1 error)",
+     true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// links are followed recursively, eliminating dupes
+public void test217_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"  B b;\n" +
+			"  C c;\n" +
+			"  D d;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// at first level, this is depth first, masking tailing libs
+public void test218_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runNegativeTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  int i = R.R2;\n" +
+			"  int j = R.R3;\n" +
+			"}",
+		},
+	  "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+			+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar\""
+			+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar\""
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+	  + " -1.5 -g -preserveAllLocals"
+	  + " -proceedOnError -referenceInfo"
+	  + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+	  "",
+	  "----------\n" + 
+	  "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" + 
+	  "	int j = R.R3;\n" + 
+	  "	        ^^^^\n" + 
+	  "R.R3 cannot be resolved\n" + 
+	  "----------\n" + 
+	  "1 problem (1 error)",
+	  true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// using only links, we adopt a depth first algorithm
+public void test219_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runNegativeTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  int i = R.R2;\n" +
+			"  int j = R.R3;\n" +
+			"}",
+		},
+	  "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+			+ " -cp \"" + LIB_DIR + File.separator + "lib4.jar\""
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+	  + " -1.5 -g -preserveAllLocals"
+	  + " -proceedOnError -referenceInfo"
+	  + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+	  "",
+	  "----------\n" + 
+	  "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" + 
+	  "	int j = R.R3;\n" + 
+	  "	        ^^^^\n" + 
+	  "R.R3 cannot be resolved\n" + 
+	  "----------\n" + 
+	  "1 problem (1 error)",
+	  true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// managing subdirectories and .. properly
+public void test220_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"  B b;\n" +
+			"  C c;\n" +
+			"  D d;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib5.jar\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// variant: the second jar on a line is found as well
+public void test221_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  C c;\n" +
+			"}",
+		},
+     "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib4.jar\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+     + " -1.5 -g -preserveAllLocals"
+     + " -proceedOnError -referenceInfo"
+     + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+     "",
+     "",
+     true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// we eat up absolute links silently
+public void test222_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  F f;\n" +
+			"}",
+		},
+	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+			+ " -cp \"" + LIB_DIR + File.separator + "lib8.jar\""
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+	+ " -1.5 -g -preserveAllLocals"
+	+ " -proceedOnError -referenceInfo"
+	+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+	"",
+	"",
+	true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// absolute links do not mask following relative links
+public void test223_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"  F f;\n" +
+			"}",
+		},
+	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+			+ " -cp \"" + LIB_DIR + File.separator + "lib8.jar\""
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+	+ " -1.5 -g -preserveAllLocals"
+	+ " -proceedOnError -referenceInfo"
+	+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+	"",
+	"",
+	true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// absolute links are not followed
+public void test224_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runNegativeTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  C c;\n" +
+			"}",
+		},
+	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+			+ " -cp \"" + LIB_DIR + File.separator + "lib8.jar\""
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+	+ " -1.5 -g -preserveAllLocals"
+	+ " -proceedOnError -referenceInfo"
+	+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+	"",
+	"----------\n" + 
+	"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
+	"	C c;\n" + 
+	"	^\n" + 
+	"C cannot be resolved to a type\n" + 
+	"----------\n" + 
+	"1 problem (1 error)",
+	true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// we accept duplicate classpath lines in manifest and we follow the jars of the
+// second and following lines as well as the first line (emit a warning as javac does)
+public void test225_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"  G g;\n" +
+			"}",
+		},
+	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+			+ " -cp \"" + LIB_DIR + File.separator + "lib9.jar\""
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+	+ " -1.5 -g -preserveAllLocals"
+	+ " -proceedOnError -referenceInfo"
+	+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+	"",
+	"multiple Class-Path headers in manifest of jar file: ---LIB_DIR_PLACEHOLDER---/lib9.jar\n",
+	true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// we accept duplicate classpath lines in manifest and we follow the jars of the
+// second and following lines as well as the first line (emit a warning as javac does)
+public void test226_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  C c;\n" +
+			"  G g;\n" +
+			"}",
+		},
+	"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+			+ " -cp \"" + LIB_DIR + File.separator + "lib9.jar\""
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+	+ " -1.5 -g -preserveAllLocals"
+	+ " -proceedOnError -referenceInfo"
+	+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+	"",
+	"multiple Class-Path headers in manifest of jar file: ---LIB_DIR_PLACEHOLDER---/lib9.jar\n",
+	true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// bootclasspath does not get expanded with linked files
+public void test227_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runNegativeTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"  B b;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+	  	+ " -bootclasspath " + getLibraryClassesAsQuotedString() 
+	  	+ File.pathSeparator + "\"" + LIB_DIR + File.separator + "lib1.jar\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" + 
+		"	B b;\n" + 
+		"	^\n" + 
+		"B cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// jar files reached indirectly bear the access rules of the entry that 
+// references them
+public void test228_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
+		"	A a;\n" + 
+		"	^\n" + 
+		"Discouraged access: The type A is not accessible due to restriction on classpath entry ---LIB_DIR_PLACEHOLDER---/lib3.jar\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// jar files reached indirectly bear the access rules of the entry that 
+// references them - this hides the access rules of further instances of the
+// same jar on the classpath
+public void test229_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar[-p/A]\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
+		"	A a;\n" + 
+		"	^\n" + 
+		"Discouraged access: The type A is not accessible due to restriction on classpath entry ---LIB_DIR_PLACEHOLDER---/lib3.jar\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// jar files reached indirectly bear the access rules of the entry that 
+// references them - this hides the access rules of further instances of the
+// same jar on the classpath
+public void test230_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[-DUMMY]\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar[-p/A]\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// jar files reached indirectly bear the access rules of the entry that 
+// references them - this hides the access rules of further instances of the
+// same jar on the classpath, to the point of absorbing it if none is specified
+public void test231_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar[-p/A]\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// -sourcepath is OK at first level
+public void test232_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  S1 s;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -sourcepath \"" + LIB_DIR + File.separator + "lib1.jar\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// -sourcepath is KO at second level (that is, it does not leverage the links
+// at all)
+public void test233_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runNegativeTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  S2 s;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -sourcepath \"" + LIB_DIR + File.separator + "lib1.jar\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
+		"	S2 s;\n" + 
+		"	^^\n" + 
+		"S2 cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// error case: the MANIFEST.MF is a directory; should fail gracefully
+public void test234_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runNegativeTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"  B b;\n" +
+			"}",
+		},
+     "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib10.jar\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+     + " -1.5 -g -preserveAllLocals"
+     + " -proceedOnError -referenceInfo"
+     + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+     "",
+     "----------\n" + 
+     "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" + 
+     "	B b;\n" + 
+     "	^\n" + 
+     "B cannot be resolved to a type\n" + 
+     "----------\n" + 
+     "1 problem (1 error)",
+     true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// using relative paths for libs
+public void test235_jar_ref_in_jar(){
+	String currentWorkingDirectoryPath = System.getProperty("user.dir");
+	if (currentWorkingDirectoryPath == null) {
+		System.err.println("BatchCompilerTest#235 could not access the current working directory " + currentWorkingDirectoryPath);
+	} else if (!new File(currentWorkingDirectoryPath).isDirectory()) {
+		System.err.println("BatchCompilerTest#235 current working directory is not a directory " + currentWorkingDirectoryPath);
+	} else {
+		String lib1Path = currentWorkingDirectoryPath + File.separator + "lib1.jar";
+		String lib2Path = currentWorkingDirectoryPath + File.separator + "lib2.jar";
+		try {
+			Util.createJar(
+				null,
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Created-By: Eclipse JDT Test Harness\n" +
+					"Class-Path: lib2.jar\n",
+				},
+				lib1Path,
+				JavaCore.VERSION_1_4);
+			Util.createJar(
+				new String[] {
+					"p/A.java",
+					"package p;\n" +
+					"public class A {\n" +
+					"}",
+				},
+				null,
+				lib2Path,
+				JavaCore.VERSION_1_4);
+			this.runConformTest(
+				new String[] {
+					"src/p/X.java",
+					"package p;\n" +
+					"/** */\n" +
+					"public class X {\n" +
+					"  A a;\n" +
+					"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+				+ " -cp lib1.jar" // relative
+				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		        + " -1.5 -g -preserveAllLocals"
+		        + " -proceedOnError -referenceInfo"
+		        + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		        "",
+		        "",
+		        true);
+		} catch (IOException e) {
+			System.err.println("BatchCompilerTest#235 could not write to current working directory " + currentWorkingDirectoryPath);
+		} finally {
+			new File(lib1Path).delete();
+			new File(lib2Path).delete();
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// empty Class-Path header
+// javac 1.4.2 passes, later versions fail in error
+// java accepts the same jar (which makes the compiler responsible for the 
+// error detection)
+// design: will issue a warning
+public void test236_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runTest(
+		true,
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -classpath \"" + LIB_DIR + File.separator + "lib11.jar\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -verbose -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		ONE_FILE_GENERATED_MATCHER,
+		new StringMatcher(
+			"invalid Class-Path header in manifest of jar file: ---LIB_DIR_PLACEHOLDER---/lib11.jar\n", 
+			outputDirNormalizer),
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// missing space after ClassPath:
+public void test237_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runTest(
+		false,
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -classpath \"" + LIB_DIR + File.separator + "lib12.jar\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"invalid Class-Path header in manifest of jar file: ---LIB_DIR_PLACEHOLDER---/lib12.jar\n" + 
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
+		"	A a;\n" + 
+		"	^\n" + 
+		"A cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// missing space after ClassPath
+// javac reports an error (including an explicit manifest header error since
+// version 1.5); moreover, it stops interpreting the said header
+// design: we report a warning and eat up the remainding of the line
+public void test238_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runTest(
+		false,
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -classpath \"" + LIB_DIR + File.separator + "lib13.jar\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"invalid Class-Path header in manifest of jar file: ---LIB_DIR_PLACEHOLDER---/lib13.jar\n" + 
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
+		"	A a;\n" + 
+		"	^\n" + 
+		"A cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// extra space before Class-Path header
+// the net result is that the line is part of the value of the previous header
+// we then simply don't see the remainding of the line as jars
+public void test239_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runTest(
+		false,
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -classpath \"" + LIB_DIR + File.separator + "lib14.jar\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
+		"	A a;\n" + 
+		"	^\n" + 
+		"A cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// missing newline at the end of the line
+// javac eats the line silently, which results into not finding A
+// design: we report a warning and eat up the remainding of the line
+public void test240_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runTest(
+		false,
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -classpath \"" + LIB_DIR + File.separator + "lib15.jar\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"invalid Class-Path header in manifest of jar file: ---LIB_DIR_PLACEHOLDER---/lib15.jar\n" + 
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
+		"	A a;\n" + 
+		"	^\n" + 
+		"A cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// white-box test for duplicate classpath lines variant (empty line between the
+// entries)
+public void test241_jar_ref_in_jar(){
+	try {
+		assertTrue(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+			new StringReader(
+				"Manifest-Version: 1.0\n" +
+				"Created-By: Eclipse JDT Test Harness\n" +
+				"Class-Path: lib1.jar\n" +
+				"\n" +
+				"Class-Path: lib3.jar\n")));
+		assertEquals(2, ClasspathJar.MANIFEST_ANALYZER.getClasspathSectionsCount());
+		assertEquals(2, ClasspathJar.MANIFEST_ANALYZER.getCalledFileNames().size());
+	} catch (IOException e) {
+		e.printStackTrace();
+		fail();
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// white-box test for duplicate classpath lines variant (other header between the
+// entries - note that since we are not doing a full-fledged manifest analysis,
+// a dummy header passes)
+public void test242_jar_ref_in_jar(){
+	try {
+		assertTrue(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+			new StringReader(
+				"Manifest-Version: 1.0\n" +
+				"Created-By: Eclipse JDT Test Harness\n" +
+				"Class-Path: lib1.jar\n" +
+				"Dummy:\n" +
+				"Class-Path: lib3.jar\n")));
+		assertEquals(2, ClasspathJar.MANIFEST_ANALYZER.getClasspathSectionsCount());
+		assertEquals(2, ClasspathJar.MANIFEST_ANALYZER.getCalledFileNames().size());
+	} catch (IOException e) {
+		e.printStackTrace();
+		fail();
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// white-box test: tabs are not seen as URI separator, but as parts of URI instead
+// will trigger downstream errors if the jars are really needed
+public void test243_jar_ref_in_jar(){
+	try {
+		assertTrue(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+			new StringReader(
+				"Manifest-Version: 1.0\n" +
+				"Created-By: Eclipse JDT Test Harness\n" +
+				"Class-Path: lib1.jar\tlib2.jar\n")));
+		assertEquals(1, ClasspathJar.MANIFEST_ANALYZER.getClasspathSectionsCount());
+		assertEquals(1, ClasspathJar.MANIFEST_ANALYZER.getCalledFileNames().size());
+	} catch (IOException e) {
+		e.printStackTrace();
+		fail();
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// managing continuations properly
+public void test244_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"  B b;\n" +
+			"}",
+		},
+     "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib16.jar\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+     + " -1.5 -g -preserveAllLocals"
+     + " -proceedOnError -referenceInfo"
+     + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+     "",
+     "",
+     true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// white-box test: variants on continuations
+public void test245_jar_ref_in_jar(){
+	try {
+		assertTrue(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+			new StringReader(
+				"Manifest-Version: 1.0\n" +
+				"Created-By: Eclipse JDT Test Harness\n" +
+				"Class-Path: \n" +
+				"            lib1.jar       \n" +
+				"\n")));
+		assertEquals(1, ClasspathJar.MANIFEST_ANALYZER.getClasspathSectionsCount());
+		assertEquals(1, ClasspathJar.MANIFEST_ANALYZER.getCalledFileNames().size());
+	} catch (IOException e) {
+		e.printStackTrace();
+		fail();
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// white-box test: variants on continuations
+public void test246_jar_ref_in_jar(){
+	try {
+		assertTrue(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+			new StringReader(
+				"Manifest-Version: 1.0\n" +
+				"Created-By: Eclipse JDT Test Harness\n" +
+				"Class-Path: \n" +
+				" \n" +
+				"            lib1.jar       \n" +
+				" \n" +
+				"            lib1.jar       \n" +
+				"\n")));
+		assertEquals(1, ClasspathJar.MANIFEST_ANALYZER.getClasspathSectionsCount());
+		assertEquals(2, ClasspathJar.MANIFEST_ANALYZER.getCalledFileNames().size());
+	} catch (IOException e) {
+		e.printStackTrace();
+		fail();
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// white-box test: variants on continuations
+public void test247_jar_ref_in_jar(){
+	try {
+		assertFalse(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+			new StringReader(
+				"Manifest-Version: 1.0\n" +
+				"Created-By: Eclipse JDT Test Harness\n" +
+				"Class-Path: \n" +
+				"            lib1.jar")));
+	} catch (IOException e) {
+		e.printStackTrace();
+		fail();
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// white-box test: variants on continuations
+public void test248_jar_ref_in_jar(){
+	try {
+		assertFalse(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+			new StringReader(
+				"Manifest-Version: 1.0\n" +
+				"Created-By: Eclipse JDT Test Harness\n" +
+				"Class-Path: \n" +
+				" \n" +
+				"            lib1.jar")));
+	} catch (IOException e) {
+		e.printStackTrace();
+		fail();
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// white-box test: variants on continuations
+public void test249_jar_ref_in_jar(){
+	try {
+		assertFalse(ClasspathJar.MANIFEST_ANALYZER.analyzeManifestContents(
+			new StringReader(
+				"Manifest-Version: 1.0\n" +
+				"Created-By: Eclipse JDT Test Harness\n" +
+				"Class-Path:      \n" +
+				"lib1.jar")));
+	} catch (IOException e) {
+		e.printStackTrace();
+		fail();
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// extdirs jars do not follow links
+public void test250_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runNegativeTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"  B b;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+	  	+ " -extdirs \"" + LIB_DIR + File.separator + "dir\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" + 
+		"	B b;\n" + 
+		"	^\n" + 
+		"B cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
+// endorseddirs does not get expanded with linked files
+public void test251_jar_ref_in_jar(){
+	createCascadedJars();
+	this.runNegativeTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"  B b;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+	  	+ " -endorseddirs \"" + LIB_DIR + File.separator + "dir\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" + 
+		"	B b;\n" + 
+		"	^\n" + 
+		"B cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		true);
 }
 public static Class testClass() {
 	return BatchCompilerTest.class;

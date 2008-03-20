@@ -33,6 +33,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -1511,7 +1512,7 @@ protected void addNewEntry(ArrayList paths, String currentClasspathName,
 		addPendingErrors(this.bind("configure.incorrectClasspath", currentClasspathName));//$NON-NLS-1$
 	}
 }
-private void addPendingErrors(String message) {
+void addPendingErrors(String message) {
 	if (this.pendingErrors == null) {
 		this.pendingErrors = new ArrayList();
 	}
@@ -2916,7 +2917,30 @@ protected ArrayList handleClasspath(ArrayList classpaths, String customEncoding)
 			}
 		}
 	}
-	return classpaths;
+	ArrayList result = new ArrayList();
+	HashMap knownNames = new HashMap();
+	FileSystem.ClasspathSectionProblemReporter problemReporter =
+		new FileSystem.ClasspathSectionProblemReporter() {
+			public void invalidClasspathSection(String jarFilePath) {
+				addPendingErrors(bind("configure.invalidClasspathSection", jarFilePath)); //$NON-NLS-1$
+			}
+			public void multipleClasspathSections(String jarFilePath) {
+				addPendingErrors(bind("configure.multipleClasspathSections", jarFilePath)); //$NON-NLS-1$
+			}
+		};
+	while (! classpaths.isEmpty()) {
+		Classpath current = (Classpath) classpaths.remove(0);
+		String currentPath = current.getPath();
+		if (knownNames.get(currentPath) == null) {
+			knownNames.put(currentPath, current);
+			result.add(current);
+			List linkedJars = current.fetchLinkedJars(problemReporter);
+			if (linkedJars != null) {
+				classpaths.addAll(0, linkedJars);
+			}
+		}
+	}
+	return result;
 }
 /*
  * External API

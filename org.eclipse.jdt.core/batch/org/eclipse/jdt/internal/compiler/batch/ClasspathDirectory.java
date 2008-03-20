@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.List;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -78,6 +79,9 @@ boolean doesFileExist(String fileName, String qualifiedPackageName) {
 		if (fileName.equals(dirList[i]))
 			return true;
 	return false;
+}
+public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
+	return null;
 }
 public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
 	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -317,14 +317,27 @@ public static void createClassFolder(String[] pathsAndContents, String folderPat
     compile(pathsAndContents, getCompileOptions(compliance), folderPath);
 }
 public static void createJar(String[] pathsAndContents, Map options, String jarPath) throws IOException {
+	createJar(pathsAndContents, null, options, jarPath);
+}
+public static void createJar(String[] pathsAndContents, String[] extraPathsAndContents, Map options, String jarPath) throws IOException {
     String classesPath = getOutputDirectory() + File.separator + "classes";
     File classesDir = new File(classesPath);
     flushDirectoryContent(classesDir);
-    compile(pathsAndContents, options, classesPath);
+	if (pathsAndContents != null) {
+		compile(pathsAndContents, options, classesPath);
+	}
+	for (int i = 0, l = extraPathsAndContents == null ? 0 : extraPathsAndContents.length; i < l; /* inc in loop */) {
+		File  outputFile = new File(classesPath, extraPathsAndContents[i++]);
+		outputFile.getParentFile().mkdirs();
+		Util.writeToFile(extraPathsAndContents[i++], outputFile.getAbsolutePath());
+	}
     zip(classesDir, jarPath);
 }
-public static void createJar(String[] pathsAndContents, String jarPath, String compliance) throws IOException {
-    createJar(pathsAndContents, getCompileOptions(compliance), jarPath);
+public static void createJar(String[] javaPathsAndContents, String jarPath, String compliance) throws IOException {
+	createJar(javaPathsAndContents, null, jarPath, compliance);
+}
+public static void createJar(String[] javaPathsAndContents, String[] extraPathsAndContents, String jarPath, String compliance) throws IOException {
+	createJar(javaPathsAndContents, extraPathsAndContents, getCompileOptions(compliance), jarPath);
 }
 public static void createSourceZip(String[] pathsAndContents, String zipPath) throws IOException {
     String sourcesPath = getOutputDirectory() + File.separator + "sources";

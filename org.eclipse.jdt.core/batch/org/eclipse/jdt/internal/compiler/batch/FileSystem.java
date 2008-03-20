@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -30,6 +31,16 @@ public class FileSystem implements INameEnvironment, SuffixConstants {
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName);
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly);
 		boolean isPackage(String qualifiedPackageName);
+		/**
+		 * Return a list of the jar file names defined in the Class-Path section
+		 * of the jar file manifest if any, null else. Only ClasspathJar (and
+		 * extending classes) instances may return a non-null result. 
+		 * @param  problemReporter problem reporter with which potential 
+		 *         misconfiguration issues are raised
+		 * @return a list of the jar file names defined in the Class-Path 
+		 *         section of the jar file manifest if any
+		 */
+		List fetchLinkedJars(ClasspathSectionProblemReporter problemReporter);
 		/**
 		 * This method resets the environment. The resulting state is equivalent to
 		 * a new name environment without creating a new object.
@@ -56,6 +67,10 @@ public class FileSystem implements INameEnvironment, SuffixConstants {
 		 * Initialize the entry
 		 */
 		void initialize() throws IOException;
+	}
+	public interface ClasspathSectionProblemReporter {
+		void invalidClasspathSection(String jarFilePath);
+		void multipleClasspathSections(String jarFilePath);
 	}
 
 	/**

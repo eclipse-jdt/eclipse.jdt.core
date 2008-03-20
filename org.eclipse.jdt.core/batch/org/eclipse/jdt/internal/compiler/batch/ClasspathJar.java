@@ -10,11 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -37,6 +42,166 @@ public ClasspathJar(File file, boolean closeZipFileAtEnd,
 	super(accessRuleSet, destinationPath);
 	this.file = file;
 	this.closeZipFileAtEnd = closeZipFileAtEnd;
+}
+
+// manifest file analyzer limited to Class-Path sections analysis
+public static class ManifestAnalyzer {
+	private static final int
+		START = 0,
+		IN_CLASSPATH_HEADER = 1, // multistate
+		PAST_CLASSPATH_HEADER = 2,
+		SKIPPING_WHITESPACE = 3,
+		READING_JAR = 4,
+		CONTINUING = 5,
+		SKIP_LINE = 6;
+	private static final char[] CLASSPATH_HEADER_TOKEN = 
+		"Class-Path:".toCharArray(); //$NON-NLS-1$
+	private int ClasspathSectionsCount;
+	private ArrayList calledFilesNames;
+	public boolean analyzeManifestContents(Reader reader) throws IOException {
+		int state = START, substate = 0;
+		StringBuffer currentJarToken = new StringBuffer();
+		int currentChar;
+		this.ClasspathSectionsCount = 0;
+		this.calledFilesNames = null;
+		for (;;) {
+			currentChar = reader.read();
+			switch (state) {
+				case START:
+					if (currentChar == -1) {
+						return true;
+					} else if (currentChar == CLASSPATH_HEADER_TOKEN[0]) {
+						state = IN_CLASSPATH_HEADER;
+						substate = 1;
+					} else {
+						state = SKIP_LINE;
+					}
+					break;
+				case IN_CLASSPATH_HEADER:
+					if (currentChar == -1) {
+						return true;
+					} else if (currentChar == '\n') {
+						state = START;
+					} else if (currentChar != CLASSPATH_HEADER_TOKEN[substate++]) {
+						state = SKIP_LINE;
+					} else if (substate == CLASSPATH_HEADER_TOKEN.length) {
+						state = PAST_CLASSPATH_HEADER;
+					}
+					break;
+				case PAST_CLASSPATH_HEADER:
+					if (currentChar == ' ') {
+						state = SKIPPING_WHITESPACE;
+						this.ClasspathSectionsCount++;
+					} else {
+						return false;
+					}
+					break;
+				case SKIPPING_WHITESPACE:
+					if (currentChar == -1) {
+						return true;
+					} else if (currentChar == '\n') {
+						state = CONTINUING;
+					} else if (currentChar != ' ') {
+						currentJarToken.append((char) currentChar);
+						state = READING_JAR;
+					}
+					break;
+				case CONTINUING:
+					if (currentChar == -1) {
+						return true;
+					} else if (currentChar == '\n') {
+						state = START;
+					} else if (currentChar == ' ') {
+						state = SKIPPING_WHITESPACE;
+					} else if (currentChar == CLASSPATH_HEADER_TOKEN[0]) {
+						state = IN_CLASSPATH_HEADER;
+						substate = 1;
+					} else if (this.calledFilesNames == null) {
+						return false;
+					} else {
+						state = SKIP_LINE;
+					}
+					break;
+				case SKIP_LINE:
+					if (currentChar == -1) {
+						return true;
+					} else if (currentChar == '\n') {
+						state = START;
+					}
+					break;
+				case READING_JAR:	
+					if (currentChar == -1) {
+						return false;
+					} else if (currentChar == '\n') {
+						// appends token below
+						state = CONTINUING;
+					} else if (currentChar == ' ') {
+						// appends token below
+						state = SKIPPING_WHITESPACE;
+					} else {
+						currentJarToken.append((char) currentChar);
+						break;
+					}
+					if (this.calledFilesNames == null) {
+						this.calledFilesNames = new ArrayList();
+					}
+					this.calledFilesNames.add(currentJarToken.toString());
+					currentJarToken.setLength(0);
+					break;
+			}
+		}	
+	}
+	public int getClasspathSectionsCount() {
+		return this.ClasspathSectionsCount;
+	}
+	public List getCalledFileNames() {
+		return this.calledFilesNames;
+	}
+}
+public static final ManifestAnalyzer MANIFEST_ANALYZER = new ManifestAnalyzer();
+
+public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
+	// expected to be called once only - if multiple calls desired, consider
+	// using a cache
+	BufferedReader reader = null;
+	try {
+		initialize();
+		ArrayList result = new ArrayList();
+		ZipEntry manifest =	this.zipFile.getEntry("META-INF/MANIFEST.MF"); //$NON-NLS-1$
+		if (manifest != null) { // non-null implies regular file
+			reader = new BufferedReader(new InputStreamReader(this.zipFile.getInputStream(manifest)));
+			boolean success = MANIFEST_ANALYZER.analyzeManifestContents(reader);
+			List calledFileNames = MANIFEST_ANALYZER.getCalledFileNames();
+			if (problemReporter != null) {
+				if (!success || 
+						MANIFEST_ANALYZER.getClasspathSectionsCount() == 1 &&  calledFileNames == null) {
+					problemReporter.invalidClasspathSection(this.getPath());
+				} else if (MANIFEST_ANALYZER.getClasspathSectionsCount() > 1) {
+					problemReporter.multipleClasspathSections(this.getPath());				
+				}
+			}
+			if (calledFileNames != null) {
+				Iterator calledFilesIterator = calledFileNames.iterator();
+				String directoryPath = this.getPath();
+				int lastSeparator = directoryPath.lastIndexOf(File.separatorChar);
+				directoryPath = directoryPath.substring(0, lastSeparator + 1); // potentially empty (see bug 214731)
+				while (calledFilesIterator.hasNext()) {
+					result.add(new ClasspathJar(new File(directoryPath + (String) calledFilesIterator.next()), this.closeZipFileAtEnd, this.accessRuleSet, this.destinationPath));
+				}
+			}
+		}
+		return result;
+	} catch (IOException e) {
+		return null;
+	} finally {
+		if (reader != null) {
+			try {
+				reader.close();
+			} catch (IOException e) {
+				// best effort
+			}
+		}
+	}
 }
 public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
 	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
@@ -91,7 +256,9 @@ public char[][][] findTypeNames(String qualifiedPackageName) {
 	return null;
 }
 public void initialize() throws IOException {
-	this.zipFile = new ZipFile(this.file);
+	if (this.zipFile == null) {
+		this.zipFile = new ZipFile(this.file);
+	}
 }
 public boolean isPackage(String qualifiedPackageName) {
 	if (this.packageCache != null)
