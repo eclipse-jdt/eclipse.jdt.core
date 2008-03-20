@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc.
+ * Copyright (c) 2007, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ package targets.negative.pa;
 @interface Anno1 {
 	String value() default "foo";
 }
-@A1.A2.A3 class Negative1 {
+@Ax.Ay.A3 class Negative1 {
 	@Anno1("spud") String s1;
 	@A4 Missing1 m1 = MISSING_VAL1;
 	@A5(@A6(@A7)) int i1;

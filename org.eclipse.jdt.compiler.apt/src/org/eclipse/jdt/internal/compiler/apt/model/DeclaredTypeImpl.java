@@ -108,9 +108,12 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 
 	@Override
 	public TypeKind getKind() {
+		if (!binding().isValidBinding()) {
+			return TypeKind.ERROR;
+		}
 		return TypeKind.DECLARED;
 	}
-
+	
 	@Override
 	public String toString() {
 		return new String(_binding.readableName());
