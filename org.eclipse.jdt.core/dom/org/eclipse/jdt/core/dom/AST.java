@@ -276,7 +276,7 @@ public final class AST {
 
 		CompilationUnit unit = converter.convert(compilationUnitDeclaration, workingCopy.getContents());
 		unit.setLineEndTable(compilationUnitDeclaration.compilationResult.getLineSeparatorPositions());
-		unit.setTypeRoot(workingCopy);
+		unit.setTypeRoot(workingCopy.originalFromClone());
 		ast.setDefaultNodeFlag(savedDefaultNodeFlag);
 		return unit;
 	}

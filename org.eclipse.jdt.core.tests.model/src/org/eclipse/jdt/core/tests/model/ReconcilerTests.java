@@ -800,6 +800,26 @@ public void testBroadcastAST4() throws CoreException {
 		this.deltaListener.getCompilationUnitAST(this.workingCopy));
 }
 /*
+ * Ensures that the AST broadcasted doesn't have a type root that is caching its contents
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=222213 )
+ */
+public void testBroadcastAST5() throws JavaModelException {
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"}");
+	this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
+	org.eclipse.jdt.core.dom.CompilationUnit compilationUnit = this.deltaListener.getCompilationUnitAST(this.workingCopy);
+	String newContents = 
+		"package p1;\n" +
+		"public class X {\n" +
+		"}";
+	setWorkingCopyContents(newContents);
+	org.eclipse.jdt.internal.compiler.env.ICompilationUnit compilerCU = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) compilationUnit.getTypeRoot();
+	assertSourceEquals("Unexpected contents", newContents, new String(compilerCU.getContents()));
+}
+/*
  * Ensures that reconciling a subclass doesn't close the buffer while resolving its superclass.
  * (regression test for bug 62854 refactoring does not trigger reconcile)
  */

@@ -221,6 +221,9 @@ public CompilationUnit cloneCachingContents() {
 				this.cachedContents = CompilationUnit.this.getContents();
 			return this.cachedContents;
 		}
+		public CompilationUnit originalFromClone() {
+			return CompilationUnit.this;
+		}
 	};
 }
 /*
@@ -1148,6 +1151,12 @@ protected void openAncestors(HashMap newElements, IProgressMonitor monitor) thro
 	} 
 	// else don't open ancestors for a working copy to speed up the first becomeWorkingCopy
 	// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89411)
+}
+/*
+ * @see #cloneCachingContents()
+ */
+public CompilationUnit originalFromClone() {
+	return this;
 }
 /**
  * @see ICompilationUnit#reconcile()
