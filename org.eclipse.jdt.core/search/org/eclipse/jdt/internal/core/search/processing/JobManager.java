@@ -334,9 +334,8 @@ public abstract class JobManager implements Runnable {
 				}
 				protected IStatus run(IProgressMonitor monitor) {
 					IJob job = currentJob();
-					StringBuffer prefix = new StringBuffer(Messages.jobmanager_indexing);
 					while (!monitor.isCanceled() && job != null) {
-						 String taskName = prefix
+						 String taskName = new StringBuffer(Messages.jobmanager_indexing)
 							.append(Messages.bind(Messages.jobmanager_filesToIndex, job.getJobFamily(), Integer.toString(awaitingJobsCount())))
 							.toString();
 						monitor.subTask(taskName);
