@@ -358,7 +358,7 @@ void faultInImports() {
 		} else {
 			Binding importBinding = findSingleImport(compoundName, importReference.isStatic());
 			if (!importBinding.isValidBinding()) {
-				if (importBinding instanceof ProblemFieldBinding && importBinding.problemId() == ProblemReasons.Ambiguous) {
+				if (importBinding.problemId() == ProblemReasons.Ambiguous) {
 					// keep it unless a duplicate can be found below
 				} else {
 					problemReporter().importProblem(importReference, importBinding);
@@ -378,8 +378,11 @@ void faultInImports() {
 			// collisions between an imported static field & a type should be checked according to spec... but currently not by javac
 			if (importBinding instanceof ReferenceBinding || conflictingType != null) {
 				ReferenceBinding referenceBinding = conflictingType == null ? (ReferenceBinding) importBinding : conflictingType;
-				if (importReference.isTypeUseDeprecated(referenceBinding, this))
-					problemReporter().deprecatedType(referenceBinding, importReference);
+				ReferenceBinding typeToCheck = referenceBinding.problemId() == ProblemReasons.Ambiguous
+					? ((ProblemReferenceBinding) referenceBinding).closestMatch
+					: referenceBinding;
+				if (importReference.isTypeUseDeprecated(typeToCheck, this))
+					problemReporter().deprecatedType(typeToCheck, importReference);
 
 				ReferenceBinding existingType = typesBySimpleNames.get(compoundName[compoundName.length - 1]);
 				if (existingType != null) {
@@ -538,8 +541,10 @@ private Binding findSingleStaticImport(char[][] compoundName) {
 			return field;
 		return new ProblemReferenceBinding(compoundName, type, ProblemReasons.NotFound);
 	}
-	if (!type.canBeSeenBy(fPackage))
+	if (type.isValidBinding() && !type.canBeSeenBy(fPackage))
 		return new ProblemReferenceBinding(compoundName, type, ProblemReasons.NotVisible);
+	if (type.problemId() == ProblemReasons.NotVisible) // ensure compoundName is correct
+		return new ProblemReferenceBinding(compoundName, ((ProblemReferenceBinding) type).closestMatch, ProblemReasons.NotVisible);
 	return type;
 }
 MethodBinding findStaticMethod(ReferenceBinding currentType, char[] selector) {
@@ -707,7 +712,7 @@ Binding resolveSingleImport(ImportBinding importBinding) {
 	if (importBinding.resolvedImport == null) {
 		importBinding.resolvedImport = findSingleImport(importBinding.compoundName, importBinding.isStatic());
 		if (!importBinding.resolvedImport.isValidBinding() || importBinding.resolvedImport instanceof PackageBinding) {
-			if (importBinding.resolvedImport instanceof ProblemFieldBinding && importBinding.resolvedImport.problemId() == ProblemReasons.Ambiguous)
+			if (importBinding.resolvedImport.problemId() == ProblemReasons.Ambiguous)
 				return importBinding.resolvedImport;
 			if (this.imports != null) {
 				ImportBinding[] newImports = new ImportBinding[imports.length - 1];

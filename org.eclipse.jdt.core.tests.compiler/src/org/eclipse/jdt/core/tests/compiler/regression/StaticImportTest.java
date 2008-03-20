@@ -2259,5 +2259,29 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n"
 		);		
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
+	public void test064() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n" + 
+				"import static p2.A.M;\n" + 
+				"public class X {\n" + 
+				"	M m;\n" +
+				"}\n",
+				"p2/A.java",
+				"package p2;\n" + 
+				"interface I { class M {} }\n" +
+				"class B { public static class M {} }\n" +
+				"public class A extends B implements I {}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in p1\\X.java (at line 4)\n" + 
+			"	M m;\n" + 
+			"	^\n" + 
+			"The type M is ambiguous\n" + 
+			"----------\n"
+		);		
+	}
 }
 
