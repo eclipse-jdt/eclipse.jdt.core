@@ -1632,4 +1632,38 @@ public void test0039() throws JavaModelException {
 			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223479
+public void test0040() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  MissingType.Mem\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/missing/MissingType.java",
+		"package missing;"+
+		"public class MissingType {\n" + 
+		"  public class Member {}\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "MissingType.Mem";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NO_PROBLEMS;
+	int start1 = str.lastIndexOf("Mem") + "".length();
+	int end1 = start1 + "Mem".length();
+	int start2 = str.indexOf("MissingType");
+	int end2 = start2 + "MissingType".length();
+	assertResults(
+			"MissingType.Member[TYPE_REF]{Member, missing, Lmissing.MissingType$Member;, null, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
 }

@@ -3610,8 +3610,8 @@ public void test0132() throws JavaModelException {
 		"}");
 	
 	String str = this.workingCopies[0].getSource();
-	int tokenStart = -1;
-	int tokenEnd = -1;
+	int tokenStart = str.lastIndexOf("ZZZZ");
+	int tokenEnd = tokenStart + "ZZZZ".length() - 1;
 	int cursorLocation = str.lastIndexOf("ZZZZ") + "ZZZZ".length();
 
 	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
@@ -3619,8 +3619,8 @@ public void test0132() throws JavaModelException {
 	assertResults(
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
-		"completion token=null\n" +
-		"completion token kind=TOKEN_KIND_UNKNOWN\n" +
+		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null\n"+
 		"completion token location=UNKNOWN",

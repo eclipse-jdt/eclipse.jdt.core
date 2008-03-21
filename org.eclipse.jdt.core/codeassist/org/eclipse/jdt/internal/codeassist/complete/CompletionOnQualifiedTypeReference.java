@@ -57,6 +57,11 @@ protected TypeBinding getTypeBinding(Scope scope) {
 	Binding binding = scope.parent.getTypeOrPackage(tokens); // step up from the ClassScope
 	if (!binding.isValidBinding()) {
 		scope.problemReporter().invalidType(this, (TypeBinding) binding);
+		
+		if (binding.problemId() == ProblemReasons.NotFound) {
+			throw new CompletionNodeFound(this, binding, scope);
+		}
+		
 		throw new CompletionNodeFound();
 	}
 

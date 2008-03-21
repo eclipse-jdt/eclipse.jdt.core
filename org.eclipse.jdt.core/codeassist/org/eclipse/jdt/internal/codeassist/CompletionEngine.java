@@ -1217,7 +1217,8 @@ public final class CompletionEngine
 				// }
 				if (this.assistNodeInJavadoc == 0 &&
 						(this.requestor.isAllowingRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF) || 
-								this.requestor.isAllowingRequiredProposals(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_REF))) {
+								this.requestor.isAllowingRequiredProposals(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_REF) ||
+								this.requestor.isAllowingRequiredProposals(CompletionProposal.TYPE_REF, CompletionProposal.TYPE_REF))) {
 					if(ref.tokens.length == 1) {
 						boolean foundSomeFields = findFieldsAndMethodsFromMissingFieldType(ref.tokens[0], scope, ref, insideTypeAnnotation);
 						
@@ -1344,7 +1345,18 @@ public final class CompletionEngine
 			long completionPosition = ref.sourcePositions[ref.tokens.length];
 
 			// get the source positions of the completion identifier
-			if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
+			if (qualifiedBinding.problemId() == ProblemReasons.NotFound) {
+				setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+				if (this.assistNodeInJavadoc == 0 &&
+						(this.requestor.isAllowingRequiredProposals(CompletionProposal.TYPE_REF, CompletionProposal.TYPE_REF))) {
+					if(ref.tokens.length == 1) {
+						findMemberTypesFromMissingType(
+								ref.tokens[0],
+								ref.sourcePositions[0],
+								scope);
+					}
+				}
+			} else if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
 				if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 					setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 					
@@ -5255,7 +5267,7 @@ public final class CompletionEngine
 		}
 	}
 
-	private void findMemberTypes(
+	protected void findMemberTypes(
 		char[] typeName,
 		ReferenceBinding receiverType,
 		Scope scope,
@@ -5417,6 +5429,40 @@ public final class CompletionEngine
 				}
 			}
 		}
+	}
+	
+	private void findMemberTypesFromMissingType(
+			char[] typeName,
+			final long pos,
+			final Scope scope)  {
+		MissingTypesGuesser missingTypesConverter = new MissingTypesGuesser(this);
+		MissingTypesGuesser.GuessedTypeRequestor substitutionRequestor =
+			new MissingTypesGuesser.GuessedTypeRequestor() {
+				public void accept(
+						TypeBinding guessedType,
+						Binding[] missingElements,
+						int[] missingElementsStarts,
+						int[] missingElementsEnds,
+						boolean hasProblems) {
+					if (guessedType instanceof ReferenceBinding) {
+						findMemberTypes(
+								CompletionEngine.this.completionToken,
+								(ReferenceBinding)guessedType,
+								scope,
+								scope.enclosingSourceType(),
+								false,
+								false,
+								new ObjectVector(),
+								missingElements,
+								missingElementsStarts,
+								missingElementsEnds,
+								hasProblems);
+					}
+				}
+			};
+		SingleTypeReference typeRef = new SingleTypeReference(typeName, pos);
+		typeRef.resolvedType = new ProblemReferenceBinding(new char[][]{ typeName }, null, ProblemReasons.NotFound);
+		missingTypesConverter.guess(typeRef, scope, substitutionRequestor);
 	}
 
 	/*
