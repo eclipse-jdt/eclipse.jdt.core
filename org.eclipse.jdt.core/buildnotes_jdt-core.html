@@ -46,6 +46,15 @@ Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
 <br>Project org.eclipse.jdt.core v_846
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_846">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>The batch compiler now uses the <code>Class-Path</code> clause of jar files 
+    manifests to complete the classpath. For jar files that are specified on a
+    <code>-classpath</code> option, the compiler follows <code>Class-Path</code>
+    clauses recursively and appends each referenced jar file to the end of the 
+    classpath, provided it is not on the classpath yet. See bug
+    <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=97332">97332</a> for
+    further details.</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=223253">223253</a>
@@ -54,6 +63,8 @@ NPE in TypeBinding.getName
 [search] Huge error message if OOME while building workspace
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=222213">222213</a>
 Java model not updated after quick fix 'Add unimplemented methods'
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=97332">97332</a>
+[compiler] Add support for classpath specified in manifest file inside a jar
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=218824">218824</a>
 [DOM/AST] incorrect code leads to IllegalArgumentException during AST creation
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=183211">183211</a>
@@ -90,9 +101,7 @@ Eclipse SDK 3.4M6 - March 18, 2008
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=97332">97332</a>
-[compiler] Add support for classpath specified in manifest file inside a jar
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=222399">222399</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=222399">222399</a>
 Regression in several Model performance tests
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=221680">221680</a>
 Classpath gets reset randomly in headless mode
