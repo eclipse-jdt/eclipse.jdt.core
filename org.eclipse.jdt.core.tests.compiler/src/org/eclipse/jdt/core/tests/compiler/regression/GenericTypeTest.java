@@ -43323,21 +43323,27 @@ public void test1304() {
 public void test1305() {
 	this.runConformTest(
 			new String[] {
-					"LayoutOrganizer.java",
+					"bug/ConflictManager.java",// =================
+					"package bug;\n" +
 					"import java.util.*;\n" + 
-					"class ConflictManager<T> {\n" + 
+					"public class ConflictManager<T> {\n" + 
 					"	public List<Map.Entry<Integer, ? extends Collection<T>>> getConflictsSortedBySize() {\n" + 
 					"		return null;\n" + 
 					"	}\n" + 
-					"}\n" + 
-					"class LayoutOrganizable<T> {\n" + 
+					"}\n",
+					"bug/LayoutOrganizable.java",// =================
+					"package bug;\n" +
+					"public class LayoutOrganizable<T> {\n" + 
 					"	private T t;\n" + 
 					"\n" + 
 					"	public LayoutOrganizable(T t) {\n" + 
 					"		this.t = t;\n" + 
 					"\n" + 
 					"	}\n" + 
-					"}\n" + 
+					"}\n",
+					"bug/LayoutOrganizer.java",
+					"package bug;\n" +
+					"import java.util.*;\n" + 
 					"public class LayoutOrganizer<T> {\n" + 
 					"	ConflictManager<LayoutOrganizable<T>> conflictManager = new ConflictManager<LayoutOrganizable<T>>();\n" + 
 					"	private boolean optimizeEqual() {\n" + 
@@ -43352,5 +43358,27 @@ public void test1305() {
 					"}\n", // =================
 			},
 			"");
+	this.runConformTest(
+			new String[] {
+					"bug/LayoutOrganizer.java",
+					"package bug;\n" +
+					"import java.util.*;\n" + 
+					"public class LayoutOrganizer<T> {\n" + 
+					"	ConflictManager<LayoutOrganizable<T>> conflictManager = new ConflictManager<LayoutOrganizable<T>>();\n" + 
+					"	private boolean optimizeEqual() {\n" + 
+					"		List<Map.Entry<Integer, ? extends Collection<LayoutOrganizable<T>>>> list;\n" + 
+					"		ListIterator<Map.Entry<Integer, ? extends Collection<LayoutOrganizable<T>>>> i;\n" + 
+					"		// create sorted list of pairs\n" + 
+					"		// (#conflicts, list of LayoutOrganizable sharing this #conflicts)\n" + 
+					"		// Here is the problem...\n" + 
+					"		list = conflictManager.getConflictsSortedBySize();\n" + 
+					"		return null == list;\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"",
+			null,
+			false,
+			null);	
 }
 }
