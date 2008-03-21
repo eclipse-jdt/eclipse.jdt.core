@@ -272,7 +272,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		StringWriter errStrWriter = new StringWriter();
 		PrintWriter err = new PrintWriter(errStrWriter);
 		PrintWriter out = new PrintWriter(new StringWriter());
-		Main warmup = new Main(out, err, false);
+		Main warmup = new Main(out, err, false/*systemExit*/, null/*options*/, null/*progress*/);
 		for (int i=1; i<WARMUP_COUNT; i++) {
 			warmup.compile(Main.tokenize(cmdLine));
 		}
@@ -298,7 +298,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		for (int i = 0; i < MEASURES_COUNT; i++) {
 			runGc();
 			NullPrintWriter nullPrint= new NullPrintWriter();
-			Main main = new Main(nullPrint, nullPrint, false);
+			Main main = new Main(nullPrint, nullPrint, false/*systemExit*/, null/*options*/, null/*progress*/);
 			startMeasuring();
 			main.compile(Main.tokenize(cmdLine));
 			stopMeasuring();

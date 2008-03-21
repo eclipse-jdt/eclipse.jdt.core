@@ -9,6 +9,7 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.jdt.core,
  org.eclipse.jdt.core.compiler,
+ org.eclipse.jdt.core.compiler.batch,
  org.eclipse.jdt.core.dom,
  org.eclipse.jdt.core.dom.rewrite,
  org.eclipse.jdt.core.eval,

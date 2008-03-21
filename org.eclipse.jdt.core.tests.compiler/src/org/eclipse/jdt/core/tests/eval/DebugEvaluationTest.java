@@ -14,12 +14,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Map;
 
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
 import org.eclipse.jdt.core.tests.runtime.TargetInterface;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
@@ -105,7 +107,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 			.append(Util.getJavaClassLibsAsString())
 			.append(SOURCE_DIRECTORY)
 			.append("\"");
-		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
+		BatchCompiler.compile(buffer.toString(), new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
 	}
 	public void compileAndDeploy15(String source, String className) {
 		resetEnv(); // needed to reinitialize the caches
@@ -136,7 +138,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 			.append(Util.getJavaClassLibsAsString())
 			.append(SOURCE_DIRECTORY)
 			.append("\"");
-		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
+		BatchCompiler.compile(buffer.toString(), new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
 	}
 	/**
 	 * Generate local variable attribute for these tests.

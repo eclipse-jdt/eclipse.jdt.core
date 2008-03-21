@@ -25,7 +25,9 @@ import junit.framework.Test;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJar;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
@@ -36,7 +38,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 	public static final String OUTPUT_DIR_PLACEHOLDER = "---OUTPUT_DIR_PLACEHOLDER---";
 	public static final String LIB_DIR_PLACEHOLDER = "---LIB_DIR_PLACEHOLDER---";
 	static final String JRE_HOME_DIR = Util.getJREDirectory();
-	private static final Main MAIN = new Main(null, null, false);
+	private static final Main MAIN = new Main(null/*outWriter*/, null/*errWriter*/, false/*systemExit*/, null/*options*/, null/*progress*/);
 
 	static {
 //	TESTS_NAMES = new String[] { "test000" };
@@ -368,7 +370,7 @@ private String getLibraryClassesAsQuotedString() {
 	 *            file names are relative to the output directory
 	 * @param commandLine
 	 *            the command line to pass to
-	 *            {@link Main#compile(String) Main#compile}
+	 *            {@link BatchCompiler#compile(String, PrintWriter, PrintWriter, org.eclipse.jdt.core.compiler.CompilationProgress) BatchCompiler#compile}
 	 * @param expectedSuccessOutOutputString
 	 *            the expected contents of the standard output stream; pass null
 	 *            to bypass the comparison
@@ -384,7 +386,7 @@ private String getLibraryClassesAsQuotedString() {
 			String expectedSuccessErrOutputString,
 			boolean shouldFlushOutputDirectory) {
 		runTest(true, testFiles, commandLine, expectedSuccessOutOutputString,
-				expectedSuccessErrOutputString, shouldFlushOutputDirectory);
+				expectedSuccessErrOutputString, shouldFlushOutputDirectory, null/*progress*/);
 	}
 
 	/**
@@ -396,7 +398,7 @@ private String getLibraryClassesAsQuotedString() {
 	 *            file names are relative to the output directory
 	 * @param commandLine
 	 *            the command line to pass to
-	 *            {@link Main#compile(String) Main#compile}
+	 *            {@link BatchCompiler#compile(String, PrintWriter, PrintWriter, org.eclipse.jdt.core.compiler.CompilationProgress) BatchCompiler#compile}
 	 * @param expectedFailureOutOutputString
 	 *            the expected contents of the standard output stream; pass null
 	 *            to bypass the comparison
@@ -412,9 +414,36 @@ private String getLibraryClassesAsQuotedString() {
 			String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory) {
 		runTest(false, testFiles, commandLine, expectedFailureOutOutputString,
-				expectedFailureErrOutputString, shouldFlushOutputDirectory);
+				expectedFailureErrOutputString, shouldFlushOutputDirectory, null/*progress*/);
 	}
 
+	private void runProgressTest(
+			String[] testFiles, 
+			String commandLine,
+			String expectedOutOutputString,
+			String expectedErrOutputString,
+			String expectedProgress) {
+		runTest(true/*shouldCompileOK*/, testFiles, commandLine, expectedOutOutputString, expectedErrOutputString, true/*shouldFlushOutputDirectory*/, new TestCompilationProgress());
+	}
+	
+	private void runProgressTest(
+			boolean shouldCompileOK,
+			String[] testFiles, 
+			String commandLine,
+			String expectedOutOutputString,
+			String expectedErrOutputString,
+			TestCompilationProgress progress,
+			String expectedProgress) {
+		runTest(shouldCompileOK, testFiles, commandLine, expectedOutOutputString, expectedErrOutputString, true/*shouldFlushOutputDirectory*/, progress);
+		String actualProgress = progress.toString();
+		if (!semiNormalizedComparison(expectedProgress, actualProgress, outputDirNormalizer)) {
+			System.out.println(Util.displayString(outputDirNormalizer.normalized(actualProgress), 2));
+			assertEquals(
+				"Unexpected progress",
+				expectedProgress,
+				actualProgress);
+		}
+	}	
 	/**
 	 * Worker method for runConformTest and runNegativeTest.
 	 *
@@ -426,7 +455,7 @@ private String getLibraryClassesAsQuotedString() {
 	 *            file names are relative to the output directory
 	 * @param commandLine
 	 *            the command line to pass to
-	 *            {@link Main#compile(String) Main#compile}
+	 *            {@link BatchCompiler#compile(String, PrintWriter, PrintWriter, org.eclipse.jdt.core.compiler.CompilationProgress) BatchCompiler#compile}
 	 * @param expectedOutOutputString
 	 *            the expected contents of the standard output stream; pass null
 	 *            to bypass the comparison
@@ -443,7 +472,8 @@ private String getLibraryClassesAsQuotedString() {
 			String commandLine,
 			String expectedOutOutputString,
 			String expectedErrOutputString,
-			boolean shouldFlushOutputDirectory) {
+			boolean shouldFlushOutputDirectory,
+			TestCompilationProgress progress) {
 		File outputDirectory = new File(OUTPUT_DIR);
 		if (shouldFlushOutputDirectory)
 			Util.flushDirectoryContent(outputDirectory);
@@ -480,7 +510,7 @@ private String getLibraryClassesAsQuotedString() {
 			try {
 				out = new PrintWriter(new FileOutputStream(outFileName));
 				err = new PrintWriter(new FileOutputStream(errFileName));
-				batchCompiler = new Main(out, err, false);
+				batchCompiler = new Main(out, err, false/*systemExit*/, null/*options*/, progress);
 			} catch (FileNotFoundException e) {
 				System.out.println(getClass().getName() + '#' + getName());
 				e.printStackTrace();
@@ -607,7 +637,7 @@ private void runTest(
 		try {
 			out = new PrintWriter(new FileOutputStream(outFileName));
 			err = new PrintWriter(new FileOutputStream(errFileName));
-			batchCompiler = new Main(out, err, false);
+			batchCompiler = new Main(out, err, false/*systemExit*/, null/*options*/, null/*progress*/);
 		} catch (FileNotFoundException e) {
 			System.out.println(getClass().getName() + '#' + getName());
 			e.printStackTrace();
@@ -708,7 +738,7 @@ private void runClasspathTest(String classpathInput, String[] expectedClasspathE
 	}
 	ArrayList paths = new ArrayList(Main.DEFAULT_SIZE_CLASSPATH);
 	try {
-		(new Main(new PrintWriter(System.out), new PrintWriter(System.err), true)).
+		(new Main(new PrintWriter(System.out), new PrintWriter(System.err), true/*systemExit*/, null/*options*/, null/*progress*/)).
 			processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, classpathInput, null /* customEncoding */, true /* isSourceOnly */, false /* rejectDestinationPathOnJars*/);
 	} catch (InvalidInputException e) {
 		// e.printStackTrace();
@@ -870,6 +900,31 @@ static final Matcher TWO_FILES_GENERATED_MATCHER = new SubstringMatcher("[2 .cla
 		}
 	}
 
+	static class TestCompilationProgress extends CompilationProgress {
+		boolean isCanceled = false;
+		int workedSoFar = 0;
+		StringBuffer buffer = new StringBuffer();
+		public void begin(int remainingWork) {
+			this.buffer.append("----------\n[worked: 0 - remaining: ").append(remainingWork).append("]\n");
+		}
+		public void done() {
+			this.buffer.append("----------\n");
+		}
+		public boolean isCanceled() {
+			return this.isCanceled;
+		}
+		public void setTaskName(String name) {
+			this.buffer.append(name).append('\n');
+		}
+		public String toString() {
+			return this.buffer.toString();
+		}
+		public void worked(int workIncrement, int remainingWork) {
+			this.workedSoFar += workIncrement;
+			this.buffer.append("[worked: ").append(this.workedSoFar).append(" - remaining: ").append(remainingWork).append("]\n");
+		}
+	}
+	
 	/**
 	 * This normalizer replaces the whole classpaths section of a log file with
 	 * a normalized placeholder.
@@ -1085,6 +1140,7 @@ static final Matcher TWO_FILES_GENERATED_MATCHER = new SubstringMatcher("[2 .cla
 		// return keep.equals(normalizer.normalized(normalize));
 		return equals(keep, normalizer.normalized(normalize));
 	}
+	
 private static boolean equals(String a, String b) {
 	StringBuffer aBuffer = new StringBuffer(a), bBuffer = new StringBuffer(b);
 	int length = aBuffer.length(), bLength;
@@ -9253,7 +9309,8 @@ public void test237_jar_ref_in_jar(){
 		"A cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"1 problem (1 error)",
-		true);
+		true,
+		null /* progress */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // missing space after ClassPath
@@ -9286,7 +9343,8 @@ public void test238_jar_ref_in_jar(){
 		"A cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"1 problem (1 error)",
-		true);
+		true,
+		null /* progress */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // extra space before Class-Path header
@@ -9317,7 +9375,8 @@ public void test239_jar_ref_in_jar(){
 		"A cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"1 problem (1 error)",
-		true);
+		true,
+		null /* progress */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // missing newline at the end of the line
@@ -9349,7 +9408,8 @@ public void test240_jar_ref_in_jar(){
 		"A cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"1 problem (1 error)",
-		true);
+		true,
+		null /* progress */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // white-box test for duplicate classpath lines variant (empty line between the
@@ -10002,7 +10062,8 @@ public void test231_sourcepath_vs_classpath() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"1 problem (1 error)" /* expectedErrOutputString */,
-		false /* shouldFlushOutputDirectory */);
+		false /* shouldFlushOutputDirectory */,
+		null /* progress */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
 // .java/.class files precedence depending on sourcepath
@@ -10047,7 +10108,8 @@ public void test232_sourcepath_vs_classpath() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"1 problem (1 error)" /* expectedErrOutputString */,
-		false /* shouldFlushOutputDirectory */);
+		false /* shouldFlushOutputDirectory */,
+		null /* progress */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
 // different from javac: repeated -classpath concatenate entries, while javac 
@@ -10123,7 +10185,8 @@ public void test234_sourcepath_vs_classpath() {
 		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
-		true /* shouldFlushOutputDirectory */);
+		true /* shouldFlushOutputDirectory */,
+		null /* progress */);
 	// using only classpath, both ecj and javac find X and Z
 	runTest(
 		true /* shouldCompileOK */,
@@ -10134,7 +10197,8 @@ public void test234_sourcepath_vs_classpath() {
 		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
-		false /* shouldFlushOutputDirectory */);
+		false /* shouldFlushOutputDirectory */,
+		null /* progress */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
 // different from javac: with javac, newer class file down the classpath wins 
@@ -10161,7 +10225,8 @@ public void test235_classpath() {
 		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
-		true /* shouldFlushOutputDirectory */);
+		true /* shouldFlushOutputDirectory */,
+		null /* progress */);
 	// X.class found before X.java in classpath order entry
 	runTest(
 		true /* shouldCompileOK */,
@@ -10179,7 +10244,8 @@ public void test235_classpath() {
 		"[1 unit compiled]\n" + 
 		"[1 .class file generated]\n" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
-		false /* shouldFlushOutputDirectory */);
+		false /* shouldFlushOutputDirectory */,
+		null /* progress */);
 	// X.java found before X.class in classpath order entry; javac would select
 	// X.class since it is more recent (except if using -Xprefer:source)
 	runTest(
@@ -10206,6 +10272,131 @@ public void test235_classpath() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"1 problem (1 error)" /* expectedErrOutputString */,
-		false /* shouldFlushOutputDirectory */);
+		false /* shouldFlushOutputDirectory */,
+		null /* progress */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=217233
+// compiler progress test (1 unit)
+public void test252_progress() {
+	runProgressTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -d \"" + OUTPUT_DIR + "\"",
+		""/*out output*/,
+		""/*err output*/,
+		"----------\n" + 
+		"[worked: 0 - remaining: 1]\n" + 
+		"Beginning to compile\n" + 
+		"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
+		"[worked: 1 - remaining: 0]\n" + 
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=217233
+// compiler progress test (2 units)
+public void test253_progress() {
+	runProgressTest(
+		new String[] {
+			"Y.java",
+			"public class Y {\n" + 
+			"}\n",
+			"X.java",
+			"public class X extends Y {\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -cp " + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
+		+ " -d \"" + OUTPUT_DIR + "\"",
+		""/*out output*/,
+		""/*err output*/,
+		"----------\n" + 
+		"[worked: 0 - remaining: 1]\n" + 
+		"Beginning to compile\n" + 
+		"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
+		"[worked: 1 - remaining: 1]\n" + 
+		"Processing ---OUTPUT_DIR_PLACEHOLDER---/Y.java\n" + 
+		"[worked: 2 - remaining: 0]\n" + 
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=217233
+// compiler progress test (multiple iterations)
+public void test254_progress() {
+	runProgressTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"}\n",
+			"Y.java",
+			"public class Y {\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " \"" + OUTPUT_DIR +  File.separator + "Y.java\""
+        + " -cp " + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
+		+ " -d \"" + OUTPUT_DIR + "\""
+		+ " -repeat 3",
+		"[repetition 1/3]\n" + 
+		"[repetition 2/3]\n" + 
+		"[repetition 3/3]\n"/*out output*/,
+		""/*err output*/,
+		"----------\n" + 
+		"[worked: 0 - remaining: 6]\n" + 
+		"Beginning to compile\n" + 
+		"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
+		"[worked: 1 - remaining: 5]\n" + 
+		"Processing ---OUTPUT_DIR_PLACEHOLDER---/Y.java\n" + 
+		"[worked: 2 - remaining: 4]\n" + 
+		"Beginning to compile\n" + 
+		"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
+		"[worked: 3 - remaining: 3]\n" + 
+		"Processing ---OUTPUT_DIR_PLACEHOLDER---/Y.java\n" + 
+		"[worked: 4 - remaining: 2]\n" + 
+		"Beginning to compile\n" + 
+		"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
+		"[worked: 5 - remaining: 1]\n" + 
+		"Processing ---OUTPUT_DIR_PLACEHOLDER---/Y.java\n" + 
+		"[worked: 6 - remaining: 0]\n" + 
+		"----------\n"
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=217233
+// compiler progress test (cancellation)
+public void test255_progress() {
+	TestCompilationProgress progress = new TestCompilationProgress() {
+		public void worked(int workIncrement, int remainingWork) {
+			if (remainingWork == 1)
+				this.isCanceled = true;
+			super.worked(workIncrement, remainingWork);
+		}
+	};
+	runProgressTest(
+		false/*shouldCompileOK*/,
+		new String[] {
+			"Y.java",
+			"public class Y {\n" + 
+			"}\n",
+			"X.java",
+			"public class X extends Y {\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -cp " + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
+		+ " -d \"" + OUTPUT_DIR + "\"",
+		""/*out output*/,
+		""/*err output*/,
+		progress,
+		"----------\n" + 
+		"[worked: 0 - remaining: 1]\n" + 
+		"Beginning to compile\n" + 
+		"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
+		"[worked: 1 - remaining: 1]\n" + 
+		"----------\n"
+	);
 }
 }

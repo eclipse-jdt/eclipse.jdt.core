@@ -54,10 +54,16 @@ Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
     classpath, provided it is not on the classpath yet. See bug
     <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=97332">97332</a> for
     further details.</li>
+<li>Added APIs to call the batch compiler from a stand-alone application:
+	 <code>BatchCompiler#compiler(String, PrintWriter, PrintWriter, CompilationProgress)</code> and
+	 <code>BatchCompiler#compiler(String[], PrintWriter, PrintWriter, CompilationProgress)</code>.
+	 See <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=217233">217233</a> for more details.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=223495">223495</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=217233">217233</a>
+[compiler] Add compiler API to call the batch compiler from a stand-alone application
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=223495">223495</a>
 [assist] Member types of missing parametrized types are not proposed
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=223479">223479</a>
 [assist] Member types of missing types are not proposed in class body

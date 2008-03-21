@@ -30,6 +30,7 @@ import javax.tools.StandardLocation;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -55,7 +56,7 @@ public class EclipseCompilerImpl extends Main {
 	public DiagnosticListener<? super JavaFileObject> diagnosticListener;
 
 	public EclipseCompilerImpl(PrintWriter out, PrintWriter err, boolean systemExitWhenFinished) {
-		super(out, err, systemExitWhenFinished);
+		super(out, err, systemExitWhenFinished, null/*options*/, null/*progress*/);
 	}
 
 	public boolean call() {
@@ -67,7 +68,7 @@ public class EclipseCompilerImpl extends Main {
 				this.globalTasksCount = 0;
 				this.exportedClassFilesCounter = 0;
 				// request compilation
-				performCompilation();
+				performCompilation(1/*remaining iterations including this one*/);
 			}
 		} catch (InvalidInputException e) {
 			this.logger.logException(e);
@@ -219,8 +220,8 @@ public class EclipseCompilerImpl extends Main {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions) {
-		super.initialize(outWriter, errWriter, systemExit, customDefaultOptions);
+	protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions, CompilationProgress progress) {
+		super.initialize(outWriter, errWriter, systemExit, customDefaultOptions, null);
 		this.javaFileObjectMap = new HashMap<CompilationUnit, JavaFileObject>();
 	}
 

@@ -12,8 +12,10 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import junit.framework.Test;
 import java.io.*;
+
 import junit.framework.Assert;
 
+import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
@@ -60,7 +62,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			.append(Util.getJavaClassLibsAsString())
 			.append(SOURCE_DIRECTORY)
 			.append("\"");
-		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
+		BatchCompiler.compile(buffer.toString(), new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
 	}
 	
 	private boolean areStructurallyDifferent(String classFile1, String classFile2, boolean orderRequired, boolean excludeSynthetic) {

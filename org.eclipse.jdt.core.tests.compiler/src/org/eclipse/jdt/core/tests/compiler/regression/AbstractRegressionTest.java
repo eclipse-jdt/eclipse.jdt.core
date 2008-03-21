@@ -30,6 +30,7 @@ import junit.framework.AssertionFailedError;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.tests.junit.extension.StopableTestCase;
@@ -259,7 +260,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			.append(Util.getJavaClassLibsAsString())
 			.append(SOURCE_DIRECTORY)
 			.append("\"");
-		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
+		BatchCompiler.compile(buffer.toString(), new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
 	}
 
 	/*

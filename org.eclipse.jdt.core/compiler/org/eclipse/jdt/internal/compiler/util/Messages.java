@@ -87,6 +87,8 @@ public final class Messages {
 	public static String compilation_units;
 	public static String compilation_unit;
 	public static String compilation_internalError;
+	public static String compilation_beginningToCompile;
+	public static String compilation_processing;
 	public static String output_isFile;
 	public static String output_notValidAll;
 	public static String output_notValid;

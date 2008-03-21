@@ -109,7 +109,7 @@ public class EclipseCompiler implements JavaCompiler {
 			eclipseCompiler = new EclipseCompilerImpl(writerOut, writerErr, false);
 			this.threadCache.put(currentThread, eclipseCompiler);
 		} else {
-			eclipseCompiler.initialize(writerOut, writerErr, false, null);
+			eclipseCompiler.initialize(writerOut, writerErr, false, null/*options*/, null/*progress*/);
 		}
 		final EclipseCompilerImpl eclipseCompiler2 = new EclipseCompilerImpl(writerOut, writerErr, false);
 		eclipseCompiler2.compilationUnits = compilationUnits;
@@ -212,7 +212,7 @@ public class EclipseCompiler implements JavaCompiler {
 	 *      java.io.OutputStream, java.lang.String[])
 	 */
 	public int run(InputStream in, OutputStream out, OutputStream err, String... arguments) {
-		boolean succeed = new Main(new PrintWriter(new OutputStreamWriter(out)), new PrintWriter(new OutputStreamWriter(err)), true).compile(arguments);
+		boolean succeed = new Main(new PrintWriter(new OutputStreamWriter(out)), new PrintWriter(new OutputStreamWriter(err)), true/*systemExit*/, null/*options*/, null/*progress*/).compile(arguments);
 		return succeed ? 0 : -1;
 	}
 }

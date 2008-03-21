@@ -16,8 +16,8 @@ import java.util.StringTokenizer;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.core.JavaElement;
 
 public class ModifyingResourceTests extends AbstractJavaModelTests {
@@ -65,7 +65,7 @@ protected void assertStatus(String message, String expected, IStatus status) {
 public static void generateClassFile(String className, String javaSource) throws IOException {
 	String cu = "d:/temp/" + className + ".java";
 	Util.createFile(cu, javaSource);
-	Main.compile(cu + " -d d:/temp -classpath " + System.getProperty("java.home") + "/lib/rt.jar");
+	BatchCompiler.compile(cu + " -d d:/temp -classpath " + System.getProperty("java.home") + "/lib/rt.jar", new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
 	FileInputStream input = new FileInputStream("d:/temp/" + className + ".class");
 	try {
 		System.out.println("{");

@@ -29,6 +29,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public ProblemReporter problemReporter;
 	protected PrintWriter out; // output for messages that are not sent to problemReporter
 	public CompilerStats stats;
+	public CompilationProgress progress;
+	public int remainingIterations = 1;
 	
 	// management of unit to be processed
 	//public CompilationUnitResult currentCompilationUnitResult;
@@ -99,7 +101,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			Map settings,
 			final ICompilerRequestor requestor,
 			IProblemFactory problemFactory) {
-		this(environment, policy, new CompilerOptions(settings), requestor, problemFactory, null); 
+		this(environment, policy, new CompilerOptions(settings), requestor, problemFactory, null /* printwriter */, null /* progress */); 
 	}
 	
 	/**
@@ -151,7 +153,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			final ICompilerRequestor requestor,
 			IProblemFactory problemFactory,
 			boolean parseLiteralExpressionsAsConstants) {
-		this(environment, policy, new CompilerOptions(settings, parseLiteralExpressionsAsConstants), requestor, problemFactory, null); 
+		this(environment, policy, new CompilerOptions(settings, parseLiteralExpressionsAsConstants), requestor, problemFactory, null /* printwriter */, null /* progress */); 
 	}
 	
 	/**
@@ -196,7 +198,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		CompilerOptions options,
 		final ICompilerRequestor requestor,
 		IProblemFactory problemFactory) {
-		this(environment, policy, options, requestor, problemFactory, null); 
+		this(environment, policy, options, requestor, problemFactory, null /* printwriter */, null /* progress */); 
 	}
 
 	/**
@@ -234,6 +236,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *      order to avoid object conversions. Note that the factory is not supposed
 	 *      to accumulate the created problems, the compiler will gather them all and hand
 	 *      them back as part of the compilation unit result.
+	 * @deprecated
 	 */
 	public Compiler(
 			INameEnvironment environment,
@@ -242,8 +245,20 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			final ICompilerRequestor requestor,
 			IProblemFactory problemFactory,
 			PrintWriter out) {
+		this(environment, policy, options, requestor, problemFactory, out, null /* progress */);
+	}
+	
+	public Compiler(
+			INameEnvironment environment,
+			IErrorHandlingPolicy policy,
+			CompilerOptions options,
+			final ICompilerRequestor requestor,
+			IProblemFactory problemFactory,
+			PrintWriter out,
+			CompilationProgress progress) {
 		
 		this.options = options;
+		this.progress = progress;
 		
 		// wrap requestor in DebugRequestor if one is specified
 		if(DebugRequestor == null) {
@@ -361,6 +376,34 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	}
 
 	/**
+	 * Checks whether the compilation has been canceled and reports the given progress to the compiler progress.
+	 */
+	private void reportProgress(String taskDecription) {
+		if (this.progress != null) {
+			if (this.progress.isCanceled()) {
+				// Only AbortCompilation can stop the compiler cleanly.
+				// We check cancellation again following the call to compile.
+				throw new AbortCompilation(true, null); 
+			}
+			this.progress.setTaskName(taskDecription);
+		}
+	}
+
+	/**
+	 * Checks whether the compilation has been canceled and reports the given work increment to the compiler progress.
+	 */
+	private void reportWorked(int workIncrement, int currentUnitIndex) {
+		if (this.progress != null) {
+			if (this.progress.isCanceled()) {
+				// Only AbortCompilation can stop the compiler cleanly.
+				// We check cancellation again following the call to compile.
+				throw new AbortCompilation(true, null); 
+			}
+			this.progress.worked(workIncrement, (this.totalUnits* this.remainingIterations) - currentUnitIndex - 1);
+		}
+	}
+	
+	/**
 	 * General API
 	 * -> compile each of supplied files
 	 * -> recompile any required types for which we have an incomplete principle structure
@@ -371,6 +414,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		int i = 0;
 		try {
 			// build and record parsed units
+			reportProgress(Messages.compilation_beginningToCompile);
 
 			beginToCompile(sourceUnits);
 
@@ -384,6 +428,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			// process all units (some more could be injected in the loop by the lookup environment)
 			for (; i < this.totalUnits; i++) {
 				unit = unitsToProcess[i];
+				reportProgress(Messages.bind(Messages.compilation_processing, new String(unit.getFileName())));
 				try {
 					if (options.verbose)
 						this.out.println(
@@ -399,6 +444,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					unit.cleanUp();
 				}
 				unitsToProcess[i] = null; // release reference to processed unit declaration
+				
+				reportWorked(1, i);
 				this.stats.lineCount += unit.compilationResult.lineSeparatorPositions.length;
 				long acceptStart = System.currentTimeMillis();
 				requestor.acceptResult(unit.compilationResult.tagAsAccepted());

@@ -75,7 +75,7 @@ public class TestCase extends PerformanceTestCase {
 						System.err.println("Note that tests will be run sorted using alphabetical reverse order...");
 						break;
 					case RANDOM_ORDER_JDT:
-						String version = new Main(null, null, false).bind("compiler.version");
+						String version = new Main(null/*outWriter*/, null/*errWriter*/, false/*systemExit*/, null/*options*/, null/*progress*/).bind("compiler.version");
 						try {
 							String v_number = version.substring(2, 5);
 							ordering = Long.parseLong(v_number);

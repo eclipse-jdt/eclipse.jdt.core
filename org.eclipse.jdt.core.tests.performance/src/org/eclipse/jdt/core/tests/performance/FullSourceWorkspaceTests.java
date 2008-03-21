@@ -200,7 +200,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	// Main version which is logged
 	protected final static String LOG_VERSION;
 	static {
-		String version = new Main(null, null, false).bind("compiler.version");
+		String version = new Main(null/*outWriter*/, null/*errWriter*/, false/*systemExit*/, null/*options*/, null/*progress*/).bind("compiler.version");
 		version = version.substring(0, version.indexOf(','));
 		if (version.startsWith("0.")) {
 			version = "v_"+version.substring(2);

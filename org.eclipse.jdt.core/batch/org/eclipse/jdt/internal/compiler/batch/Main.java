@@ -43,8 +43,10 @@ import java.util.StringTokenizer;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -1264,7 +1266,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	protected FileSystem.Classpath[] checkedClasspaths;
 	
 	public Locale compilerLocale;
-		public CompilerOptions compilerOptions; // read-only
+	public CompilerOptions compilerOptions; // read-only
+	public CompilationProgress progress;
 	public String destinationPath;
 	public String[] destinationPaths;
 	// destination path for compilation units that get no more specific
@@ -1326,22 +1329,28 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	
 	public static final String NONE = "none"; //$NON-NLS-1$
 
-/*
- * Internal IDE API
+/**
+ * @deprecated - use {@link BatchCompiler#compile(String, PrintWriter, PrintWriter, CompilationProgress)} instead
+ * 						  e.g. BatchCompiler.compile(commandLine, new PrintWriter(System.out), new PrintWriter(System.err), null);
  */
 public static boolean compile(String commandLine) {
+	return new Main(new PrintWriter(System.out), new PrintWriter(System.err), false /* systemExit */, null /* options */, null /* progress */).compile(tokenize(commandLine));
+}
 
-	return compile(commandLine, new PrintWriter(System.out), new PrintWriter(System.err));
+/**
+ * @deprecated - use {@link BatchCompiler#compile(String, PrintWriter, PrintWriter, CompilationProgress)} instead
+ *                       e.g. BatchCompiler.compile(commandLine, outWriter, errWriter, null);
+ */
+public static boolean compile(String commandLine, PrintWriter outWriter, PrintWriter errWriter) {
+	return new Main(outWriter, errWriter, false /* systemExit */, null /* options */, null /* progress */).compile(tokenize(commandLine));
 }
 
 /*
- * Internal IDE API for test harness purpose
+ * Internal API for public API BatchCompiler#compile(String[], PrintWriter, PrintWriter, CompilationProgress)
  */
-public static boolean compile(String commandLine, PrintWriter outWriter, PrintWriter errWriter) {
-
-	return new Main(outWriter, errWriter, false).compile(tokenize(commandLine));
+public static boolean compile(String[] commandLineArguments, PrintWriter outWriter, PrintWriter errWriter, CompilationProgress progress) {
+	return new Main(outWriter, errWriter, false /* systemExit */, null /* options */, progress).compile(commandLineArguments);
 }
-
 public static File[][] getLibrariesFiles(File[] files) {
 	FilenameFilter filter = new FilenameFilter() {
 		public boolean accept(File dir, String name) {
@@ -1364,7 +1373,7 @@ public static File[][] getLibrariesFiles(File[] files) {
 }
 
 public static void main(String[] argv) {
-	new Main(new PrintWriter(System.out), new PrintWriter(System.err), true).compile(argv);
+	new Main(new PrintWriter(System.out), new PrintWriter(System.err), true/*systemExit*/, null/*options*/, null/*progress*/).compile(argv);
 }
 
 public static String[] tokenize(String commandLine) {
@@ -1421,14 +1430,27 @@ public static String[] tokenize(String commandLine) {
 	return arguments;
 }
 
+/**
+ * @deprecated - use {@link #Main(PrintWriter, PrintWriter, boolean, Map, CompilationProgress)} instead
+ *                       e.g. Main(outWriter, errWriter, systemExitWhenFinished, null, null)
+ */
 public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
-	this(outWriter, errWriter, systemExitWhenFinished, null);
+	this(outWriter, errWriter, systemExitWhenFinished, null /* options */, null /* progress */);
 }
 
+/**
+ * @deprecated - use {@link #Main(PrintWriter, PrintWriter, boolean, Map, CompilationProgress)} instead
+ *                       e.g. Main(outWriter, errWriter, systemExitWhenFinished, customDefaultOptions, null)
+ */
 public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished, Map customDefaultOptions) {
-	this.initialize(outWriter, errWriter, systemExitWhenFinished, customDefaultOptions);
+	this(outWriter, errWriter, systemExitWhenFinished, customDefaultOptions, null /* progress */);
+}
+
+public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished, Map customDefaultOptions, CompilationProgress compilationProgress) {
+	this.initialize(outWriter, errWriter, systemExitWhenFinished, customDefaultOptions, compilationProgress);
 	this.relocalize();
 }
+
 public void addExtraProblems(CategorizedProblem problem) {
 	if (this.extraProblems == null) {
 		this.extraProblems = new ArrayList();
@@ -1620,6 +1642,8 @@ public boolean compile(String[] argv) {
 	// decode command line arguments
 	try {
 		configure(argv);
+		if (this.progress != null)
+			this.progress.begin(this.filenames == null ? 0 : this.filenames.length * this.maxRepetition);
 		if (this.proceed) {
 //				if (this.verbose) {
 //					System.out.println(new CompilerOptions(this.options));
@@ -1637,7 +1661,7 @@ public boolean compile(String[] argv) {
 					this.logger.logRepetition(this.currentRepetition, this.maxRepetition);
 				}
 				// request compilation
-				performCompilation();
+				performCompilation(this.maxRepetition-this.currentRepetition/*remaining iterations including this one*/);
 			}
 			if (this.compilerStats != null) {
 				this.logger.logAverage();
@@ -1668,8 +1692,10 @@ public boolean compile(String[] argv) {
 	} finally {
 		this.logger.flush();
 		this.logger.close();
+		if (this.progress != null)
+			this.progress.done();
 	}
-	if (this.globalErrorsCount == 0)
+	if (this.globalErrorsCount == 0 && (this.progress == null || !this.progress.isCanceled()))
 		return true;
 	return false;
 }
@@ -3374,24 +3400,28 @@ protected void handleWarningToken(String token, boolean isEnabling) throws Inval
 		addPendingErrors(this.bind("configure.invalidWarning", token)); //$NON-NLS-1$
 	}
 }
-/*
- * External API
+/**
+ * @deprecated - use {@link #initialize(PrintWriter, PrintWriter, boolean, Map, CompilationProgress)} instead
+ *                       e.g. initialize(outWriter, errWriter, systemExit, null, null)
  */
-protected void initialize(PrintWriter outWriter,
-		PrintWriter errWriter,
-		boolean systemExit) {
-	this.initialize(outWriter, errWriter, systemExit, null);
+protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit) {
+	this.initialize(outWriter, errWriter, systemExit, null /* options */, null /* progress */);
 }
-protected void initialize(PrintWriter outWriter,
-		PrintWriter errWriter,
-		boolean systemExit,
-		Map customDefaultOptions) {
+/**
+ * @deprecated - use {@link #initialize(PrintWriter, PrintWriter, boolean, Map, CompilationProgress)} instead
+ *                       e.g. initialize(outWriter, errWriter, systemExit, customDefaultOptions, null)
+ */
+protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions) {
+	this.initialize(outWriter, errWriter, systemExit, customDefaultOptions, null /* progress */);
+}
+protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions, CompilationProgress compilationProgress) {
 	this.logger = new Logger(this, outWriter, errWriter);
 	this.proceed = true;
 	this.out = outWriter;
 	this.err = errWriter;
 	this.systemExitWhenFinished = systemExit;
 	this.options = new CompilerOptions().getMap();
+	this.progress = compilationProgress;
 	if (customDefaultOptions != null) {
 		this.didSpecifySource = customDefaultOptions.get(CompilerOptions.OPTION_Source) != null;
 		this.didSpecifyTarget = customDefaultOptions.get(CompilerOptions.OPTION_TargetPlatform) != null;
@@ -3492,7 +3522,7 @@ public void outputClassFiles(CompilationResult unitResult) {
 /*
  *  Low-level API performing the actual compilation
  */
-public void performCompilation() throws InvalidInputException {
+public void performCompilation(int remainingIterations/*including the current iteration*/) throws InvalidInputException {
 
 	this.startTime = System.currentTimeMillis();
 
@@ -3507,7 +3537,9 @@ public void performCompilation() throws InvalidInputException {
 			this.compilerOptions,
 			getBatchRequestor(),
 			getProblemFactory(),
-			this.out);
+			this.out,
+			this.progress);
+	this.batchCompiler.remainingIterations = remainingIterations;
 
 	if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_6
 			&& this.compilerOptions.processAnnotations) {

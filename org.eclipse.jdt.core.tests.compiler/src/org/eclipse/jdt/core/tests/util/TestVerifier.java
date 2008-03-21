@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.util;
 
+import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.runtime.*;
 import java.io.*;
 import java.net.*;
@@ -84,7 +85,7 @@ private void compileVerifyTests(String verifierDir) {
 	}
 	String fileName = dir + File.separator + simpleName + ".java";
 	Util.writeToFile(this.getVerifyTestsCode(), fileName);
-	org.eclipse.jdt.internal.compiler.batch.Main.compile("\"" + fileName + "\" -d \"" + verifierDir + "\" -classpath \"" + Util.getJavaClassLibsAsString() + "\"");
+	BatchCompiler.compile("\"" + fileName + "\" -d \"" + verifierDir + "\" -classpath \"" + Util.getJavaClassLibsAsString() + "\"", new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
 }
 public void execute(String className, String[] classpaths) {
 	this.outputBuffer = new StringBuffer();
