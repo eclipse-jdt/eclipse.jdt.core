@@ -1633,28 +1633,40 @@ public final class CompletionEngine
 				long completionPosition = ref.sourcePositions[ref.tokens.length];
 				setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 				
-				ObjectVector typesFound = new ObjectVector();
-				if (this.assistNodeIsException && astNodeParent instanceof TryStatement) {
-					findExceptionFromTryStatement(
-							this.completionToken,
-							(ReferenceBinding)qualifiedBinding,
-							scope.enclosingSourceType(),
-							(BlockScope)scope,
-							typesFound);
+				if (qualifiedBinding.problemId() == ProblemReasons.NotFound) {
+					if (this.assistNodeInJavadoc == 0 &&
+							(this.requestor.isAllowingRequiredProposals(CompletionProposal.TYPE_REF, CompletionProposal.TYPE_REF))) {
+						if(ref.tokens.length == 1) {
+							findMemberTypesFromMissingType(
+									ref.tokens[0],
+									ref.sourcePositions[0],
+									scope);
+						}
+					}
+				} else {
+					ObjectVector typesFound = new ObjectVector();
+					if (this.assistNodeIsException && astNodeParent instanceof TryStatement) {
+						findExceptionFromTryStatement(
+								this.completionToken,
+								(ReferenceBinding)qualifiedBinding,
+								scope.enclosingSourceType(),
+								(BlockScope)scope,
+								typesFound);
+					}
+					
+					findMemberTypes(
+						this.completionToken,
+						(ReferenceBinding) qualifiedBinding,
+						scope,
+						scope.enclosingSourceType(),
+						false,
+						false,
+						typesFound,
+						null,
+						null,
+						null,
+						false);
 				}
-				
-				findMemberTypes(
-					this.completionToken,
-					(ReferenceBinding) qualifiedBinding,
-					scope,
-					scope.enclosingSourceType(),
-					false,
-					false,
-					typesFound,
-					null,
-					null,
-					null,
-					false);
 			}
 		} else if (astNode instanceof CompletionOnMarkerAnnotationName) {
 			CompletionOnMarkerAnnotationName annot = (CompletionOnMarkerAnnotationName) astNode;
