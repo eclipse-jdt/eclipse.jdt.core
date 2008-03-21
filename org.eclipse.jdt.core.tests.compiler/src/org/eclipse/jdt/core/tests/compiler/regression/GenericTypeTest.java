@@ -43319,4 +43319,38 @@ public void test1304() {
 			},
 			"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223334
+public void test1305() {
+	this.runConformTest(
+			new String[] {
+					"LayoutOrganizer.java",
+					"import java.util.*;\n" + 
+					"class ConflictManager<T> {\n" + 
+					"	public List<Map.Entry<Integer, ? extends Collection<T>>> getConflictsSortedBySize() {\n" + 
+					"		return null;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"class LayoutOrganizable<T> {\n" + 
+					"	private T t;\n" + 
+					"\n" + 
+					"	public LayoutOrganizable(T t) {\n" + 
+					"		this.t = t;\n" + 
+					"\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"public class LayoutOrganizer<T> {\n" + 
+					"	ConflictManager<LayoutOrganizable<T>> conflictManager = new ConflictManager<LayoutOrganizable<T>>();\n" + 
+					"	private boolean optimizeEqual() {\n" + 
+					"		List<Map.Entry<Integer, ? extends Collection<LayoutOrganizable<T>>>> list;\n" + 
+					"		ListIterator<Map.Entry<Integer, ? extends Collection<LayoutOrganizable<T>>>> i;\n" + 
+					"		// create sorted list of pairs\n" + 
+					"		// (#conflicts, list of LayoutOrganizable sharing this #conflicts)\n" + 
+					"		// Here is the problem...\n" + 
+					"		list = conflictManager.getConflictsSortedBySize();\n" + 
+					"		return null == list;\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"");
+}
 }
