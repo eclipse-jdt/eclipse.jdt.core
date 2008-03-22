@@ -1090,12 +1090,14 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_INVALID_JAVADOC_TAGS_VISIBILITY = PLUGIN_ID + ".compiler.problem.invalidJavadocTagsVisibility"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting missing tag description.
-	 * <p>When enabled, the compiler will report a warning or an error for any Javadoc missing a required description.
+	 * <p>When enabled, the compiler will report a warning or an error for any Javadoc tag missing a required description.
 	 * <p>The severity of the problem is controlled with option {@link #COMPILER_PB_INVALID_JAVADOC}.
 	 * <p>This option is NOT dependent from the Report errors in tags option.
+	 * <p>The initial set of standard tags is a subset of the <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/javadoc.html#javadoctags">Javadoc tags</a>
+	 *       that have a description, text or label. This set may grow in the future. User defined tags are thus not included in the standard tags.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingJavadocTagDescription"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "return_tag", "all_tags", "no_tag" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "return_tag", "all_standard_tags", "no_tag" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"return_tag"</code></dd>
 	 * </dl>
 	 * @since 3.4
@@ -2135,7 +2137,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.4
 	 * @category OptionValue
 	 */
-	public static final String COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_ALL_TAGS = CompilerOptions.ALL_TAGS;
+	public static final String COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_ALL_STANDARD_TAGS = CompilerOptions.ALL_STANDARD_TAGS;
+	/**
+	 * @deprecated use {@link #COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_ALL_STANDARD_TAGS} instead
+	 * TODO: remove before 3.4M6
+	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_ALL_TAGS = CompilerOptions.ALL_STANDARD_TAGS;
 	// end configurable option values }
 
 	/**

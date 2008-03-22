@@ -3083,7 +3083,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		reportMissingJavadocDescription = CompilerOptions.ALL_TAGS;
+		reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 		runNegativeTest(units,
 				"----------\n" + 
 				"1. WARNING in X.java (at line 2)\n" + 
@@ -3180,7 +3180,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		reportMissingJavadocDescription = CompilerOptions.ALL_TAGS;
+		reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 		runConformTest(units);
 	}
 	public void testBug73352c() {
@@ -6936,4 +6936,111 @@ public class JavadocBugsTest extends JavadocTest {
 				"Javadoc: Malformed reference (missing end space separator)\n" + 
 				"----------\n");
 	}
+	/**
+	 * @bug 222902: [Javadoc] Missing description should not be warned in some cases
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222902"
+	 */
+	public void testBug222902() {
+		String[] units = new String[] {
+			"X.java",			
+			"/**\n" +
+			" * @author\n" +
+			" * {@code}\n" +
+			" * @deprecated\n" +
+			" * {@literal}\n" +
+			" * @since\n" +
+			" * @version\n" +
+			" * @generated\n" + // should not get a warning for missing description on non-standard tag
+			" * @code\n" + // should not get a warning for non-inlined tag @code
+			" * @literal\n" + // should not get a warning for non-inlined tag @literal
+			"*/\n" +
+			"public class X {\n" +
+			"	/**\n" +
+			"	 * @param  aParam\n" +
+			"	 * @return\n" +
+			"	 * @throws NullPointerException\n" +
+			"	 * @exception NullPointerException\n" +
+			"	 */\n" +
+			"	public String foo(String aParam) {\n" +
+			"		return new String();\n" +
+			"	}\n" +
+			"	/**\n" +
+			"	 * @serial\n" +
+			"	 * @serialData\n" +
+			"	 * @serialField\n" +
+			"	 */\n" +
+			"	Object field;\n" +
+			"}\n"
+		};
+		reportInvalidJavadoc = CompilerOptions.WARNING;
+		reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+		runNegativeTest(units,
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	* @author\n" + 
+			"	   ^^^^^^\n" + 
+			"Javadoc: Description expected after @author\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 3)\n" + 
+			"	* {@code}\n" + 
+			"	    ^^^^\n" + 
+			"Javadoc: Description expected after @code\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 4)\n" + 
+			"	* @deprecated\n" + 
+			"	   ^^^^^^^^^^\n" + 
+			"Javadoc: Description expected after @deprecated\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 5)\n" + 
+			"	* {@literal}\n" + 
+			"	    ^^^^^^^\n" + 
+			"Javadoc: Description expected after @literal\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 6)\n" + 
+			"	* @since\n" + 
+			"	   ^^^^^\n" + 
+			"Javadoc: Description expected after @since\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 7)\n" + 
+			"	* @version\n" + 
+			"	   ^^^^^^^\n" + 
+			"Javadoc: Description expected after @version\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 14)\n" + 
+			"	* @param  aParam\n" + 
+			"	          ^^^^^^\n" + 
+			"Javadoc: Description expected after this reference\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 15)\n" + 
+			"	* @return\n" + 
+			"	   ^^^^^^\n" + 
+			"Javadoc: Description expected after @return\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 16)\n" + 
+			"	* @throws NullPointerException\n" + 
+			"	          ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Description expected after this reference\n" + 
+			"----------\n" + 
+			"10. WARNING in X.java (at line 17)\n" + 
+			"	* @exception NullPointerException\n" + 
+			"	             ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Description expected after this reference\n" + 
+			"----------\n" + 
+			"11. WARNING in X.java (at line 23)\n" + 
+			"	* @serial\n" + 
+			"	   ^^^^^^\n" + 
+			"Javadoc: Description expected after @serial\n" + 
+			"----------\n" + 
+			"12. WARNING in X.java (at line 24)\n" + 
+			"	* @serialData\n" + 
+			"	   ^^^^^^^^^^\n" + 
+			"Javadoc: Description expected after @serialData\n" + 
+			"----------\n" + 
+			"13. WARNING in X.java (at line 25)\n" + 
+			"	* @serialField\n" + 
+			"	   ^^^^^^^^^^^\n" + 
+			"Javadoc: Description expected after @serialField\n" + 
+			"----------\n"
+		);
+	}	
 }

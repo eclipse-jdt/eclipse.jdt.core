@@ -52,6 +52,14 @@ public interface JavadocTagConstants {
 	public static final int TAG_INHERITDOC_LENGTH = TAG_INHERITDOC.length;
 	public static final int TAG_VALUE_LENGTH = TAG_VALUE.length;
 	public static final int TAG_CATEGORY_LENGTH = TAG_CATEGORY.length;
+	public static final int TAG_AUTHOR_LENGTH = TAG_AUTHOR.length;
+	public static final int TAG_SERIAL_LENGTH = TAG_SERIAL.length;
+	public static final int TAG_SERIAL_DATA_LENGTH = TAG_SERIAL_DATA.length;
+	public static final int TAG_SERIAL_FIELD_LENGTH = TAG_SERIAL_FIELD.length;
+	public static final int TAG_SINCE_LENGTH = TAG_SINCE.length;
+	public static final int TAG_VERSION_LENGTH = TAG_VERSION.length;
+	public static final int TAG_CODE_LENGTH = TAG_CODE.length;
+	public static final int TAG_LITERAL_LENGTH = TAG_LITERAL.length;
 
 
 	// tags value
@@ -67,6 +75,14 @@ public interface JavadocTagConstants {
 	public static final int TAG_INHERITDOC_VALUE = 9;
 	public static final int TAG_VALUE_VALUE = 10;
 	public static final int TAG_CATEGORY_VALUE = 11;
+	public static final int TAG_AUTHOR_VALUE = 12;
+	public static final int TAG_SERIAL_VALUE = 13;
+	public static final int TAG_SERIAL_DATA_VALUE = 14;
+	public static final int TAG_SERIAL_FIELD_VALUE = 15;
+	public static final int TAG_SINCE_VALUE = 16;
+	public static final int TAG_VERSION_VALUE = 17;
+	public static final int TAG_CODE_VALUE = 18;
+	public static final int TAG_LITERAL_VALUE = 19;
 	public static final int TAG_OTHERS_VALUE = 100;
 	
 	// tags expected positions

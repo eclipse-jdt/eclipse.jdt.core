@@ -1135,7 +1135,7 @@ public int computeSeverity(int problemID){
 			}
 			break;
 		case IProblem.JavadocMissingTagDescription:
-			if (! CompilerOptions.ALL_TAGS.equals(this.options.reportMissingJavadocTagDescription)) {
+			if (! CompilerOptions.ALL_STANDARD_TAGS.equals(this.options.reportMissingJavadocTagDescription)) {
 				return ProblemSeverities.Ignore;
 			}
 			break;

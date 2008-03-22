@@ -152,7 +152,7 @@ public class CompilerOptions {
 	public static final String PRIVATE = "private";	//$NON-NLS-1$
 	public static final String RETURN_TAG = "return_tag";	//$NON-NLS-1$
 	public static final String NO_TAG = "no_tag";	//$NON-NLS-1$
-	public static final String ALL_TAGS = "all_tags";	//$NON-NLS-1$
+	public static final String ALL_STANDARD_TAGS = "all_standard_tags";	//$NON-NLS-1$
 
 	/**
 	 * Bit mask for configurable problems (error/warning threshold)

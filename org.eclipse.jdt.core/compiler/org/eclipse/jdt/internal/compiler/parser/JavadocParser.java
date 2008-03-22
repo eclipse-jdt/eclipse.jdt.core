@@ -483,15 +483,22 @@ public class JavadocParser extends AbstractCommentParser {
 		this.scanner.currentPosition = this.tagSourceEnd+1;
 	
 		// Decide which parse to perform depending on tag name
-		this.tagValue = NO_TAG_VALUE;
+		this.tagValue = TAG_OTHERS_VALUE;
 		boolean alreadyParsedTag = false;
 		switch (token) {
 			case TerminalTokens.TokenNameIdentifier :
 				switch (tagName[0]) {
+					case 'a':
+						if (length == TAG_AUTHOR_LENGTH && CharOperation.equals(TAG_AUTHOR, tagName)) {
+							this.tagValue = TAG_AUTHOR_VALUE;
+						}
+						break;
 					case 'c':
 						if (length == TAG_CATEGORY_LENGTH && CharOperation.equals(TAG_CATEGORY, tagName)) {
 							this.tagValue = TAG_CATEGORY_VALUE;
 							valid = parseIdentifierTag(false); // TODO (frederic) reconsider parameter value when @category will be significant in spec
+						} else if (length == TAG_CODE_LENGTH && this.inlineTagStarted && CharOperation.equals(TAG_CODE, tagName)) {
+							this.tagValue = TAG_CODE_VALUE;
 						}
 						break;
 					case 'd':
@@ -547,6 +554,8 @@ public class JavadocParser extends AbstractCommentParser {
 								}
 							}
 							alreadyParsedTag = true;
+						} else if (length == TAG_LITERAL_LENGTH && this.inlineTagStarted && CharOperation.equals(TAG_LITERAL, tagName)) {
+							this.tagValue = TAG_LITERAL_VALUE;
 						}
 						break;
 					case 'p':
@@ -570,6 +579,14 @@ public class JavadocParser extends AbstractCommentParser {
 								valid = parseReference();
 							}
 							alreadyParsedTag = true;
+						} else if (length == TAG_SERIAL_LENGTH && CharOperation.equals(TAG_SERIAL, tagName)) {
+							this.tagValue = TAG_SERIAL_VALUE;
+						} else if (length == TAG_SERIAL_DATA_LENGTH && CharOperation.equals(TAG_SERIAL_DATA, tagName)) {
+							this.tagValue = TAG_SERIAL_DATA_VALUE;
+						} else if (length == TAG_SERIAL_FIELD_LENGTH && CharOperation.equals(TAG_SERIAL_FIELD, tagName)) {
+							this.tagValue = TAG_SERIAL_FIELD_VALUE;
+						} else if (length == TAG_SINCE_LENGTH && CharOperation.equals(TAG_SINCE, tagName)) {
+							this.tagValue = TAG_SINCE_VALUE;
 						}
 						break;
 					case 'v':
@@ -598,6 +615,8 @@ public class JavadocParser extends AbstractCommentParser {
 								}
 							}
 							alreadyParsedTag = true;
+						} else if (length == TAG_VERSION_LENGTH && CharOperation.equals(TAG_VERSION, tagName)) {
+							this.tagValue = TAG_VERSION_VALUE;
 						} else {
 							createTag();
 						}
@@ -627,7 +646,7 @@ public class JavadocParser extends AbstractCommentParser {
 				break;
 		}
 		this.textStart = this.index;
-		if (! alreadyParsedTag && this.reportProblems && verifyEndLine(this.scanner.currentPosition)) {
+		if (this.tagValue != TAG_OTHERS_VALUE && ! alreadyParsedTag && this.reportProblems && verifyEndLine(this.scanner.currentPosition)) {
 			this.sourceParser.problemReporter().javadocMissingTagDescription(tagName, this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
 			return false;
 		}
