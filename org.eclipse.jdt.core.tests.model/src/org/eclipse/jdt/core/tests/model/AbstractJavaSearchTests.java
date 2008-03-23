@@ -162,6 +162,10 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 				} else if (element instanceof IPackageDeclaration) {
 					IPackageDeclaration packageDeclaration = (IPackageDeclaration)element;
 					unit = (ICompilationUnit)packageDeclaration.getAncestor(IJavaElement.COMPILATION_UNIT);
+				} else if (element instanceof IAnnotation) {
+					line.append(" ");
+					append((IAnnotation)element);
+					unit = (ICompilationUnit) element.getAncestor(IJavaElement.COMPILATION_UNIT);
 				}
 				if (resource instanceof IFile) {
 					char[] contents = getSource(resource, element, unit);
@@ -272,6 +276,28 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 		}
 		private boolean showSuperInvocation() {
 			return (this.showFlavors & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0;
+		}
+		protected void append(IAnnotation annotation) throws JavaModelException {
+			line.append("@");
+			line.append(annotation.getElementName());
+			line.append('(');
+			IMemberValuePair[] pairs = annotation.getMemberValuePairs();
+			int length = pairs == null ? 0 : pairs.length;
+			for (int i=0; i<length; i++) {
+				line.append(pairs[i].getMemberName());
+				line.append('=');
+				Object value = pairs[i].getValue();
+				switch (pairs[i].getValueKind()) {
+					case IMemberValuePair.K_CLASS:
+						line.append(value);
+						line.append(".class");
+						break;
+					default:
+						line.append(value);
+					break;
+				}
+			}
+			line.append(')');
 		}
 		protected void append(IField field) throws JavaModelException {
 			append(field.getDeclaringType());

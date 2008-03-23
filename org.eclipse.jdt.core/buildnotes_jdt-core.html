@@ -58,10 +58,107 @@ Eclipse SDK 3.4M6 - %date% - 3.4 MILESTONE 6
 	 <code>BatchCompiler#compiler(String, PrintWriter, PrintWriter, CompilationProgress)</code> and
 	 <code>BatchCompiler#compiler(String[], PrintWriter, PrintWriter, CompilationProgress)</code>.
 	 See <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=217233">217233</a> for more details.</li>
+<li>All search reference matches may now have a local element. Clients can access
+this local element using the <code>getLocalElement()</code> method on the new
+<code>ReferenceMatch</code> API class:<pre>
+
+/**
+ * An abstract Java search match that represents a reference.
+ *
+ * This class is not intended to be subclassed by clients.
+ *
+ * @since 3.4
+ */
+public abstract class ReferenceMatch extends SearchMatch {
+...
+/**
+ * Returns the local element of this search match, or <code>null</code> if none.
+ * A local element is the inner most element that contains the reference and that is not
+ * reachable by navigating from the root of the {@link IJavaModel} using 
+ * {@link IParent#getChildren()}.
+ *
+ * Known element types for local elements are {@link IJavaElement#ANNOTATION}, 
+ * {@link IJavaElement#LOCAL_VARIABLE} and {@link IJavaElement#TYPE_PARAMETER}.
+ * However clients should not assume that this set of element types is closed as
+ * other types of elements may be returned in the future, e.g. if new types
+ * of elements are added in the Java model. Clients can only assume that the
+ * {@link IJavaElement#getParent() parent} chain of this local element eventually leads 
+ * to the element from {@link #getElement()}.
+ *
+ * The local element being an {@link IAnnotation} is the most usal case. For example,
+ *
+ *    . searching for the references to the method <code>Annot.clazz()</code> in
+ * 
+ *             public class Test {
+ *                 void method() {
+ *                     &#0064;Annot(clazz=Test.class) int x;
+ *                 }
+ *             }
+ * 
+ *      will return one {@link MethodReferenceMatch} match whose local element
+ *      is the {@link IAnnotation} '<code>Annot</code>'.
+ *
+ *    . searching for the references to the type <code>Deprecated</code> in
+ * 
+ *             public class Test {
+ *                &#0064;Deprecated void method() {}
+ *             }
+ * 
+ *      will return one {@link TypeReferenceMatch} match whose local element
+ *      is the {@link IAnnotation} '<code>Deprecated</code>'.
+ *
+ *    . searching for the references to the field <code>CONST</code> in
+ * 
+ *              &#0064;Num(number= Num.CONST)
+ *              &#0064;interface Num {
+ *                  public static final int CONST= 42;
+ *                  int number();
+ *              }
+ * 
+ *      will return one {@link FieldReferenceMatch} match whose local element
+ *      is the {@link IAnnotation} '<code>Num</code>'.
+ *
+ * A local element may also be a {@link ILocalVariable} whose type is the referenced type. For example,
+ *
+ *    . searching for the references to the type <code>Test</code> in
+ * 
+ *         public class Test {
+ *             void foo() {
+ *                Test local;
+ *             }
+ *         }
+ * 
+ *      will return one {@link TypeReferenceMatch} match whose local element
+ *      is the {@link ILocalVariable} '<code>local</code>'.
+ *
+ * Or a local element may be an {@link ITypeParameter} that extends the referenced type. For example,
+ *
+ *    . searching for the references to the type <code>Test</code> in 
+ * 
+ *         public class X< T extends Test> {
+ *         }
+ * 
+ *      will return one {@link TypeReferenceMatch} match whose local element
+ *      is the {@link ITypeParameter} '<code>T</code>'.
+ * 
+ * @return the local element of this search match, or <code>null</code> if none.
+ * 
+ * @since 3.4
+ */
+public IJavaElement getLocalElement() {
+	return null;
+}
+</pre>
+See <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=209996">bug 209996</a>
+for more details.
+</li>
+
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=222902">222902</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=209996">209996</a>
+[search] Add a way to access the most local enclosing annotation for reference search matches
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=222902">222902</a>
 [Javadoc] Missing description should not be warned in some cases
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=217233">217233</a>
 [compiler] Add compiler API to call the batch compiler from a stand-alone application

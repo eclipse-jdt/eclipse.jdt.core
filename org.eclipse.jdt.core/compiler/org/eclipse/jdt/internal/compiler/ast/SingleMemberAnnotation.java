@@ -53,6 +53,9 @@ public class SingleMemberAnnotation extends Annotation {
 	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
+			if (this.type != null) {
+				this.type.traverse(visitor, scope);
+			}
 			if (this.memberValue != null) {
 				this.memberValue.traverse(visitor, scope);
 			}

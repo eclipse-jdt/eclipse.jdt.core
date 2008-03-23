@@ -21,6 +21,8 @@ import java.util.zip.ZipFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IAnnotatable;
+import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -35,7 +37,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -48,7 +49,6 @@ import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
-import org.eclipse.jdt.internal.compiler.util.HashtableOfIntValues;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
@@ -146,46 +146,6 @@ HashSet methodHandles;
 
 private final boolean searchPackageDeclaration;
 
-/**
- * An ast visitor that visits local type declarations.
- */
-public class LocalDeclarationVisitor extends ASTVisitor {
-	IJavaElement enclosingElement;
-	Binding enclosingElementBinding;
-	MatchingNodeSet nodeSet;
-	HashtableOfIntValues occurrencesCounts = new HashtableOfIntValues(); // key = class name (char[]), value = occurrenceCount (int)
-	public LocalDeclarationVisitor(IJavaElement enclosingElement, Binding enclosingElementBinding, MatchingNodeSet nodeSet) {
-		this.enclosingElement = enclosingElement;
-		this.enclosingElementBinding = enclosingElementBinding;
-		this.nodeSet = nodeSet;
-	}
-	public boolean visit(TypeDeclaration typeDeclaration, BlockScope unused) {
-		try {
-			char[] simpleName;
-			if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {				
-				simpleName = CharOperation.NO_CHAR;
-			} else {
-				simpleName = typeDeclaration.name;
-			}
-			int occurrenceCount = occurrencesCounts.get(simpleName);
-			if (occurrenceCount == HashtableOfIntValues.NO_VALUE) {
-				occurrenceCount = 1;
-			} else {
-				occurrenceCount = occurrenceCount + 1;
-			}
-			occurrencesCounts.put(simpleName, occurrenceCount);
-			if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {				
-				reportMatching(typeDeclaration, this.enclosingElement, -1, nodeSet, occurrenceCount);
-			} else {
-				Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeDeclaration);
-				reportMatching(typeDeclaration, this.enclosingElement, level != null ? level.intValue() : -1, nodeSet, occurrenceCount);
-			}
-			return false; // don't visit members as this was done during reportMatching(...)
-		} catch (CoreException e) {
-			throw new WrappedCoreException(e);
-		}
-	}
-}
 public static class WorkingCopyDocument extends JavaSearchDocument {
 	public org.eclipse.jdt.core.ICompilationUnit workingCopy;
 	WorkingCopyDocument(org.eclipse.jdt.core.ICompilationUnit workingCopy, SearchParticipant participant) {
@@ -600,7 +560,7 @@ protected IJavaElement createHandle(FieldDeclaration fieldDeclaration, TypeDecla
 	return ((IType) parent).getInitializer(occurrenceCount);
 }
 /**
- * Create an handle for a local variable declartion (may be a local variable or type parameter).
+ * Create an handle for a local variable declaration (may be a local variable or type parameter).
  */
 protected IJavaElement createHandle(AbstractVariableDeclaration variableDeclaration, IJavaElement parent) {
 	switch (variableDeclaration.getKind()) {
@@ -628,6 +588,46 @@ protected IJavaElement createHandle(AbstractVariableDeclaration variableDeclarat
 			return new org.eclipse.jdt.internal.core.TypeParameter((JavaElement)parent, new String(variableDeclaration.name));
 	}
 	return null;
+}
+/**
+ * Create an handle for a local variable declaration (may be a local variable or type parameter).
+ */
+protected IJavaElement createHandle(Annotation annotation, IAnnotatable parent) {
+	if (parent == null) return null;
+	TypeReference typeRef = annotation.type;
+	char[][] typeName = typeRef.getTypeName();
+	String name = new String(typeName[typeName.length-1]);
+	try {
+		IAnnotation[] annotations = parent.getAnnotations();
+		int length = annotations == null ? 0 : annotations.length;
+		for (int i=0; i<length; i++) {
+			if (annotations[i].getElementName().equals(name)) {
+				return annotations[i];
+			}
+		}
+	}
+	catch (JavaModelException jme) {
+		// skip
+	}
+	return null;
+}
+/*
+ * Create handles for a list of fields
+ */
+private IJavaElement[] createHandles(FieldDeclaration[] fields, TypeDeclaration type, IJavaElement parent) {
+	IJavaElement[] otherElements = null;
+	if (fields != null) {
+		int length = fields.length;
+		int size = 0;
+		while (size<length && fields[size] != null) {
+			size++;
+		}
+		otherElements = new IJavaElement[size];
+		for (int j=0; j<size; j++) {
+			otherElements[j] = createHandle(fields[j], type, parent);
+		}
+	}
+	return otherElements;
 }
 /*
  * Creates hierarchy resolver if needed. 
@@ -1387,13 +1387,13 @@ public SearchMatch newDeclarationMatch(
 	}
 }
 
-public SearchMatch newFieldReferenceMatch(
+public FieldReferenceMatch newFieldReferenceMatch(
 		IJavaElement enclosingElement,
+		IJavaElement localElement,
 		Binding enclosingBinding,
-		int accuracy,
-		int offset,  
-		int length,
-		ASTNode reference) {
+		int accuracy,  
+		int offset,
+		int length, ASTNode reference) {
 	int bits = reference.bits;
 	boolean isCompoundAssigned = (bits & ASTNode.IsCompoundAssigned) != 0;
 	boolean isReadAccess = isCompoundAssigned || (bits & ASTNode.IsStrictlyAssigned) == 0;
@@ -1411,9 +1411,12 @@ public SearchMatch newFieldReferenceMatch(
 	boolean insideDocComment = (bits & ASTNode.InsideJavadoc) != 0;
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
-	if (enclosingBinding != null)
+	if (enclosingBinding != null) {
 		enclosingElement = ((JavaElement) enclosingElement).resolved(enclosingBinding);
-	return new FieldReferenceMatch(enclosingElement, accuracy, offset, length, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
+	}
+	FieldReferenceMatch match = new FieldReferenceMatch(enclosingElement, accuracy, offset, length, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
+	match.localElement(localElement);
+	return match;
 }
 
 public SearchMatch newLocalVariableReferenceMatch(
@@ -1442,7 +1445,7 @@ public SearchMatch newLocalVariableReferenceMatch(
 	return new LocalVariableReferenceMatch(enclosingElement, accuracy, offset, length, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
 }
 
-public SearchMatch newMethodReferenceMatch(
+public MethodReferenceMatch newMethodReferenceMatch(
 		IJavaElement enclosingElement,
 		Binding enclosingBinding,
 		int accuracy,
@@ -1460,7 +1463,7 @@ public SearchMatch newMethodReferenceMatch(
 	return new MethodReferenceMatch(enclosingElement, accuracy, offset, length, isConstructor, isSynthetic, isOverridden, insideDocComment, participant, resource);
 }
 
-public SearchMatch newPackageReferenceMatch(
+public PackageReferenceMatch newPackageReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
 		int offset,  
@@ -2073,13 +2076,28 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 
 	// handle nodes for the local type first
 	if ((method.bits & ASTNode.HasLocalType) != 0) {
-		if (enclosingElement == null)
+		if (enclosingElement == null) {
 			enclosingElement = createHandle(method, parent);
-		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor(enclosingElement, method.binding, nodeSet);
+		}
+		// Traverse method declaration to report matches both in local types declaration
+		// and in local variables declaration
+		ASTNode[] nodes = typeInHierarchy ? nodeSet.matchingNodes(method.declarationSourceStart, method.declarationSourceEnd) : null;
+		boolean report = (this.matchContainer & PatternLocator.METHOD_CONTAINER) != 0 && encloses(enclosingElement);
+		MemberDeclarationVisitor declarationVisitor = new MemberDeclarationVisitor(enclosingElement, report ? nodes : null, nodeSet, this);
 		try {
-			method.traverse(localDeclarationVisitor, (ClassScope) null);
+			method.traverse(declarationVisitor, (ClassScope) null);
 		} catch (WrappedCoreException e) {
 			throw e.coreException;
+		}
+		// Report all nodes and remove them
+		if (nodes != null) {
+			int length = nodes.length;
+			for (int i = 0; i < length; i++) {
+				Integer level = (Integer) nodeSet.matchingNodes.removeKey(nodes[i]);
+				if (report && level != null) {
+	    	        this.patternLocator.matchReportReference(nodes[i], enclosingElement, declarationVisitor.getLocalElement(i), declarationVisitor.getOtherElements(i), method.binding, level.intValue(), this);
+				}
+			}
 		}
 	}
 
@@ -2097,7 +2115,7 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 		if (enclosingElement == null) {
 			enclosingElement = createHandle(method, parent);
 		}
-		reportMatching(method.annotations, enclosingElement, method.binding, nodeSet, true, true);
+		reportMatching(method.annotations, enclosingElement, null, method.binding, nodeSet, true, true);
 	}
 
 	// references in this method
@@ -2105,13 +2123,25 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 		ASTNode[] nodes = nodeSet.matchingNodes(method.declarationSourceStart, method.declarationSourceEnd);
 		if (nodes != null) {
 			if ((this.matchContainer & PatternLocator.METHOD_CONTAINER) != 0) {
-				if (enclosingElement == null)
+				if (enclosingElement == null) {
 					enclosingElement = createHandle(method, parent);
+				}
 				if (encloses(enclosingElement)) {
-					for (int i = 0, l = nodes.length; i < l; i++) {
-						ASTNode node = nodes[i];
-						Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-						this.patternLocator.matchReportReference(node, enclosingElement, method.binding, method.scope, level.intValue(), this);
+					if (((InternalSearchPattern)this.pattern).mustResolve) {
+						// Visit only if the pattern must resolve
+						MemberDeclarationVisitor declarationVisitor = new MemberDeclarationVisitor(enclosingElement, nodes, nodeSet, this);
+						method.traverse(declarationVisitor, (ClassScope) null);
+						int length = nodes.length;
+						for (int i = 0; i < length; i++) {
+							Integer level = (Integer) nodeSet.matchingNodes.removeKey(nodes[i]);
+			    	        this.patternLocator.matchReportReference(nodes[i], enclosingElement, declarationVisitor.getLocalElement(i), declarationVisitor.getOtherElements(i), method.binding, level.intValue(), this);
+						}
+					} else {
+						for (int i = 0, l = nodes.length; i < l; i++) {
+							ASTNode node = nodes[i];
+							Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+							this.patternLocator.matchReportReference(node, enclosingElement, null, null, method.binding, level.intValue(), this);
+						}
 					}
 					return;
 				}
@@ -2125,16 +2155,19 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 }
 /**
  * Report matching in annotations.
+ * @param otherElements TODO
  */
-protected void reportMatching(Annotation[] annotations, IJavaElement enclosingElement, Binding elementBinding, MatchingNodeSet nodeSet, boolean matchedContainer, boolean enclosesElement) throws CoreException {
+protected void reportMatching(Annotation[] annotations, IJavaElement enclosingElement, IJavaElement[] otherElements, Binding elementBinding, MatchingNodeSet nodeSet, boolean matchedContainer, boolean enclosesElement) throws CoreException {
 	for (int i=0, al=annotations.length; i<al; i++) {
 		Annotation annotationType = annotations[i];
+		IJavaElement localElement = null;
 
 		// Look for annotation type ref
 		TypeReference typeRef = annotationType.type;
 		Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeRef);
 		if (level != null && matchedContainer) {
-			this.patternLocator.matchReportReference(typeRef, enclosingElement, elementBinding, level.intValue(), this);
+			localElement = createHandle(annotationType, (IAnnotatable) enclosingElement);
+			this.patternLocator.matchReportReference(typeRef, enclosingElement, localElement, otherElements, elementBinding, level.intValue(), this);
 		}
 		
 		// Look for attribute ref
@@ -2144,7 +2177,10 @@ protected void reportMatching(Annotation[] annotations, IJavaElement enclosingEl
 			level = (Integer) nodeSet.matchingNodes.removeKey(pair);
 			if (level != null && enclosesElement) {
 				ASTNode reference = (annotationType instanceof SingleMemberAnnotation) ? (ASTNode) annotationType: pair;
-				this.patternLocator.matchReportReference(reference, enclosingElement, pair.binding, level.intValue(), this);
+				if (localElement == null) {
+					localElement = createHandle(annotationType, (IAnnotatable) enclosingElement);
+				}
+				this.patternLocator.matchReportReference(reference, enclosingElement, localElement, otherElements, pair.binding, level.intValue(), this);
 			}
 		}
 		
@@ -2160,7 +2196,10 @@ protected void reportMatching(Annotation[] annotations, IJavaElement enclosingEl
 					ASTNode node = nodes[j];
 					level = (Integer) nodeSet.matchingNodes.removeKey(node);
 					if (enclosesElement) {
-						this.patternLocator.matchReportReference(node, enclosingElement, elementBinding, level.intValue(), this);
+						if (localElement == null) {
+							localElement = createHandle(annotationType, (IAnnotatable) enclosingElement);
+						}
+						this.patternLocator.matchReportReference(node, enclosingElement, localElement, otherElements, elementBinding, level.intValue(), this);
 					}
 				}
 			}
@@ -2235,7 +2274,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 					ASTNode node = nodes[i];
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
 					if (encloses(element)) {
-						this.patternLocator.matchReportReference(node, element, null/*no binding*/, level.intValue(), this);
+						this.patternLocator.matchReportReference(node, element, null, null, null/*no binding*/, level.intValue(), this);
 					}
 				}
 			}
@@ -2247,7 +2286,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 		if (pkg != null && pkg.annotations != null) {
 			IJavaElement element = createPackageDeclarationHandle(unit);
 			if (element != null) {
-				reportMatching(pkg.annotations, element, null, nodeSet, true, encloses(element));
+				reportMatching(pkg.annotations, element, null, null, nodeSet, true, encloses(element));
 			}
 		}
 
@@ -2300,22 +2339,50 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 
 	// handle the nodes for the local type first
 	if ((field.bits & ASTNode.HasLocalType) != 0) {
-		if (enclosingElement == null)
+		if (enclosingElement == null) {
 			enclosingElement = createHandle(field, type, parent);
-		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor(enclosingElement, field.binding, nodeSet);
+		}
+		// Traverse field declaration(s) to report matches both in local types declaration
+		// and in local variables declaration
+		int fieldEnd = field.endPart2Position == 0 ? field.declarationSourceEnd : field.endPart2Position;
+		ASTNode[] nodes = typeInHierarchy ? nodeSet.matchingNodes(field.sourceStart, fieldEnd) : null;
+		boolean report = (this.matchContainer & PatternLocator.FIELD_CONTAINER) != 0 && encloses(enclosingElement);
+		MemberDeclarationVisitor declarationVisitor = new MemberDeclarationVisitor(enclosingElement, report ? nodes : null, nodeSet, this);
 		try {
-			field.traverse(localDeclarationVisitor, null);
+			field.traverse(declarationVisitor, (MethodScope) null);
 		} catch (WrappedCoreException e) {
 			throw e.coreException;
+		}
+		// Report all nodes and remove them
+		if (nodes != null) {
+			int length = nodes.length;
+			for (int i = 0; i < length; i++) {
+				ASTNode node = nodes[i];
+				Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+				if (report && level != null) {
+					if (node instanceof TypeDeclaration) {
+						// use field declaration to report match (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=88174)
+						AllocationExpression allocation = ((TypeDeclaration)node).allocation;
+						if (allocation != null && allocation.enumConstant != null) {
+							node = field;
+						}
+					}
+	    	        this.patternLocator.matchReportReference(node, enclosingElement, declarationVisitor.getLocalElement(i), declarationVisitor.getOtherElements(i), field.binding, level.intValue(), this);
+				}
+			}
 		}
 	}
 
 	// report annotations
+	IJavaElement[] otherElements = null;
 	if (field.annotations != null) {
 		if (enclosingElement == null) {
 			enclosingElement = createHandle(field, type, parent);
 		}
-		reportMatching(field.annotations, enclosingElement, field.binding, nodeSet, true, true);
+		if (otherFields != null) {
+			otherElements = createHandles(otherFields, type, parent);
+		}
+		reportMatching(field.annotations, enclosingElement, otherElements, field.binding, nodeSet, true, true);
 	}
 
 	if (typeInHierarchy) {
@@ -2333,17 +2400,8 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 						for (int i = 0, l = nodes.length; i < l; i++) {
 							ASTNode node = nodes[i];
 							Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-							IJavaElement[] otherElements = null;
-							if (otherFields != null) {
-								int length = otherFields.length;
-								int size = 0;
-								while (size<length && otherFields[size] != null) {
-									size++;
-								}
-								otherElements = new IJavaElement[size];
-								for (int j=0; j<size; j++) {
-									otherElements[j] = createHandle(otherFields[j], type, parent);
-								}
+							if (otherFields != null && otherElements == null) {
+								otherElements = createHandles(otherFields, type, parent);
 							}
 							this.patternLocator.matchReportReference(node, enclosingElement, null, otherElements, field.binding, level.intValue(), this);
 						}
@@ -2357,14 +2415,18 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 		ASTNode[] nodes = nodeSet.matchingNodes(field.sourceStart, fieldEnd);
 		if (nodes != null) {
 			if ((this.matchContainer & PatternLocator.FIELD_CONTAINER) == 0) {
-				for (int i = 0, l = nodes.length; i < l; i++)
+				for (int i = 0, l = nodes.length; i < l; i++) {
 					nodeSet.matchingNodes.removeKey(nodes[i]);
+				}
 			} else {
 				if (enclosingElement == null) {
 					enclosingElement = createHandle(field, type, parent);
 				}
 				if (encloses(enclosingElement)) {
-					for (int i = 0, l = nodes.length; i < l; i++) {
+					MemberDeclarationVisitor declarationVisitor = new MemberDeclarationVisitor(enclosingElement, nodes, nodeSet, this);
+					field.traverse(declarationVisitor, (MethodScope) null);
+					int length = nodes.length;
+					for (int i = 0; i < length; i++) {
 						ASTNode node = nodes[i];
 						Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
 						if (node instanceof TypeDeclaration) {
@@ -2374,13 +2436,7 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 								node = field;
 							}
 						}
-						// Set block scope for initializer in case there would have other local and other elements to report
-						BlockScope blockScope = null;
-						if (field.getKind() == AbstractVariableDeclaration.INITIALIZER) {
-							Block block = ((Initializer)field).block;
-							if (block != null) blockScope = block.scope;
-						}
-						this.patternLocator.matchReportReference(node, enclosingElement, field.binding, blockScope, level.intValue(), this);
+		    	        this.patternLocator.matchReportReference(node, enclosingElement, declarationVisitor.getLocalElement(i), declarationVisitor.getOtherElements(i), field.binding, level.intValue(), this);
 					}
 					return;
 				}
@@ -2426,7 +2482,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 
 	// report annotations
 	if (type.annotations != null) {
-		reportMatching(type.annotations, enclosingElement, type.binding, nodeSet, matchedClassContainer, enclosesElement);
+		reportMatching(type.annotations, enclosingElement, null, type.binding, nodeSet, matchedClassContainer, enclosesElement);
 	}
 
 	// report references in javadoc
@@ -2441,7 +2497,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 					ASTNode node = nodes[i];
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
 					if (enclosesElement) {
-						this.patternLocator.matchReportReference(node, enclosingElement, type.binding, level.intValue(), this);
+						this.patternLocator.matchReportReference(node, enclosingElement, null, null, type.binding, level.intValue(), this);
 					}
 				}
 			}
@@ -2454,7 +2510,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 		if (superType != null) {
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(superType);
 			if (level != null && matchedClassContainer)
-				this.patternLocator.matchReportReference(superType, enclosingElement, type.binding, level.intValue(), this);
+				this.patternLocator.matchReportReference(superType, enclosingElement, null, null, type.binding, level.intValue(), this);
 		}
 	} else {
 		TypeReference superClass = type.superclass;
@@ -2639,13 +2695,13 @@ protected void reportMatchingSuper(TypeReference superReference, IJavaElement en
 				for (int i = 0, l = nodes.length; i < l; i++) {
 					ASTNode node = nodes[i];
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-					this.patternLocator.matchReportReference(node, enclosingElement, elementBinding, level.intValue(), this);
+					this.patternLocator.matchReportReference(node, enclosingElement, null, null, elementBinding, level.intValue(), this);
 				}
 		}
 	} else if (encloses(enclosingElement)) {
 		Integer level = (Integer) nodeSet.matchingNodes.removeKey(superReference);
 		if (level != null && matchedClassContainer)
-			this.patternLocator.matchReportReference(superReference, enclosingElement, elementBinding, level.intValue(), this);
+			this.patternLocator.matchReportReference(superReference, enclosingElement, null, null, elementBinding, level.intValue(), this);
 	}
 }
 protected boolean typeInHierarchy(ReferenceBinding binding) {

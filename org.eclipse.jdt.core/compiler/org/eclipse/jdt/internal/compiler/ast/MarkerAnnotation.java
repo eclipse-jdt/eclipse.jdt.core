@@ -35,7 +35,11 @@ public class MarkerAnnotation extends Annotation {
 	}
 	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		visitor.visit(this, scope);
+		if (visitor.visit(this, scope)) {
+			if (this.type != null) {
+				this.type.traverse(visitor, scope);
+			}
+		}
 		visitor.endVisit(this, scope);
 	}
 }

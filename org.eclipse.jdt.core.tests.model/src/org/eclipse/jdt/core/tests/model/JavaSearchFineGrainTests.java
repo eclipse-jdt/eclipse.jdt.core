@@ -1005,15 +1005,15 @@ public void testTypeRefGenericAll02() throws CoreException {
 		"src/test02/Test.java Test<X<Y<Z<String>>>,Y<Z<String>>,Z<String>> test02.Test.field:<anonymous>#1.bar() [			return new Test<X<Y<Z<String>>>, Y<Z<§|String|§>>, Z<String>>();@257] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<X<Y<Z<String>>>,Y<Z<String>>,Z<String>> test02.Test.field:<anonymous>#1.bar() [			return new Test<X<Y<Z<String>>>, Y<Z<String>>, §|Z|§<String>>();@267] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<X<Y<Z<String>>>,Y<Z<String>>,Z<String>> test02.Test.field:<anonymous>#1.bar() [			return new Test<X<Y<Z<String>>>, Y<Z<String>>, Z<§|String|§>>();@269] EXACT_MATCH\n" + 
-		"src/test02/Test.java test02.Test.field [	§|Test|§<A, ? extends B, ? super C> field = new Test<A, Z<String>, X<String>> () {@47] EXACT_MATCH\n" + 
-		"src/test02/Test.java test02.Test.field [	Test<§|A|§, ? extends B, ? super C> field = new Test<A, Z<String>, X<String>> () {@52] EXACT_MATCH\n" + 
-		"src/test02/Test.java test02.Test.field [	Test<A, ? extends §|B|§, ? super C> field = new Test<A, Z<String>, X<String>> () {@65] EXACT_MATCH\n" + 
-		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super §|C|§> field = new Test<A, Z<String>, X<String>> () {@76] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<§|A|§, Z<String>, X<String>> () {@96] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<A, §|Z|§<String>, X<String>> () {@99] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<A, Z<§|String|§>, X<String>> () {@101] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<A, Z<String>, §|X|§<String>> () {@110] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<A, Z<String>, X<§|String|§>> () {@112] EXACT_MATCH\n" + 
+		"src/test02/Test.java test02.Test.field [	§|Test|§<A, ? extends B, ? super C> field = new Test<A, Z<String>, X<String>> () {@47] EXACT_MATCH\n" + 
+		"src/test02/Test.java test02.Test.field [	Test<§|A|§, ? extends B, ? super C> field = new Test<A, Z<String>, X<String>> () {@52] EXACT_MATCH\n" + 
+		"src/test02/Test.java test02.Test.field [	Test<A, ? extends §|B|§, ? super C> field = new Test<A, Z<String>, X<String>> () {@65] EXACT_MATCH\n" + 
+		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super §|C|§> field = new Test<A, Z<String>, X<String>> () {@76] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<? super A,B,? extends C> test02.Test.foo(Test<? extends A,? super B,C>) [	§|Test|§<? super A, B, ? extends C> foo(Test<? extends A, ? super B, C> param) {@290] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<? super A,B,? extends C> test02.Test.foo(Test<? extends A,? super B,C>) [	Test<? super §|A|§, B, ? extends C> foo(Test<? extends A, ? super B, C> param) {@303] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<? super A,B,? extends C> test02.Test.foo(Test<? extends A,? super B,C>) [	Test<? super A, §|B|§, ? extends C> foo(Test<? extends A, ? super B, C> param) {@306] EXACT_MATCH\n" + 
@@ -1054,14 +1054,14 @@ public void testTypeRefGenericAll02_AllGenericFlags() throws CoreException {
 		"src/test02/Test.java Test<X<Y<Z<String>>>,Y<Z<String>>,Z<String>> test02.Test.field:<anonymous>#1.bar() [			return new Test<X<Y<Z<String>>>, Y<Z<§|String|§>>, Z<String>>();@257] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<X<Y<Z<String>>>,Y<Z<String>>,Z<String>> test02.Test.field:<anonymous>#1.bar() [			return new Test<X<Y<Z<String>>>, Y<Z<String>>, §|Z|§<String>>();@267] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<X<Y<Z<String>>>,Y<Z<String>>,Z<String>> test02.Test.field:<anonymous>#1.bar() [			return new Test<X<Y<Z<String>>>, Y<Z<String>>, Z<§|String|§>>();@269] EXACT_MATCH\n" + 
-		"src/test02/Test.java test02.Test.field [	Test<§|A|§, ? extends B, ? super C> field = new Test<A, Z<String>, X<String>> () {@52] EXACT_MATCH\n" + 
-		"src/test02/Test.java test02.Test.field [	Test<A, ? extends §|B|§, ? super C> field = new Test<A, Z<String>, X<String>> () {@65] EXACT_MATCH\n" + 
-		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super §|C|§> field = new Test<A, Z<String>, X<String>> () {@76] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<§|A|§, Z<String>, X<String>> () {@96] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<A, §|Z|§<String>, X<String>> () {@99] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<A, Z<§|String|§>, X<String>> () {@101] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<A, Z<String>, §|X|§<String>> () {@110] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<A, Z<String>, X<§|String|§>> () {@112] EXACT_MATCH\n" + 
+		"src/test02/Test.java test02.Test.field [	Test<§|A|§, ? extends B, ? super C> field = new Test<A, Z<String>, X<String>> () {@52] EXACT_MATCH\n" + 
+		"src/test02/Test.java test02.Test.field [	Test<A, ? extends §|B|§, ? super C> field = new Test<A, Z<String>, X<String>> () {@65] EXACT_MATCH\n" + 
+		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super §|C|§> field = new Test<A, Z<String>, X<String>> () {@76] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<? super A,B,? extends C> test02.Test.foo(Test<? extends A,? super B,C>) [	Test<? super §|A|§, B, ? extends C> foo(Test<? extends A, ? super B, C> param) {@303] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<? super A,B,? extends C> test02.Test.foo(Test<? extends A,? super B,C>) [	Test<? super A, §|B|§, ? extends C> foo(Test<? extends A, ? super B, C> param) {@306] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<? super A,B,? extends C> test02.Test.foo(Test<? extends A,? super B,C>) [	Test<? super A, B, ? extends §|C|§> foo(Test<? extends A, ? super B, C> param) {@319] EXACT_MATCH\n" + 
@@ -1097,12 +1097,12 @@ public void testTypeRefGenericAll02_TypeArgumentl() throws CoreException {
 		"src/test02/Test.java Test<X<Y<Z<String>>>,Y<Z<String>>,Z<String>> test02.Test.field:<anonymous>#1.bar() [			return new Test<X<Y<Z<String>>>, Y<Z<§|String|§>>, Z<String>>();@257] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<X<Y<Z<String>>>,Y<Z<String>>,Z<String>> test02.Test.field:<anonymous>#1.bar() [			return new Test<X<Y<Z<String>>>, Y<Z<String>>, §|Z|§<String>>();@267] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<X<Y<Z<String>>>,Y<Z<String>>,Z<String>> test02.Test.field:<anonymous>#1.bar() [			return new Test<X<Y<Z<String>>>, Y<Z<String>>, Z<§|String|§>>();@269] EXACT_MATCH\n" + 
-		"src/test02/Test.java test02.Test.field [	Test<§|A|§, ? extends B, ? super C> field = new Test<A, Z<String>, X<String>> () {@52] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<§|A|§, Z<String>, X<String>> () {@96] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<A, §|Z|§<String>, X<String>> () {@99] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<A, Z<§|String|§>, X<String>> () {@101] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<A, Z<String>, §|X|§<String>> () {@110] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.Test.field [	Test<A, ? extends B, ? super C> field = new Test<A, Z<String>, X<§|String|§>> () {@112] EXACT_MATCH\n" + 
+		"src/test02/Test.java test02.Test.field [	Test<§|A|§, ? extends B, ? super C> field = new Test<A, Z<String>, X<String>> () {@52] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<? super A,B,? extends C> test02.Test.foo(Test<? extends A,? super B,C>) [	Test<? super A, §|B|§, ? extends C> foo(Test<? extends A, ? super B, C> param) {@306] EXACT_MATCH\n" + 
 		"src/test02/Test.java Test<? super A,B,? extends C> test02.Test.foo(Test<? extends A,? super B,C>) [	Test<? super A, B, ? extends C> foo(Test<? extends A, ? super B, §|C|§> param) {@355] EXACT_MATCH\n" + 
 		"src/test02/Test.java test02.C [class C extends X<§|String|§> {}@428] EXACT_MATCH"

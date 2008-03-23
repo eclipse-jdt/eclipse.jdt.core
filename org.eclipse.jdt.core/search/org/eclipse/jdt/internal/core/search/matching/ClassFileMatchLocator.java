@@ -307,7 +307,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 /*
  * Look for annotations references
  */
-void matchAnnotations(SearchPattern pattern, MatchLocator locator, ClassFile classFile, IBinaryType binaryType) throws CoreException {
+private void matchAnnotations(SearchPattern pattern, MatchLocator locator, ClassFile classFile, IBinaryType binaryType) throws CoreException {
 	// Only process TypeReference patterns
 	switch (((InternalSearchPattern)pattern).kind) {
 		case TYPE_REF_PATTERN:
@@ -329,7 +329,9 @@ void matchAnnotations(SearchPattern pattern, MatchLocator locator, ClassFile cla
 	BinaryTypeBinding binaryTypeBinding = null;
 	if (checkAnnotations(typeReferencePattern, annotations, binaryType.getTagBits())) {
 		classFileBinaryType = new ResolvedBinaryType((JavaElement) classFileBinaryType.getParent(), classFileBinaryType.getElementName(), classFileBinaryType.getKey());
-		SearchMatch match = new TypeReferenceMatch(classFileBinaryType, SearchMatch.A_ACCURATE, -1, 0, false, locator.getParticipant(), locator.currentPossibleMatch.resource);
+		TypeReferenceMatch match = new TypeReferenceMatch(classFileBinaryType, SearchMatch.A_ACCURATE, -1, 0, false, locator.getParticipant(), locator.currentPossibleMatch.resource);
+		// TODO 3.4 M7 (frederic) - bug 209996: see how create the annotation handle from the binary and put it in the local element
+		match.setLocalElement(null);
 		locator.report(match);
 	}
 
@@ -343,7 +345,9 @@ void matchAnnotations(SearchPattern pattern, MatchLocator locator, ClassFile cla
 					IMethod methodHandle = classFileBinaryType.getMethod(
 						new String(method.isConstructor() ? binaryTypeBinding.compoundName[binaryTypeBinding.compoundName.length-1] : method.getSelector()),
 						CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(method.getMethodDescriptor()))));
-					SearchMatch match = new TypeReferenceMatch(methodHandle, SearchMatch.A_ACCURATE, -1, 0, false, locator.getParticipant(), locator.currentPossibleMatch.resource);
+					TypeReferenceMatch match = new TypeReferenceMatch(methodHandle, SearchMatch.A_ACCURATE, -1, 0, false, locator.getParticipant(), locator.currentPossibleMatch.resource);
+					// TODO 3.4 M7 (frederic) - bug 209996: see how create the annotation handle from the binary and put it in the local element
+					match.setLocalElement(null);
 					locator.report(match);
 			}
 		}
@@ -356,7 +360,9 @@ void matchAnnotations(SearchPattern pattern, MatchLocator locator, ClassFile cla
 			FieldInfo field = fields[i];
 			if (checkAnnotations(typeReferencePattern, field.getAnnotations(), field.getTagBits())) {
 					IField fieldHandle = classFileBinaryType.getField(new String(field.getName()));
-					SearchMatch match = new TypeReferenceMatch(fieldHandle, SearchMatch.A_ACCURATE, -1, 0, false, locator.getParticipant(), locator.currentPossibleMatch.resource);
+					TypeReferenceMatch match = new TypeReferenceMatch(fieldHandle, SearchMatch.A_ACCURATE, -1, 0, false, locator.getParticipant(), locator.currentPossibleMatch.resource);
+					// TODO 3.4 M7 (frederic) - bug 209996: see how create the annotation handle from the binary and put it in the local element
+					match.setLocalElement(null);
 					locator.report(match);
 			}
 		}

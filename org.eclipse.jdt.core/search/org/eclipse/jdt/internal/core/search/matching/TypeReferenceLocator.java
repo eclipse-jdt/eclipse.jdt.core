@@ -332,63 +332,6 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 		locator.report(match);
 	}
 }
-/**
- * Reports the match of the given reference. Also provide a scope to look for possible local and other elements.
- */
-protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, Scope scope, int accuracy, MatchLocator locator) throws CoreException {
-	if (scope == null || (scope.kind != Scope.BLOCK_SCOPE && scope.kind != Scope.METHOD_SCOPE)) {
-		matchReportReference(reference, element, elementBinding, accuracy, locator);
-		return;
-	}
-	
-	// Look if some block scope local variable declarations include reference start position
-	BlockScope blockScope = (BlockScope) scope;
-	LocalDeclaration[] localDeclarations = blockScope.findLocalVariableDeclarations(reference.sourceStart);
-	IJavaElement localElement = null;
-	IJavaElement[] otherElements = null;
-
-	// Some local variable declaration are matching
-	if (localDeclarations != null) {
-		int length = localDeclarations.length;
-
-		// Set local element to first matching local declaration
-		int idx = 0;
-		for (; idx<length; idx++) {
-			if (localDeclarations[idx] == null) break;
-			if (reference.sourceStart == localDeclarations[idx].declarationSourceStart) {
-				localElement = locator.createHandle(localDeclarations[idx], element);
-				break;
-			}
-			if (idx>0 && localDeclarations[idx].sourceStart > reference.sourceStart) {
-				localElement = locator.createHandle(localDeclarations[idx-1], element);
-				break;
-			}
-		}
-		if (localElement == null && idx > 0) {
-			if (reference.sourceEnd < localDeclarations[idx-1].declarationEnd) {
-				localElement = locator.createHandle(localDeclarations[idx-1], element);
-			}
-		}
-		
-		// Store other local variable declarations in other elements
-		int size = 0;
-		for (int j=1; j<length; j++) {
-			if (localDeclarations[j] == null) break;
-			if (reference.sourceStart == localDeclarations[j].declarationSourceStart) {
-				if (otherElements == null) {
-					otherElements = new IJavaElement[length-j];
-				}
-				otherElements[size++] = locator.createHandle(localDeclarations[j], element);
-			}
-		}
-		if (size > 0 && size != (length-1)) {
-			System.arraycopy(otherElements, 0, otherElements = new IJavaElement[size], 0, size);
-		}
-	}
-	
-	// Report match with local and other elements if any
-	matchReportReference(reference, element, localElement, otherElements, elementBinding, accuracy, locator);
-}
 protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	Binding binding = qNameRef.binding;
 	TypeBinding typeBinding = null;

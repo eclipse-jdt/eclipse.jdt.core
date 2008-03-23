@@ -137,6 +137,9 @@ protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean wr
 	return super.matchReference(node, nodeSet, writeOnlyAccess);
 }
 protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
+	matchReportReference(reference, element, null, null, elementBinding, accuracy, locator);
+}
+protected void matchReportReference(ASTNode reference, IJavaElement element, IJavaElement localElement, IJavaElement[] otherElements,Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfAccessedFieldsPattern) {
 		// need exact match to be able to open on type ref
 		if (accuracy != SearchMatch.A_ACCURATE) return;
@@ -166,18 +169,18 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 		int lastIndex = importRef.tokens.length - 1;
 		int start = (int) ((positions[lastIndex]) >>> 32);
 		int end = (int) positions[lastIndex];
-		match = locator.newFieldReferenceMatch(element, elementBinding, accuracy, start, end-start+1, importRef);
+		match = locator.newFieldReferenceMatch(element, localElement, elementBinding, accuracy, start, end-start+1, importRef);
 		locator.report(match);
 	} else if (reference instanceof FieldReference) {
 		FieldReference fieldReference = (FieldReference) reference;
 		long position = fieldReference.nameSourcePosition;
 		int start = (int) (position >>> 32);
 		int end = (int) position;
-		match = locator.newFieldReferenceMatch(element, elementBinding, accuracy, start, end-start+1, fieldReference);
+		match = locator.newFieldReferenceMatch(element, localElement, elementBinding, accuracy, start, end-start+1, fieldReference);
 		locator.report(match);
 	} else if (reference instanceof SingleNameReference) {
 		int offset = reference.sourceStart;
-		match = locator.newFieldReferenceMatch(element, elementBinding, accuracy, offset, reference.sourceEnd-offset+1, reference);
+		match = locator.newFieldReferenceMatch(element, localElement, elementBinding, accuracy, offset, reference.sourceEnd-offset+1, reference);
 		locator.report(match);
 	} else if (reference instanceof QualifiedNameReference) {
 		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
@@ -190,14 +193,14 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 		if (matchesName(this.pattern.name, qNameRef.tokens[indexOfFirstFieldBinding]) && !(nameBinding instanceof LocalVariableBinding)) {
 			FieldBinding fieldBinding = nameBinding instanceof FieldBinding ? (FieldBinding) nameBinding : null;
 			if (fieldBinding == null) {
-				matches[indexOfFirstFieldBinding] = locator.newFieldReferenceMatch(element, elementBinding, accuracy, -1, -1, reference);
+				matches[indexOfFirstFieldBinding] = locator.newFieldReferenceMatch(element, localElement, elementBinding, accuracy, -1, -1, reference);
 			} else {
 				switch (matchField(fieldBinding, false)) {
 					case ACCURATE_MATCH:
-						matches[indexOfFirstFieldBinding] = locator.newFieldReferenceMatch(element, elementBinding, SearchMatch.A_ACCURATE, -1, -1, reference);
+						matches[indexOfFirstFieldBinding] = locator.newFieldReferenceMatch(element, localElement, elementBinding, SearchMatch.A_ACCURATE, -1, -1, reference);
 						break;
 					case INACCURATE_MATCH:
-						match = locator.newFieldReferenceMatch(element, elementBinding, SearchMatch.A_INACCURATE, -1, -1, reference);
+						match = locator.newFieldReferenceMatch(element, localElement, elementBinding, SearchMatch.A_INACCURATE, -1, -1, reference);
 						if (fieldBinding.type != null && fieldBinding.type.isParameterizedType() && this.pattern.hasTypeArguments()) {
 							updateMatch((ParameterizedTypeBinding) fieldBinding.type, this.pattern.getTypeArguments(), locator);
 						}
@@ -213,14 +216,14 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 			if (matchesName(this.pattern.name, token)) {
 				FieldBinding otherBinding = qNameRef.otherBindings == null ? null : qNameRef.otherBindings[i-(indexOfFirstFieldBinding+1)];
 				if (otherBinding == null) {
-					matches[i] = locator.newFieldReferenceMatch(element, elementBinding, accuracy, -1, -1, reference);
+					matches[i] = locator.newFieldReferenceMatch(element, localElement, elementBinding, accuracy, -1, -1, reference);
 				} else {
 					switch (matchField(otherBinding, false)) {
 						case ACCURATE_MATCH:
-							matches[i] = locator.newFieldReferenceMatch(element, elementBinding, SearchMatch.A_ACCURATE, -1, -1, reference);
+							matches[i] = locator.newFieldReferenceMatch(element, localElement, elementBinding, SearchMatch.A_ACCURATE, -1, -1, reference);
 							break;
 						case INACCURATE_MATCH:
-							match = locator.newFieldReferenceMatch(element, elementBinding, SearchMatch.A_INACCURATE, -1, -1, reference);
+							match = locator.newFieldReferenceMatch(element, localElement, elementBinding, SearchMatch.A_INACCURATE, -1, -1, reference);
 							if (otherBinding.type != null && otherBinding.type.isParameterizedType() && this.pattern.hasTypeArguments()) {
 								updateMatch((ParameterizedTypeBinding) otherBinding.type, this.pattern.getTypeArguments(), locator);
 							}

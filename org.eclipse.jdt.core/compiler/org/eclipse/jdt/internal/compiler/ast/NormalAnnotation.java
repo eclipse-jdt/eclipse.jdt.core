@@ -60,6 +60,9 @@ public class NormalAnnotation extends Annotation {
 	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
+			if (this.type != null) {
+				this.type.traverse(visitor, scope);
+			}
 			if (this.memberValuePairs != null) {
 				int memberValuePairsLength = this.memberValuePairs.length;
 				for (int i = 0; i < memberValuePairsLength; i++)

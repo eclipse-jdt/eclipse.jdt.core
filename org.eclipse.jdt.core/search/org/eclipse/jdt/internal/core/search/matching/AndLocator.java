@@ -214,7 +214,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 	}
 	weakestPattern.matchReportImportRef(importRef, binding, element, accuracy, locator);
 }
-protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, IJavaElement localElement, IJavaElement[] otherElements, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	PatternLocator weakestPattern = null;
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
@@ -226,7 +226,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 			level = newLevel;
 		}
 	}
-	weakestPattern.matchReportReference(reference, element, elementBinding, accuracy, locator);
+	weakestPattern.matchReportReference(reference, element, localElement, otherElements, elementBinding, accuracy, locator);
 }
 public int resolveLevel(ASTNode node) {
 	int level = ACCURATE_MATCH;

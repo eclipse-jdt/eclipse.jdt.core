@@ -313,10 +313,13 @@ private boolean matchOverriddenMethod(ReferenceBinding type, MethodBinding metho
 	}
 	return false;
 }
+protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
+	matchReportReference(reference, element, null, null, elementBinding, accuracy, locator);
+}
 /**
  * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#matchReportReference(org.eclipse.jdt.internal.compiler.ast.ASTNode, org.eclipse.jdt.core.IJavaElement, Binding, int, org.eclipse.jdt.internal.core.search.matching.MatchLocator)
  */
-protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, IJavaElement localElement, IJavaElement[] otherElements, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	MethodBinding methodBinding = (reference instanceof MessageSend) ? ((MessageSend)reference).binding: ((elementBinding instanceof MethodBinding) ? (MethodBinding) elementBinding : null);
 	if (this.isDeclarationOfReferencedMethodsPattern) {
 		if (methodBinding == null) return;
@@ -331,7 +334,9 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 			reportDeclaration(methodBinding, locator, declPattern.knownMethods);
 		}
 	} else {
-		match = locator.newMethodReferenceMatch(element, elementBinding, accuracy, -1, -1, false /*not constructor*/, false/*not synthetic*/, reference);
+		MethodReferenceMatch methodReferenceMatch = locator.newMethodReferenceMatch(element, elementBinding, accuracy, -1, -1, false /*not constructor*/, false/*not synthetic*/, reference);
+		methodReferenceMatch.localElement(localElement);
+		this.match = methodReferenceMatch;
 		if (this.pattern.findReferences && reference instanceof MessageSend) {
 			IJavaElement focus = ((InternalSearchPattern) this.pattern).focus;
 			// verify closest match if pattern was bound

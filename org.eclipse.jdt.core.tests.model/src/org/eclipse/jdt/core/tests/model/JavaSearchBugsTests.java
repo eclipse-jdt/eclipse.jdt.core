@@ -64,17 +64,19 @@ class TestCollector extends JavaSearchResultCollector {
 		matches.add(searchMatch);
 	}
 }
-class TypeReferencesCollector extends JavaSearchResultCollector {
+class ReferenceCollector extends JavaSearchResultCollector {
 	protected IJavaElement getElement(SearchMatch searchMatch) {
 		IJavaElement element = super.getElement(searchMatch);
 		IJavaElement localElement = null;
-		TypeReferenceMatch typeRefMatch = (TypeReferenceMatch) match;
-		localElement = typeRefMatch.getLocalElement();
+		ReferenceMatch refMatch = (ReferenceMatch) match;
+		localElement = refMatch.getLocalElement();
 		if (localElement != null) {
 			return localElement;
 		}
 		return element;
 	}
+}
+class TypeReferenceCollector extends ReferenceCollector {
 	protected void writeLine() throws CoreException {
 		super.writeLine();
 		TypeReferenceMatch typeRefMatch = (TypeReferenceMatch) this.match;
@@ -5749,7 +5751,7 @@ public void testBug110336a() throws CoreException {
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
-	TypeReferencesCollector collector = new TypeReferencesCollector();
+	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java void b110336.Test.method(Class<Test>).TP [Test]\n" +
@@ -5777,7 +5779,7 @@ public void testBug110336b() throws CoreException {
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
-	TypeReferencesCollector collector = new TypeReferencesCollector();
+	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1 [Test]\n" +
@@ -5801,7 +5803,7 @@ public void testBug110336c() throws CoreException {
 		"class X {}\n"
 	);
 	IType type = this.workingCopies[0].getType("X");
-	TypeReferencesCollector collector = new TypeReferencesCollector();
+	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java b110336.Test.TP [X]\n" +
@@ -5820,7 +5822,7 @@ public void testBug110336d() throws CoreException {
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
-	TypeReferencesCollector collector = new TypeReferencesCollector();
+	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java b110336.Test.a1Test [Test]+[b1Test,c1Test]\n" +
@@ -5845,7 +5847,7 @@ public void testBug110336e() throws CoreException {
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
-	TypeReferencesCollector collector = new TypeReferencesCollector();
+	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java void b110336.Test.foo().lv1 [Test]+[lv2,lv3]\n" +
@@ -5875,7 +5877,7 @@ public void testBug110336f() throws CoreException {
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
-	TypeReferencesCollector collector = new TypeReferencesCollector();
+	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java void b110336.Test.foo(Test).test1 [Test]\n" +
@@ -5899,7 +5901,7 @@ public void testBug110336g() throws CoreException {
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
-	TypeReferencesCollector collector = new TypeReferencesCollector();
+	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java b110336.Test.{}.lv1 [Test]+[lv2,lv3]\n" +
@@ -5924,7 +5926,7 @@ public void testBug110336h() throws CoreException {
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Test");
-	TypeReferencesCollector collector = new TypeReferencesCollector();
+	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
 		"src/b110336/Test.java b110336.Test.static {}.lv1 [Test]+[lv2,lv3]\n" +
@@ -9207,6 +9209,174 @@ public void testBug209054() throws CoreException {
 	IMethod method = workingCopies[0].getType("Try").getMethod("canDo", new String[0]);
 	search(method, REFERENCES);
 	assertSearchResults("");
+}
+
+/**
+ * @bug 209778: [search] TypeReferenceMatch#getOtherElements() fails for match in annotation
+ * @test Ensure that the local element is no longer a local variable
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=209778"
+ */
+public void testBug209778() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/xy/Try.java",
+		"package xy;\n" + 
+		"\n" + 
+		"public class Try {\n" + 
+		"        void tryB(int tryKind) {\n" + 
+		"                @Constants(Try.class) int tryCopy, tryCopy2= tryKind;\n" + 
+		"        }\n" + 
+		"        @Constants(value= Try.class) Object fTryA, fTryB;\n" + 
+		"}\n" + 
+		"\n" + 
+		"@interface Constants {\n" + 
+		"        Class<?> value();\n" + 
+		"}"
+	);
+	IType type = workingCopies[0].getType("Try");
+	TypeReferenceCollector collector = new TypeReferenceCollector();
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
+	assertSearchResults(
+		"src/xy/Try.java @Constants(value=Try.class) [Try]\n" + 
+		"src/xy/Try.java @Constants(value=Try.class) [Try]",
+		collector
+	);
+}
+
+/**
+ * @bug 209996: [search] Add a way to access the most local enclosing annotation for reference search matches
+ * @test Verify the behavior of the new Search API {@link ReferenceMatch#getLocalElement()}
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=209996"
+ */
+public void testBug209996a() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+		"package test;\n" +
+		"public class Test {\n" +
+		"    void method() {\n" +
+		"        @Annot(clazz=Test.class) int x;\n" +
+		"    }\n" +
+		"}\n" + 
+		"@interface Annot {\n" + 
+		"    Class clazz();\n" + 
+		"}\n"
+	);
+	IType type = workingCopies[0].getType("Test");
+	ReferenceCollector collector = new ReferenceCollector();
+	collector.showSelection = true;
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
+	assertSearchResults(
+		"src/test/Test.java @Annot(clazz=Test.class) [        @Annot(clazz=§|Test|§.class) int x;]",
+		collector
+	);
+}
+public void testBug209996b() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+		"package test;\n" +
+		"public class Test {\n" +
+	"        @Deprecated foo() {}\n" +
+		"}\n"
+	);
+	ReferenceCollector collector = new ReferenceCollector();
+	collector.showSelection = true;
+	search("Deprecated", TYPE, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
+	assertSearchResults(
+		"src/test/Test.java @Deprecated() [        @§|Deprecated|§ foo() {}]",
+		collector
+	);
+}
+public void testBug209996_c5() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/comment5/Ref.java",
+		"package comment5;\n" + 
+		"public class Ref {\n" + 
+		"    void doA(Ref ref) {}\n" + 
+		"    void doB(List<Ref> ref) {}\n" + 
+		"    void doC(@Tag(Ref.class) Ref ref) {}\n" + 
+		"    void dontD(@Tag(Ref.class) Object ref) {}\n" + 
+		"}\n" + 
+		"\n" + 
+		"@interface Tag {\n" + 
+		"    Class value();\n" + 
+		"}\n" + 
+		"class List<T> {\n" + 
+		"}\n"
+	);
+	IType type = workingCopies[0].getType("Ref");
+	ReferenceCollector collector = new ReferenceCollector();
+	collector.showSelection = true;
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
+	assertSearchResults(
+		"src/comment5/Ref.java void comment5.Ref.doA(Ref).ref [    void doA(§|Ref|§ ref) {}]\n" + 
+		"src/comment5/Ref.java void comment5.Ref.doB(List<Ref>).ref [    void doB(List<§|Ref|§> ref) {}]\n" + 
+		"src/comment5/Ref.java @Tag(value=Ref.class) [    void doC(@Tag(§|Ref|§.class) Ref ref) {}]\n" + 
+		"src/comment5/Ref.java void comment5.Ref.doC(Ref).ref [    void doC(@Tag(Ref.class) §|Ref|§ ref) {}]\n" + 
+		"src/comment5/Ref.java @Tag(value=Ref.class) [    void dontD(@Tag(§|Ref|§.class) Object ref) {}]",
+		collector
+	);
+}
+public void testBug209996_c10() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/comment10/Ref.java",
+		"package comment10;\n" +
+		"@Num(number= Num.CONST)\n" + 
+		"@interface Num {\n" + 
+		"    public static final int CONST= 42;\n" + 
+		"    int number();\n" + 
+		"}\n"
+	);
+	IField field = workingCopies[0].getType("Num").getField("CONST");
+	ReferenceCollector collector = new ReferenceCollector();
+	collector.showSelection = true;
+	search(field, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
+	assertSearchResults(
+		"src/comment10/Ref.java @Num(number=Num.CONST) [@Num(number= Num.§|CONST|§)]",
+		collector
+	);
+}
+public void testBug209996_c22_3() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/comment22/Test.java",
+		"package comment22;\n" +
+		"public class Test {\n" + 
+		"    @Tag Test test1, test2, test3;\n" + 
+		"    void method() {\n" + 
+		"        @Tag Test local= null;\n" + 
+		"        @Tag Test local1, local2, local3;\n" + 
+		"    }\n" + 
+		"}\n" + 
+		"@interface Tag {}\n"
+	);
+	IType type = workingCopies[0].getType("Tag");
+	TypeReferenceCollector collector = new TypeReferenceCollector();
+	collector.showSelection = true;
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
+	assertSearchResults(
+		"src/comment22/Test.java @Tag() [    @§|Tag|§ Test test1, test2, test3;]\n" + 
+		"src/comment22/Test.java @Tag() [        @§|Tag|§ Test local= null;]\n" + 
+		"src/comment22/Test.java @Tag() [        @§|Tag|§ Test local1, local2, local3;]",
+		collector
+	);
+}
+public void testBug209996_c22_4() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+		"package test;\n" +
+		"public class TestMethodReference {\n" + 
+		"    @Annot(clazz = test.Test.class) int x, y;\n" + 
+		"}\n" + 
+		"@interface Annot {\n" + 
+		"    Class clazz();\n" + 
+		"}\n"
+	);
+	IType type = workingCopies[0].getType("Test");
+	TypeReferenceCollector collector = new TypeReferenceCollector();
+	collector.showSelection = true;
+	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
+	assertSearchResults(
+		"src/test/Test.java @Annot(clazz=test.Test.class) [    @Annot(clazz = §|test.Test|§.class) int x, y;]",
+		collector
+	);
 }
 
 /**
