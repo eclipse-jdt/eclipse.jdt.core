@@ -74,6 +74,7 @@ public TypeReferenceMatch(IJavaElement enclosingElement, int accuracy, int offse
  * </ul>
  * 
  * @return the other elements of the search match, or <code>null</code> if none
+ * @since 3.2
  */
 public final IJavaElement[] getOtherElements() {
 	IJavaElement localElement = localElement();
