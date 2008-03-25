@@ -381,7 +381,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					new String[] {
 						Integer.toString(enumConstantTypeNameIndex),
 						Integer.toString(enumConstantNameIndex),
-						new String(returnClassName(Signature.toCharArray(typeName), '.', COMPACT)),
+						new String(returnClassName(Signature.toCharArray(typeName), '.', mode)),
 						new String(constantName)
 					}));
 				break;

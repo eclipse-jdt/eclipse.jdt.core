@@ -405,7 +405,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"        ]\n" + 
 			"    )\n" + 
 			"    #12 @java.lang.annotation.Retention(\n" + 
-			"      #11 value=RetentionPolicy.RUNTIME(enum type #13.#14)\n" + 
+			"      #11 value=java.lang.annotation.RetentionPolicy.RUNTIME(enum type #13.#14)\n" + 
 			"    )\n" + 
 			"}";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
@@ -425,5 +425,46 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"}";
 		}
 		checkClassFile("p", "package-info", source, expectedOutput, ClassFileBytesDisassembler.DEFAULT);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=217907
+	 */
+	public void test013() throws Exception {
+		String source =
+			"import java.lang.annotation.Retention;\n" + 
+			"import java.lang.annotation.RetentionPolicy;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target(value={})\n" + 
+			"@Retention(value=RetentionPolicy.RUNTIME)\n" + 
+			"public @interface X {}";
+		String expectedOutput =
+			"public abstract @interface X extends Annotation {\n" + 
+			"  Constant pool:\n" + 
+			"    constant #1 class: #2 X\n" + 
+			"    constant #2 utf8: \"X\"\n" + 
+			"    constant #3 class: #4 java/lang/Object\n" + 
+			"    constant #4 utf8: \"java/lang/Object\"\n" + 
+			"    constant #5 class: #6 java/lang/annotation/Annotation\n" + 
+			"    constant #6 utf8: \"java/lang/annotation/Annotation\"\n" + 
+			"    constant #7 utf8: \"SourceFile\"\n" + 
+			"    constant #8 utf8: \"X.java\"\n" + 
+			"    constant #9 utf8: \"RuntimeVisibleAnnotations\"\n" + 
+			"    constant #10 utf8: \"Ljava/lang/annotation/Target;\"\n" + 
+			"    constant #11 utf8: \"value\"\n" + 
+			"    constant #12 utf8: \"Ljava/lang/annotation/Retention;\"\n" + 
+			"    constant #13 utf8: \"Ljava/lang/annotation/RetentionPolicy;\"\n" + 
+			"    constant #14 utf8: \"RUNTIME\"\n" + 
+			"\n" + 
+			"  RuntimeVisibleAnnotations: \n" + 
+			"    #10 @Target(\n" + 
+			"      #11 value=[\n" + 
+			"        ]\n" + 
+			"    )\n" + 
+			"    #12 @Retention(\n" + 
+			"      #11 value=RetentionPolicy.RUNTIME(enum type #13.#14)\n" + 
+			"    )\n" + 
+			"}";
+		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.SYSTEM | ClassFileBytesDisassembler.COMPACT);
 	}
 }
