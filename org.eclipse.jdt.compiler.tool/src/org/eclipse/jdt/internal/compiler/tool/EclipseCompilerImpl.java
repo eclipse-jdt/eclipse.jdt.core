@@ -68,7 +68,7 @@ public class EclipseCompilerImpl extends Main {
 				this.globalTasksCount = 0;
 				this.exportedClassFilesCounter = 0;
 				// request compilation
-				performCompilation(1/*remaining iterations including this one*/);
+				performCompilation();
 			}
 		} catch (InvalidInputException e) {
 			this.logger.logException(e);

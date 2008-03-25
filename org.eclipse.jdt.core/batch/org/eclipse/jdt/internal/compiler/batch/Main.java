@@ -1661,7 +1661,7 @@ public boolean compile(String[] argv) {
 					this.logger.logRepetition(this.currentRepetition, this.maxRepetition);
 				}
 				// request compilation
-				performCompilation(this.maxRepetition-this.currentRepetition/*remaining iterations including this one*/);
+				performCompilation();
 			}
 			if (this.compilerStats != null) {
 				this.logger.logAverage();
@@ -3522,7 +3522,7 @@ public void outputClassFiles(CompilationResult unitResult) {
 /*
  *  Low-level API performing the actual compilation
  */
-public void performCompilation(int remainingIterations/*including the current iteration*/) throws InvalidInputException {
+public void performCompilation() throws InvalidInputException {
 
 	this.startTime = System.currentTimeMillis();
 
@@ -3539,7 +3539,7 @@ public void performCompilation(int remainingIterations/*including the current it
 			getProblemFactory(),
 			this.out,
 			this.progress);
-	this.batchCompiler.remainingIterations = remainingIterations;
+	this.batchCompiler.remainingIterations = this.maxRepetition-this.currentRepetition/*remaining iterations including this one*/;
 
 	if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_6
 			&& this.compilerOptions.processAnnotations) {
