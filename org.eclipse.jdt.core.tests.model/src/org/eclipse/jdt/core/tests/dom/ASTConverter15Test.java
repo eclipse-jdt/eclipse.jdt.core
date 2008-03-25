@@ -6918,7 +6918,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IAnnotationBinding annotationBinding = annotation.resolveAnnotationBinding();
 		assertNotNull("No binding", annotationBinding);
 		assertEquals("LX;.fXoo)I@LTest;", annotationBinding.getKey());
-		assertFalse("Annotation should not be flagged as recovered", annotationBinding.isRecovered());
+		assertTrue("Annotation should not flagged as recovered", annotationBinding.isRecovered());
 		assertTrue("Annotation type should be flagged as recovered", annotationBinding.getAnnotationType().isRecovered());		
 	}
 	/*
@@ -7096,7 +7096,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, annotations.length);
 		assertNotNull("No binding", annotations[0]);
 		assertEquals("LX;.foo()V@LZork;", annotations[0].getKey());
-		assertFalse("Annotation should not be flagged as recovered", annotations[0].isRecovered());
+		assertTrue("Annotation should be flagged as recovered", annotations[0].isRecovered());
 		assertTrue("Annotation type should be flagged as recovered", annotations[0].getAnnotationType().isRecovered());		
 	}
 	/*
@@ -7123,7 +7123,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, annotations.length);
 		assertNotNull("No binding", annotations[0]);
 		assertEquals("LX;@LZork;", annotations[0].getKey());
-		assertFalse("Annotation should not be flagged as recovered", annotations[0].isRecovered());
+		assertTrue("Annotation should be flagged as recovered", annotations[0].isRecovered());
 		assertTrue("Annotation type should be flagged as recovered", annotations[0].getAnnotationType().isRecovered());
 	}
 	/*
@@ -7154,7 +7154,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, bindings.length);
 		assertNotNull("No binding", bindings[0]);
 		assertEquals("@LZork;", bindings[0].getKey());
-		assertFalse("Annotation should not be flagged as recovered", bindings[0].isRecovered());
+		assertTrue("Annotation should be flagged as recovered", bindings[0].isRecovered());
 		assertTrue("Annotation type should be flagged as recovered", bindings[0].getAnnotationType().isRecovered());				
 	}
 	/*
@@ -9373,7 +9373,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IAnnotationBinding[] annotations = typeBinding.getAnnotations();
 		assertEquals("wrong size", 2, annotations.length);
 		assertEquals("LX;@LInvalid;", annotations[0].getKey());
-		assertFalse("Annotation should not be flagged as recovered", annotations[0].isRecovered());
+		assertTrue("Annotation should be flagged as recovered", annotations[0].isRecovered());
 		assertTrue("Annotation type should be flagged as recovered", annotations[0].getAnnotationType().isRecovered());		
 		assertEquals("LX;@Ljava/lang/Deprecated;", annotations[1].getKey());
 	}

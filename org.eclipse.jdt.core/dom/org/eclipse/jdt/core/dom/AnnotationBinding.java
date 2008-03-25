@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 /**
@@ -199,8 +200,8 @@ class AnnotationBinding implements IAnnotationBinding {
 	 * @see org.eclipse.jdt.core.dom.IBinding#isRecovered()
 	 */
 	public boolean isRecovered() {
-		return false;
-	}
+        ReferenceBinding annotationType = binding.getAnnotationType();
+        return annotationType == null || (annotationType.tagBits & TagBits.HasMissingType) != 0;	}
 
 	public boolean isSynthetic() {
 		return false;

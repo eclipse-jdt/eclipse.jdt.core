@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -972,5 +973,31 @@ public void testBug215137d() throws JavaModelException {
 			"	^^^\n" + 
 			"Invalid float literal number\n",
 			result);
+}
+
+/**
+ * @bug 223838: [dom] AnnotationBinding.isRecovered() always return false
+ * @test That the annotation binding is well flagged as recovered when the annotation is an unknown type
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=223838"
+ */
+public void testBug223838() throws JavaModelException {
+	String contents =
+		"package b223838;\n" +
+		"@Deprecated\n" + 
+		"@Invalid\n" + 
+		"public class Test {\n" + 
+		"}\n";
+	ICompilationUnit workingCopy = getWorkingCopy(
+   			"/Converter15/src/b223838/Test.java",
+   			contents,
+   			true/*resolve*/
+   		);
+   	ASTNode node = buildAST(contents, workingCopy, false);
+	CompilationUnit unit = (CompilationUnit) node;
+	List types = unit.types();
+	TypeDeclaration type = (TypeDeclaration) types.get(0);
+	ITypeBinding typeBinding = type.resolveBinding();
+	IAnnotationBinding[] annotations = typeBinding.getAnnotations();
+	assertTrue("Expected recovered annotation binding!", annotations[1].isRecovered());
 }
 }
