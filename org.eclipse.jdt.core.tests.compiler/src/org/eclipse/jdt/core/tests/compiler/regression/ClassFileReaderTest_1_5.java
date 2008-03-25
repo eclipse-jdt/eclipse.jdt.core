@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 83 };
+//		TESTS_NUMBERS = new int[] { 15 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -485,6 +485,24 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"public abstract @interface X extends Annotation {\n" + 
 			"\n" + 
 			"}";
+		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=217910
+	 */
+	public void test015() throws Exception {
+		String source =
+			"import java.lang.annotation.Retention;\n" + 
+			"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+			"public class X {\n" + 
+			"        public void foo(@Deprecated @Annot(2) int i) {}\n" + 
+			"}\n" + 
+			"@Retention(CLASS)\n" + 
+			"@interface Annot {\n" + 
+			"        int value() default -1;\n" + 
+			"}";
+		String expectedOutput =
+			"  public void foo(@Deprecated @Annot(value=(int) 2) int i);";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	}
 }
