@@ -2138,11 +2138,6 @@ public final class JavaCore extends Plugin {
 	 * @category OptionValue
 	 */
 	public static final String COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_ALL_STANDARD_TAGS = CompilerOptions.ALL_STANDARD_TAGS;
-	/**
-	 * @deprecated use {@link #COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_ALL_STANDARD_TAGS} instead
-	 * TODO: remove before 3.4M6
-	 */
-	public static final String COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_ALL_TAGS = CompilerOptions.ALL_STANDARD_TAGS;
 	// end configurable option values }
 
 	/**
