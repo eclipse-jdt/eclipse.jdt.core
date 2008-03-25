@@ -467,4 +467,24 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"}";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.SYSTEM | ClassFileBytesDisassembler.COMPACT);
 	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=217907
+	 */
+	public void test014() throws Exception {
+		String source =
+			"import java.lang.annotation.Retention;\n" + 
+			"import java.lang.annotation.RetentionPolicy;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target(value={})\n" + 
+			"@Retention(value=RetentionPolicy.RUNTIME)\n" + 
+			"public @interface X {}";
+		String expectedOutput =
+			"@Target(value={})\n" + 
+			"@Retention(value=RetentionPolicy.RUNTIME)\n" + 
+			"public abstract @interface X extends Annotation {\n" + 
+			"\n" + 
+			"}";
+		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+	}
 }
