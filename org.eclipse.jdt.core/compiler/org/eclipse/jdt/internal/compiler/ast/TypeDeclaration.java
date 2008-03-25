@@ -1194,9 +1194,6 @@ public void tagAsHavingErrors() {
  *
  */
 public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
-
-	if (this.ignoreFurtherInvestigation)
-		return;
 	try {
 		if (visitor.visit(this, unitScope)) {
 			if (this.javadoc != null) {
@@ -1252,8 +1249,6 @@ public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
  *	Iteration for a local innertype
  */
 public void traverse(ASTVisitor visitor, BlockScope blockScope) {
-	if (this.ignoreFurtherInvestigation)
-		return;
 	try {
 		if (visitor.visit(this, blockScope)) {
 			if (this.javadoc != null) {
@@ -1310,8 +1305,6 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
  *
  */
 public void traverse(ASTVisitor visitor, ClassScope classScope) {
-	if (this.ignoreFurtherInvestigation)
-		return;
 	try {
 		if (visitor.visit(this, classScope)) {
 			if (this.javadoc != null) {
