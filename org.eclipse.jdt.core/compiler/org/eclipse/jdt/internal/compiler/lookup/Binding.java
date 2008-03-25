@@ -90,6 +90,7 @@ public abstract class Binding {
 	/* API
 	* Answer the problem id associated with the receiver.
 	* NoError if the receiver is a valid binding.
+	* Note: a parameterized type or an array type are always valid, but may be formed of invalid pieces.
 	*/
 	// TODO (philippe) should rename into problemReason()
 	public int problemId() {
