@@ -100,4 +100,11 @@ void setValue(Object value) {
 	// can be modified after the initialization if holding an unresolved ref
 	this.value = value;
 }
+
+public String toString() {
+	StringBuffer buffer = new StringBuffer(5);
+	buffer.append(this.name).append(" = "); //$NON-NLS-1$
+	buffer.append(this.value);
+	return buffer.toString();
+}
 }

@@ -186,4 +186,17 @@ public static void setMethodBindings(ReferenceBinding type, ElementValuePair[] p
 	}
 }
 
+public String toString() {
+	StringBuffer buffer = new StringBuffer(5);
+	buffer.append('@').append(this.type.sourceName);
+	if (this.pairs != null && this.pairs.length > 0) {
+		buffer.append("{ "); //$NON-NLS-1$
+		for (int i = 0, max = this.pairs.length; i < max; i++) {
+			if (i > 0) buffer.append(", "); //$NON-NLS-1$
+			buffer.append(this.pairs[i]);
+		}
+		buffer.append('}');
+	}
+	return buffer.toString();
+}
 }
