@@ -5,6 +5,9 @@
    name="org.eclipse.jdt.core">
  <plugin id="org.eclipse.jdt.core" />
 
+ <package name="org.eclipse.jdt.core.compiler.batch">
+   <type name="BatchCompiler" subclass="false" instantiate="false" /> 
+ </package>
  <package name="org.eclipse.jdt.core">
    <type name="BindingKey" subclass="false" />
    <type name="BufferChangedEvent" subclass="false" instantiate="false"/>
