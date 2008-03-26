@@ -27,6 +27,7 @@ import javax.lang.model.type.TypeVisitor;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
@@ -108,7 +109,11 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 
 	@Override
 	public TypeKind getKind() {
-		if (!binding().isValidBinding()) {
+		// Binding.isValidBinding() will return true for a parameterized or array type whose raw
+		// or member type is unresolved.  So we need to be a little more sensitive, so that we
+		// can report Zork<Quux> or Zork[] as error types.
+		ReferenceBinding type = (ReferenceBinding)_binding;
+		if ((!type.isValidBinding() || ((type.tagBits & TagBits.HasMissingType) != 0))) {
 			return TypeKind.ERROR;
 		}
 		return TypeKind.DECLARED;

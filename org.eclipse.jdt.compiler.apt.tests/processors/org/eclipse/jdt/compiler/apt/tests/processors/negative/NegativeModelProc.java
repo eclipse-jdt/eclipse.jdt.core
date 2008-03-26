@@ -197,6 +197,7 @@ public class NegativeModelProc extends AbstractProcessor
 		"   </superclass>\n" + 
 		"   <interfaces>\n" + 
 		"    <type-mirror kind=\"ERROR\" to-string=\"M112\"/>\n" + 
+		"    <type-mirror kind=\"ERROR\" to-string=\"M113&lt;M114&gt;\"/>\n" + 
 		"   </interfaces>\n" + 
 		"  </type-element>\n" + 
 		" </type-element>\n" + 
