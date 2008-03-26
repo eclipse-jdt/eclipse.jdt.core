@@ -483,6 +483,142 @@ public void test016() {
 		true,
 		options);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=222534
+public void test017() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.WARNING);
+	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"		Zork z;\n" +
+			"       private static class Inner1 {\n" + 
+			"                private int field;\n" + 
+			"       }\n" + 
+			"       private static class Inner2 extends Inner1 {\n" + 
+			"                private int field;\n" + 
+			"                public void bar() {System.out.println(field);}\n" + 
+			"       }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=222534 - variation
+public void test018() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.WARNING);
+	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"		Zork z;\n" +
+			"		public static int field;\n" +
+			"       private static class Inner1 {\n" + 
+			"                private int field;\n" + 
+			"       }\n" + 
+			"       private static class Inner2 extends Inner1 {\n" + 
+			"                private int field;\n" + 
+			"                public void bar() {System.out.println(field);}\n" + 
+			"       }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	private int field;\n" + 
+		"	            ^^^^^\n" + 
+		"The field X.Inner1.field is hiding a field from type X\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 8)\n" + 
+		"	private int field;\n" + 
+		"	            ^^^^^\n" + 
+		"The field X.Inner2.field is hiding a field from type X\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=222534 - variation
+public void test019() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.WARNING);
+	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"		Zork z;\n" +
+			"       private static class Inner1 {\n" + 
+			"                private int field;\n" + 
+			"       }\n" + 
+			"       private static class Inner2 extends Inner1 {\n" + 
+			"                public void bar(int field) {System.out.println(field);}\n" + 
+			"       }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=222534 - variation
+public void test020() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.WARNING);
+	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"		Zork z;\n" +
+			"		public static int field;\n" +
+			"       private static class Inner1 {\n" + 
+			"                private int field;\n" + 
+			"       }\n" + 
+			"       private static class Inner2 extends Inner1 {\n" + 
+			"                public void bar(int field) {System.out.println(field);}\n" + 
+			"       }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	private int field;\n" + 
+		"	            ^^^^^\n" + 
+		"The field X.Inner1.field is hiding a field from type X\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 8)\n" + 
+		"	public void bar(int field) {System.out.println(field);}\n" + 
+		"	                    ^^^^^\n" + 
+		"The parameter field is hiding a field from type X\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
 public static Class testClass() {
 	return FieldAccessTest.class;
 }

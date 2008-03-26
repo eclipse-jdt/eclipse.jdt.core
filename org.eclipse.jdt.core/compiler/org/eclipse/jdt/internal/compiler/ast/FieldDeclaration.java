@@ -158,6 +158,7 @@ public void resolve(MethodScope initializationScope) {
 				if (existingVariable instanceof FieldBinding) {
 					FieldBinding existingField = (FieldBinding) existingVariable;
 					if (existingField.original() == this.binding) break checkHidingSuperField; // keep checking outer scenario
+					if (!existingField.canBeSeenBy(declaringType, this, initializationScope)) break checkHidingSuperField; // keep checking outer scenario
 				}
 				// collision with supertype field
 				initializationScope.problemReporter().fieldHiding(this, existingVariable);
