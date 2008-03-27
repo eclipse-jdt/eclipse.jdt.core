@@ -8317,5 +8317,170 @@ public void _test153() {
 		""
 	);
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
+public void _test154() {
+	this.runConformTest(
+		new String[] {
+			"test/impl/SubOneImpl.java", //--------------------------------------------
+			"package test.impl;\n" +
+			"public abstract class SubOneImpl extends SuperTypeExtendImpl implements test.impl.SubOne {\n" + 
+			"	public SubOneImpl plus(test.impl.SubOne attribute) {\n" + 
+			"		throw new RuntimeException(\"foo\");\n" + 
+			"	}\n" + 
+			"	public SubTwoImpl plus(SubTwo attribute) {\n" + 
+			"		throw new RuntimeException(\"foo\");\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"abstract class SubSubOneImpl extends SubOneImpl {\n" + 
+			"}\n" + 
+			"\n" + 
+			"abstract class SubTwoImpl extends SuperTypeExtendImpl implements test.impl.SubTwo {\n" + 
+			"	public SubTwoImpl plus(SubOne attribute) {\n" + 
+			"		throw new RuntimeException(\"foo\");\n" + 
+			"	}\n" + 
+			"	public SubTwoImpl plus(test.impl.SubTwo attribute) {\n" + 
+			"		throw new RuntimeException(\"foo\");\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface SuperTypeExtend extends test.impl.SuperType {\n" + 
+			"	public SuperTypeExtend plus(SubOne addend);\n" + 
+			"	public SuperTypeExtend plus(SubTwo addend);\n" + 
+			"}\n" + 
+			"\n" + 
+			"abstract class SuperTypeExtendImpl implements SuperTypeExtend {\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface SubOne<Owner> extends SuperType<Owner> {\n" + 
+			"	public SubOne<Owner> plus(SubOne addend);\n" + 
+			"	public SubTwo<Owner> plus(SubTwo addend);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface SubTwo<Owner> extends SuperType<Owner> {\n" + 
+			"	public SubTwo<Owner> plus(SubOne addend);\n" + 
+			"	public SubTwo<Owner> plus(SubTwo addend);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface SuperType<Owner> {\n" + 
+			"	public SuperType<Owner> plus(SubOne addend);\n" + 
+			"	public SuperType<Owner> plus(SubTwo addend);\n" + 
+			"}\n",
+		},
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
+public void test155() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //--------------------------------------------
+			"class A {}\n" + 
+			"class B {}\n" + 
+			"interface I {\n" + 
+			"	A foo();\n" + 
+			"}\n" + 
+			"interface J {\n" + 
+			"	B foo();\n" + 
+			"}\n" + 
+			"public abstract class X implements I, J {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	public abstract class X implements I, J {\n" + 
+		"	                      ^\n" + 
+		"The return type is incompatible with J.foo(), I.foo()\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
+public void test156() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //--------------------------------------------
+			"class Common {}\n" + 
+			"class A extends Common {}\n" + 
+			"class B extends Common {}\n" + 
+			"interface I {\n" + 
+			"	A foo();\n" + 
+			"}\n" + 
+			"interface J {\n" + 
+			"	B foo();\n" + 
+			"}\n" + 
+			"public abstract class X implements I, J {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	public abstract class X implements I, J {\n" + 
+		"	                      ^\n" + 
+		"The return type is incompatible with J.foo(), I.foo()\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
+public void test157() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //--------------------------------------------
+			"interface A {\n" + 
+			"	A foo();\n" + 
+			"}\n" + 
+			"interface B {\n" + 
+			"	B foo();\n" + 
+			"}\n" + 
+			"interface C extends A, B {}\n" + 
+			"\n" + 
+			"class Root {\n" + 
+			"	public C foo() { return null; }\n" + 
+			"}\n" + 
+			"public abstract class X extends Root implements A, B {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	interface C extends A, B {}\n" + 
+		"	          ^\n" + 
+		"The return type is incompatible with B.foo(), A.foo()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 12)\n" + 
+		"	public abstract class X extends Root implements A, B {\n" + 
+		"	                      ^\n" + 
+		"The return type is incompatible with B.foo(), A.foo()\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
+public void _test158() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //--------------------------------------------
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"interface AFoo { \n" + 
+			"	Serializable foo();\n" + 
+			"	Serializable bar();\n" + 
+			"}\n" + 
+			"interface BFoo { \n" + 
+			"	Cloneable foo(); \n" + 
+			"	Cloneable bar(); \n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends Serializable, Cloneable {}\n" + 
+			"\n" + 
+			"class Root {\n" + 
+			"	public C foo() { return null; }\n" + 
+			"}\n" + 
+			"public abstract class X extends Root implements AFoo, BFoo {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 17)\n" + 
+		"	public abstract class X extends Root implements AFoo, BFoo {\n" + 
+		"	                      ^\n" + 
+		"The return type is incompatible with BFoo.bar(), AFoo.bar()\n" + 
+		"----------\n"
+	);
+}
 }
