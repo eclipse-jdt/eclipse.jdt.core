@@ -11,8 +11,12 @@
 
 package org.eclipse.jdt.compiler.apt.tests;
 
+import static org.eclipse.jdt.compiler.apt.tests.processors.base.IXMLNames.*;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,8 +25,14 @@ import java.util.List;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.TestCase;
+
+import org.eclipse.jdt.compiler.apt.tests.processors.base.XMLComparer;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 
 /**
  * Test cases for annotation processing behavior when code contains semantic errors
@@ -37,6 +47,86 @@ public class NegativeTests extends TestCase
 	protected void setUp() throws Exception {
 		super.setUp();
 		BatchTestUtils.init();
+	}
+	
+	/**
+	 * Test that generation and reading of XML language models works
+	 * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=224424)
+	 * @throws Exception
+	 */
+	public void testXMLFramework() throws Exception {
+		final String XML_FRAMEWORK_TEST_MODEL = 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
+			"<model>\n" + 
+			" <type-element kind=\"CLASS\" qname=\"pa.A\" sname=\"A\">\n" + 
+			"  <superclass>\n" + 
+			"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" + 
+			"  </superclass>\n" + 
+			"  <variable-element kind=\"FIELD\" sname=\"f\" type=\"java.lang.String\">\n" + 
+			"   <annotations>\n" + 
+			"    <annotation sname=\"Anno1\">\n" + 
+			"     <annotation-values>\n" + 
+			"      <annotation-value member=\"value\" type=\"java.lang.String\" value=\"spud\"/>\n" + 
+			"     </annotation-values>\n" + 
+			"    </annotation>\n" + 
+			"   </annotations>\n" + 
+			"  </variable-element>\n" + 
+			" </type-element>\n" + 
+			"</model>\n";
+		
+		// create "actual" model
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		Document actualModel = factory.newDocumentBuilder().newDocument();
+		Element modelNode = actualModel.createElement(MODEL_TAG);
+		// primary type
+		Element typeNode = actualModel.createElement(TYPE_ELEMENT_TAG);
+		typeNode.setAttribute(KIND_TAG, "CLASS");
+		typeNode.setAttribute(SNAME_TAG, "A");
+		typeNode.setAttribute(QNAME_TAG, "pa.A");
+		// superclass
+		Element scNode = actualModel.createElement(SUPERCLASS_TAG);
+		Element tmNode = actualModel.createElement(TYPE_MIRROR_TAG);
+		tmNode.setAttribute(KIND_TAG, "DECLARED");
+		tmNode.setAttribute(TO_STRING_TAG, "java.lang.Object");
+		scNode.appendChild(tmNode);
+		typeNode.appendChild(scNode);
+		// field
+		Element variableNode = actualModel.createElement(VARIABLE_ELEMENT_TAG);
+		variableNode.setAttribute(KIND_TAG, "FIELD");
+		variableNode.setAttribute(SNAME_TAG, "f");
+		variableNode.setAttribute(TYPE_TAG, "java.lang.String");
+		// annotation on field
+		Element annotationsNode = actualModel.createElement(ANNOTATIONS_TAG);
+		Element annoNode = actualModel.createElement(ANNOTATION_TAG);
+		annoNode.setAttribute(SNAME_TAG, "Anno1");
+		Element valuesNode = actualModel.createElement(ANNOTATION_VALUES_TAG);
+		Element valueNode = actualModel.createElement(ANNOTATION_VALUE_TAG);
+		valueNode.setAttribute(MEMBER_TAG, "value");
+		valueNode.setAttribute(TYPE_TAG, "java.lang.String");
+		valueNode.setAttribute(VALUE_TAG, "spud");
+		valuesNode.appendChild(valueNode);
+		annoNode.appendChild(valuesNode);
+		annotationsNode.appendChild(annoNode);
+		variableNode.appendChild(annotationsNode);
+		typeNode.appendChild(variableNode);
+		modelNode.appendChild(typeNode);
+		actualModel.appendChild(modelNode);
+		
+		// load reference model
+    	InputSource source = new InputSource(new StringReader(XML_FRAMEWORK_TEST_MODEL));
+        Document expectedModel = factory.newDocumentBuilder().parse(source);
+
+        // compare actual and reference
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        StringBuilder summary = new StringBuilder();
+        summary.append("testXMLFramework failed; see console for details.  ");
+        boolean success = XMLComparer.compare(actualModel, expectedModel, out, summary, false /* ignoreJavacBugs */);
+        if (!success) {
+        	System.out.println("testXMLFramework failed.  Detailed output follows:");
+        	System.out.print(out.toString());
+        	System.out.println("=============== end output ===============");
+        }
+        assertTrue(success);
 	}
 
 	/**
