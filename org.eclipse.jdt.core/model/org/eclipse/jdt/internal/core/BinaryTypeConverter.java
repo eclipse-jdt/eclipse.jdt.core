@@ -114,11 +114,12 @@ public class BinaryTypeConverter {
 	}
 	
 	private static FieldDeclaration convert(IField field, IType type, HashSetOfCharArrayArray typeNames) throws JavaModelException {
-
+		TypeReference typeReference = createTypeReference(Signature.toString(field.getTypeSignature()).toCharArray(), typeNames);
+		if (typeReference == null) return null;
 		FieldDeclaration fieldDeclaration = new FieldDeclaration();
 
 		fieldDeclaration.name = field.getElementName().toCharArray();
-		fieldDeclaration.type = createTypeReference(Signature.toString(field.getTypeSignature()).toCharArray(), typeNames);
+		fieldDeclaration.type = typeReference;
 		fieldDeclaration.modifiers = field.getFlags();
 
 		return fieldDeclaration;
@@ -135,7 +136,9 @@ public class BinaryTypeConverter {
 		} else {
 			MethodDeclaration decl = type.isAnnotation() ? new AnnotationMethodDeclaration(compilationResult) : new MethodDeclaration(compilationResult);
 			/* convert return type */
-			decl.returnType = createTypeReference(Signature.toString(method.getReturnType()).toCharArray(), typeNames);
+			TypeReference typeReference = createTypeReference(Signature.toString(method.getReturnType()).toCharArray(), typeNames);
+			if (typeReference == null) return null;
+			decl.returnType = typeReference;
 			methodDeclaration = decl;
 		}
 		methodDeclaration.selector = method.getElementName().toCharArray();
@@ -154,6 +157,7 @@ public class BinaryTypeConverter {
 		for (int i = 0; i < argumentCount; i++) {
 			String argumentTypeName = argumentTypeNames[startIndex+i];
 			TypeReference typeReference = createTypeReference(Signature.toString(argumentTypeName).toCharArray(), typeNames);
+			if (typeReference == null) return null;
 			if (isVarargs && i == argumentCount-1) {
 				typeReference.bits |= ASTNode.IsVarArgs;
 			}
@@ -171,8 +175,9 @@ public class BinaryTypeConverter {
 		if(exceptionCount > 0) {
 			methodDeclaration.thrownExceptions = new TypeReference[exceptionCount];
 			for (int i = 0; i < exceptionCount; i++) {
-				methodDeclaration.thrownExceptions[i] =
-					createTypeReference(Signature.toString(exceptionTypeNames[i]).toCharArray(), typeNames);
+				TypeReference typeReference = createTypeReference(Signature.toString(exceptionTypeNames[i]).toCharArray(), typeNames);
+				if (typeReference == null) return null;
+				methodDeclaration.thrownExceptions[i] = typeReference;
 			}
 		}
 		return methodDeclaration;
@@ -191,15 +196,26 @@ public class BinaryTypeConverter {
 
 		/* set superclass and superinterfaces */
 		if (type.getSuperclassName() != null) {
-			typeDeclaration.superclass = createTypeReference(type.getSuperclassName().toCharArray(), typeNames);
-			typeDeclaration.superclass.bits |= ASTNode.IsSuperType;
+			TypeReference typeReference = createTypeReference(type.getSuperclassName().toCharArray(), typeNames);
+			if (typeReference != null) {
+				typeDeclaration.superclass = typeReference;
+				typeDeclaration.superclass.bits |= ASTNode.IsSuperType;
+			}
 		}
+		
 		String[] interfaceNames = type.getSuperInterfaceNames();
 		int interfaceCount = interfaceNames == null ? 0 : interfaceNames.length;
 		typeDeclaration.superInterfaces = new TypeReference[interfaceCount];
+		int count = 0;
 		for (int i = 0; i < interfaceCount; i++) {
-			typeDeclaration.superInterfaces[i] = createTypeReference(interfaceNames[i].toCharArray(), typeNames);
-			typeDeclaration.superInterfaces[i].bits |= ASTNode.IsSuperType;
+			TypeReference typeReference = createTypeReference(interfaceNames[i].toCharArray(), typeNames);
+			if (typeReference != null) {
+				typeDeclaration.superInterfaces[count] = typeReference;
+				typeDeclaration.superInterfaces[count++].bits |= ASTNode.IsSuperType;
+			}
+		}
+		if (count != interfaceCount) {
+			System.arraycopy(typeDeclaration.fields, 0, typeDeclaration.superInterfaces = new TypeReference[interfaceCount], 0, interfaceCount);
 		}
 		
 		/* convert member types */
@@ -218,8 +234,15 @@ public class BinaryTypeConverter {
 		IField[] fields = type.getFields();
 		int fieldCount = fields == null ? 0 : fields.length;
 		typeDeclaration.fields = new FieldDeclaration[fieldCount];
+		count = 0;
 		for (int i = 0; i < fieldCount; i++) {
-			typeDeclaration.fields[i] = convert(fields[i], type, typeNames);
+			FieldDeclaration fieldDeclaration = convert(fields[i], type, typeNames);
+			if (fieldDeclaration != null) {
+				typeDeclaration.fields[count++] = fieldDeclaration;
+			}
+		}
+		if (count != fieldCount) {
+			System.arraycopy(typeDeclaration.fields, 0, typeDeclaration.fields = new FieldDeclaration[count], 0, count);
 		}
 
 		/* convert methods - need to add default constructor if necessary */
@@ -243,16 +266,22 @@ public class BinaryTypeConverter {
 			typeDeclaration.methods[0] = typeDeclaration.createDefaultConstructor(false, false);
 		}
 		boolean hasAbstractMethods = false;
+		count = 0;
 		for (int i = 0; i < methodCount; i++) {
-			AbstractMethodDeclaration method =convert(methods[i], type, compilationResult, typeNames);
-			boolean isAbstract;
-			if ((isAbstract = method.isAbstract()) || isInterface) { // fix-up flag 
-				method.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;
+			AbstractMethodDeclaration method = convert(methods[i], type, compilationResult, typeNames);
+			if (method != null) {
+				boolean isAbstract;
+				if ((isAbstract = method.isAbstract()) || isInterface) { // fix-up flag 
+					method.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;
+				}
+				if (isAbstract) {
+					hasAbstractMethods = true;
+				}
+				typeDeclaration.methods[neededCount + (count++)] = method;
 			}
-			if (isAbstract) {
-				hasAbstractMethods = true;
-			}
-			typeDeclaration.methods[neededCount + i] = method;
+		}
+		if (count != methodCount) {
+			System.arraycopy(typeDeclaration.methods, 0, typeDeclaration.methods = new AbstractMethodDeclaration[count + neededCount], 0, count + neededCount);
 		}
 		if (hasAbstractMethods) {
 			typeDeclaration.bits |= ASTNode.HasAbstractMethods;
@@ -268,6 +297,8 @@ public class BinaryTypeConverter {
 		int identCount = 1;
 		for (int i = 0; i < max; i++) {
 			switch (type[i]) {
+				case '<' :
+					return null;
 				case '[' :
 					if (dim == 0)
 						dimStart = i;
