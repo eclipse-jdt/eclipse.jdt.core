@@ -8238,4 +8238,84 @@ public void test152() {
 		},
 		"1"
 	);
-}}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986
+public void _test153() {
+	this.runConformTest(
+		new String[] {
+			"test/impl/SubOneImpl.java", //--------------------------------------------
+			"package test.impl;\n" + 
+			"import test.intf.SubTwo;\n" + 
+			"public abstract class SubOneImpl extends SuperTypeExtendImpl implements test.intf.SubOne\n" + 
+			"{\n" + 
+			"    public SubOneImpl plus(test.intf.SubOne attribute)\n" + 
+			"    {\n" + 
+			"        throw new RuntimeException(\"foo\");\n" + 
+			"    }\n" + 
+			"    public SubTwoImpl plus(SubTwo attribute)\n" + 
+			"    {\n" + 
+			"        throw new RuntimeException(\"foo\");\n" + 
+			"    }\n" + 
+			"}\n",
+			"test/impl/SubSubOneImpl.java", //--------------------------------------------
+			"package test.impl;\n" + 
+			"public abstract class SubSubOneImpl extends SubOneImpl\n" + 
+			"{\n" + 
+			"}\n",
+			"test/impl/SubTwoImpl.java", //--------------------------------------------
+			"package test.impl;\n" + 
+			"import test.intf.SubOne;\n" + 
+			"public abstract class SubTwoImpl extends SuperTypeExtendImpl implements\n" + 
+			"test.intf.SubTwo\n" + 
+			"{\n" + 
+			"    public SubTwoImpl plus(SubOne attribute)\n" + 
+			"    {\n" + 
+			"        throw new RuntimeException(\"foo\");\n" + 
+			"    }\n" + 
+			"    public SubTwoImpl plus(test.intf.SubTwo attribute)\n" + 
+			"    {\n" + 
+			"        throw new RuntimeException(\"foo\");\n" + 
+			"    }\n" + 
+			"}\n",
+			"test/impl/SuperTypeExtend.java", //--------------------------------------------
+			"package test.impl;\n" + 
+			"import test.intf.SubOne;\n" + 
+			"import test.intf.SubTwo;\n" + 
+			"public interface SuperTypeExtend extends test.intf.SuperType\n" + 
+			"{\n" + 
+			"    public SuperTypeExtend plus(SubOne addend);\n" + 
+			"    public SuperTypeExtend plus(SubTwo addend);\n" + 
+			"}\n",
+			"test/impl/SuperTypeExtendImpl.java", //--------------------------------------------
+			"package test.impl;\n" + 
+			"public abstract class SuperTypeExtendImpl implements SuperTypeExtend\n" + 
+			"{\n" + 
+			"}\n",
+			"test/intf/SubOne.java", //--------------------------------------------
+			"package test.intf;\n" + 
+			"public interface SubOne<Owner> extends SuperType<Owner>\n" + 
+			"{\n" + 
+			"    public SubOne<Owner> plus(SubOne addend);\n" + 
+			"    public SubTwo<Owner> plus(SubTwo addend);\n" + 
+			"}\n",
+			"test/intf/SubTwo.java", //--------------------------------------------
+			"package test.intf;\n" + 
+			"public interface SubTwo<Owner> extends SuperType<Owner>\n" + 
+			"{\n" + 
+			"    public SubTwo<Owner> plus(SubOne addend);\n" + 
+			"    public SubTwo<Owner> plus(SubTwo addend);\n" + 
+			"}\n",
+			"test/intf/SuperType.java", //--------------------------------------------
+			"package test.intf;\n" + 
+			"public interface SuperType<Owner>\n" + 
+			"{\n" + 
+			"    public SuperType<Owner> plus(SubOne addend);\n" + 
+			"    public SuperType<Owner> plus(SubTwo addend);\n" + 
+			"}\n",
+		},
+		""
+	);
+}
+
+}
