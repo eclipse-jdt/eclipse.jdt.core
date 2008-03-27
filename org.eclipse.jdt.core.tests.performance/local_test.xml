@@ -8,7 +8,7 @@
   <!-- sets the properties eclipse-home, and library-file -->
   <property name="plugin-name" value="org.eclipse.jdt.core.tests.performance"/>
   <property name="library-file"
-	        value="${eclipse-home}/plugins/org.eclipse.test/library.xml"/>
+	        value="${eclipse-home}/dropins/org.eclipse.test/library.xml"/>
 
   <!-- This target holds all initialization code that needs to be done for -->
   <!-- all tests that are to be run. Initialization for individual tests -->
