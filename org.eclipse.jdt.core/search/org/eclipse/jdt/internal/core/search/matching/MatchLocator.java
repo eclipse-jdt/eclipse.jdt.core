@@ -565,25 +565,29 @@ protected IJavaElement createHandle(FieldDeclaration fieldDeclaration, TypeDecla
 protected IJavaElement createHandle(AbstractVariableDeclaration variableDeclaration, IJavaElement parent) {
 	switch (variableDeclaration.getKind()) {
 		case AbstractVariableDeclaration.LOCAL_VARIABLE:
-			return new LocalVariable((JavaElement)parent,
-				new String(variableDeclaration.name),
-				variableDeclaration.declarationSourceStart,
-				variableDeclaration.declarationSourceEnd,
-				variableDeclaration.sourceStart,
-				variableDeclaration.sourceEnd,
-				new String(variableDeclaration.type.resolvedType.signature()),
-				variableDeclaration.annotations
-			);
+			if (variableDeclaration.type.resolvedType != null) {
+				return new LocalVariable((JavaElement)parent,
+					new String(variableDeclaration.name),
+					variableDeclaration.declarationSourceStart,
+					variableDeclaration.declarationSourceEnd,
+					variableDeclaration.sourceStart,
+					variableDeclaration.sourceEnd,
+					new String(variableDeclaration.type.resolvedType.signature()),
+					variableDeclaration.annotations
+				);
+			}
 		case AbstractVariableDeclaration.PARAMETER:
-			return new LocalVariable((JavaElement)parent,
-				new String(variableDeclaration.name),
-				variableDeclaration.declarationSourceStart,
-				variableDeclaration.declarationSourceEnd,
-				variableDeclaration.sourceStart,
-				variableDeclaration.sourceEnd,
-				new String(variableDeclaration.type.resolvedType.signature()),
-				variableDeclaration.annotations
-			);
+			if (variableDeclaration.type.resolvedType != null) {
+				return new LocalVariable((JavaElement)parent,
+					new String(variableDeclaration.name),
+					variableDeclaration.declarationSourceStart,
+					variableDeclaration.declarationSourceEnd,
+					variableDeclaration.sourceStart,
+					variableDeclaration.sourceEnd,
+					new String(variableDeclaration.type.resolvedType.signature()),
+					variableDeclaration.annotations
+				);
+			}
 		case AbstractVariableDeclaration.TYPE_PARAMETER:
 			return new org.eclipse.jdt.internal.core.TypeParameter((JavaElement)parent, new String(variableDeclaration.name));
 	}
