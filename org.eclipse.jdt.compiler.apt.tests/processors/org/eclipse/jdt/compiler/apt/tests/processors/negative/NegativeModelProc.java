@@ -431,12 +431,18 @@ public class NegativeModelProc extends AbstractProcessor
 		reportSuccess();
 		return false;
 	}
-
+	
 	/**
 	 * Check the model of resources/targets.negative.pa.Negative6
 	 * @return true if all tests passed
 	 */
 	public boolean checkNegative1() throws Exception {
+		
+		// Self-test of XML framework.  Here for now to debug https://bugs.eclipse.org/bugs/show_bug.cgi?id=224424. 
+		if (!XMLComparer.test()) {
+			reportError("XML language model comparison framework failed self-test");
+			return false;
+		}
 		
 		// Test is failing on Linux - https://bugs.eclipse.org/bugs/show_bug.cgi?id=224424
 		if (System.getProperty("os.name").indexOf("Windows") == -1) return true;
