@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -216,7 +216,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
         for( ITypeBinding binding : superInterfaceBindings ){
             if( binding.isInterface() ){
                 final TypeDeclarationImpl mirrorDecl = Factory.createReferenceType(binding, _env);
-                if( mirrorDecl.kind() == MirrorKind.TYPE_INTERFACE ){
+                if( mirrorDecl != null && mirrorDecl.kind() == MirrorKind.TYPE_INTERFACE ){
                     results.add((InterfaceType)mirrorDecl);
                 }
             }

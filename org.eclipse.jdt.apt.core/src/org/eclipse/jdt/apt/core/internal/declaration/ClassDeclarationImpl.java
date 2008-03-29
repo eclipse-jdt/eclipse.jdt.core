@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -135,7 +135,7 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
         final ITypeBinding superClass = getDeclarationBinding().getSuperclass();
 		if ( superClass == null )
 			return null;
-		else if( superClass.isClass() )
+		else if( superClass.isClass() && !superClass.isRecovered() )
             return (ClassType)Factory.createReferenceType(superClass, _env);
         else // catch error case where user extends some interface instead of a class.
             return Factory.createErrorClassType(superClass);

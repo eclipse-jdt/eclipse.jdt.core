@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -304,7 +304,7 @@ public class BuildEnv extends AbstractCompilationEnv
 					continue;
 				final TypeDeclarationImpl decl = 
 					Factory.createReferenceType(annoType, this);
-				if (decl.kind() == EclipseMirrorObject.MirrorKind.TYPE_ANNOTATION){
+				if (decl != null && decl.kind() == EclipseMirrorObject.MirrorKind.TYPE_ANNOTATION){
 					final AnnotationTypeDeclaration annoDecl = (AnnotationTypeDeclaration)decl;
 					decls.put(annoDecl.getQualifiedName(), annoDecl);
 					perFileAnnos.add(annoDecl);

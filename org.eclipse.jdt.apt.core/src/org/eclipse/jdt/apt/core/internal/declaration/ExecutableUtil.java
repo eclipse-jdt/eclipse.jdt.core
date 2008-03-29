@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -185,7 +185,7 @@ class ExecutableUtil {
 	    	for(Name exception : exceptions ){
 	    		final ITypeBinding eType = exception.resolveTypeBinding();
 	    		final ReferenceType refType;
-	    		if( eType == null )
+	    		if( eType == null || eType.isRecovered() )
 	    			refType = Factory.createErrorClassType(exception.toString());
 	    		else
 	    			refType = Factory.createReferenceType(eType, env);

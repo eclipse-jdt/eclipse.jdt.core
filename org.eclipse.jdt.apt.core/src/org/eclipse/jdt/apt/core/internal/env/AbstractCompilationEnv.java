@@ -272,7 +272,7 @@ public abstract class AbstractCompilationEnv
 				continue;
 			final TypeDeclarationImpl decl = 
 				Factory.createReferenceType(annoType, this);
-			if (decl.kind() == EclipseMirrorObject.MirrorKind.TYPE_ANNOTATION){
+			if (decl != null && decl.kind() == EclipseMirrorObject.MirrorKind.TYPE_ANNOTATION){
 				final AnnotationTypeDeclaration annoDecl = (AnnotationTypeDeclaration)decl;
 				decls.put(annoDecl.getQualifiedName(), annoDecl);
 			}

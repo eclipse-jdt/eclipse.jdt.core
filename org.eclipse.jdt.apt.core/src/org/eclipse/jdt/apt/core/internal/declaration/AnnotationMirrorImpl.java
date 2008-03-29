@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,7 +63,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
     public AnnotationType getAnnotationType()
     {		
         final ITypeBinding binding = _domAnnotation.getAnnotationType();
-        if( binding == null ){
+        if( binding == null || binding.isRecovered() ){
         	final ASTNode node = _annotated.getCompilationUnit().findDeclaringNode(_domAnnotation);
         	String name = ""; //$NON-NLS-1$
         	if( node != null && node instanceof Annotation ){
