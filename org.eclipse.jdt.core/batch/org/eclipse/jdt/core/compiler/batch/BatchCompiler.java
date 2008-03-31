@@ -33,13 +33,13 @@ public final class BatchCompiler {
 	 * to print messages, and reporting progress to the given compilation progress. Returns whether 
 	 * the compilation completed successfully.
 	 * <p>
-	 * Reasons for a compilation failing to complete successfully include:
+	 * Reasons for a compilation failing to complete successfully include:</p>
 	 * <ul>
 	 * <li>an error was reported</li>
 	 * <li>a runtime exception occurred</li>
 	 * <li>the compilation was canceled using the compilation progress</li>
 	 * </ul>
-	 * </p><p>
+	 * <p>
 	 * The specification of the command line arguments is defined by running the batch compiler's help
 	 * <pre>BatchCompiler.compile("-help", new PrintWriter(System.out), new PrintWriter(System.err), null);</pre>
 	 * </p>
@@ -52,20 +52,20 @@ public final class BatchCompiler {
 	 */
 	public static boolean compile(String commandLine, PrintWriter outWriter, PrintWriter errWriter, CompilationProgress progress) {
 		return Main.compile(Main.tokenize(commandLine), outWriter, errWriter, progress);
-	}	
+	}
 
 	/**
 	 * Invokes the Eclipse Compiler for Java with the given command line arguments, using the given writers
 	 * to print messages, and reporting progress to the given compilation progress. Returns whether 
 	 * the compilation completed successfully.
 	 * <p>
-	 * Reasons for a compilation failing to complete successfully include:
+	 * Reasons for a compilation failing to complete successfully include:</p>
 	 * <ul>
 	 * <li>an error was reported</li>
 	 * <li>a runtime exception occurred</li>
 	 * <li>the compilation was canceled using the compilation progress</li>
 	 * </ul>
-	 * </p><p>
+	 * <p>
 	 * The specification of the command line arguments is defined by running the batch compiler's help
 	 * <pre>BatchCompiler.compile("-help", new PrintWriter(System.out), new PrintWriter(System.err), null);</pre>
 	 * </p>
@@ -80,5 +80,5 @@ public final class BatchCompiler {
 	 */
 	public static boolean compile(String[] commandLineArguments, PrintWriter outWriter, PrintWriter errWriter, CompilationProgress progress) {
 		return Main.compile(commandLineArguments, outWriter, errWriter, progress);
-	}	
+	}
 }
