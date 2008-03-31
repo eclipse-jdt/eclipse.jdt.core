@@ -765,6 +765,7 @@ public class ClassFile
 		// always clear the strictfp/native/abstract bit for a problem method
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
 		int methodAttributeOffset = contentsOffset;
+		methodBinding.modifiers |= ClassFileConstants.AccSynthetic;
 		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 
 		// Code attribute
