@@ -12,15 +12,29 @@ package org.eclipse.jdt.core.tests.builder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import junit.framework.*;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IRegion;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 
 
@@ -28,6 +42,22 @@ import org.eclipse.jdt.internal.core.builder.JavaBuilder;
  * Basic errors tests of the image builder.
  */
 public class ErrorsTests extends BuilderTests {
+	private static final Comparator COMPARATOR = new Comparator() {
+		public int compare(Object o1, Object o2) {
+			IResource resource1 = (IResource) o1;
+			IResource resource2 = (IResource) o2;
+			String path1 = resource1.getFullPath().toString();
+			String path2 = resource2.getFullPath().toString();
+			int length1 = path1.length();
+			int length2 = path2.length();
+
+			if (length1 != length2) {
+				return length1 - length2;
+			}
+			return path1.toString().compareTo(path2.toString());
+		}
+	};
+
 	public ErrorsTests(String name) {
 		super(name);
 	}
@@ -248,5 +278,91 @@ public void test0105() throws JavaModelException, CoreException, IOException {
 			fail(t.getMessage());
 		}
 	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=224715
+public void test0106() throws JavaModelException {
+	IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	fullBuild(projectPath);
+
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+
+	IPath root = env.addPackageFragmentRoot(projectPath, "src", null, null); //$NON-NLS-1$
+	env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+	IPath classTest1 = env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+		"package p1;\n"+ //$NON-NLS-1$
+		"public class X implements I {\n" +
+		"}\n" //$NON-NLS-1$
+	);
+
+	env.addClass(root, "p1", "I", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public interface I {\n" +
+			"   public void foo() {\n"+ //$NON-NLS-1$
+			"   }\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+		);
+
+	incrementalBuild(projectPath);
+
+	expectingSpecificProblemFor(classTest1, new Problem("p1", "The type X must implement the inherited abstract method I.foo()", classTest1, 25, 26, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR));
+
+	IJavaProject project = env.getJavaProject(projectPath);
+	IRegion region = JavaCore.newRegion();
+	region.add(project);
+	IResource[] resources = JavaCore.getGeneratedResources(region, false);
+	assertEquals("Wrong size", 2, resources.length);//$NON-NLS-1$
+	Arrays.sort(resources, COMPARATOR);
+	String actualOutput = getResourceOuput(resources);
+	String expectedOutput =
+		"/Project/bin/p1/I.class\n" +
+		"/Project/bin/p1/X.class\n";
+	assertEquals("Wrong names", Util.convertToIndependantLineDelimiter(expectedOutput), actualOutput);
+	
+	assertEquals("Wrong type", IResource.FILE, resources[1].getType());
+	IFile classFile = (IFile) resources[1];
+	IClassFileReader classFileReader = null; 
+	InputStream stream = null;
+	try {
+		stream = classFile.getContents();
+		classFileReader = ToolFactory.createDefaultClassFileReader(stream, IClassFileReader.ALL);
+	} catch (CoreException e) {
+		e.printStackTrace();
+	} finally {
+		if (stream != null) {
+			try {
+				stream.close();
+			} catch(IOException e) {
+				// ignore
+			}
+		}
+	}
+	assertNotNull("No class file reader", classFileReader);
+	IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+	IMethodInfo found = null;
+	loop: for (int i = 0, max = methodInfos.length; i < max; i++) {
+		IMethodInfo methodInfo = methodInfos[i];
+		if (CharOperation.equals(methodInfo.getName(), "foo".toCharArray())) {
+			found = methodInfo;
+			break loop;
+		}
+	}
+	assertNotNull("No method found", found);
+	assertTrue("Not a synthetic method", found.isSynthetic());
+	env.removeProject(projectPath);
+}
+
+private String getResourceOuput(IResource[] resources) {
+	StringWriter stringWriter = new StringWriter();
+	PrintWriter writer = new PrintWriter(stringWriter);
+	for (int i = 0, max = resources.length; i < max; i++) {
+		writer.println(resources[i].getFullPath().toString());
+	}
+	writer.flush();
+	writer.close();
+	return Util.convertToIndependantLineDelimiter(String.valueOf(stringWriter));
 }
 }
