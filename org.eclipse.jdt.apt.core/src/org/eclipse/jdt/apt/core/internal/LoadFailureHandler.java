@@ -71,12 +71,14 @@ public class LoadFailureHandler {
 						new String[] {
 							IMarker.MESSAGE, 
 							IMarker.SEVERITY,
-							IMarker.LOCATION
+							IMarker.LOCATION,
+							IMarker.SOURCE_ID
 						},
 						new Object[] {
 							message,
 							IMarker.SEVERITY_ERROR,
-							Messages.AnnotationProcessorFactoryLoader_factorypath
+							Messages.AnnotationProcessorFactoryLoader_factorypath,
+							AptPlugin.APT_MARKER_SOURCE_ID
 						}
 					);
 			} catch (CoreException e) {
@@ -105,12 +107,14 @@ public class LoadFailureHandler {
 						new String[] {
 							IMarker.MESSAGE, 
 							IMarker.SEVERITY,
-							IMarker.LOCATION
+							IMarker.LOCATION,
+							IMarker.SOURCE_ID
 						},
 						new Object[] {
 							message,
 							IStatus.ERROR,
-							Messages.AnnotationProcessorFactoryLoader_factorypath
+							Messages.AnnotationProcessorFactoryLoader_factorypath,
+							AptPlugin.APT_MARKER_SOURCE_ID
 						}
 					);
 			} catch (CoreException e) {

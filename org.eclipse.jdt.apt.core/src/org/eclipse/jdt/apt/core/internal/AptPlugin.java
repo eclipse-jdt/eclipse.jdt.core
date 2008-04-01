@@ -47,6 +47,12 @@ public class AptPlugin extends Plugin {
 	public static final int STATUS_NOTOOLSJAR = 2;
 	public static final int STATUS_CANTLOADPLUGINFACTORY = 3;
 	
+	/** 
+	 * Marker source ID used for all APT-created markers.  Note this does not include 
+	 * compilation problems, since they get created and managed by JDT on our behalf. 
+	 */
+	public static final String APT_MARKER_SOURCE_ID = "APT"; //$NON-NLS-1$
+	
 	public static final String APT_BATCH_PROCESSOR_PROBLEM_MARKER = PLUGIN_ID + ".marker"; //$NON-NLS-1$
 	/** Marker ID used for build problem, e.g., missing factory jar */
 	public static final String APT_LOADER_PROBLEM_MARKER = PLUGIN_ID + ".buildproblem"; //$NON-NLS-1$

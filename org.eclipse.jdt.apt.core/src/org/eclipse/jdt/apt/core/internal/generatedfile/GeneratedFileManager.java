@@ -504,8 +504,8 @@ public class GeneratedFileManager
 			String message = Messages.bind(Messages.GeneratedFileManager_missing_classpath_entry,
 					new String[] { gpfr.name });
 			IMarker marker = _jProject.getProject().createMarker(AptPlugin.APT_CONFIG_PROBLEM_MARKER);
-			marker.setAttributes(new String[] { IMarker.MESSAGE, IMarker.SEVERITY }, new Object[] { message,
-					IMarker.SEVERITY_ERROR });
+			marker.setAttributes(new String[] { IMarker.MESSAGE, IMarker.SEVERITY, IMarker.SOURCE_ID }, 
+					new Object[] { message,	IMarker.SEVERITY_ERROR, AptPlugin.APT_MARKER_SOURCE_ID });
 			// disable any future type generation
 			_skipTypeGeneration = true;
 			return null;
