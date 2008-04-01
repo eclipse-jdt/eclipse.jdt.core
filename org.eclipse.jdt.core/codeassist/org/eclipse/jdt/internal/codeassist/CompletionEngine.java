@@ -4123,6 +4123,8 @@ public final class CompletionEngine
 			ObjectVector fieldsFound,
 			ObjectVector methodsFound) {
 		
+		ObjectVector methodsFoundFromFavorites = new ObjectVector();
+		
 		ImportBinding[] favoriteBindings = getFavoriteReferenceBindings(invocationScope);
 		
 		if (favoriteBindings != null && favoriteBindings.length > 0) {
@@ -4157,6 +4159,7 @@ public final class CompletionEngine
 								methods,
 								scope,
 								methodsFound,
+								methodsFoundFromFavorites,
 								methodBinding.declaringClass,
 								invocationSite,
 								invocationScope);
@@ -4179,6 +4182,7 @@ public final class CompletionEngine
 									referenceBinding.availableMethods(),
 									scope,
 									methodsFound,
+									methodsFoundFromFavorites,
 									referenceBinding,
 									invocationSite,
 									invocationScope);
@@ -4187,6 +4191,8 @@ public final class CompletionEngine
 				}
 			}
 		}
+		
+		methodsFound.addAll(methodsFoundFromFavorites);
 	}
 	
 	private boolean findFieldsAndMethodsFromMissingFieldType(
@@ -6077,6 +6083,7 @@ public final class CompletionEngine
 			MethodBinding[] methods,
 			Scope scope,
 			ObjectVector methodsFound,
+			ObjectVector methodsFoundFromFavorites,
 			ReferenceBinding receiverType,
 			InvocationSite invocationSite,
 			Scope invocationScope) {
@@ -6109,6 +6116,20 @@ public final class CompletionEngine
 				if (!CharOperation.prefixEquals(methodName, method.selector, false /* ignore case */)
 						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector))) {
 					continue next;
+				}
+				
+				for (int i = methodsFoundFromFavorites.size; --i >= 0;) {
+					Object[] other = (Object[]) methodsFoundFromFavorites.elementAt(i);
+					MethodBinding otherMethod = (MethodBinding) other[0];
+					
+					if (method == otherMethod) continue next;
+					
+					if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
+						if (otherMethod.declaringClass == method.declaringClass &&
+								lookupEnvironment.methodVerifier().isMethodSubsignature(otherMethod, method)) {
+							continue next;
+						}
+					}
 				}
 				
 				for (int i = methodsFound.size; --i >= 0;) {
@@ -6144,7 +6165,7 @@ public final class CompletionEngine
 					}
 				}
 				
-				methodsFound.add(new Object[]{method, receiverType});
+				methodsFoundFromFavorites.add(new Object[]{method, receiverType});
 				
 				ReferenceBinding superTypeWithSameErasure = (ReferenceBinding)receiverType.findSuperTypeOriginatingFrom(method.declaringClass);
 				if (method.declaringClass != superTypeWithSameErasure) {
