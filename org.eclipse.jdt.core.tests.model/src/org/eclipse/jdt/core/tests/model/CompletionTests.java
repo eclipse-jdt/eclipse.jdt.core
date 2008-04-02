@@ -13773,6 +13773,46 @@ public void testCompletionVariableName14() throws JavaModelException {
 	            "}\n"+
 	            "public class CompletionVariableName14 {\n"+
 	            "	void foo(){\n"+
+	            "		FooBar pretheFo\n"+
+	            "	}\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "pretheFo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	    assertResults(
+				"preTheFoBar[VARIABLE_DECLARATION]{preTheFoBar, null, LFooBar;, preTheFoBar, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NON_RESTRICTED)+"}\n"+
+				"preTheFoBarsuf[VARIABLE_DECLARATION]{preTheFoBarsuf, null, LFooBar;, preTheFoBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}\n"+
+				"preTheFooBar[VARIABLE_DECLARATION]{preTheFooBar, null, LFooBar;, preTheFooBar, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED)+"}\n"+
+				"preTheFooBarsuf[VARIABLE_DECLARATION]{preTheFooBarsuf, null, LFooBar;, preTheFooBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NAME_FIRST_SUFFIX + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED)+"}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
+		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
+		JavaCore.setOptions(options);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215975
+public void testCompletionVariableName14_2() throws JavaModelException {
+	Hashtable options = JavaCore.getOptions();
+	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
+	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
+	try {
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionVariableName14.java",
+	            "class FooBar {\n"+
+	            "}\n"+
+	            "public class CompletionVariableName14 {\n"+
+	            "	void foo(){\n"+
 	            "		FooBar prethefo\n"+
 	            "	}\n"+
 	            "}");
@@ -13786,9 +13826,9 @@ public void testCompletionVariableName14() throws JavaModelException {
 	
 	    assertResults(
 				"preThefoBar[VARIABLE_DECLARATION]{preThefoBar, null, LFooBar;, preThefoBar, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NON_RESTRICTED)+"}\n"+
+				"preThefoFooBar[VARIABLE_DECLARATION]{preThefoFooBar, null, LFooBar;, preThefoFooBar, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NON_RESTRICTED)+"}\n"+
 				"preThefoBarsuf[VARIABLE_DECLARATION]{preThefoBarsuf, null, LFooBar;, preThefoBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}\n"+
-				"preTheFooBar[VARIABLE_DECLARATION]{preTheFooBar, null, LFooBar;, preTheFooBar, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED)+"}\n"+
-				"preTheFooBarsuf[VARIABLE_DECLARATION]{preTheFooBarsuf, null, LFooBar;, preTheFooBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NAME_FIRST_SUFFIX + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED)+"}",
+				"preThefoFooBarsuf[VARIABLE_DECLARATION]{preThefoFooBarsuf, null, LFooBar;, preThefoFooBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}",
 				requestor.getResults());
 	} finally {
 		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
@@ -14583,6 +14623,30 @@ public void testCompletionVariableName5() throws JavaModelException {
             "}\n"+
             "public class CompletionVariableName5 {\n"+
             "	void foo(){\n"+
+            "		FooBar theFo\n"+
+            "	}\n"+
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.wc.getSource();
+    String completeBehind = "theFo";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+    		"theFoBar[VARIABLE_DECLARATION]{theFoBar, null, LFooBar;, theFoBar, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"theFooBar[VARIABLE_DECLARATION]{theFooBar, null, LFooBar;, theFooBar, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215975
+public void testCompletionVariableName5_2() throws JavaModelException {
+	this.wc = getWorkingCopy(
+            "/Completion/src/CompletionVariableName5.java",
+            "class FooBar {\n"+
+            "}\n"+
+            "public class CompletionVariableName5 {\n"+
+            "	void foo(){\n"+
             "		FooBar thefo\n"+
             "	}\n"+
             "}");
@@ -14596,10 +14660,34 @@ public void testCompletionVariableName5() throws JavaModelException {
 
     assertResults(
     		"thefoBar[VARIABLE_DECLARATION]{thefoBar, null, LFooBar;, thefoBar, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
-			"theFooBar[VARIABLE_DECLARATION]{theFooBar, null, LFooBar;, theFooBar, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED)+"}",
+			"thefoFooBar[VARIABLE_DECLARATION]{thefoFooBar, null, LFooBar;, thefoFooBar, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 public void testCompletionVariableName6() throws JavaModelException {
+	this.wc = getWorkingCopy(
+            "/Completion/src/CompletionVariableName6.java",
+            "class FooBar {\n"+
+            "}\n"+
+            "public class CompletionVariableName6 {\n"+
+            "	void foo(){\n"+
+            "		FooBar theBa\n"+
+            "	}\n"+
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.wc.getSource();
+    String completeBehind = "theBa";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+    		"theBaFooBar[VARIABLE_DECLARATION]{theBaFooBar, null, LFooBar;, theBaFooBar, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"theBar[VARIABLE_DECLARATION]{theBar, null, LFooBar;, theBar, null, "+(R_DEFAULT  + R_INTERESTING +  + R_CASE + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215975
+public void testCompletionVariableName6_2() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionVariableName6.java",
             "class FooBar {\n"+
@@ -14618,8 +14706,8 @@ public void testCompletionVariableName6() throws JavaModelException {
     this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
-    		"thebaFooBar[VARIABLE_DECLARATION]{thebaFooBar, null, LFooBar;, thebaFooBar, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
-			"theBar[VARIABLE_DECLARATION]{theBar, null, LFooBar;, theBar, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED)+"}",
+    		"thebaBar[VARIABLE_DECLARATION]{thebaBar, null, LFooBar;, thebaBar, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"thebaFooBar[VARIABLE_DECLARATION]{thebaFooBar, null, LFooBar;, thebaFooBar, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 public void testCompletionVariableName7() throws JavaModelException {
@@ -14701,6 +14789,46 @@ public void testCompletionVariableName9() throws JavaModelException {
 	            "}\n"+
 	            "public class CompletionVariableName9 {\n"+
 	            "	void foo(){\n"+
+	            "		FooBar theFo\n"+
+	            "	}\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "theFo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	    assertResults(
+				"theFoBar[VARIABLE_DECLARATION]{theFoBar, null, LFooBar;, theFoBar, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"theFoBarsuf[VARIABLE_DECLARATION]{theFoBarsuf, null, LFooBar;, theFoBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}\n"+
+				"theFooBar[VARIABLE_DECLARATION]{theFooBar, null, LFooBar;, theFooBar, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED)+"}\n"+
+				"theFooBarsuf[VARIABLE_DECLARATION]{theFooBarsuf, null, LFooBar;, theFooBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NAME_LESS_NEW_CHARACTERS + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
+		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
+		JavaCore.setOptions(options);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215975
+public void testCompletionVariableName9_2() throws JavaModelException {
+	Hashtable options = JavaCore.getOptions();
+	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
+	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
+	try {
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionVariableName9.java",
+	            "class FooBar {\n"+
+	            "}\n"+
+	            "public class CompletionVariableName9 {\n"+
+	            "	void foo(){\n"+
 	            "		FooBar thefo\n"+
 	            "	}\n"+
 	            "}");
@@ -14714,9 +14842,9 @@ public void testCompletionVariableName9() throws JavaModelException {
 	
 	    assertResults(
 				"thefoBar[VARIABLE_DECLARATION]{thefoBar, null, LFooBar;, thefoBar, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"thefoFooBar[VARIABLE_DECLARATION]{thefoFooBar, null, LFooBar;, thefoFooBar, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
 				"thefoBarsuf[VARIABLE_DECLARATION]{thefoBarsuf, null, LFooBar;, thefoBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}\n"+
-				"theFooBar[VARIABLE_DECLARATION]{theFooBar, null, LFooBar;, theFooBar, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED)+"}\n"+
-				"theFooBarsuf[VARIABLE_DECLARATION]{theFooBarsuf, null, LFooBar;, theFooBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_LESS_NEW_CHARACTERS + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}",
+				"thefoFooBarsuf[VARIABLE_DECLARATION]{thefoFooBarsuf, null, LFooBar;, thefoFooBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}",
 				requestor.getResults());
 	} finally {
 		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);

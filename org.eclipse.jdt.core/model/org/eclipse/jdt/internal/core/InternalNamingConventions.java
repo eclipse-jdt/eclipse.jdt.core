@@ -183,10 +183,12 @@ public class InternalNamingConventions {
 			}
 		
 			char[] unprefixedName = tempName;
+			unprefixedName[0] = ScannerHelper.toUpperCase(unprefixedName[0]);
 			for (int j = 0; j <= internalPrefix.length; j++) {
-				if(j == internalPrefix.length || CharOperation.prefixEquals(CharOperation.subarray(internalPrefix, j, -1), unprefixedName, false)) {
+				if(j == internalPrefix.length ||
+						CharOperation.prefixEquals(CharOperation.subarray(internalPrefix, j, -1), unprefixedName, j != 0 /*do not check case when there is no prefix*/)) {
 					tempName = CharOperation.concat(CharOperation.subarray(internalPrefix, 0, j), unprefixedName);
-					if(j != 0) tempName[j] = ScannerHelper.toUpperCase(tempName[j]);
+					if(j == 0) tempName[0] = ScannerHelper.toLowerCase(tempName[0]);
 					for (int k = 0; k < prefixes.length; k++) {
 						if(prefixes[k].length > 0
 							&& ScannerHelper.isLetterOrDigit(prefixes[k][prefixes[k].length - 1])) {
