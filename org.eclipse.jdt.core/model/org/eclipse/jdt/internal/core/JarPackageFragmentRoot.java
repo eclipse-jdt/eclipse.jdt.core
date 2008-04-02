@@ -148,6 +148,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	public int getKind() {
 		return IPackageFragmentRoot.K_BINARY;
 	}
+	int internalKind() throws JavaModelException {
+		return IPackageFragmentRoot.K_BINARY;
+	}
 	/**
 	 * Returns an array of non-java resources contained in the receiver.
 	 */

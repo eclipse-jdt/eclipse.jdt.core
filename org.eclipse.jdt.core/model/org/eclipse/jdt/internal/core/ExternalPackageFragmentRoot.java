@@ -79,6 +79,9 @@ public class ExternalPackageFragmentRoot extends PackageFragmentRoot {
 	public int getKind() {
 		return IPackageFragmentRoot.K_BINARY;
 	}
+	int internalKind() throws JavaModelException {
+		return IPackageFragmentRoot.K_BINARY;
+	}
 	/**
 	 * @see IPackageFragmentRoot
 	 */
