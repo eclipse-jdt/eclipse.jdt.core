@@ -1131,7 +1131,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	protected void runNegativeTestWithExecution(
 			String[] testFiles, 
 			String expectedProblemLog, 
-			String expectedSuccessOutputString, 
+			String expectedOutputString,
+			String expectedErrorString,
 			String[] classLib,
 			boolean shouldFlushOutputDirectory, 
 			String[] vmArguments, 
@@ -1211,13 +1212,14 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		boolean passed = 
 			this.verifier.verifyClassFiles(
 				sourceFile, 
-				className, 
-				expectedSuccessOutputString,
+				className,
+				expectedOutputString /* expectedOutputString */,
+				expectedErrorString /* expectedErrorString */,
 				this.classpaths, 
 				null, 
 				vmArguments);
 		if (!passed) {
-			String platformIndependantExpectedSuccessOutputString = Util.convertToIndependantLineDelimiter(expectedSuccessOutputString);
+			String platformIndependantExpectedSuccessOutputString = Util.convertToIndependantLineDelimiter(expectedOutputString);
 			String platformIndependantFailureReason = Util.convertToIndependantLineDelimiter(this.verifier.failureReason);
 			if (platformIndependantFailureReason.indexOf(platformIndependantExpectedSuccessOutputString) == -1) {
 				System.out.println(getClass().getName() + '#' + getName());
@@ -1245,6 +1247,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			boolean expectingCompilerErrors,
 			String expectedCompilerLog,
 			String expectedOutputString,
+			String expectedErrorString,
 			boolean forceExecution,
 			String[] classLib,
 			boolean shouldFlushOutputDirectory, 
@@ -1330,8 +1333,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				boolean passed = 
 					this.verifier.verifyClassFiles(
 						sourceFile, 
-						className, 
+						className,
 						expectedOutputString,
+						expectedErrorString,
 						this.classpaths, 
 						null, 
 						vmArguments);

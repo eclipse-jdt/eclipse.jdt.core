@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 IBM Corporation and others.
+ * Copyright (c) 2006, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,8 +44,8 @@ public static Class testClass() {
 
 // memory exhaustion - try to allocate too big an instance
 public void test0001_memory_exhaustion() {
-	this.runConformTest(
-		new String[] {
+	runTest(
+		new String[] { /* testFiles */
 			"X.java",
 			"public class X {\n" + 
 			"  public static void main(String args[]) {\n" + 
@@ -65,8 +65,17 @@ public void test0001_memory_exhaustion() {
 			"    storage = new long[itemsNb];\n" +
 			"  }\n" + 
 			"}\n"},
-		"SUCCESS"
-	);
+		false /* expectingCompilerErrors */,
+		"" /* expectedCompilerLog */,
+		"SUCCESS" /* expectedOutputString */,
+		null /* expectedErrorString - skip this because some JREs emit additional info to stderr in case of exception */,
+		false /* forceExecution */,
+		null /* classLib */,
+		true /* shouldFlushOutputDirectory */, 
+		null /* vmArguments */, 
+		null /* customOptions */,
+		null /* clientRequestor */,
+		true /* skipJavac */);
 }
 
 // synchronization - concurrent access to a resource with explicit and

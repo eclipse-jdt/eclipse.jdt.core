@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 IBM Corporation and others.
+ * Copyright (c) 2005, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5194,6 +5194,7 @@ public void _test0534_try_finally() {
 		false /* expectingCompilerErrors */,
 		"" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
+		"" /* expectedErrorString */,
 		false /* forceExecution */,
 		null /* classLib */,
 		true /* shouldFlushOutputDirectory */, 
@@ -5725,6 +5726,7 @@ public void test0595_throw() {
 		"Null pointer access: The variable t can only be null at this location\n" + 
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
+		"" /* expectedErrorString */,
 		false /* forceExecution */,
 		null /* classLib */,
 		true /* shouldFlushOutputDirectory */, 
@@ -5759,6 +5761,7 @@ public void test0596_throw() {
 		"Potential null pointer access: The variable t may be null at this location\n" + 
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
+		"" /* expectedErrorString */,
 		false /* forceExecution */,
 		null /* classLib */,
 		true /* shouldFlushOutputDirectory */, 
@@ -5788,6 +5791,7 @@ public void test0597_throw() {
 		false /* expectingCompilerErrors */,
 		"" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
+		"" /* expectedErrorString */,
 		false /* forceExecution */,
 		null /* classLib */,
 		true /* shouldFlushOutputDirectory */, 
@@ -7238,6 +7242,7 @@ public void _test0746_for_try_catch() {
 		"Potential null pointer access: The variable str may be null at this location\n" + 
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
+		"" /* expectedErrorString */,
 		false /* forceExecution */,
 		null /* classLib */,
 		true /* shouldFlushOutputDirectory */, 
@@ -7276,6 +7281,7 @@ public void test0747_for_try_catch() {
 		"Potential null pointer access: The variable str may be null at this location\n" + 
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
+		"" /* expectedErrorString */,
 		false /* forceExecution */,
 		null /* classLib */,
 		true /* shouldFlushOutputDirectory */, 
@@ -8760,6 +8766,7 @@ public void test1050_options_all_default() {
 			"Null pointer access: The variable o can only be null at this location\n" + 
 			"----------\n" /* expectedCompilerLog */,
 			"" /* expectedOutputString */,
+			"" /* expectedErrorString */,
 			false /* forceExecution */,
 			null /* classLib */,
 			true /* shouldFlushOutputDirectory */, 

@@ -88,6 +88,7 @@ void runTest(
 		expectingCompilerErrors,
 		expectedCompilerLog,
 		expectedOutputString,
+		"" /* expectedErrorString */,
 		forceExecution,
 		classLib,
 		shouldFlushOutputDirectory, 

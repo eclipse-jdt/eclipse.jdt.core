@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,29 +30,46 @@ public class TestVerifier {
 public TestVerifier(boolean reuseVM) {
 	this.reuseVM = reuseVM;
 }
-private boolean checkBuffers(String errorString, String outputString, String sourceFileName, String expectedSuccessOutputString) {
-
-	if (errorString.trim().length() > 0) {
-		this.failureReason =
-			"Unexpected target error running resulting class file for "
-				+ sourceFileName
-				+ ":\n"
-				+ errorString;
-		return false;
+private boolean checkBuffers(String outputString, String errorString, 
+		String sourceFileName, String expectedOutputString, String expectedErrorStringStart) {
+	String platformIndependantString;
+	if (expectedOutputString != null) {
+		platformIndependantString = Util.convertToIndependantLineDelimiter(outputString.trim());
+		if (!Util.convertToIndependantLineDelimiter(expectedOutputString).equals(platformIndependantString)) {
+			System.out.println(Util.displayString(platformIndependantString, 2));
+			this.failureReason =
+				"Unexpected output running resulting class file for "
+					+ sourceFileName
+					+ ":\n"
+					+ "--[START]--\n"
+					+ outputString
+					+ "---[END]---\n";
+			return false;
+		}
+	}	
+	if (expectedErrorStringStart != null) {
+		platformIndependantString = Util.convertToIndependantLineDelimiter(errorString.trim());
+		if (expectedErrorStringStart.length() == 0 && platformIndependantString.length() > 0 ||
+				!platformIndependantString.startsWith(Util.convertToIndependantLineDelimiter(expectedErrorStringStart))) {
+			/*
+			 * This is an opportunistic heuristic for error strings comparison:
+			 * - null means skip test;
+			 * - empty means exactly empty;
+			 * - other means starts with.
+			 * If this became insufficient, we could envision using specific
+			 * matchers for specific needs.
+			 */
+			System.out.println(Util.displayString(platformIndependantString, 2));
+			this.failureReason =
+				"Unexpected error running resulting class file for "
+					+ sourceFileName
+					+ ":\n"
+					+ "--[START]--\n"
+					+ errorString
+					+ "---[END]---\n";
+			return false;
+		}
 	}
-	String platformIndependantOutputString = Util.convertToIndependantLineDelimiter(outputString.trim());
-	if (expectedSuccessOutputString != null && !Util.convertToIndependantLineDelimiter(expectedSuccessOutputString).equals(platformIndependantOutputString)) {
-		System.out.println(Util.displayString(platformIndependantOutputString, 2));
-		this.failureReason =
-			"Unexpected output running resulting class file for "
-				+ sourceFileName
-				+ ":\n"
-				+ "--[START]--\n"
-				+ outputString
-				+ "---[END]---\n";
-		return false;
-	}
-	
 	return true;
 }
 
@@ -557,13 +574,17 @@ public void shutDown() {
  * a virtual machine.
  */
 public boolean verifyClassFiles(String sourceFilePath, String className, String expectedSuccessOutputString, String[] classpaths) {
-	return verifyClassFiles(sourceFilePath, className, expectedSuccessOutputString, classpaths, null, null);
+	return verifyClassFiles(sourceFilePath, className, expectedSuccessOutputString, "", classpaths, null, null);
 }
 /**
  * Verify that the class files created for the given test file can be loaded by
  * a virtual machine.
  */
 public boolean verifyClassFiles(String sourceFilePath, String className, String expectedSuccessOutputString, String[] classpaths, String[] programArguments, String[] vmArguments) {
+	return verifyClassFiles(sourceFilePath, className, expectedSuccessOutputString, "", classpaths, programArguments, vmArguments);
+}
+public boolean verifyClassFiles(String sourceFilePath, String className, String expectedOutputString, 
+		String expectedErrorStringStart, String[] classpaths, String[] programArguments, String[] vmArguments) {
 	this.outputBuffer = new StringBuffer();
 	this.errorBuffer = new StringBuffer();
 	if (this.reuseVM && programArguments == null) {
@@ -574,7 +595,7 @@ public boolean verifyClassFiles(String sourceFilePath, String className, String 
 	}
 	
 	this.failureReason = null;
-	return this.checkBuffers(this.errorBuffer.toString(), this.outputBuffer.toString(), sourceFilePath, expectedSuccessOutputString);
+	return this.checkBuffers(this.outputBuffer.toString(), this.errorBuffer.toString(), sourceFilePath, expectedOutputString, expectedErrorStringStart);
 }
 
 /**
