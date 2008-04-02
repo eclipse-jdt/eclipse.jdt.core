@@ -155,7 +155,7 @@ public MethodDeclaration addMissingAbstractMethodFor(MethodBinding methodBinding
 
 	//============BINDING UPDATE==========================
 	methodDeclaration.binding = new MethodBinding(
-			methodDeclaration.modifiers, //methodDeclaration
+			methodDeclaration.modifiers | ClassFileConstants.AccSynthetic, //methodDeclaration
 			methodBinding.selector,
 			methodBinding.returnType,
 			argumentsLength == 0 ? Binding.NO_PARAMETERS : argumentTypes, //arguments bindings
