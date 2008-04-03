@@ -102,7 +102,7 @@ private void addDefaultAbstractMethods() {
 							}
 						}
 						MethodBinding defaultAbstract = new MethodBinding(
-								method.modifiers | ExtraCompilerModifiers.AccDefaultAbstract,
+								method.modifiers | ExtraCompilerModifiers.AccDefaultAbstract | ClassFileConstants.AccSynthetic,
 								method.selector,
 								method.returnType,
 								method.parameters,
