@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2005 BEA Systems, Inc, IBM Corporation, and others
+ * Copyright (c) 2000, 2008 BEA Systems, Inc, IBM Corporation, and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -32,6 +32,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -47,6 +48,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public class TestUtil
 {
@@ -153,6 +155,19 @@ public class TestUtil
 		jarFile.deleteOnExit();
 		return jarFile;
 		
+	}
+	
+	/**
+	 * In automated tests, newly created resources are often locked by the
+	 * Java Indexer and cannot be deleted right away.  The methods in
+	 * org.eclipse.jdt.core.tests.util.Util work around this by catching
+	 * and retrying until success.  This is a convenience method to fill a
+	 * hole in the Util API.
+	 * @return true if the file was deleted; false if there was an error or timeout
+	 */
+	public static boolean deleteFile(IPath path) {
+		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+		return Util.delete(file);
 	}
 	
 	/**

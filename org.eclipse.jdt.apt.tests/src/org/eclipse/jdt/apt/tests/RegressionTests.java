@@ -121,9 +121,7 @@ public class RegressionTests extends APTTestBase {
         fullBuild( project.getFullPath() );
         expectingNoProblems();
         
-        // Now delete the project!
-        ResourcesPlugin.getWorkspace().delete(new IResource[] { project }, true, null);
-
+        Util.delete(project);
     }
     
     // doesn't work because of a jdt.core type system universe problem.

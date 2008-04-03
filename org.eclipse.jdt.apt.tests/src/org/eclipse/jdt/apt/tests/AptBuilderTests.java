@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2008 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -490,7 +490,7 @@ public class AptBuilderTests extends APTTestBase
 		expectingNoProblems();
 		
 		// now delete file A1 and make sure we still have no problems
-		env.removeFile( p1a1Path );
+		TestUtil.deleteFile(p1a1Path);
 		
 		// sleep to let the resource-change event fire
 		sleep( 1000 );
@@ -500,7 +500,7 @@ public class AptBuilderTests extends APTTestBase
 		expectingNoProblems();
 		
 		// now delete file A2 and make sure we have a problem on B
-		env.removeFile( p1a2Path );
+		TestUtil.deleteFile( p1a2Path );
 
 		// sleep to let the resource-change event fire
 		// TODO: Is there a more reliable, consistent, and efficient way to wait?
@@ -695,7 +695,7 @@ public class AptBuilderTests extends APTTestBase
 		IFolder srcFolder = mgr.getFolder();
 		assertEquals(true, srcFolder.exists());
 		// delete the gen source folder
-		srcFolder.delete(true, false, null);
+		Util.delete(srcFolder);
 		assertEquals(false, srcFolder.exists());
 		
 		// we would have re-created the folder on the next build
