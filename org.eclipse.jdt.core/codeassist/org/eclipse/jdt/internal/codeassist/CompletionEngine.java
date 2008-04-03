@@ -2197,7 +2197,7 @@ public final class CompletionEngine
 					typeDeclaration = compilationUnit.types[0];
 			} else {
 				compilationUnit = new CompilationUnitDeclaration(this.problemReporter, compilationResult, 0);
-				typeDeclaration = BinaryTypeConverter.buildTypeDeclaration(type, compilationUnit, compilationResult, null/*no need to remember type names*/);
+				typeDeclaration = new BinaryTypeConverter(this.parser.problemReporter(), compilationResult, null/*no need to remember type names*/).buildTypeDeclaration(type, compilationUnit);
 			}
 		
 			if(typeDeclaration != null) {	

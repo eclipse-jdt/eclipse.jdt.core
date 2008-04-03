@@ -1137,8 +1137,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				CompilationResult result = new CompilationResult(reader.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 				parsedUnit = new CompilationUnitDeclaration(this.parser.problemReporter(), result, 0);
 				HashSetOfCharArrayArray typeNames = new HashSetOfCharArrayArray();
-				typeDeclaration = BinaryTypeConverter.buildTypeDeclaration(context, parsedUnit, result, typeNames);
-				parsedUnit.imports = BinaryTypeConverter.buildImports(typeNames, reader);
+				
+				BinaryTypeConverter converter = new BinaryTypeConverter(this.parser.problemReporter(), result, typeNames);
+				typeDeclaration = converter.buildTypeDeclaration(context, parsedUnit);
+				parsedUnit.imports = converter.buildImports(reader);
 			}
 
 			if (typeDeclaration != null) {
