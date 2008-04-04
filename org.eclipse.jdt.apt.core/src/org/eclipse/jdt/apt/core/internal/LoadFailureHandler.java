@@ -17,7 +17,6 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
@@ -112,7 +111,7 @@ public class LoadFailureHandler {
 						},
 						new Object[] {
 							message,
-							IStatus.ERROR,
+							IMarker.SEVERITY_ERROR,
 							Messages.AnnotationProcessorFactoryLoader_factorypath,
 							AptPlugin.APT_MARKER_SOURCE_ID
 						}

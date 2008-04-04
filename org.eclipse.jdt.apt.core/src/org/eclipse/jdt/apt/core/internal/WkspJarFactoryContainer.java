@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 
 /**
  * Annotation processor factory container based on a jar file 
@@ -50,9 +49,6 @@ public class WkspJarFactoryContainer extends JarFactoryContainer {
 		}
 		else {
 			_jarFile = null;
-			IStatus s = AptPlugin.createWarningStatus(
-				null, "The factorypath entry " + _id + " does not refer to a jar file"); //$NON-NLS-1$ //$NON-NLS-2$
-			AptPlugin.log(s);
 		}
 	}
 

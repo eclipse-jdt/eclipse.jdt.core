@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,6 @@ package org.eclipse.jdt.apt.core.internal;
 import java.io.File;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.JavaCore;
 
 /**
@@ -37,9 +36,6 @@ public class VarJarFactoryContainer extends JarFactoryContainer {
 		}
 		else {
 			_jarFile = null;
-			IStatus s = AptPlugin.createWarningStatus(
-				null, "The factorypath entry " + _id + " could not be resolved"); //$NON-NLS-1$ //$NON-NLS-2$
-			AptPlugin.log(s);
 		}
 	}
 
