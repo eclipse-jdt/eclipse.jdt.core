@@ -285,6 +285,15 @@ protected void consumeConstructorHeader() {
 	super.consumeConstructorHeader();
 	pushOnElementStack(K_METHOD_DELIMITER);
 }
+protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
+	super.consumeEnhancedForStatementHeaderInit(hasModifiers);
+	
+	if (this.currentElement != null) {
+		LocalDeclaration localDecl = ((ForeachStatement)this.astStack[this.astPtr]).elementVariable;
+		this.lastCheckPoint = localDecl.sourceEnd + 1;
+		this.currentElement = this.currentElement.add(localDecl, 0);
+	}
+}
 protected void consumeEnterAnonymousClassBody() {
 	super.consumeEnterAnonymousClassBody();
 	popElement(K_SELECTOR);

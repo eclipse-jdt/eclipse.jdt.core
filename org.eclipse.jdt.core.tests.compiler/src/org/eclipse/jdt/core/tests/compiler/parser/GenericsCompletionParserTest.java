@@ -10943,4 +10943,47 @@ public void test0215_Method() {
 			expectedReplacedSource,
 			"full ast");
 }
+public void test0216_Diet() {
+
+	String str = 
+		"public class X {\n" +
+		"	Object field = new Object(){\n" +
+		"		void foo(List<String> ss) {\n" +
+		"			for(String s: ss){\n" +
+		"				s.z\n" +
+		"			}\n" +
+		"		}\n" +
+		"	};\n" +
+		"}\n"; 
+
+	String completeBehind = "s.z";
+	int cursorLocation = str.lastIndexOf("s.z") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:s.z>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "z";
+	String expectedReplacedSource = "s.z";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  Object field = new Object() {\n" + 
+		"    void foo(List<String> ss) {\n" + 
+		"      String s;\n" + 
+		"      {\n" + 
+		"        <CompleteOnName:s.z>;\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  };\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }
