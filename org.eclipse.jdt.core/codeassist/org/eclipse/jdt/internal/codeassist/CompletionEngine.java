@@ -9106,9 +9106,15 @@ public final class CompletionEngine
 					this.expectedTypesFilter = SUBTYPE | SUPERTYPE;
 				}
 			} else if(parent instanceof BinaryExpression) {
+				BinaryExpression binaryExpression = (BinaryExpression) parent;
 				switch(operator) {
 					case OperatorIds.EQUAL_EQUAL :
 						// expected type is not relevant in this case
+						TypeBinding binding = binaryExpression.left.resolvedType;
+						if (binding != null) {
+							addExpectedType(binding, scope);
+							this.expectedTypesFilter = SUBTYPE | SUPERTYPE;
+						}
 						break;
 					case OperatorIds.PLUS :
 						addExpectedType(TypeBinding.SHORT, scope);
@@ -9135,7 +9141,6 @@ public final class CompletionEngine
 						addExpectedType(TypeBinding.BYTE, scope);
 						break;
 				}
-				BinaryExpression binaryExpression = (BinaryExpression) parent;
 				if(operator == OperatorIds.LESS) {
 					if(binaryExpression.left instanceof SingleNameReference){
 						SingleNameReference name = (SingleNameReference) binaryExpression.left;
