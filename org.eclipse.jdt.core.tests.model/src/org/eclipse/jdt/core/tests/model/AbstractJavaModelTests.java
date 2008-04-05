@@ -192,6 +192,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 	}
 	protected DeltaListener deltaListener = new DeltaListener();
+	
+	protected ILogListener logListener;
 	 
 	
 	public AbstractJavaModelTests(String name) {
@@ -2615,6 +2617,37 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	public void stopDeltas() {
 		JavaCore.removeElementChangedListener(this.deltaListener);
 		clearDeltas();
+	}
+	protected void startLogListening() {
+		ILog log = JavaCore.getPlugin().getLog();
+		if (this.logListener != null) {
+			log.removeLogListener(this.logListener);
+		}
+		this.logListener = new ILogListener(){
+			private StringBuffer buffer = new StringBuffer();
+			public void logging(IStatus status, String plugin) {
+				buffer.append(status);
+				buffer.append('\n');
+			}
+			public String toString() {
+				return this.buffer.toString();
+			}
+		};
+		log.addLogListener(this.logListener);
+	}
+	protected void stopLogListening() {
+		if (this.logListener == null)
+			return;
+		ILog log = JavaCore.getPlugin().getLog();
+		log.removeLogListener(this.logListener);
+		this.logListener = null;
+	}
+	protected void assertLogEquals(String expected) {
+		String actual = this.logListener == null ? "<null>" : this.logListener.toString();
+		assertSourceEquals(
+			"Unexpected entry in log",
+			expected,
+			actual);
 	}
 	protected IPath[] toIPathArray(String[] paths) {
 		if (paths == null) return null;

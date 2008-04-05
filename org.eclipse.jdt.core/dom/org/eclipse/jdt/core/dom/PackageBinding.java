@@ -68,7 +68,7 @@ class PackageBinding implements IPackageBinding {
 					case IPackageFragmentRoot.K_SOURCE:
 						String unitName = "package-info.java"; //$NON-NLS-1$
 						ICompilationUnit unit = pkgs[i].getCompilationUnit(unitName);
-						if (unit != null) {
+						if (unit != null && unit.exists()) {
 							ASTParser p = ASTParser.newParser(AST.JLS3);
 							p.setSource(unit);
 							p.setResolveBindings(true);

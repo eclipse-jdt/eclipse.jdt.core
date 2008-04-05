@@ -9510,6 +9510,27 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(initializer, "0x0.0000000000001P-1022", contents);
 	}
 
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=223488
+	 */
+	public void test0285() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/* resolve */);
+		PackageDeclaration packageDeclaration = (PackageDeclaration) buildAST(
+			"/*start*/package p;/*end*/\n" + 
+			"public class X {\n" + 
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/);
+		IPackageBinding packageBinding = packageDeclaration.resolveBinding();
+		try {
+			startLogListening();
+			packageBinding.getAnnotations();
+			assertLogEquals("");
+		} finally {
+			stopLogListening();
+		}
+	}
+
 	/**
 	 * @bug 187430: Unresolved types surfacing through DOM AST for annotation default values
 	 * @test That the qualified name of the default value does not contain any '$' character
@@ -9543,4 +9564,5 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding iTypeBinding = (ITypeBinding) defaultValue;
 		assertEquals("Unexpected default value", "b187430.A.B", iTypeBinding.getQualifiedName());
 	}
+
 }
