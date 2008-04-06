@@ -1021,7 +1021,7 @@ public void testReturnType2() throws JavaModelException {
  * Ensures that asking for the source range of a IClassFile in a non-Java project throws a JavaModelException
  * (regression test for bug 132494 JavaModelException opening up class file in non java project)
  */
-public void testSourceRangeNonJavaProject() throws CoreException {
+public void testSourceRange1() throws CoreException { // was testSourceRangeNonJavaProject()
 	try {
 		createProject("Simple");
 		createFile("/Simple/X.class", "");
@@ -1042,11 +1042,26 @@ public void testSourceRangeNonJavaProject() throws CoreException {
  * Ensures that asking for the source range of a IClassFile not on the classpath of a Java project doesn't throw a JavaModelException
  * (regression test for bug 138507 exception in .class file editor for classes imported via plug-in import)
  */
-public void testSourceRangeNotOnClasspath() throws CoreException {
+public void testSourceRange2() throws CoreException { // was testSourceRangeNotOnClasspath()
 	try {
 		createJavaProject("P2", new String[] {"src"}, "bin");
 		createFile("/P2/bin/X.class", "");
 		IClassFile classX = getClassFile("/P2/bin/X.class");
+		assertNull("Unxepected source range", classX.getSourceRange());
+	} finally {
+		deleteProject("P2");
+	}
+}
+
+/*
+ * Ensures that asking for the source range of a IClassFile in proj==src case without the corresponding .java file doesn't throw a JavaModelException
+ * (regression test for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=221904 )
+ */
+public void testSourceRange3() throws CoreException {
+	try {
+		createJavaProject("P2", new String[] {""}, "");
+		createFile("/P2/X.class", "");
+		IClassFile classX = getClassFile("/P2/X.class");
 		assertNull("Unxepected source range", classX.getSourceRange());
 	} finally {
 		deleteProject("P2");
