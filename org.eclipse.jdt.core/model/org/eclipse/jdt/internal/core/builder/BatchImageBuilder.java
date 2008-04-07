@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.compiler.impl.CompilerStats;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -70,7 +71,9 @@ public void build() {
 	} catch (CoreException e) {
 		throw internalException(e);
 	} finally {
-		cleanUp();
+		if (JavaBuilder.SHOW_STATS)
+			printStats();
+		cleanUp();		
 	}
 }
 
@@ -242,6 +245,24 @@ protected IResource findOriginalResource(IPath partialPath) {
 		}
 	}
 	return null;
+}
+
+private void printStats() {
+	if (this.compiler == null) return;
+	CompilerStats compilerStats = this.compiler.stats;
+	long time = compilerStats.elapsedTime();
+	long lineCount = compilerStats.lineCount;
+	double speed = ((int) (lineCount * 10000.0 / time)) / 10.0;
+	System.out.println(">FULL BUILD STATS for: "+this.javaBuilder.javaProject.getElementName()); //$NON-NLS-1$
+	System.out.println(">   compiled " + lineCount + " lines in " + time + "ms:" + speed + "lines/s"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	System.out.print(">   parse: " + compilerStats.parseTime + " ms (" + ((int) (compilerStats.parseTime * 1000.0 / time)) / 10.0 + "%)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	System.out.print(", resolve: " + compilerStats.resolveTime + " ms (" + ((int) (compilerStats.resolveTime * 1000.0 / time)) / 10.0 + "%)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	System.out.print(", analyze: " + compilerStats.analyzeTime + " ms (" + ((int) (compilerStats.analyzeTime * 1000.0 / time)) / 10.0 + "%)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	System.out.println(", generate: " + compilerStats.generateTime + " ms (" + ((int) (compilerStats.generateTime * 1000.0 / time)) / 10.0 + "%)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	
+	long readTime = compilerStats.sourceInputTime + compilerStats.binaryInputTime;
+	System.out.print(">   i/o read: " + readTime + " ms (" + ((int) (readTime * 1000.0 / time)) / 10.0 + "%)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	System.out.println(", write: " + compilerStats.outputTime + " ms (" + ((int) (compilerStats.outputTime * 1000.0 / time)) / 10.0 + "%)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 }
 
 protected void processAnnotationResults(CompilationParticipantResult[] results) {

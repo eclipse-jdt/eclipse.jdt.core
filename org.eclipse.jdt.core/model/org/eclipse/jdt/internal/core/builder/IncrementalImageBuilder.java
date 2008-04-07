@@ -783,9 +783,13 @@ protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) t
 	storeTasksFor(sourceFile, tasks);
 }
 
-protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isTopLevelType, SourceFile compilationUnit) throws CoreException {
+/**
+ * @see org.eclipse.jdt.internal.core.builder.AbstractImageBuilder#writeClassFileContents(org.eclipse.jdt.internal.compiler.ClassFile, org.eclipse.core.resources.IFile, java.lang.String, boolean, org.eclipse.jdt.internal.core.builder.SourceFile)
+ */
+protected void writeClassFileContents(ClassFile classfile, IFile file, String qualifiedFileName, boolean isTopLevelType, SourceFile compilationUnit) throws CoreException {
 	// Before writing out the class file, compare it to the previous file
 	// If structural changes occurred then add dependent source files
+	byte[] bytes = classfile.getBytes();
 	if (file.exists()) {
 		if (writeClassFileCheck(file, qualifiedFileName, bytes) || compilationUnit.updateClassFile) { // see 46093
 			if (JavaBuilder.DEBUG)

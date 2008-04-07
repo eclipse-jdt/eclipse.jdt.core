@@ -196,6 +196,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String HIERARCHY_DEBUG = JavaCore.PLUGIN_ID + "/debug/hierarchy" ; //$NON-NLS-1$
 	private static final String POST_ACTION_DEBUG = JavaCore.PLUGIN_ID + "/debug/postaction" ; //$NON-NLS-1$
 	private static final String BUILDER_DEBUG = JavaCore.PLUGIN_ID + "/debug/builder" ; //$NON-NLS-1$
+	private static final String BUILDER_STATS_DEBUG = JavaCore.PLUGIN_ID + "/debug/builder/stats" ; //$NON-NLS-1$
 	private static final String COMPLETION_DEBUG = JavaCore.PLUGIN_ID + "/debug/completion" ; //$NON-NLS-1$
 	private static final String RESOLUTION_DEBUG = JavaCore.PLUGIN_ID + "/debug/resolution" ; //$NON-NLS-1$
 	private static final String SELECTION_DEBUG = JavaCore.PLUGIN_ID + "/debug/selection" ; //$NON-NLS-1$
@@ -1424,6 +1425,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			
 			option = Platform.getDebugOption(COMPILER_DEBUG);
 			if(option != null) Compiler.DEBUG = option.equalsIgnoreCase(TRUE) ;
+
+			option = Platform.getDebugOption(BUILDER_STATS_DEBUG);
+			if(option != null) JavaBuilder.SHOW_STATS = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(COMPLETION_DEBUG);
 			if(option != null) CompletionEngine.DEBUG = option.equalsIgnoreCase(TRUE) ;

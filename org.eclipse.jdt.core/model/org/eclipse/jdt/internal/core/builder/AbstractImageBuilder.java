@@ -792,6 +792,7 @@ protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) t
 }
 
 protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit, boolean isTopLevelType) throws CoreException {
+	long start = System.currentTimeMillis();
 	String fileName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
 	IPath filePath = new Path(fileName);
 	IContainer outputFolder = compilationUnit.sourceLocation.binaryFolder; 
@@ -802,27 +803,32 @@ protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit,
 	}
 
 	IFile file = container.getFile(filePath.addFileExtension(SuffixConstants.EXTENSION_class));
-	writeClassFileBytes(classFile.getBytes(), file, fileName, isTopLevelType, compilationUnit);
+	writeClassFileContents(classFile, file, fileName, isTopLevelType, compilationUnit);
 	if (classFile.isShared) {
 		this.compiler.lookupEnvironment.classFilePool.release(classFile);
 	}
 	// answer the name of the class file as in Y or Y$M
+	this.compiler.stats.outputTime += System.currentTimeMillis() - start;
 	return filePath.lastSegment().toCharArray();
 }
 
-protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isTopLevelType, SourceFile compilationUnit) throws CoreException {
+protected void writeClassFileContents(ClassFile classFile, IFile file, String qualifiedFileName, boolean isTopLevelType, SourceFile compilationUnit) throws CoreException {
+//	InputStream input = new SequenceInputStream(
+//			new ByteArrayInputStream(classFile.header, 0, classFile.headerOffset),
+//			new ByteArrayInputStream(classFile.contents, 0, classFile.contentsOffset));
+	InputStream input = new ByteArrayInputStream(classFile.getBytes());
 	if (file.exists()) {
 		// Deal with shared output folders... last one wins... no collision cases detected
 		if (JavaBuilder.DEBUG)
 			System.out.println("Writing changed class file " + file.getName());//$NON-NLS-1$
 		if (!file.isDerived())
 			file.setDerived(true);
-		file.setContents(new ByteArrayInputStream(bytes), true, false, null);
+		file.setContents(input, true, false, null);
 	} else {
 		// Default implementation just writes out the bytes for the new class file...
 		if (JavaBuilder.DEBUG)
 			System.out.println("Writing new class file " + file.getName());//$NON-NLS-1$
-		file.create(new ByteArrayInputStream(bytes), IResource.FORCE | IResource.DERIVED, null);
+		file.create(input, IResource.FORCE | IResource.DERIVED, null);
 	}
 }
 }
