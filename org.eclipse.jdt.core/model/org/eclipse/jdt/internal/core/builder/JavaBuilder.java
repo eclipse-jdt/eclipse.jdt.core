@@ -38,6 +38,7 @@ String[] extraResourceFolderFilters;
 public static final String SOURCE_ID = "JDT"; //$NON-NLS-1$
 
 public static boolean DEBUG = false;
+public static boolean SHOW_STATS = false;
 
 /**
  * A list of project names that have been built.
