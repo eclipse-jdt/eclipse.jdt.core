@@ -421,8 +421,7 @@ public void test0015() throws JavaModelException {
             result.context);
     
     assertResults(
-            "Z0015<java.lang.Object>.Y0015[TYPE_REF]{Y0015, test0015, Ltest0015.Z0015<Ljava.lang.Object;>.Y0015;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) +"}\n" +
-            "Z0015<java.lang.Object>.Y0015I[TYPE_REF]{Y0015I, test0015, Ltest0015.Z0015<Ljava.lang.Object;>.Y0015I;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_INTERFACE+ R_NON_RESTRICTED) +"}",
+            "Z0015<java.lang.Object>.Y0015[TYPE_REF]{Y0015, test0015, Ltest0015.Z0015<Ljava.lang.Object;>.Y0015;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0016() throws JavaModelException {
@@ -10893,6 +10892,401 @@ public void test0338() throws JavaModelException {
 
 	assertResults(
 			"",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215331
+public void test0339() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"import test2.ClassA;\n" +
+			"public class Test {\n" +
+			"	void foo() {\n" +
+			"		ClassA.Mem\n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test2/ClassA.java",
+			"package test2;\n" +
+			"public class ClassA<T> {\n" +
+			"	public class Member<U> {}\n" +
+			"	public static class MemberStatic<V> {}\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+	requestor.allowAllRequiredProposals();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ClassA.Mem";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ClassA.Member[TYPE_REF]{Member, test2, Ltest2.ClassA$Member;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_QUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"ClassA.MemberStatic<V>[TYPE_REF]{MemberStatic, test2, Ltest2.ClassA$MemberStatic<TV;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215331
+public void test0340() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"	void foo() {\n" +
+			"		ClassA.Mem\n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test2/ClassA.java",
+			"package test2;\n" +
+			"public class ClassA<T> {\n" +
+			"	public class Member<U> {}\n" +
+			"	public static class MemberStatic<V> {}\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+	requestor.allowAllRequiredProposals();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ClassA.Mem";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ClassA.Member[TYPE_REF]{Member, test2, Ltest2.ClassA$Member;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_QUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"   ClassA[TYPE_REF]{test2.ClassA, test2, Ltest2.ClassA;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_QUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"ClassA.MemberStatic<V>[TYPE_REF]{MemberStatic, test2, Ltest2.ClassA$MemberStatic<TV;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_QUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"   ClassA[TYPE_REF]{test2.ClassA, test2, Ltest2.ClassA;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215331
+public void test0341() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"import test2.ClassA;\n" +
+			"public class Test {\n" +
+			"	void foo() {\n" +
+			"		ClassA<Object>.Mem\n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test2/ClassA.java",
+			"package test2;\n" +
+			"public class ClassA<T> {\n" +
+			"	public class Member<U> {}\n" +
+			"	public static class MemberStatic<V> {}\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+	requestor.allowAllRequiredProposals();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ClassA<Object>.Mem";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ClassA<java.lang.Object>.Member<U>[TYPE_REF]{Member, test2, Ltest2.ClassA<Ljava.lang.Object;>.Member<TU;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215331
+public void test0342() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"	void foo() {\n" +
+			"		ClassA<Object>.Mem\n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test2/ClassA.java",
+			"package test2;\n" +
+			"public class ClassA<T> {\n" +
+			"	public class Member<U> {}\n" +
+			"	public static class MemberStatic<V> {}\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+	requestor.allowAllRequiredProposals();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ClassA<Object>.Mem";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ClassA<java.lang.Object>.Member<U>[TYPE_REF]{Member, test2, Ltest2.ClassA<Ljava.lang.Object;>.Member<TU;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED + R_NO_PROBLEMS) + "}\n" +
+			"   ClassA[TYPE_REF]{test2.ClassA, test2, Ltest2.ClassA;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED + R_NO_PROBLEMS) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215331
+public void test0343() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"import test2.ClassA;\n" +
+			"public class Test {\n" +
+			"	void foo() {\n" +
+			"		ClassA<ClassB>.Mem\n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test2/ClassA.java",
+			"package test2;\n" +
+			"public class ClassA<T> {\n" +
+			"	public class Member<U> {}\n" +
+			"	public static class MemberStatic<V> {}\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/test2/ClassB.java",
+			"package test2;\n" +
+			"public class ClassB {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+	requestor.allowAllRequiredProposals();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ClassA<ClassB>.Mem";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ClassA<test2.ClassB>.Member<U>[TYPE_REF]{Member, test2, Ltest2.ClassA<Ltest2.ClassB;>.Member<TU;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED + R_NO_PROBLEMS) + "}\n" +
+			"   ClassB[TYPE_REF]{test2.ClassB, test2, Ltest2.ClassB;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED + R_NO_PROBLEMS) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215331
+public void test0344() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"import test2.ClassA;\n" +
+			"public class Test {\n" +
+			"	ClassA.Mem\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test2/ClassA.java",
+			"package test2;\n" +
+			"public class ClassA<T> {\n" +
+			"	public class Member<U> {}\n" +
+			"	public static class MemberStatic<V> {}\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+	requestor.allowAllRequiredProposals();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ClassA.Mem";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ClassA.Member[TYPE_REF]{Member, test2, Ltest2.ClassA$Member;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ClassA.MemberStatic<V>[TYPE_REF]{MemberStatic, test2, Ltest2.ClassA$MemberStatic<TV;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215331
+public void test0345() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"	ClassA.Mem\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test2/ClassA.java",
+			"package test2;\n" +
+			"public class ClassA<T> {\n" +
+			"	public class Member<U> {}\n" +
+			"	public static class MemberStatic<V> {}\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+	requestor.allowAllRequiredProposals();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ClassA.Mem";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ClassA.Member[TYPE_REF]{Member, test2, Ltest2.ClassA$Member;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"   ClassA[TYPE_REF]{test2.ClassA, test2, Ltest2.ClassA;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ClassA.MemberStatic<V>[TYPE_REF]{MemberStatic, test2, Ltest2.ClassA$MemberStatic<TV;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"   ClassA[TYPE_REF]{test2.ClassA, test2, Ltest2.ClassA;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215331
+public void test0346() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"import test2.ClassA;\n" +
+			"public class Test {\n" +
+			"	ClassA<Object>.Mem\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test2/ClassA.java",
+			"package test2;\n" +
+			"public class ClassA<T> {\n" +
+			"	public class Member<U> {}\n" +
+			"	public static class MemberStatic<V> {}\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+	requestor.allowAllRequiredProposals();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ClassA<Object>.Mem";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ClassA<java.lang.Object>.Member<U>[TYPE_REF]{Member, test2, Ltest2.ClassA<Ljava.lang.Object;>.Member<TU;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215331
+public void test0347() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"		ClassA<Object>.Mem\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test2/ClassA.java",
+			"package test2;\n" +
+			"public class ClassA<T> {\n" +
+			"	public class Member<U> {}\n" +
+			"	public static class MemberStatic<V> {}\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+	requestor.allowAllRequiredProposals();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ClassA<Object>.Mem";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ClassA<java.lang.Object>.Member<U>[TYPE_REF]{Member, test2, Ltest2.ClassA<Ljava.lang.Object;>.Member<TU;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED + R_NO_PROBLEMS) + "}\n" +
+			"   ClassA[TYPE_REF]{test2.ClassA, test2, Ltest2.ClassA;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED + R_NO_PROBLEMS) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215331
+public void test0348() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"import test2.ClassA;\n" +
+			"public class Test {\n" +
+			"	ClassA<ClassB>.Mem\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test2/ClassA.java",
+			"package test2;\n" +
+			"public class ClassA<T> {\n" +
+			"	public class Member<U> {}\n" +
+			"	public static class MemberStatic<V> {}\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/test2/ClassB.java",
+			"package test2;\n" +
+			"public class ClassB {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+	requestor.allowAllRequiredProposals();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ClassA<ClassB>.Mem";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ClassA<test2.ClassB>.Member<U>[TYPE_REF]{Member, test2, Ltest2.ClassA<Ltest2.ClassB;>.Member<TU;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED + R_NO_PROBLEMS) + "}\n" +
+			"   ClassB[TYPE_REF]{test2.ClassB, test2, Ltest2.ClassB;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_NON_RESTRICTED + R_NO_PROBLEMS) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215331
+public void test0349() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"import test2.ClassA;\n" +
+			"public class Test<T> {\n" +
+			"	public class Member<U> {}\n" +
+			"	public static class MemberStatic<V> {}\n" +
+			"	void foo() {\n" +
+			"		Mem\n" +
+			"	}\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+	requestor.allowAllRequiredProposals();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Mem";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"Test.MemberStatic<V>[TYPE_REF]{MemberStatic, test, Ltest.Test$MemberStatic<TV;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"Test<T>.Member<U>[TYPE_REF]{Member, test, Ltest.Test<TT;>.Member<TU;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=215331
+public void test0350() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"import test2.ClassA;\n" +
+			"public class Test<T> {\n" +
+			"	public class Member<U> {}\n" +
+			"	public static class MemberStatic<V> {}\n" +
+			"	Mem\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+	requestor.allowAllRequiredProposals();
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Mem";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"Mem[POTENTIAL_METHOD_DECLARATION]{Mem, Ltest.Test<TT;>;, ()V, Mem, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Test.MemberStatic<V>[TYPE_REF]{MemberStatic, test, Ltest.Test$MemberStatic<TV;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"Test<T>.Member<U>[TYPE_REF]{Member, test, Ltest.Test<TT;>.Member<TU;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130

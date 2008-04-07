@@ -71,7 +71,7 @@ public void test0001() throws JavaModelException {
 	int end2 = start2 + "MissingType".length();
 	assertResults(
 			"bar[METHOD_REF]{bar(), Lmissing.MissingType<Ljava.lang.Object;>;, ()V, bar, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"   MissingType<T>[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType<TT;>;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
@@ -117,11 +117,11 @@ public void test0002() throws JavaModelException {
 	int end3 = start3 + "MissingType".length();
 	assertResults(
 			"bar[METHOD_REF]{bar(), Lmissing.MissingType<Lmissing.MissingType2;>;, ()V, bar, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start3+", "+end3+"], " + (relevance1) + "}\n" +
 			"   MissingType2[TYPE_REF]{missing.MissingType2, missing, Lmissing.MissingType2;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
-			"   MissingType<T>[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType<TT;>;, null, null, ["+start3+", "+end3+"], " + (relevance1) + "}\n" +
 			"bar[METHOD_REF]{bar(), Lmissing.MissingType<Lmissing.MissingType2;>;, (Lmissing.MissingType2;)V, bar, (t), ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"   MissingType2[TYPE_REF]{missing.MissingType2, missing, Lmissing.MissingType2;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
-			"   MissingType<T>[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType<TT;>;, null, null, ["+start3+", "+end3+"], " + (relevance1) + "}",
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start3+", "+end3+"], " + (relevance1) + "}\n" +
+			"   MissingType2[TYPE_REF]{missing.MissingType2, missing, Lmissing.MissingType2;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
@@ -213,9 +213,9 @@ public void test0004() throws JavaModelException {
 	int end2 = start2 + "MissingType".length();
 	assertResults(
 			"bar[METHOD_REF]{bar(), Lmissing.MissingType<Lmissing.MissingType2;>;, ()V, bar, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"   MissingType<T>[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType<TT;>;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
 			"bar[METHOD_REF]{bar(), Lmissing.MissingType<Lmissing.MissingType2;>;, (Lmissing.MissingType2;)V, bar, (t), ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"   MissingType<T>[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType<TT;>;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
@@ -280,21 +280,21 @@ public void test0005() throws JavaModelException {
 	int end4 = start4 + "MissingType".length();
 	assertResults(
 			"bar[METHOD_REF]{bar(), Lmissing.MissingType<Lmissing.MissingType1;Lmissing.MissingType2;>;, (Lmissing.MissingType1;Lmissing.MissingType2;)V, bar, (t, u), ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start4+", "+end4+"], " + (relevance1) + "}\n" +
 			"   MissingType1[TYPE_REF]{missing.MissingType1, missing, Lmissing.MissingType1;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
 			"   MissingType2[TYPE_REF]{missing.MissingType2, missing, Lmissing.MissingType2;, null, null, ["+start3+", "+end3+"], " + (relevance1) + "}\n" +
-			"   MissingType<T,U>[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType<TT;TU;>;, null, null, ["+start4+", "+end4+"], " + (relevance1) + "}\n" +
 			"bar[METHOD_REF]{bar(), Lmissing.MissingType<Lmissing.MissingType1;Lmissing2.MissingType2;>;, (Lmissing.MissingType1;Lmissing2.MissingType2;)V, bar, (t, u), ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start4+", "+end4+"], " + (relevance1) + "}\n" +
 			"   MissingType1[TYPE_REF]{missing.MissingType1, missing, Lmissing.MissingType1;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
 			"   MissingType2[TYPE_REF]{missing2.MissingType2, missing2, Lmissing2.MissingType2;, null, null, ["+start3+", "+end3+"], " + (relevance1) + "}\n" +
-			"   MissingType<T,U>[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType<TT;TU;>;, null, null, ["+start4+", "+end4+"], " + (relevance1) + "}\n" +
 			"bar[METHOD_REF]{bar(), Lmissing.MissingType<Lmissing2.MissingType1;Lmissing.MissingType2;>;, (Lmissing2.MissingType1;Lmissing.MissingType2;)V, bar, (t, u), ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start4+", "+end4+"], " + (relevance1) + "}\n" +
 			"   MissingType1[TYPE_REF]{missing2.MissingType1, missing2, Lmissing2.MissingType1;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
 			"   MissingType2[TYPE_REF]{missing.MissingType2, missing, Lmissing.MissingType2;, null, null, ["+start3+", "+end3+"], " + (relevance1) + "}\n" +
-			"   MissingType<T,U>[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType<TT;TU;>;, null, null, ["+start4+", "+end4+"], " + (relevance1) + "}\n" +
 			"bar[METHOD_REF]{bar(), Lmissing.MissingType<Lmissing2.MissingType1;Lmissing2.MissingType2;>;, (Lmissing2.MissingType1;Lmissing2.MissingType2;)V, bar, (t, u), ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start4+", "+end4+"], " + (relevance1) + "}\n" +
 			"   MissingType1[TYPE_REF]{missing2.MissingType1, missing2, Lmissing2.MissingType1;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
-			"   MissingType2[TYPE_REF]{missing2.MissingType2, missing2, Lmissing2.MissingType2;, null, null, ["+start3+", "+end3+"], " + (relevance1) + "}\n" +
-			"   MissingType<T,U>[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType<TT;TU;>;, null, null, ["+start4+", "+end4+"], " + (relevance1) + "}",
+			"   MissingType2[TYPE_REF]{missing2.MissingType2, missing2, Lmissing2.MissingType2;, null, null, ["+start3+", "+end3+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
@@ -483,7 +483,7 @@ public void test0010() throws JavaModelException {
 	int end2 = start2 + "MissingType".length();
 	assertResults(
 			"bar[METHOD_REF]{bar(), Lmissing.MissingType<Ljava.lang.Object;>.MissingMemberType<Ljava.lang.Object;>;, ()V, bar, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"   MissingType<T>[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType<TT;>;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
@@ -561,7 +561,7 @@ public void test0012() throws JavaModelException {
 	int end2 = start2 + "MissingType".length();
 	assertResults(
 			"bar[METHOD_REF]{bar(), Lmissing1.MissingType;, ()V, bar, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"   MissingType<T>[TYPE_REF]{missing1.MissingType, missing1, Lmissing1.MissingType<TT;>;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing1.MissingType, missing1, Lmissing1.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
 			"bar[METHOD_REF]{bar(), Lmissing2.MissingType;, ()V, bar, null, ["+start1+", "+end1+"], " + (relevance2) + "}\n" +
 			"   MissingType[TYPE_REF]{missing2.MissingType, missing2, Lmissing2.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance2) + "}",
 			requestor.getResults());
@@ -590,14 +590,14 @@ public void test0013() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NO_PROBLEMS + R_NON_RESTRICTED;
 	int start1 = str.lastIndexOf("Mem") + "".length();
 	int end1 = start1 + "Mem".length();
 	int start2 = str.indexOf("MissingType");
 	int end2 = start2 + "MissingType".length();
 	assertResults(
-			"MissingType.Member[TYPE_REF]{Member, missing, Lmissing.MissingType$Member;, null, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"   MissingType<T>[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType<TT;>;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			"MissingType<java.lang.Object>.Member[TYPE_REF]{Member, missing, Lmissing.MissingType<Ljava.lang.Object;>.Member;, null, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=223495
@@ -626,14 +626,14 @@ public void test0014() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NO_PROBLEMS + R_NON_RESTRICTED;
 	int start1 = str.lastIndexOf("Mem") + "".length();
 	int end1 = start1 + "Mem".length();
 	int start2 = str.indexOf("MissingType");
 	int end2 = start2 + "MissingType".length();
 	assertResults(
-			"MissingType.Member[TYPE_REF]{Member, missing, Lmissing.MissingType$Member;, null, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
-			"   MissingType<T>[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType<TT;>;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			"MissingType<java.lang.Object>.Member[TYPE_REF]{Member, missing, Lmissing.MissingType<Ljava.lang.Object;>.Member;, null, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 }

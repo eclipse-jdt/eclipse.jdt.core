@@ -320,34 +320,33 @@ public abstract class Engine implements ITypeRequestor {
 		}
 		return result;
 	}
-	public static char[] getSignature(Binding binding) {
+	
+	public static char[] getSignature(MethodBinding methodBinding) {
 		char[] result = null;
-		if ((binding.kind() & Binding.TYPE) != 0) {
-			TypeBinding typeBinding = (TypeBinding)binding;
-			result = typeBinding.genericTypeSignature();
-		} else if ((binding.kind() & Binding.METHOD) != 0) {
-			MethodBinding methodBinding = (MethodBinding)binding;
-			int oldMod = methodBinding.modifiers;
-			//TODO remove the next line when method from binary type will be able to generate generic siganute
-			methodBinding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
-			result = methodBinding.genericSignature();
-			if(result == null) {
-				result = methodBinding.signature();
-			}
-			methodBinding.modifiers = oldMod;
+		
+		int oldMod = methodBinding.modifiers;
+		//TODO remove the next line when method from binary type will be able to generate generic signature
+		methodBinding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+		result = methodBinding.genericSignature();
+		if(result == null) {
+			result = methodBinding.signature();
 		}
+		methodBinding.modifiers = oldMod;
+		
 		if (result != null) {
 			result = CharOperation.replaceOnCopy(result, '/', '.');
 		}
 		return result;
 	}
-
-	public static char[][] getSignatures(Binding[] bindings) {
-		int length = bindings == null ? 0 : bindings.length;
-		char[][] signatures = new char[length][];
-		for (int i = 0; i < length; i++) {
-			signatures[i] = getSignature(bindings[i]);
+	
+	public static char[] getSignature(TypeBinding typeBinding) {
+		char[] result = null;
+		
+		result = typeBinding.genericTypeSignature();
+		
+		if (result != null) {
+			result = CharOperation.replaceOnCopy(result, '/', '.');
 		}
-		return signatures;
+		return result;
 	}
 }
