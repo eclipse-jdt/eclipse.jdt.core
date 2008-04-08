@@ -21,14 +21,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import junit.framework.AssertionFailedError;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.search.SearchDocument;
@@ -57,6 +61,79 @@ import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
 	// javac comparison related types, fields and methods - see runJavac for
 	// details
+class JavacCompiler {
+	private String javacPathName;
+	public String version; // not intended to be modified
+	JavacCompiler(String rootDirectoryPath) throws IOException, InterruptedException {
+		this(rootDirectoryPath, null);
+	}
+	JavacCompiler(String rootDirectoryPath, String rawVersion) throws IOException, InterruptedException {
+		this.javacPathName = new File(rootDirectoryPath + File.separator 
+				+ "bin" + File.separator + JAVAC_NAME).getCanonicalPath();
+		if (rawVersion == null) {
+			Process fetchVersionProcess = null;
+			try {
+				fetchVersionProcess = Runtime.getRuntime().exec(this.javacPathName 
+						+ " -version", null, null);
+		        Logger versionLogger = new Logger(fetchVersionProcess.getErrorStream(), "");
+		        versionLogger.start();
+				fetchVersionProcess.waitFor();
+				versionLogger.join();  // make sure we get the whole output
+				rawVersion = versionLogger.buffer.toString();
+				int eol = rawVersion.indexOf('\n');
+				rawVersion = rawVersion.substring(0, eol);
+			} finally {
+				if (fetchVersionProcess != null) {
+					fetchVersionProcess.destroy();
+				}
+			}
+		}
+		if (rawVersion.indexOf("1.4") != -1 || 
+				this.javacPathName.indexOf("1.4") != -1 
+				/* in fact, SUN javac 1.4 does not support the -version option; 
+				 * this is a imperfect heuristic to catch the case */) {
+			this.version = JavaCore.VERSION_1_4;
+		} else if (rawVersion.indexOf("1.5") != -1) {
+			this.version = JavaCore.VERSION_1_5;				
+		} else if (rawVersion.indexOf("1.6") != -1) {
+			this.version = JavaCore.VERSION_1_6;				
+		} else if (rawVersion.indexOf("1.7") != -1) {
+			this.version = JavaCore.VERSION_1_7;				
+		} else {
+			throw new RuntimeException("unknown javac version: " + rawVersion);
+		}
+	}
+	boolean compile(String options, String[] sourceFileNames) throws IOException, InterruptedException {
+		Process compileProcess = null;
+		try {
+			StringBuffer cmdLine = new StringBuffer(this.javacPathName);
+			cmdLine.append(' ');
+			cmdLine.append(options);
+			for (int i = 0; i < sourceFileNames.length; i ++) {
+				cmdLine.append(' ');
+				cmdLine.append(sourceFileNames[i]);
+			}
+			compileProcess = Runtime.getRuntime().exec(cmdLine.toString());
+			Logger errorLogger = new Logger(compileProcess.getErrorStream(), "ERROR");            
+			int exitValue = compileProcess.waitFor(); // caveat: may never terminate under specific conditions
+			errorLogger.join(); // make sure we get the whole output
+			if (exitValue != 0) {
+				return false;
+			}
+			if (errorLogger.buffer.length() > 0) {
+				System.err.println("--- javac err: ---");
+				System.err.println(errorLogger.buffer.toString());
+				return false;
+			}
+		} finally {
+			if (compileProcess != null) {
+				compileProcess.destroy();
+			}
+		}
+		return true;
+		
+	}
+}
 	class Logger extends Thread { 
 		StringBuffer buffer;
 		InputStream inputStream;
@@ -103,6 +180,11 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	protected static String javacTestName;
 
 	protected static IPath jdkRootDirPath;
+	
+	// list of available javac compilers, as defined by the jdk.roots 
+	// variable, which should hold a File.pathSeparatorChar separated
+	// list of paths for to-be-tested JDK root directories
+	protected static List javacCompilers = null;
 
 	public static final String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
 	public static final String LIB_DIR = Util.getOutputDirectory() + File.separator + "lib";
@@ -980,6 +1062,52 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			Util.delete(outputTestDirectory);
 		}
 	}
+	protected boolean runJavac(String options, String[] testFileNames, String currentDirectoryPath) {
+		Process compileProcess = null;
+		try {
+			// Prepare command line
+			StringBuffer cmdLine = new StringBuffer(javacCommandLineHeader);
+			cmdLine.append(' ');
+			cmdLine.append(options);
+			// add source files
+			for (int i = 0; i < testFileNames.length; i ++) {
+				// *.java is not enough (p1/X.java, p2/Y.java)
+				cmdLine.append(' ');
+				cmdLine.append(testFileNames[i]);
+			}
+			// Launch process
+			File currentDirectory = new File(currentDirectoryPath);
+			compileProcess = Runtime.getRuntime().exec(
+				cmdLine.toString(), null, currentDirectory);
+
+			// Log errors
+			Logger errorLogger = new Logger(compileProcess.getErrorStream(), "ERROR");            
+		    errorLogger.start();
+		
+		    // Wait for end of process
+			int exitValue = compileProcess.waitFor();
+			errorLogger.join(); // make sure we get the whole output
+
+			// Check results
+			if (exitValue != 0) {
+				return false;
+			}
+			if (errorLogger.buffer.length() > 0) {
+				System.err.println("--- javac err: ---");
+				System.err.println(errorLogger.buffer.toString());
+				return false;
+			}
+		} 
+		catch (Throwable e) {
+			e.printStackTrace(System.err);
+		} 
+		finally {
+			if (compileProcess != null) {
+				compileProcess.destroy();
+			}
+		}
+		return true;
+	}
 	/**
 	 * Log contains all problems (warnings+errors)
 	 */
@@ -1424,6 +1552,16 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 					System.out.println("* Sun Javac compiler output archived into file:");
 					System.out.println("* " + javacFullLogFileName);
 					System.out.println("***************************************************************************");
+					javacCompilers = new ArrayList();
+					String jdkRoots = System.getProperty("jdk.roots");
+					if (jdkRoots == null) {
+						javacCompilers.add(new JavacCompiler(jdkRootDirPath.toString(), version));	
+					} else {
+						StringTokenizer tokenizer = new StringTokenizer(jdkRoots, File.pathSeparator);
+						while (tokenizer.hasMoreTokens()) {
+							javacCompilers.add(new JavacCompiler(tokenizer.nextToken()));
+						}
+					}
 				}
 				// per class initialization
 				CURRENT_CLASS_NAME = getClass().getName();

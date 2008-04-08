@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import junit.framework.Test;
 
@@ -9941,36 +9942,45 @@ public void test229_warn_options() {
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
-// .java/.class files precedence depending on sourcepath
-// different from javac: we select sourcepath over classpath, while javac
-// does the opposite
-public void test230_sourcepath_vs_classpath() {
-	runConformTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
+// .java/.class files precedence depending on sourcepath and other conditions
+// ecj always selects source files from the sourcepath over class files
+// javac selects the class file over the source file when the class file is
+// newer than the source file, unless option -Xprefer:source is used (available
+// since 1.6)
+public void test230_sourcepath_vs_classpath() throws IOException, InterruptedException {
+	runTest(
+		true /* shouldCompileOK*/,
+		new String[] { /* testFiles */
+			"src1/X.java",
+			"public class X {\n" +
+			"  public static final int CONST = 1;\n" + 
+			"}\n",
+			"src2/X.java",
+			"public class X {\n" +
+			"  public static final int CONST = 2;\n" + 
 			"}\n",
 		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
+		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\"" /* commandLine */
+		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
+		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #1/1]\n" + /* expectedOutOutputString */
 		"[reading    java/lang/Object.class]\n" + 
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #1/1]\n" + 
 		"[writing    X.class - #1]\n" + 
-		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
+		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #1/1]\n" + 
 		"[1 unit compiled]\n" + 
 		"[1 .class file generated]\n",
-		"",
-		true);
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		null /* progress */);
 	// ensure that class file is newer than source file (some file systems
 	// store the modification time at a second precision)
-	File sourceFile = new File(OUTPUT_DIR + File.separator + "X.java"),
-	  classFile = new File(OUTPUT_DIR + File.separator + "X.class");
+	File sourceFile = new File(OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java"),
+	  classFile = new File(OUTPUT_DIR + File.separator + "bin1" + File.separator + "X.class");
 	while (classFile.lastModified() <= sourceFile.lastModified()) {
 		runConformTest(
 			null,
-			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-			+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"\"" + OUTPUT_DIR +  File.separator + "src1" + File.separator + "X.java\""
+			+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
 			"",
 			"",
 			false);
@@ -9980,15 +9990,20 @@ public void test230_sourcepath_vs_classpath() {
 		new String[] {
 			"Y.java",
 			"public class Y {\n" +
-			"  X x;\n" + 
+			"  public static void main (String[] args) {\n" +
+			"    System.out.println(X.CONST);\n" +
+			"  }\n" + 
 			"}\n",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
-		+ " -classpath \"" + OUTPUT_DIR + "\""
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1" + "\""
 		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
 		"[reading    java/lang/Object.class]\n" + 
 		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[reading    java/lang/String.class]\n" + 
+		"[reading    java/lang/System.class]\n" + 
+		"[reading    java/io/PrintStream.class]\n" + 
 		"[reading    X.class]\n" + 
 		"[writing    Y.class - #1]\n" + 
 		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
@@ -9996,285 +10011,556 @@ public void test230_sourcepath_vs_classpath() {
 		"[1 .class file generated]\n",
 		"",
 		false);
-	// compile with sourcepath and classpath: X.java is preferred
+	// compile with sourcepath and classpath: src2/X.java is preferred
 	// this matches -Xprefer:source option of javac - except that
 	// javac then does it for classpath too; by default, javac would select
-	// X.class
+	// bin1/X.class (as shown below)
+	String sourceFilePath = "\"" + OUTPUT_DIR +  File.separator + "Y.java\"";
+	String commonOptions = 
+		" -classpath \"" + OUTPUT_DIR + File.separator + "bin1" + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2" + "\""
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin2" + "\"";
 	runConformTest(
 		null,
-		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
-		+ " -classpath \"" + OUTPUT_DIR + "\""
-		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + "\"",
+		sourceFilePath + commonOptions + " -verbose -proc:none",
 		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
 		"[reading    java/lang/Object.class]\n" + 
 		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
-		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #2/2]\n" + 
-		"[writing    Y.class - #1]\n" + 
-		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/2]\n" + 
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #2/2]\n" + 
-		"[writing    X.class - #2]\n" + 
-		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #2/2]\n" + 
-		"[2 units compiled]\n" + 
-		"[2 .class files generated]\n",
-		"",
-		false);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
-// .java/.class files precedence depending on sourcepath
-// different from javac: we select sourcepath over classpath, while javac
-// does the opposite
-// here, class file is newer than source file
-public void test231_sourcepath_vs_classpath() {
-	runConformTest(
-		new String[] {
-			"src1/X.java",
-			"public class X {\n" +
-			"}\n",
-			"src2/X.java",
-			"public class X {\n" +
-			"  Zork error;\n" +
-			"}\n",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "src1" + File.separator + "X.java\""
-		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1\"",
-		"",
-		"",
-		true);
-	// sourcepath preferred over classpath
-	runTest(
-		false /* shouldCompileOK */,
-		new String[] { /* testFiles */
-			"Y.java",
-			"public class Y {\n" +
-			"  X x;\n" +
-			"}\n",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
-		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1\""
-		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2\""
-		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"" /* expectedOutOutputString */,
-		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java (at line 2)\n" + 
-		"	Zork error;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"1 problem (1 error)" /* expectedErrOutputString */,
-		false /* shouldFlushOutputDirectory */,
-		null /* progress */);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
-// .java/.class files precedence depending on sourcepath
-// different from javac: we select sourcepath over classpath, while javac
-// does the opposite
-// here, class file is older than source file (but javac still select class 
-// file)
-public void test232_sourcepath_vs_classpath() {
-	runConformTest(
-		new String[] {
-			"src1/X.java",
-			"public class X {\n" +
-			"}\n",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "src1" + File.separator + "X.java\""
-		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1\"",
-		"",
-		"",
-		true);
-	// sourcepath preferred over classpath
-	runTest(
-		false /* shouldCompileOK */,
-		new String[] { /* testFiles */
-			"Y.java",
-			"public class Y {\n" +
-			"  X x;\n" +
-			"}\n",
-			"src2/X.java",
-			"public class X {\n" +
-			"  Zork error;\n" +
-			"}\n",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
-		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1\""
-		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2\""
-		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"" /* expectedOutOutputString */,
-		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java (at line 2)\n" + 
-		"	Zork error;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"1 problem (1 error)" /* expectedErrOutputString */,
-		false /* shouldFlushOutputDirectory */,
-		null /* progress */);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
-// different from javac: repeated -classpath concatenate entries, while javac 
-// only only keeps the last one (and swallows the others silently)
-// see also test#22 for repeated sourcepath: we emit an error while javac
-// keeps the last one
-public void test233_repeated_classpath() {
-	String expectedLog =
-		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
-		"[reading    java/lang/Object.class]\n" + 
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
-		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-		"[writing    Y.class - #1]\n" + 
-		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/2]\n" + 
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-		"[2 units compiled]\n" + 
-		"[1 .class file generated]\n";
-	runConformTest(
-		new String[] {
-			"src1/X.java",
-			"public class X {\n" +
-			"}\n",
-			"src2/X.java",
-			"public class X {\n" +
-			"  Zork error;\n" +
-			"}\n",
-			"Y.java",
-			"public class Y {\n" +
-			"  X x;\n" +
-			"}\n",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
-		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src1[-d none]\""
-		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src2\""
-		+ " -verbose -proc:none",
-		expectedLog,
-		"",
-		true);
-	runConformTest(
-		null,
-		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
-		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src1[-d none]\""
-		+ File.pathSeparator + "\"" + OUTPUT_DIR + File.separator + "src2\""
-		+ " -verbose -proc:none",
-		expectedLog,
-		"",
-		false);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
-// different from javac: javac sourcepath inhibits compile in classpath, while 
-// we do not do this
-public void test234_sourcepath_vs_classpath() {
-	// we find Z via sourcepath, javac wouldn't
-	runTest(
-		true /* shouldCompileOK */,
-		new String[] { /* testFiles */
-			"Y.java",
-			"public class Y {\n" +
-			"  X x;\n" +
-			"  Z z;\n" +
-			"}\n",
-			"src1/X.java",
-			"public class X {\n" +
-			"}\n",
-			"src2/Z.java",
-			"public class Z {\n" +
-			"}\n",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
-		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src2\""
-		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src1\""
-		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"" /* expectedOutOutputString */,
-		"" /* expectedErrOutputString */,
-		true /* shouldFlushOutputDirectory */,
-		null /* progress */);
-	// using only classpath, both ecj and javac find X and Z
-	runTest(
-		true /* shouldCompileOK */,
-		null /* testFiles */,
-		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
-		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src2\""
-		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src1\""
-		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"" /* expectedOutOutputString */,
-		"" /* expectedErrOutputString */,
-		false /* shouldFlushOutputDirectory */,
-		null /* progress */);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
-// different from javac: with javac, newer class file down the classpath wins 
-// over source file upstream, while we select the first source or binary found
-// in classpath order
-public void test235_classpath() {
-	runTest(
-		true /* shouldCompileOK */,
-		new String[] { /* testFiles */
-			"Y.java",
-			"public class Y {\n" +
-			"  X x;\n" +
-			"}\n",
-			"src1/X.java",
-			"public class X {\n" +
-			"}\n",
-			"src2/X.java",
-			"public class X {\n" +
-			"  Zork z;\n" +
-			"}\n",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
-		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src1\"[-d \"" + OUTPUT_DIR + File.separator + "bin1\"]"
-		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"" /* expectedOutOutputString */,
-		"" /* expectedErrOutputString */,
-		true /* shouldFlushOutputDirectory */,
-		null /* progress */);
-	// X.class found before X.java in classpath order entry
-	runTest(
-		true /* shouldCompileOK */,
-		null,
-		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
-		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1\""
-		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src2\""
-		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
-		"[reading    java/lang/Object.class]\n" + 
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
-		"[reading    X.class]\n" + 
-		"[writing    Y.class - #1]\n" + 
-		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
-		"[1 unit compiled]\n" + 
-		"[1 .class file generated]\n" /* expectedOutOutputString */,
-		"" /* expectedErrOutputString */,
-		false /* shouldFlushOutputDirectory */,
-		null /* progress */);
-	// X.java found before X.class in classpath order entry; javac would select
-	// X.class since it is more recent (except if using -Xprefer:source)
-	runTest(
-		false /* shouldCompileOK */,
-		null,
-		"\"" + OUTPUT_DIR +  File.separator + "Y.java\"" /* commandLine */
-		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src2\""
-		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1\""
-		+ " -verbose -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
-		"[reading    java/lang/Object.class]\n" + 
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+		"[reading    java/lang/String.class]\n" + 
+		"[reading    java/lang/System.class]\n" + 
+		"[reading    java/io/PrintStream.class]\n" + 
 		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" + 
 		"[writing    Y.class - #1]\n" + 
 		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/2]\n" + 
 		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" + 
+		"[writing    X.class - #2]\n" + 
 		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" + 
 		"[2 units compiled]\n" + 
-		"[1 .class file generated]\n" /* expectedOutOutputString */,
+		"[2 .class files generated]\n",
+		"",
+		false);
+	if (RUN_JAVAC) {
+		// run ecj result
+		this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin2"});
+		assertTrue(this.verifier.getExecutionOutput().startsWith("2")); // skip trailing newline
+		// 2 means we selected src2
+		// recompile and run result using various levels of javac
+		Iterator javacCompilersIterator = javacCompilers.iterator();
+		String specialOptions = commonOptions + " -Xprefer:source ";
+		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		while (javacCompilersIterator.hasNext()) {
+			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			assertTrue(javacCompiler.compile(
+					commonOptions /* options */, 
+					sourceFileNames /* source file names */));
+			this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin2"});
+			assertEquals('1', this.verifier.getExecutionOutput().charAt(0)); // skip trailing newline
+			// 1 means javac selected bin1 by default
+			if (javacCompiler.version.compareTo(JavaCore.VERSION_1_6) >= 0) {
+				assertTrue(javacCompiler.compile(
+						specialOptions /* options */, 
+						sourceFileNames /* source file names */));
+				this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin2"});
+				assertEquals('2', this.verifier.getExecutionOutput().charAt(0)); // skip trailing newline
+				// 2 means javac selected src2
+			}
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// .java/.class files precedence depending on sourcepath
+// ecj always selects sourcepath over classpath
+// javac takes the source file if it is more recent than the class file
+public void test231_sourcepath_vs_classpath() throws IOException, InterruptedException {
+	// compile into bin1
+	runConformTest(
+		new String[] {
+			"src1/X.java",
+			"public class X {\n" +
+			"  public static final int CONST = 1;\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
+		"",
+		"",
+		true);
+	// ensure that source file is newer than class file (some file systems
+	// store the modification time at a second precision)
+	File sourceFile = new File(OUTPUT_DIR + File.separator + "src2" + File.separator + "X.java"),
+	  classFile = new File(OUTPUT_DIR + File.separator + "bin1" + File.separator + "X.class");
+	new File(OUTPUT_DIR + File.separator + "src2").mkdirs();
+	do {
+		Util.writeToFile(
+			"public class X {\n" +
+			"}\n", 
+			sourceFile.getPath());
+	} while (classFile.lastModified() >= sourceFile.lastModified());
+	// compile with sourcepath and classpath: src2/X.java is preferred
+	String sourceFilePath = "\"" + OUTPUT_DIR +  File.separator + "Y.java\"";
+	String commonOptions = 
+		" -classpath \"" + OUTPUT_DIR + File.separator + "bin1" + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2" + "\""
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin2" + "\"";
+	// sourcepath preferred over classpath
+	runTest(
+		false /* shouldCompileOK */,
+		new String[] { /* testFiles */
+			"Y.java",
+			"public class Y {\n" +
+			"  public static void main (String[] args) {\n" +
+			"    System.out.println(X.CONST);\n" +
+			"  }\n" + 
+			"}\n",
+		},
+		sourceFilePath + commonOptions + " -proc:none " /* commandLine */,
+		"" /* expectedOutOutputString */,
+		"----------\n" +  /* expectedErrOutputString */
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" + 
+		"	System.out.println(X.CONST);\n" + 
+		"	                   ^^^^^^^\n" + 
+		"X.CONST cannot be resolved\n" + 
 		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java (at line 2)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"1 problem (1 error)" /* expectedErrOutputString */,
+		"1 problem (1 error)",
 		false /* shouldFlushOutputDirectory */,
 		null /* progress */);
+	if (RUN_JAVAC) {
+		Iterator javacCompilersIterator = javacCompilers.iterator();
+		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		while (javacCompilersIterator.hasNext()) {
+			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			assertFalse(javacCompiler.compile(
+					commonOptions /* options */, 
+					sourceFileNames /* source file names */));
+			// compile fails as well
+		}
+		assertFalse(runJavac(commonOptions, new String[] {sourceFilePath}, OUTPUT_DIR));
+	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// ecj different from javac: repeated -classpath concatenates entries, while javac 
+// only keeps the last one (and swallows the others silently)
+public void test232_repeated_classpath() throws IOException, InterruptedException {
+	String commonOptions = " -d \"" + OUTPUT_DIR + File.separator + "bin" 
+		+ "\" -classpath \"" + OUTPUT_DIR + File.separator + "src1";
+	String combinedClasspathOptions = commonOptions + File.pathSeparator
+		+ OUTPUT_DIR + File.separator + "src2\" ";
+	String splitClasspathOptions = commonOptions
+		+ "\" -classpath \"" + OUTPUT_DIR + File.separator + "src2\" ";
+	String sourceFilePath = "\"" + OUTPUT_DIR + File.separator + "src3" + File.separator + "Z.java\"";
+	// ecj considers repeated classpath entries as if they were concatenated
+	// into one
+	runTest(
+		true /* shouldCompileOK*/,
+		new String[] { /* testFiles */
+			"src1/X.java",
+			"public class X {\n" +
+			"}\n",
+			"src2/Y.java",
+			"public class Y {\n" +
+			"}\n",
+			"src3/Z.java",
+			"public class Z {\n" +
+			"  X x;\n" +
+			"  Y y;\n" +
+			"}\n",
+		},
+		sourceFilePath + " -proc:none " + combinedClasspathOptions /* commandLine */,
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		null /* progress */);
+	runTest(
+		true /* shouldCompileOK*/,
+		null /* testFiles */,
+		sourceFilePath + " -proc:none " + splitClasspathOptions /* commandLine */,
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		false /* shouldFlushOutputDirectory */,
+		null /* progress */);
+	if (RUN_JAVAC) {
+		// javac skips all but the last classpath entry (which results into an
+		// error in the split case here)
+		Iterator javacCompilersIterator = javacCompilers.iterator();
+		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		while (javacCompilersIterator.hasNext()) {
+			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			assertTrue(javacCompiler.compile(
+					combinedClasspathOptions /* options */, 
+					sourceFileNames /* source file names */));
+			assertFalse(javacCompiler.compile(
+					splitClasspathOptions /* options */, 
+					sourceFileNames /* source file names */));
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// ecj different from javac: repeated -sourcepath yields an error, while javac 
+// only keeps the last one (and swallows the others silently)
+public void test233_repeated_sourcepath() throws IOException, InterruptedException {
+	String commonOptions = " -d \"" + OUTPUT_DIR + "\"" 
+		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src1\""
+		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2\"";
+	String sourceFilePathZ = "\"" + OUTPUT_DIR + File.separator + "src3" + File.separator + "Z.java\"";
+	String sourceFilePathW = "\"" + OUTPUT_DIR + File.separator + "src3" + File.separator + "W.java\"";
+	runTest(
+		false /* shouldCompileOK */,
+		new String[] { /* testFiles */
+			"src1/X.java",
+			"public class X {\n" +
+			"}\n",
+			"src2/Y.java",
+			"public class Y {\n" +
+			"}\n",
+			"src3/Z.java",
+			"public class Z {\n" +
+			"  Y y;\n" +
+			"}\n",
+			"src3/W.java",
+			"public class W {\n" +
+			"  X x;\n" +
+			"  Y y;\n" +
+			"}\n",
+		},
+		sourceFilePathZ + " -proc:none " + commonOptions /* commandLine */,
+		"" /* expectedOutOutputString */,
+		"duplicate sourcepath specification: -sourcepath ---OUTPUT_DIR_PLACEHOLDER---/src2\n" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		null /* progress */);
+	if (RUN_JAVAC) {
+		Iterator javacCompilersIterator = javacCompilers.iterator();
+		String sourceFileNamesZ[] = new String[] {sourceFilePathZ}; 
+		String sourceFileNamesW[] = new String[] {sourceFilePathW}; 
+		while (javacCompilersIterator.hasNext()) {
+			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			// succeeds because it picks src2 up
+			assertTrue(javacCompiler.compile(
+					commonOptions /* options */, 
+					sourceFileNamesZ /* source file names */));
+			// fails because it misses src1
+			assertFalse(javacCompiler.compile(
+					commonOptions /* options */, 
+					sourceFileNamesW /* source file names */));
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// different from javac: javac sourcepath inhibits compile in classpath, while 
+// ecj goes on finding source files there
+public void test234_sourcepath_vs_classpath() throws IOException, InterruptedException {
+	String commonOptions = " -d \"" + OUTPUT_DIR + File.separator + "bin\"" 
+		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src1\""
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "src2\" ";
+	String sourceFilePath = "\"" + OUTPUT_DIR + File.separator + "src3" + File.separator + "Z.java\"";
+	// ecj compiles src1 and src2 source files as needed, regardless of their
+	// being on the sourcepath or the classpath
+	runTest(
+		true /* shouldCompileOK*/,
+		new String[] { /* testFiles */
+			"src1/X.java",
+			"public class X {\n" +
+			"}\n",
+			"src2/Y.java",
+			"public class Y {\n" +
+			"}\n",
+			"src3/Z.java",
+			"public class Z {\n" +
+			"  X x;\n" +
+			"  Y y;\n" +
+			"}\n",
+		},
+		sourceFilePath + " -proc:none " + commonOptions /* commandLine */,
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		null /* progress */);
+	if (RUN_JAVAC) {
+		// in contrast with test#232 when src1 is on the classpath, javac fails
+		// to find src1/X.java; this is because -sourcepath inhibits source files
+		// search in classpath directories
+		Iterator javacCompilersIterator = javacCompilers.iterator();
+		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		while (javacCompilersIterator.hasNext()) {
+			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			assertFalse(javacCompiler.compile(
+					commonOptions /* options */, 
+					sourceFileNames /* source file names */));
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// different from javac: with javac, newer class file down the classpath wins 
+// over source file upstream, while ecj selects the first source or binary found
+// in classpath order (non sourcepath involved here)
+public void test235_classpath() throws IOException, InterruptedException {
+	runTest(
+		true /* shouldCompileOK*/,
+		new String[] { /* testFiles */
+			"src1/X.java",
+			"public class X {\n" +
+			"  public static final int CONST = 1;\n" + 
+			"}\n",
+			"src2/X.java",
+			"public class X {\n" +
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\"" /* commandLine */
+		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		null /* progress */);
+	// ensure that class file is newer than source file (some file systems
+	// store the modification time at a second precision)
+	File sourceFile = new File(OUTPUT_DIR + File.separator + "src2" + File.separator + "X.java"),
+	  classFile = new File(OUTPUT_DIR + File.separator + "bin1" + File.separator + "X.class");
+	while (classFile.lastModified() <= sourceFile.lastModified()) {
+		runTest(
+			true /* shouldCompileOK*/,
+			null /* testFiles */,
+			"\"" + OUTPUT_DIR +  File.separator + "src1" + File.separator + "X.java\"" /* commandLine */
+			+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
+			"" /* expectedOutOutputString */,
+			"" /* expectedErrOutputString */,
+			false /* shouldFlushOutputDirectory */,
+			null /* progress */);
+	}
+	// compile with (buggy) src2 before (correct) bin1 in the classpath
+	String sourceFilePath = 
+		"\"" + OUTPUT_DIR + File.separator + "Y.java\"";
+	String commonOptions =
+		" -classpath \"" + OUTPUT_DIR + File.separator + "src2"
+		+ File.pathSeparator + OUTPUT_DIR + File.separator + "bin1\""
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin2" + "\"";
+	runTest(
+		false /* shouldCompileOK*/,
+		new String[] { /* testFiles */
+			"Y.java",
+			"public class Y {\n" +
+			"  public static void main (String[] args) {\n" +
+			"    System.out.println(X.CONST);\n" +
+			"  }\n" + 
+			"}\n",
+		},
+		sourceFilePath /* commandLine */
+		+ " -proc:none " + commonOptions,
+		"" /* expectedOutOutputString */,
+		"----------\n" + /* expectedErrOutputString */
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" + 
+		"	System.out.println(X.CONST);\n" + 
+		"	                   ^^^^^^^\n" + 
+		"X.CONST cannot be resolved\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		false /* shouldFlushOutputDirectory */,
+		null /* progress */);
+	// javac passes, using the most recent file amongst source and class files
+	// present on the classpath
+	if (RUN_JAVAC) {
+		Iterator javacCompilersIterator = javacCompilers.iterator();
+		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		while (javacCompilersIterator.hasNext()) {
+			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			assertTrue(javacCompiler.compile(
+					commonOptions /* options */, 
+					sourceFileNames /* source file names */));
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// when class files are ready in all classpath entries, ecj and javac pick
+// the first available class file up, regardless of which is newer  (no sourcepath here)
+public void test236_classpath() throws IOException, InterruptedException {
+	runTest(
+		true /* shouldCompileOK*/,
+		new String[] { /* testFiles */
+			"src1/X.java",
+			"public class X {\n" +
+			"  public static final int CONST = 1;\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\"" /* commandLine */
+		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		null /* progress */);
+	File bin1File = new File(OUTPUT_DIR + File.separator + "bin1" + File.separator + "X.class"),
+	  bin2File = new File(OUTPUT_DIR + File.separator + "bin2" + File.separator + "X.class");
+	do {
+		runTest(
+			true /* shouldCompileOK*/,
+			new String[] { /* testFiles */
+				"src2/X.java",
+				"public class X {\n" +
+				"  public static final int CONST = 2;\n" + 
+				"}\n",
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src2" + File.separator + "X.java\"" /* commandLine */
+			+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin2" + "\"",
+			"" /* expectedOutOutputString */,
+			"" /* expectedErrOutputString */,
+			false /* shouldFlushOutputDirectory */,
+			null /* progress */);
+	} while (bin2File.lastModified() <= bin1File.lastModified());
+	String sourceFilePath = "\"" + OUTPUT_DIR +  File.separator + "Y.java\"";
+	String commonOptions = 
+		" -classpath \"" + OUTPUT_DIR + File.separator + "bin1" + File.pathSeparator
+		+ OUTPUT_DIR + File.separator + "bin2" + "\""
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin" + "\"";
+	runTest(
+		true /* shouldCompileOK*/,
+		new String[] { /* testFiles */
+			"Y.java",
+			"public class Y {\n" +
+			"  public static void main (String[] args) {\n" +
+			"    System.out.println(X.CONST);\n" +
+			"  }\n" + 
+			"}\n",
+		},
+		sourceFilePath + commonOptions	+ " -proc:none " /* commandLine */,
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		false /* shouldFlushOutputDirectory */,
+		null /* progress */);
+	this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin"});
+	assertTrue(this.verifier.getExecutionOutput().startsWith("1")); // skip trailing newline
+	if (RUN_JAVAC) {
+		Iterator javacCompilersIterator = javacCompilers.iterator();
+		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		while (javacCompilersIterator.hasNext()) {
+			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			assertTrue(javacCompiler.compile(
+					commonOptions /* options */, 
+					sourceFileNames /* source file names */));
+			this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin"});
+			assertEquals('1', this.verifier.getExecutionOutput().charAt(0)); // skip trailing newline
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// when a source file is more recent than a class file in a former 
+// classpath entry, ecj picks the class file up, while javac choses the
+// source file (no sourcepath here)
+public void test237_classpath() throws IOException, InterruptedException {
+	runTest(
+		true /* shouldCompileOK*/,
+		new String[] { /* testFiles */
+			"src1/X.java",
+			"public class X {\n" +
+			"  public static final int CONST = 1;\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\"" /* commandLine */
+		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		null /* progress */);
+	File sourceFile = new File(OUTPUT_DIR + File.separator + "src2" + File.separator + "X.java"),
+	  classFile = new File(OUTPUT_DIR + File.separator + "bin1" + File.separator + "X.class");
+	new File(OUTPUT_DIR + File.separator + "src2").mkdirs();
+	do {
+		Util.writeToFile(
+			"public class X {\n" +
+			"  public static final int CONST = 2;\n" + 
+			"}\n",
+			sourceFile.getPath());
+	} while (classFile.lastModified() >= sourceFile.lastModified());	
+	String sourceFilePath = "\"" + OUTPUT_DIR +  File.separator + "Y.java\"";
+	String commonOptions = 
+		" -classpath \"" + OUTPUT_DIR + File.separator + "bin1" + File.pathSeparator
+		+ OUTPUT_DIR + File.separator + "src2" + "\""
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin" + "\"";
+	runTest(
+		true /* shouldCompileOK*/,
+		new String[] { /* testFiles */
+			"Y.java",
+			"public class Y {\n" +
+			"  public static void main (String[] args) {\n" +
+			"    System.out.println(X.CONST);\n" +
+			"  }\n" + 
+			"}\n",
+		},
+		sourceFilePath + commonOptions	+ " -proc:none " /* commandLine */,
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		false /* shouldFlushOutputDirectory */,
+		null /* progress */);
+	this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin"});
+	assertTrue(this.verifier.getExecutionOutput().startsWith("1")); // skip trailing newline
+	if (RUN_JAVAC) {
+		Iterator javacCompilersIterator = javacCompilers.iterator();
+		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		while (javacCompilersIterator.hasNext()) {
+			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			assertTrue(javacCompiler.compile(
+					commonOptions /* options */, 
+					sourceFileNames /* source file names */));
+			this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin"});
+			assertEquals('2', this.verifier.getExecutionOutput().charAt(0)); // skip trailing newline
+			// 2 means javac selected src2 (because the source file was more recent than bin1/X.class)
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// when a source file is more recent than another source file in a former 
+// classpath entry, ecj and javac pick the latter file up (in other words, if
+// only source files are involved, the classpath entries order prevails - no sourcepath here)
+public void test238_classpath() throws IOException, InterruptedException {
+	new File(OUTPUT_DIR + File.separator + "src1").mkdirs();
+	File sourceFile1 = new File(OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java");
+	File sourceFile2 = new File(OUTPUT_DIR + File.separator + "src2" + File.separator + "X.java");
+	Util.writeToFile(
+		"public class X {\n" +
+		"  public static final int CONST = 1;\n" + 
+		"}\n",
+		sourceFile1.getPath());
+	new File(OUTPUT_DIR + File.separator + "src2").mkdirs();
+	do {
+		Util.writeToFile(
+			"public class X {\n" +
+			"  public static final int CONST = 2;\n" + 
+			"}\n",
+			sourceFile2.getPath());
+	} while (sourceFile1.lastModified() >= sourceFile2.lastModified());	
+	String sourceFilePath = "\"" + OUTPUT_DIR +  File.separator + "Y.java\"";
+	String commonOptions = 
+		" -classpath \"" + OUTPUT_DIR + File.separator + "src1" + File.pathSeparator
+		+ OUTPUT_DIR + File.separator + "src2" + "\""
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin" + "\"";
+	runTest(
+		true /* shouldCompileOK*/,
+		new String[] { /* testFiles */
+			"Y.java",
+			"public class Y {\n" +
+			"  public static void main (String[] args) {\n" +
+			"    System.out.println(X.CONST);\n" +
+			"  }\n" + 
+			"}\n",
+		},
+		sourceFilePath + commonOptions	+ " -proc:none " /* commandLine */,
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		false /* shouldFlushOutputDirectory */,
+		null /* progress */);
+	this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin"});
+	assertTrue(this.verifier.getExecutionOutput().startsWith("1")); // skip trailing newline
+	if (RUN_JAVAC) {
+		Iterator javacCompilersIterator = javacCompilers.iterator();
+		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		while (javacCompilersIterator.hasNext()) {
+			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
+			assertTrue(javacCompiler.compile(
+					commonOptions /* options */, 
+					sourceFileNames /* source file names */));
+			this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin"});
+			assertEquals('1', this.verifier.getExecutionOutput().charAt(0)); // skip trailing newline
+			// 1 means javac selected src1 (because src1/X.java comes ahead of src2/X.java on the classpath)
+		}
+	}
+}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=217233
 // compiler progress test (1 unit)
 public void test252_progress() {
