@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 IBM Corporation and others.
+ * Copyright (c) 2005, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -110,11 +110,11 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 		}
 		ElementValuePair[] pairs = _binding.getElementValuePairs();
 		Map<ExecutableElement, AnnotationValue> valueMap =
-			new HashMap<ExecutableElement, AnnotationValue>(pairs.length);
+			new LinkedHashMap<ExecutableElement, AnnotationValue>(pairs.length);
 		for (ElementValuePair pair : pairs) {
 			MethodBinding method = pair.getMethodBinding();
 			if (method == null) {
-				// ideally we should be able to create a fake ExecuableElementImpl
+				// ideally we should be able to create a fake ExecutableElementImpl
 				continue;
 			}
 			ExecutableElement e = new ExecutableElementImpl(_env, method);
@@ -136,7 +136,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 		ElementValuePair[] pairs = _binding.getElementValuePairs();
 		ReferenceBinding annoType = _binding.getAnnotationType();
 		Map<ExecutableElement, AnnotationValue> valueMap =
-			new HashMap<ExecutableElement, AnnotationValue>();
+			new LinkedHashMap<ExecutableElement, AnnotationValue>();
 		for (MethodBinding method : annoType.methods()) {
 			// if binding is in ElementValuePair list, then get value from there
 			boolean foundExplicitValue = false;

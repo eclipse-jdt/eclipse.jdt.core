@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc.
+ * Copyright (c) 2007, 2008 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,8 +13,11 @@ import targets.model.pa.AnnoZ;
 public class D extends AB {
 	public enum DEnum { DEnum1, DEnum2, DEnum3 }
 	
-	@AnnoZ(annoZString = "annoZOnDMethod", annoZint = 31)
+	@AnnoZ(annoZint = 31, annoZString = "annoZOnDMethod")
 	public void methodDvoid(DEnum dEnum1) {}
+	
+	@AnnoZ(annoZString = "annoZOnDMethod2", annoZint = 12)
+	public void methodDvoid2() {}
 }
 
 // Should inherit AnnoZ

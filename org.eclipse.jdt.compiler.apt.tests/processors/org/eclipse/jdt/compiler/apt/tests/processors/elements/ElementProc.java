@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2008 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -71,6 +71,7 @@ public class ElementProc extends BaseProcessor {
 
 	// Initialized in examineDMethods()
 	private ExecutableElement _methodDvoid;
+	private ExecutableElement _methodDvoid2;
 	private TypeElement _elementDEnum;
 	
 	// Always return false from this processor, because it supports "*".
@@ -499,10 +500,14 @@ public class ElementProc extends BaseProcessor {
 	private boolean examineDMethods() {
 		List<ExecutableElement> methodsD = ElementFilter.methodsIn(_elementD.getEnclosedElements());
 		_methodDvoid = null;
+		_methodDvoid2 = null;
 		for (ExecutableElement method : methodsD) {
 			Name methodName = method.getSimpleName();
 			if ("methodDvoid".equals(methodName.toString())) {
 				_methodDvoid = method;
+			}
+			if ("methodDvoid2".equals(methodName.toString())) {
+				_methodDvoid2 = method;
 			}
 		}
 		if (null == _methodDvoid) {
@@ -677,8 +682,10 @@ public class ElementProc extends BaseProcessor {
 				return false;
 			}
 			boolean foundIntMethod = false;
+			int order = 0;
 			for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
 				String methodName = entry.getKey().getSimpleName().toString();
+				++order;
 				if ("annoZint".equals(methodName)) {
 					foundIntMethod = true;
 					Object value = entry.getValue().getValue();
@@ -686,11 +693,46 @@ public class ElementProc extends BaseProcessor {
 						reportError("Value of annoZint param on D.methodDvoid() is not 31");
 						return false;
 					}
+					// Annotation value map should preserve order of annotation values
+					if (order != 1) {
+						reportError("The annoZint param on D.methodDvoid should be first in the map, but was " + order);
+						return false;
+					}
 				}
 			}
 			if (!foundIntMethod) {
 				reportError("Failed to find method annoZint on @AnnoZ on D.methodDvoid()");
 				return false;
+			}
+		}
+		
+		// methodDvoid2 is like methodDvoid but the annotation values are in opposite order;
+		// check to see that order has been preserved
+		List<? extends AnnotationMirror> annotsMethodDvoid2 = _methodDvoid2.getAnnotationMirrors();
+		for (AnnotationMirror annotMethodDvoid2 : annotsMethodDvoid2) {
+			Map<? extends ExecutableElement, ? extends AnnotationValue> values = annotMethodDvoid2.getElementValues();
+			if (null == values || values.size() != 2) {
+				reportError("@AnnoZ on D.methodDvoid2() should have two values but had: " +
+						(values == null ? 0 : values.size()));
+				return false;
+			}
+			int order = 0;
+			for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
+				String methodName = entry.getKey().getSimpleName().toString();
+				switch (++order) {
+				case 1:
+					if (!"annoZString".equals(methodName)) {
+						reportError("First value of @AnnoZ on D.methodDvoid2 should be annoZString, but was: " + methodName);
+						return false;
+					}
+					break;
+				case 2:
+					if (!"annoZint".equals(methodName)) {
+						reportError("Second value of @AnnoZ on D.methodDvoid2 should be annoZint, but was: " + methodName);
+						return false;
+					}
+					break;
+				}
 			}
 		}
 		
