@@ -11592,6 +11592,43 @@ public void test0360() throws JavaModelException {
 			"get[METHOD_REF]{, Ltest.util.List<Ljava.lang.String;>;, (I)Ljava.lang.String;, get, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=97310
+public void test0361() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/ZTest.java",
+		"package test;\n"+
+		"public class ZTest <ZTest0, A extends ZTest1 & ZTes >{\n"+
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/ZTest1.java",
+		"package test;\n"+
+		"public class ZTest1 {\n"+
+		"}\n");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/test/ZTest2.java",
+		"package test;\n"+
+		"public class ZTest2 {\n"+
+		"}\n");
+	
+	this.workingCopies[3] = getWorkingCopy(
+		"/Completion/src/test/ZTest3.java",
+		"package test;\n"+
+		"public interface ZTest3 {\n"+
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "& ZTes";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZTest3[TYPE_REF]{ZTest3, test, Ltest.ZTest3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130
 public void testEC001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];

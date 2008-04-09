@@ -82,6 +82,9 @@ public boolean isException(){
 public boolean isSuperType(){
 	return this.kind == K_CLASS || this.kind == K_INTERFACE;
 }
+public void setKind(int kind) {
+	this.kind = kind;
+}
 public StringBuffer printExpression(int indent, StringBuffer output) {
 	switch (this.kind) {
 		case K_CLASS :

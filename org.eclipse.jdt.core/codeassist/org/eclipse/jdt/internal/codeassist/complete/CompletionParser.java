@@ -2825,6 +2825,24 @@ protected void consumeAnnotationAsModifier() {
 		this.hasUnusedModifiers = true;
 	}
 }
+protected void consumeAdditionalBound() {
+	super.consumeAdditionalBound();
+	ASTNode node = this.genericsStack[this.genericsPtr];
+	if (node instanceof CompletionOnSingleTypeReference) {
+		((CompletionOnSingleTypeReference) node).setKind(CompletionOnQualifiedTypeReference.K_INTERFACE);
+	} else if (node instanceof CompletionOnQualifiedTypeReference) {
+		((CompletionOnQualifiedTypeReference) node).setKind(CompletionOnQualifiedTypeReference.K_INTERFACE);
+	}
+}
+protected void consumeAdditionalBound1() {
+	super.consumeAdditionalBound1();
+	ASTNode node = this.genericsStack[this.genericsPtr];
+	if (node instanceof CompletionOnSingleTypeReference) {
+		((CompletionOnSingleTypeReference) node).setKind(CompletionOnQualifiedTypeReference.K_INTERFACE);
+	} else if (node instanceof CompletionOnQualifiedTypeReference) {
+		((CompletionOnQualifiedTypeReference) node).setKind(CompletionOnQualifiedTypeReference.K_INTERFACE);
+	}
+}
 protected void consumeAnnotationName() {
 	int index;
 

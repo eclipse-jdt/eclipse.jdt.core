@@ -104,4 +104,7 @@ public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclo
 		return super.resolveTypeEnclosing(scope, enclosingType);
 	}
 }
+public void setKind(int kind) {
+	this.kind = kind;
+}
 }
