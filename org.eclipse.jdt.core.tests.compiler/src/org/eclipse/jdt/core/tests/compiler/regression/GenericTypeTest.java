@@ -43248,7 +43248,7 @@ public void test1302() {
 			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=219625
-public void _test1303() {
+public void test1303() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
@@ -43279,21 +43279,17 @@ public void _test1303() {
 					"    final ConcreteFoo foo = new ConcreteFoo();\n" + 
 					"    foo.doSomething(foo.getValue());\n" + 
 					"  }\n" + 
-					"  /**\n" + 
-					"   * This gives an AbstractMethodError in Eclipse 3.3.1.1\n" + 
-					"   * but (interestingly) works fine in Sun Java 1.6.0_03.\n" + 
-					"   */\n" + 
 					"  private static void testGenericString() {\n" + 
 					"    feedFoosValueIntoFoo(new ConcreteFoo());\n" + 
 					"  }\n" + 
 					"  public static void main(String[] args) {\n" + 
 					"    testTypedString();\n" + 
 					"    testGenericString();\n" + 
-					"    System.out.println(\"Success.\");\n" + 
+					"    System.out.println(\"SUCCESS\");\n" + 
 					"  }\n" + 
 					"}\n", // =================
 			},
-			"");
+			"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=219625 - variation
 public void test1304() {
@@ -43380,5 +43376,166 @@ public void test1305() {
 			null,
 			false,
 			null);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744 - variation
+public void test1306() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.lang.reflect.Constructor;\n" + 
+					"import java.lang.annotation.Documented;\n" + 
+					"import java.util.List;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"    Constructor c = null;\n" + 
+					"    Documented d = c.getAnnotation(Documented.class);\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	Constructor c = null;\n" + 
+			"	^^^^^^^^^^^\n" + 
+			"Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	Documented d = c.getAnnotation(Documented.class);\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method getAnnotation(Class) belongs to the raw type Constructor. References to generic type Constructor<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	Documented d = c.getAnnotation(Documented.class);\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Annotation to Documented\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744 - variation
+public void test1307() {
+	this.runNegativeTest(
+			new String[] {
+					"Y.java",
+					"import java.util.List;\n" + 
+					"public class Y<T> {\n" + 
+					"	Zork z;\n" +
+					"	Y<T> itself() { return this; }\n" + 
+					"	List<String> list() { return null; }\n" + 
+					"	Y<String> someY() { return null; }\n" + 
+					"}\n" + 
+					"class Z {\n" + 
+					"	void foo(Y y) {\n" + 
+					"		Z z = y.itself(); // Y cannot be converted to Z (itself() return type got erased)\n" + 
+					"		List<String> l = y.list(); // unchecked conversion from List to List<String>\n" + 
+					"		Y<String> ys = y.someY(); // unchecked conversion from Y to Y<String>\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in Y.java (at line 9)\n" + 
+			"	void foo(Y y) {\n" + 
+			"	         ^\n" + 
+			"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in Y.java (at line 10)\n" + 
+			"	Z z = y.itself(); // Y cannot be converted to Z (itself() return type got erased)\n" + 
+			"	      ^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Y to Z\n" + 
+			"----------\n" + 
+			"4. WARNING in Y.java (at line 11)\n" + 
+			"	List<String> l = y.list(); // unchecked conversion from List to List<String>\n" + 
+			"	                 ^^^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
+			"----------\n" + 
+			"5. WARNING in Y.java (at line 12)\n" + 
+			"	Y<String> ys = y.someY(); // unchecked conversion from Y to Y<String>\n" + 
+			"	               ^^^^^^^^^\n" + 
+			"Type safety: The expression of type Y needs unchecked conversion to conform to Y<String>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744 - variation
+public void test1308() {
+	this.runNegativeTest(
+			new String[] {
+					"Y.java",
+					"@interface MyAnnotation {\n" + 
+					"}\n" + 
+					"class MyAccessibleObject {\n" + 
+					"	<T extends java.lang.annotation.Annotation> Object getAnnotation(Class<T> c) {\n" + 
+					"		return null;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"class MyConstructor<V> extends MyAccessibleObject {\n" + 
+					"	<T extends java.lang.annotation.Annotation> T getAnnotation(Class<T> c) {\n" + 
+					"		return null;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"class X {\n" + 
+					"	void bar1(java.lang.reflect.Constructor constr, Class<MyAnnotation> ann) {\n" + 
+					"		MyAnnotation a = constr.getAnnotation(ann); // 1\n" + 
+					"	}\n" + 
+					"	void bar2(MyConstructor constr, Class<MyAnnotation> ann) {\n" + 
+					"		MyAnnotation a = constr.getAnnotation(ann); // 2\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in Y.java (at line 9)\n" + 
+			"	<T extends java.lang.annotation.Annotation> T getAnnotation(Class<T> c) {\n" + 
+			"	                                              ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The method getAnnotation(Class<T>) of type MyConstructor<V> should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"2. WARNING in Y.java (at line 14)\n" + 
+			"	void bar1(java.lang.reflect.Constructor constr, Class<MyAnnotation> ann) {\n" + 
+			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in Y.java (at line 15)\n" + 
+			"	MyAnnotation a = constr.getAnnotation(ann); // 1\n" + 
+			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method getAnnotation(Class) belongs to the raw type Constructor. References to generic type Constructor<T> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in Y.java (at line 15)\n" + 
+			"	MyAnnotation a = constr.getAnnotation(ann); // 1\n" + 
+			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Annotation to MyAnnotation\n" + 
+			"----------\n" + 
+			"5. WARNING in Y.java (at line 17)\n" + 
+			"	void bar2(MyConstructor constr, Class<MyAnnotation> ann) {\n" + 
+			"	          ^^^^^^^^^^^^^\n" + 
+			"MyConstructor is a raw type. References to generic type MyConstructor<V> should be parameterized\n" + 
+			"----------\n" + 
+			"6. WARNING in Y.java (at line 18)\n" + 
+			"	MyAnnotation a = constr.getAnnotation(ann); // 2\n" + 
+			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method getAnnotation(Class) belongs to the raw type MyConstructor. References to generic type MyConstructor<V> should be parameterized\n" + 
+			"----------\n" + 
+			"7. ERROR in Y.java (at line 18)\n" + 
+			"	MyAnnotation a = constr.getAnnotation(ann); // 2\n" + 
+			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Annotation to MyAnnotation\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=226145
+public void test1309() {
+	this.runNegativeTest(
+			new String[] {
+					"EclipseGenericBug.java",
+					"public class EclipseGenericBug {\n" + 
+					"  static class ParametricClass<T> {\n" + 
+					"    static interface NonParametricInterface {\n" + 
+					"      static interface ParametricInterface<S> {\n" + 
+					"      }\n" + 
+					"    }\n" + 
+					"  }\n" + 
+					"  \n" + 
+					"  static class ParametricInstance<T> extends ParametricClass<T> {\n" + 
+					"    NonParametricInterface.ParametricInterface<T> instance = null;\n" + 
+					"  }\n" + 
+					"}\n", // =================
+			},
+			"");
 }
 }
