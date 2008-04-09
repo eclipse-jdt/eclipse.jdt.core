@@ -11289,6 +11289,309 @@ public void test0350() throws JavaModelException {
 			"Test<T>.Member<U>[TYPE_REF]{Member, test, Ltest.Test<TT;>.Member<TU;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING  + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604
+public void test0351() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import test.util.List;\n"+
+		"public class X<U, V extends List<U>> {\n"+
+		"	V v;\n"+
+		"	void foo(X<String, ?> x1, X<Object, ?> x2) {\n"+
+		"		x1.v.get\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/util/Test.java",
+		"package test.util;\n"+
+		"public interface List<T> {\n"+
+		"	public T get(int i);\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "x1.v.get";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+			"get[METHOD_REF]{get(), Ltest.util.List<Ljava.lang.String;>;, (I)Ljava.lang.String;, get, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604
+public void test0352() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import test.util.List;\n"+
+		"public class X<U, V extends List<U>> {\n"+
+		"	V v;\n"+
+		"	void foo(X<String, ?> x1, X<Object, ?> x2) {\n"+
+		"		x1.v.get\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/util/Test.java",
+		"package test.util;\n"+
+		"public class List<T> {\n"+
+		"	public T get(int i) {return null;}\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "x1.v.get";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+			"get[METHOD_REF]{get(), Ltest.util.List<Ljava.lang.String;>;, (I)Ljava.lang.String;, get, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604
+public void test0353() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import test.util.List;\n"+
+		"public class X<U, V extends List<U>> {\n"+
+		"	X<?,?> foo(X<String, ?> xxxxx) {\n"+
+		"		xxxxx // the type should not be captured\n"+
+		"	}\n"+
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/util/Test.java",
+		"package test.util;\n"+
+		"public interface List<T> {\n"+
+		"	public T get(int i);\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "xxxxx";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"xxxxx[LOCAL_VARIABLE_REF]{xxxxx, null, Ltest.X<Ljava.lang.String;*>;, xxxxx, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604
+public void test0354() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import test.util.List;\n"+
+		"public class X<U, V extends List<U>> {\n"+
+		"	X<?,?> foo(X<String, ?> xxxxx) {\n"+
+		"		Object o = (List<String>) xxxxx // the type should not be captured\n"+
+		"	}\n"+
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/util/Test.java",
+		"package test.util;\n"+
+		"public interface List<T> {\n"+
+		"	public T get(int i);\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "xxxxx";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"xxxxx[LOCAL_VARIABLE_REF]{xxxxx, null, Ltest.X<Ljava.lang.String;*>;, xxxxx, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604
+public void test0355() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import test.util.List;\n"+
+		"public class X<U, V extends List<U>> {\n"+
+		"	X<?,?> foo(X<String, ?> xxxxx) {\n"+
+		"		return xxxxx;// the type should not be captured\n"+
+		"	}\n"+
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/util/Test.java",
+		"package test.util;\n"+
+		"public interface List<T> {\n"+
+		"	public T get(int i);\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "xxxxx";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"xxxxx[LOCAL_VARIABLE_REF]{xxxxx, null, Ltest.X<Ljava.lang.String;*>;, xxxxx, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604
+public void test0356() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import test.util.List;\n"+
+		"public class X<T, U extends List<U>> {\n"+
+		"	U get() { return null; }\n"+
+		"	void foo(X<String, ?> x) {\n"+
+		"		x.get().get // should show capture\n"+
+		"	}\n"+
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/util/Test.java",
+		"package test.util;\n"+
+		"public interface List<T> {\n"+
+		"	public T get(int i);\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "get().get";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+			"get[METHOD_REF]{get(), Ltest.util.List<!*>;, (I)!*, get, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604
+public void test0357() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import test.util.List;\n"+
+		"public class X<U extends X<U>> {\n"+
+		"	U get() { return null; }\n"+
+		"	X<?> foo(X<?> x) {\n"+
+		"		x.get().get // should show capture\n"+
+		"	}\n"+
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/util/Test.java",
+		"package test.util;\n"+
+		"public interface List<T> {\n"+
+		"	public T get(int i);\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "get().get";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+			"get[METHOD_REF]{get(), Ltest.X<!*>;, ()!*, get, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604
+public void test0358() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import test.util.List;\n"+
+		"public class X<U, V extends List<U>> {\n"+
+		"	V v() {return null;}\n"+
+		"	void foo(X<String, ?> x1, X<Object, ?> x2) {\n"+
+		"		x1.v().get\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/util/Test.java",
+		"package test.util;\n"+
+		"public interface List<T> {\n"+
+		"	public T get(int i);\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "x1.v().get";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+			"get[METHOD_REF]{get(), Ltest.util.List<Ljava.lang.String;>;, (I)Ljava.lang.String;, get, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604
+public void test0359() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import test.util.List;\n"+
+		"public class X<U, V extends List<U>> {\n"+
+		"	V v;\n"+
+		"	void foo(X<String, ?> x1, X<Object, ?> x2) {\n"+
+		"		x1.v.new Inner(\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/util/Test.java",
+		"package test.util;\n"+
+		"public class List<T> {\n"+
+		"	public class Inner { }\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Inner(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"Inner[METHOD_REF<CONSTRUCTOR>]{, Ltest.util.List<Ljava.lang.String;>.Inner;, ()V, Inner, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"List<java.lang.String>.Inner[ANONYMOUS_CLASS_DECLARATION]{, Ltest.util.List<Ljava.lang.String;>.Inner;, ()V, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604
+public void test0360() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import test.util.List;\n"+
+		"public class X<U, V extends List<U>> {\n"+
+		"	V v;\n"+
+		"	void foo(X<String, ?> x1, X<Object, ?> x2) {\n"+
+		"		x1.v.get(\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/util/Test.java",
+		"package test.util;\n"+
+		"public interface List<T> {\n"+
+		"	public T get(int i);\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "x1.v.get(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"get[METHOD_REF]{, Ltest.util.List<Ljava.lang.String;>;, (I)Ljava.lang.String;, get, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130
 public void testEC001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
