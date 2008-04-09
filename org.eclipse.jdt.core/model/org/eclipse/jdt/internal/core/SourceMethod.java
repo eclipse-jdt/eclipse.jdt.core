@@ -51,7 +51,7 @@ public boolean equals(Object o) {
 	return super.equals(o) && Util.equalArraysOrNull(this.parameterTypes, ((SourceMethod)o).parameterTypes);
 }
 public IMemberValuePair getDefaultValue() throws JavaModelException {
-	SourceMethodInfo sourceMethodInfo = (SourceMethodInfo) getElementInfo();
+	SourceMethodElementInfo sourceMethodInfo = (SourceMethodElementInfo) getElementInfo();
 	if (sourceMethodInfo.isAnnotationMethod()) {
 		return ((SourceAnnotationMethodInfo) sourceMethodInfo).defaultValue;
 	}

@@ -261,6 +261,27 @@ public void testDefaultValue5() throws CoreException {
 }
 
 /*
+ * Ensures that the default value for a constructor doesn't throw a ClassCastException
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=226134 )
+ */
+public void testDefaultValue6() throws CoreException {
+	try {
+		String cuSource = 
+			"package p;\n" +
+			"public class Y {\n" +
+			"  public Y() {}\n" +
+			"}";
+		createFile("/P/src/p/Y.java", cuSource);
+		IMethod method = getCompilationUnit("/P/src/p/Y.java").getType("Y").getMethod("Y", new String[0]);
+		assertMemberValuePairEquals(
+			"<null>",
+			method.getDefaultValue());
+	} finally {
+		deleteFile("/P/src/p/Y.java");
+	}
+}
+
+/*
  * Ensure that the deprecated flag is correctly reported
  * (regression test fo bug 23207 Flags.isDeprecated(IMethod.getFlags()) doesn't work)
  */
