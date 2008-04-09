@@ -11629,6 +11629,66 @@ public void test0361() throws JavaModelException {
 			"ZTest3[TYPE_REF]{ZTest3, test, Ltest.ZTest3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82712
+public void test0362() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import static test.util.Math.*;\n"+
+		"public class Test {\n"+
+		"	void foo() {\n"+
+		"	  abs();\n"+
+		"	}\n"+
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/util/Math.java",
+		"package test.util;\n"+
+		"public class Math {\n"+
+		"	public static int abs(int i) {return null;}\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "abs(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"abs[METHOD_REF]{, Ltest.util.Math;, (I)I, abs, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=82712
+public void test0363() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import static test.util.Math.abs;\n"+
+		"public class Test {\n"+
+		"	void foo() {\n"+
+		"	  abs();\n"+
+		"	}\n"+
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/util/Math.java",
+		"package test.util;\n"+
+		"public class Math {\n"+
+		"	public static int abs(int i) {return null;}\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "abs(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"abs[METHOD_REF]{, Ltest.util.Math;, (I)I, abs, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130
 public void testEC001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];

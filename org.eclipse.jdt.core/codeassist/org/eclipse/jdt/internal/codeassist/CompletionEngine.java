@@ -1468,7 +1468,18 @@ public final class CompletionEngine
 			this.completionToken = messageSend.selector;
 			if (qualifiedBinding == null) {
 				if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
-					findImplicitMessageSends(this.completionToken, argTypes, scope, messageSend, scope);
+					ObjectVector methodsFound = new ObjectVector();
+					
+					findImplicitMessageSends(this.completionToken, argTypes, scope, messageSend, scope, methodsFound);
+					
+					findLocalMethodsFromStaticImports(
+							this.completionToken,
+							scope,
+							messageSend,
+							scope,
+							true,
+							methodsFound,
+							true);
 				}
 			} else  if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
 				findMethods(
@@ -1952,7 +1963,7 @@ public final class CompletionEngine
 
 				if (qualifiedBinding == null) {
 					if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
-						findImplicitMessageSends(this.completionToken, argTypes, scope, messageSend, scope);
+						findImplicitMessageSends(this.completionToken, argTypes, scope, messageSend, scope, new ObjectVector());
 					}
 				} else if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
 					findMethods(
@@ -5698,14 +5709,14 @@ public final class CompletionEngine
 		TypeBinding[] argTypes,
 		Scope scope,
 		InvocationSite invocationSite,
-		Scope invocationScope) {
+		Scope invocationScope,
+		ObjectVector methodsFound) {
 
 		if (token == null)
 			return;
 
 		boolean staticsOnly = false;
 		// need to know if we're in a static context (or inside a constructor)
-		ObjectVector methodsFound = new ObjectVector();
 
 		done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 
@@ -6427,10 +6438,11 @@ public final class CompletionEngine
 	}
 
 	// Helper method for findMethods(char[], TypeBinding[], ReferenceBinding, Scope, ObjectVector, boolean, boolean, boolean)
-	private void findLocalMethodsOfStaticImports(
+	private void findLocalMethodsFromStaticImports(
 		char[] methodName,
 		MethodBinding[] methods,
 		Scope scope,
+		boolean exactMatch,
 		ObjectVector methodsFound,
 		ReferenceBinding receiverType,
 		InvocationSite invocationSite) {
@@ -6492,13 +6504,17 @@ public final class CompletionEngine
 			int previousStartPosition = this.startPosition;
 			int previousTokenStart = this.tokenStart;
 			
-			// nothing to insert - do not want to replace the existing selector & arguments
-			if (this.source != null
-				&& this.source.length > this.endPosition
-				&& this.source[this.endPosition] == '(') {
-				completion = method.selector;
+			if (!exactMatch) {
+				if (this.source != null
+					&& this.source.length > this.endPosition
+					&& this.source[this.endPosition] == '(') {
+					completion = method.selector;
+				} else {
+					completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
+				}
 			} else {
-				completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
+				this.startPosition = this.endPosition;
+				this.tokenStart = this.tokenEnd;
 			}
 			
 			int relevance = computeBaseRelevance();
@@ -8280,101 +8296,18 @@ public final class CompletionEngine
 				currentScope = currentScope.parent;
 			}
 			
-			// search in static import
-			ImportBinding[] importBindings = scope.compilationUnitScope().imports;
-			for (int i = 0; i < importBindings.length; i++) {
-				ImportBinding importBinding = importBindings[i];
-				if(importBinding.isValidBinding() && importBinding.isStatic()) {
-					Binding binding = importBinding.resolvedImport;
-					if(binding != null && binding.isValidBinding()) {
-						if(importBinding.onDemand) {
-							if((binding.kind() & Binding.TYPE) != 0) {
-								if(proposeField) {
-									findFields(
-										token,
-										(ReferenceBinding)binding,
-										scope,
-										fieldsFound,
-										localsFound,
-										true,
-										invocationSite,
-										invocationScope,
-										true,
-										false,
-										null,
-										null,
-										null,
-										false,
-										null,
-										-1,
-										-1);
-								}
-								if(proposeMethod && !insideAnnotationAttribute) {
-									findMethods(
-										token,
-										null,
-										null,
-										(ReferenceBinding)binding,
-										scope,
-										methodsFound,
-										true,
-										false,
-										false,
-										invocationSite,
-										invocationScope,
-										true,
-										false,
-										false,
-										null,
-										null,
-										null,
-										false,
-										null,
-										-1,
-										-1);
-								}
-							}
-						} else {
-							if ((binding.kind() & Binding.FIELD) != 0) {
-								if(proposeField) {
-										findFields(
-												token,
-												new FieldBinding[]{(FieldBinding)binding},
-												scope,
-												fieldsFound,
-												localsFound,
-												true,
-												((FieldBinding)binding).declaringClass,
-												invocationSite,
-												invocationScope,
-												true,
-												false,
-												null,
-												null,
-												null,
-												false,
-												null,
-												-1,
-												-1);
-								}
-							} else if ((binding.kind() & Binding.METHOD) != 0) {
-								if(proposeMethod && !insideAnnotationAttribute) {
-									MethodBinding methodBinding = (MethodBinding)binding;
-									if(CharOperation.prefixEquals(token, methodBinding.selector))
-										
-									findLocalMethodsOfStaticImports(
-											methodBinding.selector,
-											methodBinding.declaringClass.methods(),
-											scope,
-											methodsFound,
-											methodBinding.declaringClass,
-											invocationSite);
-								}
-							}
-						}
-					}
-				}
-			}
+			findFieldsAndMethodsFromStaticImports(
+					token,
+					scope,
+					invocationSite,
+					invocationScope,
+					false,
+					insideAnnotationAttribute,
+					localsFound,
+					fieldsFound,
+					methodsFound,
+					proposeField,
+					proposeMethod);
 			
 			if (this.assistNodeInJavadoc == 0) {
 				// search in favorites import
@@ -8386,6 +8319,140 @@ public final class CompletionEngine
 						localsFound,
 						fieldsFound,
 						methodsFound);
+			}
+		}
+	}
+
+	private void findLocalMethodsFromStaticImports(
+			char[] token,
+			Scope scope,
+			InvocationSite invocationSite,
+			Scope invocationScope,
+			boolean exactMatch,
+			ObjectVector methodsFound,
+			boolean proposeMethod) {
+		this.findFieldsAndMethodsFromStaticImports(
+				token,
+				scope, 
+				invocationSite,
+				invocationScope,
+				exactMatch,
+				false,
+				new ObjectVector(),
+				new ObjectVector(),
+				methodsFound,
+				false,
+				proposeMethod);
+	}
+	
+	private void findFieldsAndMethodsFromStaticImports(
+			char[] token,
+			Scope scope,
+			InvocationSite invocationSite,
+			Scope invocationScope,
+			boolean exactMatch,
+			boolean insideAnnotationAttribute,
+			ObjectVector localsFound,
+			ObjectVector fieldsFound,
+			ObjectVector methodsFound,
+			boolean proposeField,
+			boolean proposeMethod) {
+		// search in static import
+		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
+		for (int i = 0; i < importBindings.length; i++) {
+			ImportBinding importBinding = importBindings[i];
+			if(importBinding.isValidBinding() && importBinding.isStatic()) {
+				Binding binding = importBinding.resolvedImport;
+				if(binding != null && binding.isValidBinding()) {
+					if(importBinding.onDemand) {
+						if((binding.kind() & Binding.TYPE) != 0) {
+							if(proposeField) {
+								findFields(
+									token,
+									(ReferenceBinding)binding,
+									scope,
+									fieldsFound,
+									localsFound,
+									true,
+									invocationSite,
+									invocationScope,
+									true,
+									false,
+									null,
+									null,
+									null,
+									false,
+									null,
+									-1,
+									-1);
+							}
+							if(proposeMethod && !insideAnnotationAttribute) {
+								findMethods(
+									token,
+									null,
+									null,
+									(ReferenceBinding)binding,
+									scope,
+									methodsFound,
+									true,
+									exactMatch,
+									false,
+									invocationSite,
+									invocationScope,
+									true,
+									false,
+									false,
+									null,
+									null,
+									null,
+									false,
+									null,
+									-1,
+									-1);
+							}
+						}
+					} else {
+						if ((binding.kind() & Binding.FIELD) != 0) {
+							if(proposeField) {
+									findFields(
+											token,
+											new FieldBinding[]{(FieldBinding)binding},
+											scope,
+											fieldsFound,
+											localsFound,
+											true,
+											((FieldBinding)binding).declaringClass,
+											invocationSite,
+											invocationScope,
+											true,
+											false,
+											null,
+											null,
+											null,
+											false,
+											null,
+											-1,
+											-1);
+							}
+						} else if ((binding.kind() & Binding.METHOD) != 0) {
+							if(proposeMethod && !insideAnnotationAttribute) {
+								MethodBinding methodBinding = (MethodBinding)binding;
+								if ((exactMatch && CharOperation.equals(token, methodBinding.selector)) ||
+										!exactMatch && CharOperation.prefixEquals(token, methodBinding.selector)) {
+									
+									findLocalMethodsFromStaticImports(
+											methodBinding.selector,
+											methodBinding.declaringClass.methods(),
+											scope,
+											exactMatch,
+											methodsFound,
+											methodBinding.declaringClass,
+											invocationSite);
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}
