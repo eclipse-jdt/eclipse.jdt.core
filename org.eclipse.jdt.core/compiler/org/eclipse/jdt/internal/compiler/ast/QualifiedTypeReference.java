@@ -43,10 +43,9 @@ public class QualifiedTypeReference extends TypeReference {
 			} else {
 				this.resolvedType = scope.getMemberType(this.tokens[tokenIndex], (ReferenceBinding) this.resolvedType);
 				if (!this.resolvedType.isValidBinding()) {
-					ProblemReferenceBinding problemBinding = (ProblemReferenceBinding) this.resolvedType;
 					this.resolvedType = new ProblemReferenceBinding(
 						CharOperation.subarray(this.tokens, 0, tokenIndex + 1),
-						problemBinding.closestReferenceMatch(),
+						(ReferenceBinding)this.resolvedType.closestMatch(),
 						this.resolvedType.problemId());
 				}
 			}
