@@ -1000,4 +1000,28 @@ public void testBug223838() throws JavaModelException {
 	IAnnotationBinding[] annotations = typeBinding.getAnnotations();
 	assertTrue("Expected recovered annotation binding!", annotations[1].isRecovered());
 }
+/**
+ * @bug 226357: NPE in MethodBinding.getParameterAnnotations() if some, but not all parameters are annotated
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=226357"
+ */
+public void testBug226357() throws CoreException, IOException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
+		"public class Test {\n" + 
+		"        public @interface NonZero { }\n" + 
+		"        public static int safeDiv(int a, @NonZero int b) {\n" + 
+		"                return a / b;\n" + 
+		"        }\n" + 
+		"}"
+	);
+
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
+		"----- param 1-----\n" + 
+		"----- param 2-----\n" + 
+		"@LTest$NonZero;\n",
+		methodDeclaration.resolveBinding()
+	);
+}
 }
