@@ -10651,4 +10651,111 @@ public void test278_jar_ref_in_jar(){
 		"1 problem (1 error)",
 		true);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// looking at access rules: ignore if better makes the class file selected if
+// it is newer, but see test#280 for what happens when it is not
+public void test279_sourcepath_vs_classpath() throws IOException, InterruptedException {
+	runTest(
+		true /* shouldCompileOK*/,
+		new String[] { /* testFiles */
+			"src1/X.java",
+			"public class X {\n" +
+			"  public static final int CONST = 1;\n" + 
+			"}\n",
+			"src2/X.java",
+			"public class X {\n" +
+			"  public static final int CONST = 2;\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\"" /* commandLine */
+		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		null /* progress */);
+	// ensure that bin1/X.class file is newer than src2/X.java (some file systems
+	// store the modification time at a second precision)
+	File sourceFile = new File(OUTPUT_DIR + File.separator + "src2" + File.separator + "X.java"),
+	  classFile = new File(OUTPUT_DIR + File.separator + "bin1" + File.separator + "X.class");
+	while (classFile.lastModified() <= sourceFile.lastModified()) {
+		runConformTest(
+			null,
+			"\"" + OUTPUT_DIR +  File.separator + "src1" + File.separator + "X.java\""
+			+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
+			"",
+			"",
+			false);
+	}
+	// the ignore if better rule upon src2 leads to bin1 being selected
+	runConformTest(
+		new String[] {
+			"Y.java",
+			"public class Y {\n" +
+			"  public static void main (String[] args) {\n" +
+			"    System.out.println(X.CONST);\n" +
+			"  }\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2[?**/*]" + "\""
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1" + "\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		false);
+	this.verifier.execute("Y", new String[] {OUTPUT_DIR });
+	assertTrue(this.verifier.getExecutionOutput().startsWith("1")); // skip trailing newline
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684
+// looking at access rules: ignore if better makes the class file selected even
+// if it is older (in test#279 it was newer); access rules are thus no work 
+// around since they ignore modification dates
+public void test280_sourcepath_vs_classpath() throws IOException, InterruptedException {
+	runTest(
+		true /* shouldCompileOK*/,
+		new String[] { /* testFiles */
+			"src1/X.java",
+			"public class X {\n" +
+			"  public static final int CONST = 1;\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR + File.separator + "src1" + File.separator + "X.java\"" /* commandLine */
+		+ " -proc:none -d \"" + OUTPUT_DIR + File.separator + "bin1" + "\"",
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		null /* progress */);
+	// ensure that bin1/X.class file is older than src2/X.java (some file systems
+	// store the modification time at a second precision)
+	File sourceFile = new File(OUTPUT_DIR + File.separator + "src2" + File.separator + "X.java"),
+	  classFile = new File(OUTPUT_DIR + File.separator + "bin1" + File.separator + "X.class");
+	new File(OUTPUT_DIR + File.separator + "src2").mkdirs();
+	do {
+		Util.writeToFile(
+			"public class X {\n" +
+			"  public static final int CONST = 2;\n" + 
+			"}\n",
+			sourceFile.getPath());
+	} while (classFile.lastModified() >= sourceFile.lastModified());
+	// the ignore if better rule upon src2 leads to bin1 being selected even if
+	// src2/X.java is newer
+	runConformTest(
+		new String[] {
+			"Y.java",
+			"public class Y {\n" +
+			"  public static void main (String[] args) {\n" +
+			"    System.out.println(X.CONST);\n" +
+			"  }\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2[?**/*]" + "\""
+		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1" + "\""
+		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		false);
+	this.verifier.execute("Y", new String[] {OUTPUT_DIR });
+	assertTrue(this.verifier.getExecutionOutput().startsWith("1")); // skip trailing newline
+}
 }
