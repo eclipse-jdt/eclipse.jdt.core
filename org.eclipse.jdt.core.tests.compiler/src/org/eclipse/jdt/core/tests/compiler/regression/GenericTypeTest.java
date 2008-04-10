@@ -43528,4 +43528,36 @@ public void test1309() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=224855
+public void test1310() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.Set;\n" + 
+					"public class X {\n" + 
+					"	public void testCast(){\n" + 
+					"		Set<Class> classes = (Set<Class>)getClasses();\n" + 
+					"	}\n" + 
+					"	public Set<Class<? extends Object>> getClasses() {\n" + 
+					"		return null;\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	Set<Class> classes = (Set<Class>)getClasses();\n" + 
+			"	    ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	Set<Class> classes = (Set<Class>)getClasses();\n" + 
+			"	                     ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from Set<Class<? extends Object>> to Set<Class>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 4)\n" + 
+			"	Set<Class> classes = (Set<Class>)getClasses();\n" + 
+			"	                          ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n");
+}
 }
