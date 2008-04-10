@@ -19,8 +19,31 @@ public class GetSourceTests extends ModifyingResourceTests {
 	
 	ICompilationUnit cu;
 
+	// Use this static initializer to specify subset for tests
+	// All specified tests which do not belong to the class are skipped...
+	static {
+		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		TESTS_NAMES = new String[] { "TypeParameterBug73884" };
+		// Numbers of tests to run: "test<number>" will be run for each number of this array
+//		TESTS_NUMBERS = new int[] { 13 };
+		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//		TESTS_RANGE = new int[] { 16, -1 };
+	}
+	
 	public GetSourceTests(String name) {
 		super(name);
+	}
+
+	public static Test suite() {
+		return buildModelTestSuite(GetSourceTests.class);
+	}
+	/**
+	 * Test the field constant
+	 */
+	private IField getConstantField(String fieldName) {
+		IType type = getCompilationUnit("/P/p/Constants.java").getType("Constants");
+		IField field = type.getField(fieldName);
+		return field;
 	}
 	
 	public void setUpSuite() throws Exception {
@@ -66,20 +89,6 @@ public class GetSourceTests extends ModifyingResourceTests {
 			"}";
 		createFile("/P/p/Constants.java", cuSource);
 	}
-
-	// Use this static initializer to specify subset for tests
-	// All specified tests which do not belong to the class are skipped...
-	static {
-		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "TypeParameterBug73884" };
-		// Numbers of tests to run: "test<number>" will be run for each number of this array
-//		TESTS_NUMBERS = new int[] { 13 };
-		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//		TESTS_RANGE = new int[] { 16, -1 };
-	}
-	public static Test suite() {
-		return buildModelTestSuite(GetSourceTests.class);
-	}
 	
 	public void tearDownSuite() throws Exception {
 		deleteProject("P");
@@ -99,6 +108,61 @@ public class GetSourceTests extends ModifyingResourceTests {
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 	}
 	
+	public void testFieldConstant01() throws CoreException {
+		IField field = getConstantField("field1");
+	
+		Object constant = field.getConstant();
+		Long value = (Long) constant;
+		assertEquals("Wrong value", 938245798324893l, value.longValue());
+	}
+	
+	public void testFieldConstant02() throws CoreException {
+		IField field = getConstantField("field2");
+	
+		Object constant = field.getConstant();
+		Long value = (Long) constant;
+		assertEquals("Wrong value", 938245798324893l, value.longValue());
+	}
+	
+	public void testFieldConstant03() throws CoreException {
+		IField field = getConstantField("field3");
+	
+		Object constant = field.getConstant();
+		Long value = (Long) constant;
+		assertEquals("Wrong value", 938245798324893l, value.longValue());
+	}
+	
+	public void testFieldConstant04() throws CoreException {
+		IField field = getConstantField("field4");
+	
+		Object constant = field.getConstant();
+		Character character = (Character) constant;
+		assertEquals("Wrong value", ' ', character.charValue());
+	}
+	
+	public void testFieldConstant05() throws CoreException {
+		IField field = getConstantField("field5");
+	
+		Object constant = field.getConstant();
+		Double double1 = (Double) constant;
+		assertEquals("Wrong value", 938245798324893l, double1.doubleValue(), 0.01);
+	}
+	
+	public void testFieldConstant06() throws CoreException {
+		IField field = getConstantField("field6");
+	
+		Object constant = field.getConstant();
+		Float float1 = (Float) constant;
+		assertEquals("Wrong value", 123456, float1.floatValue(), 0.01f);
+	}
+	
+	public void testFieldConstant07() throws CoreException {
+		IField field = getConstantField("field7");
+	
+		Object constant = field.getConstant();
+		assertNull("Should not be a constant", constant);
+	}
+
 	/**
 	 * Ensure the source for an import contains the 'import' keyword,
 	 * name, and terminator.
@@ -110,7 +174,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 		String expectedSource = "import java.lang.*;";
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 	}
-	
+
 	/*
 	 * Ensures the source for a local variable contains the modifiers, type and name.
 	 */
@@ -121,7 +185,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 		String expectedSource = "final int var1 = 2;";
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 	}
-	
+
 	/*
 	 * Ensures the source for a local variable contains the modifiers, type and name.
 	 */
@@ -132,7 +196,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 		String expectedSource = "Object var2;";
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 	}
-	
+
 	/*
 	 * Ensures the source for a local variable contains the modifiers, type and name.
 	 */
@@ -143,7 +207,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 		String expectedSource = "int i = 0"; // semi-colon is not part of the local declaration in a for statement
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 	}
-	
+
 	/*
 	 * Ensures the source for a local variable contains the modifiers, type and name.
 	 */
@@ -172,57 +236,9 @@ public class GetSourceTests extends ModifyingResourceTests {
 	}
 	
 	/*
-	 * Ensures the name range for a method with syntax errors in its header is correct.
-	 * (regression test for bug 43139 Delete member in Outliner not working)
-	 */
-	public void testNameRangeMethodWithSyntaxError() throws CoreException {
-		try {
-			String cuSource = 
-				"package p;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"  void static bar() {}\n" +
-				"}";
-			createFile("/P/p/Y.java", cuSource);
-			IMethod method= getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("bar", new String[0]);
-		
-			String actualSource = getNameSource(cuSource, method);
-			String expectedSource = "bar";
-			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-		} finally {
-			deleteFile("/P/p/Y.java");
-		}
-	}
-	
-	/*
-	 * Ensures that the source range for an anonymous type is correct.
-	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=207775)
-	 */
-	public void testAnonymousSourceRange() throws CoreException {
-		try {
-			String cuSource = 
-				"package p;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"    new Object() {};\n" +
-				"  }\n" +
-				"}";
-			createFile("/P/p/Y.java", cuSource);
-			IType type = getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("foo", new String[0]).getType("", 1);
-			assertSourceEquals(
-				"Unexpected source'", 
-				"new Object() {}",
-				getSource(cuSource, type.getSourceRange()));
-		} finally {
-			deleteFile("/P/p/Y.java");
-		}
-	}
-
-	/*
 	 * Ensures that the name range for an annotation is correct.
 	 */
-	public void testAnnotationNameRange1() throws CoreException {
+	public void testNameRange01() throws CoreException { // was testAnnotationNameRange1
 		try {
 			String cuSource = 
 				"package p;\n" +
@@ -239,11 +255,11 @@ public class GetSourceTests extends ModifyingResourceTests {
 			deleteFile("/P/p/Y.java");
 		}
 	}
-
+	
 	/*
 	 * Ensures that the name range for an annotation is correct.
 	 */
-	public void testAnnotationNameRange2() throws CoreException {
+	public void testNameRange02() throws CoreException { // was testAnnotationNameRange2
 		try {
 			String cuSource = 
 				"package p;\n" +
@@ -265,7 +281,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 	 * Ensures that the name range for an annotation on a local variable is correct.
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=209823)
 	 */
-	public void testAnnotationNameRange3() throws CoreException {
+	public void testNameRange03() throws CoreException { // was testAnnotationNameRange3
 		try {
 			String cuSource = 
 				"package p;\n" +
@@ -284,36 +300,12 @@ public class GetSourceTests extends ModifyingResourceTests {
 			deleteFile("/P/p/Y.java");
 		}
 	}
-
-	/*
-	 * Ensures that the source range for an annotation on a local variable is correct.
-	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=209823)
-	 */
-	public void testAnnotationSourceRange() throws CoreException {
-		try {
-			String cuSource = 
-				"package p;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"    @MyAnnot int local;\n" +
-				"  }\n" +
-				"}";
-			createFile("/P/p/Y.java", cuSource);
-			IAnnotation annotation = getLocalVariable(getCompilationUnit("/P/p/Y.java"), "local", "local").getAnnotation("MyAnnot");
-			assertSourceEquals(
-				"Unexpected source'", 
-				"@MyAnnot",
-				getSource(cuSource, annotation.getSourceRange()));
-		} finally {
-			deleteFile("/P/p/Y.java");
-		}
-	}
-
+	
 	/*
 	 * Ensures the name range for an anonymous class is correct.
 	 * (regression test for bug 44450 Strange name range for anonymous classes)
 	 */
-	public void testNameRangeAnonymous() throws CoreException {
+	public void testNameRange04() throws CoreException { // was testNameRangeAnonymous
 		try {
 			String cuSource = 
 				"package p;\n" +
@@ -338,7 +330,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 	/*
 	 * Ensures the name range for a type parameter is correct.
 	 */
-	public void testNameRangeTypeParameter1() throws CoreException {
+	public void testNameRange05() throws CoreException { // was testNameRangeTypeParameter1
 		try {
 			String cuSource = 
 				"package p;\n" +
@@ -354,11 +346,11 @@ public class GetSourceTests extends ModifyingResourceTests {
 			deleteFile("/P/p/Y.java");
 		}
 	}
-	
+
 	/*
 	 * Ensures the name range for a type parameter is correct.
 	 */
-	public void testNameRangeTypeParameter2() throws CoreException {
+	public void testNameRange06() throws CoreException { // was testNameRangeTypeParameter2
 		try {
 			String cuSource = 
 				"package p;\n" +
@@ -373,6 +365,123 @@ public class GetSourceTests extends ModifyingResourceTests {
 				getNameSource(cuSource, typeParameter));
 		} finally {
 			deleteFile("/P/p/Y.java");
+		}
+	}
+
+	/*
+	 * Ensures the name range for a method with syntax errors in its header is correct.
+	 * (regression test for bug 43139 Delete member in Outliner not working)
+	 */
+	public void testNameRange07() throws CoreException { // was testNameRangeMethodWithSyntaxError
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"  void static bar() {}\n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			IMethod method= getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("bar", new String[0]);
+		
+			String actualSource = getNameSource(cuSource, method);
+			String expectedSource = "bar";
+			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
+	
+	/*
+	 * Ensures the name range for an anonymous enum constant is correct
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=226313 )
+	 */
+	public void testNameRange08() throws CoreException {
+		try {
+			createJavaProject("P15", new String[] {""}, new String[0], "", "1.5");
+			String cuSource = 
+				"public enum X {\n" +
+				"  GREEN() {\n" +
+				"  };\n" +
+				"}";
+			createFile("/P15/X.java", cuSource);
+			IType type = getCompilationUnit("/P15/X.java").getType("X").getField("GREEN").getType("", 1);
+			assertSourceEquals(
+				"Unexpected source'", 
+				"GREEN", 
+				getNameSource(cuSource, type));
+		} finally {
+			deleteProject("P15");
+		}
+	}
+	
+	/*
+	 * Ensures that the source range for an annotation on a local variable is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=209823)
+	 */
+	public void testSourceRange01() throws CoreException { // was testAnnotationSourceRange
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"    @MyAnnot int local;\n" +
+				"  }\n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			IAnnotation annotation = getLocalVariable(getCompilationUnit("/P/p/Y.java"), "local", "local").getAnnotation("MyAnnot");
+			assertSourceEquals(
+				"Unexpected source'", 
+				"@MyAnnot",
+				getSource(cuSource, annotation.getSourceRange()));
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
+		
+	/*
+	 * Ensures that the source range for an anonymous type is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=207775)
+	 */
+	public void testSourceRange02() throws CoreException { // was testAnonymousSourceRange
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"    new Object() {};\n" +
+				"  }\n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			IType type = getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("foo", new String[0]).getType("", 1);
+			assertSourceEquals(
+				"Unexpected source'", 
+				"new Object() {}",
+				getSource(cuSource, type.getSourceRange()));
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
+
+	/*
+	 * Ensures the source range for an anonymous enum constant is correct
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=226313 )
+	 */
+	public void testSourceRange03() throws CoreException {
+		try {
+			createJavaProject("P15", new String[] {""}, new String[0], "", "1.5");
+			String cuSource = 
+				"public enum X {\n" +
+				"  GREEN() {};\n" +
+				"}";
+			createFile("/P15/X.java", cuSource);
+			IType type = getCompilationUnit("/P15/X.java").getType("X").getField("GREEN").getType("", 1);
+			assertSourceEquals(
+				"Unexpected source'", 
+				"GREEN() {}",
+				getSource(cuSource, type.getSourceRange()));
+		} finally {
+			deleteProject("P15");
 		}
 	}
 	
@@ -395,7 +504,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 			deleteFile("/P/p/Y.java");
 		}
 	}
-
+		
 	/*
 	 * Ensures the source for a type parameter is correct.
 	 */
@@ -416,7 +525,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 			deleteFile("/P/p/Y.java");
 		}
 	}
-	
+
 	/**
 	 * Ensure the source for a field contains the modifiers, field
 	 * type, name, and terminator, and unicode characters.
@@ -429,7 +538,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 		String expectedSource = "private int s\\u0069ze;";
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 	}
-	
+
 	/**
 	 * Ensure the source for a field contains the modifiers, field
 	 * type, name, and terminator, and unicode characters.
@@ -449,69 +558,5 @@ public class GetSourceTests extends ModifyingResourceTests {
 			"    return this.size;\n" + 
 			"  }";
 		assertSourceEquals("Unexpected source", expectedSource, actualSource);
-	}
-
-	/**
-	 * Test the field constant
-	 */
-	private IField getConstantField(String fieldName) {
-		IType type = getCompilationUnit("/P/p/Constants.java").getType("Constants");
-		IField field = type.getField(fieldName);
-		return field;
-	}
-
-	public void testFieldConstant01() throws CoreException {
-		IField field = getConstantField("field1");
-	
-		Object constant = field.getConstant();
-		Long value = (Long) constant;
-		assertEquals("Wrong value", 938245798324893l, value.longValue());
-	}
-	
-	public void testFieldConstant02() throws CoreException {
-		IField field = getConstantField("field2");
-	
-		Object constant = field.getConstant();
-		Long value = (Long) constant;
-		assertEquals("Wrong value", 938245798324893l, value.longValue());
-	}
-		
-	public void testFieldConstant03() throws CoreException {
-		IField field = getConstantField("field3");
-	
-		Object constant = field.getConstant();
-		Long value = (Long) constant;
-		assertEquals("Wrong value", 938245798324893l, value.longValue());
-	}
-
-	public void testFieldConstant04() throws CoreException {
-		IField field = getConstantField("field4");
-	
-		Object constant = field.getConstant();
-		Character character = (Character) constant;
-		assertEquals("Wrong value", ' ', character.charValue());
-	}
-		
-	public void testFieldConstant05() throws CoreException {
-		IField field = getConstantField("field5");
-	
-		Object constant = field.getConstant();
-		Double double1 = (Double) constant;
-		assertEquals("Wrong value", 938245798324893l, double1.doubleValue(), 0.01);
-	}
-
-	public void testFieldConstant06() throws CoreException {
-		IField field = getConstantField("field6");
-	
-		Object constant = field.getConstant();
-		Float float1 = (Float) constant;
-		assertEquals("Wrong value", 123456, float1.floatValue(), 0.01f);
-	}
-
-	public void testFieldConstant07() throws CoreException {
-		IField field = getConstantField("field7");
-	
-		Object constant = field.getConstant();
-		assertNull("Should not be a constant", constant);
 	}
 }

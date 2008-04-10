@@ -204,7 +204,7 @@ public class HandleFactory {
 					int occurenceCount = 1;
 					for (int i = 0, length = type.fields.length; i < length; i++) {
 						FieldDeclaration field = type.fields[i];
-						if (field.declarationSourceStart < elementPosition && field.declarationSourceEnd > elementPosition) {
+						if (field.declarationSourceStart <= elementPosition && elementPosition <= field.declarationSourceEnd) {
 							switch (field.getKind()) {
 								case AbstractVariableDeclaration.FIELD :
 								case AbstractVariableDeclaration.ENUM_CONSTANT :

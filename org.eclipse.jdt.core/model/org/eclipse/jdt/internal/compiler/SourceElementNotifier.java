@@ -581,10 +581,16 @@ protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boo
 				superclassName = getSuperclassName(typeDeclaration);
 			}
 			ISourceElementRequestor.TypeInfo typeInfo = new ISourceElementRequestor.TypeInfo();
-			typeInfo.declarationStart = typeDeclaration.allocation == null ? typeDeclaration.declarationSourceStart : typeDeclaration.allocation.sourceStart;
+			if (typeDeclaration.allocation == null) {
+				typeInfo.declarationStart = typeDeclaration.declarationSourceStart;
+			} else if (isEnumInit) {
+				typeInfo.declarationStart = typeDeclaration.allocation.enumConstant.sourceStart;
+			} else {
+				typeInfo.declarationStart = typeDeclaration.allocation.sourceStart;
+			}
 			typeInfo.modifiers = deprecated ? (currentModifiers & ExtraCompilerModifiers.AccJustFlag) | ClassFileConstants.AccDeprecated : currentModifiers & ExtraCompilerModifiers.AccJustFlag;
 			typeInfo.name = typeDeclaration.name;
-			typeInfo.nameSourceStart = typeDeclaration.sourceStart;
+			typeInfo.nameSourceStart = isEnumInit ? typeDeclaration.allocation.enumConstant.sourceStart : typeDeclaration.sourceStart;
 			typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);
 			typeInfo.superclass = superclassName;
 			typeInfo.superinterfaces = interfaceNames;
@@ -709,8 +715,8 @@ private void reset() {
 private int sourceEnd(TypeDeclaration typeDeclaration) {
 	if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
 		QualifiedAllocationExpression allocation = typeDeclaration.allocation;
-		if (allocation.type == null) // case of enum constant body
-			return typeDeclaration.sourceEnd;
+		if (allocation.enumConstant != null) // case of enum constant body
+			return allocation.enumConstant.sourceEnd;
 		return allocation.type.sourceEnd;
 	} else {
 		return typeDeclaration.sourceEnd;
