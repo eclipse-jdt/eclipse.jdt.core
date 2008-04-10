@@ -221,7 +221,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
  * @return The state of initialization after the analysis of the current expression
  */
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, boolean valueRequired) {
-
 	return analyseCode(currentScope, flowContext, flowInfo);
 }
 
@@ -229,7 +228,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
  * Returns false if cast is not legal. 
  */
 public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castType, TypeBinding expressionType, Expression expression) {
-
 	// see specifications 5.5
 	// handle errors and process constant when needed
 
@@ -502,8 +500,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
  * @param flowContext the current flow context
  * @param flowInfo the upstream flow info; caveat: may get modified
  */
-public void checkNPE(BlockScope scope, FlowContext flowContext, 
-		FlowInfo flowInfo) {
+public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
 	LocalVariableBinding local = this.localVariableBinding();
 	if (local != null && 
 			(local.type.tagBits & TagBits.IsBaseType) == 0) {
@@ -520,299 +517,276 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 }
 
 public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
-		if (match == castType) {
-			if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
-			return true;
-		}
-		if (match != null && (
-				castType.isBoundParameterizedType() 
-				|| 	expressionType.isBoundParameterizedType())) {
-			
-			if(isNarrowing
-					? match.isProvablyDistinct(expressionType)
-					: castType.isProvablyDistinct(match)) {					
-				return false; 
-			}
-		}
+	if (match == castType) {
 		if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
 		return true;
 	}
-	/**
-	 * Base types need that the widening is explicitly done by the compiler using some bytecode like i2f.
-	 * Also check unsafe type operations.
-	 */ 
-	public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding compileTimeType) {
-
-		if (runtimeType == null || compileTimeType == null)
-			return;
-		if (this.implicitConversion != 0) return; // already set independantly
-		
-		// it is possible for a Byte to be unboxed to a byte & then converted to an int
-		// but it is not possible for a byte to become Byte & then assigned to an Integer,
-		// or to become an int before boxed into an Integer
-		if (runtimeType != TypeBinding.NULL && runtimeType.isBaseType()) {
-			if (!compileTimeType.isBaseType()) {
-				TypeBinding unboxedType = scope.environment().computeBoxingType(compileTimeType);
-				this.implicitConversion = TypeIds.UNBOXING;
-				scope.problemReporter().autoboxing(this, compileTimeType, runtimeType);
-				compileTimeType = unboxedType;
-			}
-		} else if (compileTimeType != TypeBinding.NULL && compileTimeType.isBaseType()) {
-			TypeBinding boxedType = scope.environment().computeBoxingType(runtimeType);
-			if (boxedType == runtimeType) // Object o = 12;
-				boxedType = compileTimeType; 
-			this.implicitConversion = TypeIds.BOXING | (boxedType.id << 4) + compileTimeType.id;
-			scope.problemReporter().autoboxing(this, compileTimeType, scope.environment().computeBoxingType(boxedType));
-			return;
-		} else if (this.constant != Constant.NotAConstant && this.constant.typeID() != TypeIds.T_JavaLangString) {
-			this.implicitConversion = TypeIds.BOXING;
-			return;
+	if (match != null && (castType.isBoundParameterizedType() || expressionType.isBoundParameterizedType())) {
+		if(isNarrowing
+				? match.isProvablyDistinct(expressionType)
+				: castType.isProvablyDistinct(match)) {					
+			return false; 
 		}
-		int compileTimeTypeID, runtimeTypeID;
-		if ((compileTimeTypeID = compileTimeType.id) == TypeIds.NoId) { // e.g. ? extends String  ==> String (103227)
-			compileTimeTypeID = compileTimeType.erasure().id == TypeIds.T_JavaLangString ? TypeIds.T_JavaLangString : TypeIds.T_JavaLangObject;
-		}		
-		switch (runtimeTypeID = runtimeType.id) {
-			case T_byte :
-			case T_short :
-			case T_char :
-				this.implicitConversion |= (TypeIds.T_int << 4) + compileTimeTypeID;
-				break;
-			case T_JavaLangString :
-			case T_float :
-			case T_boolean :
-			case T_double :
-			case T_int : //implicitConversion may result in i2i which will result in NO code gen
-			case T_long :
-				this.implicitConversion |= (runtimeTypeID << 4) + compileTimeTypeID;
-				break;
-			default : // regular object ref
+	}
+	if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
+	return true;
+}
+
+/**
+ * Base types need that the widening is explicitly done by the compiler using some bytecode like i2f.
+ * Also check unsafe type operations.
+ */ 
+public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding compileTimeType) {
+	if (runtimeType == null || compileTimeType == null)
+		return;
+	if (this.implicitConversion != 0) return; // already set independantly
+	
+	// it is possible for a Byte to be unboxed to a byte & then converted to an int
+	// but it is not possible for a byte to become Byte & then assigned to an Integer,
+	// or to become an int before boxed into an Integer
+	if (runtimeType != TypeBinding.NULL && runtimeType.isBaseType()) {
+		if (!compileTimeType.isBaseType()) {
+			TypeBinding unboxedType = scope.environment().computeBoxingType(compileTimeType);
+			this.implicitConversion = TypeIds.UNBOXING;
+			scope.problemReporter().autoboxing(this, compileTimeType, runtimeType);
+			compileTimeType = unboxedType;
+		}
+	} else if (compileTimeType != TypeBinding.NULL && compileTimeType.isBaseType()) {
+		TypeBinding boxedType = scope.environment().computeBoxingType(runtimeType);
+		if (boxedType == runtimeType) // Object o = 12;
+			boxedType = compileTimeType; 
+		this.implicitConversion = TypeIds.BOXING | (boxedType.id << 4) + compileTimeType.id;
+		scope.problemReporter().autoboxing(this, compileTimeType, scope.environment().computeBoxingType(boxedType));
+		return;
+	} else if (this.constant != Constant.NotAConstant && this.constant.typeID() != TypeIds.T_JavaLangString) {
+		this.implicitConversion = TypeIds.BOXING;
+		return;
+	}
+	int compileTimeTypeID, runtimeTypeID;
+	if ((compileTimeTypeID = compileTimeType.id) == TypeIds.NoId) { // e.g. ? extends String  ==> String (103227)
+		compileTimeTypeID = compileTimeType.erasure().id == TypeIds.T_JavaLangString ? TypeIds.T_JavaLangString : TypeIds.T_JavaLangObject;
+	}		
+	switch (runtimeTypeID = runtimeType.id) {
+		case T_byte :
+		case T_short :
+		case T_char :
+			this.implicitConversion |= (TypeIds.T_int << 4) + compileTimeTypeID;
+			break;
+		case T_JavaLangString :
+		case T_float :
+		case T_boolean :
+		case T_double :
+		case T_int : //implicitConversion may result in i2i which will result in NO code gen
+		case T_long :
+			this.implicitConversion |= (runtimeTypeID << 4) + compileTimeTypeID;
+			break;
+		default : // regular object ref
 //				if (compileTimeType.isRawType() && runtimeTimeType.isBoundParameterizedType()) {
 //				    scope.problemReporter().unsafeRawExpression(this, compileTimeType, runtimeTimeType);
 //				}		
-		}
 	}
+}
 
-	/**
-	 * Expression statements are plain expressions, however they generate like
-	 * normal expressions with no value required.
-	 *
-	 * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
-	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream 
-	 */
-	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-
-		if ((this.bits & ASTNode.IsReachable) == 0) {
-			return;
-		}
-		generateCode(currentScope, codeStream, false);
+/**
+ * Expression statements are plain expressions, however they generate like
+ * normal expressions with no value required.
+ *
+ * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
+ * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream 
+ */
+public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+	if ((this.bits & ASTNode.IsReachable) == 0) {
+		return;
 	}
-	
-	/**
-	 * Every expression is responsible for generating its implicit conversion when necessary.
-	 *
-	 * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
-	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
-	 * @param valueRequired boolean
-	 */
-	public void generateCode(
-		BlockScope currentScope,
-		CodeStream codeStream,
-		boolean valueRequired) {
+	generateCode(currentScope, codeStream, false);
+}
 
-		if (this.constant != Constant.NotAConstant) {
-			// generate a constant expression
-			int pc = codeStream.position;
-			codeStream.generateConstant(this.constant, this.implicitConversion);
-			codeStream.recordPositionsFrom(pc, this.sourceStart);
+/**
+ * Every expression is responsible for generating its implicit conversion when necessary.
+ *
+ * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
+ * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
+ * @param valueRequired boolean
+ */
+public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+	if (this.constant != Constant.NotAConstant) {
+		// generate a constant expression
+		int pc = codeStream.position;
+		codeStream.generateConstant(this.constant, this.implicitConversion);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
+	} else {
+		// actual non-constant code generation
+		throw new ShouldNotImplement(Messages.ast_missingCode); 
+	}
+}	
+
+/**
+ * Default generation of a boolean value
+ * @param currentScope
+ * @param codeStream
+ * @param trueLabel
+ * @param falseLabel
+ * @param valueRequired
+ */
+public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
+	// a label valued to nil means: by default we fall through the case... 
+	// both nil means we leave the value on the stack
+
+	Constant cst = this.optimizedBooleanConstant();
+	generateCode(currentScope, codeStream, valueRequired && cst == Constant.NotAConstant);
+	if ((cst != Constant.NotAConstant) && (cst.typeID() == TypeIds.T_boolean)) {
+		int pc = codeStream.position;
+		if (cst.booleanValue() == true) {
+			// constant == true
+			if (valueRequired) {
+				if (falseLabel == null) {
+					// implicit falling through the FALSE case
+					if (trueLabel != null) {
+						codeStream.goto_(trueLabel);
+					}
+				}
+			}
 		} else {
-			// actual non-constant code generation
-			throw new ShouldNotImplement(Messages.ast_missingCode); 
-		}
-	}	
-	
-	/**
-	 * Default generation of a boolean value
-	 * @param currentScope
-	 * @param codeStream
-	 * @param trueLabel
-	 * @param falseLabel
-	 * @param valueRequired
-	 */
-	public void generateOptimizedBoolean(
-			BlockScope currentScope,
-			CodeStream codeStream,
-			BranchLabel trueLabel,
-			BranchLabel falseLabel,
-			boolean valueRequired) {
-
-		// a label valued to nil means: by default we fall through the case... 
-		// both nil means we leave the value on the stack
-
-		Constant cst = this.optimizedBooleanConstant();
-		generateCode(currentScope, codeStream, valueRequired && cst == Constant.NotAConstant);
-		if ((cst != Constant.NotAConstant) && (cst.typeID() == TypeIds.T_boolean)) {
-			int pc = codeStream.position;
-			if (cst.booleanValue() == true) {
-				// constant == true
-				if (valueRequired) {
-					if (falseLabel == null) {
-						// implicit falling through the FALSE case
-						if (trueLabel != null) {
-							codeStream.goto_(trueLabel);
-						}
-					}
-				}
-			} else {
-				if (valueRequired) {
-					if (falseLabel != null) {
-						// implicit falling through the TRUE case
-						if (trueLabel == null) {
-							codeStream.goto_(falseLabel);
-						}
+			if (valueRequired) {
+				if (falseLabel != null) {
+					// implicit falling through the TRUE case
+					if (trueLabel == null) {
+						codeStream.goto_(falseLabel);
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this.sourceStart);
+		}
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
+		return;
+	}
+	// branching
+	int position = codeStream.position;
+	if (valueRequired) {
+		if (falseLabel == null) {
+			if (trueLabel != null) {
+				// Implicit falling through the FALSE case
+				codeStream.ifne(trueLabel);
+			}
+		} else {
+			if (trueLabel == null) {
+				// Implicit falling through the TRUE case
+				codeStream.ifeq(falseLabel);
+			} else {
+				// No implicit fall through TRUE/FALSE --> should never occur
+			}
+		}
+	}
+	// reposition the endPC
+	codeStream.updateLastRecordedEndPC(currentScope, position);
+}
+
+/* Optimized (java) code generation for string concatenations that involve StringBuffer
+ * creation: going through this path means that there is no need for a new StringBuffer
+ * creation, further operands should rather be only appended to the current one.
+ * By default: no optimization.
+ */
+public void generateOptimizedStringConcatenation(BlockScope blockScope, CodeStream codeStream, int typeID) {
+	if (typeID == TypeIds.T_JavaLangString && this.constant != Constant.NotAConstant && this.constant.stringValue().length() == 0) {
+		return; // optimize str + ""
+	}
+	generateCode(blockScope, codeStream, true);
+	codeStream.invokeStringConcatenationAppendForType(typeID);
+}
+
+/* Optimized (java) code generation for string concatenations that involve StringBuffer
+ * creation: going through this path means that there is no need for a new StringBuffer
+ * creation, further operands should rather be only appended to the current one.
+ */
+public void generateOptimizedStringConcatenationCreation(BlockScope blockScope, CodeStream codeStream, int typeID) {
+	codeStream.newStringContatenation();
+	codeStream.dup();
+	switch (typeID) {
+		case T_JavaLangObject :
+		case T_undefined :
+			// in the case the runtime value of valueOf(Object) returns null, we have to use append(Object) instead of directly valueOf(Object)
+			// append(Object) returns append(valueOf(Object)), which means that the null case is handled by the next case.
+			codeStream.invokeStringConcatenationDefaultConstructor();
+			generateCode(blockScope, codeStream, true);
+			codeStream.invokeStringConcatenationAppendForType(TypeIds.T_JavaLangObject);
 			return;
-		}
-		// branching
-		int position = codeStream.position;
-		if (valueRequired) {
-			if (falseLabel == null) {
-				if (trueLabel != null) {
-					// Implicit falling through the FALSE case
-					codeStream.ifne(trueLabel);
+		case T_JavaLangString :
+		case T_null :
+			if (this.constant != Constant.NotAConstant) {
+				String stringValue = this.constant.stringValue();
+				if (stringValue.length() == 0) {  // optimize ""+<str> 
+					codeStream.invokeStringConcatenationDefaultConstructor();
+					return;
 				}
+				codeStream.ldc(stringValue);
 			} else {
-				if (trueLabel == null) {
-					// Implicit falling through the TRUE case
-					codeStream.ifeq(falseLabel);
-				} else {
-					// No implicit fall through TRUE/FALSE --> should never occur
-				}
-			}
-		}
-		// reposition the endPC
-		codeStream.updateLastRecordedEndPC(currentScope, position);
-	}
-
-	/* Optimized (java) code generation for string concatenations that involve StringBuffer
-	 * creation: going through this path means that there is no need for a new StringBuffer
-	 * creation, further operands should rather be only appended to the current one.
-	 * By default: no optimization.
-	 */
-	public void generateOptimizedStringConcatenation(
-		BlockScope blockScope,
-		CodeStream codeStream,
-		int typeID) {
-
-		if (typeID == TypeIds.T_JavaLangString && this.constant != Constant.NotAConstant && this.constant.stringValue().length() == 0) {
-			return; // optimize str + ""
-		}
-		generateCode(blockScope, codeStream, true);
-		codeStream.invokeStringConcatenationAppendForType(typeID);
-	}
-
-	/* Optimized (java) code generation for string concatenations that involve StringBuffer
-	 * creation: going through this path means that there is no need for a new StringBuffer
-	 * creation, further operands should rather be only appended to the current one.
-	 */
-	public void generateOptimizedStringConcatenationCreation(
-		BlockScope blockScope,
-		CodeStream codeStream,
-		int typeID) {
-
-		codeStream.newStringContatenation();
-		codeStream.dup();
-		switch (typeID) {
-			case T_JavaLangObject :
-			case T_undefined :
-				// in the case the runtime value of valueOf(Object) returns null, we have to use append(Object) instead of directly valueOf(Object)
-				// append(Object) returns append(valueOf(Object)), which means that the null case is handled by the next case.
-				codeStream.invokeStringConcatenationDefaultConstructor();
+				// null case is not a constant
 				generateCode(blockScope, codeStream, true);
-				codeStream.invokeStringConcatenationAppendForType(TypeIds.T_JavaLangObject);
-				return;
-			case T_JavaLangString :
-			case T_null :
-				if (this.constant != Constant.NotAConstant) {
-					String stringValue = this.constant.stringValue();
-					if (stringValue.length() == 0) {  // optimize ""+<str> 
-						codeStream.invokeStringConcatenationDefaultConstructor();
-						return;
-					}
-					codeStream.ldc(stringValue);
-				} else {
-					// null case is not a constant
-					generateCode(blockScope, codeStream, true);
-					codeStream.invokeStringValueOf(TypeIds.T_JavaLangObject);
-				}
-				break;
-			default :
-				generateCode(blockScope, codeStream, true);
-				codeStream.invokeStringValueOf(typeID);
-		}
-		codeStream.invokeStringConcatenationStringConstructor();
-	}
-
-	private MethodBinding[] getAllInheritedMethods(ReferenceBinding binding) {
-		ArrayList collector = new ArrayList();
-		getAllInheritedMethods0(binding, collector);
-		return (MethodBinding[]) collector.toArray(new MethodBinding[collector.size()]);
-	}
-
-	private void getAllInheritedMethods0(ReferenceBinding binding, ArrayList collector) {
-		if (!binding.isInterface()) return;
-		MethodBinding[] methodBindings = binding.methods();
-		for (int i = 0, max = methodBindings.length; i < max; i++) {
-			collector.add(methodBindings[i]);
-		}
-		ReferenceBinding[] superInterfaces = binding.superInterfaces();
-		for (int i = 0, max = superInterfaces.length; i < max; i++) {
-			getAllInheritedMethods0(superInterfaces[i], collector);
-		}
-	}
-	
-	public boolean isCompactableOperation() {
-
-		return false;
-	}	
-
-	//Return true if the conversion is done AUTOMATICALLY by the vm
-	//while the javaVM is an int based-machine, thus for example pushing
-	//a byte onto the stack , will automatically create an int on the stack
-	//(this request some work d be done by the VM on signed numbers)
-	public boolean isConstantValueOfTypeAssignableToType(TypeBinding constantType, TypeBinding targetType) {
-
-		if (this.constant == Constant.NotAConstant)
-			return false;
-		if (constantType == targetType)
-			return true;
-		if (constantType.isBaseType() && targetType.isBaseType()) {
-			//No free assignment conversion from anything but to integral ones.
-			if ((constantType == TypeBinding.INT
-				|| BaseTypeBinding.isWidening(TypeIds.T_int, constantType.id))
-				&& (BaseTypeBinding.isNarrowing(targetType.id, TypeIds.T_int))) {
-				//use current explicit conversion in order to get some new value to compare with current one
-				return isConstantValueRepresentable(this.constant, constantType.id, targetType.id);
+				codeStream.invokeStringValueOf(TypeIds.T_JavaLangObject);
 			}
+			break;
+		default :
+			generateCode(blockScope, codeStream, true);
+			codeStream.invokeStringValueOf(typeID);
+	}
+	codeStream.invokeStringConcatenationStringConstructor();
+}
+
+private MethodBinding[] getAllInheritedMethods(ReferenceBinding binding) {
+	ArrayList collector = new ArrayList();
+	getAllInheritedMethods0(binding, collector);
+	return (MethodBinding[]) collector.toArray(new MethodBinding[collector.size()]);
+}
+
+private void getAllInheritedMethods0(ReferenceBinding binding, ArrayList collector) {
+	if (!binding.isInterface()) return;
+	MethodBinding[] methodBindings = binding.methods();
+	for (int i = 0, max = methodBindings.length; i < max; i++) {
+		collector.add(methodBindings[i]);
+	}
+	ReferenceBinding[] superInterfaces = binding.superInterfaces();
+	for (int i = 0, max = superInterfaces.length; i < max; i++) {
+		getAllInheritedMethods0(superInterfaces[i], collector);
+	}
+}
+
+public boolean isCompactableOperation() {
+	return false;
+}	
+
+//Return true if the conversion is done AUTOMATICALLY by the vm
+//while the javaVM is an int based-machine, thus for example pushing
+//a byte onto the stack , will automatically create an int on the stack
+//(this request some work d be done by the VM on signed numbers)
+public boolean isConstantValueOfTypeAssignableToType(TypeBinding constantType, TypeBinding targetType) {
+
+	if (this.constant == Constant.NotAConstant)
+		return false;
+	if (constantType == targetType)
+		return true;
+	if (constantType.isBaseType() && targetType.isBaseType()) {
+		//No free assignment conversion from anything but to integral ones.
+		if ((constantType == TypeBinding.INT
+			|| BaseTypeBinding.isWidening(TypeIds.T_int, constantType.id))
+			&& (BaseTypeBinding.isNarrowing(targetType.id, TypeIds.T_int))) {
+			//use current explicit conversion in order to get some new value to compare with current one
+			return isConstantValueRepresentable(this.constant, constantType.id, targetType.id);
 		}
-		return false;
 	}
+	return false;
+}
 
-	public boolean isTypeReference() {
-		return false;
-	}
+public boolean isTypeReference() {
+	return false;
+}
 
-	/**
-	 * Returns the local variable referenced by this node. Can be a direct reference (SingleNameReference)
-	 * or thru a cast expression etc...
-	 */
-	public LocalVariableBinding localVariableBinding() {
-		return null;
-	}
-	
+/**
+ * Returns the local variable referenced by this node. Can be a direct reference (SingleNameReference)
+ * or thru a cast expression etc...
+ */
+public LocalVariableBinding localVariableBinding() {
+	return null;
+}
+
 /**
  * Mark this expression as being non null, per a specific tag in the
  * source code.
@@ -825,196 +799,194 @@ public void markAsNonNull() {
 	public int nullStatus(FlowInfo flowInfo) {
 		
 		if (/* (this.bits & IsNonNull) != 0 || */ 
-				this.constant != null && this.constant != Constant.NotAConstant)
-			return FlowInfo.NON_NULL; // constant expression cannot be null
-		
-		LocalVariableBinding local = localVariableBinding();
-		if (local != null) {
-			if (flowInfo.isDefinitelyNull(local))
-				return FlowInfo.NULL;
-			if (flowInfo.isDefinitelyNonNull(local))
-				return FlowInfo.NON_NULL;
-			return FlowInfo.UNKNOWN;
-		}
-		return FlowInfo.NON_NULL;
-	}
+			this.constant != null && this.constant != Constant.NotAConstant)
+		return FlowInfo.NON_NULL; // constant expression cannot be null
 	
-	/**
-	 * Constant usable for bytecode pattern optimizations, but cannot be inlined
-	 * since it is not strictly equivalent to the definition of constant expressions.
-	 * In particular, some side-effects may be required to occur (only the end value
-	 * is known).
-	 * @return Constant known to be of boolean type
-	 */ 
-	public Constant optimizedBooleanConstant() {
+	LocalVariableBinding local = localVariableBinding();
+	if (local != null) {
+		if (flowInfo.isDefinitelyNull(local))
+			return FlowInfo.NULL;
+		if (flowInfo.isDefinitelyNonNull(local))
+			return FlowInfo.NON_NULL;
+		return FlowInfo.UNKNOWN;
+	}
+	return FlowInfo.NON_NULL;
+}
+
+/**
+ * Constant usable for bytecode pattern optimizations, but cannot be inlined
+ * since it is not strictly equivalent to the definition of constant expressions.
+ * In particular, some side-effects may be required to occur (only the end value
+ * is known).
+ * @return Constant known to be of boolean type
+ */ 
+public Constant optimizedBooleanConstant() {
+	return this.constant;
+}
+
+/**
+ * Returns the type of the expression after required implicit conversions. When expression type gets promoted
+ * or inserted a generic cast, the converted type will differ from the resolved type (surface side-effects from
+ * #computeConversion(...)).
+ * @return the type after implicit conversion
+ */
+public TypeBinding postConversionType(Scope scope) {
+	TypeBinding convertedType = this.resolvedType;
+	int runtimeType = (this.implicitConversion & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
+	switch (runtimeType) {
+		case T_boolean :
+			convertedType = TypeBinding.BOOLEAN;
+			break;
+		case T_byte :
+			convertedType = TypeBinding.BYTE;
+			break;
+		case T_short :
+			convertedType = TypeBinding.SHORT;
+			break;
+		case T_char :
+			convertedType = TypeBinding.CHAR;
+			break;
+		case T_int :
+			convertedType = TypeBinding.INT;
+			break;
+		case T_float :
+			convertedType = TypeBinding.FLOAT;
+			break;
+		case T_long :
+			convertedType = TypeBinding.LONG;
+			break;
+		case T_double :
+			convertedType = TypeBinding.DOUBLE;
+			break;
+		default :
+	}		
+	if ((this.implicitConversion & TypeIds.BOXING) != 0) {
+		convertedType = scope.environment().computeBoxingType(convertedType);
+	}
+	return convertedType;
+}
+
+public StringBuffer print(int indent, StringBuffer output) {
+	printIndent(indent, output);
+	return printExpression(indent, output);
+}
+
+public abstract StringBuffer printExpression(int indent, StringBuffer output);
+
+public StringBuffer printStatement(int indent, StringBuffer output) {
+	return print(indent, output).append(";"); //$NON-NLS-1$
+}
+
+public void resolve(BlockScope scope) {
+	// drops the returning expression's type whatever the type is.
+	this.resolveType(scope);
+	return;
+}
+
+/**
+ * Resolve the type of this expression in the context of a blockScope
+ * 
+ * @param scope
+ * @return
+ * 	Return the actual type of this expression after resolution
+ */
+public TypeBinding resolveType(BlockScope scope) {
+	// by default... subclasses should implement a better TB if required.
+	return null;
+}
+
+/**
+ * Resolve the type of this expression in the context of a classScope
+ * 
+ * @param scope
+ * @return
+ * 	Return the actual type of this expression after resolution
+ */
+public TypeBinding resolveType(ClassScope scope) {
+	// by default... subclasses should implement a better TB if required.
+	return null;
+}
+
+public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedType) {
+	this.setExpectedType(expectedType); // needed in case of generic method invocation
+	TypeBinding expressionType = this.resolveType(scope);
+	if (expressionType == null) return null;
+	if (expressionType == expectedType) return expressionType;
+	
+	if (!expressionType.isCompatibleWith(expectedType)) {
+		if (scope.isBoxingCompatibleWith(expressionType, expectedType)) {
+			this.computeConversion(scope, expectedType, expressionType);
+		} else {
+			scope.problemReporter().typeMismatchError(expressionType, expectedType, this, null);
+			return null;
+		}
+	}
+	return expressionType;
+}
+
+/**
+ * Returns an object which can be used to identify identical JSR sequence targets
+ * (see TryStatement subroutine codegen)
+ * or <code>null</null> if not reusable
+ */
+public Object reusableJSRTarget() {
+	if (this.constant != Constant.NotAConstant)
 		return this.constant;
-	}
+	return null;
+}
 
-	/**
-	 * Returns the type of the expression after required implicit conversions. When expression type gets promoted
-	 * or inserted a generic cast, the converted type will differ from the resolved type (surface side-effects from
-	 * #computeConversion(...)).
-	 * @return the type after implicit conversion
-	 */
-	public TypeBinding postConversionType(Scope scope) {
-		TypeBinding convertedType = this.resolvedType;
-		int runtimeType = (this.implicitConversion & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
-		switch (runtimeType) {
-			case T_boolean :
-				convertedType = TypeBinding.BOOLEAN;
-				break;
-			case T_byte :
-				convertedType = TypeBinding.BYTE;
-				break;
-			case T_short :
-				convertedType = TypeBinding.SHORT;
-				break;
-			case T_char :
-				convertedType = TypeBinding.CHAR;
-				break;
-			case T_int :
-				convertedType = TypeBinding.INT;
-				break;
-			case T_float :
-				convertedType = TypeBinding.FLOAT;
-				break;
-			case T_long :
-				convertedType = TypeBinding.LONG;
-				break;
-			case T_double :
-				convertedType = TypeBinding.DOUBLE;
-				break;
-			default :
-		}		
-		if ((this.implicitConversion & TypeIds.BOXING) != 0) {
-			convertedType = scope.environment().computeBoxingType(convertedType);
-		}
-		return convertedType;
-	}
+/**
+ * Record the type expectation before this expression is typechecked.
+ * e.g. String s = foo();, foo() will be tagged as being expected of type String
+ * Used to trigger proper inference of generic method invocations.
+ * 
+ * @param expectedType
+ * 	The type denoting an expectation in the context of an assignment conversion
+ */
+public void setExpectedType(TypeBinding expectedType) {
+    // do nothing by default
+}
 
-	public StringBuffer print(int indent, StringBuffer output) {
-		printIndent(indent, output);
-		return printExpression(indent, output);
-	}
-	
-	public abstract StringBuffer printExpression(int indent, StringBuffer output);
+public void tagAsNeedCheckCast() {
+    // do nothing by default		
+}
 
-	public StringBuffer printStatement(int indent, StringBuffer output) {
-		return print(indent, output).append(";"); //$NON-NLS-1$
-	}
+/**
+ * Record the fact a cast expression got detected as being unnecessary.
+ * 
+ * @param scope
+ * @param castType
+ */
+public void tagAsUnnecessaryCast(Scope scope, TypeBinding castType) {
+    // do nothing by default
+}
 
-	public void resolve(BlockScope scope) {
-		// drops the returning expression's type whatever the type is.
+public Expression toTypeReference() {
+	//by default undefined
 
-		this.resolveType(scope);
-		return;
-	}
+	//this method is meanly used by the parser in order to transform
+	//an expression that is used as a type reference in a cast ....
+	//--appreciate the fact that castExpression and ExpressionWithParenthesis
+	//--starts with the same pattern.....
 
-	/**
-	 * Resolve the type of this expression in the context of a blockScope
-	 * 
-	 * @param scope
-	 * @return
-	 * 	Return the actual type of this expression after resolution
-	 */
-	public TypeBinding resolveType(BlockScope scope) {
-		// by default... subclasses should implement a better TB if required.
-		return null;
-	}
+	return this;
+}
 
-	/**
-	 * Resolve the type of this expression in the context of a classScope
-	 * 
-	 * @param scope
-	 * @return
-	 * 	Return the actual type of this expression after resolution
-	 */
-	public TypeBinding resolveType(ClassScope scope) {
-		// by default... subclasses should implement a better TB if required.
-		return null;
-	}
+/**
+ * Traverse an expression in the context of a blockScope
+ * @param visitor
+ * @param scope
+ */
+public void traverse(ASTVisitor visitor, BlockScope scope) {
+	// nothing to do
+}
 
-	public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedType) {
-
-		this.setExpectedType(expectedType); // needed in case of generic method invocation
-		TypeBinding expressionType = this.resolveType(scope);
-		if (expressionType == null) return null;
-		if (expressionType == expectedType) return expressionType;
-		
-		if (!expressionType.isCompatibleWith(expectedType)) {
-			if (scope.isBoxingCompatibleWith(expressionType, expectedType)) {
-				this.computeConversion(scope, expectedType, expressionType);
-			} else {
-				scope.problemReporter().typeMismatchError(expressionType, expectedType, this, null);
-				return null;
-			}
-		}
-		return expressionType;
-	}
-
-	/**
-	 * Returns an object which can be used to identify identical JSR sequence targets
-	 * (see TryStatement subroutine codegen)
-	 * or <code>null</null> if not reusable
-	 */
-	public Object reusableJSRTarget() {
-		if (this.constant != Constant.NotAConstant)
-			return this.constant;
-		return null;
-	}
-	
-	/**
-	 * Record the type expectation before this expression is typechecked.
-	 * e.g. String s = foo();, foo() will be tagged as being expected of type String
-	 * Used to trigger proper inference of generic method invocations.
-	 * 
-	 * @param expectedType
-	 * 	The type denoting an expectation in the context of an assignment conversion
-	 */
-	public void setExpectedType(TypeBinding expectedType) {
-	    // do nothing by default
-	}
-	
-	public void tagAsNeedCheckCast() {
-	    // do nothing by default		
-	}
-	
-	/**
-	 * Record the fact a cast expression got detected as being unnecessary.
-	 * 
-	 * @param scope
-	 * @param castType
-	 */
-	public void tagAsUnnecessaryCast(Scope scope, TypeBinding castType) {
-	    // do nothing by default
-	}
-	
-	public Expression toTypeReference() {
-		//by default undefined
-
-		//this method is meanly used by the parser in order to transform
-		//an expression that is used as a type reference in a cast ....
-		//--appreciate the fact that castExpression and ExpressionWithParenthesis
-		//--starts with the same pattern.....
-
-		return this;
-	}
-	
-	/**
-	 * Traverse an expression in the context of a blockScope
-	 * @param visitor
-	 * @param scope
-	 */
-	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		// nothing to do
-	}
-	
-	/**
-	 * Traverse an expression in the context of a classScope
-	 * @param visitor
-	 * @param scope
-	 */
-	public void traverse(ASTVisitor visitor, ClassScope scope) {
-		// nothing to do
-	}
+/**
+ * Traverse an expression in the context of a classScope
+ * @param visitor
+ * @param scope
+ */
+public void traverse(ASTVisitor visitor, ClassScope scope) {
+	// nothing to do
+}
 }
