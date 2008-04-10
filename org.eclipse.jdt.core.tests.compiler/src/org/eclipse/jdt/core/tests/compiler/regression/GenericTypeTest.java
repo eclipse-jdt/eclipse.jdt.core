@@ -20380,12 +20380,7 @@ public void test0661() {
 		"	      ^^^^^^^^^^^^^\n" + 
 		"Type safety: Unchecked cast from Integer to S\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 3)\n" + 
-		"	S a = (S)(Integer)3;\n" + 
-		"	         ^^^^^^^^^^\n" + 
-		"Unnecessary cast from int to Integer\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 5)\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -20409,12 +20404,7 @@ public void test0662() {
 		"	      ^^^^^^^^^^^^^\n" + 
 		"Cannot cast from Integer to S\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 3)\n" + 
-		"	S a = (S)(Integer)3; // this should fail\n" + 
-		"	         ^^^^^^^^^^\n" + 
-		"Unnecessary cast from int to Integer\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 5)\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 

@@ -4429,4 +4429,71 @@ public void test152() {
 		},
 		"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223685
+public void test153() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		Integer a = 0;\n" + 
+			"		char b = (char)((int)a);\n" + 
+			"		char c = (char)(a + 1);\n" + 
+			"		char d = (char)(a);\n" + 
+			"		int e = (int) a;\n" + 
+			"		Integer f = (Integer) e;\n" + 
+			"	}\n" + 
+			"	void bar() {\n" + 
+			"		X x = (X) null;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	Integer a = 0;\n" + 
+		"	            ^\n" + 
+		"The expression of type int is boxed into Integer\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	char b = (char)((int)a);\n" + 
+		"	                     ^\n" + 
+		"The expression of type Integer is unboxed into int\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	char c = (char)(a + 1);\n" + 
+		"	                ^\n" + 
+		"The expression of type Integer is unboxed into int\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	char d = (char)(a);\n" + 
+		"	         ^^^^^^^^^\n" + 
+		"Cannot cast from Integer to char\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 7)\n" + 
+		"	int e = (int) a;\n" + 
+		"	        ^^^^^^^\n" + 
+		"Unnecessary cast from Integer to int\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 7)\n" + 
+		"	int e = (int) a;\n" + 
+		"	              ^\n" + 
+		"The expression of type Integer is unboxed into int\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 8)\n" + 
+		"	Integer f = (Integer) e;\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"Unnecessary cast from int to Integer\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 8)\n" + 
+		"	Integer f = (Integer) e;\n" + 
+		"	                      ^\n" + 
+		"The expression of type int is boxed into Integer\n" + 
+		"----------\n" + 
+		"9. WARNING in X.java (at line 11)\n" + 
+		"	X x = (X) null;\n" + 
+		"	      ^^^^^^^^\n" + 
+		"Unnecessary cast from null to X\n" + 
+		"----------\n");
+}
+
 }
