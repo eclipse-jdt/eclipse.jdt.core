@@ -6454,8 +6454,6 @@ public class ClassFile
 			// resize
 			System.arraycopy(missingTypesIndexes, 0, (missingTypesIndexes = new int[numberOfMissingTypes]), 0, numberOfMissingTypes);
 		}
-		if (numberOfMissingTypes > 1)
-			Arrays.sort(missingTypesIndexes);
 		int attributeLength = numberOfMissingTypes * 2 + 2;
 		if (this.contentsOffset + attributeLength + 6 >= this.contents.length) {
 			resizeContents(attributeLength + 6);
