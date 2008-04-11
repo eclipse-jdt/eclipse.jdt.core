@@ -1004,6 +1004,7 @@ public void testBug223838() throws JavaModelException {
 /**
  * @bug 226357: NPE in MethodBinding.getParameterAnnotations() if some, but not all parameters are annotated
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=226357"
+ * @deprecated to remove deprecated warnings
  */
 public void testBug226357() throws CoreException, IOException {
 	workingCopies = new ICompilationUnit[1];
@@ -1017,7 +1018,15 @@ public void testBug226357() throws CoreException, IOException {
 	);
 
 	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
-	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+	MethodDeclaration methodDeclaration = null;
+	switch(unit.getAST().apiLevel()) {
+		case AST.JLS2 :
+			methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+			break;
+		case AST.JLS3 :
+			methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 1);
+	}
+	assertNotNull("No method declaration", methodDeclaration);
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
 		"----- param 1-----\n" + 
 		"----- param 2-----\n" + 

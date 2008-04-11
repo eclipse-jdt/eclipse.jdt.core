@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
-import java.io.IOException;
 import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
@@ -1042,13 +1040,4 @@ public void testBug130778x() throws JavaModelException {
 			"Syntax error on token \",\", < expected\n",
 			result);
 }
-
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.tests.dom.ASTConverterBugsTest#testBug226357()
- */
-public void testBug226357() throws CoreException, IOException {
-	// TODO Olivier: disabled as this test fails
-	// super.testBug226357();
-}
-
 }
