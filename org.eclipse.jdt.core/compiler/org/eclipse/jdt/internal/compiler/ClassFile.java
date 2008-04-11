@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -6443,11 +6444,22 @@ public class ClassFile
 		int initialSize = this.missingTypes.size();
 		int[] missingTypesIndexes = new int[initialSize];
 		int numberOfMissingTypes = 0;
-		next : for (int i = 0; i < initialSize; i++) {
+		if (initialSize > 1) {
+			Collections.sort(this.missingTypes, new Comparator() {
+				public int compare(Object o1, Object o2) {
+					TypeBinding typeBinding1 = (TypeBinding) o1;
+					TypeBinding typeBinding2 = (TypeBinding) o2;
+					return CharOperation.compareTo(typeBinding1.constantPoolName(), typeBinding2.constantPoolName());
+				}
+			});
+		}
+		int previousIndex = 0;
+		next: for (int i = 0; i < initialSize; i++) {
 			int missingTypeIndex = this.constantPool.literalIndexForType((TypeBinding) this.missingTypes.get(i));
-			for (int j = 0; j < numberOfMissingTypes; j++)
-				if (missingTypesIndexes[j] == missingTypeIndex)
-					continue next;
+			if (previousIndex == missingTypeIndex) {
+				continue next;
+			}
+			previousIndex = missingTypeIndex;
 			missingTypesIndexes[numberOfMissingTypes++] = missingTypeIndex;
 		}
 		// we don't need to resize as we interate from 0 to numberOfMissingTypes when recording the indexes in the .class file
