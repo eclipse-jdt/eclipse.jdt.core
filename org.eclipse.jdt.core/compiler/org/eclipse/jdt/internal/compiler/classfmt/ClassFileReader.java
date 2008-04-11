@@ -347,12 +347,12 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 						int missingTypeOffset = readOffset + 6;
 						int numberOfMissingTypes = u2At(missingTypeOffset);
 						if (numberOfMissingTypes != 0) {
-							missingTypeNames = new char[numberOfMissingTypes][][];
+							this.missingTypeNames = new char[numberOfMissingTypes][][];
 							missingTypeOffset += 2;
 							for (int j = 0; j < numberOfMissingTypes; j++) {
-								utf8Offset = constantPoolOffsets[u2At(constantPoolOffsets[u2At(missingTypeOffset)] + 1)];
+								utf8Offset = this.constantPoolOffsets[u2At(this.constantPoolOffsets[u2At(missingTypeOffset)] + 1)];
 								char[] missingTypeConstantPoolName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-								missingTypeNames[j] = CharOperation.splitOn('/', missingTypeConstantPoolName);
+								this.missingTypeNames[j] = CharOperation.splitOn('/', missingTypeConstantPoolName);
 								missingTypeOffset += 2;
 							}
 						}

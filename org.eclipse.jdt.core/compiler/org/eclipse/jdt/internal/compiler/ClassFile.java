@@ -6450,6 +6450,10 @@ public class ClassFile
 					continue next;
 			missingTypesIndexes[numberOfMissingTypes++] = missingTypeIndex;
 		}
+		if (numberOfMissingTypes != initialSize) {
+			// resize
+			System.arraycopy(missingTypesIndexes, 0, (missingTypesIndexes = new int[numberOfMissingTypes]), 0, numberOfMissingTypes);
+		}
 		if (numberOfMissingTypes > 1)
 			Arrays.sort(missingTypesIndexes);
 		int attributeLength = numberOfMissingTypes * 2 + 2;

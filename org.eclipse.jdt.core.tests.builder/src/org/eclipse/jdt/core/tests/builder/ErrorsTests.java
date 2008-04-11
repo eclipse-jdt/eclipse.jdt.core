@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IMethodInfo;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 
 
@@ -354,7 +355,67 @@ public void test0106() throws JavaModelException {
 	assertTrue("Not a synthetic method", found.isSynthetic());
 	env.removeProject(projectPath);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=225563
+public void test0107() throws JavaModelException {
+	IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	fullBuild(projectPath);
 
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+
+	IPath root = env.addPackageFragmentRoot(projectPath, "src", null, null); //$NON-NLS-1$
+	env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+	IPath classTest1 = env.addClass(root, "", "C", //$NON-NLS-1$ //$NON-NLS-2$
+		"public class C implements None {\n" + 
+		"        public String toString(Arg a) {\n" + 
+		"                return null;\n" + 
+		"        }\n" + 
+		"        public String toString(Arg[] a) {\n" + 
+		"                return null;\n" + 
+		"        }\n" + 
+		"}" //$NON-NLS-1$
+	);
+	
+	incrementalBuild(projectPath);
+
+	expectingOnlySpecificProblemsFor(classTest1, new Problem[] {
+		new Problem("", "None cannot be resolved to a type", classTest1, 26, 30, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR),
+		new Problem("", "Arg cannot be resolved to a type", classTest1, 64, 67, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR),
+		new Problem("", "Arg cannot be resolved to a type", classTest1, 143, 146, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)
+	});
+
+	IJavaProject project = env.getJavaProject(projectPath);
+	IRegion region = JavaCore.newRegion();
+	region.add(project);
+	IResource[] resources = JavaCore.getGeneratedResources(region, false);
+	assertEquals("Wrong size", 1, resources.length);//$NON-NLS-1$
+	Arrays.sort(resources, COMPARATOR);
+	String actualOutput = getResourceOuput(resources);
+	String expectedOutput =
+		"/Project/bin/C.class\n";
+	assertEquals("Wrong names", Util.convertToIndependantLineDelimiter(expectedOutput), actualOutput);
+	
+	assertEquals("Wrong type", IResource.FILE, resources[0].getType());
+	IFile classFile = (IFile) resources[0];
+	InputStream stream = null;
+	try {
+		stream = classFile.getContents();
+		ClassFileReader.read(stream, "C.java");
+	} catch (Exception e) {
+		e.printStackTrace();
+		assertTrue("Should not happen", false);
+	} finally {
+		if (stream != null) {
+			try {
+				stream.close();
+			} catch(IOException e) {
+				// ignore
+			}
+		}
+	}
+}
 private String getResourceOuput(IResource[] resources) {
 	StringWriter stringWriter = new StringWriter();
 	PrintWriter writer = new PrintWriter(stringWriter);
