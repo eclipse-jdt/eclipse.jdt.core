@@ -6450,10 +6450,7 @@ public class ClassFile
 					continue next;
 			missingTypesIndexes[numberOfMissingTypes++] = missingTypeIndex;
 		}
-		if (numberOfMissingTypes != initialSize) {
-			// resize
-			System.arraycopy(missingTypesIndexes, 0, (missingTypesIndexes = new int[numberOfMissingTypes]), 0, numberOfMissingTypes);
-		}
+		// we don't need to resize as we interate from 0 to numberOfMissingTypes when recording the indexes in the .class file
 		int attributeLength = numberOfMissingTypes * 2 + 2;
 		if (this.contentsOffset + attributeLength + 6 >= this.contents.length) {
 			resizeContents(attributeLength + 6);
