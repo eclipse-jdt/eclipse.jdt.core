@@ -259,10 +259,6 @@ private void printStats() {
 	System.out.print(", resolve: " + compilerStats.resolveTime + " ms (" + ((int) (compilerStats.resolveTime * 1000.0 / time)) / 10.0 + "%)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	System.out.print(", analyze: " + compilerStats.analyzeTime + " ms (" + ((int) (compilerStats.analyzeTime * 1000.0 / time)) / 10.0 + "%)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	System.out.println(", generate: " + compilerStats.generateTime + " ms (" + ((int) (compilerStats.generateTime * 1000.0 / time)) / 10.0 + "%)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	
-	long readTime = compilerStats.sourceInputTime + compilerStats.binaryInputTime;
-	System.out.print(">   i/o read: " + readTime + " ms (" + ((int) (readTime * 1000.0 / time)) / 10.0 + "%)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	System.out.println(", write: " + compilerStats.outputTime + " ms (" + ((int) (compilerStats.outputTime * 1000.0 / time)) / 10.0 + "%)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 }
 
 protected void processAnnotationResults(CompilationParticipantResult[] results) {

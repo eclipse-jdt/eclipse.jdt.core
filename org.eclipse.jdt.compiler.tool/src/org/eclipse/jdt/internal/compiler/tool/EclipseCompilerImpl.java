@@ -40,7 +40,6 @@ import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -302,18 +301,13 @@ public class EclipseCompilerImpl extends Main {
 				} catch (IOException e) {
 					this.logger.logNoClassFileCreated(currentDestinationPath, relativeStringName, e);
 				}
-				LookupEnvironment env = EclipseCompilerImpl.this.batchCompiler.lookupEnvironment;
-				if (classFile.isShared) {
-					synchronized (env.classFilePool) {
-						env.classFilePool.release(classFile);
-					}
-				}
 				this.logger.logClassFile(
 					generateClasspathStructure,
 					currentDestinationPath,
 					relativeStringName);
 				this.exportedClassFilesCounter++;
 			}
+			this.batchCompiler.lookupEnvironment.releaseClassFiles(classFiles);
 		}
 	}
 

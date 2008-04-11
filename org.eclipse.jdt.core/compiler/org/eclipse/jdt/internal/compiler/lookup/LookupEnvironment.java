@@ -1333,6 +1333,10 @@ public MethodVerifier methodVerifier() {
 			: new MethodVerifier15(this); // covariance only if sourceLevel is >= 1.5
 	return verifier;
 }
+public void releaseClassFiles(org.eclipse.jdt.internal.compiler.ClassFile[] classFiles) {
+	for (int i = 0, fileCount = classFiles.length; i < fileCount; i++)
+		this.classFilePool.release(classFiles[i]);
+}
 
 public void reset() {
 	this.defaultPackage = new PackageBinding(this); // assume the default package always exists

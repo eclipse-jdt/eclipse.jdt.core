@@ -211,7 +211,9 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	public JavadocParser javadocParser;
 	// used for recovery
 	protected int lastJavadocEnd;
-	
+
+	public org.eclipse.jdt.internal.compiler.ReadManager readManager;
+
 	static {
 		try{
 			initTables();
@@ -8484,7 +8486,9 @@ public int[] getJavaDocPositions() {
 
 		//real parse of the method....
 		CompilationResult compilationResult = unit.compilationResult;
-		char[] contents = compilationResult.compilationUnit.getContents();
+		char[] contents = readManager != null
+			? readManager.getContents(compilationResult.compilationUnit)
+			: compilationResult.compilationUnit.getContents();
 		this.scanner.setSource(contents, compilationResult);
 		
 		if (this.javadocParser != null && this.javadocParser.checkDocComment) {
@@ -9461,7 +9465,7 @@ public CompilationUnitDeclaration parse(
 		/* scanners initialization */
 		char[] contents;
 		try {
-			contents = sourceUnit.getContents();
+			contents = readManager != null ? readManager.getContents(sourceUnit) : sourceUnit.getContents();
 		} catch(AbortCompilationUnit abortException) {
 			this.problemReporter().cannotReadSource(this.compilationUnit, abortException, this.options.verbose);
 			contents = CharOperation.NO_CHAR; // pretend empty from thereon

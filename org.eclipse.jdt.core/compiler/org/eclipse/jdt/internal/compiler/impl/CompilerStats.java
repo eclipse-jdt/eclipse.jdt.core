@@ -22,12 +22,7 @@ public class CompilerStats implements Comparable {
 	public long resolveTime;
 	public long analyzeTime;
 	public long generateTime;
-	
-	// I/O
-	public long sourceInputTime;
-	public long binaryInputTime;
-	public long outputTime;
-	
+
 /**
  * Returns the total elapsed time (between start and end)
  * @return the time spent between start and end

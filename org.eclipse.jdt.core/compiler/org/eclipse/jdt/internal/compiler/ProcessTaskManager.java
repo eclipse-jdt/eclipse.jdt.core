@@ -1,0 +1,155 @@
+/*******************************************************************************
+ * Copyright (c) 2008 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+
+package org.eclipse.jdt.internal.compiler;
+
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.util.Messages;
+
+public class ProcessTaskManager implements Runnable {
+
+	Compiler compiler;
+	private int unitIndex;
+	private Thread processingThread;
+
+	// queue
+	volatile int currentIndex, availableIndex, size, sleepCount;
+	CompilationUnitDeclaration[] units;
+
+	public static int PROCESSED_QUEUE_SIZE = 12; 
+
+public ProcessTaskManager(Compiler compiler) {
+	this.compiler = compiler;
+	this.unitIndex = 0;
+
+	this.currentIndex = 0;
+	this.availableIndex = 0;
+	this.size = PROCESSED_QUEUE_SIZE;
+	this.sleepCount = 0; // 0 is no one, +1 is the processing thread & -1 is the writing/main thread 
+	this.units = new CompilationUnitDeclaration[this.size];
+
+	synchronized (this) {
+		this.processingThread = new Thread(this, "Compiler Processing Task"); //$NON-NLS-1$
+		this.processingThread.setDaemon(true);
+		this.processingThread.start();
+	}
+}
+
+// add unit to the queue - wait if no space is available
+private synchronized void addNextUnit(CompilationUnitDeclaration newElement) {
+	while (this.units[this.availableIndex] != null) {
+		//System.out.print('a');
+		//if (this.sleepCount < 0) throw new IllegalStateException(new Integer(this.sleepCount).toString());
+		this.sleepCount = 1;
+		try {
+			wait(250);
+		} catch (InterruptedException ignore) {
+			// ignore
+		}
+		this.sleepCount = 0;
+	}
+
+	this.units[this.availableIndex++] = newElement;
+	if (this.availableIndex >= this.size)
+		this.availableIndex = 0;
+	if (this.sleepCount <= -1)
+		notify(); // wake up writing thread to accept next unit - could be the last one - must avoid deadlock
+}
+
+public CompilationUnitDeclaration removeNextUnit() {
+	CompilationUnitDeclaration next = null;
+	boolean yield = false;
+	synchronized (this) {
+		next = this.units[this.currentIndex];
+		if (next == null) {
+			do {
+				if (this.processingThread == null)
+					return null;
+				//System.out.print('r');
+				//if (this.sleepCount > 0) throw new IllegalStateException(new Integer(this.sleepCount).toString());
+				this.sleepCount = -1;
+				try {
+					wait(100);
+				} catch (InterruptedException ignore) {
+					// ignore
+				}
+				this.sleepCount = 0;
+				next = this.units[this.currentIndex];
+			} while (next == null);
+		}
+	
+		this.units[this.currentIndex++] = null;
+		if (this.currentIndex >= this.size)
+			this.currentIndex = 0;
+		if (this.sleepCount >= 1 && ++this.sleepCount > 4) {
+			notify(); // wake up processing thread to add next unit but only after removing some elements first
+			yield = this.sleepCount > 8;
+		}
+	}
+	if (yield)
+		Thread.yield();
+	return next;
+}
+
+public void run() {
+	while (this.processingThread != null) {
+		CompilationUnitDeclaration unitToProcess = null;
+		int index = -1;
+		synchronized (this) {
+			if (this.processingThread == null) return;
+
+			unitToProcess = this.compiler.getUnitToProcess(this.unitIndex);
+			if (unitToProcess == null) {
+				shutdown();
+				return;
+			}
+			index = this.unitIndex++;
+		}
+
+		try {
+			this.compiler.reportProgress(Messages.bind(Messages.compilation_processing, new String(unitToProcess.getFileName())));
+			if (this.compiler.options.verbose)
+				this.compiler.out.println(
+					Messages.bind(Messages.compilation_process,
+					new String[] {
+						String.valueOf(index + 1),
+						String.valueOf(this.compiler.totalUnits),
+						new String(unitToProcess.getFileName())
+					}));
+			this.compiler.process(unitToProcess, index);
+		} catch (AbortCompilation e) {
+			shutdown();
+			this.compiler.handleInternalException(e, unitToProcess);
+		} catch (Error e) {
+			shutdown();
+			this.compiler.handleInternalException(e, unitToProcess, null);
+			throw e; // rethrow
+		} catch (RuntimeException e) {
+			shutdown();
+			this.compiler.handleInternalException(e, unitToProcess, null);
+			throw e; // rethrow
+		} finally {
+			unitToProcess.cleanUp();
+		}
+
+		addNextUnit(unitToProcess);
+	}
+}
+
+public synchronized void shutdown() {
+	if (this.processingThread != null) {
+		notifyAll();
+		this.processingThread = null;
+		this.compiler = null;
+	}
+}
+}

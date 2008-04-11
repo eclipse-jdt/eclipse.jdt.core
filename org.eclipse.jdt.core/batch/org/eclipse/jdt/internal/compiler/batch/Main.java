@@ -386,21 +386,17 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			Arrays.sort(this.main.compilerStats);
 			long lineCount = this.main.compilerStats[0].lineCount;
 			final int length = this.main.maxRepetition;
-			long sum = 0, readSum = 0, writeSum = 0;
+			long sum = 0;
 			long parseSum = 0, resolveSum = 0, analyzeSum = 0, generateSum = 0;
 			for (int i = 1, max = length - 1; i < max; i++) {
 				CompilerStats stats = this.main.compilerStats[i];
 				sum += stats.elapsedTime();
-				readSum += stats.sourceInputTime + stats.binaryInputTime;
-				writeSum += stats.outputTime;
 				parseSum += stats.parseTime;
 				resolveSum += stats.resolveTime;
 				analyzeSum += stats.analyzeTime;
 				generateSum += stats.generateTime;
 			}
 			long time = sum / (length - 2);
-			long readTime = readSum/(length - 2);
-			long writeTime = writeSum/(length - 2);
 			long parseTime = parseSum/(length - 2);
 			long resolveTime = resolveSum/(length - 2);
 			long analyzeTime = analyzeSum/(length - 2);
@@ -424,14 +420,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 								String.valueOf(((int) (analyzeTime * 1000.0 / time)) / 10.0),
 								String.valueOf(generateTime),
 								String.valueOf(((int) (generateTime * 1000.0 / time)) / 10.0),
-							}));
-				this.printlnOut(
-						this.main.bind("compile.ioTime", //$NON-NLS-1$
-							new String[] {
-								String.valueOf(readTime),
-								String.valueOf(((int) (readTime * 1000.0 / time)) / 10.0),
-								String.valueOf(writeTime),
-								String.valueOf(((int) (writeTime * 1000.0 / time)) / 10.0),
 							}));
 			}			
 		}
@@ -928,7 +916,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						})); 
 			}
 			if ((this.main.timing & Main.TIMING_DETAILED) != 0) {
-				long readTime = compilerStats.sourceInputTime + compilerStats.binaryInputTime;
 				this.printlnOut(
 						this.main.bind("compile.detailedTime", //$NON-NLS-1$
 							new String[] {
@@ -940,14 +927,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 								String.valueOf(((int) (compilerStats.analyzeTime * 1000.0 / time)) / 10.0),
 								String.valueOf(compilerStats.generateTime),
 								String.valueOf(((int) (compilerStats.generateTime * 1000.0 / time)) / 10.0),
-							}));
-				this.printlnOut(
-						this.main.bind("compile.ioTime", //$NON-NLS-1$
-							new String[] {
-								String.valueOf(readTime),
-								String.valueOf(((int) (readTime * 1000.0 / time)) / 10.0),
-								String.valueOf(compilerStats.outputTime),
-								String.valueOf(((int) (compilerStats.outputTime * 1000.0 / time)) / 10.0),
 							}));
 			}
 		}
@@ -2268,6 +2247,11 @@ public void configure(String[] argv) throws InvalidInputException {
 					mode = INSIDE_PROCESSOR_start;
 					continue;
 				}
+				if (currentArg.equals("-useSingleThread")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_UseSingleThread, CompilerOptions.ENABLED);
+					mode = DEFAULT;
+					continue;
+				}
 				if (currentArg.equals("-proc:only")) { //$NON-NLS-1$
 					this.options.put(
 						CompilerOptions.OPTION_GenerateClassFiles,
@@ -3460,7 +3444,6 @@ protected void initializeAnnotationProcessorManager() {
 // Dump classfiles onto disk for all compilation units that where successful
 // and do not carry a -d none spec, either directly or inherited from Main.
 public void outputClassFiles(CompilationResult unitResult) {
-	long outputStart = System.currentTimeMillis();
 	if (!((unitResult == null) || (unitResult.hasErrors() && !this.proceedOnError))) {
 		ClassFile[] classFiles = unitResult.getClassFiles();
 		String currentDestinationPath = null;
@@ -3504,8 +3487,6 @@ public void outputClassFiles(CompilationResult unitResult) {
 						currentDestinationPath,
 						relativeStringName,
 						classFile);
-					LookupEnvironment env = this.batchCompiler.lookupEnvironment;
-					if (classFile.isShared) env.classFilePool.release(classFile);
 					this.logger.logClassFile(
 						generateClasspathStructure,
 						currentDestinationPath,
@@ -3515,9 +3496,9 @@ public void outputClassFiles(CompilationResult unitResult) {
 					this.logger.logNoClassFileCreated(currentDestinationPath, relativeStringName, e);
 				}
 			}
+			this.batchCompiler.lookupEnvironment.releaseClassFiles(classFiles);
 		}
 	}
-	this.batchCompiler.stats.outputTime += System.currentTimeMillis() - outputStart;
 }
 /*
  *  Low-level API performing the actual compilation
@@ -3540,6 +3521,7 @@ public void performCompilation() throws InvalidInputException {
 			this.out,
 			this.progress);
 	this.batchCompiler.remainingIterations = this.maxRepetition-this.currentRepetition/*remaining iterations including this one*/;
+	this.batchCompiler.useSingleThread = this.compilerOptions.useSingleThread;
 
 	if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_6
 			&& this.compilerOptions.processAnnotations) {

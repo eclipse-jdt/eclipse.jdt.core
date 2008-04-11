@@ -46,6 +46,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	
 	public AbstractAnnotationProcessorManager annotationProcessorManager;
 	public ReferenceBinding[] referenceBindings;
+	public boolean useSingleThread = true; // by default the compiler will not use worker threads to read/process/write
 
 	// number of initial units parsed at once (-1: none)
 
@@ -346,7 +347,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			Messages.bind(Messages.abort_againstSourceModel, new String[] { String.valueOf(sourceTypes[0].getName()), String.valueOf(sourceTypes[0].getFileName()) })); 
 	}
 
-	protected void addCompilationUnit(
+	protected synchronized void addCompilationUnit(
 		ICompilationUnit sourceUnit,
 		CompilationUnitDeclaration parsedUnit) {
 
@@ -378,7 +379,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	/**
 	 * Checks whether the compilation has been canceled and reports the given progress to the compiler progress.
 	 */
-	private void reportProgress(String taskDecription) {
+	protected void reportProgress(String taskDecription) {
 		if (this.progress != null) {
 			if (this.progress.isCanceled()) {
 				// Only AbortCompilation can stop the compiler cleanly.
@@ -392,7 +393,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	/**
 	 * Checks whether the compilation has been canceled and reports the given work increment to the compiler progress.
 	 */
-	private void reportWorked(int workIncrement, int currentUnitIndex) {
+	protected void reportWorked(int workIncrement, int currentUnitIndex) {
 		if (this.progress != null) {
 			if (this.progress.isCanceled()) {
 				// Only AbortCompilation can stop the compiler cleanly.
@@ -411,7 +412,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public void compile(ICompilationUnit[] sourceUnits) {
 		this.stats.startTime = System.currentTimeMillis();
 		CompilationUnitDeclaration unit = null;
-		int i = 0;
+		ProcessTaskManager processingTask = null;
 		try {
 			// build and record parsed units
 			reportProgress(Messages.compilation_beginningToCompile);
@@ -425,39 +426,63 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					return;
 				}
 			}
-			// process all units (some more could be injected in the loop by the lookup environment)
-			for (; i < this.totalUnits; i++) {
-				unit = unitsToProcess[i];
-				reportProgress(Messages.bind(Messages.compilation_processing, new String(unit.getFileName())));
-				try {
+
+			if (this.useSingleThread) {
+				// process all units (some more could be injected in the loop by the lookup environment)
+				for (int i = 0; i < this.totalUnits; i++) {
+					unit = unitsToProcess[i];
+					reportProgress(Messages.bind(Messages.compilation_processing, new String(unit.getFileName())));
+					try {
+						if (options.verbose)
+							this.out.println(
+								Messages.bind(Messages.compilation_process,
+								new String[] {
+									String.valueOf(i + 1),
+									String.valueOf(this.totalUnits),
+									new String(unitsToProcess[i].getFileName())
+								}));
+						process(unit, i);
+					} finally {
+						// cleanup compilation unit result
+						unit.cleanUp();
+					}
+					unitsToProcess[i] = null; // release reference to processed unit declaration
+					
+					reportWorked(1, i);
+					this.stats.lineCount += unit.compilationResult.lineSeparatorPositions.length;
+					long acceptStart = System.currentTimeMillis();
+					requestor.acceptResult(unit.compilationResult.tagAsAccepted());
+					this.stats.generateTime += System.currentTimeMillis() - acceptStart; // record accept time as part of generation
 					if (options.verbose)
 						this.out.println(
-							Messages.bind(Messages.compilation_process,
+							Messages.bind(Messages.compilation_done,
 							new String[] {
 								String.valueOf(i + 1),
 								String.valueOf(this.totalUnits),
-								new String(unitsToProcess[i].getFileName())
+								new String(unit.getFileName())
 							}));
-					process(unit, i);
-				} finally {
-					// cleanup compilation unit result
-					unit.cleanUp();
 				}
-				unitsToProcess[i] = null; // release reference to processed unit declaration
-				
-				reportWorked(1, i);
-				this.stats.lineCount += unit.compilationResult.lineSeparatorPositions.length;
-				long acceptStart = System.currentTimeMillis();
-				requestor.acceptResult(unit.compilationResult.tagAsAccepted());
-				this.stats.generateTime += System.currentTimeMillis() - acceptStart; // record accept time as part of generation
-				if (options.verbose)
-					this.out.println(
-						Messages.bind(Messages.compilation_done,
-						new String[] {
-							String.valueOf(i + 1),
-							String.valueOf(this.totalUnits),
-							new String(unit.getFileName())
-						}));
+			} else {
+				processingTask = new ProcessTaskManager(this);
+				int acceptedCount = 0;
+				// process all units (some more could be injected in the loop by the lookup environment)
+				// the processTask can continue to process units until its fixed sized cache is full then it must wait
+				// for this this thread to accept the units as they appear (it only waits if no units are available)
+				while (true) {
+					unit = processingTask.removeNextUnit(); // waits if no units are in the processed queue
+					if (unit == null) break;
+					reportWorked(1, acceptedCount++);
+					this.stats.lineCount += unit.compilationResult.lineSeparatorPositions.length;
+					requestor.acceptResult(unit.compilationResult.tagAsAccepted());
+					if (options.verbose)
+						this.out.println(
+							Messages.bind(Messages.compilation_done,
+							new String[] {
+								String.valueOf(acceptedCount),
+								String.valueOf(this.totalUnits),
+								new String(unit.getFileName())
+							}));
+				}
 			}
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
@@ -468,6 +493,10 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {
+			if (processingTask != null) {
+				processingTask.shutdown();
+				processingTask = null;
+			}
 			this.reset();
 			this.stats.endTime = System.currentTimeMillis();
 		}
@@ -481,7 +510,16 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			}
 		}
 	}
-	
+
+	public synchronized CompilationUnitDeclaration getUnitToProcess(int next) {
+		if (next < this.totalUnits) {
+			CompilationUnitDeclaration unit = this.unitsToProcess[next];
+			this.unitsToProcess[next] = null; // release reference to processed unit declaration
+			return unit;
+		}
+		return null;
+	}
+
 	public void setBinaryTypes(ReferenceBinding[] binaryTypes) {
 		this.referenceBindings = binaryTypes;
 	}
@@ -620,6 +658,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 *  ->  build compilation unit declarations, their bindings and record their results.
 	 */
 	protected void internalBeginToCompile(ICompilationUnit[] sourceUnits, int maxUnits) {
+		if (!this.useSingleThread && maxUnits >= ReadManager.THRESHOLD)
+			this.parser.readManager = new ReadManager(sourceUnits, maxUnits);
+
 		// Switch the current policy and compilation result for this unit to the requested one.
 		for (int i = 0; i < maxUnits; i++) {
 			try {
@@ -657,6 +698,10 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			} finally {
 				sourceUnits[i] = null; // no longer hold onto the unit
 			}
+		}
+		if (this.parser.readManager != null) {
+			this.parser.readManager.shutdown();
+			this.parser.readManager = null;
 		}
 		// binding resolution
 		lookupEnvironment.completeTypeBindings();

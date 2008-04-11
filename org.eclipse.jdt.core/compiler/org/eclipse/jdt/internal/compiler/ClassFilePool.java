@@ -15,7 +15,7 @@ import java.util.Arrays;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 
 public class ClassFilePool {
-	public static final int POOL_SIZE = 7;
+	public static final int POOL_SIZE = 25; // need to have enough for 2 units
 	ClassFile[] classFiles; 
 	
 private ClassFilePool() {
@@ -26,18 +26,8 @@ private ClassFilePool() {
 public static ClassFilePool newInstance() {
 	return new ClassFilePool();
 }
-
-public void release(ClassFile classFile) {
-	for (int i = 0; i < POOL_SIZE; i++) {
-		ClassFile currentClassFile = this.classFiles[i];
-		if (currentClassFile == classFile) {
-			classFile.isShared = false;
-			return;
-		}
-	}
-}
 	
-public ClassFile acquire(SourceTypeBinding typeBinding) {
+public synchronized ClassFile acquire(SourceTypeBinding typeBinding) {
 	for (int i = 0; i < POOL_SIZE; i++) {
 		ClassFile classFile = this.classFiles[i];
 		if (classFile == null) {
@@ -46,14 +36,16 @@ public ClassFile acquire(SourceTypeBinding typeBinding) {
 			newClassFile.isShared = true;
 			return newClassFile;
 		}
-		if (classFile.isShared) {
-			continue;
+		if (!classFile.isShared) {
+			classFile.reset(typeBinding);
+			classFile.isShared = true;
+			return classFile;
 		}
-		classFile.reset(typeBinding);
-		classFile.isShared = true;
-		return classFile;
 	}
 	return new ClassFile(typeBinding);
+}
+public synchronized void release(ClassFile classFile) {
+	classFile.isShared = false;
 }
 public void reset() {
 	Arrays.fill(this.classFiles, null);

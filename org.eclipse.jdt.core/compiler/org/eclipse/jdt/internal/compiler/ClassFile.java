@@ -114,7 +114,7 @@ public class ClassFile
 	public int methodCount;
 	public int methodCountOffset;
 	// pool managment
-	public boolean isShared = false;
+	boolean isShared = false;
 	// used to generate private access methods
 	// debug and stack map attributes
 	public int produceAttributes;

@@ -1838,6 +1838,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.taskCaseSensitive\" value=\"enabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.taskPriorities\" value=\"\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.taskTags\" value=\"\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.useSingleThread\" value=\"disabled\"/>\n" + 
 			"	</options>\n" +
 			"	<classpaths>NORMALIZED SECTION</classpaths>\n" +
 			"	<sources>\n" +
@@ -1998,7 +1999,7 @@ public void test016(){
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -cp ." + File.pathSeparator + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
-	        + " -verbose -proceedOnError -referenceInfo"
+	        + " -verbose -proceedOnError -referenceInfo -useSingleThread"
 	        + " -d \"" + OUTPUT_DIR + "\"",
 			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
 			"[reading    java/lang/Object.class]\n" +
@@ -2289,7 +2290,7 @@ public void test019(){
 			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
 			  + File.pathSeparator + "\"" + OUTPUT_DIR +  File.separator + "src2\""
 	        + " -1.5 -g -preserveAllLocals"
-	        + " -verbose -proceedOnError -referenceInfo"
+	        + " -verbose -proceedOnError -referenceInfo -useSingleThread"
 	        + " -d \"" + OUTPUT_DIR + "\" ",
 			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
 			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
@@ -2420,7 +2421,7 @@ public void test019(){
 			+ " -extdirs \"" + path + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
 			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
 	        + " -1.5 -g -preserveAllLocals"
-	        + " -verbose -proceedOnError -referenceInfo"
+	        + " -verbose -proceedOnError -referenceInfo -useSingleThread"
 	        + " -d \"" + OUTPUT_DIR + "\" ",
 	        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
 	        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
@@ -2463,7 +2464,7 @@ public void test019(){
 				+ " -extdirs \"" + getExtDirectory() + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src2" + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
 		        + " -1.5 -g -preserveAllLocals"
-		        + " -verbose -proceedOnError -referenceInfo"
+		        + " -verbose -proceedOnError -referenceInfo -useSingleThread"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
 				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
 				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
@@ -9036,7 +9037,7 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin2" + "\"";
 	runConformTest(
 		null,
-		sourceFilePath + commonOptions + " -verbose -proc:none",
+		sourceFilePath + commonOptions + " -verbose -useSingleThread -proc:none",
 		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
 		"[reading    java/lang/Object.class]\n" + 
 		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
@@ -10031,6 +10032,7 @@ public void test255_progress() {
 			"}\n",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ "  -useSingleThread"
         + " -cp " + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
 		+ " -d \"" + OUTPUT_DIR + "\"",
 		""/*out output*/,

@@ -195,6 +195,7 @@ public void acceptResult(CompilationResult result) {
 		if (result.hasAnnotations && this.filesWithAnnotations != null) // only initialized if an annotation processor is attached
 			this.filesWithAnnotations.add(compilationUnit);
 
+		this.compiler.lookupEnvironment.releaseClassFiles(classFiles);
 		finishedWith(typeLocator, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
 		notifier.compiled(compilationUnit);
 	}
@@ -522,7 +523,8 @@ protected Compiler newCompiler() {
 		this,
 		ProblemFactory.getProblemFactory(Locale.getDefault()));
 	CompilerOptions options = newCompiler.options;
-	
+	newCompiler.useSingleThread = options.useSingleThread;
+
 	// enable the compiler reference info support
 	options.produceReferenceInfo = true;
 
@@ -792,7 +794,6 @@ protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) t
 }
 
 protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit, boolean isTopLevelType) throws CoreException {
-	long start = System.currentTimeMillis();
 	String fileName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
 	IPath filePath = new Path(fileName);
 	IContainer outputFolder = compilationUnit.sourceLocation.binaryFolder; 
@@ -804,11 +805,7 @@ protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit,
 
 	IFile file = container.getFile(filePath.addFileExtension(SuffixConstants.EXTENSION_class));
 	writeClassFileContents(classFile, file, fileName, isTopLevelType, compilationUnit);
-	if (classFile.isShared) {
-		this.compiler.lookupEnvironment.classFilePool.release(classFile);
-	}
 	// answer the name of the class file as in Y or Y$M
-	this.compiler.stats.outputTime += System.currentTimeMillis() - start;
 	return filePath.lastSegment().toCharArray();
 }
 
