@@ -6660,21 +6660,30 @@ public final class CompletionEngine
 	}
 	private int computeRelevanceForExpectingType(TypeBinding proposalType){
 		if(this.expectedTypes != null && proposalType != null) {
+			int relevance = 0;
 			for (int i = 0; i <= this.expectedTypesPtr; i++) {
-                int relevance = R_EXPECTED_TYPE;
-				if(CharOperation.equals(this.expectedTypes[i].qualifiedPackageName(), proposalType.qualifiedPackageName()) &&
-					CharOperation.equals(this.expectedTypes[i].qualifiedSourceName(), proposalType.qualifiedSourceName())) {
-                    relevance = R_EXACT_EXPECTED_TYPE;
-				}
 				if((this.expectedTypesFilter & SUBTYPE) != 0
-					&& proposalType.isCompatibleWith(this.expectedTypes[i])) {
-						return relevance;
+						&& proposalType.isCompatibleWith(this.expectedTypes[i])) {
+					
+					if(CharOperation.equals(this.expectedTypes[i].qualifiedPackageName(), proposalType.qualifiedPackageName()) &&
+							CharOperation.equals(this.expectedTypes[i].qualifiedSourceName(), proposalType.qualifiedSourceName())) {
+						return R_EXACT_EXPECTED_TYPE;
+					}
+					
+					relevance = R_EXPECTED_TYPE;
 				}
 				if((this.expectedTypesFilter & SUPERTYPE) != 0
-					&& this.expectedTypes[i].isCompatibleWith(proposalType)) {
-					return relevance;
+						&& this.expectedTypes[i].isCompatibleWith(proposalType)) {
+					
+					if(CharOperation.equals(this.expectedTypes[i].qualifiedPackageName(), proposalType.qualifiedPackageName()) &&
+							CharOperation.equals(this.expectedTypes[i].qualifiedSourceName(), proposalType.qualifiedSourceName())) {
+						return R_EXACT_EXPECTED_TYPE;
+					}
+					
+					relevance = R_EXPECTED_TYPE;
 				}
 			}
+			return relevance;
 		} 
 		return 0;
 	}

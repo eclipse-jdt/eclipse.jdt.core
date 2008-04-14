@@ -12844,6 +12844,76 @@ public void testFavoriteImports031() throws JavaModelException {
 		JavaCore.setOptions(oldOptions);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=178982
+public void testFavoriteImports032() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	
+	try {
+		Hashtable options = new Hashtable(this.oldOptions);
+		options.put(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src3/test/Test.java",
+				"package test;\n" +
+				"public class Test extends Test2 {\n" +
+				"    public void method() {\n" +
+				"        int zelement1\n" +
+				"        float zelement2\n" +
+				"        double zelement3\n" +
+				"        foo(0, zelement);\n" +
+				"    }\n" +
+				"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src3/test/Test2.java",
+				"package test;\n" +
+				"public class Test2 {\n" +
+				"    public void foo(double i, double j) {}\n" +
+				"    public void foo(float i, float j) {}\n" +
+				"    public void foo(int i, int j) {}\n" +
+				"}");
+		
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src3/test/p/ZZZ.java",
+				"package test.p;\n" +
+				"public class ZZZ {\n" +
+				"    public static int zelement4(){}\n" +
+				"    public static float zelement5(){}\n" +
+				"    public static double zelement6(){}\n" +
+				"}");
+		
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+		requestor.allowAllRequiredProposals();
+		requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
+		
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "zelement";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+		int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED;
+		int relevance2 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED;
+		int start1 = str.lastIndexOf("zelement") + "".length();
+		int end1 = start1 + "zelement".length();
+		int start2 = str.lastIndexOf("public class");
+		int end2 = start2 + "".length();
+		assertResults(
+			"zelement4[METHOD_REF]{zelement4(), Ltest.p.ZZZ;, ()I, zelement4, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   zelement4[METHOD_IMPORT]{import static test.p.ZZZ.zelement4;\n, Ltest.p.ZZZ;, ()I, zelement4, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n"+
+			"zelement5[METHOD_REF]{zelement5(), Ltest.p.ZZZ;, ()F, zelement5, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   zelement5[METHOD_IMPORT]{import static test.p.ZZZ.zelement5;\n, Ltest.p.ZZZ;, ()F, zelement5, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n"+
+			"zelement6[METHOD_REF]{zelement6(), Ltest.p.ZZZ;, ()D, zelement6, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   zelement6[METHOD_IMPORT]{import static test.p.ZZZ.zelement6;\n, Ltest.p.ZZZ;, ()D, zelement6, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n"+
+			"zelement1[LOCAL_VARIABLE_REF]{zelement1, null, I, zelement1, null, ["+start1+", "+end1+"], "+(relevance2)+"}\n" +
+			"zelement2[LOCAL_VARIABLE_REF]{zelement2, null, F, zelement2, null, ["+start1+", "+end1+"], "+(relevance2)+"}\n" +
+			"zelement3[LOCAL_VARIABLE_REF]{zelement3, null, D, zelement3, null, ["+start1+", "+end1+"], "+(relevance2)+"}",
+			requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=162865
 public void testNameWithUnresolvedReferences001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
