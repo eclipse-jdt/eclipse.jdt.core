@@ -456,9 +456,12 @@ private String getLibraryClassesAsQuotedString() {
 	 * @param testFiles
 	 *            the source files, given as a suite of file name, file content;
 	 *            file names are relative to the output directory
-	 * @param commandLine
-	 *            the command line to pass to
-	 *            {@link BatchCompiler#compile(String, PrintWriter, PrintWriter, org.eclipse.jdt.core.compiler.CompilationProgress) BatchCompiler#compile}
+	 * @param extraArguments
+	 *            the command line to pass to {@link Main#compile(String[]) 
+	 *            Main#compile} or other arguments to pass to {@link 
+	 *            #invokeCompiler(PrintWriter, PrintWriter, Object, 
+	 *            BatchCompilerTest.TestCompilationProgress)} (for use 
+	 *            by extending test classes)
 	 * @param expectedOutOutputString
 	 *            the expected contents of the standard output stream; pass null
 	 *            to bypass the comparison
@@ -469,10 +472,10 @@ private String getLibraryClassesAsQuotedString() {
 	 *            pass true to get the output directory flushed before the test
 	 *            runs
 	 */
-	private void runTest(
+	protected void runTest(
 			boolean shouldCompileOK, 
 			String[] testFiles, 
-			String commandLine,
+			Object extraArguments,
 			String expectedOutOutputString,
 			String expectedErrOutputString,
 			boolean shouldFlushOutputDirectory,
@@ -505,7 +508,6 @@ private String getLibraryClassesAsQuotedString() {
 		String printerWritersNameRoot = OUTPUT_DIR + File.separator + testName();
 		String outFileName = printerWritersNameRoot + "out.txt",
 			   errFileName = printerWritersNameRoot + "err.txt";
-		Main batchCompiler;
 		PrintWriter out = null;
 		PrintWriter err = null;
 		boolean compileOK;
@@ -513,21 +515,12 @@ private String getLibraryClassesAsQuotedString() {
 			try {
 				out = new PrintWriter(new FileOutputStream(outFileName));
 				err = new PrintWriter(new FileOutputStream(errFileName));
-				batchCompiler = new Main(out, err, false/*systemExit*/, null/*options*/, progress);
 			} catch (FileNotFoundException e) {
 				System.out.println(getClass().getName() + '#' + getName());
 				e.printStackTrace();
 				throw new RuntimeException(e);
 			}
-			try {
-				final String[] tokenizeCommandLine = Main.tokenize(commandLine);
-				compileOK = batchCompiler.compile(tokenizeCommandLine);
-			} catch (RuntimeException e) {
-				compileOK = false;
-				System.out.println(getClass().getName() + '#' + getName());
-				e.printStackTrace();
-				throw e;
-			}
+			compileOK = invokeCompiler(out, err, extraArguments, progress);
 		} finally {
 			if (out != null)
 				out.close();
@@ -587,18 +580,29 @@ private String getLibraryClassesAsQuotedString() {
 			// (need appropriate exception)
 			assertEquals(
 					"Unexpected standard output for invocation with arguments ["
-						+ commandLine + "]",
+						+ extraArguments + "]",
 					expectedOutOutputString,
 					outOutputString);
 		}
 		if (!errCompareOK) {
 			assertEquals(
 					"Unexpected error output for invocation with arguments ["
-						+ commandLine + "]",
+						+ extraArguments + "]",
 					expectedErrOutputString,
 					errOutputString);
 		}
 	}
+// in this case, extraArguments is expected to hold a command line (as a String)
+protected boolean invokeCompiler(PrintWriter out, PrintWriter err, Object extraArguments, TestCompilationProgress compilationProgress) {
+	try {
+		final String[] tokenizedCommandLine = Main.tokenize((String) extraArguments);
+		return new Main(out, err, false, null /* customDefaultOptions */, compilationProgress /* compilationProgress*/).compile(tokenizedCommandLine);
+	} catch (RuntimeException e) {
+		System.out.println(getClass().getName() + '#' + getName());
+		e.printStackTrace();
+		throw e;
+	}
+}
 private void runTest(
 		boolean shouldCompileOK, 
 		String[] testFiles, 
@@ -903,7 +907,7 @@ static final Matcher TWO_FILES_GENERATED_MATCHER = new SubstringMatcher("[2 .cla
 		}
 	}
 
-	static class TestCompilationProgress extends CompilationProgress {
+	protected static class TestCompilationProgress extends CompilationProgress {
 		boolean isCanceled = false;
 		int workedSoFar = 0;
 		StringBuffer buffer = new StringBuffer();

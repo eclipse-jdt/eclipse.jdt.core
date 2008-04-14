@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,8 +39,8 @@ public class AbstractCompilerTest extends TestCase {
 
 	protected static boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	private static int possibleComplianceLevels = 
-		RUN_JAVAC ? F_1_5 : -1;
-	  // javac tests imply 1.5 compliance
+		RUN_JAVAC ? 0xFC : 0xFF;
+	  // javac tests imply 1.5 compliance or higher
 
 	protected long complianceLevel;
 
