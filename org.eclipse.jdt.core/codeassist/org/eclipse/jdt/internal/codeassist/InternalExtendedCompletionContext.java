@@ -280,8 +280,8 @@ public class InternalExtendedCompletionContext {
 		CompilationUnitDeclaration previousUnitBeingCompleted = lookupEnvironment.unitBeingCompleted;
 		lookupEnvironment.unitBeingCompleted = this.compilationUnitDeclaration;
 		try {
-			
-			SignatureWrapper wrapper = new SignatureWrapper(typeSignature.toCharArray());
+
+			SignatureWrapper wrapper = new SignatureWrapper(replacePackagesDot(typeSignature.toCharArray()));
 			assignableTypeBinding = lookupEnvironment.getTypeFromTypeSignature(wrapper, typeVariables, this.assistScope.enclosingClassScope().referenceContext.binding, null);
 			if (assignableTypeBinding instanceof ReferenceBinding) {
 				assignableTypeBinding = BinaryTypeBinding.resolveType((ReferenceBinding)assignableTypeBinding, lookupEnvironment, true);
@@ -292,6 +292,25 @@ public class InternalExtendedCompletionContext {
 			lookupEnvironment.unitBeingCompleted = previousUnitBeingCompleted;
 		}
 		return assignableTypeBinding;
+	}
+	
+	private char[] replacePackagesDot(char[] signature) {
+		boolean replace = true;
+		int length = signature.length;
+		for (int i = 0; i < length; i++) {
+			switch (signature[i]) {
+				case '.':
+					if (replace) signature[i] = '/';
+					break;
+				case '<':
+					replace = true;
+					break;
+				case '>':
+					replace = false;
+					break;
+			}
+		}
+		return signature;
 	}
 	
 	public IJavaElement[] getVisibleElements(String typeSignature) {

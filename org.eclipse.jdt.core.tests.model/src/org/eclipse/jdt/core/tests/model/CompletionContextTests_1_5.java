@@ -1130,4 +1130,141 @@ public void test0036() throws JavaModelException {
 		"}",
 		result.context);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=226673
+public void test0037() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public A<String> methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/A.java",
+		"package test;\n" + 
+		"public class A<TA> {\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "Ltest.A<Ljava.lang.String;>;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	methodX() {key=Ltest/X;.methodX()Ltest/A<Ljava/lang/String;>;} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=226673
+public void test0038() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public A<Z<String>>.B<Z<String>>.C<Z<String>> methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/Z.java",
+		"package test;\n" + 
+		"public class Z<TZ> {\n" + 
+		"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src3/test/A.java",
+		"package test;\n" + 
+		"public class A<TA> {\n" + 
+		"  public class B<TB> {\n" + 
+		"    public class C<TC> {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "Ltest.A<Ltest.Z<Ljava.lang.String;>;>.B<Ltest.Z<Ljava.lang.String;>;>.C<Ltest.Z<Ljava.lang.String;>;>;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	methodX() {key=Ltest/X;.methodX()Ltest/A<Ltest/Z<Ljava/lang/String;>;>.B<Ltest/Z<Ljava/lang/String;>;>.C<Ltest/Z<Ljava/lang/String;>;>;} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=226673
+public void test0039() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" + 
+		"public class X {\n" + 
+		"  public A<A<Z<String>>.B<Z<String>>> methodX() {return null;}\n" + 
+		"  public void foo() {\n" +
+		"    zzzz\n" +
+		"  }\n" +
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/test/Z.java",
+		"package test;\n" + 
+		"public class Z<TZ> {\n" + 
+		"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src3/test/A.java",
+		"package test;\n" + 
+		"public class A<TA> {\n" + 
+		"  public class B<TB> {\n" + 
+		"    public class C<TC> {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("zzzz");
+	int tokenEnd = tokenStart + "zzzz".length() - 1;
+	int cursorLocation = str.lastIndexOf("zzzz") + "zzzz".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "Ltest.A<Ltest.A<Ltest.Z<Ljava.lang.String;>;>.B<Ltest.Z<Ljava.lang.String;>;>;>;");
+	
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"zzzz\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	methodX() {key=Ltest/X;.methodX()Ltest/A<Ltest/A<Ltest/Z<Ljava/lang/String;>;>.B<Ltest/Z<Ljava/lang/String;>;>;>;} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]],\n" +
+		"}",
+		result.context);
+}
 }
