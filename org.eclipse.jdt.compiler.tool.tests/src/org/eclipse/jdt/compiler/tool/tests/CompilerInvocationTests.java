@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.LogRecord;
 
@@ -343,5 +344,22 @@ public void test006_no_dash_d_option_custom_file_manager() throws IOException {
 			"bin/X.class"
 		});
 	assertTrue(customJavaFileManager.matchFound()); // failure here means that getLocation was not called for the class output location
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=226918
+// options consumption
+public void _test007_options_consumption() throws IOException {
+	List<String> remainingAsList = Arrays.asList("output", "remainder");
+	StandardJavaFileManager ecjStandardJavaFileManager = 
+		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
+	Iterator<String> remaining = remainingAsList.iterator();
+	assertTrue("does not support -d option", ecjStandardJavaFileManager.handleOption("-d", remaining));
+	assertEquals("unexpected consumption rate", "remainder", remaining.next());
+	if (RUN_JAVAC) {
+		StandardJavaFileManager javacStandardJavaFileManager =  
+			ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, null, null); // will pick defaults up
+		remaining = remainingAsList.iterator();
+		assertTrue("does not support -d option", javacStandardJavaFileManager.handleOption("-d", remaining));
+		assertEquals("unexpected consumption rate", "remainder", remaining.next());
+	}
 }
 }
