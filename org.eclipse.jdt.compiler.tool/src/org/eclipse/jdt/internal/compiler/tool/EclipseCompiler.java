@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 IBM Corporation and others.
+ * Copyright (c) 2006, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -136,7 +137,15 @@ public class EclipseCompiler implements JavaCompiler {
 
 		if (compilationUnits != null) {
 			for (JavaFileObject javaFileObject : compilationUnits) {
-				allOptions.add(new File(javaFileObject.toUri()).getAbsolutePath());
+				// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6419926
+				// compells us to check that the returned URIs are absolute,
+				// which they happen not to be for the default compiler on some
+				// unices
+				URI uri = javaFileObject.toUri();
+				if (!uri.isAbsolute()) {
+					uri = URI.create("file://" + uri.toString()); //$NON-NLS-1$
+				}
+				allOptions.add(new File(uri).getAbsolutePath());
 			}
 		}
 

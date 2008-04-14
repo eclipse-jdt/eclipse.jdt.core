@@ -575,10 +575,6 @@ public class CompilerToolTests extends TestCase {
 	}
 
 	public void testCompilerOneClassWithEclipseCompiler4() {
-		// this test should be disabled on linux due to bug http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6419926
-		String osName = System.getProperty("os.name");
-		if (osName == null) return; // if we don't know the OS we return
-		if (osName.indexOf("Windows") == -1) return; // we run it only on Windows system
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
 		BufferedWriter writer = null;
