@@ -8239,9 +8239,8 @@ public void test152() {
 		"1"
 	);
 }
-
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986
-public void _test153() {
+public void test153() {
 	this.runConformTest(
 		new String[] {
 			"test/impl/SubOneImpl.java", //--------------------------------------------
@@ -8318,7 +8317,7 @@ public void _test153() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
-public void _test154() {
+public void test154() {
 	this.runConformTest(
 		new String[] {
 			"test/impl/SubOneImpl.java", //--------------------------------------------
@@ -8443,16 +8442,11 @@ public void test157() {
 		"	interface C extends A, B {}\n" + 
 		"	          ^\n" + 
 		"The return type is incompatible with B.foo(), A.foo()\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 12)\n" + 
-		"	public abstract class X extends Root implements A, B {\n" + 
-		"	                      ^\n" + 
-		"The return type is incompatible with B.foo(), A.foo()\n" + 
 		"----------\n"
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
-public void _test158() {
+public void test158() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", //--------------------------------------------
@@ -8480,6 +8474,42 @@ public void _test158() {
 		"	public abstract class X extends Root implements AFoo, BFoo {\n" + 
 		"	                      ^\n" + 
 		"The return type is incompatible with BFoo.bar(), AFoo.bar()\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223986 - variation
+public void test159() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //--------------------------------------------
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"interface AFoo { \n" + 
+			"	Serializable foo();\n" + 
+			"	Serializable bar();\n" + 
+			"}\n" + 
+			"interface BFoo { \n" + 
+			"	Cloneable foo(); \n" + 
+			"	Cloneable bar(); \n" + 
+			"}\n" + 
+			"interface C extends Serializable, Cloneable {}\n" + 
+			"class Root {\n" + 
+			"	public C foo() { return null; }\n" + 
+			"}\n" + 
+			"public abstract class X extends Root implements AFoo, BFoo {}\n" +
+			"abstract class Y extends X {}\n" +
+			"class Z extends X {}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	public abstract class X extends Root implements AFoo, BFoo {}\n" + 
+		"	                      ^\n" + 
+		"The return type is incompatible with BFoo.bar(), AFoo.bar()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 17)\n" + 
+		"	class Z extends X {}\n" + 
+		"	      ^\n" + 
+		"The type Z must implement the inherited abstract method AFoo.bar()\n" + 
 		"----------\n"
 	);
 }

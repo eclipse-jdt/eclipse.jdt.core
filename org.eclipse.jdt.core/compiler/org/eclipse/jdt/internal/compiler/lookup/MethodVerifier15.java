@@ -361,14 +361,20 @@ boolean checkInheritedReturnTypes(MethodBinding[] methods, int length) {
 	// its possible in 1.5 that A is compatible with B & C, but B is not compatible with C
 	int[] areIncompatible = null;
 	// abstract classes must check every method against each other
-	for (int i = 0, l = this.type.isAbstract() ? length - 2 : 0; i <= l;) {
+	// but if first method is concrete, then only check it against the rest
+	for (int i = 0, l = methods[0].isAbstract() ? length - 2 : 0; i <= l;) {
 		MethodBinding method = methods[i++];
 		nextMethod : for (int j = i; j < length; j++) {
 			if (!areReturnTypesCompatible(method, methods[j])) {
-				if (this.type.isInterface())
+				if (this.type.isInterface()) {
 					for (int m = length; --m >= 0;)
 						if (methods[m].declaringClass.id == TypeIds.T_JavaLangObject)
 							continue nextMethod; // do not complain since the super interface already got blamed
+				} else {
+					if (method.declaringClass.isClass() || !this.type.implementsInterface(method.declaringClass, false))
+						if (methods[j].declaringClass.isClass() || !this.type.implementsInterface(methods[j].declaringClass, false))
+							continue nextMethod; // do not complain since the superclass already got blamed
+				}
 				// check to see if this is just a warning, if so report it & skip to next method
 				if (isUnsafeReturnTypeOverride(method, methods[j])) {
 					problemReporter(method).unsafeReturnTypeOverride(method, methods[j], this.type);
