@@ -119,7 +119,6 @@ public class CompilerOptions {
 	public static final String OPTION_GenerateClassFiles = "org.eclipse.jdt.core.compiler.generateClassFiles"; //$NON-NLS-1$
 	public static final String OPTION_Process_Annotations = "org.eclipse.jdt.core.compiler.processAnnotations"; //$NON-NLS-1$
 	public static final String OPTION_ReportRedundantSuperinterface =  "org.eclipse.jdt.core.compiler.problem.redundantSuperinterface"; //$NON-NLS-1$
-	public static final String OPTION_UseSingleThread = "org.eclipse.jdt.core.compiler.useSingleThread"; //$NON-NLS-1$
 
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -340,9 +339,6 @@ public class CompilerOptions {
 	// Enable annotation processing by default only in batch mode
 	public boolean processAnnotations = false;
 
-	// run the compiler in a single thread
-	public boolean useSingleThread = false;
-
 	/**
 	 * Initializing the compiler options with defaults
 	 */
@@ -463,7 +459,6 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_GenerateClassFiles, this.generateClassFiles ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_Process_Annotations, this.processAnnotations ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportRedundantSuperinterface, getSeverityString(RedundantSuperinterface));
-		optionsMap.put(OPTION_UseSingleThread, this.useSingleThread ? ENABLED : DISABLED);
 		return optionsMap;
 	}
 
@@ -988,13 +983,6 @@ public class CompilerOptions {
 				this.storeAnnotations = false;
 			}
 		}
-		if ((optionValue = optionsMap.get(OPTION_UseSingleThread)) != null) {
-			if (ENABLED.equals(optionValue)) {
-				this.useSingleThread = true;
-			} else if (DISABLED.equals(optionValue)) {
-				this.useSingleThread = false;
-			}
-		}
 	}
 
 	public String toString() {
@@ -1085,7 +1073,6 @@ public class CompilerOptions {
 		buf.append("\n\t- process annotations: ").append(this.processAnnotations ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unused type arguments for method/constructor invocation: ").append(getSeverityString(UnusedTypeArguments)); //$NON-NLS-1$
 		buf.append("\n\t- redundant superinterface: ").append(getSeverityString(RedundantSuperinterface)); //$NON-NLS-1$
-		buf.append("\n\t- use single compiler thread: ").append(this.useSingleThread ? ENABLED : DISABLED); //$NON-NLS-1$
 		return buf.toString();
 	}
 

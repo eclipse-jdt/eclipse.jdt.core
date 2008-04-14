@@ -2247,11 +2247,6 @@ public void configure(String[] argv) throws InvalidInputException {
 					mode = INSIDE_PROCESSOR_start;
 					continue;
 				}
-				if (currentArg.equals("-useSingleThread")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_UseSingleThread, CompilerOptions.ENABLED);
-					mode = DEFAULT;
-					continue;
-				}
 				if (currentArg.equals("-proc:only")) { //$NON-NLS-1$
 					this.options.put(
 						CompilerOptions.OPTION_GenerateClassFiles,
@@ -3521,7 +3516,9 @@ public void performCompilation() throws InvalidInputException {
 			this.out,
 			this.progress);
 	this.batchCompiler.remainingIterations = this.maxRepetition-this.currentRepetition/*remaining iterations including this one*/;
-	this.batchCompiler.useSingleThread = this.compilerOptions.useSingleThread;
+	// temporary code to allow the compiler to revert to a single thread
+	String setting = System.getProperty("jdt.compiler.useSingleThread"); //$NON-NLS-1$
+	this.batchCompiler.useSingleThread = setting != null && setting.equals("true"); //$NON-NLS-1$
 
 	if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_6
 			&& this.compilerOptions.processAnnotations) {

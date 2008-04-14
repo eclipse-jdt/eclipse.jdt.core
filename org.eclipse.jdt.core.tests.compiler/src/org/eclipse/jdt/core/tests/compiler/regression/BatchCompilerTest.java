@@ -1842,7 +1842,6 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.taskCaseSensitive\" value=\"enabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.taskPriorities\" value=\"\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.taskTags\" value=\"\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.useSingleThread\" value=\"disabled\"/>\n" + 
 			"	</options>\n" +
 			"	<classpaths>NORMALIZED SECTION</classpaths>\n" +
 			"	<sources>\n" +
@@ -1987,6 +1986,9 @@ public void test012b(){
 	}
 // command line - several path separators within the classpath
 public void test016(){
+	String setting = System.getProperty("jdt.compiler.useSingleThread");
+	try {
+		System.setProperty("jdt.compiler.useSingleThread", "true");
 		this.runConformTest(
 			new String[] {
 					"X.java",
@@ -2003,7 +2005,7 @@ public void test016(){
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -cp ." + File.pathSeparator + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
-	        + " -verbose -proceedOnError -referenceInfo -useSingleThread"
+	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"",
 			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
 			"[reading    java/lang/Object.class]\n" +
@@ -2018,7 +2020,10 @@ public void test016(){
 			"[2 .class files generated]\n",
 	        "",
 	        true);
+	} finally {
+		System.setProperty("jdt.compiler.useSingleThread", setting == null ? "false" : setting);
 	}
+}
 public void test017(){
 		this.runConformTest(
 			new String[] {
@@ -2279,36 +2284,42 @@ public void test019(){
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -sourcepath finds additional source files
 	public void test021(){
-		this.runConformTest(
-			new String[] {
-					"src1/X.java",
-					"/** */\n" +
-					"public class X {\n" +
-					"}",
-					"src2/Y.java",
-					"/** */\n" +
-					"public class Y extends X {\n" +
-					"}",
-			},
-	        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
-			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
-			  + File.pathSeparator + "\"" + OUTPUT_DIR +  File.separator + "src2\""
-	        + " -1.5 -g -preserveAllLocals"
-	        + " -verbose -proceedOnError -referenceInfo -useSingleThread"
-	        + " -d \"" + OUTPUT_DIR + "\" ",
-			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
-			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-			"[reading    java/lang/Object.class]\n" +
-			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
-			"[writing    Y.class - #1]\n" +
-			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
-			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-			"[writing    X.class - #2]\n" +
-			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-			"[2 units compiled]\n" +
-			"[2 .class files generated]\n",
-	        "",
-	        true);
+		String setting= System.getProperty("jdt.compiler.useSingleThread");
+		try {
+			System.setProperty("jdt.compiler.useSingleThread", "true");
+			this.runConformTest(
+				new String[] {
+						"src1/X.java",
+						"/** */\n" +
+						"public class X {\n" +
+						"}",
+						"src2/Y.java",
+						"/** */\n" +
+						"public class Y extends X {\n" +
+						"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
+				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
+				  + File.pathSeparator + "\"" + OUTPUT_DIR +  File.separator + "src2\""
+		        + " -1.5 -g -preserveAllLocals"
+		        + " -verbose -proceedOnError -referenceInfo"
+		        + " -d \"" + OUTPUT_DIR + "\" ",
+				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
+				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+				"[reading    java/lang/Object.class]\n" +
+				"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
+				"[writing    Y.class - #1]\n" +
+				"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
+				"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+				"[writing    X.class - #2]\n" +
+				"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+				"[2 units compiled]\n" +
+				"[2 .class files generated]\n",
+		        "",
+		        true);
+		} finally {
+			System.setProperty("jdt.compiler.useSingleThread", setting == null ? "false" : setting);
+		}
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - repeated -sourcepath fails - even if the error is more
 // explicit here than what javac does
@@ -2409,44 +2420,53 @@ public void test019(){
 		} catch (IOException e) {
 			// ignore
 		}
-		this.runConformTest(
-			new String[] {
-					"src1/X.java",
-					"/** */\n" +
-					"public class X {\n" +
-					"  my.pkg.Zork dummy;\n" +
-					"}",
-					"src2/Y.java",
-					"/** */\n" +
-					"public class Y extends X {\n" +
-					"}",
-			},
-	        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
-			+ " -extdirs \"" + path + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
-			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
-	        + " -1.5 -g -preserveAllLocals"
-	        + " -verbose -proceedOnError -referenceInfo -useSingleThread"
-	        + " -d \"" + OUTPUT_DIR + "\" ",
-	        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
-	        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-	        "[reading    java/lang/Object.class]\n" +
-	        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
-	        "[writing    Y.class - #1]\n" +
-	        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
-	        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-	        "[reading    my/pkg/Zork.class]\n" +
-	        "[writing    X.class - #2]\n" +
-	        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
-	        "[2 units compiled]\n" +
-	        "[2 .class files generated]\n",
-	        "",
-	        true);
+		String setting= System.getProperty("jdt.compiler.useSingleThread");
+		try {
+			System.setProperty("jdt.compiler.useSingleThread", "true");
+			this.runConformTest(
+				new String[] {
+						"src1/X.java",
+						"/** */\n" +
+						"public class X {\n" +
+						"  my.pkg.Zork dummy;\n" +
+						"}",
+						"src2/Y.java",
+						"/** */\n" +
+						"public class Y extends X {\n" +
+						"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
+				+ " -extdirs \"" + path + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
+				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
+		        + " -1.5 -g -preserveAllLocals"
+		        + " -verbose -proceedOnError -referenceInfo"
+		        + " -d \"" + OUTPUT_DIR + "\" ",
+		        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
+		        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+		        "[reading    java/lang/Object.class]\n" +
+		        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
+		        "[writing    Y.class - #1]\n" +
+		        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
+		        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+		        "[reading    my/pkg/Zork.class]\n" +
+		        "[writing    X.class - #2]\n" +
+		        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+		        "[2 units compiled]\n" +
+		        "[2 .class files generated]\n",
+		        "",
+		        true);
+		} finally {
+			System.setProperty("jdt.compiler.useSingleThread", setting == null ? "false" : setting);
+		}
 		if (jarCreated) {
 			Util.delete(libPath);
 		}
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -extdirs extends the classpath before -classpath
-		public void test026(){
+	public void test026(){
+		String setting= System.getProperty("jdt.compiler.useSingleThread");
+		try {
+			System.setProperty("jdt.compiler.useSingleThread", "true");
 			this.runConformTest(
 				new String[] {
 						"src1/X.java",
@@ -2468,7 +2488,7 @@ public void test019(){
 				+ " -extdirs \"" + getExtDirectory() + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
 				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src2" + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
 		        + " -1.5 -g -preserveAllLocals"
-		        + " -verbose -proceedOnError -referenceInfo -useSingleThread"
+		        + " -verbose -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
 				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
 				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
@@ -2483,7 +2503,10 @@ public void test019(){
 				"[2 .class files generated]\n",
 				"",
 		        true);
+		} finally {
+			System.setProperty("jdt.compiler.useSingleThread", setting == null ? "false" : setting);
 		}
+	}
 
 public void test027(){
 	this.runNegativeTest(
@@ -9039,25 +9062,31 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		" -classpath \"" + OUTPUT_DIR + File.separator + "bin1" + "\""
 		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2" + "\""
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin2" + "\"";
-	runConformTest(
-		null,
-		sourceFilePath + commonOptions + " -verbose -useSingleThread -proc:none",
-		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
-		"[reading    java/lang/Object.class]\n" + 
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
-		"[reading    java/lang/String.class]\n" + 
-		"[reading    java/lang/System.class]\n" + 
-		"[reading    java/io/PrintStream.class]\n" + 
-		"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" + 
-		"[writing    Y.class - #1]\n" + 
-		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/2]\n" + 
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" + 
-		"[writing    X.class - #2]\n" + 
-		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" + 
-		"[2 units compiled]\n" + 
-		"[2 .class files generated]\n",
-		"",
-		false);
+	String setting= System.getProperty("jdt.compiler.useSingleThread");
+	try {
+		System.setProperty("jdt.compiler.useSingleThread", "true");
+		runConformTest(
+			null,
+			sourceFilePath + commonOptions + " -verbose -proc:none",
+			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+			"[reading    java/lang/Object.class]\n" + 
+			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" + 
+			"[reading    java/lang/String.class]\n" + 
+			"[reading    java/lang/System.class]\n" + 
+			"[reading    java/io/PrintStream.class]\n" + 
+			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" + 
+			"[writing    Y.class - #1]\n" + 
+			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/2]\n" + 
+			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" + 
+			"[writing    X.class - #2]\n" + 
+			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" + 
+			"[2 units compiled]\n" + 
+			"[2 .class files generated]\n",
+			"",
+			false);
+	} finally {
+		System.setProperty("jdt.compiler.useSingleThread", setting == null ? "false" : setting);
+	}
 	if (RUN_JAVAC) {
 		// run ecj result
 		this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin2"});
@@ -10025,30 +10054,35 @@ public void test255_progress() {
 			super.worked(workIncrement, remainingWork);
 		}
 	};
-	runProgressTest(
-		false/*shouldCompileOK*/,
-		new String[] {
-			"Y.java",
-			"public class Y {\n" + 
-			"}\n",
-			"X.java",
-			"public class X extends Y {\n" + 
-			"}\n",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ "  -useSingleThread"
-        + " -cp " + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
-		+ " -d \"" + OUTPUT_DIR + "\"",
-		""/*out output*/,
-		""/*err output*/,
-		progress,
-		"----------\n" + 
-		"[worked: 0 - remaining: 1]\n" + 
-		"Beginning to compile\n" + 
-		"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
-		"[worked: 1 - remaining: 1]\n" + 
-		"----------\n"
-	);
+	String setting= System.getProperty("jdt.compiler.useSingleThread");
+	try {
+		System.setProperty("jdt.compiler.useSingleThread", "true");
+		runProgressTest(
+			false/*shouldCompileOK*/,
+			new String[] {
+				"Y.java",
+				"public class Y {\n" + 
+				"}\n",
+				"X.java",
+				"public class X extends Y {\n" + 
+				"}\n",
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+	        + " -cp " + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
+			+ " -d \"" + OUTPUT_DIR + "\"",
+			""/*out output*/,
+			""/*err output*/,
+			progress,
+			"----------\n" + 
+			"[worked: 0 - remaining: 1]\n" + 
+			"Beginning to compile\n" + 
+			"Processing ---OUTPUT_DIR_PLACEHOLDER---/X.java\n" + 
+			"[worked: 1 - remaining: 1]\n" + 
+			"----------\n"
+		);
+	} finally {
+		System.setProperty("jdt.compiler.useSingleThread", setting == null ? "false" : setting);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // jar files reached indirectly bear the access rules of the entry that 
