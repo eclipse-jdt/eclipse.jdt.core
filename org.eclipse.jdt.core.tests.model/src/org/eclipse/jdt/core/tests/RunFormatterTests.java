@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 IBM Corporation and others.
+ * Copyright (c) 2005, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,31 +12,58 @@ package org.eclipse.jdt.core.tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests;
+import org.eclipse.jdt.core.tests.formatter.*;
 import org.eclipse.jdt.core.tests.formatter.comment.CommentsTestSuite;
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 
 /**
  * Runs all formatter tests.
  */
-public class RunFormatterTests extends TestCase {
+public class RunFormatterTests extends junit.framework.TestCase {
 	
-	public static Class[] getAllTestClasses() {
-		return new Class[] {
-			FormatterRegressionTests.class,
-			CommentsTestSuite.class,
-		};
+	public final static List TEST_SUITES = new ArrayList();
+	static {
+		TEST_SUITES.add(FormatterJavadocTests.class);
+		TEST_SUITES.add(FormatterJavadocClearBlankLinesTests.class);
+		TEST_SUITES.add(FormatterJavadocDontIndentTagsTests.class);
+		TEST_SUITES.add(FormatterJavadocDontIndentTagsDescriptionTests.class);
 	}
+
+	public static Class[] getTestClasses() {
+		return (Class[]) TEST_SUITES.toArray();
+	}
+
 	public static Test suite() {
 		TestSuite ts = new TestSuite(RunFormatterTests.class.getName());
 
-		Class[] testClasses = getAllTestClasses();
-		for (int i = 0; i < testClasses.length; i++) {
-			Class testClass = testClasses[i];
+		// Store test classes with same "JavaSearch"project
+		FormatterJavadocTests.ALL_TEST_SUITES = new ArrayList(TEST_SUITES);
+
+		// Get all classes
+		List allClasses = new ArrayList();
+		String type = System.getProperty("type");
+		if (type == null || !type.equals("javadoc")) {
+			allClasses.add(FormatterRegressionTests.class);
+		}
+		allClasses.add(CommentsTestSuite.class);
+		allClasses.addAll(TEST_SUITES);
+
+		// Reset forgotten subsets of tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS = null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+
+		// Add all tests suite of tests
+		for (int i = 0, size = allClasses.size(); i < size; i++) {
+			Class testClass = (Class) allClasses.get(i);
 
 			// call the suite() method and add the resulting suite to the suite
 			try {

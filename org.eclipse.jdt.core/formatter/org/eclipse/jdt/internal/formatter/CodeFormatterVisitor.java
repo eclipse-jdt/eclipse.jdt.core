@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2002, 2007 IBM Corporation and others.
+ * Copyright (c) 2002, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -175,14 +175,14 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	public DefaultCodeFormatterOptions preferences;
 	public Scribe scribe;
 
-	public CodeFormatterVisitor(DefaultCodeFormatterOptions preferences, Map settings, IRegion[] regions, CodeSnippetParsingUtil codeSnippetParsingUtil) {
+	public CodeFormatterVisitor(DefaultCodeFormatterOptions preferences, Map settings, IRegion[] regions, CodeSnippetParsingUtil codeSnippetParsingUtil, boolean formatJavadoc) {
 		long sourceLevel = settings == null
 			? ClassFileConstants.JDK1_3
 			: CompilerOptions.versionToJdkLevel(settings.get(JavaCore.COMPILER_SOURCE));
 		this.localScanner = new Scanner(true, false, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		
 		this.preferences = preferences;
-		this.scribe = new Scribe(this, sourceLevel, regions, codeSnippetParsingUtil);
+		this.scribe = new Scribe(this, sourceLevel, regions, codeSnippetParsingUtil, formatJavadoc);
 	}
 	
 	/**
@@ -908,6 +908,15 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
 		}
 		return result;
+	}
+	
+	/**
+	 * @param source the source of the comment to format
+	 */
+	public void format(String source, int start, int end, int indentationLevel) {
+		if (source == null) return;
+		this.scribe.initializeScanner(source.toCharArray());
+		this.scribe.printJavadocComment(start, end, indentationLevel);
 	}
 
 	private void format(TypeDeclaration typeDeclaration){
@@ -2247,7 +2256,33 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 		}
 	}
-			
+
+	private void printComment(boolean packageDeclaration) {
+		this.localScanner.resetTo(this.scribe.scanner.startPosition, this.scribe.scannerEndPosition - 1);
+		try {
+			int token = this.localScanner.getNextToken();
+			switch(token) {
+				case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					boolean formatJavadoc = this.scribe.formatJavadocComment;
+					if ((!packageDeclaration && formatJavadoc) || (packageDeclaration && this.preferences.comment_format_header)) {
+						this.scribe.printJavadocComment(this.localScanner.startPosition, this.localScanner.currentPosition, -1);
+					} else {
+						this.scribe.formatJavadocComment = false;
+						this.scribe.printComment();
+						this.scribe.formatJavadocComment = formatJavadoc;
+					}
+					this.scribe.printNewLine();
+					break;
+				case TerminalTokens.TokenNameCOMMENT_BLOCK :
+				case TerminalTokens.TokenNameCOMMENT_LINE :
+	    			this.scribe.printComment();
+	    			break;
+			}
+		} catch(InvalidInputException e) {
+			// ignore
+		}
+    }
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.AllocationExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
@@ -2948,17 +2983,16 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		/* 
 		 * Package declaration
 		 */
-		final boolean hasPackage = compilationUnitDeclaration.currentPackage != null;
+		ImportReference currentPackage = compilationUnitDeclaration.currentPackage;
+		final boolean hasPackage = currentPackage != null;
 		if (hasPackage) {
-			if (hasComments()) {
-				this.scribe.printComment();
-			}
+			printComment(true);
 			int blankLinesBeforePackage = this.preferences.blank_lines_before_package;
 			if (blankLinesBeforePackage > 0) {
 				this.scribe.printEmptyLines(blankLinesBeforePackage);
 			}
 
-			this.scribe.printModifiers(compilationUnitDeclaration.currentPackage.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_MEMBER);
+			this.scribe.printModifiers(currentPackage.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_MEMBER);
 			this.scribe.space();
 			// dump the package keyword
 			this.scribe.printNextToken(TerminalTokens.TokenNamepackage);

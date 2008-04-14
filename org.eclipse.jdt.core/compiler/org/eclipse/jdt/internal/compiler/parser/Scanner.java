@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,6 +53,7 @@ public class Scanner implements TerminalTokens {
 	public int initialPosition, eofPosition;
 	// after this position eof are generated instead of real token from the source
 
+	public boolean skipComments = false;
 	public boolean tokenizeComments = false;
 	public boolean tokenizeWhiteSpace = false;
 
@@ -157,7 +158,7 @@ public class Scanner implements TerminalTokens {
 	protected int nlsTagsPtr;
 	public boolean checkNonExternalizedStringLiterals;
 	
-	protected int lastPosistion;
+	protected int lastPosition;
 	
 	// generic support
 	public boolean returnOnlyGreater = false;
@@ -1461,9 +1462,9 @@ public int getNextToken() throws InvalidInputException {
 					}
 					return TokenNameStringLiteral;
 				case '/' :
-					{
-						int test;
-						if ((test = getNextChar('/', '*')) == 0) { //line comment 
+					if (!skipComments) {
+						int test = getNextChar('/', '*');
+						if (test == 0) { //line comment 
 							this.lastCommentLinePosition = this.currentPosition;
 							try { //get the next char 
 								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
@@ -1510,7 +1511,7 @@ public int getNextToken() throws InvalidInputException {
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 									if (this.checkNonExternalizedStringLiterals &&
-											this.lastPosistion < this.currentPosition) {
+											this.lastPosition < this.currentPosition) {
 										parseTags();
 									}
 									if (this.recordLineSeparator) {
@@ -1529,7 +1530,7 @@ public int getNextToken() throws InvalidInputException {
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if (this.checkNonExternalizedStringLiterals &&
-										this.lastPosistion < this.currentPosition) {
+										this.lastPosition < this.currentPosition) {
 									parseTags();
 								}
 								if (this.tokenizeComments) {
@@ -1648,10 +1649,10 @@ public int getNextToken() throws InvalidInputException {
 							}
 							break;
 						}
-						if (getNextChar('='))
-							return TokenNameDIVIDE_EQUAL;
-						return TokenNameDIVIDE;
 					}
+					if (getNextChar('='))
+						return TokenNameDIVIDE_EQUAL;
+					return TokenNameDIVIDE;
 				case '\u001a' :
 					if (atEnd())
 						return TokenNameEOF;
@@ -1956,7 +1957,7 @@ public final void jumpOverMethodBody() {
 								if (this.recordLineSeparator
 									&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
 										if (this.checkNonExternalizedStringLiterals &&
-												this.lastPosistion < this.currentPosition) {
+												this.lastPosition < this.currentPosition) {
 											parseTags();
 										}
 										if (this.recordLineSeparator) {
@@ -1972,7 +1973,7 @@ public final void jumpOverMethodBody() {
 								this.currentPosition--;
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.checkNonExternalizedStringLiterals &&
-										this.lastPosistion < this.currentPosition) {
+										this.lastPosition < this.currentPosition) {
 									parseTags();
 								}
 								if (!this.tokenizeComments) {
@@ -3622,6 +3623,8 @@ public String toString() {
 		return "EOF\n\n" + new String(this.source); //$NON-NLS-1$
 	if (this.currentPosition > this.eofPosition)
 		return "behind the EOF\n\n" + new String(this.source); //$NON-NLS-1$
+	if (this.currentPosition <= 0)
+		return "NOT started!\n\n"+ new String(this.source); //$NON-NLS-1$
 
 	char front[] = new char[this.startPosition];
 	System.arraycopy(this.source, 0, front, 0, this.startPosition);

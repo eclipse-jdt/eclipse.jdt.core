@@ -46,9 +46,114 @@ Eclipse SDK 3.4M7 - %date% - 3.4 MILESTONE 7
 <br>Project org.eclipse.jdt.core v_853
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_853">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>In order to avoid breaking existing clients while fixing bug 
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=102780">102780</a>, 
+the new formatter behavior (i.e. format comments while formatting the whole
+compilation unit) will be activated only if a specific flag was set.
+<p>
+This flag is defined in CodeFormatter and named <code>'F_INCLUDE_COMMENTS'</code>.
+Clients will have to combine it with existing CodeFormatter.K_COMPILATION_UNIT
+or CodeFormatter.UNKNOWN kinds to see the fix for this bug activated...
+</p>
+Here's its complete new API changes done on
+<code>org.eclipse.jdt.core.formatter.CodeFormatter</code>:
+<pre>
+/**
+ * Flag used to include the comments during the formatting of the code
+ * snippet.
+ *
+ * This flag can only be combined with following kinds:
+ *      . {@link #K_COMPILATION_UNIT}
+ *      . {@link #K_UNKNOWN}
+ *
+ * Note also that it has an effect only when the option
+ * {@link DefaultCodeFormatterConstants
+ *  #FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT}
+ * is set to {@link DefaultCodeFormatterConstants#TRUE} while calling
+ * {@link #format(int, String, int, int, int, String)} or
+ * {@link #format(int, String, IRegion[], int, String)} methods
+ *
+ * For example, with the Eclipse default formatter options, the formatting of
+ * the following code snippet using {@link #K_COMPILATION_UNIT}:
+ *
+ * public class X {
+ * &#047;&#042;&#042;
+ *  &#042; This is just a simple example to show that comments will be formatted while processing a compilation unit only if the constant flag <code>F_INCLUDE_COMMENT</code> flag is set.
+ *  &#042; &#064;param str The input string &#042;&#047;
+ *  void foo(String str){}}
+ *
+ * will produce the following output:
+ *
+ * public class X {
+ *      &#047;&#042;&#042;
+ *       &#042; This is just a simple example to show that comments will be formatted while processing a compilation unit only if the constant flag <code>F_INCLUDE_COMMENT</code> flag is set.
+ *       &#042; 
+ *       &#042; &#064;param str The input string
+ *       &#042;&#047;
+ *      void foo(String str){
+ *      }
+ *  }
+ *
+ * Adding this flavor to the kind given while formatting the same source
+ * (e.g. {@link #K_COMPILATION_UNIT} | {@link #F_INCLUDE_COMMENTS})
+ * will produce the following output instead:
+ *
+ * public class X {
+ *      &#047;&#042;&#042;
+ *       &#042; This is just a simple example to show that comments will be formatted
+ *       &#042; while processing a compilation unit only if the constant flag
+ *       &#042; <code>F_INCLUDE_COMMENT</code> flag is set.
+ *       &#042; 
+ *       &#042; &#064;param str
+ *       &#042;                 The input string
+ *       &#042;&#047;
+ *      void foo(String str){
+ *      }
+ *  }
+ *
+ * <i><u>Note</u>: Although we're convinced that the formatter should
+ * always include the comments while processing a
+ * {@link #K_COMPILATION_UNIT kind of compilation unit}, we
+ * have decided to add a specific flag to fix this formatter incorrect behavior.
+ * This will prevent all existing clients using the {@link #K_COMPILATION_UNIT}
+ * kind to be broken while formatting.</i>
+ *
+ * @since 3.4
+ */
+public static final int F_INCLUDE_COMMENTS = 0x1000;
+</pre>
+Note that CodeFormatter.UNKNOWN and CodeFormatter.K_COMPILATION_UNIT
+specification will be updated to include this new possible combination:
+<pre>
+/**
+ * Unknown kind
+ * 
+ * Note that since 3.4, the {@link #F_INCLUDE_COMMENTS} flag can be added
+ * to this constant in order to get the comments formatted if a
+ * compilation unit is processed.
+ */
+public static final int K_UNKNOWN = 0x00;
+
+/**
+ * Kind used to format a compilation unit
+ *
+ * Note that using this constant, the javadoc comments are only indented while
+ * processing the compilation unit.
+ *
+ * <b>Since 3.4</b>, if the corresponding comment option is set to
+ * <code>true</code> then it is also possible to format the comments on the fly
+ * by adding the {@link #F_INCLUDE_COMMENTS} flag to this kind of format.
+ */
+public static final int K_COMPILATION_UNIT = 0x08;
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=219855">219855</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=102780">102780</a>
+[formatter] CodeFormatter does not format Javadoc
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=219855">219855</a>
 [1.5][compiler] StackOverflowError during: "Requesting Java AST from selection"
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=223986">223986</a>
 Invalid incompatible return type error

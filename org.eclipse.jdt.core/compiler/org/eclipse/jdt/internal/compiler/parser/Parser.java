@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8850,7 +8850,7 @@ public void initialize(boolean initializeNLS) {
 	final boolean checkNLS = this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore;
 	this.checkExternalizeStrings = checkNLS;
 	this.scanner.checkNonExternalizedStringLiterals = initializeNLS && checkNLS;
-	this.scanner.lastPosistion = -1;
+	this.scanner.lastPosition = -1;
 
 	resetModifiers();
 
@@ -10358,7 +10358,7 @@ protected boolean resumeOnSyntaxError() {
 	
 	if (this.lastPosistion < this.scanner.currentPosition) {
 		this.lastPosistion = this.scanner.currentPosition;
-		this.scanner.lastPosistion = this.scanner.currentPosition;
+		this.scanner.lastPosition = this.scanner.currentPosition;
 	}
 	
 	/* attempt to reset state in order to resume to parse loop */

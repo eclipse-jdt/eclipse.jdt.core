@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -192,7 +192,7 @@ public class JavadocParser extends AbstractCommentParser {
 			TypeReference typeRef = (TypeReference) receiver;
 			// Decide whether we have a constructor or not
 			boolean isConstructor = false;
-			int length = this.identifierLengthStack[0];	// may be > 0 for member class constructor reference
+			int length = this.identifierLengthStack[0];	// may be > 1 for member class constructor reference
 			if (typeRef == null) {
 				char[] name = this.sourceParser.compilationUnit.getMainTypeName();
 				TypeDeclaration typeDecl = getParsedTypeDeclaration();
@@ -407,7 +407,6 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
-		boolean valid = false;
 	
 		// Read tag name
 		int currentPosition = this.index;
@@ -481,10 +480,14 @@ public class JavadocParser extends AbstractCommentParser {
 		if (length == 0) return false; // may happen for some parser (completion for example)
 		this.index = this.tagSourceEnd+1;
 		this.scanner.currentPosition = this.tagSourceEnd+1;
+		if ((this.kind & FORMATTER_COMMENT_PARSER) != 0) {
+			this.tagSourceStart = previousPosition;
+		}
 	
 		// Decide which parse to perform depending on tag name
 		this.tagValue = TAG_OTHERS_VALUE;
 		boolean alreadyParsedTag = false;
+		boolean valid = false;
 		switch (token) {
 			case TerminalTokens.TokenNameIdentifier :
 				switch (tagName[0]) {

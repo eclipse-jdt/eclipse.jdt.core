@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,7 @@
 package org.eclipse.jdt.core.tests.formatter;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -26,10 +24,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.ToolFactory;
@@ -47,7 +44,9 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.text.edits.TextEdit;
 
 public class FormatterRegressionTests extends AbstractJavaModelTests {
-		
+
+	protected static IJavaProject JAVA_PROJECT;
+	
 	public static final int UNKNOWN_KIND = 0;
 	public static final String IN = "_in";
 	public static final String OUT = "_out";
@@ -69,7 +68,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	
 	/**
 	 * Returns the OS path to the directory that contains this plugin.
-	 */
+	 *
 	protected String getPluginDirectoryPath() {
 		try {
 			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.model").getEntry("/");
@@ -79,6 +78,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		}
 		return null;
 	}
+	*/
 
 	private String getResource(String packageName, String resourceName) {
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
@@ -111,11 +111,13 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		return null;
 	}
 	
+	/*
 	public String getSourceWorkspacePath() {
 		return getPluginDirectoryPath() +  java.io.File.separator + "workspace";
 	}
+	*/
 	
-	private String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
+	String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
 //		long time = System.currentTimeMillis();
 		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
 //		System.out.println((System.currentTimeMillis() - time) + " ms");
@@ -131,7 +133,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 //			assertEquals("Should not have edits", 0, edit.getChildren().length);
 			final String result2 = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
 			if (!result.equals(result2)) {
-				assertSourceEquals("Different reformatting", Util.convertToIndependantLineDelimiter(result), Util.convertToIndependantLineDelimiter(result2));
+				assertSourceEquals("Second formatting is different from first one!", Util.convertToIndependantLineDelimiter(result), Util.convertToIndependantLineDelimiter(result2));
 			}
 		}
 		return result;
@@ -156,7 +158,11 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			description.setAutoBuilding(false);
 			getWorkspace().setDescription(description);
 		}
-		setUpJavaProject("Formatter"); //$NON-NLS-1$
+
+		if (JAVA_PROJECT == null) {
+			JAVA_PROJECT = setUpJavaProject("Formatter"); //$NON-NLS-1$
+		}
+
 		if (DEBUG) {
 			this.time = System.currentTimeMillis();
 		}
@@ -166,7 +172,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 * Reset the jar placeholder and delete project.
 	 */
 	public void tearDownSuite() throws Exception {
-		this.deleteProject("Formatter"); //$NON-NLS-1$
+		deleteProject(JAVA_PROJECT); //$NON-NLS-1$
+		JAVA_PROJECT = null;
 		if (DEBUG) {
 			System.out.println("Time spent = " + (System.currentTimeMillis() - this.time));//$NON-NLS-1$
 		}
@@ -187,7 +194,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		return compilationUnitName.substring(0, dotIndex) + OUT + compilationUnitName.substring(dotIndex);
 	}
 
-	private void assertLineEquals(String actualContents, String originalSource, String expectedContents, boolean checkNull) {
+	void assertLineEquals(String actualContents, String originalSource, String expectedContents, boolean checkNull) {
 		if (actualContents == null) {
 			assertTrue("actualContents is null", checkNull);
 			assertEquals(expectedContents, originalSource);
@@ -8154,6 +8161,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test574() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102780
+		preferences.comment_indent_root_tags = false;
  		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test574", "A.java", CodeFormatter.K_JAVA_DOC, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -10122,5 +10131,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test713", "A.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, 76, 27);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102780
+	public void test714() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		// verify that the javadoc is indented, though the formatting of javadoc comments is disabled 
+		preferences.comment_format_javadoc_comment = false;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test714", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

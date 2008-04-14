@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.formatter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -40,8 +41,39 @@ import org.eclipse.text.edits.TextEdit;
 
 public class DefaultCodeFormatter extends CodeFormatter {
 
-	public static final boolean DEBUG = false;
-	private static Scanner ProbingScanner;
+	/*
+	 * Set trace is ON to track bug 102780 changes
+	 * TODO (eric) make this boolean accessible to plugin debug options
+	 * see (JavaModelManager.configurePluginDebugOptions()
+	 */
+	public static final boolean DEBUG = true;
+
+	// Mask for code formatter kinds
+	private static final int K_MASK = K_UNKNOWN
+		|  K_EXPRESSION
+		| K_STATEMENTS
+		| K_CLASS_BODY_DECLARATIONS
+		| K_COMPILATION_UNIT
+		| K_SINGLE_LINE_COMMENT
+		| K_MULTI_LINE_COMMENT
+		| K_JAVA_DOC;
+
+	/*
+	 * Temporary internal constants to format javadoc comments using the version
+	 * before bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=102780 was
+	 * released.
+	 * The default is to enable old version of formatting to minimize impacts on
+	 * existing clients.
+	 * TODO (eric) remove when bug 102780 will have been stabilized
+	 */
+	private final static String NEW_JAVA_DOC_FORMAT = System.getProperty("org.eclipse.jdt.core.formatter.comments.new"); //$NON-NLS-1$
+	private static final boolean ENABLE_NEW_JAVADOC_FORMAT = JavaCore.ENABLED.equals(NEW_JAVA_DOC_FORMAT);
+	private static final boolean FORCE_NEW_JAVADOC_FORMAT = "forced".equals(NEW_JAVA_DOC_FORMAT); //$NON-NLS-1$
+	private static final String WARNING_JAVADOC_COMMENTS = "WARNING: Javadoc comments are still formatted using JavaDocRegion!"; //$NON-NLS-1$
+	private static boolean PRINTED_OLD_JAVA_DOC_WARNING = false;
+
+	// Scanner use to probe the kind of the source given to the formatter
+	private static Scanner PROBING_SCANNER;
 
 	/**
 	 * Creates a comment region for a specific document partition type.
@@ -54,12 +86,12 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	 * @since 3.1
 	 */
 	public static CommentRegion createRegion(int kind, IDocument document, Position range, CodeFormatterVisitor formatter) {
-		switch (kind) {
-			case CodeFormatter.K_SINGLE_LINE_COMMENT:
+		switch (kind & K_MASK) {
+			case K_SINGLE_LINE_COMMENT:
 				return new CommentRegion(document, range, formatter);
-			case CodeFormatter.K_MULTI_LINE_COMMENT:
+			case K_MULTI_LINE_COMMENT:
 				return new MultiCommentRegion(document, range, formatter);
-			case CodeFormatter.K_JAVA_DOC:
+			case K_JAVA_DOC:
 				return new JavaDocRegion(document, range, formatter);
 		}
 		return null;
@@ -138,19 +170,27 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	/**
 	 * @see org.eclipse.jdt.core.formatter.CodeFormatter#format(int, java.lang.String, int, int, int, java.lang.String)
 	 */
-	public TextEdit format(
-			int kind,
-			String source,
-			int offset,
-			int length,
-			int indentationLevel,
-			String lineSeparator) {
-
+	public TextEdit format(int kind, String source, int offset, int length, int indentationLevel, String lineSeparator) {
 		if (offset < 0 || length < 0 || length > source.length()) {
 			throw new IllegalArgumentException();
 		}
-		switch(kind) {
+
+		switch(kind & K_MASK) {
 			case K_JAVA_DOC :
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102780
+				// use the integrated comment formatter to format comment
+				if (ENABLE_NEW_JAVADOC_FORMAT) {
+	                return formatJavadoc(source, indentationLevel, lineSeparator, new IRegion[] {new Region(offset, length)});
+				} else if (FORCE_NEW_JAVADOC_FORMAT) {
+					// Skip the javadoc formatting using this constant
+					return null;
+				}
+				// In all other cases, use the old way to format javadoc comments
+				if (!PRINTED_OLD_JAVA_DOC_WARNING) {
+					org.eclipse.jdt.internal.core.util.Util.log(IStatus.WARNING, WARNING_JAVADOC_COMMENTS);
+					System.out.println(WARNING_JAVADOC_COMMENTS);
+					PRINTED_OLD_JAVA_DOC_WARNING = true;
+				}
 			case K_MULTI_LINE_COMMENT :
 			case K_SINGLE_LINE_COMMENT :
 				this.codeSnippetParsingUtil = new CodeSnippetParsingUtil();
@@ -169,18 +209,33 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 
 		this.codeSnippetParsingUtil = new CodeSnippetParsingUtil();
-		switch(kind) {
+		switch(kind & K_MASK) {
 			case K_CLASS_BODY_DECLARATIONS :
 				return formatClassBodyDeclarations(source, indentationLevel, lineSeparator, regions);
 			case K_COMPILATION_UNIT :
-				return formatCompilationUnit(source, indentationLevel, lineSeparator, regions);
+				boolean formatJavadoc =  (kind & F_INCLUDE_COMMENTS) != 0 || FORCE_NEW_JAVADOC_FORMAT;
+				return formatCompilationUnit(source, indentationLevel, lineSeparator, regions, formatJavadoc);
 			case K_EXPRESSION :
 				return formatExpression(source, indentationLevel, lineSeparator, regions);
 			case K_STATEMENTS :
 				return formatStatements(source, indentationLevel, lineSeparator, regions);
 			case K_UNKNOWN :
-				return probeFormatting(source, indentationLevel, lineSeparator, regions);
+				formatJavadoc =  (kind & F_INCLUDE_COMMENTS) != 0 || FORCE_NEW_JAVADOC_FORMAT;
+				return probeFormatting(source, indentationLevel, lineSeparator, regions, formatJavadoc);
 			case K_JAVA_DOC :
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102780
+				if (ENABLE_NEW_JAVADOC_FORMAT) {
+					return formatJavadoc(source, indentationLevel, lineSeparator, regions);
+				} else if (FORCE_NEW_JAVADOC_FORMAT) {
+					// Skip the javadoc formatting using this constant
+					return null;
+				}
+				// In all other cases, use the old way to format javadoc comments
+				if (!PRINTED_OLD_JAVA_DOC_WARNING) {
+					org.eclipse.jdt.internal.core.util.Util.log(IStatus.WARNING, WARNING_JAVADOC_COMMENTS);
+					System.out.println(WARNING_JAVADOC_COMMENTS);
+					PRINTED_OLD_JAVA_DOC_WARNING = true;
+				}
 			case K_MULTI_LINE_COMMENT :
 			case K_SINGLE_LINE_COMMENT :
 				//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091
@@ -189,45 +244,11 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		return null;
 	}
 
-	/**
-	 * True if
-	 * 1. All regions are within maxLength
-	 * 2. regions are sorted
-	 * 3. regions are not overlapping
-	 */
-	private boolean regionsSatisfiesPreconditions(IRegion[] regions, int maxLength) {
-		int regionsLength = regions == null ? 0 : regions.length;
-		if (regionsLength == 0) {
-			return false;
-		}
-
-		IRegion first = regions[0];
-		if (first.getOffset() < 0 || first.getLength() < 0 || first.getOffset() + first.getLength() > maxLength) {
-			return false;
-		}
-
-		int lastOffset = first.getOffset() + first.getLength() - 1;
-		for (int i= 1; i < regionsLength; i++) {
-			IRegion current = regions[i];
-			if (lastOffset > current.getOffset()) {
-				return false;
-			}
-			
-			if (current.getOffset() < 0 || current.getLength() < 0 || current.getOffset() + current.getLength() > maxLength) {
-				return false;
-			}
-			
-			lastOffset = current.getOffset() + current.getLength() - 1;
-		}
-
-		return true;
-	}
-
 	private TextEdit formatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
 		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), getDefaultCompilerOptions(), true);
 		
 		if (bodyDeclarations == null) {
-			// a problem occured while parsing the source
+			// a problem occurred while parsing the source
 			return null;
 		}
 		return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, regions);
@@ -242,20 +263,19 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	 * @param lineSeparator the given line separator
 	 * @param regions the given regions
 	 * @return the resulting text edit
-	 * @deprecated
 	 */
 	private TextEdit formatComment(int kind, String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
-		Object oldOption = this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT);
+		Object oldOption = oldCommentFormatOption();
 		boolean isFormattingComments = false;
 		if (oldOption == null) {
-			switch (kind) {
-				case CodeFormatter.K_SINGLE_LINE_COMMENT:
+			switch (kind & K_MASK) {
+				case K_SINGLE_LINE_COMMENT:
 					isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT));
 					break;
-				case CodeFormatter.K_MULTI_LINE_COMMENT:
+				case K_MULTI_LINE_COMMENT:
 					isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT));
 					break;
-				case CodeFormatter.K_JAVA_DOC:
+				case K_JAVA_DOC:
 					isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT));
 			}
 		} else {
@@ -268,12 +288,12 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				this.preferences.line_separator = Util.LINE_SEPARATOR;
 			}
 			this.preferences.initial_indentation_level = indentationLevel;
-			this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, null);
-			
+			this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, null, this.preferences.comment_format_javadoc_comment);
+
 			IRegion coveredRegion = getCoveredRegion(regions);
 			int offset = coveredRegion.getOffset();
 			int length = coveredRegion.getLength();
-			
+
 			final CommentRegion region = createRegion(kind, new Document(source), new Position(offset, length), this.newCodeFormatter);
 			if (region != null) {
 				return this.newCodeFormatter.format(source, region);
@@ -282,7 +302,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		return new MultiTextEdit();
 	}
 
-	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
+	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean formatJavadoc) {
 		CompilationUnitDeclaration compilationUnitDeclaration = this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
 		
 		if (lineSeparator != null) {
@@ -292,7 +312,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, formatJavadoc && this.preferences.comment_format_javadoc_comment);
 		
 		return this.newCodeFormatter.format(source, compilationUnitDeclaration);
 	}
@@ -301,10 +321,37 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), getDefaultCompilerOptions(), true);
 		
 		if (expression == null) {
-			// a problem occured while parsing the source
+			// a problem occurred while parsing the source
 			return null;
 		}
 		return internalFormatExpression(source, indentationLevel, lineSeparator, expression, regions);
+	}
+
+	/*
+	 * Format a javadoc comment.
+	 */
+	private TextEdit formatJavadoc(String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
+		Object oldOption = oldCommentFormatOption();
+		boolean isFormattingComments = oldOption == null
+			? DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT))
+			: DefaultCodeFormatterConstants.TRUE.equals(oldOption);
+		if (isFormattingComments) {
+			if (lineSeparator != null) {
+				this.preferences.line_separator = lineSeparator;
+			} else {
+				this.preferences.line_separator = Util.LINE_SEPARATOR;
+			}
+			this.preferences.initial_indentation_level = indentationLevel;
+			if (this.codeSnippetParsingUtil == null) this.codeSnippetParsingUtil = new CodeSnippetParsingUtil();
+			this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
+			this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, this.preferences.comment_format_javadoc_comment);
+			IRegion coveredRegion = getCoveredRegion(regions);
+			int start = coveredRegion.getOffset();
+			int end = start + coveredRegion.getLength();
+			this.newCodeFormatter.format(source, start, end, indentationLevel);
+			return this.newCodeFormatter.scribe.getRootEdit();
+		}
+		return null;
 	}
 
 	private TextEdit formatStatements(String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
@@ -315,6 +362,18 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			return null;
 		}
 		return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, regions);
+	}
+
+	private IRegion getCoveredRegion(IRegion[] regions) {
+		int length = regions.length;
+		if (length == 1) {
+			return regions[0];
+		}
+		
+		int offset = regions[0].getOffset();
+		IRegion lastRegion = regions[length - 1];
+		
+		return new Region(offset, lastRegion.getOffset() + lastRegion.getLength() - offset);
 	}
 
 	public String getDebugOutput() {
@@ -400,7 +459,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, false);
 		return this.newCodeFormatter.format(source, bodyDeclarations);
 	}
 	
@@ -412,7 +471,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, false);
 		
 		TextEdit textEdit = this.newCodeFormatter.format(source, expression);
 		return textEdit;
@@ -426,44 +485,53 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, false);
 		
 		return this.newCodeFormatter.format(source, constructorDeclaration);
 	}
 
-	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
-		if (ProbingScanner == null) {
+	/**
+	 * Deprecated as using old option constant
+	 * @deprecated
+	 */
+	private Object oldCommentFormatOption() {
+	    return this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT);
+    }
+
+	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean formatJavadoc) {
+		if (PROBING_SCANNER == null) {
 			// scanner use to check if the kind could be K_JAVA_DOC, K_MULTI_LINE_COMMENT or K_SINGLE_LINE_COMMENT 
-			ProbingScanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3, ClassFileConstants.JDK1_3, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+			PROBING_SCANNER = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3, ClassFileConstants.JDK1_3, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		}
-		ProbingScanner.setSource(source.toCharArray());
+		PROBING_SCANNER.setSource(source.toCharArray());
 		
 		IRegion coveredRegion = getCoveredRegion(regions);
 		int offset = coveredRegion.getOffset();
 		int length = coveredRegion.getLength();
 		
-		ProbingScanner.resetTo(offset, offset + length);
+		PROBING_SCANNER.resetTo(offset, offset + length);
 		try {
-			switch(ProbingScanner.getNextToken()) {
+			switch(PROBING_SCANNER.getNextToken()) {
 				case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
-					if (ProbingScanner.getCurrentTokenEndPosition() == offset + length - 1) {
+					if (PROBING_SCANNER.getCurrentTokenEndPosition() == offset + length - 1) {
 						return formatComment(K_MULTI_LINE_COMMENT, source, indentationLevel, lineSeparator, regions);
 					}
 					break;
 				case ITerminalSymbols.TokenNameCOMMENT_LINE :
-					if (ProbingScanner.getCurrentTokenEndPosition() == offset + length - 1) {
+					if (PROBING_SCANNER.getCurrentTokenEndPosition() == offset + length - 1) {
 						return formatComment(K_SINGLE_LINE_COMMENT, source, indentationLevel, lineSeparator, regions);
 					}
 					break;
 				case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-					if (ProbingScanner.getCurrentTokenEndPosition() == offset + length - 1) {
-						return formatComment(K_JAVA_DOC, source, indentationLevel, lineSeparator, regions);
+					if (PROBING_SCANNER.getCurrentTokenEndPosition() == offset + length - 1) {
+						// bug 102780 - javadoc is formatted in a different manner
+						return formatJavadoc(source, indentationLevel, lineSeparator, regions);
 					}
 			}
 		} catch (InvalidInputException e) {
 			// ignore
 		}
-		ProbingScanner.setSource((char[]) null);
+		PROBING_SCANNER.setSource((char[]) null);
 
 		// probe for expression
 		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), getDefaultCompilerOptions(), true);
@@ -484,18 +552,40 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 
 		// this has to be a compilation unit
-		return formatCompilationUnit(source, indentationLevel, lineSeparator, regions);
+		return formatCompilationUnit(source, indentationLevel, lineSeparator, regions, formatJavadoc);
 	}
-	
-	private IRegion getCoveredRegion(IRegion[] regions) {
-		int length = regions.length;
-		if (length == 1) {
-			return regions[0];
+
+	/**
+	 * True if
+	 * 1. All regions are within maxLength
+	 * 2. regions are sorted
+	 * 3. regions are not overlapping
+	 */
+	private boolean regionsSatisfiesPreconditions(IRegion[] regions, int maxLength) {
+		int regionsLength = regions == null ? 0 : regions.length;
+		if (regionsLength == 0) {
+			return false;
 		}
-		
-		int offset = regions[0].getOffset();
-		IRegion lastRegion = regions[length - 1];
-		
-		return new Region(offset, lastRegion.getOffset() + lastRegion.getLength() - offset);
+
+		IRegion first = regions[0];
+		if (first.getOffset() < 0 || first.getLength() < 0 || first.getOffset() + first.getLength() > maxLength) {
+			return false;
+		}
+
+		int lastOffset = first.getOffset() + first.getLength() - 1;
+		for (int i= 1; i < regionsLength; i++) {
+			IRegion current = regions[i];
+			if (lastOffset > current.getOffset()) {
+				return false;
+			}
+			
+			if (current.getOffset() < 0 || current.getLength() < 0 || current.getOffset() + current.getLength() > maxLength) {
+				return false;
+			}
+			
+			lastOffset = current.getOffset() + current.getLength() - 1;
+		}
+
+		return true;
 	}
 }

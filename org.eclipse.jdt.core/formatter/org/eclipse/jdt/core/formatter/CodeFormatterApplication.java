@@ -38,7 +38,7 @@ import org.eclipse.text.edits.TextEdit;
 /**
  * Implements an Eclipse Application for org.eclipse.jdt.core.JavaCodeFormatter.
  * 
- * There are a couple improvments that could be made: 1. Make a list of all the
+ * There are a couple improvements that could be made: 1. Make a list of all the
  * files first so that a file does not get formatted twice. 2. Use a text based
  * progress monitor for output.
  * <p>
@@ -214,7 +214,7 @@ public class CodeFormatterApplication implements IApplication {
 			String contents = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(file, null));
 			// format the file (the meat and potatoes)
 			doc.set(contents);
-			TextEdit edit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT, contents, 0, contents.length(), 0, null);
+			TextEdit edit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, contents, 0, contents.length(), 0, null);
 			if (edit != null) {
 				edit.apply(doc);
 			} else {

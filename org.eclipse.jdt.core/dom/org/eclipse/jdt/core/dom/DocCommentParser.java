@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2006 IBM Corporation and others.
+ * Copyright (c) 2004, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -649,9 +649,13 @@ class DocCommentParser extends AbstractCommentParser {
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushText(int, int)
 	 */
 	protected void pushText(int start, int end) {
+
+		// Create text element
 		TextElement text = this.ast.newTextElement();
 		text.setText(new String( this.source, start, end-start));
 		text.setSourceRange(start, end-start);
+
+		// Search previous tag on which to add the text element
 		TagElement previousTag = null;
 		int previousStart = start;
 		if (this.astPtr == -1) {
@@ -662,42 +666,32 @@ class DocCommentParser extends AbstractCommentParser {
 			previousTag = (TagElement) this.astStack[this.astPtr];
 			previousStart = previousTag.getStartPosition();
 		}
+
+		// If we're in a inline tag, then retrieve previous tag in its fragments
+		List fragments = previousTag.fragments();
 		if (this.inlineTagStarted) {
-			if (previousTag.fragments().size() == 0) {
+			int size = fragments.size();
+			if (size == 0) {
+				// no existing fragment => just add the element
 				TagElement inlineTag = this.ast.newTagElement();
-				previousTag.fragments().add(inlineTag);
+				fragments.add(inlineTag);
 				previousTag = inlineTag;
 			} else {
-				ASTNode inlineTag = (ASTNode) previousTag.fragments().get(previousTag.fragments().size()-1);
-				if (inlineTag.getNodeType() == ASTNode.TAG_ELEMENT) {
-					previousTag = (TagElement) inlineTag;
+				// If last fragment is a tag, then use it as previous tag
+				ASTNode lastFragment = (ASTNode) fragments.get(size-1);
+				if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
+					previousTag = (TagElement) lastFragment;
 					previousStart = previousTag.getStartPosition();
 				}
 			}
 		}
+
+		// Add the text
 		previousTag.fragments().add(text);
 		previousTag.setSourceRange(previousStart, end-previousStart);
 		this.textStart = -1;
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushText(int, int)
-	 */
-	protected void refreshInlineTagPosition(int previousPosition) {
-		if (this.astPtr != -1) {
-			TagElement previousTag = (TagElement) this.astStack[this.astPtr];
-			if (this.inlineTagStarted) {
-				int previousStart = previousTag.getStartPosition();
-				previousTag.setSourceRange(previousStart, previousPosition-previousStart+1);
-				if (previousTag.fragments().size() > 0) {
-					ASTNode inlineTag = (ASTNode) previousTag.fragments().get(previousTag.fragments().size()-1);
-					if (inlineTag.getNodeType() == ASTNode.TAG_ELEMENT) {
-						int inlineStart = inlineTag.getStartPosition();
-						inlineTag.setSourceRange(inlineStart, previousPosition-inlineStart+1);
-					}
-				}
-			}
-		}
-	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushThrowName(java.lang.Object)
 	 */
@@ -715,6 +709,26 @@ class DocCommentParser extends AbstractCommentParser {
 		throwsTag.fragments().add(typeRef);
 		pushOnAstStack(throwsTag, true);
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#refreshInlineTagPosition(int)
+	 */
+	protected void refreshInlineTagPosition(int previousPosition) {
+		if (this.astPtr != -1) {
+			TagElement previousTag = (TagElement) this.astStack[this.astPtr];
+			if (this.inlineTagStarted) {
+				int previousStart = previousTag.getStartPosition();
+				previousTag.setSourceRange(previousStart, previousPosition-previousStart+1);
+				if (previousTag.fragments().size() > 0) {
+					ASTNode inlineTag = (ASTNode) previousTag.fragments().get(previousTag.fragments().size()-1);
+					if (inlineTag.getNodeType() == ASTNode.TAG_ELEMENT) {
+						int inlineStart = inlineTag.getStartPosition();
+						inlineTag.setSourceRange(inlineStart, previousPosition-inlineStart+1);
+					}
+				}
+			}
+		}
 	}
 
 	/*
