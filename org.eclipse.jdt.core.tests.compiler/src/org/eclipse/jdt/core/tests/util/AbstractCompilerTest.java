@@ -37,10 +37,8 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_1_6 = 0x08;
 	public static final int F_1_7 = 0x10;
 
-	protected static boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
-	private static int possibleComplianceLevels = 
-		RUN_JAVAC ? F_1_5 : -1;
-	  // javac tests imply 1.5 compliance
+	protected static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
+	private static int possibleComplianceLevels = RUN_JAVAC ? F_1_5 | F_1_6 | F_1_7 : -1; // javac tests imply compliance over 1.5
 
 	protected long complianceLevel;
 
