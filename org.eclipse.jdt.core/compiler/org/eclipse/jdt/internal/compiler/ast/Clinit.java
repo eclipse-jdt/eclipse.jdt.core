@@ -328,7 +328,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			SourceTypeBinding sourceType =
 				this.scope.outerMostClassScope().enclosingSourceType();
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=22334
-			if (!sourceType.isInterface() && !sourceType.isBaseType()) {			
+			if (!sourceType.isInterface() && !sourceType.isBaseType()) {
 				this.classLiteralSyntheticField = sourceType.addSyntheticFieldForClassLiteral(sourceType, scope);
 			}
 		}
