@@ -38,7 +38,9 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_1_7 = 0x10;
 
 	protected static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
-	private static int possibleComplianceLevels = RUN_JAVAC ? F_1_5 | F_1_6 | F_1_7 : -1; // javac tests imply compliance over 1.5
+	private static final int UNINITIALIZED = -1;
+	private static final int NONE = 0;
+	private static int possibleComplianceLevels = UNINITIALIZED;
 
 	protected long complianceLevel;
 
@@ -261,13 +263,13 @@ public class AbstractCompilerTest extends TestCase {
 	 * Returns the possible compliance levels this VM instance can run.
 	 */
 	public static int getPossibleComplianceLevels() {
-		if (possibleComplianceLevels == -1) {
+		if (possibleComplianceLevels == UNINITIALIZED) {
 			String compliance = System.getProperty("compliance");
 			if (compliance != null) {
 				if (CompilerOptions.VERSION_1_3.equals(compliance)) {
-					possibleComplianceLevels = F_1_3;
+					possibleComplianceLevels = RUN_JAVAC ? NONE : F_1_3;
 				} else if (CompilerOptions.VERSION_1_4.equals(compliance)) {
-					possibleComplianceLevels = F_1_4;
+					possibleComplianceLevels = RUN_JAVAC ? NONE : F_1_4;
 				} else if (CompilerOptions.VERSION_1_5.equals(compliance)) {
 					possibleComplianceLevels = F_1_5;
 				} else if (CompilerOptions.VERSION_1_6.equals(compliance)) {
@@ -285,29 +287,48 @@ public class AbstractCompilerTest extends TestCase {
 					System.out.println("Defaulting to all possible compliances");
 				}
 			}
-			if (possibleComplianceLevels == -1) {
-				possibleComplianceLevels = F_1_3;
+			if (possibleComplianceLevels == UNINITIALIZED) {
 				String specVersion = System.getProperty("java.specification.version");
-				boolean canRun1_4 = !"1.0".equals(specVersion)
-					&& !CompilerOptions.VERSION_1_1.equals(specVersion)
-					&& !CompilerOptions.VERSION_1_2.equals(specVersion)
-					&& !CompilerOptions.VERSION_1_3.equals(specVersion);
-				if (canRun1_4) {
-					possibleComplianceLevels |= F_1_4;
-				}
-				boolean canRun1_5 = canRun1_4 && !CompilerOptions.VERSION_1_4.equals(specVersion);
-				if (canRun1_5) {
-					possibleComplianceLevels |= F_1_5;
-				}
-				boolean canRun1_6 = canRun1_5 && !CompilerOptions.VERSION_1_5.equals(specVersion);
-				if (canRun1_6) {
-					possibleComplianceLevels |= F_1_6;
-				}
-				boolean canRun1_7 = canRun1_6 && !CompilerOptions.VERSION_1_6.equals(specVersion);
-				if (canRun1_7) {
-					possibleComplianceLevels |= F_1_7;
+				if (!RUN_JAVAC) {
+					possibleComplianceLevels = F_1_3;
+					boolean canRun1_4 = !"1.0".equals(specVersion)
+						&& !CompilerOptions.VERSION_1_1.equals(specVersion)
+						&& !CompilerOptions.VERSION_1_2.equals(specVersion)
+						&& !CompilerOptions.VERSION_1_3.equals(specVersion);
+					if (canRun1_4) {
+						possibleComplianceLevels |= F_1_4;
+					}
+					boolean canRun1_5 = canRun1_4 && !CompilerOptions.VERSION_1_4.equals(specVersion);
+					if (canRun1_5) {
+						possibleComplianceLevels |= F_1_5;
+					}
+					boolean canRun1_6 = canRun1_5 && !CompilerOptions.VERSION_1_5.equals(specVersion);
+					if (canRun1_6) {
+						possibleComplianceLevels |= F_1_6;
+					}
+					boolean canRun1_7 = canRun1_6 && !CompilerOptions.VERSION_1_6.equals(specVersion);
+					if (canRun1_7) {
+						possibleComplianceLevels |= F_1_7;
+					}
+				} else if ("1.0".equals(specVersion)
+							|| CompilerOptions.VERSION_1_1.equals(specVersion)
+							|| CompilerOptions.VERSION_1_2.equals(specVersion)
+							|| CompilerOptions.VERSION_1_3.equals(specVersion)
+							|| CompilerOptions.VERSION_1_4.equals(specVersion)) {
+					possibleComplianceLevels = NONE;
+				} else {
+					possibleComplianceLevels = F_1_5;
+					if (!CompilerOptions.VERSION_1_5.equals(specVersion)) {
+						possibleComplianceLevels |= F_1_6;
+						if (!CompilerOptions.VERSION_1_6.equals(specVersion)) {
+							possibleComplianceLevels |= F_1_7;
+						}
+					}
 				}
 			}
+		}
+		if (possibleComplianceLevels == NONE) {
+			System.out.println("Skipping all compliances (found none compatible with run.javac=enabled).");
 		}
 		return possibleComplianceLevels;
 	}
