@@ -123,7 +123,7 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 	
 	/**
-	 * @see ISourceElementRequestor#enterField(FieldInfo)
+	 * @see ISourceElementRequestor#enterField(ISourceElementRequestor.FieldInfo)
 	 */
 	public void enterField(FieldInfo fieldInfo) {
 		// default implementation: do nothing

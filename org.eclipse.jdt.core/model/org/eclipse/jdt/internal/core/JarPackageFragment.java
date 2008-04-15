@@ -21,7 +21,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -29,7 +28,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  *
  * @see org.eclipse.jdt.core.IPackageFragment
  */
-class JarPackageFragment extends PackageFragment implements SuffixConstants {
+class JarPackageFragment extends PackageFragment {
 /**
  * Constructs a package fragment that is contained within a jar or a zip.
  */

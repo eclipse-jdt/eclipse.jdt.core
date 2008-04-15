@@ -12,9 +12,8 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public class QualifiedTypeDeclarationPattern extends TypeDeclarationPattern implements IIndexConstants {
+public class QualifiedTypeDeclarationPattern extends TypeDeclarationPattern {
 
 public char[] qualification;
 public int packageIndex;
