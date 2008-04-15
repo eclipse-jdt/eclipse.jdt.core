@@ -47,6 +47,7 @@ Eclipse SDK 3.4M7 - April 15, 2008 - 3.4 MILESTONE 7
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_853">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>The Java compiler now uses multiple CPUs when running in batch mode. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=142126">142126</a>.</li>
 <li>In order to avoid breaking existing clients while fixing bug 
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=102780">102780</a>, 
 the new formatter behavior (i.e. format comments while formatting the whole
@@ -151,7 +152,9 @@ public static final int K_COMPILATION_UNIT = 0x08;
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=102780">102780</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=142126">142126</a>
+utilizing multiple CPUs for Java compiler
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=102780">102780</a>
 [formatter] CodeFormatter does not format Javadoc
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=219855">219855</a>
 [1.5][compiler] StackOverflowError during: "Requesting Java AST from selection"
