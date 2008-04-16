@@ -1859,7 +1859,7 @@ public class Scribe implements IJavaDocTagConstants {
 			}
 
 			// if there's no enough room to replace text, then insert the gap
-			if ( textStartPosition > textEndPosition) {
+			if (textStartPosition > textEndPosition) {
 				if (newLines > 0) {
 					StringBuffer buffer = new StringBuffer();
 					for (int i=0; i<newLines; i++) {
@@ -2153,14 +2153,14 @@ public class Scribe implements IJavaDocTagConstants {
 	    this.column += JAVADOC_LINE_PREFIX_LENGTH;
     }
 
-	private void printJavadocText( FormatJavadocText text, FormatJavadocBlock block) {
+	private void printJavadocText(FormatJavadocText text, FormatJavadocBlock block) {
 
 		boolean clearBlankLines = this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment;
 		StringBuffer buffer = new StringBuffer();
 		int textStart = text.sourceStart;
 		int nextStart = textStart;
 		int startLine = Util.getLineNumber(textStart, this.lineEnds, 0, this.maxLines);
-		boolean textOnNewLine = (block.isParamTag() && this.formatter.preferences.comment_insert_new_line_for_parameter) || !block.hasTextOnTagLine();
+		boolean textOnNewLine = text == block.nodes[0] && block.isParamTag() && (this.formatter.preferences.comment_insert_new_line_for_parameter || !block.hasTextOnTagLine());
 
 		// Iterate on text line separators
 		for (int i=0, max=text.separatorsPtr; i<=max ; i++) {

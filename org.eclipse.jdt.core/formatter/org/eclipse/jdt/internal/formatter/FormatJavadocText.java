@@ -44,7 +44,7 @@ public FormatJavadocText(int start, int end, int htmlIndex, int htmlDepth) {
 
 /*
  * Append a text to current one.
- * If the given text is not an html tag or is an closing tag, then just append to
+ * If the given text is not an html tag or is a closing tag, then just append to
  * the current text recording the separators. Otherwise, create a new html tag
  * child node.
  */

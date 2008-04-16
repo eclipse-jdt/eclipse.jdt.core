@@ -601,6 +601,24 @@ public void _testPreferencesExample12() throws JavaModelException {
 public void _testPreferencesExample13() throws JavaModelException {
 	formatUnit("example", "X13.java");
 }
+public void testPreferencesExample14a() throws JavaModelException {
+	formatUnit("example", "X14a.java");
+}
+public void testPreferencesExample14b() throws JavaModelException {
+	formatUnit("example", "X14b.java");
+}
+public void testPreferencesExample14c() throws JavaModelException {
+	formatUnit("example", "X14c.java");
+}
+public void testPreferencesExample15a() throws JavaModelException {
+	formatUnit("example", "X15a.java");
+}
+public void testPreferencesExample15b() throws JavaModelException {
+	formatUnit("example", "X15b.java");
+}
+public void testPreferencesExample15c() throws JavaModelException {
+	formatUnit("example", "X15c.java");
+}
 
 /*
  * Test formatter immutable tags

@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import junit.framework.ComparisonFailure;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -57,15 +58,17 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
  * formatting of JUnit 3.8.2 files.
  * TODO (eric) Fix failures while running on workspaces without comparing:
  * <ul>
- * <li>0 error and 938 failures for 9950 tests on 3.0 performance workspace.</li>
- * <li>1 error and 5658 failures for 25819 tests on ganymede workspace</li>
+ * <li>0 error and 425 failures for 9950 tests on 3.0 performance workspace.</li>
+ * <li>0 error and 4220 failures for 25819 tests on ganymede workspace</li>
  * </ul>
  */
 public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 
 	final File file;
+	int failures = 0;
 	private final static String DIR = System.getProperty("dir"); //$NON-NLS-1$
 	private final static boolean COMPARE = DefaultCodeFormatterConstants.TRUE.equals(System.getProperty("compare")); //$NON-NLS-1$
+	private static final int MAX_FAILURES = 100; // Max failures using string comparison
 	private static boolean ASSERT_EQUALS_STRINGS = true;
 	
 public static Test suite() {
@@ -89,7 +92,7 @@ public static Test suite() {
 		for (int i=0; i<length; i++) {
 			suite.addTest(new FormatterCommentsMassiveTests(allFiles[i]));
 		}
-		ASSERT_EQUALS_STRINGS = length < 15000; 
+//		ASSERT_EQUALS_STRINGS = length < 15000; 
     } catch (Exception e) {
     	// skip
     }
@@ -141,7 +144,14 @@ protected void assertSourceEquals(String message, String expected, String actual
 	}
 	actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual);
 	if (ASSERT_EQUALS_STRINGS) {
-		assertEquals(message, expected, actual);
+		try {
+			assertEquals(message, expected, actual);
+		}
+		catch (ComparisonFailure cf) {
+			this.failures++;
+			ASSERT_EQUALS_STRINGS = this.failures < MAX_FAILURES;
+			throw cf;
+		}
 	} else {
 		assertTrue(message, actual.equals(expected));
 	}
