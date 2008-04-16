@@ -201,7 +201,7 @@ public Constant constant() {
 					fieldDecl.resolve(originalField.isStatic() //side effect on binding 
 							? typeDecl.staticInitializerScope
 							: typeDecl.initializerScope);
-					fieldConstant = originalField.constant();
+					fieldConstant = originalField.constant == null ? Constant.NotAConstant : originalField.constant;
 				} else {
 					fieldConstant = Constant.NotAConstant; // shouldn't occur per construction (paranoid null check)
 				} 
