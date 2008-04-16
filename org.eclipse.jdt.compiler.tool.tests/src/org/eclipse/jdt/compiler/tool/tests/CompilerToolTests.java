@@ -62,7 +62,7 @@ public class CompilerToolTests extends TestCase {
 	}
 
 	private static JavaCompiler Compiler;
-	private static String[] ONE_ARG_OPTIONS = {
+	static final String[] ONE_ARG_OPTIONS = {
 		"-cp",
 		"-classpath",
 		"-bootclasspath",
@@ -81,7 +81,7 @@ public class CompilerToolTests extends TestCase {
 		"-processor",
 		"-classNames"
 	};
-	private static String[] ZERO_ARG_OPTIONS = {
+	static final String[] ZERO_ARG_OPTIONS = {
 		"-1.3",
 		"-1.4",
 		"-1.5",
@@ -122,6 +122,13 @@ public class CompilerToolTests extends TestCase {
 		"-proc:none",
 		"-proc:only",
 	};
+static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] { 
+	// a series of fake options to test the behavior upon ignored and 
+	// pass-through options
+	"-Jignore",
+	"-Xignore",
+	"-Akey=value",
+};
 
 	private void displayLocation(StandardJavaFileManager manager, StandardLocation standardLocation) {
 		System.out.println(standardLocation.getName());
@@ -155,9 +162,9 @@ public class CompilerToolTests extends TestCase {
 		for (String option : ZERO_ARG_OPTIONS) {
 			assertEquals(option + " requires no argument", 0, Compiler.isSupportedOption(option));
 		}
-		assertEquals("-Jignore requires no argument", 0, Compiler.isSupportedOption("-Jignore"));
-		assertEquals("-Xignore requires no argument", 0, Compiler.isSupportedOption("-Xignore"));
-		assertEquals("-Akey=value requires no argument", 0, Compiler.isSupportedOption("-Akey=value"));
+		for (String option : FAKE_ZERO_ARG_OPTIONS) {
+			assertEquals(option + " requires no argument", 0, Compiler.isSupportedOption(option));
+		}
 	}
 
 	public void testCompilerOneClassWithSystemCompiler() {

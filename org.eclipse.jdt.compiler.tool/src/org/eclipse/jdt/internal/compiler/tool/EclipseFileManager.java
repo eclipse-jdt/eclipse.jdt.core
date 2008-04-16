@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 IBM Corporation and others.
+ * Copyright (c) 2006, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -603,7 +603,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	public boolean handleOption(String current, Iterator<String> remaining) {
 		try {
 			if ("-bootclasspath".equals(current)) {//$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> bootclasspaths = getPathsFrom(remaining.next());
 					if (bootclasspaths != null) {
@@ -622,7 +621,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 									prependFiles(iterable, bootclasspaths));
 						}
 					}
-					remaining.remove();
 					this.flags |= HAS_BOOTCLASSPATH;
 					return true;
 				} else {
@@ -630,7 +628,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				}
 			}
 			if ("-classpath".equals(current) || "-cp".equals(current)) {//$NON-NLS-1$//$NON-NLS-2$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> classpaths = getPathsFrom(remaining.next());
 					if (classpaths != null) {
@@ -645,40 +642,33 @@ public class EclipseFileManager implements StandardJavaFileManager {
 							setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, classpaths);
 						}
 					}
-					remaining.remove();
 					return true;
 				} else {
 					throw new IllegalArgumentException();
 				}
 			}
 			if ("-encoding".equals(current)) {//$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					this.charset = Charset.forName(remaining.next());
-					remaining.remove();
 					return true;
 				} else {
 					throw new IllegalArgumentException();
 				}
 			}
 			if ("-sourcepath".equals(current)) {//$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> sourcepaths = getPathsFrom(remaining.next());
 					if (sourcepaths != null) setLocation(StandardLocation.SOURCE_PATH, sourcepaths);
-					remaining.remove();
 					return true;
 				} else {
 					throw new IllegalArgumentException();
 				}
 			}
 			if ("-extdirs".equals(current)) {//$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
 					setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
 							concatFiles(iterable, getExtdirsFrom(remaining.next())));
-					remaining.remove();
 					this.flags |= HAS_EXT_DIRS;
 					return true;
 				} else {
@@ -686,12 +676,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				}
 			}
 			if ("-endorseddirs".equals(current)) {//$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
 					setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
 							prependFiles(iterable, getEndorsedDirsFrom(remaining.next())));
-					remaining.remove();
 					this.flags |= HAS_ENDORSED_DIRS;
 					return true;
 				} else {
@@ -699,39 +687,33 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				}
 			}
 			if ("-d".equals(current)) { //$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> outputDir = getOutputDir(remaining.next());
 					if (outputDir != null) {
 						setLocation(StandardLocation.CLASS_OUTPUT, outputDir);
 					}
-					remaining.remove();
 					return true;
 				} else {
 					throw new IllegalArgumentException();
 				}
 			}
 			if ("-s".equals(current)) { //$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> outputDir = getOutputDir(remaining.next());
 					if (outputDir != null) {
 						setLocation(StandardLocation.SOURCE_OUTPUT, outputDir);
 					}
-					remaining.remove();
 					return true;
 				} else {
 					throw new IllegalArgumentException();
 				}				
 			}
 			if ("-processorpath".equals(current)) {//$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> processorpaths = getPathsFrom(remaining.next());
 					if (processorpaths != null) {
 						setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, processorpaths);
 					}
-					remaining.remove();
 					this.flags |= HAS_PROCESSORPATH;
 					return true;
 				} else {

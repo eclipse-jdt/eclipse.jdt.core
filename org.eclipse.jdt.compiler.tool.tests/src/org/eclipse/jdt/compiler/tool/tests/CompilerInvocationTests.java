@@ -346,8 +346,9 @@ public void test006_no_dash_d_option_custom_file_manager() throws IOException {
 	assertTrue(customJavaFileManager.matchFound()); // failure here means that getLocation was not called for the class output location
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=226918
-// options consumption
-public void _test007_options_consumption() throws IOException {
+// options consumption - compare with javac and ensure the consumption mechanism
+// behaves the same on an option that is supported by both compilers
+public void test007_options_consumption() throws IOException {
 	List<String> remainingAsList = Arrays.asList("output", "remainder");
 	StandardJavaFileManager ecjStandardJavaFileManager = 
 		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
@@ -360,6 +361,43 @@ public void _test007_options_consumption() throws IOException {
 		remaining = remainingAsList.iterator();
 		assertTrue("does not support -d option", javacStandardJavaFileManager.handleOption("-d", remaining));
 		assertEquals("unexpected consumption rate", "remainder", remaining.next());
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=226918
+// options consumption - check consumption rate on supported zero-args options
+public void test008_options_consumption() throws IOException {
+	final String REMAINDER = "remainder";
+	List<String> remainingAsList = Arrays.asList("output", REMAINDER);
+	StandardJavaFileManager ecjStandardJavaFileManager = 
+		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
+	for (String option: CompilerToolTests.ZERO_ARG_OPTIONS) {
+		if (ecjStandardJavaFileManager.isSupportedOption(option) != -1) { // some options that the compiler support could well not be supported by the file manager
+			Iterator<String> remaining = remainingAsList.iterator();
+			assertTrue("does not support " + option + " option", ecjStandardJavaFileManager.handleOption(option, remaining));
+			assertEquals("unexpected consumption rate", REMAINDER, remaining.next());
+		}
+	}
+	for (String option: CompilerToolTests.FAKE_ZERO_ARG_OPTIONS) {
+		if (ecjStandardJavaFileManager.isSupportedOption(option) != -1) {
+			Iterator<String> remaining = remainingAsList.iterator();
+			assertTrue("does not support " + option + " option", ecjStandardJavaFileManager.handleOption(option, remaining));
+			assertEquals("unexpected consumption rate", REMAINDER, remaining.next());
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=226918
+// options consumption - check consumption rate on supported one-arg options
+public void test009_options_consumption() throws IOException {
+	final String REMAINDER = "remainder";
+	List<String> remainingAsList = Arrays.asList("utf-8", REMAINDER);
+	StandardJavaFileManager ecjStandardJavaFileManager = 
+		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
+	for (String option: CompilerToolTests.ONE_ARG_OPTIONS) {
+		if (ecjStandardJavaFileManager.isSupportedOption(option) != -1) { // some options that the compiler support could well not be supported by the file manager
+			Iterator<String> remaining = remainingAsList.iterator();
+			assertTrue("does not support " + option + " option", ecjStandardJavaFileManager.handleOption(option, remaining));
+			assertEquals("unexpected consumption rate", REMAINDER, remaining.next());
+		}
 	}
 }
 }
