@@ -1107,11 +1107,21 @@ public final class CompletionEngine
 					&& switchStatement.expression.resolvedType.isEnum()) {
 				if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
 					this.assistNodeIsEnum = true;
-					this.findEnumConstant(this.completionToken, (SwitchStatement) astNodeParent);
+					this.findEnumConstantsFromSwithStatement(this.completionToken, (SwitchStatement) astNodeParent);
 				}
 			} else if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
 				findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 			} else {
+				if (this.expectedTypesPtr > -1) {
+					this.assistNodeIsEnum = true;
+					done : for (int i = 0; i <= this.expectedTypesPtr; i++) {
+						if (!this.expectedTypes[i].isEnum()) {
+							this.assistNodeIsEnum = false;
+							break done;
+						}
+					}
+					
+				}
 				if (scope instanceof BlockScope && !this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
 					char[][] alreadyDefinedName = computeAlreadyDefinedName((BlockScope)scope, singleNameReference);
 					
@@ -1744,6 +1754,16 @@ public final class CompletionEngine
 					if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
 						findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 					} else {
+						if (this.expectedTypesPtr > -1) {
+							this.assistNodeIsEnum = true;
+							done : for (int i = 0; i <= this.expectedTypesPtr; i++) {
+								if (!this.expectedTypes[i].isEnum()) {
+									this.assistNodeIsEnum = false;
+									break done;
+								}
+							}
+							
+						}
 						if (scope instanceof BlockScope && !this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
 							char[][] alreadyDefinedName = computeAlreadyDefinedName((BlockScope)scope, FakeInvocationSite);
 							
@@ -2781,53 +2801,50 @@ public final class CompletionEngine
 			}
 		}
 	}
-	private void findEnumConstant(char[] enumConstantName, SwitchStatement switchStatement) {
-		TypeBinding expressionType = switchStatement.expression.resolvedType;
-		if(expressionType != null && expressionType.isEnum()) {
-			ReferenceBinding enumType = (ReferenceBinding) expressionType;
+
+	private void findEnumConstants(
+			char[] enumConstantName,
+			ReferenceBinding enumType,
+			Scope invocationScope,
+			ObjectVector fieldsFound,
+			char[][] alreadyUsedConstants,
+			int alreadyUsedConstantCount,
+			boolean needQualification) {
+		
+		FieldBinding[] fields = enumType.fields();
 			
-			CaseStatement[] cases = switchStatement.cases;
+		int enumConstantLength = enumConstantName.length;
+		next : for (int f = fields.length; --f >= 0;) {			
+			FieldBinding field = fields[f];
+
+			if (field.isSynthetic()) continue next;
+
+			if ((field.modifiers & Flags.AccEnum) == 0) continue next;
+
+			if (enumConstantLength > field.name.length) continue next;
+
+			if (!CharOperation.prefixEquals(enumConstantName, field.name, false /* ignore case */)
+					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(enumConstantName, field.name)))	continue next;
 			
-			char[][] alreadyUsedConstants = new char[switchStatement.caseCount][];
-			int alreadyUsedConstantCount = 0;
-			for (int i = 0; i < switchStatement.caseCount; i++) {
-				Expression caseExpression = cases[i].constantExpression;
-				if((caseExpression instanceof SingleNameReference)
-						&& (caseExpression.resolvedType != null && caseExpression.resolvedType.isEnum())) {
-					alreadyUsedConstants[alreadyUsedConstantCount++] = ((SingleNameReference)cases[i].constantExpression).token;
-				}
+			char[] fieldName = field.name;
+			
+			for (int i = 0; i < alreadyUsedConstantCount; i++) {
+				if(CharOperation.equals(alreadyUsedConstants[i], fieldName)) continue next;
 			}
 			
-			FieldBinding[] fields = enumType.fields();
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForResolution();
+			relevance += computeRelevanceForInterestingProposal(field);
+			relevance += computeRelevanceForCaseMatching(enumConstantName, field.name);
+			relevance += computeRelevanceForExpectingType(field.type);
+			relevance += computeRelevanceForEnumConstant(field.type);
+			relevance += computeRelevanceForQualification(needQualification);
+			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 			
-			int enumConstantLength = enumConstantName.length;
-			next : for (int f = fields.length; --f >= 0;) {			
-				FieldBinding field = fields[f];
-
-				if (field.isSynthetic()) continue next;
-
-				if ((field.modifiers & Flags.AccEnum) == 0) continue next;
-
-				if (enumConstantLength > field.name.length) continue next;
-
-				if (!CharOperation.prefixEquals(enumConstantName, field.name, false /* ignore case */)
-						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(enumConstantName, field.name)))	continue next;
+			this.noProposal = false;
+			if (!needQualification) {
+				char[] completion = fieldName;
 				
-				char[] completion = field.name;
-				
-				for (int i = 0; i < alreadyUsedConstantCount; i++) {
-					if(CharOperation.equals(alreadyUsedConstants[i], completion)) continue next;
-				}
-
-				int relevance = computeBaseRelevance();
-				relevance += computeRelevanceForInterestingProposal(field);
-				relevance += computeRelevanceForEnum();
-				relevance += computeRelevanceForCaseMatching(enumConstantName, field.name);
-				relevance += computeRelevanceForExpectingType(field.type);
-				relevance += computeRelevanceForQualification(false);
-				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
-				
-				this.noProposal = false;
 				if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
 					CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(field.declaringClass));
@@ -2847,7 +2864,129 @@ public final class CompletionEngine
 						this.printDebug(proposal);
 					}
 				}
+				
+			} else {
+				TypeBinding visibleType = invocationScope.getType(field.type.sourceName());
+				boolean needImport = visibleType == null || !visibleType.isValidBinding();
+				
+				char[] completion = CharOperation.concat(field.type.sourceName(), field.name, '.');
+				
+				if (!needImport) {
+					if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+						CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+						proposal.setDeclarationSignature(getSignature(field.declaringClass));
+						proposal.setSignature(getSignature(field.type));
+						proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
+						proposal.setDeclarationTypeName(field.declaringClass.qualifiedSourceName());
+						proposal.setPackageName(field.type.qualifiedPackageName());
+						proposal.setTypeName(field.type.qualifiedSourceName()); 
+						proposal.setName(field.name);
+						proposal.setCompletion(completion);
+						proposal.setFlags(field.modifiers);
+						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
+						proposal.setRelevance(relevance);
+						this.requestor.accept(proposal);
+						if(DEBUG) {
+							this.printDebug(proposal);
+						}
+					}
+				} else {
+					if (!this.isIgnored(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT)) {
+						CompilationUnitDeclaration cu = this.unitScope.referenceContext;
+						int importStart = cu.types[0].declarationSourceStart;
+						int importEnd = importStart;
+						
+						ReferenceBinding fieldType = (ReferenceBinding)field.type;
+						
+						CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+						proposal.setDeclarationSignature(getSignature(field.declaringClass));
+						proposal.setSignature(getSignature(field.type));
+						proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
+						proposal.setDeclarationTypeName(field.declaringClass.qualifiedSourceName());
+						proposal.setPackageName(field.type.qualifiedPackageName());
+						proposal.setTypeName(field.type.qualifiedSourceName()); 
+						proposal.setName(field.name);
+						proposal.setCompletion(completion);
+						proposal.setFlags(field.modifiers);
+						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
+						proposal.setRelevance(relevance);
+						
+						char[] typeImportCompletion = createImportCharArray(CharOperation.concatWith(fieldType.compoundName, '.'), false, false);
+						
+						CompletionProposal typeImportProposal = this.createProposal(CompletionProposal.TYPE_IMPORT, this.actualCompletionPosition);
+						typeImportProposal.nameLookup = this.nameEnvironment.nameLookup;
+						typeImportProposal.completionEngine = this;
+						char[] packageName = fieldType.qualifiedPackageName();
+						typeImportProposal.setDeclarationSignature(packageName);
+						typeImportProposal.setSignature(getSignature(fieldType));
+						typeImportProposal.setPackageName(packageName);
+						typeImportProposal.setTypeName(fieldType.qualifiedSourceName());
+						typeImportProposal.setCompletion(typeImportCompletion);
+						typeImportProposal.setFlags(fieldType.modifiers);
+						typeImportProposal.setAdditionalFlags(CompletionFlags.Default);
+						typeImportProposal.setReplaceRange(importStart - this.offset, importEnd - this.offset);
+						typeImportProposal.setTokenRange(importStart - this.offset, importEnd - this.offset);
+						typeImportProposal.setRelevance(relevance);
+						
+						proposal.setRequiredProposals(new CompletionProposal[]{typeImportProposal});
+						
+						this.requestor.accept(proposal);
+						if(DEBUG) {
+							this.printDebug(proposal);
+						}
+					}
+				}
 			}
+		}
+	}
+	
+	private void findEnumConstantsFromExpectedTypes(
+			char[] token,
+			Scope invocationScope,
+			ObjectVector fieldsFound) {
+		int length = this.expectedTypesPtr + 1;
+		for (int i = 0; i < length; i++) {
+			if (this.expectedTypes[i].isEnum()) {
+				findEnumConstants(
+						token,
+						(ReferenceBinding)this.expectedTypes[i],
+						invocationScope,
+						fieldsFound,
+						CharOperation.NO_CHAR_CHAR,
+						0,
+						true);
+			}
+		}
+		
+	}
+	
+	private void findEnumConstantsFromSwithStatement(char[] enumConstantName, SwitchStatement switchStatement) {
+		TypeBinding expressionType = switchStatement.expression.resolvedType;
+		if(expressionType != null && expressionType.isEnum()) {
+			ReferenceBinding enumType = (ReferenceBinding) expressionType;
+			
+			CaseStatement[] cases = switchStatement.cases;
+			
+			char[][] alreadyUsedConstants = new char[switchStatement.caseCount][];
+			int alreadyUsedConstantCount = 0;
+			for (int i = 0; i < switchStatement.caseCount; i++) {
+				Expression caseExpression = cases[i].constantExpression;
+				if((caseExpression instanceof SingleNameReference)
+						&& (caseExpression.resolvedType != null && caseExpression.resolvedType.isEnum())) {
+					alreadyUsedConstants[alreadyUsedConstantCount++] = ((SingleNameReference)cases[i].constantExpression).token;
+				}
+			}
+			
+			findEnumConstants(
+					enumConstantName,
+					enumType,
+					null /* doesn't need invocation scope */,
+					new ObjectVector(),
+					alreadyUsedConstants,
+					alreadyUsedConstantCount,
+					false);
 		}
 	}
 	
@@ -3524,6 +3663,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForInterestingProposal(field);
 			if (fieldName != null) relevance += computeRelevanceForCaseMatching(fieldName, field.name);
 			relevance += computeRelevanceForExpectingType(field.type);
+			relevance += computeRelevanceForEnumConstant(field.type);
 			relevance += computeRelevanceForStatic(onlyStaticFields, field.isStatic());
 			relevance += computeRelevanceForQualification(prefixRequired);
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
@@ -4437,6 +4577,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForInterestingProposal(field);
 			if (fieldName != null) relevance += computeRelevanceForCaseMatching(fieldName, field.name);
 			relevance += computeRelevanceForExpectingType(field.type);
+			relevance += computeRelevanceForEnumConstant(field.type);
 			relevance += computeRelevanceForStatic(true, true);
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 			
@@ -5992,6 +6133,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForInterestingProposal();
 			if (methodName != null) relevance += computeRelevanceForCaseMatching(methodName, method.selector);
 			relevance += computeRelevanceForExpectingType(method.returnType);
+			relevance += computeRelevanceForEnumConstant(method.returnType);
 			relevance += computeRelevanceForStatic(onlyStaticMethods, method.isStatic());
 			relevance += computeRelevanceForQualification(prefixRequired);
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
@@ -6251,6 +6393,7 @@ public final class CompletionEngine
 				relevance += computeRelevanceForInterestingProposal();
 				if (methodName != null) relevance += computeRelevanceForCaseMatching(methodName, method.selector);
 				relevance += computeRelevanceForExpectingType(method.returnType);
+				relevance += computeRelevanceForEnumConstant(method.returnType);
 				relevance += computeRelevanceForStatic(true, method.isStatic());
 				relevance += computeRelevanceForQualification(true);
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
@@ -6522,6 +6665,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
 			relevance += computeRelevanceForExpectingType(method.returnType);
+			relevance += computeRelevanceForEnumConstant(method.returnType);
 			relevance += computeRelevanceForStatic(true, method.isStatic());
 			relevance += computeRelevanceForQualification(false);
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
@@ -6641,6 +6785,20 @@ public final class CompletionEngine
 		if(this.insideQualifiedReference && !onlyStatic && !isStatic) {
 			return R_NON_STATIC;
 		}
+		return 0;
+	}
+	private int computeRelevanceForEnumConstant(TypeBinding proposalType){
+		if(this.assistNodeIsEnum &&
+				proposalType != null &&
+				this.expectedTypes != null) {
+			for (int i = 0; i <= this.expectedTypesPtr; i++) {
+				if (proposalType.isEnum() &&
+						proposalType == this.expectedTypes[i]) {
+					return R_ENUM + R_ENUM_CONSTANT;
+				}
+			
+			}
+		} 
 		return 0;
 	}
 	private int computeRelevanceForException(){
@@ -8186,6 +8344,7 @@ public final class CompletionEngine
 							relevance += computeRelevanceForInterestingProposal(local);
 							relevance += computeRelevanceForCaseMatching(token, local.name);
 							relevance += computeRelevanceForExpectingType(local.type);
+							relevance += computeRelevanceForEnumConstant(local.type);
 							relevance += computeRelevanceForQualification(false);
 							relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for local variable
 							this.noProposal = false;
@@ -8329,6 +8488,11 @@ public final class CompletionEngine
 						fieldsFound,
 						methodsFound);
 			}
+			
+			findEnumConstantsFromExpectedTypes(
+					token,
+					invocationScope,
+					fieldsFound);
 		}
 	}
 

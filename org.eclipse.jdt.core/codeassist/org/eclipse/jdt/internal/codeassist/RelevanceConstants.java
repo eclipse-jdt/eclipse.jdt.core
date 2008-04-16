@@ -24,7 +24,7 @@ public interface RelevanceConstants {
 	int R_ENUM = 20;
 	int R_ANNOTATION = 20;
 	int R_EXCEPTION = 20;
-	int R_ENUM_CONSTANT = 20;
+	int R_ENUM_CONSTANT = 5;
 	int R_ABSTRACT_METHOD = 20;
 	int R_NON_STATIC = 11;
 	int R_UNQUALIFIED = 3;

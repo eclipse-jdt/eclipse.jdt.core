@@ -3596,7 +3596,7 @@ public void test0136() throws JavaModelException {
 				result.context);
 		
 		assertResults(
-				"RED[FIELD_REF]{RED, Ltest0136.Colors;, Ltest0136.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				"RED[FIELD_REF]{RED, Ltest0136.Colors;, Ltest0136.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED) + "}",
 				result.proposals);
 	} finally {
 		if(enumeration != null) {
@@ -3635,7 +3635,7 @@ public void test0137() throws JavaModelException {
 				result.context);
 		
 		assertResults(
-				"RED[FIELD_REF]{RED, Ltest0137.Colors;, Ltest0137.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				"RED[FIELD_REF]{RED, Ltest0137.Colors;, Ltest0137.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED) + "}",
 				result.proposals);
 	} finally {
 		if(enumeration != null) {
@@ -3675,7 +3675,7 @@ public void test0138() throws JavaModelException {
 				result.context);
 		
 		assertResults(
-				"RED[FIELD_REF]{RED, Ltest0138.Colors;, Ltest0138.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				"RED[FIELD_REF]{RED, Ltest0138.Colors;, Ltest0138.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED) + "}",
 				result.proposals);
 	} finally {
 		if(enumeration != null) {
@@ -3714,7 +3714,7 @@ public void test0139() throws JavaModelException {
 				result.context);
 		
 		assertResults(
-				"RED[FIELD_REF]{RED, Ltest0139.Colors;, Ltest0139.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				"RED[FIELD_REF]{RED, Ltest0139.Colors;, Ltest0139.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED) + "}",
 				result.proposals);
 	} finally {
 		if(enumeration != null) {
@@ -3753,7 +3753,7 @@ public void test0140() throws JavaModelException {
 				result.context);
 		
 		assertResults(
-				"RED[FIELD_REF]{RED, Ltest0140.Colors;, Ltest0140.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				"RED[FIELD_REF]{RED, Ltest0140.Colors;, Ltest0140.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED) + "}",
 				result.proposals);
 	} finally {
 		if(enumeration != null) {
@@ -3835,7 +3835,7 @@ public void test0142() throws JavaModelException {
 				result.context);
 		
 		assertResults(
-				"RED[FIELD_REF]{RED, Ltest0142.Colors;, Ltest0142.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				"RED[FIELD_REF]{RED, Ltest0142.Colors;, Ltest0142.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED) + "}",
 				result.proposals);
 	} finally {
 		if(enumeration != null) {
@@ -6713,8 +6713,8 @@ public void test0208() throws JavaModelException {
 	            result.context);
 	    
 	    assertResults(
-	            "BLACK[FIELD_REF]{BLACK, Lp.Colors;, Lp.Colors;, BLACK, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_ENUM + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"WHITE[FIELD_REF]{WHITE, Lp.Colors;, Lp.Colors;, WHITE, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_ENUM + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+	            "BLACK[FIELD_REF]{BLACK, Lp.Colors;, Lp.Colors;, BLACK, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_ENUM + R_ENUM_CONSTANT + R_UNQUALIFIED + R_NON_RESTRICTED + R_RESOLVED) + "}\n" +
+				"WHITE[FIELD_REF]{WHITE, Lp.Colors;, Lp.Colors;, WHITE, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_ENUM + R_ENUM_CONSTANT + R_UNQUALIFIED + R_NON_RESTRICTED + R_RESOLVED) + "}",
 	            result.proposals);
 	} finally {
 		if(aType != null) {
@@ -8244,9 +8244,9 @@ public void test0265() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"bar[FIELD_REF]{bar, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, bar, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
-			"baz[FIELD_REF]{baz, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, baz, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
-			"foo[FIELD_REF]{foo, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
+			"bar[FIELD_REF]{bar, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, bar, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_ENUM + R_ENUM_CONSTANT + R_NON_RESTRICTED + R_RESOLVED) + "}\n" +
+			"baz[FIELD_REF]{baz, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, baz, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_ENUM + R_ENUM_CONSTANT + R_NON_RESTRICTED + R_RESOLVED) + "}\n" +
+			"foo[FIELD_REF]{foo, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_ENUM + R_ENUM_CONSTANT + R_NON_RESTRICTED + R_RESOLVED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128169
@@ -8864,7 +8864,7 @@ public void test0285() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"ZZZNeedsImportEnum[TYPE_REF]{ZZZNeedsImportEnum, pack, Lpack.ZZZNeedsImportEnum;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"ZZZNeedsImportEnum[TYPE_REF]{ZZZNeedsImportEnum, pack, Lpack.ZZZNeedsImportEnum;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ENUM + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=95829
@@ -11687,6 +11687,105 @@ public void test0363() throws JavaModelException {
 
 	assertResults(
 			"abs[METHOD_REF]{, Ltest.util.Math;, (I)I, abs, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=161030
+public void test0364() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import test.p.MyEnum;\n"+
+		"public class Test {\n"+
+		"	void foo(MyEnum myEnumVar) {\n"+
+		"	  foo(MyEnu\n"+
+		"	}\n"+
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/p/Math.java",
+		"package test.p;\n"+
+		"public enum MyEnum {\n"+
+		"	MyEnum1, MyEnum2;\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "MyEnu";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"myEnumVar[LOCAL_VARIABLE_REF]{myEnumVar, null, Ltest.p.MyEnum;, myEnumVar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_ENUM + R_ENUM_CONSTANT + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"MyEnum[TYPE_REF]{MyEnum, test.p, Ltest.p.MyEnum;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ENUM + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"MyEnum1[FIELD_REF]{MyEnum.MyEnum1, Ltest.p.MyEnum;, Ltest.p.MyEnum;, MyEnum1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ENUM + R_ENUM_CONSTANT + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
+			"MyEnum2[FIELD_REF]{MyEnum.MyEnum2, Ltest.p.MyEnum;, Ltest.p.MyEnum;, MyEnum2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ENUM + R_ENUM_CONSTANT + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=161030
+public void test0365() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import test.p.MyEnum;\n"+
+		"public class Test {\n"+
+		"	void foo(MyEnum myEnumVar) {\n"+
+		"	  foo(myEnu\n"+
+		"	}\n"+
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/p/Math.java",
+		"package test.p;\n"+
+		"public enum MyEnum {\n"+
+		"	MyEnum1, MyEnum2;\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "myEnu";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"MyEnum[TYPE_REF]{MyEnum, test.p, Ltest.p.MyEnum;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_ENUM + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"MyEnum1[FIELD_REF]{MyEnum.MyEnum1, Ltest.p.MyEnum;, Ltest.p.MyEnum;, MyEnum1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_ENUM + R_ENUM_CONSTANT + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
+			"MyEnum2[FIELD_REF]{MyEnum.MyEnum2, Ltest.p.MyEnum;, Ltest.p.MyEnum;, MyEnum2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_ENUM + R_ENUM_CONSTANT + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
+			"myEnumVar[LOCAL_VARIABLE_REF]{myEnumVar, null, Ltest.p.MyEnum;, myEnumVar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ENUM + R_ENUM_CONSTANT + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=161030
+public void test0366() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"import test.p.MyEnum;\n"+
+		"public class Test {\n"+
+		"	void foo(MyEnum MyEnumVar) {\n"+
+		"	  foo(MyEnu\n"+
+		"	}\n"+
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/p/Math.java",
+		"package test.p;\n"+
+		"public enum MyEnum {\n"+
+		"	MyEnum1, MyEnum2;\n"+
+		"}n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "MyEnu";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"MyEnum[TYPE_REF]{MyEnum, test.p, Ltest.p.MyEnum;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ENUM + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"MyEnum1[FIELD_REF]{MyEnum.MyEnum1, Ltest.p.MyEnum;, Ltest.p.MyEnum;, MyEnum1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ENUM + R_ENUM_CONSTANT + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
+			"MyEnum2[FIELD_REF]{MyEnum.MyEnum2, Ltest.p.MyEnum;, Ltest.p.MyEnum;, MyEnum2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ENUM + R_ENUM_CONSTANT + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
+			"MyEnumVar[LOCAL_VARIABLE_REF]{MyEnumVar, null, Ltest.p.MyEnum;, MyEnumVar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ENUM + R_ENUM_CONSTANT + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130
