@@ -10986,4 +10986,42 @@ public void test0216_Diet() {
 			expectedReplacedSource,
 	"diet ast");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=207631
+public void test0217_Method() {
+
+	String str = 
+		"public class X {\n" +
+		"	void foo() {\n" +
+		"      int y = (x >> (1));\n" +
+		"      foo\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf("foo") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	// we are not in a constructor then the completion node isn't attached to the ast
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    int y;\n" + 
+			"    <CompleteOnName:foo>;\n" + 
+			"  }\n" + 
+			"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }
