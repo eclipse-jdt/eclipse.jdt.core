@@ -876,8 +876,7 @@ class JavacCompiler {
 	 *     c:/JDK_50 for Windows; in case this property is not specified, the
 	 *     tests suite will use the runtime JRE of the launching configuration.
 	 * Note that enabling javac tests implies running into 1.5 compliance level
-	 * (without having to specify it into the VM properties.)
-	 * TODO (maxime) consider impacts of Java 6
+	 * (or higher).
 	 */
 	protected void runJavac(
 			String[] testFiles, 
