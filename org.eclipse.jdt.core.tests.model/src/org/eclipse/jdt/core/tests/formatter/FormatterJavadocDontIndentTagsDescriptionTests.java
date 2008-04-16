@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
  * 	<li>'Indent description after &#064;param' set to <code>false</code></li>
  * </ul>
  */
-public class FormatterJavadocDontIndentTagsDescriptionTests extends FormatterJavadocTests {
+public class FormatterJavadocDontIndentTagsDescriptionTests extends FormatterCommentsTests {
 
 public static Test suite() {
 	// Get all superclass tests

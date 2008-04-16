@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
  * 	<li>'Indent Javadoc tags' set to <code>false</code></li>
  * </ul>
  */
-public class FormatterJavadocDontIndentTagsTests extends FormatterJavadocTests {
+public class FormatterJavadocDontIndentTagsTests extends FormatterCommentsTests {
 
 public static Test suite() {
 	// Get all superclass tests

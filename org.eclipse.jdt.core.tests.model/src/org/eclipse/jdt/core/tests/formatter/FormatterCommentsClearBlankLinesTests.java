@@ -27,12 +27,12 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
  * </ul>
  * options activated.
  */
-public class FormatterJavadocClearBlankLinesTests extends FormatterJavadocTests {
+public class FormatterCommentsClearBlankLinesTests extends FormatterCommentsTests {
 
 public static Test suite() {
 	// Get all superclass tests
-	TestSuite suite = new Suite(FormatterJavadocClearBlankLinesTests.class.getName());
-	List tests = buildTestsList(FormatterJavadocClearBlankLinesTests.class, 1, 0/* do not sort*/);
+	TestSuite suite = new Suite(FormatterCommentsClearBlankLinesTests.class.getName());
+	List tests = buildTestsList(FormatterCommentsClearBlankLinesTests.class, 1, 0/* do not sort*/);
 	for (int index=0, size=tests.size(); index<size; index++) {
 		suite.addTest((Test)tests.get(index));
 	}
@@ -40,7 +40,7 @@ public static Test suite() {
 
 }
 
-public FormatterJavadocClearBlankLinesTests(String name) {
+public FormatterCommentsClearBlankLinesTests(String name) {
 	super(name);
 }
 

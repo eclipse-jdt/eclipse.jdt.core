@@ -45,20 +45,20 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
  * See also sub-classes which run the same tests bundle but with different
  * formatter options:
  * <ul>
- * 	<li>{@link FormatterJavadocClearBlankLinesTests}</li>
+ * 	<li>{@link FormatterCommentsClearBlankLinesTests}</li>
  * 	<li>{@link FormatterJavadocDontIndentTagsTests}</li>
  * 	<li>{@link FormatterJavadocDontIndentTagsDescriptionTests}</li>
  * </ul>
  */
-public class FormatterJavadocTests extends FormatterRegressionTests {
+public class FormatterCommentsTests extends FormatterRegressionTests {
 
 	public static List ALL_TEST_SUITES = null;
 
 public static Test suite() {
-	return buildModelTestSuite(FormatterJavadocTests.class);
+	return buildModelTestSuite(FormatterCommentsTests.class);
 }
 
-public FormatterJavadocTests(String name) {
+public FormatterCommentsTests(String name) {
 	super(name);
 }
 protected void setUp() throws Exception {
@@ -689,5 +689,30 @@ public void testTagLink03a() throws JavaModelException {
 }
 public void testTagLink03b() throws JavaModelException {
 	formatUnit("tags.link", "X03b.java");
+}
+
+/*
+ * Test formatter comment lines
+ */
+public void testLineComments01() throws JavaModelException {
+	formatUnit("comments.line", "X01.java");
+}
+/*
+ * TODO (eric) Fix the 2 following failing tests
+ */
+public void _testLineComments02() throws JavaModelException {
+	formatUnit("comments.line", "X02.java");
+}
+public void _testLineComments02b() throws JavaModelException {
+	formatUnit("comments.line", "X02b.java");
+}
+public void testLineComments03() throws JavaModelException {
+	formatUnit("comments.line", "X03.java");
+}
+public void testLineComments04() throws JavaModelException {
+	formatUnit("comments.line", "X04.java");
+}
+public void testLineComments05() throws JavaModelException {
+	formatUnit("comments.line", "X05.java");
 }
 }

@@ -23,15 +23,16 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.ModelTestsUtil;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.core.util.SimpleDocument;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * Comment formatter test suite for massive tests at a given location.
@@ -56,18 +57,63 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
  * enable the comparison on them.
  * TODO (eric) See how fix the remaining failing tests when comparing the
  * formatting of JUnit 3.8.2 files.
- * TODO (eric) Fix failures while running on workspaces without comparing:
+ * TODO Fix failures while running on workspaces without comparing.
  * <ul>
  * <li>0 error and 425 failures for 9950 tests on 3.0 performance workspace.</li>
  * <li>0 error and 4220 failures for 25819 tests on ganymede workspace</li>
  * </ul>
+ * 
+ * Numbers above where before the line comments formatting was activated.
+ * It was not possible to continue to compare the entire files after 2 formatting
+ * as the code formatter cannot handle properly following snippet:
+ * <pre>
+ * public class X02 {
+ * 	int field; // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled
+ * }
+ * </pre>
+ * Which is formatted first as:
+ * <pre>
+ * public class X02 {
+ * 	int field; // This is a long comment that should be split in multiple line
+ * 				// comments in case the line comment formatting is enabled
+ * }
+ * </pre>
+ * And formatted again with a different output:
+ * Which is formatted first as:
+ * <pre>
+ * public class X02 {
+ * 	int field; // This is a long comment that should be split in multiple line
+ * 	// comments in case the line comment formatting is enabled
+ * }
+ * </pre>
+ * 
+ * So, we're now obliged to ignore lines leading whitespaces using the VM argument
+ * (-DignoreWhitespaces=linesLeading) while running a launch config on this test suite.
+ * Then numbers are now on:
+ * <ul>
+ * 	<li>3.0 performance workspace (9951 units):<ul>
+ * 		<li>0 error</li>
+ * 		<li>218 failures</li>
+ * 		<li>896 different lines leading spaces</li>
+ *		</ul></li>
+ *		<li>ganymede workspace (25819 units):<ul>
+ * 		<li>0 error</li>
+ * 		<li>3650 failures</li>
+ * 		<li>1707 different lines leading spaces</li>
+ *		</ul></li>
+ * </ul>
  */
 public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 
+	private static final String LINE_SEPARATOR = org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR;
 	final File file;
-	int failures = 0;
+	int failures = 0, spaceFailures= 0;
+	boolean hasSpaceFailure;
 	private final static String DIR = System.getProperty("dir"); //$NON-NLS-1$
 	private final static boolean COMPARE = DefaultCodeFormatterConstants.TRUE.equals(System.getProperty("compare")); //$NON-NLS-1$
+	private final static boolean IGNORE_WHITESPACES = "all".equals(System.getProperty("ignoreWhitespaces")); //$NON-NLS-1$
+	private final static boolean IGNORE_LINES_LEADING_WHITESPACES = "linesLeading".equals(System.getProperty("ignoreWhitespaces")); //$NON-NLS-1$
+	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2")); //$NON-NLS-1$
 	private static final int MAX_FAILURES = 100; // Max failures using string comparison
 	private static boolean ASSERT_EQUALS_STRINGS = true;
 	
@@ -114,6 +160,14 @@ public String getName() {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests#setUpSuite()
  */
+public void setUp() throws Exception {
+	super.setUp();
+	this.hasSpaceFailure = false;
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests#setUpSuite()
+ */
 public void setUpSuite() throws Exception {
 	// skip standard model suite set up
 }
@@ -142,12 +196,29 @@ protected void assertSourceEquals(String message, String expected, String actual
 		assertEquals(message, expected, null);
 		return;
 	}
-	actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual);
+	actual = Util.convertToIndependantLineDelimiter(actual);
 	if (ASSERT_EQUALS_STRINGS) {
 		try {
 			assertEquals(message, expected, actual);
 		}
 		catch (ComparisonFailure cf) {
+			if (IGNORE_WHITESPACES) {
+				String trimmedExpected = ModelTestsUtil.removeWhiteSpace(expected);
+				String trimmedActual= ModelTestsUtil.removeWhiteSpace(actual);
+				if (trimmedExpected.equals(trimmedActual)) {
+					this.spaceFailures++;
+					System.out.println("n°"+this.spaceFailures+": Different spaces than old formatter for "+this.file.getName());
+					return;
+				}
+			} else if (IGNORE_LINES_LEADING_WHITESPACES) {
+				String trimmedExpected = ModelTestsUtil.trimLinesLeadingWhitespaces(expected);
+				String trimmedActual= ModelTestsUtil.trimLinesLeadingWhitespaces(actual);
+				if (trimmedExpected.equals(trimmedActual)) {
+					this.spaceFailures++;
+					System.out.println("n°"+this.spaceFailures+": Different line leading spaces than old formatter for "+this.file.getName());
+					return;
+				}
+			}
 			this.failures++;
 			ASSERT_EQUALS_STRINGS = this.failures < MAX_FAILURES;
 			throw cf;
@@ -165,10 +236,10 @@ DefaultCodeFormatter codeFormatter() {
 
 void compareFormattedSource() throws IOException, Exception {
 	DefaultCodeFormatter codeFormatter = codeFormatter();
-	String source = new String(Util.getFileCharContent(this.file, null));
+	String source = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(this.file, null));
 	try {
 		String actualResult = runFormatter(codeFormatter, source, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, 0, source.length(), null);
-		if (COMPARE) {
+		if (!this.hasSpaceFailure && COMPARE) {
 			String expectedResult = expectedFormattedSource(source);
 			assertLineEquals(actualResult, source, expectedResult, false);
 		}
@@ -204,22 +275,39 @@ private String expectedFormattedSource(String source) {
 			}
 		}
 		int indentationLevel = getIndentationLevel(scanner, commentStart);
-		if (commentKind == CodeFormatter.K_JAVA_DOC) { // Only process javadoc for now
-			formattedComments[i] = runFormatter(codeFormatter, source.substring(commentStart, commentEnd), commentKind, indentationLevel, 0, commentEnd - commentStart, Util.LINE_SEPARATOR);
+		if (commentKind != CodeFormatter.K_MULTI_LINE_COMMENT) { // Does not process block comment
+			formattedComments[i] = runFormatter(codeFormatter, source.substring(commentStart, commentEnd), commentKind, indentationLevel, 0, commentEnd - commentStart, LINE_SEPARATOR);
 		}
 	}
 	SimpleDocument document = new SimpleDocument(source);
 	for (int i=length-1; i>=0; i--) {
 		if (formattedComments[i] != null) {
 			int[] positions = commentsPositions[i];
-			int commentStart = positions[0] > 0 ? positions [0] : -positions[0];
-			int commentEnd = positions[1] > 0 ? positions [1] : -positions[1];
+			int commentStart = positions [0];
+			int commentEnd = positions [1];
+			if (commentEnd < 0) { // line or block comments have negative end position
+				commentEnd = -commentEnd;
+				if (commentStart < 0) { // line comments have negative start position
+					commentStart = -commentStart;
+					String comment = formattedComments[i];
+					if (comment.trim().length() > 2) { // non empty comment
+						char ch = source.charAt(commentEnd);
+						if (ch == '\r' || ch == '\n') {
+							commentEnd++;
+							ch = source.charAt(commentEnd);
+							if (ch == '\r' || ch == '\n') {
+								commentEnd++;
+							}
+						}
+					}
+				}
+			}
 			document.replace(commentStart, commentEnd - commentStart, formattedComments[i]);
 		}
 	}
 	String newSource = document.get();
 	String oldResult = runFormatter(codeFormatter, newSource, CodeFormatter.K_COMPILATION_UNIT, 0, 0, newSource.length(), null);
-	return oldResult;
+	return oldResult == null ? newSource : oldResult;
 }
 
 private int getIndentationLevel(Scanner scanner, int position) {
@@ -321,6 +409,66 @@ private Map getDefaultCompilerOptions() {
 	optionsMap.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.DISABLED); 
 	optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 	return optionsMap;
+}
+
+String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
+	TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
+	if (edit == null) return null;
+	String result = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
+
+	int count = 1;
+	if (length == source.length()) {
+		while (count++ < FORMAT_REPEAT) {
+			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
+			if (edit == null) return null;
+			String newResult = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
+			if (!result.equals(newResult)) {
+				String counterString = counterString(count);
+				if (IGNORE_WHITESPACES) {
+					String trimmedResult = ModelTestsUtil.removeWhiteSpace(result);
+					String trimmedNewResult = ModelTestsUtil.removeWhiteSpace(newResult);
+					if (trimmedResult.equals(trimmedNewResult)) {
+						this.spaceFailures++;
+						System.out.println("n°"+this.spaceFailures+": "+counterString+" formatting has different spaces than first one for "+this.file.getName());
+						this.hasSpaceFailure = true;
+						return result;
+					}
+				} else if (IGNORE_LINES_LEADING_WHITESPACES) {
+					String trimmedResult = ModelTestsUtil.trimLinesLeadingWhitespaces(result);
+					String trimmedNewResult = ModelTestsUtil.trimLinesLeadingWhitespaces(newResult);
+					if (trimmedResult.equals(trimmedNewResult)) {
+						this.spaceFailures++;
+						System.out.println("n°"+this.spaceFailures+": "+counterString+" formatting has different lines leading spaces than first one for "+this.file.getName());
+						this.hasSpaceFailure = true;
+						return result;
+					}
+				}
+				assertSourceEquals(counterString+" formatting is different from first one!", Util.convertToIndependantLineDelimiter(result), Util.convertToIndependantLineDelimiter(newResult));
+			}
+		}
+	}
+	return result;
+}
+
+private String counterString(int count) {
+	int reminder = count%10;
+	StringBuffer buffer = new StringBuffer();
+	buffer.append(count);
+	switch (reminder) {
+		case 1:
+			buffer.append("st");
+			break;
+		case 2:
+			buffer.append("nd");
+			break;
+		case 3:
+			buffer.append("rd");
+			break;
+		default:
+			buffer.append("th");
+			break;
+	}
+	return buffer.toString();
 }
 
 public void testCompare() throws IOException, Exception {

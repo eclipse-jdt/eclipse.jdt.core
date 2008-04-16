@@ -175,14 +175,14 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	public DefaultCodeFormatterOptions preferences;
 	public Scribe scribe;
 
-	public CodeFormatterVisitor(DefaultCodeFormatterOptions preferences, Map settings, IRegion[] regions, CodeSnippetParsingUtil codeSnippetParsingUtil, boolean formatJavadoc) {
+	public CodeFormatterVisitor(DefaultCodeFormatterOptions preferences, Map settings, IRegion[] regions, CodeSnippetParsingUtil codeSnippetParsingUtil, boolean includeComments) {
 		long sourceLevel = settings == null
 			? ClassFileConstants.JDK1_3
 			: CompilerOptions.versionToJdkLevel(settings.get(JavaCore.COMPILER_SOURCE));
 		this.localScanner = new Scanner(true, false, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		
 		this.preferences = preferences;
-		this.scribe = new Scribe(this, sourceLevel, regions, codeSnippetParsingUtil, formatJavadoc);
+		this.scribe = new Scribe(this, sourceLevel, regions, codeSnippetParsingUtil, includeComments);
 	}
 	
 	/**
@@ -2263,13 +2263,18 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			int token = this.localScanner.getNextToken();
 			switch(token) {
 				case TerminalTokens.TokenNameCOMMENT_JAVADOC :
-					boolean formatJavadoc = this.scribe.formatJavadocComment;
-					if ((!packageDeclaration && formatJavadoc) || (packageDeclaration && this.preferences.comment_format_header)) {
-						this.scribe.printJavadocComment(this.localScanner.startPosition, this.localScanner.currentPosition, -1);
+					boolean formatJavadoc = (!packageDeclaration && this.scribe.isFormattingJavadoc()) || (packageDeclaration && this.preferences.comment_format_header);
+					boolean includesComments = this.scribe.includesComments();
+					if (formatJavadoc) {
+						if (includesComments) {
+							this.scribe.printJavadocComment(this.localScanner.startPosition, this.localScanner.currentPosition, -1);
+						} else {
+							this.scribe.printComment();
+						}
 					} else {
-						this.scribe.formatJavadocComment = false;
+						if (includesComments) this.scribe.setIncludeComments(false);
 						this.scribe.printComment();
-						this.scribe.formatJavadocComment = formatJavadoc;
+						if (includesComments) this.scribe.setIncludeComments(true);
 					}
 					this.scribe.printNewLine();
 					break;

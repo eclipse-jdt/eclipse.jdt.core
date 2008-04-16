@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -34,6 +35,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 
 public class ModelTestsUtil {
@@ -374,6 +376,21 @@ static public byte[] read(java.io.File file) throws java.io.IOException {
 }
 
 /**
+ * Remove all white spaces from a string.
+ * 
+ * @param input The input string
+ * @return A new string without any whitespaces
+ */
+public static String removeWhiteSpace(String input) {
+	StringTokenizer tokenizer = new StringTokenizer(input);
+	StringBuffer buffer = new StringBuffer();
+	while (tokenizer.hasMoreTokens()) {
+		buffer.append(tokenizer.nextToken());
+	}
+    return buffer.toString();
+}
+
+/**
  * Check locally for the required JCL files, <jclName>.jar and <jclName>src.zip.
  * If not available, copy from the project resources.
  */
@@ -531,6 +548,28 @@ static public void setUpProjectCompliance(IJavaProject javaProject, String compl
 		}
 	}
 	javaProject.setRawClasspath(classpath, null);
+}
+
+/**
+ * Remove all white spaces at the deginning of each lines from a string.
+ * 
+ * @param input The input string
+ * @return A new string without any whitespaces
+ */
+public static String trimLinesLeadingWhitespaces(String input) {
+	StringTokenizer tokenizer = new StringTokenizer(input, "\r\n\f");
+	StringBuffer buffer = new StringBuffer();
+	while (tokenizer.hasMoreTokens()) {
+		String line = tokenizer.nextToken().trim();
+		int index = line.indexOf('*');
+		if (index >= 0) {
+			buffer.append(line.substring(index+1).trim());
+		} else {
+			buffer.append(line);
+		}
+		buffer.append(Util.LINE_SEPARATOR);
+	}
+    return buffer.toString();
 }
 
 }

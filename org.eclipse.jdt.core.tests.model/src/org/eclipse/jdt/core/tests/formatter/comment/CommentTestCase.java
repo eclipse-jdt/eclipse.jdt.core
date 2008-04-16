@@ -90,6 +90,10 @@ public abstract class CommentTestCase extends SuiteOfTestCases {
 
 	protected String testFormat(String text, int offset, int length, int kind, Map options) {
 		assertNotNull(text);
+		System.out.println("====================================================================================");
+		System.out.println(getName());
+		System.out.println(text);
+		System.out.println();
 		assertTrue(offset >= 0);
 		assertTrue(offset < text.length());
 		assertTrue(length >= 0);

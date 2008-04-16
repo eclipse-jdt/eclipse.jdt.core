@@ -68,7 +68,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	 */
 	private final static String NEW_JAVA_DOC_FORMAT = System.getProperty("org.eclipse.jdt.core.formatter.comments.new"); //$NON-NLS-1$
 	private static final boolean ENABLE_NEW_JAVADOC_FORMAT = JavaCore.ENABLED.equals(NEW_JAVA_DOC_FORMAT);
-	private static final boolean FORCE_NEW_JAVADOC_FORMAT = "forced".equals(NEW_JAVA_DOC_FORMAT); //$NON-NLS-1$
+	private static final boolean FORCE_NEW_COMMENT_FORMAT = "forced".equals(NEW_JAVA_DOC_FORMAT); //$NON-NLS-1$
 	private static final String WARNING_JAVADOC_COMMENTS = "WARNING: Javadoc comments are still formatted using JavaDocRegion!"; //$NON-NLS-1$
 	private static boolean PRINTED_OLD_JAVA_DOC_WARNING = false;
 
@@ -181,7 +181,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				// use the integrated comment formatter to format comment
 				if (ENABLE_NEW_JAVADOC_FORMAT) {
 	                return formatJavadoc(source, indentationLevel, lineSeparator, new IRegion[] {new Region(offset, length)});
-				} else if (FORCE_NEW_JAVADOC_FORMAT) {
+				} else if (FORCE_NEW_COMMENT_FORMAT) {
 					// Skip the javadoc formatting using this constant
 					return null;
 				}
@@ -193,8 +193,12 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				}
 			case K_MULTI_LINE_COMMENT :
 			case K_SINGLE_LINE_COMMENT :
+				if (FORCE_NEW_COMMENT_FORMAT) {
+					// Skip the javadoc formatting using this constant
+					return null;
+				}
 				this.codeSnippetParsingUtil = new CodeSnippetParsingUtil();
-				return formatComment(kind, source, indentationLevel, lineSeparator, new IRegion[] {new Region(offset, length)});
+				return formatComment(kind, source, indentationLevel, lineSeparator, new IRegion[] {new Region(offset, length)}, false);
 		}
 
 		return format(kind, source, new IRegion[] {new Region(offset, length)}, indentationLevel, lineSeparator);
@@ -213,20 +217,20 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			case K_CLASS_BODY_DECLARATIONS :
 				return formatClassBodyDeclarations(source, indentationLevel, lineSeparator, regions);
 			case K_COMPILATION_UNIT :
-				boolean formatJavadoc =  (kind & F_INCLUDE_COMMENTS) != 0 || FORCE_NEW_JAVADOC_FORMAT;
-				return formatCompilationUnit(source, indentationLevel, lineSeparator, regions, formatJavadoc);
+				boolean includeComments =  (kind & F_INCLUDE_COMMENTS) != 0 || FORCE_NEW_COMMENT_FORMAT;
+				return formatCompilationUnit(source, indentationLevel, lineSeparator, regions, includeComments);
 			case K_EXPRESSION :
 				return formatExpression(source, indentationLevel, lineSeparator, regions);
 			case K_STATEMENTS :
 				return formatStatements(source, indentationLevel, lineSeparator, regions);
 			case K_UNKNOWN :
-				formatJavadoc =  (kind & F_INCLUDE_COMMENTS) != 0 || FORCE_NEW_JAVADOC_FORMAT;
-				return probeFormatting(source, indentationLevel, lineSeparator, regions, formatJavadoc);
+				includeComments =  (kind & F_INCLUDE_COMMENTS) != 0 || FORCE_NEW_COMMENT_FORMAT;
+				return probeFormatting(source, indentationLevel, lineSeparator, regions, includeComments);
 			case K_JAVA_DOC :
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102780
 				if (ENABLE_NEW_JAVADOC_FORMAT) {
 					return formatJavadoc(source, indentationLevel, lineSeparator, regions);
-				} else if (FORCE_NEW_JAVADOC_FORMAT) {
+				} else if (FORCE_NEW_COMMENT_FORMAT) {
 					// Skip the javadoc formatting using this constant
 					return null;
 				}
@@ -238,7 +242,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				}
 			case K_MULTI_LINE_COMMENT :
 			case K_SINGLE_LINE_COMMENT :
-				//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091
+				//https://bugs.eclipse.org/bugs/show_bug.cgi?id=203304
 				throw new IllegalArgumentException();
 		}
 		return null;
@@ -262,9 +266,10 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	 * @param indentationLevel the given indentation level
 	 * @param lineSeparator the given line separator
 	 * @param regions the given regions
+	 * @param includeComments TODO
 	 * @return the resulting text edit
 	 */
-	private TextEdit formatComment(int kind, String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
+	private TextEdit formatComment(int kind, String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean includeComments) {
 		Object oldOption = oldCommentFormatOption();
 		boolean isFormattingComments = false;
 		if (oldOption == null) {
@@ -288,7 +293,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				this.preferences.line_separator = Util.LINE_SEPARATOR;
 			}
 			this.preferences.initial_indentation_level = indentationLevel;
-			this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, null, this.preferences.comment_format_javadoc_comment);
+			this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, null, includeComments);
 
 			IRegion coveredRegion = getCoveredRegion(regions);
 			int offset = coveredRegion.getOffset();
@@ -302,7 +307,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		return new MultiTextEdit();
 	}
 
-	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean formatJavadoc) {
+	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean includeComments) {
 		CompilationUnitDeclaration compilationUnitDeclaration = this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
 		
 		if (lineSeparator != null) {
@@ -312,7 +317,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, formatJavadoc && this.preferences.comment_format_javadoc_comment);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, includeComments);
 		
 		return this.newCodeFormatter.format(source, compilationUnitDeclaration);
 	}
@@ -329,6 +334,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 
 	/*
 	 * Format a javadoc comment.
+	 * Since bug 102780 this is done by a specific method when new javadoc formatter is activated.
 	 */
 	private TextEdit formatJavadoc(String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
 		Object oldOption = oldCommentFormatOption();
@@ -344,7 +350,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			this.preferences.initial_indentation_level = indentationLevel;
 			if (this.codeSnippetParsingUtil == null) this.codeSnippetParsingUtil = new CodeSnippetParsingUtil();
 			this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
-			this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, this.preferences.comment_format_javadoc_comment);
+			this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, true);
 			IRegion coveredRegion = getCoveredRegion(regions);
 			int start = coveredRegion.getOffset();
 			int end = start + coveredRegion.getLength();
@@ -498,7 +504,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	    return this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT);
     }
 
-	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean formatJavadoc) {
+	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean includeComments) {
 		if (PROBING_SCANNER == null) {
 			// scanner use to check if the kind could be K_JAVA_DOC, K_MULTI_LINE_COMMENT or K_SINGLE_LINE_COMMENT 
 			PROBING_SCANNER = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3, ClassFileConstants.JDK1_3, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
@@ -514,18 +520,28 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			switch(PROBING_SCANNER.getNextToken()) {
 				case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
 					if (PROBING_SCANNER.getCurrentTokenEndPosition() == offset + length - 1) {
-						return formatComment(K_MULTI_LINE_COMMENT, source, indentationLevel, lineSeparator, regions);
+						return formatComment(K_MULTI_LINE_COMMENT, source, indentationLevel, lineSeparator, regions, includeComments);
 					}
 					break;
 				case ITerminalSymbols.TokenNameCOMMENT_LINE :
 					if (PROBING_SCANNER.getCurrentTokenEndPosition() == offset + length - 1) {
-						return formatComment(K_SINGLE_LINE_COMMENT, source, indentationLevel, lineSeparator, regions);
+						return formatComment(K_SINGLE_LINE_COMMENT, source, indentationLevel, lineSeparator, regions, includeComments);
 					}
 					break;
 				case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
 					if (PROBING_SCANNER.getCurrentTokenEndPosition() == offset + length - 1) {
-						// bug 102780 - javadoc is formatted in a different manner
-						return formatJavadoc(source, indentationLevel, lineSeparator, regions);
+						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102780
+						// use the integrated comment formatter to format comment
+						if (ENABLE_NEW_JAVADOC_FORMAT || FORCE_NEW_COMMENT_FORMAT) {
+							return formatJavadoc(source, indentationLevel, lineSeparator, regions);
+						}
+						// In all other cases, use the old way to format javadoc comments
+						if (!PRINTED_OLD_JAVA_DOC_WARNING) {
+							org.eclipse.jdt.internal.core.util.Util.log(IStatus.WARNING, WARNING_JAVADOC_COMMENTS);
+							System.out.println(WARNING_JAVADOC_COMMENTS);
+							PRINTED_OLD_JAVA_DOC_WARNING = true;
+						}
+						return formatComment(K_JAVA_DOC, source, indentationLevel, lineSeparator, regions, includeComments);
 					}
 			}
 		} catch (InvalidInputException e) {
@@ -552,7 +568,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 
 		// this has to be a compilation unit
-		return formatCompilationUnit(source, indentationLevel, lineSeparator, regions, formatJavadoc);
+		return formatCompilationUnit(source, indentationLevel, lineSeparator, regions, includeComments);
 	}
 
 	/**
