@@ -103,7 +103,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 		for (int i = 0; i < roots.length; i++) {
 			IPackageFragmentRoot root = roots[i];
 			delta.changed(root, flag);
-			if ((flag & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) != 0 
+			if ((flag & IJavaElementDelta.F_ADDED_TO_CLASSPATH) != 0 
+					|| (flag & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) != 0
 					|| (flag & IJavaElementDelta.F_SOURCEATTACHED) != 0
 					|| (flag & IJavaElementDelta.F_SOURCEDETACHED) != 0){
 				try {
@@ -482,7 +483,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 							} catch (JavaModelException e) {
 								// ignore
 							}
-							((PackageFragmentRoot) root).setSourceAttachmentProperty(null);// loose info - will be recomputed
+							// the following is a bottleneck during setclasspath operation (https://bugs.eclipse.org/bugs/show_bug.cgi?id=225744 ) 
+							// and it doesn't seem to be needed as the source attachment property is reset when the classpath entry is removed from the classpath
+							// (see addClasspathDeltas(...) )
+							// ((PackageFragmentRoot) root).setSourceAttachmentProperty(null);// loose info - will be recomputed
 						}
 					}
 				}
