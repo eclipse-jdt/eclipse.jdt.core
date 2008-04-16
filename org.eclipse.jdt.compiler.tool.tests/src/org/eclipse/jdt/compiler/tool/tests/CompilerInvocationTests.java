@@ -400,4 +400,65 @@ public void test009_options_consumption() throws IOException {
 		}
 	}
 }
+// tests #10-11 show that ecj throws a RuntimeException when encountering a wrong
+// encoding in its parameters, while the default compiler swallows it silently
+// based upon the behavior of the command-line javac for the same level, we
+// would expect an error to be raised in some fashion here, hence we make the
+// tests fail when RUN_JAVAC is on
+public void test010_inappropriate_encoding_diagnosis() throws IOException {
+	List<String> buggyEncoding = Arrays.asList("dummy");
+	boolean passed = true;
+	try {
+		passed = COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */).
+		handleOption("-encoding", buggyEncoding.iterator());
+	} catch (RuntimeException e) {
+		passed = false;
+	}
+	assertFalse("does not catch inappropriate -encoding option", passed);
+	if (RUN_JAVAC) {
+		passed = true;
+		try {
+			passed = JAVAC_COMPILER.getStandardFileManager(null, null, null).
+				handleOption("-encoding", buggyEncoding.iterator());
+		} catch (Throwable t) {
+			passed = false;
+		}
+		assertFalse("does not catch inappropriate -encoding option", passed);
+	}
+}
+public void test011_inappropriate_encoding_diagnosis() {
+	List<String> options = Arrays.asList("-d", OUTPUT_DIR, "-encoding", "dummy");
+	boolean passed = true;
+	try {
+	runTest(
+		false /* shouldCompileOK */,
+		new String [] { /* sourceFiles */
+			"X.java",
+			"public class X {}",
+		}, 
+		null /* standardJavaFileManager */,
+		options /* options */, 
+		new String[] { /* compileFileNames */
+			"X.java"
+		}, 
+		"" /* expectedOutOutputString */, 
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		null /* classFileNames */);
+	} catch (RuntimeException e) {
+		passed = false;
+	}
+	assertFalse("does not catch inappropriate -encoding option", passed);
+	if (RUN_JAVAC) {
+		passed = true;
+		try {
+			passed = JAVAC_COMPILER.getTask(null, null, null, options, null, 
+					JAVAC_COMPILER.getStandardFileManager(null, null, null).getJavaFileObjectsFromFiles(
+						Arrays.asList(new File(OUTPUT_DIR + File.separator + "X.java")))).call();
+		} catch (Throwable t) {
+			passed = false;
+		}
+		assertFalse("does not catch inappropriate -encoding option", passed);		
+	}
+}
 }
