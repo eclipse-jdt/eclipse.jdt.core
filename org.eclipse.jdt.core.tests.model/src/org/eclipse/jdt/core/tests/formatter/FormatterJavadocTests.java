@@ -610,6 +610,9 @@ public void testPreferencesExample14b() throws JavaModelException {
 public void testPreferencesExample14c() throws JavaModelException {
 	formatUnit("example", "X14c.java");
 }
+public void testPreferencesExample14d() throws JavaModelException {
+	formatUnit("example", "X14d.java");
+}
 public void testPreferencesExample15a() throws JavaModelException {
 	formatUnit("example", "X15a.java");
 }
