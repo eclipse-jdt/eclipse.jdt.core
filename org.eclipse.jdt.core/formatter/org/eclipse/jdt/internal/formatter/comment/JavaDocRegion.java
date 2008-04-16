@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.formatter.CodeFormatterVisitor;
  * 
  * @since 3.0
  */
-public class JavaDocRegion extends MultiCommentRegion implements IJavaDocTagConstants {
+public class JavaDocRegion extends MultiCommentRegion {
 
 	/** The positions of code ranges */
 	private final ArrayList fCodePositions= new ArrayList();

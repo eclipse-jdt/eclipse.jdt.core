@@ -26,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemBinding;
@@ -40,7 +39,7 @@ import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
  * A single name reference inside a code snippet can denote a field of a remote
  * receiver object (that is, the receiver of the context in the stack frame).
  */
-public class CodeSnippetSingleNameReference extends SingleNameReference implements EvaluationConstants, InvocationSite, ProblemReasons {
+public class CodeSnippetSingleNameReference extends SingleNameReference implements EvaluationConstants, ProblemReasons {
 
 	EvaluationContext evaluationContext;
 	FieldBinding delegateThis;

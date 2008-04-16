@@ -12,30 +12,31 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public class QualifiedTypeDeclarationPattern extends TypeDeclarationPattern implements IIndexConstants {
+public class QualifiedTypeDeclarationPattern extends TypeDeclarationPattern {
 
-public char[] qualification;
-PackageDeclarationPattern packagePattern;
-public int packageIndex = -1;
+	public char[] qualification;
+	PackageDeclarationPattern packagePattern;
+	public int packageIndex = -1;
 
 public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, char typeSuffix, int matchRule) {
 	this(matchRule);
-
 	this.qualification = isCaseSensitive() ? qualification : CharOperation.toLowerCase(qualification);
 	this.simpleName = (isCaseSensitive() || isCamelCase())  ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.typeSuffix = typeSuffix;
 
 	((InternalSearchPattern)this).mustResolve = this.qualification != null || typeSuffix != TYPE_SUFFIX;
 }
+
 public QualifiedTypeDeclarationPattern(char[] qualification, int qualificationMatchRule, char[] simpleName, char typeSuffix, int matchRule) {
 	this(qualification, simpleName, typeSuffix, matchRule);
 	this.packagePattern = new PackageDeclarationPattern(qualification, qualificationMatchRule);
 }
+
 QualifiedTypeDeclarationPattern(int matchRule) {
 	super(matchRule);
 }
+
 public void decodeIndexKey(char[] key) {
 	int slash = CharOperation.indexOf(SEPARATOR, key, 0);
 	this.simpleName = CharOperation.subarray(key, 0, slash);
@@ -77,9 +78,11 @@ public void decodeIndexKey(char[] key) {
 		}
 	}
 }
+
 public SearchPattern getBlankPattern() {
 	return new QualifiedTypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
+
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	QualifiedTypeDeclarationPattern pattern = (QualifiedTypeDeclarationPattern) decodedPattern;
 	
@@ -94,6 +97,7 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	return matchesName(this.simpleName, pattern.simpleName) &&
 		(this.qualification == null || this.packagePattern == null || this.packagePattern.matchesName(this.qualification, pattern.qualification));
 }
+
 protected StringBuffer print(StringBuffer output) {
 	switch (this.typeSuffix){
 		case CLASS_SUFFIX :
