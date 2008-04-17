@@ -572,9 +572,9 @@ private String getLibraryClassesAsQuotedString() {
 					+ "\n------------- [END ERR] -------------\n");
 		}
 		if (shouldCompileOK)
-			assertTrue("Unexpected problems: " + errOutputString, compileOK);
+			assertTrue("Unexpected problems [out: " + outOutputString + "][err: " + errOutputString + "]", compileOK);
 		else
-			assertTrue("Unexpected success: " + errOutputString, !compileOK);
+			assertFalse("Unexpected success: [out: " + outOutputString + "][err: " + errOutputString + "]", compileOK);
 		if (!outCompareOK) {
 			// calling assertEquals to benefit from the comparison UI
 			// (need appropriate exception)
