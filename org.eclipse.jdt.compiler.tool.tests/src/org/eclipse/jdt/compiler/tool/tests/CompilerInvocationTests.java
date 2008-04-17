@@ -112,8 +112,7 @@ protected boolean invokeCompiler(
 	for (int i = 0, l = fileNames.length; i < l; i++) {
 		files.add(new File(OUTPUT_DIR + File.separator + fileNames[i]));
 	}
-	CompilationTask task = COMPILER.getTask(out, manager, null, arguments.options, null, manager.getJavaFileObjectsFromFiles(files));
-//	assertTrue("Has no location CLASS_OUPUT", manager.hasLocation(StandardLocation.CLASS_OUTPUT));
+	CompilationTask task = COMPILER.getTask(out, arguments.standardJavaFileManager /* carry the null over */, null, arguments.options, null, manager.getJavaFileObjectsFromFiles(files));
 	return task.call();
 }
 void runTest(
@@ -840,5 +839,121 @@ public void test016_files_access_write() throws IOException {
 						Arrays.asList(new File(OUTPUT_DIR + File.separator + "src/X.java")))).call());
 		assertTrue(customJavaFileManager.matchFound);
 	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=227583
+public void test017_sourcepath_without_destination() throws IOException {
+	runTest(
+		true /* shouldCompileOK */,
+		new String [] { /* sourceFiles */
+			"src1/X.java",
+			"public class X {\n" +
+			"  Y y;\n" +
+			"}",
+			"src2/Y.java",
+			"public class Y {}",
+		}, 
+		null /* standardJavaFileManager */,
+		Arrays.asList(
+				"-d", OUTPUT_DIR + "/bin1", /* options */
+				"-sourcepath", OUTPUT_DIR + "/src2"), 
+		new String[] { /* compileFileNames */
+			"src1/X.java"
+		}, 
+		"" /* expectedOutOutputString */, 
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		new String[] { /* classFileNames */
+			"bin1/X.class",
+			"bin1/Y.class"
+		});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=227583
+// see BatchCompilerTest#68 and following, that show how the option works
+// with jsr199-less ecj
+public void _test018_sourcepath_with_destination() throws IOException {
+	runTest(
+		true /* shouldCompileOK */,
+		new String [] { /* sourceFiles */
+			"src1/X.java",
+			"public class X {\n" +
+			"  Y y;\n" +
+			"}",
+			"src2/Y.java",
+			"public class Y {}",
+		}, 
+		null /* standardJavaFileManager */,
+		Arrays.asList(
+				"-d", OUTPUT_DIR + "/bin1", /* options */
+				"-sourcepath", "\"" + OUTPUT_DIR + "/src2\"[-d \"" + OUTPUT_DIR + "/bin2\"]"), 
+		new String[] { /* compileFileNames */
+			"src1/X.java"
+		}, 
+		"" /* expectedOutOutputString */, 
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		new String[] { /* classFileNames */
+			"bin1/X.class",
+			"bin2/Y.class"
+		});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=227583
+public void test019_sourcepath_without_destination() throws IOException {
+	StandardJavaFileManager ecjStandardJavaFileManager =
+		JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
+	assertTrue(ecjStandardJavaFileManager.handleOption(
+			"-sourcepath", 
+			Arrays.asList(OUTPUT_DIR + "/src2").iterator()));
+	runTest(
+		true /* shouldCompileOK */,
+		new String [] { /* sourceFiles */
+			"src1/X.java",
+			"public class X {\n" +
+			"  Y y;\n" +
+			"}",
+			"src2/Y.java",
+			"public class Y {}",
+		}, 
+		ecjStandardJavaFileManager /* standardJavaFileManager */,
+		Arrays.asList("-d", OUTPUT_DIR + "/bin1") /* options */, 
+		new String[] { /* compileFileNames */
+			"src1/X.java"
+		}, 
+		"" /* expectedOutOutputString */, 
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		new String[] { /* classFileNames */
+			"bin1/X.class",
+			"bin1/Y.class"
+		});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=227583
+public void _test020_sourcepath_with_destination() throws IOException {
+	StandardJavaFileManager ecjStandardJavaFileManager =
+		JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
+	assertTrue(ecjStandardJavaFileManager.handleOption(
+			"-sourcepath", 
+			Arrays.asList("\"" + OUTPUT_DIR + "/src2\"[-d \"" + OUTPUT_DIR + "/bin2\"]").iterator()));
+	runTest(
+		true /* shouldCompileOK */,
+		new String [] { /* sourceFiles */
+			"src1/X.java",
+			"public class X {\n" +
+			"  Y y;\n" +
+			"}",
+			"src2/Y.java",
+			"public class Y {}",
+		}, 
+		ecjStandardJavaFileManager /* standardJavaFileManager */,
+		Arrays.asList("-d", OUTPUT_DIR + "/bin1") /* options */, 
+		new String[] { /* compileFileNames */
+			"src1/X.java"
+		}, 
+		"" /* expectedOutOutputString */, 
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		new String[] { /* classFileNames */
+			"bin1/X.class",
+			"bin2/Y.class"
+		});
 }
 }
