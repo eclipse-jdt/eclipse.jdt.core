@@ -447,7 +447,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) return true;
 		Map invocations = new HashMap(2);
 		boolean noProblems = true;
-		nextVariable: for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
+		// preinitializing each type variable
+		for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
 			TypeParameter typeParameter = typeParameters[i];
 			TypeVariableBinding typeVariable = typeParameter.binding;
 			if (typeVariable == null) return false;
@@ -456,7 +457,10 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			typeVariable.superInterfaces = Binding.NO_SUPERINTERFACES;
 			// set firstBound to the binding of the first explicit bound in parameter declaration
 			typeVariable.firstBound = null; // first bound used to compute erasure
-
+		}
+		nextVariable: for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
+			TypeParameter typeParameter = typeParameters[i];
+			TypeVariableBinding typeVariable = typeParameter.binding;
 			TypeReference typeRef = typeParameter.type;
 			if (typeRef == null)
 				continue nextVariable;
