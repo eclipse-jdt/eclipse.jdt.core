@@ -473,8 +473,9 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	IPath getOutputLocation() throws JavaModelException;
 
 	/**
-	 * Returns a package fragment root for an external library (a JAR or - since 3.4 - a class folder)
-	 * at the specified file system path.
+	 * Returns a package fragment root for an external library 
+	 * (a ZIP archive - e.g. a <code>.jar</code>, a <code>.zip</code> file, etc. -
+	 * or - since 3.4 - a class folder) at the specified file system path.
 	 * This is a handle-only method.  The underlying <code>java.io.File</code>
 	 * may or may not exist. No resource is associated with this local library
 	 * package fragment root.
@@ -487,13 +488,13 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	/**
 	 * Returns a package fragment root for the given resource, which
 	 * must either be a folder representing the top of a package hierarchy,
-	 * or a <code>.jar</code> or <code>.zip</code> file.
+	 * or a ZIP archive (e.g. a <code>.jar</code>, a <code>.zip</code> file, etc.)
 	 * This is a handle-only method.  The underlying resource may or may not exist. 
 	 * 
 	 * @param resource the given resource
 	 * @return a package fragment root for the given resource, which
 	 * must either be a folder representing the top of a package hierarchy,
-	 * or a <code>.jar</code> or <code>.zip</code> file
+	 * or a ZIP archive (e.g. a <code>.jar</code>, a <code>.zip</code> file, etc.)
 	 */
 	IPackageFragmentRoot getPackageFragmentRoot(IResource resource);
 

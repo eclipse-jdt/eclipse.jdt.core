@@ -138,7 +138,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		deleteFile(getIndexLocation().toFile());
+		deleteResource(getIndexLocation().toFile());
 	}
 
 	public void tearDownSuite() throws Exception {

@@ -1191,7 +1191,7 @@ public void testChangeExternalJar() throws CoreException, IOException {
 		);
 	} finally {
 		removeClasspathEntry(project, new Path(jarPath));
-		deleteFile(new File(jarPath));
+		deleteResource(new File(jarPath));
 	}
 }
 /**
@@ -1284,7 +1284,7 @@ public void testChangeInternalJar() throws CoreException, IOException {
 		);
 	} finally {
 		removeClasspathEntry(project, new Path(jarName));
-		deleteFile(new File(jarName));
+		deleteResource(new File(jarName));
 	}
 }
 /**

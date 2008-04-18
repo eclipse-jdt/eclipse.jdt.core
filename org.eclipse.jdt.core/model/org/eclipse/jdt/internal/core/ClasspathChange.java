@@ -324,7 +324,6 @@ public class ClasspathChange {
 							accumulatedRoots, 
 							rootIDs,
 							null, // inside original project
-							true, // check existency
 							false, // don't retrieve exported roots
 							null); /*no reverse map*/
 						pkgFragmentRoots = new PackageFragmentRoot[accumulatedRoots.size()];

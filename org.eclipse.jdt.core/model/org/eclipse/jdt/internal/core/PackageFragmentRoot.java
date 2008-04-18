@@ -38,10 +38,9 @@ public class PackageFragmentRoot extends Openable implements IPackageFragmentRoo
 	public final static String NO_SOURCE_ATTACHMENT = ""; //$NON-NLS-1$
 
 	/**
-	 * The resource associated with this root.
-	 * (an IResource or a java.io.File (for external jar only))
+	 * The resource associated with this root (null for external jar)
 	 */
-	protected Object resource;
+	protected IResource resource;
 	
 /**
  * Constructs a package fragment root which is the root of the java package
@@ -335,27 +334,10 @@ private IClasspathEntry findSourceAttachmentRecommendation() {
 		JavaProject parentProject = (JavaProject) getJavaProject();
 		try {
 			entry = parentProject.getClasspathEntryFor(rootPath);
-			if (entry != null){
+			if (entry != null) {
 				Object target = JavaModel.getTarget(entry.getSourceAttachmentPath(), true);
-				if (target instanceof IResource) {
-					if (target instanceof IFile) {
-						IFile file = (IFile) target;
-						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
-							return entry;
-						}
-					} else if (target instanceof IContainer) {
-						return entry;
-					}
-				} else if (target instanceof java.io.File){
-					java.io.File file = JavaModel.getFile(target);
-					if (file != null) {
-						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
-							return entry;
-						}
-					} else {
-						// external directory
-						return entry;
-					}
+				if (target != null) {
+					return entry;
 				}
 			}
 		} catch(JavaModelException e){
@@ -372,20 +354,8 @@ private IClasspathEntry findSourceAttachmentRecommendation() {
 				entry = jProject.getClasspathEntryFor(rootPath);
 				if (entry != null){
 					Object target = JavaModel.getTarget(entry.getSourceAttachmentPath(), true);
-					if (target instanceof IResource) {
-						if (target instanceof IFile){
-							IFile file = (IFile) target;
-							if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
-								return entry;
-							}
-						} else if (target instanceof IContainer) {
-							return entry;
-						}
-					} else if (target instanceof java.io.File){
-						java.io.File file = (java.io.File) target;
-						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
-							return entry;
-						}
+					if (target != null) {
+						return entry;
 					}
 				}
 			} catch(JavaModelException e){
@@ -587,15 +557,15 @@ public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
 
 
 public IResource resource() {
-	if (this.resource instanceof IResource) // perf improvement to avoid message send in resource()
-		return (IResource) this.resource;
+	if (this.resource != null) // perf improvement to avoid message send in resource()
+		return this.resource;
 	return super.resource();
 }
 /*
  * @see IJavaElement
  */
 public IResource resource(PackageFragmentRoot root) {
-	return (IResource)this.resource;
+	return this.resource;
 }
 
 /**
@@ -776,18 +746,16 @@ public void move(
 protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(this.tabString(tab));
 	IPath path = getPath();
-	if (getJavaProject().getElementName().equals(path.segment(0))) {
+	if (isExternal()) {
+		buffer.append(path.toOSString());
+	} else if (getJavaProject().getElementName().equals(path.segment(0))) {
 	    if (path.segmentCount() == 1) {
 			buffer.append("<project root>"); //$NON-NLS-1$
 	    } else {
 			buffer.append(path.removeFirstSegments(1).makeRelative());
 	    }
 	} else {
-	    if (isExternal()) {
-			buffer.append(path.toOSString());
-	    } else {
-			buffer.append(path);
-	    }
+		buffer.append(path);
 	}
 	if (info == null) {
 		buffer.append(" (not open)"); //$NON-NLS-1$

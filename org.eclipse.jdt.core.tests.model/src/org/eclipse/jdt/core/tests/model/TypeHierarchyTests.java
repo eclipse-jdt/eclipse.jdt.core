@@ -715,9 +715,9 @@ public void testExternalFolder() throws CoreException, IOException {
 				"}",
 			},
 			new HashMap(),
-			getExternalFolderPath("externalLib"));
-		createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
-		IClassFile classFile = getClassFile("P", getExternalFolderPath("externalLib"), "p", "X.class");
+			getExternalResourcePath("externalLib"));
+		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
+		IClassFile classFile = getClassFile("P", getExternalResourcePath("externalLib"), "p", "X.class");
 		ITypeHierarchy hierarchy = classFile.getType().newTypeHierarchy(null);
 		assertHierarchyEquals(
 			"Focus: X [in X.class [in p [in "+ getExternalPath() + "externalLib]]]\n" + 
@@ -727,7 +727,39 @@ public void testExternalFolder() throws CoreException, IOException {
 			hierarchy);
 	} finally {
 		deleteProject("P");
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
+	}
+}
+/*
+ * Ensures that subtypes are found in an external ZIP archive
+ */
+public void testZIPArchive() throws CoreException, IOException {
+	try {
+		org.eclipse.jdt.core.tests.util.Util.createJar(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"}",
+				"p/Y.java",
+				"package p;\n" +
+				"public class Y extends X {\n" +
+				"}",
+			},
+			getExternalResourcePath("externalLib.abc"), 
+			"1.4");
+		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		IClassFile classFile = getClassFile("P", getExternalResourcePath("externalLib.abc"), "p", "X.class");
+		ITypeHierarchy hierarchy = classFile.getType().newTypeHierarchy(null);
+		assertHierarchyEquals(
+			"Focus: X [in X.class [in p [in "+ getExternalPath() + "externalLib.abc]]]\n" + 
+			"Super types:\n" + 
+			"Sub types:\n" + 
+			"  Y [in Y.class [in p [in "+ getExternalPath() + "externalLib.abc]]]\n",
+			hierarchy);
+	} finally {
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteProject("P");
 	}
 }
 /*

@@ -847,7 +847,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		assertEquals("We should not get any character!", "", new String(ifileContents));
 		
 		// Delete empty file
-		deleteFile(file);
+		deleteResource(file);
 	}	
 
 	/**

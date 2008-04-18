@@ -257,7 +257,6 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	public void addExternalJars(IPath projectPath, String[] jars, boolean isExported) throws JavaModelException {
 		for (int i = 0, max = jars.length; i < max; i++) {
 			String jar = jars[i];
-			checkAssertion("file name must end with .zip or .jar", jar.endsWith(".zip") || jar.endsWith(".jar")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			addEntry(projectPath, JavaCore.newLibraryEntry(new Path(jar), null, null, isExported));
 		}
 	}
@@ -265,7 +264,6 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	/** Adds an external jar to the classpath of a project.
 	 */
 	public void addExternalJar(IPath projectPath, String jar, boolean isExported) throws JavaModelException {
-		checkAssertion("file name must end with .zip or .jar", jar.endsWith(".zip") || jar.endsWith(".jar")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		addEntry(projectPath, JavaCore.newLibraryEntry(new Path(jar), null, null, isExported));
 	}
 	
@@ -274,7 +272,7 @@ public void addLibrary(IPath projectPath, IPath libraryPath, IPath sourceAttachm
 	addEntry(projectPath, 		
 		JavaCore.newLibraryEntry(libraryPath, sourceAttachmentPath,	sourceAttachmentRootPath));
 }
-	private void addEntry(IPath projectPath, IClasspathEntry entryPath) throws JavaModelException {
+	public void addEntry(IPath projectPath, IClasspathEntry entryPath) throws JavaModelException {
 		IClasspathEntry[] classpath = getClasspath(projectPath);
 		IClasspathEntry[] newClaspath = new IClasspathEntry[classpath.length + 1];
 		System.arraycopy(classpath, 0, newClaspath, 0, classpath.length);
@@ -311,13 +309,11 @@ public void addLibrary(IPath projectPath, IPath libraryPath, IPath sourceAttachm
 
 	/** Adds a jar with the given contents to the the workspace.
 	 * If a jar with the same name already exists, it is
-	 * replaced.  A workspace must be open, and the given
-	 * zip name must end with ".zip" or ".jar".  Returns the path of
+	 * replaced.  A workspace must be open.  Returns the path of
 	 * the added jar.
 	 */
 	public IPath addInternalJar(IPath projectPath, String zipName, byte[] contents, boolean isExported) throws JavaModelException {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
-		checkAssertion("zipName must end with .zip or .jar", zipName.endsWith(".zip") || zipName.endsWith(".jar")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		IPath path = projectPath.append(zipName);
 		
 		/* remove any existing zip from the java model */

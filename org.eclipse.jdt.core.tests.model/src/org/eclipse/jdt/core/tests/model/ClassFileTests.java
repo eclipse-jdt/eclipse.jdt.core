@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -790,14 +791,14 @@ public void testGetResource() throws Exception {
 	try {
 		createExternalFolder("externalLib/p");
 		createExternalFile("externalLib/p/X.class", "");
-		createJavaProject("P1", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
-		IClassFile classFile1 = getClassFile("P1", getExternalFolderPath("externalLib"), "p", "X.class");
+		createJavaProject("P1", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
+		IClassFile classFile1 = getClassFile("P1", getExternalResourcePath("externalLib"), "p", "X.class");
 		assertResourceEquals(
 			"Unexpected resource",
 			"<null>",
 			classFile1.getResource());
 	} finally {
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
 		deleteProject("P1");
 	}
 }
@@ -852,7 +853,7 @@ public void testJarLikeRootFolder() throws CoreException {
 		} catch (JavaModelException e) {
 			expected = e;
 		}
-		assertExceptionEquals("Unexpected exception", "classFolder.jar [in P1] does not exist", expected);
+		assertExceptionEquals("Unexpected exception", new Path("/P1/classFolder.jar").toOSString() + " does not exist", expected);
 	} finally {
 		deleteProject("P1");
 	}

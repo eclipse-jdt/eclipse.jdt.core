@@ -720,7 +720,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 *	<li>a project - the element returned is the corresponding <code>IJavaProject</code></li>
 	 *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code></li>
 	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
-	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
+	 *	<li>a ZIP archive (e.g. a <code>.jar</code>, a <code>.zip</code> file, etc.) - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
 	 *  <li>a folder - the element returned is the corresponding <code>IPackageFragmentRoot</code>
 	 *			or <code>IPackageFragment</code></li>
 	 *  <li>the workspace root resource - the element returned is the <code>IJavaModel</code></li>
@@ -757,7 +757,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * <p>The file must be one of:<ul>
 	 *	<li>a <code>.java</code> file - the element returned is the corresponding <code>ICompilationUnit</code></li>
 	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
-	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
+	 *	<li>a ZIP archive (e.g. a <code>.jar</code>, a <code>.zip</code> file, etc.) - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
 	 *	</ul>
 	 * <p>
 	 * Creating a Java element has the side effect of creating and opening all of the
@@ -777,8 +777,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				return createCompilationUnitFrom(file, project);
 			if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name))
 				return createClassFileFrom(file, project);
-			if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(name))
-				return createJarPackageFragmentRootFrom(file, project);
+			return createJarPackageFragmentRootFrom(file, project);
 		}
 		return null;
 	}

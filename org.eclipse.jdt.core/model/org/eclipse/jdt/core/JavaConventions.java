@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
-import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.Messages;
 
@@ -60,14 +59,6 @@ public final class JavaConventions {
 	 */
 	public static boolean isOverlappingRoots(IPath rootPath1, IPath rootPath2) {
 		if (rootPath1 == null || rootPath2 == null) {
-			return false;
-		}
-		String extension1 = rootPath1.getFileExtension();
-		String extension2 = rootPath2.getFileExtension();
-		if (extension1 != null && (extension1.equalsIgnoreCase(SuffixConstants.EXTENSION_JAR) || extension1.equalsIgnoreCase(SuffixConstants.EXTENSION_ZIP))) {
-			return false;
-		} 
-		if (extension2 != null && (extension2.equalsIgnoreCase(SuffixConstants.EXTENSION_JAR) || extension2.equalsIgnoreCase(SuffixConstants.EXTENSION_ZIP))) {
 			return false;
 		}
 		return rootPath1.isPrefixOf(rootPath2) || rootPath2.isPrefixOf(rootPath1);

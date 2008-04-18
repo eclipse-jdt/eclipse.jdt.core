@@ -77,7 +77,7 @@ public class ExternalFoldersManager {
 		File externalFolder = externalPath.toFile();
 		if (externalFolder.isFile())
 			return false;
-		if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(externalPath.lastSegment()) && !externalFolder.exists())
+		if (externalPath.getFileExtension() != null/*likely a .jar, .zip, .rar or other file*/ && !externalFolder.exists())
 			return false;
 		return true;
 	}

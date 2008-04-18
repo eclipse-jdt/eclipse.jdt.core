@@ -528,6 +528,7 @@ public void testDeclarationsOfSentMessages02() throws CoreException { // was tes
 		"", 
 		this.resultCollector);
 }
+
 /*
  * Ensures that a method declaration in an external library folder can be found
  */
@@ -544,9 +545,9 @@ public void testExternalFolder1() throws CoreException {
 				"}"
 			},
 			new HashMap(),
-			getExternalFolderPath("externalLib")
+			getExternalResourcePath("externalLib")
 		);
-		createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")});
 		search("foo", METHOD, DECLARATIONS, scope);
 		assertSearchResults(
@@ -554,7 +555,7 @@ public void testExternalFolder1() throws CoreException {
 			this.resultCollector);
 	} finally {
 		deleteProject("P");
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
 	}
 }
 
@@ -572,9 +573,9 @@ public void testExternalFolder2() throws CoreException {
 				"}"
 			},
 			new HashMap(),
-			getExternalFolderPath("externalLib")
+			getExternalResourcePath("externalLib")
 		);
-		createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine(this.workingCopies).searchAllTypeNames(
@@ -594,10 +595,79 @@ public void testExternalFolder2() throws CoreException {
 		);
 	} finally {
 		deleteProject("P");
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
 	}
 
 }
+
+/*
+ * Ensures that a method declaration in an external ZIP archive can be found
+ */
+public void testZIPArchive1() throws Exception {
+	try {
+		org.eclipse.jdt.core.tests.util.Util.createJar(
+			new String[] {
+				"p/X.java", 
+				"package p;\n" +
+				"public class X {\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}"
+			},
+			getExternalResourcePath("externalLib.abc"), 
+			"1.4");
+		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")});
+		search("foo", METHOD, DECLARATIONS, scope);
+		assertSearchResults(
+			getExternalPath() + "externalLib.abc void p.X.foo()",
+			this.resultCollector);
+	} finally {
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that search all type names returns the types in an external ZIP archive
+ */
+public void testZIPArchive2() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		org.eclipse.jdt.core.tests.util.Util.createJar(
+			new String[] {
+				"p/ExternalType.java", 
+				"package p;\n" +
+				"public class ExternalType {\n" +
+				"}"
+			},
+			getExternalResourcePath("externalLib.abc"), 
+			"1.4");
+		refreshExternalArchives(p);
+		
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			"ExternalType".toCharArray(),
+			SearchPattern.R_EXACT_MATCH,
+			TYPE,
+			SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}),
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"ExternalType (not open) [in ExternalType.class [in p [in "+ getExternalPath() + "externalLib.abc]]]",
+			collector
+		);
+	} finally {
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteProject("P");
+	}
+
+}
+
 /**
  * Simple field declaration test.
  */

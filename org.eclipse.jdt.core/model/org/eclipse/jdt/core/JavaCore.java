@@ -127,7 +127,6 @@ import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.builder.State;
@@ -2363,7 +2362,7 @@ public final class JavaCore extends Plugin {
 	 *	<li>a file with one of the {@link JavaCore#getJavaLikeExtensions()
 	 *      Java-like extensions} - the element returned is the corresponding <code>ICompilationUnit</code></li>
 	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
-	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
+	 *	<li>a ZIP archive (e.g. a <code>.jar</code>, a <code>.zip</code> file, etc.) - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
 	 *	</ul>
 	 * <p>
 	 * Creating a Java element has the side effect of creating and opening all of the
@@ -2421,7 +2420,7 @@ public final class JavaCore extends Plugin {
 	 *	<li>a file with one of the {@link JavaCore#getJavaLikeExtensions()
 	 *      Java-like extensions} - the element returned is the corresponding <code>ICompilationUnit</code></li>
 	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
-	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
+	 *	<li>a ZIP archive (e.g. a <code>.jar</code>, a <code>.zip</code> file, etc.) - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
 	 *  <li>a folder - the element returned is the corresponding <code>IPackageFragmentRoot</code>
 	 *    	or <code>IPackageFragment</code></li>
 	 *  <li>the workspace root resource - the element returned is the <code>IJavaModel</code></li>
@@ -2448,7 +2447,7 @@ public final class JavaCore extends Plugin {
 	 *	<li>a file with one of the {@link JavaCore#getJavaLikeExtensions()
 	 *      Java-like extensions} - the element returned is the corresponding <code>ICompilationUnit</code></li>
 	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
-	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
+	 *	<li>a ZIP archive (e.g. a <code>.jar</code>, a <code>.zip</code> file, etc.) - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
 	 *  <li>a folder - the element returned is the corresponding <code>IPackageFragmentRoot</code>
 	 *    	or <code>IPackageFragment</code></li>
 	 *  <li>the workspace root resource - the element returned is the <code>IJavaModel</code></li>
@@ -3231,18 +3230,14 @@ public final class JavaCore extends Plugin {
 							entry.getExtraAttributes(),
 							entry.isExported());
 				case IResource.FILE :
-					if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resolvedResource.getName())) {
-						// internal binary archive
-						return JavaCore.newLibraryEntry(
-								resolvedPath,
-								getResolvedVariablePath(entry.getSourceAttachmentPath()),
-								getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
-								entry.getAccessRules(),
-								entry.getExtraAttributes(),
-								entry.isExported());
-					}
-					break;
-
+					// internal binary archive
+					return JavaCore.newLibraryEntry(
+							resolvedPath,
+							getResolvedVariablePath(entry.getSourceAttachmentPath()),
+							getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
+							entry.getAccessRules(),
+							entry.getExtraAttributes(),
+							entry.isExported());
 				case IResource.FOLDER :
 					// internal binary folder
 					return JavaCore.newLibraryEntry(
@@ -3257,18 +3252,14 @@ public final class JavaCore extends Plugin {
 		if (target instanceof File) {
 			File externalFile = JavaModel.getFile(target);
 			if (externalFile != null) {
-				// outside the workspace
-				String fileName = externalFile.getName().toLowerCase();
-				if (fileName.endsWith(SuffixConstants.SUFFIX_STRING_jar) || fileName.endsWith(SuffixConstants.SUFFIX_STRING_zip)) {
-					// external binary archive
-					return JavaCore.newLibraryEntry(
-							resolvedPath,
-							getResolvedVariablePath(entry.getSourceAttachmentPath()),
-							getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
-							entry.getAccessRules(),
-							entry.getExtraAttributes(),
-							entry.isExported());
-				}
+				// external binary archive
+				return JavaCore.newLibraryEntry(
+						resolvedPath,
+						getResolvedVariablePath(entry.getSourceAttachmentPath()),
+						getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
+						entry.getAccessRules(),
+						entry.getExtraAttributes(),
+						entry.isExported());
 			} else { 
 				// non-existing file
 				if (resolvedPath.isAbsolute()){

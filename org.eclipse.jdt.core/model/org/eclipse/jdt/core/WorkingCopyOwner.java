@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.core.BufferManager;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
@@ -135,7 +134,7 @@ public abstract class WorkingCopyOwner {
 	 */
 	public final ICompilationUnit newWorkingCopy(String name, IClasspathEntry[] classpath, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
 		ExternalJavaProject project = new ExternalJavaProject(classpath);
-		IPackageFragment parent = project.getPackageFragmentRoot(Path.EMPTY).getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+		IPackageFragment parent = project.getPackageFragmentRoot(project.getProject()).getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
 		CompilationUnit result = new CompilationUnit((PackageFragment) parent, name, this);
 		result.becomeWorkingCopy(problemRequestor, monitor);
 		return result;
@@ -182,7 +181,7 @@ public abstract class WorkingCopyOwner {
 	 */
 	public final ICompilationUnit newWorkingCopy(String name, IClasspathEntry[] classpath, IProgressMonitor monitor) throws JavaModelException {
 		ExternalJavaProject project = new ExternalJavaProject(classpath);
-		IPackageFragment parent = project.getPackageFragmentRoot(Path.EMPTY).getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+		IPackageFragment parent = project.getPackageFragmentRoot(project.getProject()).getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
 		CompilationUnit result = new CompilationUnit((PackageFragment) parent, name, this);
 		result.becomeWorkingCopy(getProblemRequestor(result), monitor);
 		return result;

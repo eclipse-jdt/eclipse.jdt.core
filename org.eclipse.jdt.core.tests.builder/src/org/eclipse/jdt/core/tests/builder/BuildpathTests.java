@@ -259,7 +259,7 @@ public void testCorruptBuilder2() throws JavaModelException {
 }
 
 /*
- * Ensures that the changing a type in an external folder and refreshing triggers a rebuild
+ * Ensures that changing a type in an external folder and refreshing triggers a rebuild
  */
 public void testChangeExternalFolder() throws CoreException {
 	String externalLib = Util.getOutputDirectory() + File.separator + "externalLib";
@@ -326,6 +326,133 @@ public void testChangeExternalFolder() throws CoreException {
 	} finally {
 		new File(externalLib).delete();
 	}
+}
+
+/*
+ * Ensures that changing a type in an external ZIP archive and refreshing triggers a rebuild
+ */
+public void testChangeZIPArchive1() throws Exception {
+	String externalLib = Util.getOutputDirectory() + File.separator + "externalLib.abc";
+	try {
+		org.eclipse.jdt.core.tests.util.Util.createJar(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}"
+			},
+			externalLib, 
+			"1.4");
+		
+		IPath projectPath = env.addProject("Project"); 
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.addExternalJars(projectPath, new String[] {externalLib});
+
+		IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, ""); 
+
+		IPath classY = env.addClass(root, "q", "Y",  
+			"package q;\n"+ 
+			"public class Y {\n" +
+			"  void bar(p.X x) {\n" +
+			"    x.foo();\n" +
+			"  }\n" +
+			"}"
+		); 
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		long lastModified = new java.io.File(externalLib).lastModified();
+		try {
+			Thread.sleep(1000);
+		} catch(InterruptedException e) {
+		}
+		org.eclipse.jdt.core.tests.util.Util.createJar(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"}"
+			},
+			externalLib, 
+			"1.4");
+		new java.io.File(externalLib).setLastModified(lastModified + 1000); // to be sure its different
+		
+		IJavaProject p = env.getJavaProject(projectPath);
+		p.getJavaModel().refreshExternalArchives(new IJavaElement[] {p}, null);
+
+		incrementalBuild(projectPath);
+		expectingProblemsFor(
+			classY,
+			"Problem : The method foo() is undefined for the type X [ resource : </Project/q/Y.java> range : <54,57> category : <50> severity : <2>]"
+		);
+	} finally {
+		new File(externalLib).delete();
+	}
+}
+
+/*
+ * Ensures that changing a type in an internal ZIP archive and refreshing triggers a rebuild
+ */
+public void testChangeZIPArchive2() throws Exception {
+	IPath projectPath = env.addProject("Project"); 
+	String internalLib = env.getProject("Project").getLocation().toOSString() + File.separator + "internalLib.abc";
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	env.addEntry(projectPath, JavaCore.newLibraryEntry(new Path("/Project/internalLib.abc"), null, null));
+	org.eclipse.jdt.core.tests.util.Util.createJar(
+		new String[] {
+			"p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"  public void foo() {\n" +
+			"  }\n" +
+			"}"
+		},
+		internalLib, 
+		"1.4");
+	env.getProject(projectPath).refreshLocal(IResource.DEPTH_INFINITE, null);
+
+	IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
+	env.setOutputFolder(projectPath, ""); 
+
+	IPath classY = env.addClass(root, "q", "Y",  
+		"package q;\n"+ 
+		"public class Y {\n" +
+		"  void bar(p.X x) {\n" +
+		"    x.foo();\n" +
+		"  }\n" +
+		"}"
+	); 
+
+	fullBuild(projectPath);
+	expectingNoProblems();
+
+	long lastModified = new java.io.File(internalLib).lastModified();
+	try {
+		Thread.sleep(1000);
+	} catch(InterruptedException e) {
+	}
+	org.eclipse.jdt.core.tests.util.Util.createJar(
+		new String[] {
+			"p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		},
+		internalLib, 
+		"1.4");
+	new java.io.File(internalLib).setLastModified(lastModified + 1000); // to be sure its different
+	
+	env.getProject(projectPath).refreshLocal(IResource.DEPTH_INFINITE, null);
+
+	incrementalBuild(projectPath);
+	expectingProblemsFor(
+		classY,
+		"Problem : The method foo() is undefined for the type X [ resource : </Project/q/Y.java> range : <54,57> category : <50> severity : <2>]"
+	);
 }
 
 /*

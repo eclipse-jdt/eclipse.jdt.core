@@ -470,34 +470,40 @@ public class Util implements SuffixConstants {
 			}
 		}
 	}	
+
 	/**
-	 * Returns true iff str.toLowerCase().endsWith(".jar") || str.toLowerCase().endsWith(".zip")
-	 * implementation is not creating extra strings.
+	 * Returns whether the given name is potentially a zip archive file name
+	 * (it has a file extension and it is not ".java" nor ".class")
 	 */
-	public final static boolean isArchiveFileName(String name) {
-		int nameLength = name == null ? 0 : name.length();
-		int suffixLength = SUFFIX_JAR.length;
-		if (nameLength < suffixLength) return false;
-
-		// try to match as JAR file
-		for (int i = 0; i < suffixLength; i++) {
-			char c = name.charAt(nameLength - i - 1);
-			int suffixIndex = suffixLength - i - 1;
-			if (c != SUFFIX_jar[suffixIndex] && c != SUFFIX_JAR[suffixIndex]) {
-
-				// try to match as ZIP file
-				suffixLength = SUFFIX_ZIP.length;
-				if (nameLength < suffixLength) return false;
-				for (int j = 0; j < suffixLength; j++) {
-					c = name.charAt(nameLength - j - 1);
-					suffixIndex = suffixLength - j - 1;
-					if (c != SUFFIX_zip[suffixIndex] && c != SUFFIX_ZIP[suffixIndex]) return false;
+	public final static boolean isPotentialZipArchive(String name) {
+		int lastDot = name.lastIndexOf('.');
+		if (lastDot == -1)
+			return false; // no file extension, it cannot be a zip archive name
+		if (name.lastIndexOf(File.separatorChar) > lastDot)
+			return false; // dot was before the last file separator, it cannot be a zip archive name
+		int length = name.length();
+		int extensionLength = length - lastDot - 1;
+		if (extensionLength == EXTENSION_java.length()) {
+			for (int i = extensionLength-1; i >=0; i--) {
+				if (Character.toLowerCase(name.charAt(length - extensionLength + i)) != EXTENSION_java.charAt(i)) {
+					break; // not a ".java" file, check ".class" file case below
 				}
-				return true;
+				if (i == 0) {
+					return false; // it is a ".java" file, it cannot be a zip archive name
+				}
 			}
 		}
-		return true;		
-	}	
+		if (extensionLength == EXTENSION_class.length()) {
+			for (int i = extensionLength-1; i >=0; i--) {
+				if (Character.toLowerCase(name.charAt(length - extensionLength + i)) != EXTENSION_class.charAt(i)) {
+					return true; // not a ".class" file, so this is a potential archive name
+				}
+			}
+			return false; // it is a ".class" file, it cannot be a zip archive name
+		}
+		return true; // it is neither a ".java" file nor a ".class" file, so this is a potential archive name
+	}
+
 	/**
 	 * Returns true iff str.toLowerCase().endsWith(".class")
 	 * implementation is not creating extra strings.

@@ -318,7 +318,7 @@ public static Object getTarget(IPath path, boolean checkResourceExistence) {
 		return target;
 	return getExternalTarget(path, checkResourceExistence);
 }
-public static Object getWorkspaceTarget(IPath path) {
+public static IResource getWorkspaceTarget(IPath path) {
 	if (path == null || path.getDevice() != null)
 		return null;
 	IWorkspace workspace = ResourcesPlugin.getWorkspace();

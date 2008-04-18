@@ -472,7 +472,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						File f = new File(classpath);
 						String id = null;
 						if (f.isFile()) {
-							if (Util.isArchiveFileName(classpath)) {
+							if (Util.isPotentialZipArchive(classpath)) {
 								id = Logger.CLASSPATH_JAR;
 							} else {
 								id = Logger.CLASSPATH_FILE;
@@ -1333,11 +1333,7 @@ public static boolean compile(String[] commandLineArguments, PrintWriter outWrit
 public static File[][] getLibrariesFiles(File[] files) {
 	FilenameFilter filter = new FilenameFilter() {
 		public boolean accept(File dir, String name) {
-			String lowerCaseName = name.toLowerCase();
-			if (lowerCaseName.endsWith(SuffixConstants.SUFFIX_STRING_jar) || lowerCaseName.endsWith(SuffixConstants.SUFFIX_STRING_zip)) {
-				return true;
-			}
-			return false;
+			return Util.isPotentialZipArchive(name);
 		}
 	};
 	final int filesLength = files.length;
@@ -1494,8 +1490,7 @@ protected void addNewEntry(ArrayList paths, String currentClasspathName,
 		destPath = NONE; // keep == comparison valid
 	}
 	if (rejectDestinationPathOnJars && destPath != null &&
-			(currentClasspathName.endsWith(".jar") || //$NON-NLS-1$
-				currentClasspathName.endsWith(".zip"))) { //$NON-NLS-1$
+			Util.isPotentialZipArchive(currentClasspathName)) {
 		throw new InvalidInputException(
 			this.bind("configure.unexpectedDestinationPathEntryFile", //$NON-NLS-1$
 						currentClasspathName));

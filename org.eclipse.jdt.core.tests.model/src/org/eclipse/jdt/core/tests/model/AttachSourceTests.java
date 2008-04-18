@@ -56,7 +56,7 @@ public AttachSourceTests(String name) {
 	super(name);
 }
 protected String getExternalFolder() {
-	return getExternalFolderPath("externalFolder");
+	return getExternalResourcePath("externalFolder");
 }
 public ASTNode runConversion(IClassFile classFile, boolean resolveBindings) {
 	ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS2);
@@ -93,6 +93,9 @@ private void setupExternalLibrary() throws IOException {
 		};
 	org.eclipse.jdt.core.tests.util.Util.createClassFolder(pathsAndContents, externalFolder + "/lib", "1.4");
 	org.eclipse.jdt.core.tests.util.Util.createSourceDir(pathsAndContents, externalFolder + "/src");
+	
+	org.eclipse.jdt.core.tests.util.Util.createJar(pathsAndContents, externalFolder + "/lib.abc", "1.4");
+	org.eclipse.jdt.core.tests.util.Util.createSourceZip(pathsAndContents, externalFolder + "/src.abc");
 }
 private void setUpGenericJar() throws IOException, CoreException {
 	String[] pathAndContents = new String[] {
@@ -404,6 +407,94 @@ public void testExternalFolder3() throws CoreException {
 			type.getSource());
 	} finally {
 		deleteProject("P");
+	}
+}
+/*
+ * Ensures that one can attach an external ZIP archive containing sources to a library folder.
+ */
+public void testZIPArchive1() throws CoreException {
+	try {
+		IProject p = createProject("P1");
+		IFolder lib = p.getFolder("lib");
+		lib.createLink(new Path(getExternalFolder() + "/lib"), IResource.NONE, null);
+		IJavaProject javaProject = createJavaProject("P2", new String[0], new String[] {"/P1/lib"}, "");
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(lib);
+		attachSource(root, getExternalFolder() + "/src.abc", "");
+		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		assertSourceEquals(
+			"Unexpected source",
+			"public class X {\n" + 
+			"}",
+			type.getSource());
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/*
+ * Ensures that one can attach a source folder to an external ZIP archive.
+ */
+public void testZIPArchive2() throws CoreException {
+	try {
+		IProject p = createProject("P1");
+		IFolder src = p.getFolder("src");
+		src.createLink(new Path(getExternalFolder() + "/src"), IResource.NONE, null);
+		String externalLib = getExternalFolder() + "/lib.abc";
+		IJavaProject javaProject = createJavaProject("P2", new String[0], new String[] {externalLib}, "");
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(externalLib);
+		attachSource(root, "/P1/src", "");
+		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		assertSourceEquals(
+			"Unexpected source",
+			"public class X {\n" + 
+			"}",
+			type.getSource());
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/*
+ * Ensures that one can attach an external ZIP archive containing sources to an external ZIP archive.
+ */
+public void testZIPArchive3() throws CoreException {
+	try {
+		String externalLib = getExternalFolder() + "/lib.abc";
+		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {externalLib}, "");
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(externalLib);
+		attachSource(root, getExternalFolder() + "/src.abc", "");
+		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		assertSourceEquals(
+			"Unexpected source",
+			"public class X {\n" + 
+			"}",
+			type.getSource());
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that one can attach an internal ZIP archive containing sources to an internal ZIP archive.
+ */
+public void testZIPArchive4() throws CoreException {
+	try {
+		IProject p = createProject("P1");
+		IFile lib = p.getFile("lib.abc");
+		lib.createLink(new Path(getExternalFolder() + "/lib.abc"), IResource.NONE, null);
+		IFile src = p.getFile("src.abc");
+		src.createLink(new Path(getExternalFolder() + "/src.abc"), IResource.NONE, null);
+		IJavaProject javaProject = createJavaProject("P2", new String[0], new String[] {"/P1/lib.abc"}, "");
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(lib);
+		attachSource(root, "/P1/src.abc", "");
+		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		assertSourceEquals(
+			"Unexpected source",
+			"public class X {\n" + 
+			"}",
+			type.getSource());
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 /*

@@ -479,7 +479,6 @@ public class JavaProject
 	 * @param accumulatedRoots ObjectVector
 	 * @param rootIDs HashSet
 	 * @param referringEntry the CP entry (project) referring to this entry, or null if initial project
-	 * @param checkExistency boolean
 	 * @param retrieveExportedRoots boolean
 	 * @throws JavaModelException
 	 */
@@ -488,7 +487,6 @@ public class JavaProject
 		ObjectVector accumulatedRoots, 
 		HashSet rootIDs, 
 		IClasspathEntry referringEntry,
-		boolean checkExistency,
 		boolean retrieveExportedRoots,
 		Map rootToResolvedEntries) throws JavaModelException {
 			
@@ -506,41 +504,33 @@ public class JavaProject
 			case IClasspathEntry.CPE_SOURCE :
 
 				if (projectPath.isPrefixOf(entryPath)){
-					if (checkExistency) {
-						Object target = JavaModel.getTarget(entryPath, checkExistency);
-						if (target == null) return;
-	
-						if (target instanceof IFolder || target instanceof IProject){
-							root = getPackageFragmentRoot((IResource)target);
-						}
-					} else {
-						root = getFolderPackageFragmentRoot(entryPath);
+					Object target = JavaModel.getTarget(entryPath, true/*check existency*/);
+					if (target == null) return;
+
+					if (target instanceof IFolder || target instanceof IProject){
+						root = getPackageFragmentRoot((IResource)target);
 					}
 				}
 				break;
 
 			// internal/external JAR or folder
 			case IClasspathEntry.CPE_LIBRARY :
-			
-				if (referringEntry != null  && !resolvedEntry.isExported()) return;
-				
-				if (checkExistency) {
-					Object target = JavaModel.getTarget(entryPath, checkExistency);
-					if (target == null) return;
-	
-					if (target instanceof IResource){
-						// internal target
-						root = getPackageFragmentRoot((IResource) target, entryPath);
-					} else if (target instanceof File) {
-						// external target
-						if (JavaModel.isFile(target) && (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(entryPath.lastSegment()))) {
-							root = new JarPackageFragmentRoot(entryPath, this);
-						} else if (((File) target).isDirectory()) {
-							root = new ExternalPackageFragmentRoot(entryPath, this);
-						}
+				if (referringEntry != null  && !resolvedEntry.isExported()) 
+					return;
+				Object target = JavaModel.getTarget(entryPath, true/*check existency*/);
+				if (target == null) 
+					return;
+
+				if (target instanceof IResource){
+					// internal target
+					root = getPackageFragmentRoot((IResource) target, entryPath);
+				} else if (target instanceof File) {
+					// external target
+					if (JavaModel.isFile(target)) {
+						root = new JarPackageFragmentRoot(entryPath, this);
+					} else if (((File) target).isDirectory()) {
+						root = new ExternalPackageFragmentRoot(entryPath, this);
 					}
-				} else {
-					root = getPackageFragmentRoot(entryPath);
 				}
 				break;
 
@@ -561,7 +551,6 @@ public class JavaProject
 							accumulatedRoots, 
 							rootIDs, 
 							rootToResolvedEntries == null ? resolvedEntry : ((ClasspathEntry)resolvedEntry).combineWith((ClasspathEntry) referringEntry), // only combine if need to build the reverse map 
-							checkExistency, 
 							retrieveExportedRoots,
 							rootToResolvedEntries);
 					}
@@ -596,7 +585,6 @@ public class JavaProject
 			accumulatedRoots, 
 			new HashSet(5), // rootIDs
 			null, // inside original project
-			true, // check existency
 			retrieveExportedRoots,
 			rootToResolvedEntries);
 		IPackageFragmentRoot[] rootArray = new IPackageFragmentRoot[accumulatedRoots.size()];
@@ -613,7 +601,6 @@ public class JavaProject
 	 * @param accumulatedRoots ObjectVector
 	 * @param rootIDs HashSet
 	 * @param referringEntry project entry referring to this CP or null if initial project
-	 * @param checkExistency boolean
 	 * @param retrieveExportedRoots boolean
 	 * @throws JavaModelException
 	 */
@@ -622,7 +609,6 @@ public class JavaProject
 		ObjectVector accumulatedRoots, 
 		HashSet rootIDs, 
 		IClasspathEntry referringEntry,
-		boolean checkExistency,
 		boolean retrieveExportedRoots,
 		Map rootToResolvedEntries) throws JavaModelException {
 
@@ -635,7 +621,6 @@ public class JavaProject
 				accumulatedRoots,
 				rootIDs,
 				referringEntry,
-				checkExistency,
 				retrieveExportedRoots,
 				rootToResolvedEntries);
 		}
@@ -1622,31 +1607,36 @@ public class JavaProject
 			path = getPath().append(path);
 		}
 		int segmentCount = path.segmentCount();
-		switch (segmentCount) {
-			case 0:
-				return null;
-			case 1:
-				if (path.equals(getPath())) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75814
-					// default root
-					return getPackageFragmentRoot(this.project);
-				}
-			default:
-				// a path ending with .jar/.zip is still ambiguous and could still resolve to a source/lib folder 
-				// thus will try to guess based on existing resource
-				if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(path.lastSegment())) {
-					IResource resource = this.project.getWorkspace().getRoot().findMember(path); 
-					if (resource != null && resource.getType() == IResource.FOLDER){
-						return getPackageFragmentRoot(resource);
-					}
-					return getPackageFragmentRoot0(path);
-				} else if (segmentCount == 1) {
-					// lib being another project
-					return getPackageFragmentRoot(this.project.getWorkspace().getRoot().getProject(path.lastSegment()));
-				} else {
-					// lib being a folder
-					return getPackageFragmentRoot(this.project.getWorkspace().getRoot().getFolder(path));
-				}
+		if (segmentCount == 0) {
+			return null;
 		}
+		if (path.getDevice() != null || JavaModel.getExternalTarget(path, true/*check existence*/) != null) {
+			// external path
+			return getPackageFragmentRoot0(path);
+		}
+		IWorkspaceRoot workspaceRoot = this.project.getWorkspace().getRoot();
+		if (segmentCount == 1) {
+			String projectName = path.segment(0);
+			if (getElementName().equals(projectName)) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75814
+				// default root
+				return getPackageFragmentRoot(this.project);
+			} else {
+				// lib being another project
+				return getPackageFragmentRoot(workspaceRoot.getProject(projectName));
+			}
+		}
+		IResource resource = workspaceRoot.findMember(path); 
+		if (resource == null) {
+			// resource doesn't exist in workspace
+			if (path.getFileExtension() != null) {
+				// assume it is a file
+				resource = workspaceRoot.getFile(path);
+			} else {
+				// assume it is a folder
+				resource = workspaceRoot.getFolder(path);
+			}
+		}
+		return getPackageFragmentRoot(resource);
 	}
 
 	/**
@@ -1659,11 +1649,7 @@ public class JavaProject
 	private IPackageFragmentRoot getPackageFragmentRoot(IResource resource, IPath entryPath) {
 		switch (resource.getType()) {
 			case IResource.FILE:
-				if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resource.getName())) {
-					return new JarPackageFragmentRoot(resource, this);
-				} else {
-					return null;
-				}
+				return new JarPackageFragmentRoot(resource, this);
 			case IResource.FOLDER:
 				if (ExternalFoldersManager.isInternalPathForExternalFolder(resource.getFullPath()))
 					return new ExternalPackageFragmentRoot(resource, entryPath, this);
@@ -1679,7 +1665,6 @@ public class JavaProject
 	 * @see IJavaProject
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(String libraryPath) {
-
 		return getPackageFragmentRoot0(JavaProject.canonicalizedPath(new Path(libraryPath)));
 	}
 
@@ -1687,10 +1672,10 @@ public class JavaProject
 	 * no path canonicalization
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot0(IPath libraryPath) {
-		if (!org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(libraryPath.lastSegment()))
-			return new ExternalPackageFragmentRoot(libraryPath, this);
+		IFolder linkedFolder = JavaModelManager.getExternalManager().getFolder(libraryPath);
+		if (linkedFolder != null)
+			return new ExternalPackageFragmentRoot(linkedFolder, libraryPath, this);
 		return new JarPackageFragmentRoot(libraryPath, this);
-		
 	}
 
 	/**

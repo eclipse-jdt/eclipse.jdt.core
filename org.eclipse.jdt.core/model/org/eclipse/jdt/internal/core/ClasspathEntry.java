@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -1375,7 +1376,8 @@ public class ClasspathEntry implements IClasspathEntry {
 					break;
 
 				case IClasspathEntry.CPE_LIBRARY:
-					hasLibFolder |= !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(path.lastSegment());
+					Object target = JavaModel.getTarget(path, false/*don't check resource existence*/);
+					hasLibFolder |= target instanceof IContainer;
 					if ((index = Util.indexOfMatchingPath(path, outputLocations, outputCount)) != -1){
 						allowNestingInOutputLocations[index] = true;
 					}
@@ -1415,7 +1417,7 @@ public class ClasspathEntry implements IClasspathEntry {
 
 			// allow nesting source entries in each other as long as the outer entry excludes the inner one
 			if (kind == IClasspathEntry.CPE_SOURCE
-					|| (kind == IClasspathEntry.CPE_LIBRARY && !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(entryPath.lastSegment()))){
+					|| (kind == IClasspathEntry.CPE_LIBRARY && (JavaModel.getTarget(entryPath, false/*don't check existence*/) instanceof IContainer))) {
 				for (int j = 0; j < classpath.length; j++){
 					IClasspathEntry otherEntry = classpath[j];
 					if (otherEntry == null) continue;
@@ -1424,7 +1426,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					if (entry != otherEntry
 						&& (otherKind == IClasspathEntry.CPE_SOURCE
 								|| (otherKind == IClasspathEntry.CPE_LIBRARY
-										&& !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(otherPath.lastSegment())))){
+										&& (JavaModel.getTarget(otherPath, false/*don't check existence*/) instanceof IContainer)))) {
 						char[][] inclusionPatterns, exclusionPatterns;
 						if (otherPath.isPrefixOf(entryPath)
 								&& !otherPath.equals(entryPath)
@@ -1636,15 +1638,11 @@ public class ClasspathEntry implements IClasspathEntry {
 						IResource resolvedResource = (IResource) target;
 						switch(resolvedResource.getType()){
 							case IResource.FILE :
-								if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resolvedResource.getName())) {
-									if (checkSourceAttachment
-										&& sourceAttachment != null
-										&& !sourceAttachment.isEmpty()
-										&& JavaModel.getTarget(sourceAttachment, true) == null){
-										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toString(), projectName}));
-									}
-								} else {
-									return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalLibraryArchive, new String[] {entryPathMsg, projectName}));
+								if (checkSourceAttachment
+									&& sourceAttachment != null
+									&& !sourceAttachment.isEmpty()
+									&& JavaModel.getTarget(sourceAttachment, true) == null){
+									return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toString(), projectName}));
 								}
 								break;
 							case IResource.FOLDER :	// internal binary folder
@@ -1659,8 +1657,6 @@ public class ClasspathEntry implements IClasspathEntry {
 						File file = JavaModel.getFile(target);
 					    if (file == null) {
 							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalExternalFolder, new String[] {path.toOSString(), projectName}));
-					    } else if (!org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())) {
-							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalLibraryArchive, (new String[] {path.toOSString(), projectName})));
 					    } else if (checkSourceAttachment
 								&& sourceAttachment != null
 								&& !sourceAttachment.isEmpty()

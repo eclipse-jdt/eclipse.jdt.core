@@ -1467,10 +1467,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		getWorkspace().run(create, null);	
 		return project;
 	}
-	public void deleteFile(File file) {
+	public void deleteResource(File resource) {
 		int retryCount = 0;
 		while (++retryCount <= 60) { // wait 1 minute at most
-			if (org.eclipse.jdt.core.tests.util.Util.delete(file)) {
+			if (org.eclipse.jdt.core.tests.util.Util.delete(resource)) {
 				break;
 			}
 		}
@@ -1649,7 +1649,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return new File(getExternalPath(), relativePath);
 	}
 	
-	protected String getExternalFolderPath(String name) {
+	protected String getExternalResourcePath(String name) {
 		return getExternalPath() + name;
 	}
 
@@ -2029,6 +2029,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		waitForManualRefresh();
 	}
 
+	protected void refreshExternalArchives(IJavaProject p) throws JavaModelException {
+		getJavaModel().refreshExternalArchives(new IJavaElement[] {p}, null);
+	}
+	
 	protected void removeJavaNature(String projectName) throws CoreException {
 		IProject project = this.getProject(projectName);
 		IProjectDescription description = project.getDescription();
@@ -2658,10 +2662,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		return result;
 	}
-	protected void touch(File f) {
-		f.setLastModified(f.lastModified() + 10000);
+	protected synchronized void touch(File f) {
+		f.setLastModified(f.lastModified() + 1000);
+		long start = System.currentTimeMillis();
+		do {
+			try {
+				wait(1000);
+			} catch (InterruptedException e) {
+			}
+		} while ((System.currentTimeMillis() - start) < 1000);
 	}
-protected String toString(String[] strings) {
+	protected String toString(String[] strings) {
 		return toString(strings, false/*don't add extra new line*/);
 	}
 	protected String toString(String[] strings, boolean addExtraNewLine) {

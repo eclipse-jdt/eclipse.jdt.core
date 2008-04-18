@@ -412,7 +412,10 @@ public class SourceMapper
 			}
 		}
 
-		if (Util.isArchiveFileName(this.sourcePath.lastSegment())) {
+		Object target = JavaModel.getTarget(this.sourcePath, true);
+		if (target instanceof IContainer) {
+			computeRootPath((IContainer)target, firstLevelPackageNames, containsADefaultPackage, tempRoots);
+		} else {
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			ZipFile zip = null;
 			try {
@@ -442,11 +445,6 @@ public class SourceMapper
 				// ignore
 			} finally {
 				manager.closeZipFile(zip); // handle null case
-			}
-		} else {
-			Object target = JavaModel.getTarget(this.sourcePath, true);
-			if (target instanceof IContainer) {
-				computeRootPath((IContainer)target, firstLevelPackageNames, containsADefaultPackage, tempRoots);
 			}
 		}
 		int size = tempRoots.size();
@@ -884,7 +882,17 @@ public class SourceMapper
 	
 	public char[] findSource(String fullName) {
 		char[] source = null;
-		if (Util.isArchiveFileName(this.sourcePath.lastSegment())) {
+		Object target = JavaModel.getTarget(this.sourcePath, true);
+		if (target instanceof IContainer) {
+			IResource res = ((IContainer)target).findMember(fullName);
+			if (res instanceof IFile) {
+				try {
+					source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res);
+				} catch (JavaModelException e) {
+					// ignore
+				}
+			}
+		} else {
 			// try to get the entry
 			ZipEntry entry = null;
 			ZipFile zip = null;
@@ -900,18 +908,6 @@ public class SourceMapper
 				return null;
 			} finally {
 				manager.closeZipFile(zip); // handle null case
-			}
-		} else {
-			Object target = JavaModel.getTarget(this.sourcePath, true);
-			if (target instanceof IContainer) {
-				IResource res = ((IContainer)target).findMember(fullName);
-				if (res instanceof IFile) {
-					try {
-						source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res);
-					} catch (JavaModelException e) {
-						// ignore
-					}
-				}
 			}
 		}
 		return source;

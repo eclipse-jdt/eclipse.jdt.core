@@ -13,6 +13,7 @@ package org.eclipse.jdt.core;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.apache.tools.ant.BuildException;
@@ -50,8 +51,16 @@ public final class CheckDebugAttributes extends Task {
 		}
 		try {
 			boolean hasDebugAttributes = false;
-			if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(this.file)) {
-				ZipFile jarFile = new ZipFile(this.file);
+			if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(this.file)) {
+				IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(this.file, IClassFileReader.ALL);
+				hasDebugAttributes = checkClassFile(classFileReader);
+			} else {
+				ZipFile jarFile = null;
+				try {
+					jarFile = new ZipFile(this.file);
+				} catch (ZipException e) {
+					throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.file.argument.must.be.a.classfile.or.a.jarfile")); //$NON-NLS-1$
+				}
 				for (Enumeration entries = jarFile.entries(); !hasDebugAttributes && entries.hasMoreElements(); ) {
 					ZipEntry entry = (ZipEntry) entries.nextElement();
 					if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entry.getName())) {
@@ -59,11 +68,6 @@ public final class CheckDebugAttributes extends Task {
 						hasDebugAttributes = checkClassFile(classFileReader);
 					}
 				}
-			} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(this.file)) {
-				IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(this.file, IClassFileReader.ALL);
-				hasDebugAttributes = checkClassFile(classFileReader);
-			} else {
-				throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.file.argument.must.be.a.classfile.or.a.jarfile")); //$NON-NLS-1$
 			}
 			if (hasDebugAttributes) {
 				getProject().setUserProperty(this.property, "has debug"); //$NON-NLS-1$

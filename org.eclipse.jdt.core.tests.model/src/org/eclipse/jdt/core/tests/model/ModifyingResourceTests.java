@@ -123,8 +123,12 @@ protected File createFolder(File parent, String name) {
 protected IFolder createFolder(String path) throws CoreException {
 	return createFolder(new Path(path));
 }
-protected void deleteExternalFolder(String relativePath) {
-	deleteFile(new File(getExternalPath() + relativePath));
+protected void deleteExternalResource(String relativePath) {
+	deleteResource(new File(getExternalPath() + relativePath));
+}
+protected void deleteAndRefreshExternalZIPArchive(String relativePath, String referringProject) throws JavaModelException {
+	deleteExternalResource(relativePath);
+	refreshExternalArchives(getJavaProject(referringProject));
 }
 protected void deleteFile(String filePath) throws CoreException {
 	deleteResource(this.getFile(filePath));

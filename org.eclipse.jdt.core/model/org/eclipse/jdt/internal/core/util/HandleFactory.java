@@ -270,7 +270,7 @@ public class HandleFactory {
 			int index = 0;
 			for (int i = 0; i < length; i++) {
 				IPath path = enclosingProjectsAndJars[i];
-				if (!org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(path.lastSegment())) {
+				if (path.segmentCount() == 1) {
 					projects[index++] = this.javaModel.getJavaProject(path.segment(0));
 				}
 			}

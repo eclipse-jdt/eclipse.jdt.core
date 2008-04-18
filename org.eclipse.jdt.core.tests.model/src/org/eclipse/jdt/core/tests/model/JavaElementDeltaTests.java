@@ -271,7 +271,7 @@ public void testAddExternalLibFolder1() throws CoreException {
 		createExternalFolder("externalLib");
 		refresh(p);
 		startDeltas();
-		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalFolderPath("externalLib")), null, null)});
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib")), null, null)});
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
@@ -282,7 +282,7 @@ public void testAddExternalLibFolder1() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
 		deleteProject("P");
 	}
 }
@@ -294,7 +294,7 @@ public void testAddExternalLibFolder2() throws CoreException {
 	try {
 		IJavaProject p = createJavaProject("P");
 		refresh(p);
-		IPath path = new Path(getExternalFolderPath("externalLib"));
+		IPath path = new Path(getExternalResourcePath("externalLib"));
 		startDeltas();
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(path, null, null)});
 		assertDeltas(
@@ -315,7 +315,7 @@ public void testAddExternalLibFolder2() throws CoreException {
  */
 public void testAddExternalLibFolder3() throws CoreException {
 	try {
-		IJavaProject p =createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IJavaProject p =createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
 		createExternalFolder("externalLib");
 		refresh(p);
@@ -326,7 +326,7 @@ public void testAddExternalLibFolder3() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
 		deleteProject("P");
 	}
 }
@@ -337,7 +337,7 @@ public void testAddExternalLibFolder3() throws CoreException {
 public void testAddExternalLibFolder4() throws CoreException {
 	try {
 		simulateExitRestart();
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
 		createExternalFolder("externalLib");
 		refresh(p);
@@ -348,7 +348,119 @@ public void testAddExternalLibFolder4() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that adding a library entry for an existing external ZIP archive triggers the correct delta
+ */
+public void testAddZIPArchive1() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P");
+		createExternalFile("externalLib.abc", "");
+		startDeltas();
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	"+ getExternalPath() + "externalLib.abc[+]: {}\n" + 
+			"	"+ getExternalJCLPathString() + "[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		stopDeltas();
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that adding a library entry for a non-existing external ZIP archive triggers the correct delta
+ */
+public void testAddZIPArchive2() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P");
+		IPath path = new Path(getExternalResourcePath("externalLib.abc"));
+		startDeltas();
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(path, null, null)});
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	"+ getExternalJCLPathString() + "[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that creating an external ZIP archive referenced by a library entry and refreshing triggers the correct delta
+ */
+public void testAddZIPArchive3() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		startDeltas();
+		createExternalFile("externalLib.abc", "");
+		refreshExternalArchives(p);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib.abc[+]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that creating an external ZIP archive referenced by a library entry and refreshing after a restart triggers the correct delta
+ */
+public void testAddZIPArchive4() throws CoreException {
+	try {
+		simulateExitRestart();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		startDeltas();
+		createExternalFile("externalLib.abc", "");
+		refreshExternalArchives(p);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib.abc[+]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that adding a library entry for an existing internal ZIP archive triggers the correct delta
+ */
+public void testAddZIPArchive5() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P");
+		createFile("/P/internalLib.abc", "");
+		startDeltas();
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P/internalLib.abc"), null, null)});
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	internalLib.abc[*]: {ADDED TO CLASSPATH}\n" + 
+			"	"+ getExternalJCLPathString() + "[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		stopDeltas();
 		deleteProject("P");
 	}
 }
@@ -782,7 +894,7 @@ public void testChangeExportFlag() throws CoreException {
 public void testChangeExternalLibFolder1() throws CoreException {
 	try {
 		createExternalFolder("externalLib");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
 		createExternalFolder("externalLib/p");
 		refresh(p);
@@ -794,7 +906,7 @@ public void testChangeExternalLibFolder1() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
 		deleteProject("P");
 	}
 }
@@ -805,7 +917,7 @@ public void testChangeExternalLibFolder1() throws CoreException {
 public void testChangeExternalLibFolder2() throws CoreException {
 	try {
 		createExternalFolder("externalLib/p");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
 		createExternalFile("externalLib/p/X.class", "");
 		refresh(p);
@@ -818,7 +930,7 @@ public void testChangeExternalLibFolder2() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
 		deleteProject("P");
 	}
 }
@@ -830,7 +942,7 @@ public void testChangeExternalLibFolder3() throws CoreException {
 	try {
 		createExternalFolder("externalLib/p");
 		createExternalFile("externalLib/p/X.class", "");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
 		touch(getExternalFile("externalLib/p/X.class"));
 		refresh(p);
@@ -843,7 +955,7 @@ public void testChangeExternalLibFolder3() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
 		deleteProject("P");
 	}
 }
@@ -854,7 +966,7 @@ public void testChangeExternalLibFolder3() throws CoreException {
 public void testChangeExternalLibFolder4() throws CoreException {
 	try {
 		createExternalFolder("externalLib");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
 		createExternalFile("externalLib/test.txt", "test");
 		refresh(p);
@@ -865,7 +977,7 @@ public void testChangeExternalLibFolder4() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
 		deleteProject("P");
 	}
 }
@@ -876,7 +988,7 @@ public void testChangeExternalLibFolder4() throws CoreException {
 public void testChangeExternalLibFolder5() throws CoreException {
 	try {
 		createExternalFolder("externalLib/p");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
 		createExternalFile("externalLib/p/test.txt", "test");
 		refresh(p);
@@ -888,7 +1000,50 @@ public void testChangeExternalLibFolder5() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that changing an external ZIP archive referenced by a library entry and refreshing triggers the correct delta
+ */
+public void testChangeZIPArchive1() throws CoreException {
+	try {
+		createExternalFile("externalLib.abc", "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		refreshExternalArchives(p);
+		startDeltas();
+		touch(getExternalFile("externalLib.abc"));
+		refreshExternalArchives(p);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib.abc[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
+	} finally {
+		stopDeltas();
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that changing an internal ZIP archive referenced by a library entry triggers the correct delta
+ */
+public void testChangeZIPArchive2() throws CoreException {
+	try {
+		createJavaProject("P", new String[0], new String[] {"/P/internalLib.abc"}, "");
+		createFile("/P/internalLib.abc", "");
+		startDeltas();
+		editFile("/P/internalLib.abc", "");
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	internalLib.abc[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
+	} finally {
+		stopDeltas();
 		deleteProject("P");
 	}
 }
@@ -901,7 +1056,7 @@ public void testChangeExternalSourceAttachment() throws CoreException {
 		createExternalFolder("externalLib");
 		createExternalFolder("externalSrc");
 		IJavaProject project = createJavaProject("P");
-		addLibraryEntry(project, getExternalFolderPath("externalLib"), getExternalFolderPath("externalSrc"));
+		addLibraryEntry(project, getExternalResourcePath("externalLib"), getExternalResourcePath("externalSrc"));
 		startDeltas();
 		createExternalFile("externalSrc/X.java", "public class X {}");
 		refresh(project);
@@ -912,8 +1067,8 @@ public void testChangeExternalSourceAttachment() throws CoreException {
 			);
 	} finally {
 		stopDeltas();
-		deleteExternalFolder("externalLib");
-		deleteExternalFolder("externalSrc");
+		deleteExternalResource("externalLib");
+		deleteExternalResource("externalSrc");
 		deleteProject("P");
 	}
 }
@@ -2286,7 +2441,7 @@ public void testRemoveDotClasspathFile() throws CoreException {
 public void testRemoveExternalLibFolder1() throws CoreException {
 	try {
 		createExternalFolder("externalLib");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
 		setClasspath(p, new IClasspathEntry[] {});
 		assertDeltas(
@@ -2297,7 +2452,7 @@ public void testRemoveExternalLibFolder1() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
 		deleteProject("P");
 	}
 }
@@ -2307,7 +2462,7 @@ public void testRemoveExternalLibFolder1() throws CoreException {
  */
 public void testRemoveExternalLibFolder2() throws CoreException {
 	try {
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
 		setClasspath(p, new IClasspathEntry[] {});
 		assertDeltas(
@@ -2327,9 +2482,9 @@ public void testRemoveExternalLibFolder2() throws CoreException {
 public void testRemoveExternalLibFolder3() throws CoreException {
 	try {
 		createExternalFolder("externalLib");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
 		refresh(p);
 		assertDeltas(
 			"Unexpected delta", 
@@ -2338,7 +2493,7 @@ public void testRemoveExternalLibFolder3() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
 		deleteProject("P");
 	}
 }
@@ -2351,9 +2506,9 @@ public void testRemoveExternalLibFolder4() throws CoreException {
 	try {
 		simulateExitRestart();
 		createExternalFolder("externalLib");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("externalLib")}, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
 		refresh(p);
 		assertDeltas(
 			"Unexpected delta", 
@@ -2362,7 +2517,113 @@ public void testRemoveExternalLibFolder4() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing a library entry for an existing external ZIP archive triggers the correct delta
+ */
+public void testRemoveZIPArchive1() throws CoreException {
+	try {
+		createExternalFile("externalLib.abc", "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		startDeltas();
+		setClasspath(p, new IClasspathEntry[] {});
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	"+ getExternalPath() + "externalLib.abc[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		stopDeltas();
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing a library entry for a non-existing external ZIP archive triggers the correct delta
+ */
+public void testRemoveZIPArchive2() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		startDeltas();
+		setClasspath(p, new IClasspathEntry[] {});
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	"+ getExternalPath() + "externalLib.abc[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing an external ZIP archive referenced by a library entry triggers the correct delta
+ */
+public void testRemoveZIPArchive3() throws CoreException {
+	try {
+		createExternalFile("externalLib.abc", "");
+		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		startDeltas();
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib.abc[-]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing an external ZIP archive referenced by a library entry after a restart
+ * triggers the correct delta
+ */
+public void testRemoveZIPArchive4() throws CoreException {
+	try {
+		simulateExitRestart();
+		createExternalFile("externalLib.abc", "");
+		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		startDeltas();
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	"+ getExternalPath() + "externalLib.abc[-]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing a library entry for an existing internal ZIP archive triggers the correct delta
+ */
+public void testRemoveZIPArchive5() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {"/P/internalLib.abc"}, "");
+		createFile("/P/internalLib.abc", "");
+		startDeltas();
+		setClasspath(p, new IClasspathEntry[] {});
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	internalLib.abc[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+	} finally {
+		stopDeltas();
 		deleteProject("P");
 	}
 }

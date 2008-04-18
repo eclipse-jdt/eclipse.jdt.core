@@ -2607,7 +2607,7 @@ public void test0114() throws Exception {
 				"Member");
 		assertEquals("test0114.Test.Member<java.lang.String>", ((IType)elements[0]).getFullyQualifiedParameterizedName());
 	} finally {
-		deleteFile(rootLocation.append("test0114").toFile());
+		deleteResource(rootLocation.append("test0114").toFile());
 	}
 }
 }

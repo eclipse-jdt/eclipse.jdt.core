@@ -2332,7 +2332,7 @@ public void testChangeInternalJar() throws CoreException, IOException {
 			requestor.getResults());
 	} finally {
 		removeClasspathEntry(this.currentProject, new Path(jarName));
-		deleteFile(new File(jarName));
+		deleteResource(new File(jarName));
 	}
 }
 }

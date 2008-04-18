@@ -490,7 +490,7 @@ public void testContainerInitializer10() throws CoreException {
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P3", "/P1"}) {
 	        public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 	            super.initialize(containerPath, project);
-	            getJavaModel().refreshExternalArchives(new IJavaElement[] {p1}, null);
+	            refreshExternalArchives(p1);
 	        }
 		});
 		getWorkspace().run(new IWorkspaceRunnable() {
@@ -894,17 +894,57 @@ public void testContainerInitializer21() throws CoreException {
 	try {
 		createProject("P1");
 		createExternalFolder("externalLib");
-		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", getExternalFolderPath("externalLib")}));
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", getExternalResourcePath("externalLib")}));
 		IJavaProject p2 = createJavaProject(
 				"P2", 
 				new String[] {}, 
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
 				"");
-		IPackageFragmentRoot root = p2.getPackageFragmentRoot(getExternalFolderPath("externalLib"));
-		assertTrue(getExternalFolderPath("externalLib") + " should exist", root.exists());
+		IPackageFragmentRoot root = p2.getPackageFragmentRoot(getExternalResourcePath("externalLib"));
+		assertTrue(getExternalResourcePath("externalLib") + " should exist", root.exists());
 	} finally {
 		stopDeltas();
-		deleteExternalFolder("externalLib");
+		deleteExternalResource("externalLib");
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
+public void testContainerInitializer22() throws CoreException {
+	try {
+		createProject("P1");
+		createExternalFile("externalLib.abc", "");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", getExternalResourcePath("externalLib.abc")}));
+		IJavaProject p2 = createJavaProject(
+				"P2", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+		IPackageFragmentRoot root = p2.getPackageFragmentRoot(getExternalResourcePath("externalLib.abc"));
+		assertTrue(getExternalResourcePath("externalLib.abc") + " should exist", root.exists());
+	} finally {
+		stopDeltas();
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P2");
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
+public void testContainerInitializer23() throws CoreException {
+	try {
+		createProject("P1");
+		IFile lib = createFile("/P1/internalLib.abc", "");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/internalLib.abc"}));
+		IJavaProject p2 = createJavaProject(
+				"P2", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+		IPackageFragmentRoot root = p2.getPackageFragmentRoot(lib);
+		assertTrue("/P1/internalLib.abc should exist", root.exists());
+	} finally {
+		stopDeltas();
+		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P2");
 		deleteProject("P1");
 		deleteProject("P2");
 	}

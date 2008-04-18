@@ -164,9 +164,7 @@ public static Classpath getClasspath(String classpathName, String encoding,
 						convertPathSeparators(destinationPath));
 		}
 	} else {
-		String lowercaseClasspathName = classpathName.toLowerCase();
-		if (lowercaseClasspathName.endsWith(SUFFIX_STRING_jar)
-				|| lowercaseClasspathName.endsWith(SUFFIX_STRING_zip)) {
+		if (Util.isPotentialZipArchive(classpathName)) {
 			if (isSourceOnly) {
 				// source only mode
 				result = new ClasspathSourceJar(file, true, accessRuleSet,

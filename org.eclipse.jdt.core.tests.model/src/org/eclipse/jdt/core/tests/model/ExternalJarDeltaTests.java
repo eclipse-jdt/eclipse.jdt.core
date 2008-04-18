@@ -84,7 +84,7 @@ public void testExternalJar0() throws CoreException, IOException {
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();
@@ -118,7 +118,7 @@ public void testExternalJarChanged1() throws CoreException, IOException {
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();
@@ -151,7 +151,7 @@ public void testExternalJarChanged2() throws CoreException, IOException {
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();
@@ -185,7 +185,7 @@ public void testExternalJarChanged3() throws CoreException, IOException {
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();
@@ -223,7 +223,7 @@ public void testExternalJarChanged4() throws CoreException, IOException {
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();
@@ -261,7 +261,7 @@ public void testExternalJarChanged5() throws CoreException, IOException {
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();
@@ -297,7 +297,7 @@ public void testExternalJarChanged6() throws CoreException, IOException {
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();
@@ -329,7 +329,7 @@ public void testExternalJarAdded1() throws CoreException, IOException {
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();
@@ -361,7 +361,7 @@ public void testExternalJarAdded2() throws CoreException, IOException {
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();
@@ -394,7 +394,7 @@ public void testExternalJarAdded3() throws CoreException, IOException {
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();
@@ -417,7 +417,7 @@ public void testExternalJarRemoved1() throws CoreException, IOException {
 		waitUntilIndexesReady();
 		startDeltas();
 		
-		deleteFile(f);
+		deleteResource(f);
 		getJavaModel().refreshExternalArchives(null,null);
 		
 		assertDeltas(
@@ -427,7 +427,7 @@ public void testExternalJarRemoved1() throws CoreException, IOException {
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();
@@ -450,7 +450,7 @@ public void testExternalJarRemoved2() throws CoreException, IOException {
 		waitUntilIndexesReady();
 		startDeltas();
 		
-		deleteFile(f);
+		deleteResource(f);
 		getJavaModel().refreshExternalArchives(new IJavaElement[]{project},null);
 		
 		assertDeltas(
@@ -460,7 +460,7 @@ public void testExternalJarRemoved2() throws CoreException, IOException {
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();
@@ -483,7 +483,7 @@ public void testExternalJarRemoved3() throws CoreException, IOException {
 		waitUntilIndexesReady();
 		startDeltas();
 		
-		deleteFile(f);
+		deleteResource(f);
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(pPath);
 		getJavaModel().refreshExternalArchives(new IJavaElement[]{root},null);
 		
@@ -494,7 +494,7 @@ public void testExternalJarRemoved3() throws CoreException, IOException {
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();
@@ -541,7 +541,7 @@ public void testExternalJarInternalExternalJar() throws CoreException, IOExcepti
 		);
 	} finally {
 		if(f != null) {
-			deleteFile(f);
+			deleteResource(f);
 		}
 		this.deleteProject("P");
 		this.stopDeltas();

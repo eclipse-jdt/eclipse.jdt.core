@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.*;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IResource;
@@ -71,19 +72,20 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		IJavaElement[] children;
 		ZipFile jar = null;
 		try {
-			// always create the default package
-			rawPackageInfo.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
-	
 			IJavaProject project = getJavaProject();
 			String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
 			String compliance = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 			jar = getJar();
+
+			// always create the default package
+			rawPackageInfo.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
+			
 			for (Enumeration e= jar.entries(); e.hasMoreElements();) {
 				ZipEntry member= (ZipEntry) e.nextElement();
 				initRawPackageInfo(rawPackageInfo, member.getName(), member.isDirectory(), sourceLevel, compliance);
 			}
 			
-			//l oop through all of referenced packages, creating package fragments if necessary
+			// loop through all of referenced packages, creating package fragments if necessary
 			// and cache the entry names in the rawPackageInfo table
 			children = new IJavaElement[rawPackageInfo.size()];
 			int index = 0;
@@ -93,8 +95,15 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				children[index++] = getPackageFragment(pkgName);
 			}
 		} catch (CoreException e) {
-			if (e instanceof JavaModelException) throw (JavaModelException)e;
-			throw new JavaModelException(e);
+			if (e.getCause() instanceof ZipException) {
+				// not a ZIP archive, leave the children empty
+				Util.log(e, "Invalid ZIP archive: " + toStringWithAncestors()); //$NON-NLS-1$
+				children = NO_ELEMENTS;
+			} else if (e instanceof JavaModelException) {
+				throw (JavaModelException)e;
+			} else {
+				throw new JavaModelException(e);
+			}
 		} finally {
 			JavaModelManager.getJavaModelManager().closeZipFile(jar);
 		}
@@ -178,15 +187,11 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		}
 	}	
 	public IResource resource(PackageFragmentRoot root) {
-		if (this.resource == null && org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(this.jarPath.lastSegment())) {
-			this.resource = JavaModel.getTarget(this.jarPath, false);
-		}
-		if (this.resource instanceof IResource) {
-			return super.resource(root);
-		} else {
+		if (this.resource == null) {
 			// external jar
 			return null;
 		}
+		return super.resource(root);
 	}
 
 
@@ -266,23 +271,24 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	}
 
 	/**
- * Returns whether the corresponding resource or associated file exists
- */
-protected boolean resourceExists(IResource underlyingResource) {
-	if (underlyingResource == null) {
-		return 
-			JavaModel.getTarget(
-				getPath(), // don't make the path relative as this is an external archive
-				true) != null;
-	} else {
-		return super.resourceExists(underlyingResource);
+	 * Returns whether the corresponding resource or associated file exists
+	 */
+	protected boolean resourceExists(IResource underlyingResource) {
+		if (underlyingResource == null) {
+			return 
+				JavaModel.getExternalTarget(
+					getPath()/*don't make the path relative as this is an external archive*/, 
+					true/*check existence*/) != null;	
+		} else {
+			return super.resourceExists(underlyingResource);
+		}
 	}
-}
-protected void toStringAncestors(StringBuffer buffer) {
-	if (isExternal())
-		// don't show project as it is irrelevant for external jar files.
-		// also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=146615
-		return;
-	super.toStringAncestors(buffer);
-}
+	
+	protected void toStringAncestors(StringBuffer buffer) {
+		if (isExternal())
+			// don't show project as it is irrelevant for external jar files.
+			// also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=146615
+			return;
+		super.toStringAncestors(buffer);
+	}
 }

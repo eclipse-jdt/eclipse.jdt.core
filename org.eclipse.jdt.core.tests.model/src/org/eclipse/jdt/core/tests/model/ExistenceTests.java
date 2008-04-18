@@ -316,8 +316,8 @@ public void testNonExistingExternalPackageFragmentRoot1() throws CoreException {
  */
 public void testNonExistingExternalPackageFragmentRoot2() throws CoreException {
 	try {
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalFolderPath("nonExisting")}, "");
-		IPackageFragmentRoot root = p.getPackageFragmentRoot(getExternalFolderPath("nonExisting"));
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("nonExisting")}, "");
+		IPackageFragmentRoot root = p.getPackageFragmentRoot(getExternalResourcePath("nonExisting"));
 		assertFalse("root should not exist", root.exists());
 	} finally {
 		deleteProject("P");

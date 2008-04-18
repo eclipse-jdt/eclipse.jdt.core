@@ -134,7 +134,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 							String resName = res.getName();
 						
 							// ignore a jar file on the classpath
-							if (isClasspathResolved && org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resName) && this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
+							if (isClasspathResolved && isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
 								break;
 							}
 							// ignore .java file if src == project

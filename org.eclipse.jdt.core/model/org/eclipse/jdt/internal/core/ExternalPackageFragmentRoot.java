@@ -107,7 +107,7 @@ public class ExternalPackageFragmentRoot extends PackageFragmentRoot {
 	
 	public IResource resource(PackageFragmentRoot root) {
 		if (this.resource == null)
-			return (IResource) (this.resource = JavaModelManager.getExternalManager().getFolder(this.externalPath));
+			return this.resource = JavaModelManager.getExternalManager().getFolder(this.externalPath);
 		return super.resource(root);
 	}
 	
