@@ -97,7 +97,9 @@ public class Scribe implements IJavaDocTagConstants {
 //	boolean formatLineComment;
 //	boolean includeComments;
 	private int formatComments = 0; // false
-	private static final int INCLUDE_BLOCK_COMMENTS = CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_MULTI_LINE_COMMENT;
+	// @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=227765
+	//private static final int INCLUDE_BLOCK_COMMENTS = CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_MULTI_LINE_COMMENT;
+	
 	private static final int INCLUDE_JAVA_DOC = CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_JAVA_DOC;
 	private static final int INCLUDE_LINE_COMMENTS = CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_SINGLE_LINE_COMMENT;
 	
@@ -795,9 +797,12 @@ public class Scribe implements IJavaDocTagConstants {
 	    return (this.formatComments & CodeFormatter.K_JAVA_DOC) != 0;
     }
 
+	// @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=227765
+	/*
 	private boolean includesBlockComments() {
 	    return (this.formatComments & INCLUDE_BLOCK_COMMENTS) == INCLUDE_BLOCK_COMMENTS;
     }
+    */
 
 	private boolean includesJavadocComments() {
 	    return (this.formatComments & INCLUDE_JAVA_DOC) == INCLUDE_JAVA_DOC;
