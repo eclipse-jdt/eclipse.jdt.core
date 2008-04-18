@@ -482,9 +482,11 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							isFirstBoundTypeVariable = true;
 							TypeVariableBinding varSuperType = (TypeVariableBinding) superType;
 							if (varSuperType.rank >= typeVariable.rank && varSuperType.declaringElement == typeVariable.declaringElement) {
-								problemReporter().forwardTypeVariableReference(typeParameter, varSuperType);
-								typeVariable.tagBits |= TagBits.HierarchyHasProblems;
-								break firstBound; // do not keep first bound
+								if (compilerOptions().complianceLevel <= ClassFileConstants.JDK1_6) {
+									problemReporter().forwardTypeVariableReference(typeParameter, varSuperType);
+									typeVariable.tagBits |= TagBits.HierarchyHasProblems;
+									break firstBound; // do not keep first bound
+								}
 							}
 							break;
 						default :

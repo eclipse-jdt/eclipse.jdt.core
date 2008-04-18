@@ -1039,19 +1039,23 @@ public class GenericTypeTest extends AbstractComparableTest {
 	
 	// **
 	public void test0042() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X <T extends U, U> {\n" + 
-				"}\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	public class X <T extends U, U> {\n" + 
-			"	                ^\n" + 
-			"Illegal forward reference to type parameter U\n" + 
-			"----------\n");
-	}	
+		String[] test = new String[] {
+			"X.java",
+			"public class X <T extends U, U> {}"
+		};
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+			this.runNegativeTest(
+				test,
+				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	public class X <T extends U, U> {}\n" + 
+				"	                ^\n" + 
+				"Illegal forward reference to type parameter U\n" + 
+				"----------\n");
+		} else {
+			this.runConformTest(test, "");
+		}
+	}
 	
 	public void test0043() {
 		this.runConformTest(
@@ -43549,5 +43553,25 @@ public void test1310() {
 			"	                          ^^^^^\n" + 
 			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209149
+public void test1311() {
+	String[] test = new String[] {
+		"X.java",
+		"class X<E, D extends E> {}\n" + 
+		"class Y<E extends D, D> {}"
+	};
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			test,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	class Y<E extends D, D> {}\n" + 
+			"	        ^\n" + 
+			"Illegal forward reference to type parameter D\n" + 
+			"----------\n");
+	} else {
+		this.runConformTest(test, "");
+	}
 }
 }
