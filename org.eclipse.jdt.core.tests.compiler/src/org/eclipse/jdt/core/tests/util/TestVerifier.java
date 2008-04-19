@@ -32,19 +32,21 @@ public TestVerifier(boolean reuseVM) {
 }
 private boolean checkBuffers(String outputString, String errorString, 
 		String sourceFileName, String expectedOutputString, String expectedErrorStringStart) {
+	boolean didMatchExpectation = true;
 	String platformIndependantString;
+	this.failureReason = null;
 	if (expectedOutputString != null) {
 		platformIndependantString = Util.convertToIndependantLineDelimiter(outputString.trim());
 		if (!Util.convertToIndependantLineDelimiter(expectedOutputString).equals(platformIndependantString)) {
 			System.out.println(Util.displayString(platformIndependantString, 2));
-			this.failureReason =
+			this.failureReason +=
 				"Unexpected output running resulting class file for "
 					+ sourceFileName
 					+ ":\n"
 					+ "--[START]--\n"
 					+ outputString
 					+ "---[END]---\n";
-			return false;
+			didMatchExpectation = false;
 		}
 	}	
 	if (expectedErrorStringStart != null) {
@@ -60,17 +62,17 @@ private boolean checkBuffers(String outputString, String errorString,
 			 * matchers for specific needs.
 			 */
 			System.out.println(Util.displayString(platformIndependantString, 2));
-			this.failureReason =
+			this.failureReason +=
 				"Unexpected error running resulting class file for "
 					+ sourceFileName
 					+ ":\n"
 					+ "--[START]--\n"
 					+ errorString
 					+ "---[END]---\n";
-			return false;
+			didMatchExpectation = false;
 		}
 	}
-	return true;
+	return didMatchExpectation;
 }
 
 private boolean checkBuffersThrowingError(String errorString, String sourceFileName, String expectedSuccessOutputString) {
