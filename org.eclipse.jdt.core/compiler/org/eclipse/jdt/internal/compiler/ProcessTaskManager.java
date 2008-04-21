@@ -149,7 +149,6 @@ public synchronized void shutdown() {
 	if (this.processingThread != null) {
 		notifyAll();
 		this.processingThread = null;
-		this.compiler = null;
 	}
 }
 }
