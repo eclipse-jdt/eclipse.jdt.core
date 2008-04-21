@@ -43614,4 +43614,30 @@ public void test1312() {
 			},
 			"0");
 }
+public void test1313() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.*;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		List<?>[] l1 = new List<?>[1];\n" + 
+					"		List<?>[] l2 = new List<? extends Object>[2];\n" + 
+					"		List<? extends Object> l3 = new List<?>[3];\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	List<?>[] l2 = new List<? extends Object>[2];\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot create a generic array of List<? extends Object>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	List<? extends Object> l3 = new List<?>[3];\n" + 
+			"	                            ^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<?>[] to List<? extends Object>\n" + 
+			"----------\n");
+}
 }
