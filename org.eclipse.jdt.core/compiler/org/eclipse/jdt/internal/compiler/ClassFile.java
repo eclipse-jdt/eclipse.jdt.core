@@ -90,8 +90,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  *      information. Those bytes are decodable with a regular class file reader,
  *      such as DietClassFileReader
  */
-public class ClassFile
-	implements TypeConstants, TypeIds {
+public class ClassFile implements TypeConstants, TypeIds {
 
 	private byte[] bytes;
 	public CodeStream codeStream;
@@ -135,9 +134,7 @@ public class ClassFile
 	 * @param typeDeclaration org.eclipse.jdt.internal.compiler.ast.TypeDeclaration
 	 * @param unitResult org.eclipse.jdt.internal.compiler.CompilationUnitResult
 	 */
-	public static void createProblemType(
-		TypeDeclaration typeDeclaration,
-		CompilationResult unitResult) {
+	public static void createProblemType(TypeDeclaration typeDeclaration, CompilationResult unitResult) {
 		SourceTypeBinding typeBinding = typeDeclaration.binding;
 		ClassFile classFile = ClassFile.getNewInstance(typeBinding);
 		classFile.initialize(typeBinding, null, true);
@@ -201,6 +198,7 @@ public class ClassFile
 			}
 			// add abstract methods
 			classFile.addDefaultAbstractMethods();
+			//classFile.addSpecialMethods();
 		}
 
 		// propagate generation of (problem) member types
