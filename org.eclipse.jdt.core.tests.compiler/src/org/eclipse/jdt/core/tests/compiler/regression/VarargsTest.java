@@ -2138,4 +2138,30 @@ public class VarargsTest extends AbstractComparableTest {
 				options,
 				null);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223427
+	public void test061() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.*;\n" + 
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		HashSet<Class<?>> constantClassSet = new HashSet<Class<?>>();\n" + 
+					"		Collections.addAll(constantClassSet, String.class, Object.class);\n" + 
+					"		Zork z;\n" + 
+					"	}\n" + 
+					"}\n", // =================
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	Collections.addAll(constantClassSet, String.class, Object.class);\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety : A generic array of Class<? extends Object> is created for a varargs parameter\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+	}	
 }
