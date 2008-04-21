@@ -480,8 +480,13 @@ public class ClassScope extends Scope {
 			// detect abnormal cases for enums
 			if (isMemberType) { // includes member types defined inside local types
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0) {
 					problemReporter().illegalModifierForMemberEnum(sourceType);
+					modifiers &= ~ClassFileConstants.AccAbstract; // avoid leaking abstract modifier
+					realModifiers &= ~ClassFileConstants.AccAbstract;
+//					modifiers &= ~(realModifiers & UNEXPECTED_MODIFIERS);
+//					realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
+				}
 			} else if (sourceType.isLocalType()) { // each enum constant is an anonymous local type
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum); // add final since implicitly set for anonymous type
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)

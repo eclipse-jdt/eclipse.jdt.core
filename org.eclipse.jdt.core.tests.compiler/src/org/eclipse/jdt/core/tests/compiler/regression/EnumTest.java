@@ -5039,4 +5039,227 @@ public void test146() {
 		"The blank final field test may not have been initialized\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502
+public void test147() {
+	this.runNegativeTest(
+			new String[] {
+					"p/X.java",
+					"package p;\n" +
+					"public class X {\n" + 
+					"	public abstract enum E {\n" + 
+					"		SUCCESS;\n" +
+					"	}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 3)\n" + 
+			"	public abstract enum E {\n" + 
+			"	                     ^\n" + 
+			"Illegal modifier for the member enum E; only public, protected, private & static are permitted\n" + 
+			"----------\n",
+			null,
+			true, // flush output
+			null,
+			true, // generate output
+			false,
+			false);			
+	this.runConformTest(
+		new String[] {
+				"Y.java",
+				"import p.X;\n" +
+				"public class Y {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(X.E.SUCCESS);\n" + 
+				"	}\n" + 
+				"}\n"
+		},
+		"null",
+		null,
+		false,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502 - variation
+public void test148() {
+	this.runNegativeTest(
+			new String[] {
+					"p/X.java",
+					"package p;\n" +
+					"public class X {\n" + 
+					"	public abstract enum E implements Runnable {\n" + 
+					"		SUCCESS;\n" +
+					"	}\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 3)\n" + 
+			"	public abstract enum E implements Runnable {\n" + 
+			"	                     ^\n" + 
+			"Illegal modifier for the member enum E; only public, protected, private & static are permitted\n" + 
+			"----------\n" + 
+			"2. ERROR in p\\X.java (at line 3)\n" + 
+			"	public abstract enum E implements Runnable {\n" + 
+			"	                     ^\n" + 
+			"The type X.E must implement the inherited abstract method Runnable.run()\n" + 
+			"----------\n",
+			null,
+			true, // flush output
+			null,
+			true, // generate output
+			false,
+			false);			
+	this.runConformTest(
+		new String[] {
+				"Y.java",
+				"import p.X;\n" +
+				"public class Y {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(X.E.SUCCESS);\n" + 
+				"	}\n" + 
+				"}\n"
+		},
+		"null",
+		null,
+		false,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502 - variation
+public void test149() throws Exception {
+	this.runConformTest(
+			new String[] {
+					"p/X.java",
+					"package p;\n" +
+					"public class X {\n" + 
+					"	public enum E implements Runnable {\n" + 
+					"		SUCCESS;\n" + 
+					"		public void run(){}\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Class<E> c = E.class;\n" + 
+					"		System.out.println(c.getName() + \":\" + X.E.SUCCESS);\n" + 
+					"	}\n" + 
+					"}\n"
+			},
+			"p.X$E:SUCCESS");
+	
+	String expectedOutput = 
+		"// Signature: Ljava/lang/Enum<Lp/X$E;>;Ljava/lang/Runnable;\n" + 
+		"public static final enum p.X$E implements java.lang.Runnable {\n"; 
+
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"p" + File.separator + "X$E.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED); 
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, actualOutput);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502 - variation
+public void test150() throws Exception {
+	this.runConformTest(
+			new String[] {
+					"p/X.java",
+					"package p;\n" +
+					"public class X {\n" + 
+					"	public enum E implements Runnable {\n" + 
+					"		SUCCESS;\n" + 
+					"		public void run(){}\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Class<E> c = E.class;\n" + 
+					"		System.out.println(c.getName() + \":\" + X.E.SUCCESS);\n" + 
+					"	}\n" + 
+					"}\n"
+			},
+			"p.X$E:SUCCESS");
+	
+	this.runConformTest(
+			new String[] {
+					"Y.java",
+					"import p.X;\n" +
+					"public class Y {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		System.out.println(X.E.SUCCESS);\n" + 
+					"	}\n" + 
+					"}\n"
+			},
+			"SUCCESS",
+			null,
+			false,
+			null);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502 - variation
+public void test151() throws Exception {
+	this.runConformTest(
+			new String[] {
+					"p/X.java",
+					"package p;\n" +
+					"public class X {\n" + 
+					"	public enum E implements Runnable {\n" + 
+					"		SUCCESS {};\n" + 
+					"		public void run(){}\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Class<E> c = E.class;\n" + 
+					"		System.out.println(c.getName() + \":\" + X.E.SUCCESS);\n" + 
+					"	}\n" + 
+					"}\n"
+			},
+			"p.X$E:SUCCESS");
+	
+	String expectedOutput = 
+		"// Signature: Ljava/lang/Enum<Lp/X$E;>;Ljava/lang/Runnable;\n" + 
+		"public abstract static enum p.X$E implements java.lang.Runnable {\n"; 
+
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"p" + File.separator + "X$E.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED); 
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, actualOutput);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502 - variation
+public void test152() {
+	this.runConformTest(
+			new String[] {
+					"p/X.java",
+					"package p;\n" +
+					"public class X {\n" + 
+					"	public enum E implements Runnable {\n" + 
+					"		SUCCESS {};\n" +
+					"		public void run(){}\n" + 
+					"	}\n" + 
+					"}\n"
+			},
+			"");			
+	this.runConformTest(
+		new String[] {
+				"Y.java",
+				"import p.X;\n" +
+				"public class Y {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(X.E.SUCCESS);\n" + 
+				"	}\n" + 
+				"}\n"
+		},
+		"SUCCESS",
+		null,
+		false,
+		null);
+}
 }
