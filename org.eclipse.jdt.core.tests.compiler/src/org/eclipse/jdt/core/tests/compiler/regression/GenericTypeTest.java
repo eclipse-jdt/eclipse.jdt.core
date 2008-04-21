@@ -43575,7 +43575,7 @@ public void test1311() {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=226535
-public void testONLY_1312() {
+public void test1312() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
