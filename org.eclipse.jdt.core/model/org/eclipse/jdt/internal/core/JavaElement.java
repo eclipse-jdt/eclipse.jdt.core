@@ -762,7 +762,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 							final int charsetIndex = getIndexOf(contents, CHARSET, offset);
 							if (charsetIndex != -1) {
 								int start = charsetIndex + CHARSET.length;
-								encoding = new String(contents, start, index2 - start, "UTF-8"); //$NON-NLS-1$
+								encoding = new String(contents, start, index2 - start, org.eclipse.jdt.internal.compiler.util.Util.UTF_8);
 							}
 						}
 					}
