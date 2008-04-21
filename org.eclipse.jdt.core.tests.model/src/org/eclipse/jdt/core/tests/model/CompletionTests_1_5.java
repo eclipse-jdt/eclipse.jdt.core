@@ -13164,4 +13164,39 @@ public void testNameWithUnresolvedReferences003() throws JavaModelException {
 			"varzz1[LOCAL_VARIABLE_REF]{varzz1, null, I, varzz1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=222326
+public void test0367() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[7];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public interface X<T1  extends Y<?, ?, ?>, T2 extends Zz<?, ?, ?>> extends  O<T1> , U<T2> {}");
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/Y.java",
+			"public interface Y<T1 extends Y<?, ?, ?>, T2 extends Zz<?, ?, ?>, T3 extends X<?, ?>> extends X<T1, T2>, N<T3> {}");
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/Zz.java",
+			"public interface Zz<T1 extends Y<?, ?, ?>, T2 extends Zz<?, ?, ?>, T3 extends X<?, ?>>extends X<T1, T2>, C<T3> {}");
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src/C.java",
+			"public interface C<T extends U<? extends C<?>>> {}");
+	this.workingCopies[4] = getWorkingCopy(
+			"/Completion/src/N.java",
+			"public interface N<T extends O<? extends N<?>>> {}");
+	this.workingCopies[5] = getWorkingCopy(
+			"/Completion/src/O.java",
+			"public interface O<T extends N<? extends O<?>>> {}");
+	this.workingCopies[6] = getWorkingCopy(
+			"/Completion/src/U.java",
+			"public interface U<T extends C<? extends U<?>>> {}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "extends Zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+		"Zz[TYPE_REF]{Zz, , LZz;, null, null, 26}",
+		requestor.getResults());
+}
 }
