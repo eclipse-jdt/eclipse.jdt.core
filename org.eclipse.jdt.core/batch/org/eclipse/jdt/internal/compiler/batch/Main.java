@@ -20,6 +20,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -240,7 +241,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 		private void endTag(String name) {
-			((GenericXMLWriter) this.log).endTag(name, true, true);
+			if (this.log != null) {
+				((GenericXMLWriter) this.log).endTag(name, true, true);
+			}
 		}
 		private String errorReportSource(CategorizedProblem problem, char[] unitSource, int bits) {
 			//extra from the source the innacurate     token
@@ -1118,7 +1121,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 		
 		private void printTag(String name, HashMap params, boolean insertNewLine, boolean closeTag) {
-			((GenericXMLWriter) this.log).printTag(name, parameters, true, insertNewLine, closeTag);
+			if (this.log != null) {
+				((GenericXMLWriter) this.log).printTag(name, parameters, true, insertNewLine, closeTag);
+			}
 			this.parameters.clear();
 		}
 
@@ -1132,11 +1137,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				int index = logFileName.lastIndexOf('.');
 				if (index != -1) {
 					if (logFileName.substring(index).toLowerCase().equals(".xml")) { //$NON-NLS-1$
-						this.log = new GenericXMLWriter(new FileOutputStream(logFileName, false), Util.LINE_SEPARATOR, true);
+						this.log = new GenericXMLWriter(new OutputStreamWriter(new FileOutputStream(logFileName, false), Util.UTF_8), Util.LINE_SEPARATOR, true);
 						this.tagBits |= Logger.XML;
 						// insert time stamp as comment
 						try {
-							this.log.println("<!-- " + new String(dateFormat.format(date).getBytes(), "UTF-8") + " -->");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+							this.log.println("<!-- " + new String(dateFormat.format(date).getBytes(), Util.UTF_8) + " -->");//$NON-NLS-1$//$NON-NLS-2$
 						} catch (UnsupportedEncodingException e) {
 							e.printStackTrace();
 						}
@@ -1155,6 +1160,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				}
 			} catch (FileNotFoundException e) {
 				throw new InvalidInputException(this.main.bind("configure.cannotOpenLog", logFileName)); //$NON-NLS-1$
+			} catch (UnsupportedEncodingException e) {
+				throw new InvalidInputException(this.main.bind("configure.cannotOpenLogInvalidEncoding", logFileName)); //$NON-NLS-1$
 			}
 		}
 		private void startLoggingExtraProblems(int count) {
