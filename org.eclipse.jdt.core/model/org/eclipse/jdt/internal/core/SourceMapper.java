@@ -414,7 +414,8 @@ public class SourceMapper
 
 		Object target = JavaModel.getTarget(this.sourcePath, true);
 		if (target instanceof IContainer) {
-			computeRootPath((IContainer)target, firstLevelPackageNames, containsADefaultPackage, tempRoots);
+			IContainer folder = (IContainer)target;
+			computeRootPath(folder, firstLevelPackageNames, containsADefaultPackage, tempRoots, folder.getFullPath().segmentCount()/*if external folder, this is the linked folder path*/);
 		} else {
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			ZipFile zip = null;
@@ -485,7 +486,7 @@ public class SourceMapper
 		}
 	}
 	
-	private void computeRootPath(IContainer container, HashSet firstLevelPackageNames, boolean hasDefaultPackage, Set set) {
+	private void computeRootPath(IContainer container, HashSet firstLevelPackageNames, boolean hasDefaultPackage, Set set, int sourcePathSegmentCount) {
 		try {
 			IResource[] resources = container.members();
 			boolean hasSubDirectories = false;
@@ -495,11 +496,11 @@ public class SourceMapper
 					hasSubDirectories = true;
 					if (firstLevelPackageNames.contains(resource.getName())) {
 						IPath fullPath = container.getFullPath();
-						IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
+						IPath rootPathEntry = fullPath.removeFirstSegments(sourcePathSegmentCount).setDevice(null);
 						set.add(rootPathEntry);
 						break loop;
 					} else {
-						computeRootPath((IFolder) resource, firstLevelPackageNames, hasDefaultPackage, set);
+						computeRootPath((IFolder) resource, firstLevelPackageNames, hasDefaultPackage, set, sourcePathSegmentCount);
 					}
 				}
 				if (i == max - 1 && !hasSubDirectories && hasDefaultPackage) {
@@ -513,13 +514,14 @@ public class SourceMapper
 					}
 					if (hasJavaSourceFile) {
 						IPath fullPath = container.getFullPath();
-						IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
+						IPath rootPathEntry = fullPath.removeFirstSegments(sourcePathSegmentCount).setDevice(null);
 						set.add(rootPathEntry);
 					}
 				}
 			}
 		} catch (CoreException e) {
 			// ignore
+			e.printStackTrace();
 		}
 	}	
 

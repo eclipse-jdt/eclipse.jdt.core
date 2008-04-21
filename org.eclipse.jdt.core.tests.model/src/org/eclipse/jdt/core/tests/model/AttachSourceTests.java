@@ -410,6 +410,45 @@ public void testExternalFolder3() throws CoreException {
 	}
 }
 /*
+ * Ensures that root paths are correctly detected when attaching an external source folder to an external library folder.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=227813 )
+ */
+public void testExternalFolder4() throws Exception {
+	try {
+		String externalFolder = getExternalFolder();
+		String[] pathsAndContents = 
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"}"
+			};
+		org.eclipse.jdt.core.tests.util.Util.createSourceDir(pathsAndContents, externalFolder + "/src227813/root1/subroot");
+		pathsAndContents = 
+			new String[] {
+				"q/X.java",
+				"package q;\n" +
+				"public class X {\n" +
+				"}"
+			};
+		org.eclipse.jdt.core.tests.util.Util.createSourceDir(pathsAndContents, externalFolder + "/src227813/root2/subroot");
+		
+		String externalLib = externalFolder + "/lib";
+		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {externalLib}, "");
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(externalLib);
+		attachSource(root, externalFolder + "/src227813", "");
+		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		assertSourceEquals(
+			"Unexpected source",
+			"public class X {\n" + 
+			"}",
+			type.getSource());
+	} finally {
+		deleteExternalResource("src227813");
+		deleteProject("P");
+	}
+}
+/*
  * Ensures that one can attach an external ZIP archive containing sources to a library folder.
  */
 public void testZIPArchive1() throws CoreException {
