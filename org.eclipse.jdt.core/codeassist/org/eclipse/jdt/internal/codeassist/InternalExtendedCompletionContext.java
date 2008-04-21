@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -274,7 +275,21 @@ public class InternalExtendedCompletionContext {
 		ReferenceContext referenceContext = scope.referenceContext();
 		if (referenceContext instanceof AbstractMethodDeclaration) {
 			AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) referenceContext;
-			typeVariables = methodDeclaration.binding.typeVariables;
+			TypeParameter[] typeParameters = methodDeclaration.typeParameters();
+			if (typeParameters != null && typeParameters.length > 0) {
+				int length = typeParameters.length;
+				int count = 0;
+				typeVariables = new TypeVariableBinding[length];
+				for (int i = 0; i < length; i++) {
+					if (typeParameters[i].binding != null) {
+						typeVariables[count++] = typeParameters[i].binding;
+					}
+				}
+				
+				if (count != length) {
+					System.arraycopy(typeVariables, 0, typeVariables = new TypeVariableBinding[count], 0, count);
+				}
+			}
 		}
 		
 		CompilationUnitDeclaration previousUnitBeingCompleted = lookupEnvironment.unitBeingCompleted;
