@@ -91,6 +91,7 @@ protected boolean createExternalFolder(String relativePath) {
 }
 
 protected void createExternalFile(String relativePath, String contents) {
+	waitUntilIndexesReady();
 	Util.writeToFile(contents, getExternalPath() + relativePath);
 }
 
@@ -124,6 +125,7 @@ protected IFolder createFolder(String path) throws CoreException {
 	return createFolder(new Path(path));
 }
 protected void deleteExternalResource(String relativePath) {
+	waitUntilIndexesReady();
 	deleteResource(new File(getExternalPath() + relativePath));
 }
 protected void deleteAndRefreshExternalZIPArchive(String relativePath, String referringProject) throws JavaModelException {
