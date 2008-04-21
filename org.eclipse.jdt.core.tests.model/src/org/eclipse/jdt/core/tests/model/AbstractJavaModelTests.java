@@ -991,7 +991,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	
 		return folder;
 	}
+	protected void createJar(String[] javaPathsAndContents, String jarPath) throws IOException {
+		waitUntilIndexesReady();
+		deleteResource(new File(jarPath));
+		waitAtLeast(500); // so that the new jar as a greater timestamps
+		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, jarPath, "1.4");
+	}
+		
 	/*
+	}
 	 * Creates a Java project where prj=src=bin and with JCL_LIB on its classpath.
 	 */
 	protected IJavaProject createJavaProject(String projectName) throws CoreException {
@@ -2662,16 +2670,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		return result;
 	}
-	protected synchronized void touch(File f) {
-		f.setLastModified(f.lastModified() + 1000);
+	protected void touch(File f) {
+		int time = 1000;
+		f.setLastModified(f.lastModified() + time);
+		waitAtLeast(time);
+	}
+
+	protected synchronized void waitAtLeast(int time) {
 		long start = System.currentTimeMillis();
 		do {
 			try {
-				wait(1000);
+				wait(time);
 			} catch (InterruptedException e) {
 			}
-		} while ((System.currentTimeMillis() - start) < 1000);
+		} while ((System.currentTimeMillis() - start) < time);
 	}
+	
 	protected String toString(String[] strings) {
 		return toString(strings, false/*don't add extra new line*/);
 	}

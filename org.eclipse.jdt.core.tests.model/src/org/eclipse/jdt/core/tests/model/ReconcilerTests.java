@@ -1145,14 +1145,14 @@ public void testChangeExternalJar() throws CoreException, IOException {
 	IJavaProject project = getJavaProject("Reconciler");
 	String jarPath = getExternalPath() + "lib.jar";
 	try {
-		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+		createJar(new String[] {
 			"p/Y.java",
 			"package p;\n" +
 			"public class Y {\n" +
 			"  public void foo() {\n" +
 			"  }\n" +
 			"}"
-		}, jarPath, "1.4");
+		}, jarPath);
 		addLibraryEntry(project, jarPath, false);
 
 		// force Y.class file to be cached during resolution
@@ -1166,14 +1166,14 @@ public void testChangeExternalJar() throws CoreException, IOException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 
 		// change jar and refresh
-		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+		createJar(new String[] {
 			"p/Y.java",
 			"package p;\n" +
 			"public class Y {\n" +
 			"  public void foo(String s) {\n" +
 			"  }\n" +
 			"}"
-		}, jarPath, "1.4");
+		}, jarPath);
 		getJavaModel().refreshExternalArchives(null,null);
 
 		setWorkingCopyContents(
@@ -1259,12 +1259,12 @@ public void testChangeInternalJar() throws CoreException, IOException {
 		// change jar and refresh
 		String projectLocation = project.getProject().getLocation().toOSString();
 		String jarPath = projectLocation + File.separator + jarName;
-		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+		createJar(new String[] {
 			"test/after/Foo.java",
 			"package test.after;\n" +
 			"public class Foo {\n" +
 			"}\n"
-		}, jarPath, "1.4");
+		}, jarPath);
 		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 
 		try {

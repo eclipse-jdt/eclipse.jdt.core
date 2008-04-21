@@ -605,7 +605,7 @@ public void testExternalFolder2() throws CoreException {
  */
 public void testZIPArchive1() throws Exception {
 	try {
-		org.eclipse.jdt.core.tests.util.Util.createJar(
+		createJar(
 			new String[] {
 				"p/X.java", 
 				"package p;\n" +
@@ -614,8 +614,7 @@ public void testZIPArchive1() throws Exception {
 				"  }\n" +
 				"}"
 			},
-			getExternalResourcePath("externalLib.abc"), 
-			"1.4");
+			getExternalResourcePath("externalLib.abc"));
 		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")});
 		search("foo", METHOD, DECLARATIONS, scope);
@@ -634,15 +633,14 @@ public void testZIPArchive1() throws Exception {
 public void testZIPArchive2() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
-		org.eclipse.jdt.core.tests.util.Util.createJar(
+		createJar(
 			new String[] {
 				"p/ExternalType.java", 
 				"package p;\n" +
 				"public class ExternalType {\n" +
 				"}"
 			},
-			getExternalResourcePath("externalLib.abc"), 
-			"1.4");
+			getExternalResourcePath("externalLib.abc"));
 		refreshExternalArchives(p);
 		
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();

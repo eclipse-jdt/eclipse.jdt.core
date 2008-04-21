@@ -735,7 +735,7 @@ public void testExternalFolder() throws CoreException, IOException {
  */
 public void testZIPArchive() throws CoreException, IOException {
 	try {
-		org.eclipse.jdt.core.tests.util.Util.createJar(
+		createJar(
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
@@ -746,8 +746,7 @@ public void testZIPArchive() throws CoreException, IOException {
 				"public class Y extends X {\n" +
 				"}",
 			},
-			getExternalResourcePath("externalLib.abc"), 
-			"1.4");
+			getExternalResourcePath("externalLib.abc"));
 		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		IClassFile classFile = getClassFile("P", getExternalResourcePath("externalLib.abc"), "p", "X.class");
 		ITypeHierarchy hierarchy = classFile.getType().newTypeHierarchy(null);

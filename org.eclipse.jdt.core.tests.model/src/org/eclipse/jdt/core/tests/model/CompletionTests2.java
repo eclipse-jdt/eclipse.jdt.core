@@ -2304,7 +2304,7 @@ public void testChangeInternalJar() throws CoreException, IOException {
 		// change class file to add a third doXXX method and refresh
 		String projectLocation = this.currentProject.getProject().getLocation().toOSString();
 		String jarPath = projectLocation + File.separator + jarName;
-		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+		createJar(new String[] {
 			"pack/Util.java",
 			"package pack;\n" + 
 			"public class Util {\n" + 
@@ -2312,7 +2312,7 @@ public void testChangeInternalJar() throws CoreException, IOException {
 			"    public void doit2B(int x) { }\n" + 
 			"    public void doit2C(int x) { }\n" + 
 			"}\n"
-		}, jarPath, "1.4");
+		}, jarPath);
 		this.currentProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 
 		try {

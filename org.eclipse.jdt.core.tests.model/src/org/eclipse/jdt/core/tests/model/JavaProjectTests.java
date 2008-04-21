@@ -210,15 +210,14 @@ public void testAddZIPArchive2() throws CoreException {
 public void testAddZIPArchive3() throws CoreException, IOException {
 	try {
 		IJavaProject p = createJavaProject("P");
-		org.eclipse.jdt.core.tests.util.Util.createJar(
+		createJar(
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
 				"public class X {\n" +
 				"}"
 			},
-			getExternalResourcePath("externalLib.abc"), 
-			"1.4");
+			getExternalResourcePath("externalLib.abc"));
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
 		assertElementDescendants(
 			"Unexpected project content", 
@@ -265,15 +264,14 @@ public void testAddZIPArchive4() throws Exception {
 public void testAddZIPArchive5() throws Exception {
 	try {
 		simulateExitRestart();
-		org.eclipse.jdt.core.tests.util.Util.createJar(
+		createJar(
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
 				"public class X {\n" +
 				"}"
 			},
-			getExternalResourcePath("externalLib.abc"), 
-			"1.4");
+			getExternalResourcePath("externalLib.abc"));
 		IJavaProject p = importJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		assertElementDescendants(
 			"Unexpected project content", 
@@ -457,15 +455,14 @@ public void testChangeZIPArchive1() throws CoreException, IOException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "bin");
 		expandAll(p);
 		
-		org.eclipse.jdt.core.tests.util.Util.createJar(
+		createJar(
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
 				"public class X {\n" +
 				"}"
 			},
-			getExternalResourcePath("externalLib.abc"), 
-			"1.4");
+			getExternalResourcePath("externalLib.abc"));
 		refreshExternalArchives(p);
 		assertElementDescendants(
 			"Unexpected project content", 
@@ -489,27 +486,25 @@ public void testChangeZIPArchive1() throws CoreException, IOException {
  */
 public void testChangeZIPArchive2() throws CoreException, IOException {
 	try {
-		org.eclipse.jdt.core.tests.util.Util.createJar(
+		createJar(
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
 				"public class X {\n" +
 				"}"
 			},
-			getExternalResourcePath("externalLib.abc"), 
-			"1.4");
+			getExternalResourcePath("externalLib.abc"));
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "bin");
 		expandAll(p);
 		
-		org.eclipse.jdt.core.tests.util.Util.createJar(
+		createJar(
 			new String[] {
 				"p2/X.java",
 				"package p2;\n" +
 				"public class X {\n" +
 				"}"
 			},
-			getExternalResourcePath("externalLib.abc"), 
-			"1.4");
+			getExternalResourcePath("externalLib.abc"));
 		refreshExternalArchives(p);
 		assertElementDescendants(
 			"Unexpected project content", 
@@ -537,15 +532,14 @@ public void testChangeZIPArchive3() throws CoreException, IOException {
 		IFile lib = createFile("/P/internalLib.abc", "");
 		expandAll(p);
 		
-		org.eclipse.jdt.core.tests.util.Util.createJar(
+		createJar(
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
 				"public class X {\n" +
 				"}"
 			},
-			lib.getLocation().toOSString(), 
-			"1.4");
+			lib.getLocation().toOSString());
 		p.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		assertElementDescendants(
 			"Unexpected project content", 

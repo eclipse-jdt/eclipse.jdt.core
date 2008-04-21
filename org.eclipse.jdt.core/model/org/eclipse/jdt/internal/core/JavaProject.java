@@ -1615,24 +1615,29 @@ public class JavaProject
 			return getPackageFragmentRoot0(path);
 		}
 		IWorkspaceRoot workspaceRoot = this.project.getWorkspace().getRoot();
-		if (segmentCount == 1) {
-			String projectName = path.segment(0);
-			if (getElementName().equals(projectName)) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75814
-				// default root
-				return getPackageFragmentRoot(this.project);
-			} else {
-				// lib being another project
-				return getPackageFragmentRoot(workspaceRoot.getProject(projectName));
-			}
-		}
 		IResource resource = workspaceRoot.findMember(path); 
 		if (resource == null) {
 			// resource doesn't exist in workspace
 			if (path.getFileExtension() != null) {
-				// assume it is a file
-				resource = workspaceRoot.getFile(path);
+				if (!workspaceRoot.getProject(path.lastSegment()).exists()) {
+					// assume it is an external ZIP archive
+					return getPackageFragmentRoot0(path);
+				} else {
+					// assume it is an internal ZIP archive
+					resource = workspaceRoot.getFile(path);
+				}
+			} else if (segmentCount == 1) {
+				// assume it is a project
+				String projectName = path.segment(0);
+				if (getElementName().equals(projectName)) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75814
+					// default root
+					resource = this.project;
+				} else {
+					// lib being another project
+					resource = workspaceRoot.getProject(projectName);
+				}
 			} else {
-				// assume it is a folder
+				// assume it is an internal folder
 				resource = workspaceRoot.getFolder(path);
 			}
 		}
