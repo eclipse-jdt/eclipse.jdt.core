@@ -43574,4 +43574,44 @@ public void test1311() {
 		this.runConformTest(test, "");
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=226535
+public void testONLY_1312() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					" class Tuple3f<T extends Tuple3f<T>> {\n" + 
+					"	private float x, y, z;\n" + 
+					"	float getX() { return this.x; }\n" + 
+					"	float getY() { return this.y; }\n" + 
+					"	float getZ() { return this.z; }\n" + 
+					"	void set(float newX, float newY, float newZ) {\n" + 
+					"		this.x = newX;\n" + 
+					"		this.y = newY;\n" + 
+					"		this.z = newZ;\n" + 
+					"	}\n" + 
+					"	public T add(Tuple3f<?> t) {\n" + 
+					"		this.set(this.getX() + t.getX(), this.getY() + t.getY(), this.getZ() + t.getZ());\n" + 
+					"		@SuppressWarnings(\"unchecked\")\n" + 
+					"		T result = (T) this;\n" + 
+					"		return result;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"\n" + 
+					"class Vector3f extends Tuple3f<Vector3f> {\n" + 
+					"	float magnitude () {\n" + 
+					"		float x = this.getX(), y = this.getY(), z = this.getZ();\n" + 
+					"		return (float) Math.sqrt((x*x) + (y*y) + (z*z));\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Vector3f v = new Vector3f();\n" + 
+					"		float magn = v.add(v).add(v).magnitude();\n" + 
+					"		System.out.println((int)magn);\n" +
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"0");
+}
 }
