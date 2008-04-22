@@ -495,6 +495,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		final BindingRequestor requestor = new BindingRequestor();
 		final ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
+		parser.setBindingsRecovery(true);
 		parser.setProject(_javaProject);
 		ICompilationUnit[] units = unit == null ? NO_UNIT : new ICompilationUnit[]{unit};
 		parser.createASTs(units, new String[]{key}, requestor, null);
@@ -703,6 +704,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
                 // Note: very expensive operation. we are re-compiling a file with binding information.
                 final ASTParser parser =  ASTParser.newParser(AST.JLS3);
                 parser.setResolveBindings(true);
+        		parser.setBindingsRecovery(true);
                 parser.setSource(unit);
 				parser.setFocalPosition(0);
                 CompilationUnit resultUnit = (CompilationUnit)parser.createAST(null);
@@ -846,7 +848,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		String[] keys = new String[] {bogusKey};
 
 		ASTParser p = ASTParser.newParser( AST.JLS3 );
-		p.setResolveBindings( true );
+		p.setResolveBindings(true);
+		p.setBindingsRecovery(true);
 		p.setProject( javaProject );
 		p.setKind( ASTParser.K_COMPILATION_UNIT );
 		p.createASTs( parseUnits, keys,  requestor, null);
@@ -873,7 +876,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		
 		CompilationUnitRequestor requestor = new CompilationUnitRequestor();
 		ASTParser p = ASTParser.newParser( AST.JLS3 );
-		p.setResolveBindings( true );
+		p.setResolveBindings(true);
+		p.setBindingsRecovery(true);
 		p.setProject( javaProject );
 		p.setKind( ASTParser.K_COMPILATION_UNIT );
 		p.createASTs( new ICompilationUnit[]{compilationUnit}, NO_KEYS,  requestor, null);
