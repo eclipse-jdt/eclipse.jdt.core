@@ -8513,4 +8513,22 @@ public void test159() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=208010
+public void test160() {
+	this.runConformTest(
+		new String[] {
+			"bar/X.java", //--------------------------------------------
+			"package bar;" + 
+			"public class X {\n" + 
+			"	static void foo() {}\n" +
+			"}",
+			"foo/Y.java", //--------------------------------------------
+			"package foo;" + 
+			"public class Y extends bar.X {\n" + 
+			"	static void foo() {}\n" +
+			"}",
+		},
+		""
+	);
+}
 }
