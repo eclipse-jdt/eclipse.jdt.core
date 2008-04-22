@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -848,7 +850,15 @@ public class ASTParser {
 							sourceUnit = new BasicCompilationUnit(sourceString.toCharArray(), Util.toCharArrays(packageFragment.names), new String(fileName), this.project);
 						} catch(JavaModelException e) {
 							// an error occured accessing the java element
-							throw new IllegalStateException();
+							StringWriter stringWriter = new StringWriter();
+							PrintWriter writer = null;
+							try {
+								writer = new PrintWriter(stringWriter);
+								e.printStackTrace(writer);
+							} finally {
+								if (writer != null) writer.close();
+							}
+							throw new IllegalStateException(String.valueOf(stringWriter.getBuffer()));
 						}
 					} else if (this.rawSource != null) {
 						needToResolveBindings = this.resolveBindings && this.unitName != null && this.project != null && this.compilerOptions != null;
