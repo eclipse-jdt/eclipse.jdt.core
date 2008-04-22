@@ -1708,6 +1708,36 @@ public final class CompletionEngine
 				this.completionToken = type.token;
 				setSourceAndTokenRange(type.sourceStart, type.sourceEnd);
 				
+				if (scope.parent.parent != null &&
+						!(scope.parent.parent instanceof MethodScope) &&
+						!fakeType.isParameter) {
+					
+					if (this.completionToken.length <= Keywords.INTERFACE.length
+						&& CharOperation.prefixEquals(this.completionToken, Keywords.INTERFACE, false /* ignore case */
+					)){
+						int relevance = computeBaseRelevance();
+						relevance += computeRelevanceForResolution();
+						relevance += computeRelevanceForInterestingProposal();
+						relevance += computeRelevanceForCaseMatching(this.completionToken, Keywords.INTERFACE);
+						relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywords
+						relevance += R_ANNOTATION; // this proposal is most relevant than annotation proposals
+						
+						this.noProposal = false;
+						if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+							CompletionProposal proposal = this.createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
+							proposal.setName(Keywords.INTERFACE);
+							proposal.setCompletion(Keywords.INTERFACE);
+							proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+							proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
+							proposal.setRelevance(relevance);
+							this.requestor.accept(proposal);
+							if(DEBUG) {
+								this.printDebug(proposal);
+							}
+						}
+					}
+				}
+				
 				findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 			} else if (annot.type instanceof CompletionOnQualifiedTypeReference) {
 				this.insideQualifiedReference = true;
@@ -4989,7 +5019,7 @@ public final class CompletionEngine
 					relevance += computeRelevanceForResolution();
 					relevance += computeRelevanceForInterestingProposal();
 					relevance += computeRelevanceForCaseMatching(keyword, choices[i]);
-					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
+					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywords
 					if (staticFieldsAndMethodOnly && this.insideQualifiedReference) relevance += R_NON_INHERITED;
 					
 					if(CharOperation.equals(choices[i], Keywords.TRUE) || CharOperation.equals(choices[i], Keywords.FALSE)) {
@@ -5125,6 +5155,10 @@ public final class CompletionEngine
 			if(canBeType) {
 				keywords[count++] = Keywords.CLASS;
 				keywords[count++] = Keywords.INTERFACE;
+				
+				if((modifiers & ClassFileConstants.AccFinal) == 0) {
+					keywords[count++] = Keywords.ENUM;
+				}
 			}
 		} else {
 			// class

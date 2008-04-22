@@ -23,6 +23,7 @@ public interface Keywords {
 	char[] DEFAULT = "default".toCharArray(); //$NON-NLS-1$
 	char[] DO = "do".toCharArray(); //$NON-NLS-1$
 	char[] ELSE = "else".toCharArray(); //$NON-NLS-1$
+	char[] ENUM = "enum".toCharArray(); //$NON-NLS-1$
 	char[] EXTENDS = "extends".toCharArray(); //$NON-NLS-1$
 	char[] FINAL = "final".toCharArray(); //$NON-NLS-1$
 	char[] FINALLY = "finally".toCharArray(); //$NON-NLS-1$

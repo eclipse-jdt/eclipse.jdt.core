@@ -298,6 +298,7 @@ protected void attachOrphanCompletionNode(){
 								FAKE_TYPE_NAME,
 								this.compilationUnit.compilationResult(),
 								(Annotation)orphan);
+					fakeType.isParameter = true;
 					currentElement.parent.add(fakeType, 0);
 					this.pendingAnnotation = fakeType;
 					return;
@@ -1338,6 +1339,9 @@ private boolean checkKeyword() {
 			}
 
 			keywords[count++] = Keywords.CLASS;
+			if (this.options.complianceLevel >= ClassFileConstants.JDK1_5) {
+				keywords[count++] = Keywords.ENUM;
+			}
 
 			if((lastModifiers & ClassFileConstants.AccFinal) == 0) {
 				keywords[count++] = Keywords.INTERFACE;

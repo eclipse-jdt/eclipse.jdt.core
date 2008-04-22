@@ -2423,6 +2423,7 @@ public void test0087() throws JavaModelException {
 				requestor.getResults());
 	} else {
 		assertResults(
+				"interface[KEYWORD]{interface, null, null, interface, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 				"Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}\n" +
 				"TestAnnotation[TYPE_REF]{TestAnnotation, test0087, Ltest0087.TestAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 				requestor.getResults());
@@ -9016,6 +9017,7 @@ public void test0290() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
+			"interface[KEYWORD]{interface, null, null, interface, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
 			"Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
@@ -11788,6 +11790,196 @@ public void test0366() throws JavaModelException {
 			"MyEnumVar[LOCAL_VARIABLE_REF]{MyEnumVar, null, Ltest.p.MyEnum;, MyEnumVar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ENUM + R_ENUM_CONSTANT + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=222326
+public void test0367() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[7];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public interface X<T1  extends Y<?, ?, ?>, T2 extends Zz<?, ?, ?>> extends  O<T1> , U<T2> {}");
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/Y.java",
+			"public interface Y<T1 extends Y<?, ?, ?>, T2 extends Zz<?, ?, ?>, T3 extends X<?, ?>> extends X<T1, T2>, N<T3> {}");
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/Zz.java",
+			"public interface Zz<T1 extends Y<?, ?, ?>, T2 extends Zz<?, ?, ?>, T3 extends X<?, ?>>extends X<T1, T2>, C<T3> {}");
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src/C.java",
+			"public interface C<T extends U<? extends C<?>>> {}");
+	this.workingCopies[4] = getWorkingCopy(
+			"/Completion/src/N.java",
+			"public interface N<T extends O<? extends N<?>>> {}");
+	this.workingCopies[5] = getWorkingCopy(
+			"/Completion/src/O.java",
+			"public interface O<T extends N<? extends O<?>>> {}");
+	this.workingCopies[6] = getWorkingCopy(
+			"/Completion/src/U.java",
+			"public interface U<T extends C<? extends U<?>>> {}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "extends Zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+		"Zz[TYPE_REF]{Zz, , LZz;, null, null, 26}",
+		requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209643
+public void test0368() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public enu\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "enu";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"enum[KEYWORD]{enum, null, null, enum, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209643
+public void test0369() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n" +
+		"	enu\n"+
+		"\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/enumFoo.java",
+		"package test;\n"+
+		"public class enumFoo {\n" +
+		"\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "enu";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"enu[POTENTIAL_METHOD_DECLARATION]{enu, Ltest.Test;, ()V, enu, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"enum[KEYWORD]{enum, null, null, enum, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"enumFoo[TYPE_REF]{enumFoo, test, Ltest.enumFoo;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209643
+public void test0370() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public @int\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "@int";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"interface[KEYWORD]{interface, null, null, interface, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209643
+public void test0371() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n"+
+		"  public @int\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "@int";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"interface[KEYWORD]{interface, null, null, interface, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209643
+public void test0372() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n"+
+		"  public void foo() {\n"+
+		"    @int\n" +
+		"  }\n"+
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "@int";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209643
+public void test0373() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n"+
+		"  public void foo() {\n"+
+		"    int var0;\n" +
+		"    if (true) {\n" +
+		"      int var1;\n" +
+		"      @int\n" +
+		"    }\n" +
+		"  }\n"+
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "@int";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=209643
+public void test0374() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n"+
+		"  public void foo(@int float var) {\n"+
+		"    \n" +
+		"  }\n"+
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "@int";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130
 public void testEC001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -13164,39 +13356,5 @@ public void testNameWithUnresolvedReferences003() throws JavaModelException {
 			"varzz1[LOCAL_VARIABLE_REF]{varzz1, null, I, varzz1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=222326
-public void test0367() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[7];
-	this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/X.java",
-			"public interface X<T1  extends Y<?, ?, ?>, T2 extends Zz<?, ?, ?>> extends  O<T1> , U<T2> {}");
-	this.workingCopies[1] = getWorkingCopy(
-			"/Completion/src/Y.java",
-			"public interface Y<T1 extends Y<?, ?, ?>, T2 extends Zz<?, ?, ?>, T3 extends X<?, ?>> extends X<T1, T2>, N<T3> {}");
-	this.workingCopies[2] = getWorkingCopy(
-			"/Completion/src/Zz.java",
-			"public interface Zz<T1 extends Y<?, ?, ?>, T2 extends Zz<?, ?, ?>, T3 extends X<?, ?>>extends X<T1, T2>, C<T3> {}");
-	this.workingCopies[3] = getWorkingCopy(
-			"/Completion/src/C.java",
-			"public interface C<T extends U<? extends C<?>>> {}");
-	this.workingCopies[4] = getWorkingCopy(
-			"/Completion/src/N.java",
-			"public interface N<T extends O<? extends N<?>>> {}");
-	this.workingCopies[5] = getWorkingCopy(
-			"/Completion/src/O.java",
-			"public interface O<T extends N<? extends O<?>>> {}");
-	this.workingCopies[6] = getWorkingCopy(
-			"/Completion/src/U.java",
-			"public interface U<T extends C<? extends U<?>>> {}");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "extends Zz";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-		"Zz[TYPE_REF]{Zz, , LZz;, null, null, 26}",
-		requestor.getResults());
-}
 }
