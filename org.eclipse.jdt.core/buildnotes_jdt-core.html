@@ -118,19 +118,19 @@ Here's its complete new API changes done on
  * the following code snippet using {@link #K_COMPILATION_UNIT}:
  *
  * public class X {
- * &#047;&#042;&#042;
- *  &#042; This is just a simple example to show that comments will be formatted while processing a compilation unit only if the constant flag <code>F_INCLUDE_COMMENT</code> flag is set.
- *  &#042; &#064;param str The input string &#042;&#047;
+ * /**
+ *  * This is just a simple example to show that comments will be formatted while processing a compilation unit only if the constant flag <code>F_INCLUDE_COMMENT</code> flag is set.
+ *  * @param str The input string */
  *  void foo(String str){}}
  *
  * will produce the following output:
  *
  * public class X {
- *      &#047;&#042;&#042;
- *       &#042; This is just a simple example to show that comments will be formatted while processing a compilation unit only if the constant flag <code>F_INCLUDE_COMMENT</code> flag is set.
- *       &#042; 
- *       &#042; &#064;param str The input string
- *       &#042;&#047;
+ *      /**
+ *       * This is just a simple example to show that comments will be formatted while processing a compilation unit only if the constant flag <code>F_INCLUDE_COMMENT</code> flag is set.
+ *       * 
+ *       * @param str The input string
+ *       */
  *      void foo(String str){
  *      }
  *  }
@@ -140,14 +140,14 @@ Here's its complete new API changes done on
  * will produce the following output instead:
  *
  * public class X {
- *      &#047;&#042;&#042;
- *       &#042; This is just a simple example to show that comments will be formatted
- *       &#042; while processing a compilation unit only if the constant flag
- *       &#042; <code>F_INCLUDE_COMMENT</code> flag is set.
- *       &#042; 
- *       &#042; &#064;param str
- *       &#042;                 The input string
- *       &#042;&#047;
+ *      /**
+ *       * This is just a simple example to show that comments will be formatted
+ *       * while processing a compilation unit only if the constant flag
+ *       * <code>F_INCLUDE_COMMENT</code> flag is set.
+ *       * 
+ *       * @param str
+ *       *                 The input string
+ *       */
  *      void foo(String str){
  *      }
  *  }
@@ -379,7 +379,7 @@ public abstract class ReferenceMatch extends SearchMatch {
  * 
  *             public class Test {
  *                 void method() {
- *                     &#0064;Annot(clazz=Test.class) int x;
+ *                     @Annot(clazz=Test.class) int x;
  *                 }
  *             }
  * 
@@ -389,7 +389,7 @@ public abstract class ReferenceMatch extends SearchMatch {
  *    . searching for the references to the type <code>Deprecated</code> in
  * 
  *             public class Test {
- *                &#0064;Deprecated void method() {}
+ *                @Deprecated void method() {}
  *             }
  * 
  *      will return one {@link TypeReferenceMatch} match whose local element
@@ -397,8 +397,8 @@ public abstract class ReferenceMatch extends SearchMatch {
  *
  *    . searching for the references to the field <code>CONST</code> in
  * 
- *              &#0064;Num(number= Num.CONST)
- *              &#0064;interface Num {
+ *              @Num(number= Num.CONST)
+ *              @interface Num {
  *                  public static final int CONST= 42;
  *                  int number();
  *              }
