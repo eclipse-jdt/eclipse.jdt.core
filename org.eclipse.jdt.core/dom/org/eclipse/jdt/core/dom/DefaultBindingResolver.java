@@ -347,13 +347,16 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 					break;
 				case ProblemReasons.NotFound :
+					if (!this.isRecoveringBindings) {
+						return null;
+					}
 					ITypeBinding binding = (ITypeBinding) this.bindingTables.compilerBindingsToASTBindings.get(referenceBinding);
 					if (binding != null) {
 						return binding;
 					}
 					if ((referenceBinding.tagBits & TagBits.HasMissingType) != 0) {
 						binding = new TypeBinding(this, referenceBinding);
-					} else if (this.isRecoveringBindings) {
+					} else {
 						binding = new RecoveredTypeBinding(this, referenceBinding);
 					}
 					this.bindingTables.compilerBindingsToASTBindings.put(referenceBinding, binding);

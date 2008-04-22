@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 284 };
+		TESTS_NUMBERS = new int[] { 95, 218, 223, 224, 225, 235, 236, 237, 281 };
 //		TESTS_RANGE = new int[] { 277, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -2900,7 +2900,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"   }/*end*/\n" +
 			"}",
 			this.workingCopy,
-			false);
+			false,
+			false,
+			true);
 		IMethodBinding methodBinding = ((MethodDeclaration) node).resolveBinding();
 		assertNotNull("No binding", methodBinding);
 		assertEquals("LX;.foo<T:Ljava/lang/Object;>(LNonExisting;)V", methodBinding.getKey());
@@ -4186,7 +4188,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 */
 	public void test0139() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0139", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -6895,10 +6897,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"	 */\n" +
 			"	@Test private int fXoo;\n" +
 			"}";
-	   	ASTNode node = buildAST(
+		ASTNode node = buildAST(
 				contents,
-    			this.workingCopy,
-    			false);
+				this.workingCopy,
+				false,
+				false,
+				true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 1, "Test cannot be resolved to a type");
@@ -6912,9 +6916,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Name name = annotation.getTypeName();
 		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
 		ITypeBinding binding = name.resolveTypeBinding();
-		assertNull("Got a binding", binding);
+		assertNotNull("No binding", binding);
 		IBinding binding2 = name.resolveBinding();
-		assertNull("Got a binding", binding2);
+		assertNotNull("No binding", binding2);
 		IAnnotationBinding annotationBinding = annotation.resolveAnnotationBinding();
 		assertNotNull("No binding", annotationBinding);
 		assertEquals("LX;.fXoo)I@LTest;", annotationBinding.getKey());
@@ -7074,17 +7078,19 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=153303
 	 */
 	public void test0223() throws JavaModelException {
-    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-    	String contents =
-    		"public class X {\n" +
-    		"    @Zork\n" +
-    		"    public void foo( ) {\n" +
-    		"    }\n" +
-    		"}";
-	   	ASTNode node = buildAST(
+			this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X {\n" +
+			"    @Zork\n" +
+			"    public void foo( ) {\n" +
+			"    }\n" +
+			"}";
+		ASTNode node = buildAST(
 				contents,
-    			this.workingCopy,
-    			false);
+				this.workingCopy,
+				false,
+				false,
+				true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 1, "Zork cannot be resolved to a type");
@@ -7108,10 +7114,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
     		"@Zork\n" +
     		"public class X {\n" +
     		"}";
-	   	ASTNode node = buildAST(
+		ASTNode node = buildAST(
 				contents,
-    			this.workingCopy,
-    			false);
+				this.workingCopy,
+				false,
+				false,
+				true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 1, "Zork cannot be resolved to a type");
@@ -7139,7 +7147,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	   	ASTNode node = buildAST(
 				contents,
     			this.workingCopy,
-    			false);
+    			false,
+    			false,
+    			true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 1, "Zork cannot be resolved to a type");
@@ -7550,7 +7560,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode node = buildAST(
 				contents,
 				this.workingCopy,
-				false);
+				false,
+				false,
+				true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedProblems = "The hierarchy of the type X is inconsistent\n" +
@@ -7586,7 +7598,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode node = buildAST(
 				contents,
 				this.workingCopy,
-				false);
+				false,
+				false,
+				true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedProblems = "Zork cannot be resolved to a type";
@@ -7618,7 +7632,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode node = buildAST(
 				contents,
 				this.workingCopy,
-				false);
+				false,
+				false,
+				true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedProblems = "Zork cannot be resolved to a type";
@@ -9362,7 +9378,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode node = buildAST(
 				contents,
 				this.workingCopy,
-				false);
+				false,
+				false,
+				true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 1, "Invalid cannot be resolved to a type");

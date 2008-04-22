@@ -332,11 +332,17 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	 * by "*start*" and "*end*".
 	 */
 	protected ASTNode buildAST(String newContents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
-		return buildAST(newContents, cu, reportErrors, false/*no statement recovery*/);
+		return buildAST(newContents, cu, reportErrors, false/*no statement recovery*/, false);
 	}
 
+	protected ASTNode buildAST(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
+		ASTNode[] nodes = buildASTs(newContents, cu, reportErrors, enableStatementRecovery, bindingRecovery);
+		if (nodes.length == 0) return null;
+		return nodes[0];
+	}	
+
 	protected ASTNode buildAST(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery) throws JavaModelException {
-		ASTNode[] nodes = buildASTs(newContents, cu, reportErrors, enableStatementRecovery);
+		ASTNode[] nodes = buildASTs(newContents, cu, reportErrors, enableStatementRecovery, false);
 		if (nodes.length == 0) return null;
 		return nodes[0];
 	}	
@@ -398,10 +404,10 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	 * For each of the pairs, returns the AST node that was delimited by "*start?*" and "*end?*".
 	 */
 	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
-		return buildASTs(newContents, cu, reportErrors, false);
+		return buildASTs(newContents, cu, reportErrors, false, false);
 	}
 	
-	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery) throws JavaModelException {
+	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
 		MarkerInfo markerInfo;
 		if (newContents == null) {
 			markerInfo = new MarkerInfo(cu.getSource());
@@ -413,7 +419,11 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		CompilationUnit unit;
 		if (cu.isWorkingCopy()) {
 			cu.getBuffer().setContents(newContents);
-			unit = cu.reconcile(AST.JLS3, reportErrors, enableStatementRecovery, null, null);
+			int flags = 0;
+			if (reportErrors) flags |= ICompilationUnit.FORCE_PROBLEM_DETECTION;
+			if (enableStatementRecovery) flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
+			if (bindingRecovery) flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+			unit = cu.reconcile(AST.JLS3, flags, null, null);
 		} else {
 			IBuffer buffer = cu.getBuffer();
 			buffer.setContents(newContents);
@@ -423,6 +433,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			parser.setSource(cu);
 			parser.setResolveBindings(true);
 			parser.setStatementsRecovery(enableStatementRecovery);
+			parser.setBindingsRecovery(bindingRecovery);
 			unit = (CompilationUnit) parser.createAST(null);
 		}
 		

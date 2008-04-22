@@ -112,6 +112,11 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		}
 	}
 
+	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings,
+			boolean bindingsRecovery) {
+		return runConversion(astInternalJLS2(), unit, resolveBindings, false, bindingsRecovery);
+	}
+	
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
 		return runConversion(astInternalJLS2(), unit, resolveBindings);
 	}
@@ -403,6 +408,10 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 
 	}
 	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2) {
+		return runJLS3Conversion(unit, resolveBindings, checkJLS2, false);
+	}
+	
+	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2, boolean bindingRecovery) {
 
 		// Create parser
 		ASTParser parser;
@@ -410,12 +419,14 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			parser = ASTParser.newParser(astInternalJLS2());
 			parser.setSource(unit);
 			parser.setResolveBindings(resolveBindings);
+			parser.setBindingsRecovery(bindingRecovery);
 			parser.createAST(null);
 		}
 
 		parser = ASTParser.newParser(AST.JLS3);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
+		parser.setBindingsRecovery(bindingRecovery);
 
 		// Parse compilation unit
 		ASTNode result = parser.createAST(null);

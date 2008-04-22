@@ -1659,7 +1659,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			);
 			ICompilationUnit cu = getCompilationUnit("/P/src/Test.java");
 			
-			ASTNode node = buildAST(null/*use existing contents*/, cu, false/*don't report errors*/, true/*statement recovery*/);
+			ASTNode node = buildAST(null/*use existing contents*/, cu, false/*don't report errors*/, true/*statement recovery*/, false);
 			IBinding binding = ((MethodDeclaration) node).resolveBinding();
 			assertNotNull("No binding", binding);
 			IJavaElement element = binding.getJavaElement();

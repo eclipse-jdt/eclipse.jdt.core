@@ -440,7 +440,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0413() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0413", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
@@ -790,7 +790,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0426() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0426", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -1030,7 +1030,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0436() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0436", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertProblemsSize(unit, 1, "The type A.CInner is not visible"); //$NON-NLS-1$
@@ -1056,7 +1056,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0437() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0437", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertProblemsSize(unit, 1, "The type CInner is not visible"); //$NON-NLS-1$
@@ -1078,7 +1078,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0438() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0438", "D.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -1094,7 +1094,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0439() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0439", "E.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
