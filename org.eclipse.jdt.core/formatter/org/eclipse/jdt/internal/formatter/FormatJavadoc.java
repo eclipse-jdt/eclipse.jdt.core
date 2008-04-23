@@ -56,4 +56,18 @@ public FormatJavadocBlock getFirstBlock() {
 public boolean isMultiLine() {
 	return this.lineStart < this.lineEnd;
 }
+
+public String toDebugString(char[] source) {
+	if (this.blocks == null) {
+		return "No block in current Javadoc comment"; //$NON-NLS-1$
+	}
+	StringBuffer buffer = new StringBuffer();
+	int length = this.blocks.length;
+	for (int i=0; i<length; i++) {
+		this.blocks[i].toStringDebug(buffer, source);
+		buffer.append('\n');
+	}
+	return buffer.toString();
+}
+
 }

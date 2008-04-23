@@ -62,6 +62,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.internal.core.util.WeakHashSet;
 import org.eclipse.jdt.internal.core.util.WeakHashSetOfCharArray;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.osgi.service.prefs.BackingStoreException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -202,6 +203,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String SELECTION_DEBUG = JavaCore.PLUGIN_ID + "/debug/selection" ; //$NON-NLS-1$
 	private static final String SEARCH_DEBUG = JavaCore.PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
 	private static final String SOURCE_MAPPER_DEBUG_VERBOSE = JavaCore.PLUGIN_ID + "/debug/sourcemapper" ; //$NON-NLS-1$
+	private static final String FORMATTER_DEBUG = JavaCore.PLUGIN_ID + "/debug/formatter" ; //$NON-NLS-1$
 
 	public static final String COMPLETION_PERF = JavaCore.PLUGIN_ID + "/perf/completion" ; //$NON-NLS-1$
 	public static final String SELECTION_PERF = JavaCore.PLUGIN_ID + "/perf/selection" ; //$NON-NLS-1$
@@ -1472,6 +1474,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			
 			option = Platform.getDebugOption(SOURCE_MAPPER_DEBUG_VERBOSE);
 			if(option != null) SourceMapper.VERBOSE = option.equalsIgnoreCase(TRUE) ;
+
+			option = Platform.getDebugOption(FORMATTER_DEBUG);
+			if(option != null) DefaultCodeFormatter.DEBUG = option.equalsIgnoreCase(TRUE) ;
 		}
 		
 		// configure performance options

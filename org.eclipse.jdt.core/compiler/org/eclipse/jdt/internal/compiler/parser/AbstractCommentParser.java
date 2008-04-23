@@ -216,7 +216,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							if (previousChar == '{') {
 								if (this.textStart != -1) {
 									int textEndPosition = this.inlineTagStart;
-									if (isFormatterParser && ScannerHelper.isWhitespace(previousChar)) {
+									if (isFormatterParser && this.spacePosition == (this.inlineTagStart-1)) {
 										textEndPosition = this.spacePosition;
 									}
 									if (this.textStart < textEndPosition) {
@@ -289,7 +289,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								}
 								refreshInlineTagPosition(textEndPosition);
 							}
-							this.textStart = this.index;
+							if (!isFormatterParser) this.textStart = this.index;
 							this.inlineTagStarted = false;
 						} else {
 							if (!this.lineStarted) {

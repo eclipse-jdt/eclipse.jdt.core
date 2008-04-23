@@ -30,7 +30,7 @@ public class FormatJavadocBlock extends FormatJavadocNode implements IJavaDocTag
 	final static int ONE_LINE_TAG = 0x0010;
 	
 	// constants
-	private final static int MAX_TAG_HIERARCHY = 10;
+	final static int MAX_TAG_HIERARCHY = 10;
 
 	private int tagValue = NO_TAG_VALUE;
 	int tagEnd;
@@ -39,8 +39,8 @@ public class FormatJavadocBlock extends FormatJavadocNode implements IJavaDocTag
 	int nodesPtr = -1;
 	int flags = 0;
 
-public FormatJavadocBlock(int start, int end, int value) {
-	super(start, end);
+public FormatJavadocBlock(int start, int end, int line, int value) {
+	super(start, end, line);
 	this.tagValue = value;
 	this.tagEnd = end;
 }
@@ -63,13 +63,12 @@ private void addNode(FormatJavadocNode node) {
 
 void addBlock(FormatJavadocBlock block, int htmlLevel) {
 	if (this.nodes != null) {
-//		FormatJavadocText lastText = getLastText(block, htmlLevel);
 		FormatJavadocText[] textHierarchy = getTextHierarchy(block, htmlLevel);
 		if (textHierarchy != null) {
-			FormatJavadocText lastText = textHierarchy[htmlLevel-1];
+			FormatJavadocText lastText = textHierarchy[htmlLevel];
 			if (lastText != null) {
 				lastText.appendNode(block);
-				for (int i=0; i<MAX_TAG_HIERARCHY && textHierarchy[i] != null; i++) {
+				for (int i=htmlLevel-1; i>=0; i--) {
 					textHierarchy[i].sourceEnd = block.sourceEnd;
 				}
 				this.sourceEnd = block.sourceEnd;
@@ -82,13 +81,12 @@ void addBlock(FormatJavadocBlock block, int htmlLevel) {
 
 void addText(FormatJavadocText text) {
 	if (this.nodes != null) {
-//		FormatJavadocText lastText = getLastText(text, text.depth);
 		FormatJavadocText[] textHierarchy = getTextHierarchy(text, text.depth);
 		if (textHierarchy != null) {
 			FormatJavadocText lastText = textHierarchy[text.depth];
 			if (lastText != null) {
 				lastText.appendText(text);
-				for (int i=0; i<MAX_TAG_HIERARCHY && textHierarchy[i] != null; i++) {
+				for (int i=text.depth-1; i>=0; i--) {
 					textHierarchy[i].sourceEnd = text.sourceEnd;
 				}
 				this.sourceEnd = text.sourceEnd;
@@ -98,7 +96,7 @@ void addText(FormatJavadocText text) {
 				FormatJavadocText parentText = textHierarchy[text.depth-1];
 				if (parentText != null) {
 					parentText.appendText(text);
-					for (int i=0; i<MAX_TAG_HIERARCHY && textHierarchy[i] != null; i++) {
+					for (int i=text.depth-2; i>=0; i--) {
 						textHierarchy[i].sourceEnd = text.sourceEnd;
 					}
 					this.sourceEnd = text.sourceEnd;
@@ -115,8 +113,8 @@ void addText(FormatJavadocText text) {
 			case JAVADOC_SEPARATOR_TAGS_ID:
 				text.linesBefore = 1;
 				break;
-	    	case JAVADOC_BREAK_TAGS_ID:
-				if (this.nodesPtr >= 0) text.linesBefore = 1;
+//	    	case JAVADOC_BREAK_TAGS_ID:
+//				if (this.nodesPtr >= 0) text.linesBefore = 1;
 		}
 	}
 	addNode(text);
@@ -167,7 +165,7 @@ FormatJavadocText[] getTextHierarchy(FormatJavadocNode node, int htmlDepth) {
 						if (text.linesBefore < 1) text.linesBefore = 1;
 				}
 				// If adding an html tag on same html tag, then close previous one and leave
-				if (text.isHtmlTag() && !text.isClosingHtmlTag() && lastText.htmlNodesPtr == -1 && text.getHtmlTagIndex() == lastText.getHtmlTagIndex() && !lastText.isClosingHtmlTag()) {
+				if (text.isHtmlTag() && !text.isClosingHtmlTag() && text.getHtmlTagIndex() == lastText.getHtmlTagIndex() && !lastText.isClosingHtmlTag()) {
 					lastText.closeTag();
 					return textHierarchy;
 				}
@@ -289,5 +287,24 @@ public String toString() {
 		}
 	}
 	return buffer.toString();
+}
+
+public String toStringDebug(char[] source) {
+	StringBuffer buffer = new StringBuffer();
+	toStringDebug(buffer, source);
+	return buffer.toString();
+}
+
+public void toStringDebug(StringBuffer buffer, char[] source) {
+	if (this.tagValue > 0) {
+		buffer.append(source, this.sourceStart, this.tagEnd-this.sourceStart+1);
+		buffer.append(' ');
+	}
+	if (this.reference != null) {
+		this.reference.toStringDebug(buffer, source);
+	}
+	for (int i=0; i<=this.nodesPtr; i++) {
+		this.nodes[i].toStringDebug(buffer, source);
+	}
 }
 }

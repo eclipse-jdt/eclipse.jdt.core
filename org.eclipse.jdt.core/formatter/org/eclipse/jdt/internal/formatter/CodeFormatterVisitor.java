@@ -632,12 +632,12 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.space();
 		}
 		if ((importRef.bits & ASTNode.OnDemand) != 0) {
-			this.scribe.printQualifiedReference(importRef.sourceEnd);
+			this.scribe.printQualifiedReference(importRef.sourceEnd, false/*do not expect parenthesis*/);
 			this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
 			this.scribe.printNextToken(TerminalTokens.TokenNameMULTIPLY);			
 			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		} else {
-			this.scribe.printQualifiedReference(importRef.sourceEnd);
+			this.scribe.printQualifiedReference(importRef.sourceEnd, false/*do not expect parenthesis*/);
 			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		}
 		if (isLast) {
@@ -913,10 +913,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	/**
 	 * @param source the source of the comment to format
 	 */
-	public void format(String source, int start, int end, int indentationLevel) {
+	public void formatComment(int kind, String source, int start, int end, int indentationLevel) {
 		if (source == null) return;
-		this.scribe.initializeScanner(source.toCharArray());
-		this.scribe.printJavadocComment(start, end, indentationLevel);
+		this.scribe.printComment(kind, source, start, end, indentationLevel);
 	}
 
 	private void format(TypeDeclaration typeDeclaration){
@@ -2257,30 +2256,15 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 	}
 
-	private void printComment(boolean packageDeclaration) {
+	private void printComment() {
 		this.localScanner.resetTo(this.scribe.scanner.startPosition, this.scribe.scannerEndPosition - 1);
 		try {
 			int token = this.localScanner.getNextToken();
 			switch(token) {
 				case TerminalTokens.TokenNameCOMMENT_JAVADOC :
-					boolean formatJavadoc = (!packageDeclaration && this.scribe.isFormattingJavadoc()) || (packageDeclaration && this.preferences.comment_format_header);
-					boolean includesComments = this.scribe.includesComments();
-					if (formatJavadoc) {
-						if (includesComments) {
-							this.scribe.printJavadocComment(this.localScanner.startPosition, this.localScanner.currentPosition, -1);
-						} else {
-							this.scribe.printComment();
-						}
-					} else {
-						if (includesComments) this.scribe.setIncludeComments(false);
-						this.scribe.printComment();
-						if (includesComments) this.scribe.setIncludeComments(true);
-					}
-					this.scribe.printNewLine();
-					break;
 				case TerminalTokens.TokenNameCOMMENT_BLOCK :
 				case TerminalTokens.TokenNameCOMMENT_LINE :
-	    			this.scribe.printComment();
+	    			this.scribe.printComment(token);
 	    			break;
 			}
 		} catch(InvalidInputException e) {
@@ -2985,13 +2969,19 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		
 		// fake new line to handle empty lines before package declaration or import declarations
 		this.scribe.lastNumberOfNewLines = 1;
+
+		// Set header end position
+		final TypeDeclaration[] types = compilationUnitDeclaration.types;
+		int headerEndPosition = types == null ? compilationUnitDeclaration.sourceEnd : types[0].declarationSourceStart;
+		this.scribe.setHeaderComment(headerEndPosition);
+
 		/* 
 		 * Package declaration
 		 */
 		ImportReference currentPackage = compilationUnitDeclaration.currentPackage;
 		final boolean hasPackage = currentPackage != null;
 		if (hasPackage) {
-			printComment(true);
+			printComment();
 			int blankLinesBeforePackage = this.preferences.blank_lines_before_package;
 			if (blankLinesBeforePackage > 0) {
 				this.scribe.printEmptyLines(blankLinesBeforePackage);
@@ -3002,7 +2992,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			// dump the package keyword
 			this.scribe.printNextToken(TerminalTokens.TokenNamepackage);
 			this.scribe.space();
-			this.scribe.printQualifiedReference(compilationUnitDeclaration.currentPackage.sourceEnd);
+			this.scribe.printQualifiedReference(compilationUnitDeclaration.currentPackage.sourceEnd, false/*do not expect parenthesis*/);
 			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 			this.scribe.printTrailingComment();
 			int blankLinesAfterPackage = this.preferences.blank_lines_after_package;
@@ -3052,7 +3042,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		/*
 		 * Type declarations
 		 */
-		final TypeDeclaration[] types = compilationUnitDeclaration.types;
 		if (types != null) {
 			int typesLength = types.length;
 			for (int i = 0; i < typesLength - 1; i++) {
@@ -3968,7 +3957,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return false;
 	}
 
-
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.LabeledStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
@@ -4021,7 +4009,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (this.preferences.insert_space_after_at_in_annotation) {
 			this.scribe.space();
 		}
-		this.scribe.printQualifiedReference(annotation.sourceEnd);
+		this.scribe.printQualifiedReference(annotation.sourceEnd, false/*do not expect parenthesis*/);
 		return false;
 	}
 	public boolean visit(MarkerAnnotation annotation, ClassScope scope) {
@@ -4029,7 +4017,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (this.preferences.insert_space_after_at_in_annotation) {
 			this.scribe.space();
 		}
-		this.scribe.printQualifiedReference(annotation.sourceEnd);
+		this.scribe.printQualifiedReference(annotation.sourceEnd, false/*do not expect parenthesis*/);
 		return false;
 	}
 	public boolean visit(MemberValuePair pair, BlockScope scope) {
@@ -4241,7 +4229,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (this.preferences.insert_space_after_at_in_annotation) {
 			this.scribe.space();
 		}
-		this.scribe.printQualifiedReference(annotation.sourceEnd);
+		this.scribe.printQualifiedReference(annotation.sourceEnd, false/*do not expect parenthesis*/);
 		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_opening_paren_in_annotation);
 		if (this.preferences.insert_space_after_opening_paren_in_annotation) {
 			this.scribe.space();
@@ -4631,7 +4619,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(qualifiedNameReference, numberOfParens);
 		}
-		this.scribe.printQualifiedReference(qualifiedNameReference.sourceEnd);
+		this.scribe.printQualifiedReference(qualifiedNameReference.sourceEnd, numberOfParens>=0/*expect parenthesis*/);
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(qualifiedNameReference, numberOfParens);
@@ -4692,7 +4680,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(qualifiedTypeReference, numberOfParens);
 		}
-		this.scribe.printQualifiedReference(qualifiedTypeReference.sourceEnd);
+		this.scribe.printQualifiedReference(qualifiedTypeReference.sourceEnd, numberOfParens>=0/*expect parenthesis*/);
 		
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(qualifiedTypeReference, numberOfParens);
@@ -4711,7 +4699,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(qualifiedTypeReference, numberOfParens);
 			}
-			this.scribe.printQualifiedReference(qualifiedTypeReference.sourceEnd);
+			this.scribe.printQualifiedReference(qualifiedTypeReference.sourceEnd, numberOfParens>=0/*expect parenthesis*/);
 			
 			if (numberOfParens > 0) {
 				manageClosingParenthesizedExpression(qualifiedTypeReference, numberOfParens);
@@ -4746,7 +4734,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (this.preferences.insert_space_after_at_in_annotation) {
 			this.scribe.space();
 		}
-		this.scribe.printQualifiedReference(annotation.sourceEnd);
+		this.scribe.printQualifiedReference(annotation.sourceEnd, false/*do not expect parenthesis*/);
 		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_opening_paren_in_annotation);
 		if (this.preferences.insert_space_after_opening_paren_in_annotation) {
 			this.scribe.space();

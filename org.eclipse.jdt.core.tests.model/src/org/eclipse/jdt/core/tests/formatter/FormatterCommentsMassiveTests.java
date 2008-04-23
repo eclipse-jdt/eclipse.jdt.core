@@ -51,17 +51,53 @@ import org.eclipse.text.edits.TextEdit;
  * not blow up while formatting the files found at the given location and that the
  * second formatting gives the same output than the first one.
  * </p><p>
- * TODO Only the javadoc comments are formatted and compared. Currently,
- * only javadoc comments are formatted on the first pass. We obviously need to
- * implement this feature also for line and block comments before to be able to
- * enable the comparison on them.
- * TODO (eric) See how fix the remaining failing tests when comparing the
- * formatting of JUnit 3.8.2 files.
+ * TODO See how fix the remaining failing tests when comparing the
+ * formatting of JUnit 3.8.2 files:
+ * <ul>
+ * 	<li>0 error</li>
+ * 	<li>4 failures:
+ * 		<ol>
+ * 			<li>TestCase.java:
+ * 				incorrect line length in old formatter
+ * 				incorrect indentation in tag param in old formatter
+ * 			</li>
+ * 			<li>TestCaseClassLoader.java:
+ * 				incorrect line length in old formatter
+ * 			</li>
+ * 			<li>SimpleTest.java:
+ * 				word break on punctuation
+ * 			</li>
+ * 			<li>AssertTest.java:
+ * 				word break on ponctuation
+ * 			</li>
+ * 		</lo>
+ * 	</li>
+ * 	<li>8 lines leading spaces differences on 2nd formatting:
+ * 		<ol>
+ * 			<li>n°1: Assert.java</li>
+ * 			<li>n°3: TestSuite.java</li>
+ * 			<li>n°4: BaseTestRunner.java</li>
+ * 			<li>n°5: AllTests.java</li>
+ * 			<li>n°6: AllTests.java</li>
+ * 			<li>n°7: AllTests.java</li>
+ * 			<li>n°8: BaseTestRunnerTest.java</li>
+ * 			<li>n°9: ResultPrinter.java</li>
+ * 		</ol>
+ * 	</li>
+ * 	<li>1 lines leading spaces differences with old formatter:
+ * 		<ol>
+ * 			<li>n°2: ComparisonFailure.java</li>
+ * 		</ol>
+ * 	</li>
+ *		</ul></li>
+ * </p><p>
  * TODO Fix failures while running on workspaces without comparing.
+ * <i>
  * <ul>
  * <li>0 error and 425 failures for 9950 tests on 3.0 performance workspace.</li>
  * <li>0 error and 4220 failures for 25819 tests on ganymede workspace</li>
  * </ul>
+ * </i>
  * 
  * Numbers above where before the line comments formatting was activated.
  * It was not possible to continue to compare the entire files after 2 formatting
@@ -71,15 +107,14 @@ import org.eclipse.text.edits.TextEdit;
  * 	int field; // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled
  * }
  * </pre>
- * Which is formatted first as:
+ * Which is formatted as:
  * <pre>
  * public class X02 {
  * 	int field; // This is a long comment that should be split in multiple line
  * 				// comments in case the line comment formatting is enabled
  * }
  * </pre>
- * And formatted again with a different output:
- * Which is formatted first as:
+ * But got a different output if formatted again:
  * <pre>
  * public class X02 {
  * 	int field; // This is a long comment that should be split in multiple line
@@ -87,19 +122,38 @@ import org.eclipse.text.edits.TextEdit;
  * }
  * </pre>
  * 
- * So, we're now obliged to ignore lines leading whitespaces using the VM argument
- * (-DignoreWhitespaces=linesLeading) while running a launch config on this test suite.
- * Then numbers are now on:
+ * So, we're now obliged to ignore some whitespaces using the system property
+ *  <code>ignoreWhitespaces</code> while running a launch config on this
+ * test suite on big workspaces as full source perfs 3.0 or ganymede.
+ * 
+ * Here are the results when setting the system property to
+ * <code>linesLeading</code> (e.g. ignore white spaces at the beginning of the
+ * lines, including the star inside javadoc or block comments):
  * <ul>
  * 	<li>3.0 performance workspace (9951 units):<ul>
  * 		<li>0 error</li>
- * 		<li>218 failures</li>
- * 		<li>896 different lines leading spaces</li>
+ * 		<li>418 failures</li>
+ * 		<li>690 different lines leading spaces</li>
  *		</ul></li>
  *		<li>ganymede workspace (25819 units):<ul>
  * 		<li>0 error</li>
- * 		<li>3650 failures</li>
- * 		<li>1707 different lines leading spaces</li>
+ * 		<li>4011 failures</li>
+ * 		<li>1079 different lines leading spaces</li>
+ *		</ul></li>
+ * </ul>
+ * 
+ * Here are the results when setting the system property to
+ * <code>all</code> (e.g. ignore all white spaces):
+ * <ul>
+ * 	<li>3.0 performance workspace (9951 units):<ul>
+ * 		<li>? error</li>
+ * 		<li>? failures</li>
+ * 		<li>? different spaces</li>
+ *		</ul></li>
+ *		<li>ganymede workspace (25819 units):<ul>
+ * 		<li>? error</li>
+ * 		<li>? failures</li>
+ * 		<li>? different spaces</li>
  *		</ul></li>
  * </ul>
  */
@@ -275,9 +329,7 @@ private String expectedFormattedSource(String source) {
 			}
 		}
 		int indentationLevel = getIndentationLevel(scanner, commentStart);
-		if (commentKind != CodeFormatter.K_MULTI_LINE_COMMENT) { // Does not process block comment
-			formattedComments[i] = runFormatter(codeFormatter, source.substring(commentStart, commentEnd), commentKind, indentationLevel, 0, commentEnd - commentStart, LINE_SEPARATOR);
-		}
+		formattedComments[i] = runFormatter(codeFormatter, source.substring(commentStart, commentEnd), commentKind, indentationLevel, 0, commentEnd - commentStart, LINE_SEPARATOR);
 	}
 	SimpleDocument document = new SimpleDocument(source);
 	for (int i=length-1; i>=0; i--) {

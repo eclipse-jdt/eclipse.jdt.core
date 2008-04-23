@@ -25,13 +25,19 @@ public abstract class FormatJavadocNode implements JavadocTagConstants {
 	final static int DEFAULT_ARRAY_SIZE = 10;
 	final static int INCREMENT_ARRAY_SIZE = 10;
 	protected int sourceStart, sourceEnd;
+	protected int lineStart;
 
-public FormatJavadocNode(int start, int end) {
+public FormatJavadocNode(int start, int end, int line) {
 	this.sourceStart = start;
 	this.sourceEnd = end;
+	this.lineStart = line;
 }
 
 abstract void clean();
+
+FormatJavadocNode getLastNode() {
+	return null;
+}
 
 /**
  * Returns whether the node is a text (see {@link FormatJavadocText} or not.
@@ -44,4 +50,16 @@ abstract void clean();
 public boolean isText() {
 	return false;
 }
+
+public String toStringDebug(char[] source) {
+	StringBuffer buffer = new StringBuffer();
+	toStringDebug(buffer, source);
+	return buffer.toString();
+}
+
+public void toStringDebug(StringBuffer buffer, char[] source) {
+	buffer.append(source, this.sourceStart, this.sourceEnd-this.sourceStart+1);
+	buffer.append(' ');
+}
+
 }

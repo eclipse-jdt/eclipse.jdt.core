@@ -50,6 +50,7 @@ protected void setUp() throws Exception {
 
 DefaultCodeFormatter codeFormatter() {
 	DefaultCodeFormatterOptions preferences = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
+	preferences.comment_clear_blank_lines_in_block_comment = true;
 	preferences.comment_clear_blank_lines_in_javadoc_comment = true;
 	preferences.comment_format_header = true;
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);

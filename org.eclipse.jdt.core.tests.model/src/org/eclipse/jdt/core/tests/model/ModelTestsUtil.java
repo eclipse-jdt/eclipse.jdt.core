@@ -563,7 +563,16 @@ public static String trimLinesLeadingWhitespaces(String input) {
 		String line = tokenizer.nextToken().trim();
 		int index = line.indexOf('*');
 		if (index >= 0) {
-			buffer.append(line.substring(index+1).trim());
+			int length = line.length();
+			if (length > 80 && line.charAt(length-1) == '>') { // should not happen:  bug of old formatter
+				int idx = line.lastIndexOf('<');
+				buffer.append(line.substring(index+1, idx).trim());
+				buffer.append(Util.LINE_SEPARATOR);
+				buffer.append(line.substring(idx).trim());
+				continue;
+			} else {
+				buffer.append(line.substring(index+1).trim());
+			}
 		} else {
 			buffer.append(line);
 		}

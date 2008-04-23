@@ -111,17 +111,19 @@ public interface IJavaDocTagConstants {
 	/** Tag prefix of comment tags */
 	public static final char COMMENT_TAG_PREFIX= '@';
 	
-	/** HEADER */
+	/** BLOCK COMMENTS */
 	public static final String BLOCK_HEADER = "/*"; //$NON-NLS-1$
 	public static final int BLOCK_HEADER_LENGTH = BLOCK_HEADER.length();
 	public static final String JAVADOC_HEADER = "/**"; //$NON-NLS-1$
 	public static final int JAVADOC_HEADER_LENGTH = JAVADOC_HEADER.length();
-
-	/** COMMENTS LINE PREFIX */
-	public static final String LINE_COMMENT_PREFIX = "// "; //$NON-NLS-1$
-	public static final int LINE_COMMENT_PREFIX_LENGTH = LINE_COMMENT_PREFIX.length();
 	public static final String BLOCK_LINE_PREFIX = " * "; //$NON-NLS-1$
 	public static final int BLOCK_LINE_PREFIX_LENGTH = BLOCK_LINE_PREFIX.length();
+	public static final String BLOCK_FOOTER = "*/"; //$NON-NLS-1$
+	public static final int BLOCK_FOOTER_LENGTH = BLOCK_FOOTER.length();
+
+	/** LINE COMMENTS */
+	public static final String LINE_COMMENT_PREFIX = "// "; //$NON-NLS-1$
+	public static final int LINE_COMMENT_PREFIX_LENGTH = LINE_COMMENT_PREFIX.length();
 	
 	/** JAVADOC STAR */
 	public static final String JAVADOC_STAR = "*"; //$NON-NLS-1$

@@ -82,11 +82,9 @@ public abstract class CodeFormatter {
 	 * Flag used to include the comments during the formatting of the code
 	 * snippet.
 	 * <p>
-	 * This flag can only be combined with following kinds:
-	 * <ul>
-	 * 	<li>{@link #K_COMPILATION_UNIT}</li>
-	 * 	<li>{@link #K_UNKNOWN}</li>
-	 * </ul>
+	 * This flag can only be combined with {@link #K_COMPILATION_UNIT} and
+	 * {@link #K_UNKNOWN} kinds for now but might be extended to other ones
+	 * in future versions.
 	 * </p><p>
 	 * Note also that it has an effect only when the option
 	 * {@link DefaultCodeFormatterConstants#FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT}
@@ -138,8 +136,8 @@ public abstract class CodeFormatter {
 	 * always include the comments while processing a
 	 * {@link #K_COMPILATION_UNIT kind of compilation unit}, we
 	 * have decided to add a specific flag to fix this formatter incorrect behavior.
-	 * This will prevent all existing clients using the {@link #K_COMPILATION_UNIT}
-	 * kind to be broken while formatting.</i>
+	 * This will prevent all existing clients (e.g. 3.3 and previous versions) using
+	 * the {@link #K_COMPILATION_UNIT} kind to be broken while formatting.</i>
 	 * </p>
 	 * @since 3.4
 	 */

@@ -46,13 +46,6 @@ public boolean parse(int start, int end) {
 	return valid && this.docComment != null;
 }
 
-public String toString() {
-	StringBuffer buffer = new StringBuffer();
-	buffer.append("FormatterCommentParser\n"); //$NON-NLS-1$
-	buffer.append(super.toString());
-	return buffer.toString();
-}
-
 /* (non-Javadoc)
  * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#createArgumentReference(char[], int, boolean, java.lang.Object, long[], long)
  */
@@ -70,7 +63,8 @@ protected Object createArgumentReference(char[] name, int dim, boolean isVarargs
  */
 protected Object createFieldReference(Object receiver) throws InvalidInputException {
 	int start = receiver == null ? this.memberStart : ((FormatJavadocReference)receiver).sourceStart;
-	return new FormatJavadocReference(start, (int) this.identifierPositionStack[0]);
+	int lineStart = this.scanner.getLineNumber(start);
+	return new FormatJavadocReference(start, (int) this.identifierPositionStack[0], lineStart);
 }
 
 /* (non-Javadoc)
@@ -90,9 +84,9 @@ protected Object createMethodReference(Object receiver, List arguments) throws I
 	}
 
 	// Build the node
-	FormatJavadocReference reference = receiver == null
-		? new FormatJavadocReference(this.memberStart, this.scanner.getCurrentTokenEndPosition())
-		: new FormatJavadocReference(((FormatJavadocReference) receiver).sourceStart, this.scanner.getCurrentTokenEndPosition());
+	int start = receiver == null ? this.memberStart : ((FormatJavadocReference) receiver).sourceStart;
+	int lineStart = this.scanner.getLineNumber(start);
+	FormatJavadocReference reference = new FormatJavadocReference(start, this.scanner.getCurrentTokenEndPosition(), lineStart);
 	reference.positions = positions;
 	return reference;
 }
@@ -101,11 +95,12 @@ protected Object createMethodReference(Object receiver, List arguments) throws I
  * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#createTag()
  */
 protected void createTag() {
-	FormatJavadocBlock block = new FormatJavadocBlock(this.tagSourceStart, this.tagSourceEnd, this.tagValue);
+	int lineStart = this.scanner.getLineNumber(this.tagSourceStart);
+	FormatJavadocBlock block = new FormatJavadocBlock(this.tagSourceStart, this.tagSourceEnd, lineStart, this.tagValue);
 	if (this.inlineTagStarted) {
 		FormatJavadocBlock previousBlock = null;
 		if (this.astPtr == -1) {
-			previousBlock = new FormatJavadocBlock(this.inlineTagStart, this.tagSourceEnd, NO_TAG_VALUE);
+			previousBlock = new FormatJavadocBlock(this.inlineTagStart, this.tagSourceEnd, lineStart, NO_TAG_VALUE);
 			pushOnAstStack(previousBlock, true);
 		} else {
 			previousBlock = (FormatJavadocBlock) this.astStack[this.astPtr];
@@ -122,12 +117,14 @@ protected void createTag() {
 protected Object createTypeReference(int primitiveToken) {
 	int size = this.identifierLengthStack[this.identifierLengthPtr];
 	if (size == 0) return null;
+	int start = (int) (this.identifierPositionStack[this.identifierPtr] >>> 32);
+	int lineStart = this.scanner.getLineNumber(start);
 	if (size == 1) { 
-		return new FormatJavadocReference(this.identifierPositionStack[this.identifierPtr]);
+		return new FormatJavadocReference(this.identifierPositionStack[this.identifierPtr], lineStart);
 	}
 	long[] positions = new long[size];
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr - size + 1, positions, 0, size);
-	return new FormatJavadocReference(positions);
+	return new FormatJavadocReference(positions, lineStart);
 }
 
 /*
@@ -139,6 +136,7 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
     boolean valid = false;
     boolean incremented = false;
     int start = this.scanner.currentPosition;
+    int htmlPtr = this.htmlTagsPtr;
 	try {
 	    int token = readTokenAndConsume();
 	    char[] htmlTag;
@@ -148,6 +146,7 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 	    		// HTML tag opening
 				htmlTag = this.scanner.getCurrentIdentifierSource();
 				htmlIndex = htmlTagIndex(htmlTag);
+				if (htmlIndex == JAVADOC_TAGS_ID_MASK) return valid;
 				if ((htmlIndex & JAVADOC_TAGS_ID_MASK) > JAVADOC_SINGLE_TAGS_ID) {
 		    		if (this.htmlTagsPtr == -1 || !CharOperation.equals(this.htmlTags[this.htmlTagsPtr], htmlTag, false)) {
 						if (++this.htmlTagsPtr == 0) { // lazy initialization
@@ -166,10 +165,20 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 	    		// HTML tag closing
 	    		if (this.htmlTagsPtr == -1) return false;
 	    		htmlTag = this.htmlTags[this.htmlTagsPtr];
-				htmlIndex = htmlTagIndex(htmlTag);
-	    		if ((token = readTokenAndConsume()) != TerminalTokens.TokenNameIdentifier || !CharOperation.equals(htmlTag, this.scanner.getCurrentIdentifierSource(), false)) {
-	    			this.abort = true;
+	    		if ((token = readTokenAndConsume()) != TerminalTokens.TokenNameIdentifier) {
+	    			// not a closing html tag
 	    			return valid;
+	    		}
+				char[] identifier = this.scanner.getCurrentIdentifierSource();
+				htmlIndex = htmlTagIndex(identifier);
+				if (htmlIndex == JAVADOC_TAGS_ID_MASK) return valid;
+	    		while (!CharOperation.equals(htmlTag, identifier, false)) {
+	    			if (htmlTagsPtr <= 0) {
+	    				// consider the closing tag as invalid
+	    				return valid;
+	    			}
+	    			this.htmlTagsPtr--;
+		    		htmlTag = this.htmlTags[this.htmlTagsPtr];
 	    		}
 				// set closing flag
 				htmlIndex |= JAVADOC_CLOSED_TAG;
@@ -183,7 +192,7 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 			return valid;
 	    }
 		if (this.lineStarted && this.textStart != -1 && this.textStart < endTextPosition) {
-			pushText(this.textStart, endTextPosition, -1, closing ? this.htmlTagsPtr : (this.htmlTagsPtr < 1 ? 0 : this.htmlTagsPtr-1));
+			pushText(this.textStart, endTextPosition, -1, htmlPtr == -1 ? 0 : htmlPtr);
 		}
 		pushText(previousPosition, this.index, htmlIndex, this.htmlTagsPtr);
 		this.textStart = -1;
@@ -191,7 +200,9 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 	}
 	finally {
 		if (valid) {
-			if (closing) this.htmlTagsPtr--;
+			if (closing) {
+				this.htmlTagsPtr--;
+			}
 		} else if (!this.abort) {
 	    	if (incremented) {
 	    		this.htmlTagsPtr--;
@@ -263,10 +274,14 @@ protected boolean parseTag(int previousPosition) throws InvalidInputException {
 	this.textStart = -1;
 	consumeToken();
 	// the javadoc parser may not create tag for some valid tags: force tag creation for such tag. 
-	if (valid && (this.tagValue == TAG_INHERITDOC_VALUE || this.tagValue == TAG_DEPRECATED_VALUE)) {
-		valid = false;
-	}
-	if (!valid) {
+	if (valid) {
+		switch (this.tagValue) {
+			case TAG_INHERITDOC_VALUE:
+			case TAG_DEPRECATED_VALUE:
+				createTag();
+				break;
+		}
+	} else {
 		createTag();
 	}
 	return true;
@@ -276,14 +291,17 @@ protected boolean parseTag(int previousPosition) throws InvalidInputException {
  * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#pushParamName(boolean)
  */
 protected boolean pushParamName(boolean isTypeParam) {
-	FormatJavadocBlock block = new FormatJavadocBlock(this.tagSourceStart, this.tagSourceEnd, TAG_PARAM_VALUE);
+	int lineTagStart = this.scanner.getLineNumber(this.tagSourceStart);
+	FormatJavadocBlock block = new FormatJavadocBlock(this.tagSourceStart, this.tagSourceEnd, lineTagStart, TAG_PARAM_VALUE);
+	int start = (int) (this.identifierPositionStack[0] >>> 32);
+	int lineStart = this.scanner.getLineNumber(start);
 	FormatJavadocReference reference;
 	if (isTypeParam) {
-		reference = new FormatJavadocReference((int) (this.identifierPositionStack[0] >>> 32), (int) this.identifierPositionStack[2]);
+		reference = new FormatJavadocReference(start, (int) this.identifierPositionStack[2], lineStart);
 		reference.positions = new long[3];
 		System.arraycopy(this.identifierPositionStack, 0, reference.positions, 0, 3);
 	} else {
-		reference = new FormatJavadocReference(this.identifierPositionStack[0]);
+		reference = new FormatJavadocReference(start, (int) this.identifierPositionStack[0], lineStart);
 	}
 	block.reference = reference;
 	block.sourceEnd = reference.sourceEnd;
@@ -296,14 +314,16 @@ protected boolean pushParamName(boolean isTypeParam) {
  */
 protected boolean pushSeeRef(Object statement) {
 	FormatJavadocReference reference = (FormatJavadocReference) statement;
-	FormatJavadocBlock block = new FormatJavadocBlock(this.tagSourceStart, this.tagSourceEnd, this.tagValue);
+	int lineTagStart = this.scanner.getLineNumber(this.tagSourceStart);
+	FormatJavadocBlock block = new FormatJavadocBlock(this.tagSourceStart, this.tagSourceEnd, lineTagStart, this.tagValue);
 	block.reference = reference;
 	block.sourceEnd = reference.sourceEnd;
 	if (this.inlineTagStarted) {
 		block.sourceStart = this.inlineTagStart;
 		FormatJavadocBlock previousBlock = null;
 		if (this.astPtr == -1) {
-			previousBlock = new FormatJavadocBlock(this.inlineTagStart, this.tagSourceEnd, NO_TAG_VALUE);
+			int lineStart = this.scanner.getLineNumber(this.inlineTagStart);
+			previousBlock = new FormatJavadocBlock(this.inlineTagStart, this.tagSourceEnd, lineStart, NO_TAG_VALUE);
 			previousBlock.sourceEnd = reference.sourceEnd;
 			pushOnAstStack(previousBlock, true);
 		} else {
@@ -330,8 +350,9 @@ private void pushText(int start, int end, int htmlIndex, int htmlDepth) {
 	// Search previous tag on which to add the text element
 	FormatJavadocBlock previousBlock = null;
 	int previousStart = start;
+	int lineStart = this.scanner.getLineNumber(start);
 	if (this.astPtr == -1) {
-		previousBlock = new FormatJavadocBlock(start, start, NO_TAG_VALUE);
+		previousBlock = new FormatJavadocBlock(start, start, lineStart, NO_TAG_VALUE);
 		pushOnAstStack(previousBlock, true);
 	} else {
 		previousBlock = (FormatJavadocBlock) this.astStack[this.astPtr];
@@ -368,12 +389,10 @@ private void pushText(int start, int end, int htmlIndex, int htmlDepth) {
 			// do nothing
 		}
 	}
-	FormatJavadocText text = new FormatJavadocText(start, textEnd-1, htmlIndex, htmlDepth);
+	FormatJavadocText text = new FormatJavadocText(start, textEnd-1, lineStart, htmlIndex, htmlDepth);
 	previousBlock.addText(text);
 	previousBlock.sourceStart = previousStart;
-	int lineStart = this.scanner.getLineNumber(start);
-	int blockLine = this.scanner.getLineNumber(previousBlock.sourceStart);
-	if (lineStart == blockLine) {
+	if (lineStart == previousBlock.lineStart) {
 		previousBlock.flags |= FormatJavadocBlock.TEXT_ON_TAG_LINE;
 	}
 	this.textStart = -1;
@@ -385,7 +404,8 @@ private void pushText(int start, int end, int htmlIndex, int htmlDepth) {
  * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushThrowName(java.lang.Object)
  */
 protected boolean pushThrowName(Object typeRef) {
-	FormatJavadocBlock block = new FormatJavadocBlock(this.tagSourceStart, this.tagSourceEnd, this.tagValue);
+	int lineStart = this.scanner.getLineNumber(this.tagSourceStart);
+	FormatJavadocBlock block = new FormatJavadocBlock(this.tagSourceStart, this.tagSourceEnd, lineStart, this.tagValue);
 	block.reference = (FormatJavadocReference) typeRef;
 	block.sourceEnd = block.reference.sourceEnd;
 	pushOnAstStack(block, true);
@@ -399,15 +419,29 @@ protected boolean pushThrowName(Object typeRef) {
  */
 protected void refreshInlineTagPosition(int previousPosition) {
 	if (this.astPtr != -1) {
-		FormatJavadocBlock previousBlock = (FormatJavadocBlock) this.astStack[this.astPtr];
+		FormatJavadocNode previousBlock = (FormatJavadocNode) this.astStack[this.astPtr];
 		if (this.inlineTagStarted) {
-			previousBlock.sourceEnd = previousPosition;
-			FormatJavadocNode lastNode = previousBlock.getLastNode();
-			if (lastNode != null && !lastNode.isText()) {
+			FormatJavadocNode lastNode = previousBlock;
+			while (lastNode != null) {
 				lastNode.sourceEnd = previousPosition;
+				lastNode = lastNode.getLastNode();
 			}
 		}
 	}
+}
+
+public String toString() {
+	StringBuffer buffer = new StringBuffer();
+	buffer.append("FormatterCommentParser\n"); //$NON-NLS-1$
+	buffer.append(super.toString());
+	return buffer.toString();
+}
+
+public String toDebugString() {
+	if (this.docComment == null) {
+		return "No javadoc!";	//$NON-NLS-1$
+	}
+	return ((FormatJavadoc)this.docComment).toDebugString(this.source);
 }
 
 /*
@@ -423,9 +457,8 @@ protected void updateDocComment() {
 		for (int i=0; i<length; i++) {
 			FormatJavadocBlock block = (FormatJavadocBlock) this.astStack[i];
 			block.clean();
-			int blockStart = this.scanner.getLineNumber(block.sourceStart);
 			int blockEnd = this.scanner.getLineNumber(block.sourceEnd);
-			if (blockStart == blockEnd) {
+			if (block.lineStart == blockEnd) {
 				block.flags |= FormatJavadocBlock.ONE_LINE_TAG;
 			}
 			formatJavadoc.blocks[i] = block;
@@ -440,11 +473,13 @@ protected void updateDocComment() {
 	formatJavadoc.lineEnd = this.scanner.getLineNumber(this.javadocTextEnd);
 	FormatJavadocBlock firstBlock = formatJavadoc.getFirstBlock();
 	if (firstBlock != null) {
-		int blockLine = this.scanner.getLineNumber(firstBlock.sourceStart);
-		if (formatJavadoc.lineStart == blockLine) {
+		if (formatJavadoc.lineStart == firstBlock.lineStart) {
 			firstBlock.flags |= FormatJavadocBlock.ON_HEADER_LINE;
 		}
 	}
 	this.docComment = formatJavadoc;
+	if (DefaultCodeFormatter.DEBUG) {
+		System.out.println(toDebugString());
+	}
 }
 }

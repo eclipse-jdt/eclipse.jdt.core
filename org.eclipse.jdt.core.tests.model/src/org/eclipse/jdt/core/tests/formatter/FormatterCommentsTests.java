@@ -426,11 +426,18 @@ public void testHtmlOthers06() throws JavaModelException {
 public void testHtmlOthers07() throws JavaModelException {
 	formatUnit("html.others", "X07.java");
 }
-/*
- * TODO (eric) Fix following issue
- */
+// TODO (frederic) Pass this test
 public void _testHtmlOthers08() throws JavaModelException {
 	formatUnit("html.others", "X08.java");
+}
+public void testHtmlOthers09() throws JavaModelException {
+	formatUnit("html.others", "X09.java");
+}
+public void testHtmlOthers10() throws JavaModelException {
+	formatUnit("html.others", "X10.java");
+}
+public void testHtmlOthers11() throws JavaModelException {
+	formatUnit("html.others", "X11.java");
 }
 
 /*
@@ -443,7 +450,7 @@ public void testHtmlPre() throws JavaModelException {
  * Blank lines inside the <pre> tag are preserved although there were removed
  * in JDT/Text formatter.
  * 
- * TODO (eric) open a bug for this a retrieve an existing one
+ * TODO (frederic) open a bug for this a retrieve an existing one
  */
 public void testHtmlPre02() throws JavaModelException {
 	formatUnit("html.pre", "X02.java");
@@ -455,7 +462,7 @@ public void testHtmlPre03() throws JavaModelException {
  * Blank lines inside the <pre> tag are preserved although there were removed
  * in JDT/Text formatter.
  * 
- * TODO (eric) open a bug for this a retrieve an existing one
+ * TODO (frederic) open a bug for this a retrieve an existing one
  */
 public void testHtmlPre04() throws JavaModelException {
 	formatUnit("html.pre", "X04.java");
@@ -483,6 +490,9 @@ public void testHtmlPre11() throws JavaModelException {
 }
 public void testHtmlPre12() throws JavaModelException {
 	formatUnit("html.pre", "X12.java");
+}
+public void testHtmlPre13() throws JavaModelException {
+	formatUnit("html.pre", "X13.java");
 }
 
 /*
@@ -521,12 +531,15 @@ public void testHtmlUl10() throws JavaModelException {
 public void testHtmlUl11() throws JavaModelException {
 	formatUnit("html.ul", "X11.java");
 }
+public void testHtmlUl12() throws JavaModelException {
+	formatUnit("html.ul", "X12.java");
+}
 
 /**
  * @test Test formatter one line comment
  */
 public void testLines() throws JavaModelException {
-	formatUnit("lines", "X.java");
+	formatUnit("lines", "X01.java");
 }
 public void testLines02() throws JavaModelException {
 	formatUnit("lines", "X02.java");
@@ -562,9 +575,11 @@ public void testPreferencesExample() throws JavaModelException {
 public void testPreferencesExample02() throws JavaModelException {
 	formatUnit("example", "X02.java");
 }
+// TODO (frederic) Pass this test
 public void _testPreferencesExample03() throws JavaModelException {
 	formatUnit("example", "X03.java");
 }
+// TODO (frederic) Pass this test
 public void _testPreferencesExample04() throws JavaModelException {
 	formatUnit("example", "X04.java");
 }
@@ -574,32 +589,35 @@ public void testPreferencesExample05() throws JavaModelException {
 public void testPreferencesExample06() throws JavaModelException {
 	formatUnit("example", "X06.java");
 }
-/*
- * TODO (eric) Fix the 4 following failing tests
- */
+// TODO (frederic) Pass this test
 public void _testPreferencesExample07() throws JavaModelException {
 	formatUnit("example", "X07.java");
 }
+// TODO (frederic) Pass this test
 public void _testPreferencesExample08() throws JavaModelException {
 	formatUnit("example", "X08.java");
 }
+// TODO (frederic) Pass this test
 public void _testPreferencesExample09() throws JavaModelException {
 	formatUnit("example", "X09.java");
 }
+// TODO (frederic) Pass this test
 public void _testPreferencesExample10() throws JavaModelException {
 	formatUnit("example", "X10.java");
 }
 public void testPreferencesExample11() throws JavaModelException {
 	formatUnit("example", "X11.java");
 }
-/*
- * TODO (eric) Fix the 2 following failing tests
- */
+// TODO (frederic) Pass this test
 public void _testPreferencesExample12() throws JavaModelException {
 	formatUnit("example", "X12.java");
 }
+// TODO (frederic) Pass this test
 public void _testPreferencesExample13() throws JavaModelException {
 	formatUnit("example", "X13.java");
+}
+public void testPreferencesExample14() throws JavaModelException {
+	formatUnit("example", "X14.java");
 }
 public void testPreferencesExample14a() throws JavaModelException {
 	formatUnit("example", "X14a.java");
@@ -622,6 +640,21 @@ public void testPreferencesExample15b() throws JavaModelException {
 public void testPreferencesExample15c() throws JavaModelException {
 	formatUnit("example", "X15c.java");
 }
+public void testPreferencesExample16a() throws JavaModelException {
+	formatUnit("example", "X16a.java");
+}
+public void testPreferencesExample16b() throws JavaModelException {
+	formatUnit("example", "X16b.java");
+}
+public void testPreferencesExample17a() throws JavaModelException {
+	formatUnit("example", "X17a.java");
+}
+public void testPreferencesExample17b() throws JavaModelException {
+	formatUnit("example", "X17b.java");
+}
+public void testPreferencesExample17c() throws JavaModelException {
+	formatUnit("example", "X17c.java");
+}
 
 /*
  * Test formatter immutable tags
@@ -643,8 +676,8 @@ public void testTagOthers02() throws JavaModelException {
 /*
  * Test formatter @param
  */
-public void testTagParam() throws JavaModelException {
-	formatUnit("tags.param", "X.java");
+public void testTagParam01() throws JavaModelException {
+	formatUnit("tags.param", "X01.java");
 }
 public void testTagParam02() throws JavaModelException {
 	formatUnit("tags.param", "X02.java");
@@ -675,12 +708,11 @@ public void testTagSee03() throws JavaModelException {
 public void testTagLink01() throws JavaModelException {
 	formatUnit("tags.link", "X01.java");
 }
-/*
- * TODO (eric) Fix the 2 following failing tests
- */
+// TODO (frederic) Pass this test
 public void _testTagLink02() throws JavaModelException {
 	formatUnit("tags.link", "X02.java");
 }
+// TODO (frederic) Pass this test
 public void _testTagLink02b() throws JavaModelException {
 	formatUnit("tags.link", "X02b.java");
 }
@@ -697,12 +729,11 @@ public void testTagLink03b() throws JavaModelException {
 public void testLineComments01() throws JavaModelException {
 	formatUnit("comments.line", "X01.java");
 }
-/*
- * TODO (eric) Fix the 2 following failing tests
- */
+// TODO (frederic) Pass this test
 public void _testLineComments02() throws JavaModelException {
 	formatUnit("comments.line", "X02.java");
 }
+// TODO (frederic) Pass this test
 public void _testLineComments02b() throws JavaModelException {
 	formatUnit("comments.line", "X02b.java");
 }
@@ -714,5 +745,78 @@ public void testLineComments04() throws JavaModelException {
 }
 public void testLineComments05() throws JavaModelException {
 	formatUnit("comments.line", "X05.java");
+}
+
+/*
+ * Test formatter block lines
+ */
+// TODO (frederic) Pass this test
+public void _testBlockComments01() throws JavaModelException {
+	formatUnit("comments.block", "X01.java");
+}
+// TODO (frederic) Pass this test
+public void _testBlockComments02() throws JavaModelException {
+	formatUnit("comments.block", "X02.java");
+}
+public void testBlockComments03() throws JavaModelException {
+	formatUnit("comments.block", "X03.java");
+}
+public void testBlockComments03b() throws JavaModelException {
+	formatUnit("comments.block", "X03b.java");
+}
+public void testBlockComments04() throws JavaModelException {
+	formatUnit("comments.block", "X04.java");
+}
+public void testBlockComments05() throws JavaModelException {
+	formatUnit("comments.block", "X05.java");
+}
+public void testBlockComments05b() throws JavaModelException {
+	formatUnit("comments.block", "X05b.java");
+}
+public void testBlockComments05c() throws JavaModelException {
+	formatUnit("comments.block", "X05c.java");
+}
+public void testBlockComments05d() throws JavaModelException {
+	formatUnit("comments.block", "X05d.java");
+}
+public void testBlockComments05db() throws JavaModelException {
+	formatUnit("comments.block", "X05db.java");
+}
+public void testBlockComments05dc() throws JavaModelException {
+	formatUnit("comments.block", "X05dc.java");
+}
+public void testBlockComments05e() throws JavaModelException {
+	formatUnit("comments.block", "X05e.java");
+}
+public void testBlockComments06() throws JavaModelException {
+	formatUnit("comments.block", "X06.java");
+}
+public void testBlockComments07() throws JavaModelException {
+	formatUnit("comments.block", "X07.java");
+}
+
+/*
+ * Test formatter on example got from workspaces
+ */
+// Full source performances 3.0
+public void testWkspEclipse01() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X01.java");
+}
+public void testWkspEclipse02() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X02.java");
+}
+public void testWkspEclipse02b() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X02b.java");
+}
+public void testWkspEclipse03() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X03.java");
+}
+// TODO (frederic) Pass this test
+public void _testWkspEclipse04() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X04.java");
+}
+// JUnit 3.8.2
+public void testWkspJUnit01() throws JavaModelException {
+	formatUnit("wksp.junit", "X01.java");
 }
 }

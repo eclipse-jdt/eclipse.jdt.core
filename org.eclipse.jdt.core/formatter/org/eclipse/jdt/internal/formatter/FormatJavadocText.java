@@ -33,11 +33,12 @@ public class FormatJavadocText extends FormatJavadocNode implements IJavaDocTagC
 	private int htmlTagIndex = -1;
 	int linesBefore = 0;
 	FormatJavadocNode[] htmlNodes;
+	int[] htmlIndexes;
 	int htmlNodesPtr = -1;
 	int depth = 0;
 
-public FormatJavadocText(int start, int end, int htmlIndex, int htmlDepth) {
-	super(start, end);
+public FormatJavadocText(int start, int end, int line, int htmlIndex, int htmlDepth) {
+	super(start, end, line);
 	this.htmlTagIndex = htmlIndex;
 	this.depth = htmlDepth;
 }
@@ -68,6 +69,8 @@ void appendText(FormatJavadocText text) {
 				text.linesBefore = 1;
 				break;
 	    	case JAVADOC_SINGLE_BREAK_TAG_ID:
+				if (!text.isClosingHtmlTag()) text.linesBefore = 1;
+				break;
 	    	case JAVADOC_BREAK_TAGS_ID:
 				if (!text.isClosingHtmlTag()) text.linesBefore = 1;
 		}
@@ -75,10 +78,11 @@ void appendText(FormatJavadocText text) {
 }
 void appendNode(FormatJavadocNode node) {
 	if (++this.htmlNodesPtr == 0) { // lazy initialization
-		this.htmlNodes = new FormatJavadocText[DEFAULT_ARRAY_SIZE];
+		this.htmlNodes = new FormatJavadocNode[DEFAULT_ARRAY_SIZE];
 	} else {
 		if (this.htmlNodesPtr == this.htmlNodes.length) {
-			System.arraycopy(this.htmlNodes, 0, (this.htmlNodes= new FormatJavadocText[this.htmlNodes.length + 1]), 0, this.htmlNodesPtr);
+			int size = this.htmlNodesPtr + DEFAULT_ARRAY_SIZE;
+			System.arraycopy(this.htmlNodes, 0, (this.htmlNodes= new FormatJavadocNode[size]), 0, this.htmlNodesPtr);
 		}
 	}
 	addSeparator(node);
@@ -90,22 +94,27 @@ private void addSeparator(FormatJavadocNode node) {
 	// Just append the text
 	if (++this.separatorsPtr == 0) { // lazy initialization
 		this.separators = new long[DEFAULT_ARRAY_SIZE];
+		this.htmlIndexes = new int[DEFAULT_ARRAY_SIZE];
 	} else { // resize if needed
 		if (this.separatorsPtr == this.separators.length) {
-			System.arraycopy(this.separators, 0, (this.separators = new long[this.separators.length + DEFAULT_ARRAY_SIZE]), 0, this.separatorsPtr);
+			int size = this.separatorsPtr + DEFAULT_ARRAY_SIZE;
+			System.arraycopy(this.separators, 0, (this.separators = new long[size]), 0, this.separatorsPtr);
+			System.arraycopy(this.htmlIndexes, 0, (this.htmlIndexes = new int[size]), 0, this.separatorsPtr);
 		}
 	}
 	this.separators[this.separatorsPtr] = (((long) this.sourceEnd) << 32) + node.sourceStart;
+	this.htmlIndexes[this.separatorsPtr] = node.isText() ? ((FormatJavadocText)node).htmlTagIndex : -1;
 }
 
 void clean() {
 	int length = this.separators == null ? 0 : this.separators.length;
 	if (this.separatorsPtr != (length-1)) {
 		System.arraycopy(this.separators, 0, this.separators = new long[this.separatorsPtr+1], 0, this.separatorsPtr+1);
+		System.arraycopy(this.htmlIndexes, 0, this.htmlIndexes = new int[this.separatorsPtr+1], 0, this.separatorsPtr+1);
 	}
 	length = this.htmlNodes == null ? 0 : this.htmlNodes.length;
 	if (this.htmlNodesPtr != (length-1)) {
-		System.arraycopy(this.htmlNodes, 0, this.htmlNodes = new FormatJavadocText[this.htmlNodesPtr+1], 0, this.htmlNodesPtr+1);
+		System.arraycopy(this.htmlNodes, 0, this.htmlNodes = new FormatJavadocNode[this.htmlNodesPtr+1], 0, this.htmlNodesPtr+1);
 		for (int i=0; i<=this.htmlNodesPtr; i++) {
 			this.htmlNodes[i].clean();
 		}
@@ -122,6 +131,13 @@ int getHtmlTagIndex() {
 
 int getHtmlTagID() {
 	return this.htmlTagIndex & JAVADOC_TAGS_ID_MASK;
+}
+
+FormatJavadocNode getLastNode() {
+	if (this.htmlNodes != null) {
+		return this.htmlNodes[this.htmlNodesPtr];
+	}
+	return null;
 }
 
 /**
@@ -170,12 +186,59 @@ public boolean isText() {
  */
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("	").append("[FJText] - at offset: " + this.sourceStart).append(" end position: " + this.sourceEnd).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-	if (this.separatorsPtr > -1) {
-		buffer.append("	").append("Number of text sections: " + (this.separatorsPtr + 1) + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	} else {
-		buffer.append("	").append("NO TEXT SEPARATOR" + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	}
+	buffer.append("	").append("[FJText] - at offset: " + this.sourceStart).append(" end position: " + this.sourceEnd).append('\n'); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	buffer.append("	").append(this.separatorsPtr+1).append(" text sections, "); //$NON-NLS-1$ //$NON-NLS-2$
+	buffer.append("	").append(this.htmlNodesPtr+1).append(" html tags.\n"); //$NON-NLS-1$ //$NON-NLS-2$
+	buffer.append("	").append("depth=").append(this.depth) //$NON-NLS-1$ //$NON-NLS-2$
+		.append(", lines before=").append(this.linesBefore) //$NON-NLS-1$
+		.append(", htmlTagIndex=").append(this.htmlTagIndex) //$NON-NLS-1$
+		.append('\n');
 	return buffer.toString();
+}
+
+public void toStringDebug(StringBuffer buffer, char[] source) {
+	if (buffer.length() > 0) {
+		for (int l=0; l<this.linesBefore; l++) {
+			buffer.append('\n');
+			for (int t=0; t<this.depth; t++) buffer.append('\t');
+		}
+	}
+	if (separatorsPtr == -1) {
+		super.toStringDebug(buffer, source);
+		return;
+	}
+	int ptr = 0;
+	int nextStart = this.sourceStart;
+	int idx = 0;
+	while (idx<=this.separatorsPtr || (this.htmlNodesPtr != -1 && ptr <= this.htmlNodesPtr)) {
+		if (idx > this.separatorsPtr) {
+			// last node
+			FormatJavadocNode node = this.htmlNodes[ptr++];
+			node.toStringDebug(buffer, source);
+			return;
+		}
+		int end = (int) (this.separators[idx] >>> 32);
+		if (this.htmlNodesPtr >= 0 && ptr <= this.htmlNodesPtr && end > this.htmlNodes[ptr].sourceStart) {
+			FormatJavadocNode node = this.htmlNodes[ptr++];
+			node.toStringDebug(buffer, source);
+		} else {
+			if (idx > 1 && source[nextStart] != '<') {
+				buffer.append('\n');
+				for (int t=0; t<this.depth; t++) buffer.append('\t');
+			}
+			buffer.append(source, nextStart, end - nextStart + 1);
+		}
+		nextStart = (int) this.separators[idx++];
+	}
+	if (source[nextStart] == '<') {
+		switch (getHtmlTagID()) {
+			case JAVADOC_CODE_TAGS_ID:
+				buffer.append('\n');
+				for (int t=0; t<this.depth; t++) buffer.append('\t');
+				break;
+		}
+	}
+	buffer.append(source, nextStart, this.sourceEnd-nextStart+1);
+	buffer.append(' ');
 }
 }
