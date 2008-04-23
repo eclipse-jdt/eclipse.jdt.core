@@ -11024,4 +11024,39 @@ public void test0217_Method() {
 			expectedReplacedSource,
 			"full ast");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227546
+public void test0218_Diet() {
+
+	String str = 
+		"public enum X {\n" + 
+		"	SUCCESS { ZZZ }\n" + 
+		"}\n"; 
+
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf("ZZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:ZZZ>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ZZZ";
+	String expectedReplacedSource = "ZZZ";
+	String expectedUnitDisplayString =
+		"public enum X {\n" + 
+		"  SUCCESS() {\n" + 
+		"    <CompleteOnType:ZZZ>;\n" + 
+		"  },\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }

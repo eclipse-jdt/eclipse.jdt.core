@@ -9167,12 +9167,13 @@ protected void parse() {
 				}
 			}
 			
-			int errorPos = this.scanner.currentPosition;
+			int errorPos = this.scanner.currentPosition - 1;
 			if (!this.hasReportedError) {
 				this.hasError = true;
 			}
+			int previousToken = this.currentToken;
 			if (resumeOnSyntaxError()) {
-				if (act == ERROR_ACTION) this.lastErrorEndPosition = errorPos;
+				if (act == ERROR_ACTION && previousToken != 0) this.lastErrorEndPosition = errorPos;
 				act = START_STATE;
 				this.stateStackTop = -1;
 				this.currentToken = getFirstToken();

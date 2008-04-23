@@ -351,6 +351,32 @@ public RecoveredType enclosingType(){
 	}
 	return null;
 }
+public int lastMemberEnd() {
+	int lastMemberEnd = this.typeDeclaration.bodyStart;
+	
+	if (this.fieldCount > 0) {
+		FieldDeclaration lastField = this.fields[fieldCount - 1].fieldDeclaration;
+		if (lastMemberEnd < lastField.declarationSourceEnd && lastField.declarationSourceEnd != 0) {
+			lastMemberEnd = lastField.declarationSourceEnd;
+		}
+	}
+	
+	if (this.methodCount > 0) {
+		AbstractMethodDeclaration lastMethod = this.methods[this.methodCount - 1].methodDeclaration;
+		if (lastMemberEnd < lastMethod.declarationSourceEnd && lastMethod.declarationSourceEnd != 0) {
+			lastMemberEnd = lastMethod.declarationSourceEnd;
+		}
+	}
+	
+	if (this.memberTypeCount > 0) {
+		TypeDeclaration lastType = this.memberTypes[this.memberTypeCount - 1].typeDeclaration;
+		if (lastMemberEnd < lastType.declarationSourceEnd && lastType.declarationSourceEnd != 0) {
+			lastMemberEnd = lastType.declarationSourceEnd;
+		}
+	}
+	
+	return lastMemberEnd;
+}
 public char[] name(){
 	return typeDeclaration.name;
 }

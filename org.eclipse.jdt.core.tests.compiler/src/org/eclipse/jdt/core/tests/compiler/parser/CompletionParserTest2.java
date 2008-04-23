@@ -11629,4 +11629,129 @@ public void test0173_Method() {
 			expectedReplacedSource,
 			"full ast");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227546
+public void test0174_Diet() {
+
+	String str = 
+		"public class X {\n" + 
+		"	# ; ZZZ\n" + 
+		"}\n"; 
+
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf("ZZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ZZZ";
+	String expectedReplacedSource = "ZZZ";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227546
+public void test0175_Diet() {
+
+	String str = 
+		"public class X {\n" + 
+		"	int # ZZZ\n" + 
+		"}\n"; 
+
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf("ZZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ZZZ";
+	String expectedReplacedSource = "ZZZ";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227546
+public void test0176_Diet() {
+
+	String str = 
+		"public class X {\n" + 
+		"	# int i; ZZZ\n" + 
+		"}\n"; 
+
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf("ZZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:ZZZ>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ZZZ";
+	String expectedReplacedSource = "ZZZ";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  int i;\n" + 
+		"  <CompleteOnType:ZZZ>;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227546
+public void test0177_Diet() {
+
+	String str = 
+		"public class X {\n" + 
+		"	# void foo() {} ZZZ\n" + 
+		"}\n"; 
+
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf("ZZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:ZZZ>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ZZZ";
+	String expectedReplacedSource = "ZZZ";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  <CompleteOnType:ZZZ>;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }

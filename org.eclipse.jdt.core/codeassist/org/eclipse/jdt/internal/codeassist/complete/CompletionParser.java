@@ -1715,7 +1715,7 @@ private boolean checkRecoveredMethod() {
 
 		/* check if on line with an error already - to avoid completing inside
 			illegal type names e.g.  int[<cursor> */
-		if (lastErrorEndPosition <= cursorLocation+1
+		if (lastErrorEndPosition <= cursorLocation
 			&& Util.getLineNumber(lastErrorEndPosition, scanner.lineEnds, 0, scanner.linePtr)
 					== Util.getLineNumber(((CompletionScanner)scanner).completedIdentifierStart, scanner.lineEnds, 0, scanner.linePtr)){
 			return false;
@@ -1768,7 +1768,8 @@ private boolean checkRecoveredType() {
 
 		/* check if on line with an error already - to avoid completing inside
 			illegal type names e.g.  int[<cursor> */
-		if ((lastErrorEndPosition <= cursorLocation+1)
+		if (lastErrorEndPosition <= cursorLocation
+			&& ((RecoveredType)this.currentElement).lastMemberEnd() < lastErrorEndPosition
 			&& Util.getLineNumber(lastErrorEndPosition, scanner.lineEnds, 0, scanner.linePtr)
 					== Util.getLineNumber(((CompletionScanner)scanner).completedIdentifierStart, scanner.lineEnds, 0, scanner.linePtr)){
 			return false;
