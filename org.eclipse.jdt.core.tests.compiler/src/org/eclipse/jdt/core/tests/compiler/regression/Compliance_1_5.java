@@ -3453,6 +3453,30 @@ public void test105() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798
+public void test106() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" + 
+			"import java.util.zip.*;\n" + 
+			"public class X {\n" + 
+			"	void x() throws ZipException {\n" + 
+			"		IandJ ij= new K();\n" + 
+			"		ij.m();\n" + 
+			"	}\n" + 
+			"	void y() throws ZipException {\n" + 
+			"		K k= new K();\n" + 
+			"		k.m();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface I { void m() throws IOException; }\n" + 
+			"interface J { void m() throws ZipException; }\n" + 
+			"interface IandJ extends I, J {}\n" + 
+			"class K implements IandJ { public void m() throws ZipException { } }"
+		},
+		"");
+}
 
 public static Class testClass() {
 	return Compliance_1_5.class;

@@ -3483,15 +3483,14 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							return possible;
 						}
 					}
-// do not return a new methodBinding until we know that it does not cause problems
-//					return new MethodBinding(
-//						current.modifiers,
-//						current.selector,
-//						current.returnType,
-//						current.parameters,
-//						mostSpecificExceptions,
-//						current.declaringClass
-//					);
+					return new MethodBinding(
+						current.modifiers | ClassFileConstants.AccSynthetic,
+						current.selector,
+						current.returnType,
+						current.parameters,
+						mostSpecificExceptions,
+						current.declaringClass
+					);
 				}
 				return current;
 			}
