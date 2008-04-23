@@ -183,9 +183,9 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 				pendingAnnotationCount,
 				pendingModifiers,
 				pendingModifersSourceStart);
-		this.resetPendingModifiers();
 	}
-
+	this.resetPendingModifiers();
+	
 	/* if type not finished, then type becomes current */
 	if (typeDeclaration.declarationSourceEnd == 0) return element;
 	return this;	

@@ -124,8 +124,8 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 				pendingAnnotationCount,
 				pendingModifiers,
 				pendingModifersSourceStart);
-		this.resetPendingModifiers();
 	}
+	this.resetPendingModifiers();
 
 	if (localDeclaration instanceof Argument){
 		this.pendingArgument = element;
@@ -189,8 +189,8 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 				pendingAnnotationCount,
 				pendingModifiers,
 				pendingModifersSourceStart);
-		this.resetPendingModifiers();
 	}
+	this.resetPendingModifiers();
 	this.attach(element);
 	if (typeDeclaration.declarationSourceEnd == 0) return element;
 	return this;

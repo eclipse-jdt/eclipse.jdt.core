@@ -1673,4 +1673,105 @@ public void test0035() {
 		expectedCompletionDietUnitToString,	
 		testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227855
+public void test0036() {
+
+	String s = 
+		"package a;																					\n"
+			+ "#																					\n"
+			+ "public class Test {																	\n"
+			+ "  public Test() {}																	\n"
+			+ "  @SuppressWarnings(value=\"\")														\n"
+			+ "  private int id;																	\n"
+			+ "}																					\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class Test {\n" + 
+		"  private @SuppressWarnings(value = \"\") int id;\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class Test {\n" + 
+		"  private @SuppressWarnings(value = \"\") int id;\n" + 
+		"  public Test() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class Test {\n" + 
+		"  private @SuppressWarnings(value = \"\") int id;\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227855
+public void test0037() {
+
+	String s = 
+		"package a;																					\n"
+			+ "#																					\n"
+			+ "public class Test {																	\n"
+			+ "  public int id0;																	\n"
+			+ "  @SuppressWarnings(value=\"\")														\n"
+			+ "  private int id;																	\n"
+			+ "}																					\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class Test {\n" + 
+		"  public int id0;\n" + 
+		"  private @SuppressWarnings(value = \"\") int id;\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class Test {\n" + 
+		"  public int id0;\n" + 
+		"  private @SuppressWarnings(value = \"\") int id;\n" + 
+		"  public Test() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class Test {\n" + 
+		"  public int id0;\n" + 
+		"  private @SuppressWarnings(value = \"\") int id;\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
 }

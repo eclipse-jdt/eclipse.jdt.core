@@ -112,8 +112,8 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 				pendingAnnotationCount,
 				pendingModifiers,
 				pendingModifersSourceStart);
-		this.resetPendingModifiers();
 	}
+	this.resetPendingModifiers();
 	
 	this.insideEnumConstantPart = false;
 
@@ -182,8 +182,8 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 				pendingAnnotationCount,
 				pendingModifiers,
 				pendingModifersSourceStart);
-		this.resetPendingModifiers();
 	}
+	this.resetPendingModifiers();
 
 	/* consider that if the opening brace was not found, it is there */
 	if (!foundOpeningBrace){
@@ -248,8 +248,8 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 				pendingAnnotationCount,
 				pendingModifiers,
 				pendingModifersSourceStart);
-		this.resetPendingModifiers();
 	}
+	this.resetPendingModifiers();
 
 	/* consider that if the opening brace was not found, it is there */
 	if (!foundOpeningBrace){

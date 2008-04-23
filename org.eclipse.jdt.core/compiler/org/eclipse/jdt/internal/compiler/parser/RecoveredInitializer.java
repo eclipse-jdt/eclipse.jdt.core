@@ -196,8 +196,8 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 				pendingAnnotationCount,
 				pendingModifiers,
 				pendingModifersSourceStart);
-		this.resetPendingModifiers();
 	}
+	this.resetPendingModifiers();
 	
 	/* consider that if the opening brace was not found, it is there */
 	if (!foundOpeningBrace){
