@@ -181,19 +181,19 @@ public boolean isText() {
 	return true;
 }
 
-/* (non-Javadoc)
- * @see java.lang.Object#toString()
- */
-public String toString() {
-	StringBuffer buffer = new StringBuffer();
-	buffer.append("	").append("[FJText] - at offset: " + this.sourceStart).append(" end position: " + this.sourceEnd).append('\n'); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	buffer.append("	").append(this.separatorsPtr+1).append(" text sections, "); //$NON-NLS-1$ //$NON-NLS-2$
-	buffer.append("	").append(this.htmlNodesPtr+1).append(" html tags.\n"); //$NON-NLS-1$ //$NON-NLS-2$
-	buffer.append("	").append("depth=").append(this.depth) //$NON-NLS-1$ //$NON-NLS-2$
-		.append(", lines before=").append(this.linesBefore) //$NON-NLS-1$
-		.append(", htmlTagIndex=").append(this.htmlTagIndex) //$NON-NLS-1$
-		.append('\n');
-	return buffer.toString();
+protected void toString(StringBuffer buffer) {
+	StringBuffer indentation = new StringBuffer();
+	for (int t=0; t<=this.depth; t++) indentation.append('\t');
+	buffer.append(indentation);
+	buffer.append("text"); //$NON-NLS-1$
+	super.toString(buffer);
+	buffer.append(" ("); //$NON-NLS-1$
+	buffer.append(this.separatorsPtr+1).append(" sections, "); //$NON-NLS-1$
+	buffer.append(this.htmlNodesPtr+1).append(" html tags, "); //$NON-NLS-1$
+	buffer.append(this.depth).append(" depth, "); //$NON-NLS-1$
+	buffer.append(this.linesBefore).append(" before, "); //$NON-NLS-1$
+	buffer.append(this.htmlTagIndex).append(" tag index)"); //$NON-NLS-1$
+	buffer.append('\n');
 }
 
 public void toStringDebug(StringBuffer buffer, char[] source) {

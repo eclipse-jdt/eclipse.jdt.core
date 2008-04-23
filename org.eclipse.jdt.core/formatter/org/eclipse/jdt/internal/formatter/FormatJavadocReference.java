@@ -38,12 +38,8 @@ void clean() {
 	// Clean positions when used
 }
 
-public String toString() {
-	StringBuffer buffer = new StringBuffer("[FJRef] - at offset: ");	//$NON-NLS-1$
-	buffer.append(this.sourceStart);
-	buffer.append(" end position: ");	//$NON-NLS-1$
-	buffer.append(this.sourceEnd);
-	buffer.append('\n');
-	return buffer.toString();
+protected void toString(StringBuffer buffer) {
+	buffer.append("ref");	//$NON-NLS-1$
+	super.toString(buffer);
 }
 }

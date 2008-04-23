@@ -794,6 +794,15 @@ public void testBlockComments06() throws JavaModelException {
 public void testBlockComments07() throws JavaModelException {
 	formatUnit("comments.block", "X07.java");
 }
+public void testBlockComments08() throws JavaModelException {
+	formatUnit("comments.block", "X08.java");
+}
+public void testBlockComments09() throws JavaModelException {
+	formatUnit("comments.block", "X09.java");
+}
+public void testBlockComments10() throws JavaModelException {
+	formatUnit("comments.block", "X10.java");
+}
 
 /*
  * Test formatter on example got from workspaces
@@ -814,6 +823,51 @@ public void testWkspEclipse03() throws JavaModelException {
 // TODO (frederic) Pass this test
 public void _testWkspEclipse04() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X04.java");
+}
+public void testWkspEclipse05() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X05.java");
+}
+public void testWkspEclipse06() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X06.java");
+}
+public void testWkspEclipse07() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X07.java");
+}
+public void testWkspEclipse08() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X08.java");
+}
+public void testWkspEclipse08b() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X08b.java");
+}
+public void testWkspEclipse08c() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X08c.java");
+}
+public void testWkspEclipse09() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X09.java");
+}
+public void testWkspEclipse09b() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X09b.java");
+}
+public void testWkspEclipse10() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X10.java");
+}
+public void testWkspEclipse11() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X11.java");
+}
+public void testWkspEclipse11b() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X11b.java");
+}
+public void testWkspEclipse11c() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X11c.java");
+}
+public void testWkspEclipse12() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X12.java");
+}
+public void testWkspEclipse12b() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X12b.java");
+}
+public void testWkspEclipse13() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X13.java");
 }
 // JUnit 3.8.2
 public void testWkspJUnit01() throws JavaModelException {

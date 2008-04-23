@@ -1143,6 +1143,14 @@ public class Scribe implements IJavaDocTagConstants {
 
 	private void printBlockComment(int currentTokenStartPosition, int currentTokenEndPosition) {
 
+
+		// Compute indentation
+		int firstColumn = this.column;
+		int indentLevel = this.indentationLevel;
+		int indentations = this.numberOfIndentations;
+		this.indentationLevel = getNextIndentationLevel(firstColumn);
+		this.numberOfIndentations = this.indentationLevel % this.indentationSize;
+
 		// Consume the comment prefix
 		StringBuffer buffer = new StringBuffer();
 		this.scanner.getNextChar();
@@ -1274,6 +1282,7 @@ public class Scribe implements IJavaDocTagConstants {
 								this.column += breakBuffer.length();
 								previousToken = token;
 								scannerLine = lineNumber;
+								newLine = false;
 								continue;
 							}
 						}
@@ -1332,7 +1341,10 @@ public class Scribe implements IJavaDocTagConstants {
 			int tokenStart = this.scanner.getCurrentTokenStartPosition();
     		int tokenLength = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - tokenStart;
     		hasTokens = true;
-    		if (scannerLine == firstLine) hastTextOnFirstLine = true;
+    		if (!hastTextOnFirstLine && scannerLine == firstLine) {
+    			hastTextOnFirstLine = true;
+    			this.column++;
+    		}
 			this.column += tokenLength;
     		if (previousToken == -1 || insertSpace) this.column++;
     		
@@ -1379,6 +1391,8 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 
 		// Reset
+		this.indentationLevel = indentLevel;
+		this.numberOfIndentations = indentations;
 		this.lastNumberOfNewLines = 0;
 		needSpace = false;
 		this.scanner.resetTo(currentTokenEndPosition, this.scannerEndPosition - 1);
@@ -2062,6 +2076,8 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 		
 		// tag section: iterate through the blocks composing this tag but the last one
+		int maxColumn = this.formatter.preferences.comment_line_length;
+		if (block.isHeaderLine()) maxColumn++;
 		for (int i=0; i<=maxNodes; i++) {
 			FormatJavadocNode node = block.nodes[i];
 			int nodeStart = node.sourceStart;
@@ -2089,7 +2105,7 @@ public class Scribe implements IJavaDocTagConstants {
 					if (newLines < text.linesBefore) newLines = text.linesBefore;
 					if (newLines == 0 && text.isImmutableHtmlTag()) {
 						textLength = getTextLength(block, text);
-						if ((this.column + textLength) > this.formatter.preferences.comment_line_length) {
+						if ((this.column + textLength) > maxColumn) {
 							newLines = 1;
 						}
 					}
@@ -2116,7 +2132,7 @@ public class Scribe implements IJavaDocTagConstants {
 							if (nodeStart > (previousEnd+1)) {
 								tokenLength++; // include space between nodes
 							}
-							if ((this.column + tokenLength) > this.formatter.preferences.comment_line_length) {
+							if ((this.column + tokenLength) > maxColumn) {
 								// finally a new line will be inserted while printing next text
 								newLines = 1;
 								((FormatJavadocText)node).linesBefore = 1;
@@ -2436,9 +2452,33 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	private int printJavadocHtmlTag(FormatJavadocText text, FormatJavadocBlock block) {
-		
-		// Local variables init
+
+		// Compute indentation if necessary
 		boolean clearBlankLines = this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment;
+		boolean indentRootTags = this.formatter.preferences.comment_indent_root_tags && !block.isDescription();
+		boolean indentParamTag = this.formatter.preferences.comment_indent_parameter_description && block.isParamTag();
+		boolean headerLine = block.isHeaderLine() && this.lastNumberOfNewLines == 0;
+		int firstColumn = 1 + this.indentationLevel + BLOCK_LINE_PREFIX_LENGTH;
+		if (headerLine) firstColumn++;
+		StringBuffer indentationBuffer = null;
+		if (indentRootTags) {
+			int indentLevel = this.indentationLevel;
+			int indentations = this.numberOfIndentations;
+			this.numberOfIndentations += (BLOCK_LINE_PREFIX_LENGTH / this.indentationSize) + 1;
+			this.indentationLevel = this.numberOfIndentations * this.indentationSize;
+			int currentColumn = this.column;
+			this.column = firstColumn;
+			if (indentParamTag) {
+				this.indentationLevel += this.indentationSize;
+				this.numberOfIndentations++;
+			}
+			printIndentationIfNecessary(indentationBuffer = new StringBuffer());
+			this.column = currentColumn;
+			this.indentationLevel = indentLevel;
+			this.numberOfIndentations = indentations;
+		}
+
+		// Local variables init
 		int textStart = text.sourceStart;
 		int nextStart = textStart;
 		int startLine = Util.getLineNumber(textStart, this.lineEnds, 0, this.maxLines);
@@ -2468,17 +2508,42 @@ public class Scribe implements IJavaDocTagConstants {
 						newLines = linesAfter;
 						if (newLines > 1 && clearBlankLines) newLines = 1;
 					}
-					if (textStart < previousEnd) addReplaceEdit(textStart, previousEnd, buffer.toString());
+					if (textStart < previousEnd) {
+						addReplaceEdit(textStart, previousEnd, buffer.toString());
+//						this.column += buffer.length();
+					}
+					boolean immutable = htmlTag == null ? false : htmlTag.isImmutableHtmlTag();
+					boolean overEndLine = false;
+					if (immutable) {
+						overEndLine = (this.column + htmlTag.getLength()) > this.formatter.preferences.comment_line_length;
+						if (overEndLine) {
+							if (newLines < 1) newLines = 1;
+						}
+					}
 					printJavadocGapLines(previousEnd+1, node.sourceStart-1, newLines, clearBlankLines, false, null);
 					if (newLines > 0) textOnNewLine = true;
+					buffer = new StringBuffer();
 					if (node.isText()) {
-						linesAfter = printJavadocHtmlTag(htmlTag, block);
+						if (immutable) {
+							// do not change immutable tags, just increment column
+							this.column += getTextLength(block, htmlTag);
+							linesAfter = 0;
+							if (overEndLine) {
+								// need to indent
+								if (indentationBuffer != null) {
+									addInsertEdit(node.sourceStart, indentationBuffer.toString());
+								}
+//								buffer.append(' ');
+//								this.column++;
+							}
+						} else {
+							linesAfter = printJavadocHtmlTag(htmlTag, block);
+						}
 					} else {
 						printJavadocBlock((FormatJavadocBlock)node);
 						linesAfter = 0;
 					}
-					buffer = new StringBuffer();
-					textStart = node.sourceEnd + 1;
+					textStart = node.sourceEnd+1;
 					ptr++;
 					if (idx > max)  {
 						return linesAfter;
@@ -2515,7 +2580,8 @@ public class Scribe implements IJavaDocTagConstants {
 					if (clearBlankLines) {
 						// keep previously computed lines after
 					} else {
-						if (wasHtmlTag || idx==0 || (idx==max && ((text.htmlIndexes[max] & JAVADOC_TAGS_ID_MASK) == htmlTagID))) {
+//						if (wasHtmlTag || idx==0 || (idx==max && ((text.htmlIndexes[max] & JAVADOC_TAGS_ID_MASK) == htmlTagID))) {
+						if (idx==0 || (idx==max && ((text.htmlIndexes[max] & JAVADOC_TAGS_ID_MASK) == htmlTagID)) || (idx < max && wasHtmlTag && (text.htmlIndexes[idx-1] & JAVADOC_TAGS_ID_MASK) != JAVADOC_IMMUTABLE_TAGS_ID)) {
 							if (linesAfter < linesGap) {
 								linesAfter = linesGap;
 							}
@@ -2652,7 +2718,7 @@ public class Scribe implements IJavaDocTagConstants {
 
 		boolean indentRootTags = this.formatter.preferences.comment_indent_root_tags && !block.isDescription();
 		boolean indentParamTag = this.formatter.preferences.comment_indent_parameter_description && block.isParamTag();
-		boolean headerLine = block.isHeaderLine() && this.lastNumberOfNewLines == 0;
+		boolean headerLine = (buffer.indexOf(Util.LINE_SEPARATOR) < 0) && block.isHeaderLine() && this.lastNumberOfNewLines == 0;
 		StringBuffer textBuffer = isHtmlTag ? new StringBuffer() : buffer;
 		
 		// First we need to know what is the indentation
@@ -2689,6 +2755,7 @@ public class Scribe implements IJavaDocTagConstants {
 			this.scanner.resetTo(textStart, textEnd);
 			this.scanner.skipComments = true;
 			int previousToken = -1;
+			boolean openedString  =false;
 
 			// Consume text token per token
     		while (!this.scanner.atEnd()) {
@@ -2696,18 +2763,34 @@ public class Scribe implements IJavaDocTagConstants {
 				try {
 					token = this.scanner.getNextToken();
 				} catch (InvalidInputException iie) {
+					boolean insertSpace = previousToken == TerminalTokens.TokenNameWHITESPACE;
 					String msg = iie.getMessage();
 					if (msg == Scanner.INVALID_CHARACTER_CONSTANT) {
+						if (insertSpace) {
+							buffer.append(' ');
+							this.column++;
+						}
 						buffer.append('\'');
+						this.column++;
 					} else if (msg == Scanner.INVALID_CHAR_IN_STRING) {
+						if (openedString) {
+							openedString = false;
+						} else {
+							if (insertSpace) {
+								buffer.append(' ');
+								this.column++;
+							}
+							openedString = true;
+						}
 						buffer.append('"');
+						this.column++;
 					} else {
 						// skip failure
 					}
-					this.column++;
 					// Need to retrieve correct position
 					this.scanner.resetTo(this.scanner.startPosition, textEnd);
 					this.scanner.getNextChar();
+					previousToken = 1;
 					continue;
 				}
 				if (token == TerminalTokens.TokenNameWHITESPACE) {
@@ -2734,7 +2817,7 @@ public class Scribe implements IJavaDocTagConstants {
 			    	this.column = 1;
 			    	printIndentationIfNecessary(buffer);
 		    		buffer.append(BLOCK_LINE_PREFIX);
-			    	this.column = firstColumn;
+			    	this.column = headerLine ? firstColumn-1 : firstColumn;
 			    	if (indentationBuffer != null) {
 			    		buffer.append(indentationBuffer);
 			    	}

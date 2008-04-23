@@ -39,6 +39,10 @@ FormatJavadocNode getLastNode() {
 	return null;
 }
 
+public int getLength() {
+	return this.sourceEnd - this.sourceStart + 1;	
+}
+
 /**
  * Returns whether the node is a text (see {@link FormatJavadocText} or not.
  * In case not, that means that the node is an block (see
@@ -49,6 +53,18 @@ FormatJavadocNode getLastNode() {
  */
 public boolean isText() {
 	return false;
+}
+
+public String toString() {
+	StringBuffer buffer = new StringBuffer();
+	toString(buffer);
+	return buffer.toString();
+}
+protected void toString(StringBuffer buffer) {
+	buffer.append(": "); //$NON-NLS-1$
+	buffer.append(this.sourceStart);
+	buffer.append(" -> ");	//$NON-NLS-1$
+	buffer.append(this.sourceEnd);
 }
 
 public String toStringDebug(char[] source) {

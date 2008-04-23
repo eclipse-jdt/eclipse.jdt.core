@@ -156,13 +156,19 @@ FormatJavadocText[] getTextHierarchy(FormatJavadocNode node, int htmlDepth) {
 			// Text breakage
 			if (lastText.isHtmlTag() && text != null) {
 				// Set some lines before if previous was specific html tag
-				switch (lastText.getHtmlTagID()) {
-					case JAVADOC_CODE_TAGS_ID:
-						text.linesBefore = 2;
-						break;
-					case JAVADOC_SEPARATOR_TAGS_ID:
-			    	case JAVADOC_SINGLE_BREAK_TAG_ID:
-						if (text.linesBefore < 1) text.linesBefore = 1;
+				if (lastText.separatorsPtr == -1 || lastText.isClosingHtmlTag()) {
+					switch (lastText.getHtmlTagID()) {
+						case JAVADOC_CODE_TAGS_ID:
+							if (text.linesBefore < 2) {
+								text.linesBefore = 2;
+							}
+							break;
+						case JAVADOC_SEPARATOR_TAGS_ID:
+				    	case JAVADOC_SINGLE_BREAK_TAG_ID:
+							if (text.linesBefore < 1) {
+								text.linesBefore = 1;
+							}
+					}
 				}
 				// If adding an html tag on same html tag, then close previous one and leave
 				if (text.isHtmlTag() && !text.isClosingHtmlTag() && text.getHtmlTagIndex() == lastText.getHtmlTagIndex() && !lastText.isClosingHtmlTag()) {
@@ -269,24 +275,23 @@ public boolean isParamTag() {
 	return false;
 }
 
-/* (non-Javadoc)
- * @see java.lang.Object#toString()
- */
-public String toString() {
-	StringBuffer buffer = new StringBuffer();
+protected void toString(StringBuffer buffer) {
 	if ((this.flags & INLINED) != 0) buffer.append('{');
 	buffer.append('@');
 	buffer.append(this.tagValue);
-	if (this.reference != null) {
-		buffer.append(' ');
-		buffer.append(this.reference);
+	super.toString(buffer);
+	if (this.reference == null) {
+		buffer.append('\n');
+	} else {
+		buffer.append(" ("); //$NON-NLS-1$
+		this.reference.toString(buffer);
+		buffer.append(")\n"); //$NON-NLS-1$
 	}
 	if (this.nodesPtr > -1) {
 		for (int i = 0; i <= this.nodesPtr; i++) {
-			buffer.append(this.nodes[i]);
+			this.nodes[i].toString(buffer);
 		}
 	}
-	return buffer.toString();
 }
 
 public String toStringDebug(char[] source) {

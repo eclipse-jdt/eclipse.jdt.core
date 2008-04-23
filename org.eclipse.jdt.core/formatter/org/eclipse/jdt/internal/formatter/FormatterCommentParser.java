@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.formatter.comment.IJavaDocTagConstants;
 
@@ -95,6 +96,10 @@ protected Object createMethodReference(Object receiver, List arguments) throws I
  * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#createTag()
  */
 protected void createTag() {
+//	if (this.tagValue == TAG_OTHERS_VALUE)  {
+//		if (this.textStart == -1) this.textStart = this.tagSourceStart;
+//		return;
+//	}
 	int lineStart = this.scanner.getLineNumber(this.tagSourceStart);
 	FormatJavadocBlock block = new FormatJavadocBlock(this.tagSourceStart, this.tagSourceEnd, lineStart, this.tagValue);
 	if (this.inlineTagStarted) {
@@ -250,12 +255,56 @@ private int htmlTagIndex(char[] htmlTag) {
 		}
 		for (int i=0, max=IJavaDocTagConstants.JAVADOC_SEPARATOR_TAGS.length; i<max; i++) {
 			char[] tag = IJavaDocTagConstants.JAVADOC_SEPARATOR_TAGS[i];
-			if (htmlTag[0] == tag[0] && length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
+			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
 				return JAVADOC_SEPARATOR_TAGS_ID + i;
 			}
 		}
 	}
 	return JAVADOC_TAGS_ID_MASK;
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#parseParam()
+ */
+protected boolean parseParam() throws InvalidInputException {
+	boolean valid = super.parseParam();
+	if (!valid) {
+		this.scanner.resetTo(this.tagSourceEnd+1, this.javadocEnd);
+		this.index = this.tagSourceEnd+1;
+		char ch = peekChar();
+		if (ch != ' ' && !ScannerHelper.isWhitespace(ch)) {
+			// no space after the tag, just create a normal tag
+			return false;
+		}
+		this.scanner.getNextToken(); // consume first token
+		pushIdentifier(true, false); // force the identifier even if invalid
+		pushParamName(false);
+		this.index = this.scanner.currentPosition;
+		valid = true;
+	}
+	return valid;
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseReference()
+ */
+protected boolean parseReference() throws InvalidInputException {
+	boolean valid = super.parseReference();
+	if (!valid) {
+		this.scanner.resetTo(this.tagSourceEnd+1, this.javadocEnd);
+		this.index = this.tagSourceEnd+1;
+//		char ch = peekChar();
+//		if (ch != ' ' && !ScannerHelper.isWhitespace(ch)) {
+//			// no space after the tag, just create a normal tag
+//			return false;
+//		}
+//		this.scanner.getNextToken(); // consume first token
+//		pushIdentifier(true, false); // force the identifier even if invalid
+//		pushSeeRef(createTypeReference(0));
+//		this.index = this.scanner.currentPosition;
+//		valid = true;
+	}
+	return valid;
 }
 
 /*
@@ -270,6 +319,7 @@ protected boolean parseReturn() {
  * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#parseTag(int)
  */
 protected boolean parseTag(int previousPosition) throws InvalidInputException {
+	int ptr = this.astPtr;
 	boolean valid = super.parseTag(previousPosition);
 	this.textStart = -1;
 	consumeToken();
@@ -281,7 +331,7 @@ protected boolean parseTag(int previousPosition) throws InvalidInputException {
 				createTag();
 				break;
 		}
-	} else {
+	} else if (this.astPtr == ptr) {
 		createTag();
 	}
 	return true;

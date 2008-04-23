@@ -132,13 +132,13 @@ import org.eclipse.text.edits.TextEdit;
  * <ul>
  * 	<li>3.0 performance workspace (9951 units):<ul>
  * 		<li>0 error</li>
- * 		<li>418 failures</li>
- * 		<li>690 different lines leading spaces</li>
+ * 		<li>199 failures</li>
+ * 		<li>751 different lines leading spaces</li>
  *		</ul></li>
  *		<li>ganymede workspace (25819 units):<ul>
  * 		<li>0 error</li>
- * 		<li>4011 failures</li>
- * 		<li>1079 different lines leading spaces</li>
+ * 		<li>376 failures</li>
+ * 		<li>1350 different lines leading spaces</li>
  *		</ul></li>
  * </ul>
  * 
@@ -146,9 +146,9 @@ import org.eclipse.text.edits.TextEdit;
  * <code>all</code> (e.g. ignore all white spaces):
  * <ul>
  * 	<li>3.0 performance workspace (9951 units):<ul>
- * 		<li>? error</li>
- * 		<li>? failures</li>
- * 		<li>? different spaces</li>
+ * 		<li>0 error</li>
+ * 		<li>376 failures</li>
+ * 		<li>732 different spaces</li>
  *		</ul></li>
  *		<li>ganymede workspace (25819 units):<ul>
  * 		<li>? error</li>
