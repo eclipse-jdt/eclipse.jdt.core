@@ -490,7 +490,7 @@ public void testContainerInitializer10() throws CoreException {
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P3", "/P1"}) {
 	        public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 	            super.initialize(containerPath, project);
-	            refreshExternalArchives(p1);
+	            getJavaModel().refreshExternalArchives(new IJavaElement[] {p1}, null);
 	        }
 		});
 		getWorkspace().run(new IWorkspaceRunnable() {

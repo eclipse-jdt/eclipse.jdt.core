@@ -342,7 +342,7 @@ public void testAddZIPArchive6() throws CoreException {
 	try {
 		simulateExitRestart();
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
-		waitForAutoBuild();
+		refreshExternalArchives(p);
 		
 		createExternalFile("externalLib.abc", "");
 		refreshExternalArchives(p);
@@ -4206,7 +4206,7 @@ public void testRemoveZIPArchive4() throws CoreException {
 		simulateExitRestart();
 		createExternalFile("externalLib.abc", "");
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
-		waitForAutoBuild();
+		refreshExternalArchives(p);
 		
 		deleteExternalResource("externalLib.abc");
 		refreshExternalArchives(p);

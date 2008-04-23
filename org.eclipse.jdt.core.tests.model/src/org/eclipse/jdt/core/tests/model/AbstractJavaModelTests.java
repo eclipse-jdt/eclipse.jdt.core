@@ -2037,6 +2037,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	protected void refreshExternalArchives(IJavaProject p) throws JavaModelException {
+		waitForAutoBuild(); // ensure that the auto-build job doesn't interfere with external jar refreshing
 		getJavaModel().refreshExternalArchives(new IJavaElement[] {p}, null);
 	}
 	
