@@ -924,7 +924,7 @@ public void testContainerInitializer22() throws CoreException {
 		assertTrue(getExternalResourcePath("externalLib.abc") + " should exist", root.exists());
 	} finally {
 		stopDeltas();
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P2");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P1");
 		deleteProject("P2");
 	}
@@ -944,7 +944,7 @@ public void testContainerInitializer23() throws CoreException {
 		assertTrue("/P1/internalLib.abc should exist", root.exists());
 	} finally {
 		stopDeltas();
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P2");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P1");
 		deleteProject("P2");
 	}

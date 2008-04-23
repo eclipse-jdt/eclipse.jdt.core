@@ -615,14 +615,16 @@ public void testZIPArchive1() throws Exception {
 				"}"
 			},
 			getExternalResourcePath("externalLib.abc"));
-		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		refreshExternalArchives(p);
+		
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")});
 		search("foo", METHOD, DECLARATIONS, scope);
 		assertSearchResults(
 			getExternalPath() + "externalLib.abc void p.X.foo()",
 			this.resultCollector);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -660,7 +662,7 @@ public void testZIPArchive2() throws Exception {
 			collector
 		);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 

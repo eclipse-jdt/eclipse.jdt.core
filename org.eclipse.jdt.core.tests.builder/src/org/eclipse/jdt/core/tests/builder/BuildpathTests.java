@@ -399,9 +399,8 @@ public void testChangeZIPArchive1() throws Exception {
  */
 public void testChangeZIPArchive2() throws Exception {
 	IPath projectPath = env.addProject("Project"); 
-	String internalLib = env.getProject("Project").getLocation().toOSString() + File.separator + "internalLib.abc";
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
-	env.addEntry(projectPath, JavaCore.newLibraryEntry(new Path("/Project/internalLib.abc"), null, null));
+	String internalLib = env.getProject("Project").getLocation().toOSString() + File.separator + "internalLib.abc";
 	org.eclipse.jdt.core.tests.util.Util.createJar(
 		new String[] {
 			"p/X.java",
@@ -414,6 +413,7 @@ public void testChangeZIPArchive2() throws Exception {
 		internalLib, 
 		"1.4");
 	env.getProject(projectPath).refreshLocal(IResource.DEPTH_INFINITE, null);
+	env.addEntry(projectPath, JavaCore.newLibraryEntry(new Path("/Project/internalLib.abc"), null, null));
 
 	IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
 	env.setOutputFolder(projectPath, ""); 

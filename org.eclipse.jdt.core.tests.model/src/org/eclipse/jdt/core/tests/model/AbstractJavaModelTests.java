@@ -992,9 +992,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return folder;
 	}
 	protected void createJar(String[] javaPathsAndContents, String jarPath) throws IOException {
-		waitUntilIndexesReady();
-		deleteResource(new File(jarPath));
-		waitAtLeast(500); // so that the new jar as a greater timestamps
+		if (new File(jarPath).exists())
+			waitAtLeast(1000); // ensure the timestamps is different
 		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, jarPath, "1.4");
 	}
 		

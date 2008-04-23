@@ -847,7 +847,8 @@ public class DeltaProcessor {
 						Object targetLibrary = JavaModel.getTarget(entryPath, true);
 		
 						if (targetLibrary == null){ // missing JAR
-							if (this.state.getExternalLibTimeStamps().remove(entryPath) != null){
+							if (this.state.getExternalLibTimeStamps().remove(entryPath) != null /* file was known*/
+									&& this.state.roots.get(entryPath) != null /* and it was on the classpath*/) {
 								externalArchivesStatus.put(entryPath, EXTERNAL_JAR_REMOVED);
 								// the jar was physically removed: remove the index
 								this.manager.indexManager.removeIndex(entryPath);
@@ -923,10 +924,10 @@ public class DeltaProcessor {
 				}
 			}
 		}
-		if (hasDelta){
-			// force classpath marker refresh of affected projects
-			JavaModel.flushExternalFileCache();
+		// ensure the external file cache is reset so that if a .jar file is deleted but no longer on the classpath, it won't appear as changed next time it is added
+		JavaModel.flushExternalFileCache();
 			
+		if (hasDelta){
 			// flush jar type cache
 			JavaModelManager.getJavaModelManager().resetJarTypeCache();
 		}

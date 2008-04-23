@@ -747,7 +747,9 @@ public void testZIPArchive() throws CoreException, IOException {
 				"}",
 			},
 			getExternalResourcePath("externalLib.abc"));
-		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		refreshExternalArchives(p);
+		
 		IClassFile classFile = getClassFile("P", getExternalResourcePath("externalLib.abc"), "p", "X.class");
 		ITypeHierarchy hierarchy = classFile.getType().newTypeHierarchy(null);
 		assertHierarchyEquals(
@@ -757,7 +759,7 @@ public void testZIPArchive() throws CoreException, IOException {
 			"  Y [in Y.class [in p [in "+ getExternalPath() + "externalLib.abc]]]\n",
 			hierarchy);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }

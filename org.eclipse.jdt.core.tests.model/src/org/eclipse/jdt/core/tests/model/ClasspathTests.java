@@ -261,7 +261,7 @@ public void testAddZIPArchive1() throws CoreException {
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
 		assertMarkers("Unexpected markers", "", p);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -275,7 +275,7 @@ public void testAddZIPArchive2() throws CoreException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		assertMarkers("Unexpected markers", "", p);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -285,10 +285,11 @@ public void testAddZIPArchive2() throws CoreException {
  */
 public void testAddZIPArchive3() throws CoreException {
 	try {
-		waitForAutoBuild();
 		IJavaProject p = createJavaProject("P");
-		IPath path = new Path(getExternalResourcePath("externalLib.abc"));
-		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(path, null, null)});
+		refreshExternalArchives(p);
+		waitForAutoBuild();
+		
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
 		assertMarkers(
 			"Unexpected markers", 
 			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib.abc\'",
@@ -304,6 +305,7 @@ public void testAddZIPArchive3() throws CoreException {
 public void testAddZIPArchive4() throws CoreException {
 	try {
 		waitForAutoBuild();
+		
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		assertMarkers(
 			"Unexpected markers", 
@@ -320,12 +322,14 @@ public void testAddZIPArchive4() throws CoreException {
 public void testAddZIPArchive5() throws CoreException {
 	try {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		refreshExternalArchives(p);
 		waitForAutoBuild();
+		
 		createExternalFile("externalLib.abc", "");
 		refreshExternalArchives(p);
 		assertMarkers("Unexpected markers", "", p);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -339,11 +343,12 @@ public void testAddZIPArchive6() throws CoreException {
 		simulateExitRestart();
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		waitForAutoBuild();
+		
 		createExternalFile("externalLib.abc", "");
 		refreshExternalArchives(p);
 		assertMarkers("Unexpected markers", "", p);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -354,6 +359,9 @@ public void testAddZIPArchive6() throws CoreException {
 public void testAddZIPArchive7() throws CoreException {
 	try {
 		IJavaProject p = createJavaProject("P");
+		refreshExternalArchives(p);
+		waitForAutoBuild();
+		
 		createFile("/P/internalLib.abc", "");
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P/internalLib.abc"), null, null)});
 		assertMarkers("Unexpected markers", "", p);
@@ -4137,11 +4145,13 @@ public void testRemoveZIPArchive1() throws CoreException {
 	try {
 		createExternalFile("externalLib.abc", "");
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		refreshExternalArchives(p);
 		waitForAutoBuild();
+		
 		setClasspath(p, new IClasspathEntry[] {});
 		assertMarkers("Unexpected markers", "", p);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -4152,7 +4162,9 @@ public void testRemoveZIPArchive1() throws CoreException {
 public void testRemoveZIPArchive2() throws CoreException {
 	try {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		refreshExternalArchives(p);
 		waitForAutoBuild();
+		
 		setClasspath(p, new IClasspathEntry[] {});
 		assertMarkers(
 			"Unexpected markers", 
@@ -4170,14 +4182,17 @@ public void testRemoveZIPArchive3() throws CoreException {
 	try {
 		createExternalFile("externalLib.abc", "");
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		refreshExternalArchives(p);
 		waitForAutoBuild();
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		
+		deleteExternalResource("externalLib.abc");
+		refreshExternalArchives(p);
 		assertMarkers(
 			"Unexpected markers", 
 			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib.abc\'",
 			p);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -4192,13 +4207,15 @@ public void testRemoveZIPArchive4() throws CoreException {
 		createExternalFile("externalLib.abc", "");
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		waitForAutoBuild();
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		
+		deleteExternalResource("externalLib.abc");
+		refreshExternalArchives(p);
 		assertMarkers(
 			"Unexpected markers", 
 			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib.abc\'",
 			p);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -4211,6 +4228,7 @@ public void testRemoveZIPArchive5() throws CoreException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {"/P/internalLib.abc"}, "");
 		createFile("/P/internalLib.abc", "");
 		waitForAutoBuild();
+		
 		setClasspath(p, new IClasspathEntry[] {});
 		assertMarkers("Unexpected markers", "", p);
 	} finally {
@@ -4226,6 +4244,7 @@ public void testRemoveZIPArchive6() throws CoreException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {"/P/internalLib.abc"}, "");
 		createFile("/P/internalLib.abc", "");
 		waitForAutoBuild();
+		
 		deleteFile("/P/internalLib.abc");
 		assertMarkers(
 			"Unexpected markers", 

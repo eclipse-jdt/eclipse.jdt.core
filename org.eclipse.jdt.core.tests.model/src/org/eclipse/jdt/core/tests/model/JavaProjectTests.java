@@ -173,6 +173,7 @@ public void testAddZIPArchive1() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P");
 		createExternalFile("externalLib.abc", "");
+		
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
 		assertElementDescendants(
 			"Unexpected project content", 
@@ -181,7 +182,7 @@ public void testAddZIPArchive1() throws Exception {
 			p
 		);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -192,8 +193,9 @@ public void testAddZIPArchive1() throws Exception {
 public void testAddZIPArchive2() throws CoreException {
 	try {
 		IJavaProject p = createJavaProject("P");
-		IPath path = new Path(getExternalResourcePath("externalLib.abc"));
-		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(path, null, null)});
+		refreshExternalArchives(p);
+		
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
 		assertElementDescendants(
 			"Unexpected project content", 
 			"P",
@@ -231,7 +233,7 @@ public void testAddZIPArchive3() throws CoreException, IOException {
 			p
 		);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -242,7 +244,9 @@ public void testAddZIPArchive3() throws CoreException, IOException {
 public void testAddZIPArchive4() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		refreshExternalArchives(p);
 		expandAll(p);
+		
 		createExternalFile("externalLib.abc", "");
 		refreshExternalArchives(p);
 		assertElementDescendants(
@@ -252,7 +256,7 @@ public void testAddZIPArchive4() throws Exception {
 			p
 		);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -285,7 +289,7 @@ public void testAddZIPArchive5() throws Exception {
 			p
 		);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -453,6 +457,7 @@ public void testChangeZIPArchive1() throws CoreException, IOException {
 	try {
 		createExternalFile("externalLib.abc", "");
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "bin");
+		refreshExternalArchives(p);
 		expandAll(p);
 		
 		createJar(
@@ -476,7 +481,7 @@ public void testChangeZIPArchive1() throws CoreException, IOException {
 			p
 		);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -495,6 +500,7 @@ public void testChangeZIPArchive2() throws CoreException, IOException {
 			},
 			getExternalResourcePath("externalLib.abc"));
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "bin");
+		refreshExternalArchives(p);
 		expandAll(p);
 		
 		createJar(
@@ -518,7 +524,7 @@ public void testChangeZIPArchive2() throws CoreException, IOException {
 			p
 		);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -1920,7 +1926,9 @@ public void testRemoveZIPArchive1() throws CoreException {
 	try {
 		createExternalFile("externalLib.abc", "");
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		refreshExternalArchives(p);
 		expandAll(p);
+		
 		setClasspath(p, new IClasspathEntry[] {});
 		assertElementDescendants(
 			"Unexpected project content", 
@@ -1928,7 +1936,7 @@ public void testRemoveZIPArchive1() throws CoreException {
 			p
 		);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -1936,11 +1944,12 @@ public void testRemoveZIPArchive1() throws CoreException {
 /*
  * Ensures that removing a library entry for a non-existing external ZIP archive updates the model
  */
-// TODO (jerome) Enable when the erratic failure on this test will be fixed
-public void _testRemoveZIPArchive2() throws CoreException {
+public void testRemoveZIPArchive2() throws CoreException {
 	try {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		refreshExternalArchives(p);
 		expandAll(p);
+		
 		setClasspath(p, new IClasspathEntry[] {});
 		assertElementDescendants(
 			"Unexpected project content", 
@@ -1960,15 +1969,18 @@ public void testRemoveZIPArchive3() throws CoreException {
 	try {
 		createExternalFile("externalLib.abc", "");
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
+		refreshExternalArchives(p);
 		expandAll(p);
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		
+		deleteExternalResource("externalLib.abc");
+		refreshExternalArchives(p);
 		assertElementDescendants(
 			"Unexpected project content", 
 			"P",
 			p
 		);
 	} finally {
-		deleteAndRefreshExternalZIPArchive("externalLib.abc", "P");
+		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
 	}
 }
@@ -1981,6 +1993,7 @@ public void testRemoveZIPArchive4() throws CoreException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {"/P/internalLib.abc"}, "");
 		createFile("/P/internalLib.abc", "");
 		expandAll(p);
+		
 		setClasspath(p, new IClasspathEntry[] {});
 		assertElementDescendants(
 			"Unexpected project content", 
