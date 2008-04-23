@@ -86,6 +86,7 @@ private static Class[] getAllTestClasses() {
 		
 		// Support for "open on" feature tests
 		ResolveTests.class,
+		ResolveTests2.class,
 		ResolveTests_1_5.class,
 		SelectionJavadocModelTests.class,
 

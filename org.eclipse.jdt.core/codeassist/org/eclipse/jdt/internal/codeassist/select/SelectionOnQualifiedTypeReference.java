@@ -25,7 +25,9 @@ package org.eclipse.jdt.internal.codeassist.select;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -42,11 +44,18 @@ protected TypeBinding getTypeBinding(Scope scope) {
 	// it can be a package, type or member type
 	Binding binding = scope.getTypeOrPackage(tokens);
 	if (!binding.isValidBinding()) {
-			// tolerate some error cases
-			if (binding.problemId() == ProblemReasons.NotVisible){
-				throw new SelectionNodeFound(binding);
-			}
-		scope.problemReporter().invalidType(this, (TypeBinding) binding);
+		// tolerate some error cases
+		if (binding.problemId() == ProblemReasons.NotVisible){
+			throw new SelectionNodeFound(binding);
+		}
+		
+		if (binding instanceof TypeBinding) {
+			scope.problemReporter().invalidType(this, (TypeBinding) binding);
+		} else if (binding instanceof PackageBinding) {
+			ProblemReferenceBinding problemBinding = new ProblemReferenceBinding(((PackageBinding)binding).compoundName, null, binding.problemId());
+			scope.problemReporter().invalidType(this, problemBinding);
+		}
+		
 		throw new SelectionNodeFound();
 	}
 
