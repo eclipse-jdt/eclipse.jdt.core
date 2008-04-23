@@ -70,7 +70,7 @@ public class TypeNameMatchRequestorWrapper implements IRestrictedAccessTypeReque
 public TypeNameMatchRequestorWrapper(TypeNameMatchRequestor requestor, IJavaSearchScope scope) {
 	this.requestor = requestor;
 	this.scope = scope;
-	if (!(scope instanceof JavaSearchScope)) {
+	if (!(scope instanceof AbstractJavaSearchScope)) {
 		this.handleFactory = new HandleFactory();
 	}
 }
@@ -121,7 +121,7 @@ private IType createTypeFromJar(String resourcePath, int separatorIndex) throws 
 			|| this.lastPkgFragmentRootPath.length() > resourcePath.length()
 			|| !resourcePath.startsWith(this.lastPkgFragmentRootPath)) {
 		String jarPath= resourcePath.substring(0, separatorIndex);
-		IPackageFragmentRoot root= ((JavaSearchScope)this.scope).packageFragmentRoot(resourcePath);
+		IPackageFragmentRoot root= ((AbstractJavaSearchScope)this.scope).packageFragmentRoot(resourcePath, separatorIndex, jarPath);
 		if (root == null) return null;
 		this.lastPkgFragmentRootPath= jarPath;
 		this.lastPkgFragmentRoot= root;
@@ -153,7 +153,7 @@ private IType createTypeFromPath(String resourcePath, String simpleTypeName, cha
 		|| !(resourcePath.startsWith(this.lastPkgFragmentRootPath) 
 			&& (rootPathLength = this.lastPkgFragmentRootPath.length()) > 0
 			&& resourcePath.charAt(rootPathLength) == '/')) {
-		PackageFragmentRoot root = (PackageFragmentRoot) ((JavaSearchScope)this.scope).packageFragmentRoot(resourcePath);
+		PackageFragmentRoot root = (PackageFragmentRoot) ((AbstractJavaSearchScope)this.scope).packageFragmentRoot(resourcePath, -1/*not a jar*/, null/*no jar path*/);
 		if (root == null) return null;
 		this.lastPkgFragmentRoot = root;
 		this.lastPkgFragmentRootPath = root.internalPath().toString();

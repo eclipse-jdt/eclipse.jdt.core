@@ -95,10 +95,10 @@ public class DeltaProcessor {
 		}
 	}
 	
-	static class RootInfo {
+	public static class RootInfo {
 		char[][] inclusionPatterns;
 		char[][] exclusionPatterns;
-		JavaProject project;
+		public JavaProject project;
 		IPath rootPath;
 		int entryKind;
 		IPackageFragmentRoot root;
@@ -109,7 +109,7 @@ public class DeltaProcessor {
 			this.exclusionPatterns = exclusionPatterns;
 			this.entryKind = entryKind;
 		}
-		IPackageFragmentRoot getPackageFragmentRoot(IResource resource) {
+		public IPackageFragmentRoot getPackageFragmentRoot(IResource resource) {
 			if (this.root == null) {
 				if (resource != null) {
 					this.root = this.project.getPackageFragmentRoot(resource);

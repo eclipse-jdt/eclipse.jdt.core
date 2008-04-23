@@ -44,7 +44,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * A Java-specific scope for searching relative to one or more java elements.
  */
-public class JavaSearchScope extends AbstractSearchScope {
+public class JavaSearchScope extends AbstractJavaSearchScope {
 	
 	private ArrayList elements;
 
@@ -580,20 +580,14 @@ public void processDelta(IJavaElementDelta delta, int eventType) {
 }
 
 /**
- * Returns the package fragment root corresponding to a given resource path.
- * 
- * @param resourcePathString path of expected package fragment root.
- * @return the {@link IPackageFragmentRoot package fragment root} which path
- * 	match the given one or <code>null</code> if none was found.
+ * @see AbstractJavaSearchScope#packageFragmentRoot(String, int, String)
  */
-public IPackageFragmentRoot packageFragmentRoot(String resourcePathString) {
+public IPackageFragmentRoot packageFragmentRoot(String resourcePathString, int jarSeparatorIndex, String jarPath) {
 	int index = -1;
-	int separatorIndex = resourcePathString.indexOf(JAR_FILE_ENTRY_SEPARATOR);
-	boolean isJarFile = separatorIndex != -1;
+	boolean isJarFile = jarSeparatorIndex != -1;
 	if (isJarFile) {
 		// internal or external jar (case 3, 4, or 5)
-		String jarPath = resourcePathString.substring(0, separatorIndex);
-		String relativePath = resourcePathString.substring(separatorIndex+1);
+		String relativePath = resourcePathString.substring(jarSeparatorIndex+1);
 		index = indexOf(jarPath, relativePath);
 	} else {
 		// resource in workspace (case 1 or 2)
