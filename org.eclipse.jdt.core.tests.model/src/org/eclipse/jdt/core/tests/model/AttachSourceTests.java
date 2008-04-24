@@ -444,7 +444,41 @@ public void testExternalFolder4() throws Exception {
 			"}",
 			type.getSource());
 	} finally {
-		deleteExternalResource("src227813");
+		deleteExternalResource("externalFolder/src227813");
+		deleteProject("P");
+	}
+}
+/*
+ * Ensures that root paths are correctly detected when attaching an external source folder that contains a META-INF folder to an external library folder.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=228639 )
+ */
+public void testExternalFolder5() throws Exception {
+	try {
+		String externalFolder = getExternalFolder();
+		String[] pathsAndContents = 
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"}"
+			};
+		org.eclipse.jdt.core.tests.util.Util.createSourceDir(pathsAndContents, externalFolder + "/src228639/src");
+		createExternalFolder("externalFolder/src228639/META-INF");
+		createExternalFolder("externalFolder/lib/META-INF");
+		
+		String externalLib = externalFolder + "/lib";
+		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {externalLib}, "");
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(externalLib);
+		attachSource(root, externalFolder + "/src228639", "");
+		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		assertSourceEquals(
+			"Unexpected source",
+			"public class X {\n" + 
+			"}",
+			type.getSource());
+	} finally {
+		deleteExternalResource("externalFolder/src228639");
+		deleteExternalResource("externalFolder/lib/META-INF");
 		deleteProject("P");
 	}
 }

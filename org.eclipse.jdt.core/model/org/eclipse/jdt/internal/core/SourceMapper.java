@@ -354,11 +354,10 @@ public class SourceMapper
 		final HashSet firstLevelPackageNames = new HashSet();
 		boolean containsADefaultPackage = false;
 
+		String sourceLevel = null;
+		String complianceLevel = null;
 		if (root.isArchive()) {
 			JarPackageFragmentRoot jarPackageFragmentRoot = (JarPackageFragmentRoot) root;
-			IJavaProject project = jarPackageFragmentRoot.getJavaProject();
-			String sourceLevel = null;
-			String complianceLevel = null;
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			ZipFile zip = null;
 			try {
@@ -372,6 +371,7 @@ public class SourceMapper
 							String firstLevelPackageName = entryName.substring(0, index);
 							if (!firstLevelPackageNames.contains(firstLevelPackageName)) {
 								if (sourceLevel == null) {
+									IJavaProject project = root.getJavaProject();
 									sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
 									complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 								}
@@ -400,7 +400,16 @@ public class SourceMapper
 						for (int i = 0, max = members.length; i < max; i++) {
 							IResource member = members[i];
 							if (member.getType() == IResource.FOLDER) {
-								firstLevelPackageNames.add(member.getName());
+								if (sourceLevel == null) {
+									IJavaProject project = root.getJavaProject();
+									sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
+									complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+								}
+								String firstLevelPackageName = member.getName();
+								IStatus status = JavaConventions.validatePackageName(firstLevelPackageName, sourceLevel, complianceLevel);
+								if (status.isOK() || status.getSeverity() == IStatus.WARNING) {
+									firstLevelPackageNames.add(firstLevelPackageName);
+								}
 							} else if (Util.isClassFileName(member.getName())) {
 								containsADefaultPackage = true;
 							}
