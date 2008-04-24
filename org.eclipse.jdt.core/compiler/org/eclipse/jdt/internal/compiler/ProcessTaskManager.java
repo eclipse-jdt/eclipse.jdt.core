@@ -109,7 +109,7 @@ public void run() {
 
 			unitToProcess = this.compiler.getUnitToProcess(this.unitIndex);
 			if (unitToProcess == null) {
-				shutdown();
+				this.processingThread = null;
 				return;
 			}
 			index = this.unitIndex++;
@@ -127,14 +127,15 @@ public void run() {
 					}));
 			this.compiler.process(unitToProcess, index);
 		} catch (AbortCompilation e) {
-			shutdown();
+			this.processingThread = null;
 			this.compiler.handleInternalException(e, unitToProcess);
+			return;
 		} catch (Error e) {
-			shutdown();
+			this.processingThread = null;
 			this.compiler.handleInternalException(e, unitToProcess, null);
 			throw e; // rethrow
 		} catch (RuntimeException e) {
-			shutdown();
+			this.processingThread = null;
 			this.compiler.handleInternalException(e, unitToProcess, null);
 			throw e; // rethrow
 		} finally {
@@ -145,10 +146,20 @@ public void run() {
 	}
 }
 
-public synchronized void shutdown() {
-	if (this.processingThread != null) {
-		notifyAll();
-		this.processingThread = null;
+public void shutdown() {
+	try {
+		Thread t = null;
+		synchronized (this) {
+			if (this.processingThread != null) {
+				t = this.processingThread;
+				this.processingThread = null;
+				notifyAll();
+			}
+		}
+		if (t != null)
+			t.join();
+	} catch (InterruptedException ignored) {
+		// ignore
 	}
 }
 }

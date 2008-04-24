@@ -485,11 +485,17 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				}
 			}
 		} catch (AbortCompilation e) {
+			if (processingTask != null)
+				processingTask.shutdown();
 			this.handleInternalException(e, unit);
 		} catch (Error e) {
+			if (processingTask != null)
+				processingTask.shutdown();
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} catch (RuntimeException e) {
+			if (processingTask != null)
+				processingTask.shutdown();
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {
