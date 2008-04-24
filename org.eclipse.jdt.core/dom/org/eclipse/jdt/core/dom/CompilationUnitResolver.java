@@ -827,20 +827,29 @@ class CompilationUnitResolver extends Compiler {
 
 					org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
 
-					this.parser.scanner.setSource(source, unit.compilationResult);
-
 		 			if (node != null) {
+						// save existing values to restore them at the end of the parsing process
+						// see bug 47079 for more details
+						int[] oldLineEnds = this.parser.scanner.lineEnds;
+						int oldLinePtr = this.parser.scanner.linePtr;
+
+						this.parser.scanner.setSource(source, unit.compilationResult);
+
 						org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
-		  				if (node instanceof AbstractMethodDeclaration) {
+						if (node instanceof AbstractMethodDeclaration) {
 							((AbstractMethodDeclaration)node).parseStatements(this.parser, unit);
-		 				} else if (enclosingTypeDeclaration != null) {
+						} else if (enclosingTypeDeclaration != null) {
 							if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
-			 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(this.parser, enclosingTypeDeclaration, unit);
-		 					} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
+								((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(this.parser, enclosingTypeDeclaration, unit);
+							} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 								((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethods(this.parser, unit);
 							}
-		 				}
-		 			}
+						}
+						// this is done to prevent any side effects on the compilation unit result
+						// line separator positions array.
+						this.parser.scanner.lineEnds = oldLineEnds;
+						this.parser.scanner.linePtr = oldLinePtr;
+					}
 				}
 			}
 
