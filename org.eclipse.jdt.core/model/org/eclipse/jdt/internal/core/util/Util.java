@@ -961,12 +961,12 @@ public class Util {
 	private static IPackageFragment getPackageFragment(char[] fileName, int pkgEnd, int jarSeparator) {
 		if (jarSeparator != -1) {
 			String jarMemento = new String(fileName, 0, jarSeparator);
-			IPackageFragmentRoot root = (IPackageFragmentRoot) JavaCore.create(jarMemento);
+			PackageFragmentRoot root = (PackageFragmentRoot) JavaCore.create(jarMemento);
 			if (pkgEnd == jarSeparator)
-				return root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+				return root.getPackageFragment(CharOperation.NO_STRINGS);
 			char[] pkgName = CharOperation.subarray(fileName, jarSeparator+1, pkgEnd);
-			CharOperation.replace(pkgName, '/', '.');
-			return root.getPackageFragment(new String(pkgName));
+			char[][] compoundName = CharOperation.splitOn('/', pkgName);
+			return root.getPackageFragment(CharOperation.toStrings(compoundName));
 		} else {
 			Path path = new Path(new String(fileName, 0, pkgEnd));
 			IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
@@ -977,11 +977,11 @@ public class Util {
 				case IJavaElement.PACKAGE_FRAGMENT:
 					return (IPackageFragment) element;
 				case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-					return ((IPackageFragmentRoot) element).getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+					return ((PackageFragmentRoot) element).getPackageFragment(CharOperation.NO_STRINGS);
 				case IJavaElement.JAVA_PROJECT:
-					IPackageFragmentRoot root = ((IJavaProject) element).getPackageFragmentRoot(folder);
+					PackageFragmentRoot root = (PackageFragmentRoot) ((IJavaProject) element).getPackageFragmentRoot(folder);
 					if (root == null) return null;
-					return root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+					return root.getPackageFragment(CharOperation.NO_STRINGS);
 			}
 			return null;
 		}

@@ -860,8 +860,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		IPackageFragment pkg = (IPackageFragment) determineIfOnClasspath(file, project);
 		if (pkg == null) {
 			// not on classpath - make the root its folder, and a default package
-			IPackageFragmentRoot root = project.getPackageFragmentRoot(file.getParent());
-			pkg = root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+			PackageFragmentRoot root = (PackageFragmentRoot) project.getPackageFragmentRoot(file.getParent());
+			pkg = root.getPackageFragment(CharOperation.NO_STRINGS);
 			
 			if (VERBOSE){
 				System.out.println("WARNING : creating unit element outside classpath ("+ Thread.currentThread()+"): " + file.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$

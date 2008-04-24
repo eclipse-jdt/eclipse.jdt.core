@@ -426,21 +426,21 @@ protected char getHandleMementoDelimiter() {
 public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
 	switch (token.charAt(0)) {
 		case JEM_PACKAGEFRAGMENT:
-			String pkgName;
+			String[] pkgName;
 			if (memento.hasMoreTokens()) {
-				pkgName = memento.nextToken();
-				char firstChar = pkgName.charAt(0);
+				token = memento.nextToken();
+				char firstChar = token.charAt(0);
 				if (firstChar == JEM_CLASSFILE || firstChar == JEM_COMPILATIONUNIT || firstChar == JEM_COUNT) {
-					token = pkgName;
-					pkgName = IPackageFragment.DEFAULT_PACKAGE_NAME;
+					pkgName = CharOperation.NO_STRINGS;
 				} else {
+					pkgName = Util.splitOn('.', token, 0, token.length());
 					token = null;
 				}
 			} else {
-				pkgName = IPackageFragment.DEFAULT_PACKAGE_NAME;
+				pkgName = CharOperation.NO_STRINGS;
 				token = null;
 			}
-			JavaElement pkg = (JavaElement)getPackageFragment(pkgName);
+			JavaElement pkg = getPackageFragment(pkgName);
 			if (token == null) {
 				return pkg.getHandleFromMemento(memento, owner);
 			} else {
