@@ -2324,7 +2324,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private void verbose_batching_containers_initialization(IJavaProject javaProjectToInit, IPath containerToInit) {
 		Util.verbose(
 			"CPContainer INIT - batching containers initialization\n" + //$NON-NLS-1$
-			"	project to init: " + javaProjectToInit.getElementName() + '\n' + //$NON-NLS-1$
+			"	project to init: " + (javaProjectToInit == null ? "null" : javaProjectToInit.getElementName()) + '\n' + //$NON-NLS-1$
 			"	container path to init: " + containerToInit); //$NON-NLS-1$
 	}
 
