@@ -862,7 +862,7 @@ class CompilationUnitResolver extends Compiler {
 				if (generateCode) unit.generateCode();
 				
 				// finalize problems (suppressWarnings)
-				unit.finalizeProblems();				
+				unit.finalizeProblems();
 			}
 			if (this.unitsToProcess != null) this.unitsToProcess[0] = null; // release reference to processed unit declaration
 			this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
