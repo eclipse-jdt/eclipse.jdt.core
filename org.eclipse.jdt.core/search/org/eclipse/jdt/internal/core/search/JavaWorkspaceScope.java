@@ -127,21 +127,17 @@ public IPackageFragmentRoot packageFragmentRoot(String resourcePathString, int j
 	if (jarPath != null) {
 		IPath path = new Path(jarPath);
 		rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(path);
-		if (rootInfo == null)
-			return null;
-		return rootInfo.project.getPackageFragmentRoot0(path);
 	} else {
-		// resource in workspace
 		IPath path = new Path(resourcePathString);
 		rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(path);
 		while (rootInfo == null && path.segmentCount() > 0) {
 			path = path.removeLastSegments(1);
 			rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(path);
 		}
-		if (rootInfo == null)
-			return null;
-		return rootInfo.getPackageFragmentRoot(null/*no resource hint*/);
 	}
+	if (rootInfo == null)
+		return null;
+	return rootInfo.getPackageFragmentRoot(null/*no resource hint*/);
 }
 
 public void processDelta(IJavaElementDelta delta, int eventType) {

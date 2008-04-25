@@ -49,9 +49,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 * based on a JAR file that is not contained in a <code>IJavaProject</code> and
 	 * does not have an associated <code>IResource</code>.
 	 */
-	protected JarPackageFragmentRoot(IPath jarPath, JavaProject project) {
+	protected JarPackageFragmentRoot(IPath externalJarPath, JavaProject project) {
 		super(null, project);
-		this.jarPath = jarPath;
+		this.jarPath = externalJarPath;
 	}
 	/**
 	 * Constructs a package fragment root which is the root of the Java package directory hierarchy 

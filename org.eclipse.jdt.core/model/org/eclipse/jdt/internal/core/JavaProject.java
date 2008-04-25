@@ -1669,18 +1669,18 @@ public class JavaProject
 	/**
 	 * @see IJavaProject
 	 */
-	public IPackageFragmentRoot getPackageFragmentRoot(String libraryPath) {
-		return getPackageFragmentRoot0(JavaProject.canonicalizedPath(new Path(libraryPath)));
+	public IPackageFragmentRoot getPackageFragmentRoot(String externalLibraryPath) {
+		return getPackageFragmentRoot0(JavaProject.canonicalizedPath(new Path(externalLibraryPath)));
 	}
 
 	/*
 	 * no path canonicalization
 	 */
-	public IPackageFragmentRoot getPackageFragmentRoot0(IPath libraryPath) {
-		IFolder linkedFolder = JavaModelManager.getExternalManager().getFolder(libraryPath);
+	public IPackageFragmentRoot getPackageFragmentRoot0(IPath externalLibraryPath) {
+		IFolder linkedFolder = JavaModelManager.getExternalManager().getFolder(externalLibraryPath);
 		if (linkedFolder != null)
-			return new ExternalPackageFragmentRoot(linkedFolder, libraryPath, this);
-		return new JarPackageFragmentRoot(libraryPath, this);
+			return new ExternalPackageFragmentRoot(linkedFolder, externalLibraryPath, this);
+		return new JarPackageFragmentRoot(externalLibraryPath, this);
 	}
 
 	/**

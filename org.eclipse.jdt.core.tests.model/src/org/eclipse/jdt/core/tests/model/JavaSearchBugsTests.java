@@ -10001,4 +10001,71 @@ public void testBug221110b() throws CoreException {
 		"src/Z.java Z [public class Z<T extends X<?> & §|I|§<?>> {] ERASURE_MATCH"
 	);
 }
+
+/**
+ * @bug 228852: classes opened via Open Type not found
+ * @test Ensure that types found in an internal jar exist when using a workspace scope
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228852"
+ */
+public void testBug228852a() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P", new String[] {}, new String[] {"/P/lib228852.jar"}, "");
+		createJar(new String[] {
+			"p228852/X228852.java",
+			"package p228852;\n" +
+			"public class X228852 {\n" +
+			"}"
+		}, p.getProject().getLocation().append("lib228852.jar").toOSString());
+		refresh(p);
+		
+		char[][] packagesList = new char[][] {
+				"p228852".toCharArray()
+		};
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+			packagesList,
+			null,
+			SearchEngine.createWorkspaceScope(),
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		assertTrue("p228852.X228852 should exist", ((IJavaElement) collector.matches.get(0)).exists());
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/**
+ * @bug 228852: classes opened via Open Type not found
+ * @test Ensure that types found in an internal jar exist when using a Java search scope
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228852"
+ */
+public void testBug228852b() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P", new String[] {}, new String[] {"/P/lib228852.jar"}, "");
+		createJar(new String[] {
+			"p228852/X228852.java",
+			"package p228852;\n" +
+			"public class X228852 {\n" +
+			"}"
+		}, p.getProject().getLocation().append("lib228852.jar").toOSString());
+		refresh(p);
+		
+		char[][] packagesList = new char[][] {
+				"p228852".toCharArray()
+		};
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+			packagesList,
+			null,
+			SearchEngine.createJavaSearchScope(new IJavaElement[] {p}),
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		assertTrue("p228852.X228852 should exist", ((IJavaElement) collector.matches.get(0)).exists());
+	} finally {
+		deleteProject("P");
+	}
+}
+
 }

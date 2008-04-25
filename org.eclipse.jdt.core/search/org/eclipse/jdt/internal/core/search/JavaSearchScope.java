@@ -599,7 +599,10 @@ public IPackageFragmentRoot packageFragmentRoot(String resourcePathString, int j
 		if (projectPath != null) {
 			IJavaProject project =JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject(projectPath));
 			if (isJarFile) {
-				return project.getPackageFragmentRoot(this.containerPaths[index]);
+				IResource resource = JavaModel.getWorkspaceTarget(new Path(jarPath));
+				if (resource != null)
+					return project.getPackageFragmentRoot(resource);
+				return project.getPackageFragmentRoot(jarPath);
 			}
 			Object target = JavaModel.getWorkspaceTarget(new Path(this.containerPaths[index]+'/'+this.relativePaths[index]));
 			if (target instanceof IProject) {
