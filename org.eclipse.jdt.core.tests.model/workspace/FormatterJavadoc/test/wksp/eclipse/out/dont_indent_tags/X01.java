@@ -6,7 +6,8 @@ package test.wksp.eclipse;
  * 
  * @see {@link PropertyPage}
  * @see {@link ILaunchConfiguration}
- * @see {@link org.eclipse.debug.internal.ui.launchConfigurations.LaunchConfigurationsDialog}
+ * @see {@link
+ * org.eclipse.debug.internal.ui.launchConfigurations.LaunchConfigurationsDialog}
  * @see {@link IDebugHelpContextIds#DEFAULT_LAUNCHCONFIGURATION_PROPERTY_PAGE}
  * 
  * CONTEXTLAUNCHING

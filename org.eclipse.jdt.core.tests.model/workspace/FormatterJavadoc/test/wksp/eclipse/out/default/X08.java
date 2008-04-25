@@ -41,18 +41,18 @@ package test.wksp.eclipse;
  * <code>isSaveNeeded</code> . The value <code>true</code> triggers a subsequent
  * call to <code>save</code> where the modified resources can be saved.
  * <p>
- * The most important part of this implementation is the setup of the compare/
- * merge UI. The UI uses a simple browser metaphor to present compare results.
- * The top half of the layout shows the structural compare results (e.g. added,
- * deleted, and changed files), the bottom half the content compare results (e.g
- * . textual differences between two files). A selection in the top pane is fed
- * to the bottom pane. If a content viewer is registered for the type of the
- * selected object, this viewer is installed in the pane. In addition if a
- * structure viewer is registered for the selection type the top pane is split
- * horizontally to make room for another pane and the structure viewer is
- * installed in it. When comparing Java files this second structure viewer would
- * show the structural differences within a Java file, e.g. added, deleted or
- * changed methods and fields.
+ * The most important part of this implementation is the setup of the
+ * compare/merge UI. The UI uses a simple browser metaphor to present compare
+ * results. The top half of the layout shows the structural compare results
+ * (e.g. added, deleted, and changed files), the bottom half the content compare
+ * results (e.g. textual differences between two files). A selection in the top
+ * pane is fed to the bottom pane. If a content viewer is registered for the
+ * type of the selected object, this viewer is installed in the pane. In
+ * addition if a structure viewer is registered for the selection type the top
+ * pane is split horizontally to make room for another pane and the structure
+ * viewer is installed in it. When comparing Java files this second structure
+ * viewer would show the structural differences within a Java file, e.g. added,
+ * deleted or changed methods and fields.
  * <p>
  * Subclasses provide custom setups, e.g. for a Catchup/Release operation by
  * passing a subclass of <code>CompareConfiguration</code> and by implementing

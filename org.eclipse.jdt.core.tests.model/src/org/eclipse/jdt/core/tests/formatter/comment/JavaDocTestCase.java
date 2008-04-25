@@ -935,4 +935,44 @@ public class JavaDocTestCase extends CommentTestCase {
 		String result=testFormat(input, options);
 		assertEquals(expected, result);
 	}
+
+	/**
+	 * @bug 228652: [formatter] New line inserted while formatting a region of a compilation unit.
+	 * @test Insure that no new line is inserted before the formatted region
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228652"
+	 */
+	public void testBug228652() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+
+		String input =
+				"package a;\r\n" + 
+				"\r\n" + 
+				"public class Test {\r\n" + 
+				"\r\n" + 
+				"	private int field;\r\n" + 
+				"	\r\n" + 
+				"	/**\r\n" + 
+				"	 * fds \r\n" + 
+				"	 */\r\n" + 
+				"	public void foo() {\r\n" + 
+				"	}\r\n" + 
+				"}";
+
+		String expected =
+				"package a;\r\n" + 
+				"\r\n" + 
+				"public class Test {\r\n" + 
+				"\r\n" + 
+				"	private int field;\r\n" + 
+				"	\r\n" + 
+				"	/**\r\n" + 
+				"	 * fds\r\n" + 
+				"	 */\r\n" + 
+				"	public void foo() {\r\n" + 
+				"	}\r\n" + 
+				"}";
+		
+		String result = testFormat(input, 62, 19, CodeFormatter.K_JAVA_DOC, options);
+		assertEquals(expected, result);
+	}
 }

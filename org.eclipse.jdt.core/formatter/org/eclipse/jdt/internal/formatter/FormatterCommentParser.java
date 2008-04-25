@@ -72,34 +72,15 @@ protected Object createFieldReference(Object receiver) throws InvalidInputExcept
  * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#createMethodReference(java.lang.Object, java.util.List)
  */
 protected Object createMethodReference(Object receiver, List arguments) throws InvalidInputException {
-
-	// Get intermediate arguments positions
-	long[] positions = null;
-	if (arguments != null) {
-		int size = arguments.size();
-		positions = new long[size];
-		for (int i=0; i<size; i++) {
-			FormatJavadocReference reference = (FormatJavadocReference) arguments.get(i);
-			positions[i] = (((long) reference.sourceStart) << 32) + reference.sourceEnd;
-		}
-	}
-
-	// Build the node
 	int start = receiver == null ? this.memberStart : ((FormatJavadocReference) receiver).sourceStart;
 	int lineStart = this.scanner.getLineNumber(start);
-	FormatJavadocReference reference = new FormatJavadocReference(start, this.scanner.getCurrentTokenEndPosition(), lineStart);
-	reference.positions = positions;
-	return reference;
+	return new FormatJavadocReference(start, this.scanner.getCurrentTokenEndPosition(), lineStart);
 }
 
 /* (non-Javadoc)
  * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#createTag()
  */
 protected void createTag() {
-//	if (this.tagValue == TAG_OTHERS_VALUE)  {
-//		if (this.textStart == -1) this.textStart = this.tagSourceStart;
-//		return;
-//	}
 	int lineStart = this.scanner.getLineNumber(this.tagSourceStart);
 	FormatJavadocBlock block = new FormatJavadocBlock(this.tagSourceStart, this.tagSourceEnd, lineStart, this.tagValue);
 	if (this.inlineTagStarted) {
@@ -129,7 +110,7 @@ protected Object createTypeReference(int primitiveToken) {
 	}
 	long[] positions = new long[size];
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr - size + 1, positions, 0, size);
-	return new FormatJavadocReference(positions, lineStart);
+	return new FormatJavadocReference((int) (positions[0] >>> 32), (int) positions[positions.length-1], lineStart);
 }
 
 /*
@@ -293,16 +274,6 @@ protected boolean parseReference() throws InvalidInputException {
 	if (!valid) {
 		this.scanner.resetTo(this.tagSourceEnd+1, this.javadocEnd);
 		this.index = this.tagSourceEnd+1;
-//		char ch = peekChar();
-//		if (ch != ' ' && !ScannerHelper.isWhitespace(ch)) {
-//			// no space after the tag, just create a normal tag
-//			return false;
-//		}
-//		this.scanner.getNextToken(); // consume first token
-//		pushIdentifier(true, false); // force the identifier even if invalid
-//		pushSeeRef(createTypeReference(0));
-//		this.index = this.scanner.currentPosition;
-//		valid = true;
 	}
 	return valid;
 }
@@ -346,13 +317,7 @@ protected boolean pushParamName(boolean isTypeParam) {
 	int start = (int) (this.identifierPositionStack[0] >>> 32);
 	int lineStart = this.scanner.getLineNumber(start);
 	FormatJavadocReference reference;
-	if (isTypeParam) {
-		reference = new FormatJavadocReference(start, (int) this.identifierPositionStack[2], lineStart);
-		reference.positions = new long[3];
-		System.arraycopy(this.identifierPositionStack, 0, reference.positions, 0, 3);
-	} else {
-		reference = new FormatJavadocReference(start, (int) this.identifierPositionStack[0], lineStart);
-	}
+	reference = new FormatJavadocReference(start, (int) this.identifierPositionStack[isTypeParam ? 2 : 0], lineStart);
 	block.reference = reference;
 	block.sourceEnd = reference.sourceEnd;
 	pushOnAstStack(block, true);
@@ -416,7 +381,10 @@ private void pushText(int start, int end, int htmlIndex, int htmlDepth) {
 		} else {
 			// If last fragment is a tag, then use it as previous tag
 			FormatJavadocNode lastNode = previousBlock.nodes[previousBlock.nodesPtr];
-			if (!lastNode.isText()) {
+			while (lastNode != null && lastNode.isText()) {
+				lastNode = lastNode.getLastNode();
+			}
+			if (lastNode != null) {
 				previousBlock = (FormatJavadocBlock) lastNode;
 				previousStart = previousBlock.sourceStart;
 			}

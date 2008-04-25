@@ -28,6 +28,7 @@ public class FormatJavadocBlock extends FormatJavadocNode implements IJavaDocTag
 	final static int ON_HEADER_LINE = 0x0004;
 	final static int TEXT_ON_TAG_LINE = 0x0008;
 	final static int ONE_LINE_TAG = 0x0010;
+	final static int PARAM_TAG = 0x0020;
 	
 	// constants
 	final static int MAX_TAG_HIERARCHY = 10;
@@ -43,6 +44,14 @@ public FormatJavadocBlock(int start, int end, int line, int value) {
 	super(start, end, line);
 	this.tagValue = value;
 	this.tagEnd = end;
+	switch (value) {
+		case TAG_PARAM_VALUE:
+		// TODO why are following tags considered like @param by the formatter?
+		case TAG_SERIAL_FIELD_VALUE:
+		case TAG_THROWS_VALUE:
+		case TAG_EXCEPTION_VALUE:
+			flags |= PARAM_TAG;
+	}
 }
 
 private void addNode(FormatJavadocNode node) {
@@ -72,11 +81,17 @@ void addBlock(FormatJavadocBlock block, int htmlLevel) {
 					textHierarchy[i].sourceEnd = block.sourceEnd;
 				}
 				this.sourceEnd = block.sourceEnd;
+				if (isParamTag()) {
+					block.flags |= PARAM_TAG;
+				}
 				return;
 			}
 		}
 	}
 	addNode(block);
+	if (isParamTag()) {
+		block.flags |= PARAM_TAG;
+	}
 }
 
 void addText(FormatJavadocText text) {
@@ -264,15 +279,7 @@ public boolean isOneLineTag() {
  * 	<code>false</code> otherwise.
  */
 public boolean isParamTag() {
-	switch (this.tagValue) {
-		case TAG_PARAM_VALUE:
-		// TODO (eric) why are following tags considered like @param by the formatter?
-		case TAG_SERIAL_FIELD_VALUE:
-		case TAG_THROWS_VALUE:
-		case TAG_EXCEPTION_VALUE:
-			return true;
-	}
-	return false;
+	return (this.flags & PARAM_TAG) == PARAM_TAG;
 }
 
 protected void toString(StringBuffer buffer) {

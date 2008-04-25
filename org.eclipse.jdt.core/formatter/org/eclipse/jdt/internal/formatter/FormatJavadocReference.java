@@ -19,7 +19,6 @@ package org.eclipse.jdt.internal.formatter;
  * </p>
  */
 public class FormatJavadocReference extends FormatJavadocNode {
-	long[] positions; // positions of separators ('.') for qualified references
 
 public FormatJavadocReference(int start, int end, int line) {
 	super(start, end, line);
@@ -27,11 +26,6 @@ public FormatJavadocReference(int start, int end, int line) {
 
 public FormatJavadocReference(long position, int line) {
 	super((int) (position >>> 32), (int) position, line);
-}
-
-public FormatJavadocReference(long[] positions, int line) {
-	super((int) (positions[0] >>> 32), (int) positions[positions.length-1], line);
-	this.positions = positions;
 }
 
 void clean() {

@@ -688,6 +688,12 @@ public void testTagParam03() throws JavaModelException {
 public void testTagParam04() throws JavaModelException {
 	formatUnit("tags.param", "X04.java");
 }
+public void testTagParam05() throws JavaModelException {
+	formatUnit("tags.param", "X05.java");
+}
+public void testTagParam06() throws JavaModelException {
+	formatUnit("tags.param", "X06.java");
+}
 
 /*
  * Test formatter see tags
@@ -700,6 +706,15 @@ public void testTagSee02() throws JavaModelException {
 }
 public void testTagSee03() throws JavaModelException {
 	formatUnit("tags.see", "X03.java");
+}
+public void testTagSee04() throws JavaModelException {
+	formatUnit("tags.see", "X04.java");
+}
+public void testTagSee05() throws JavaModelException {
+	formatUnit("tags.see", "X05.java");
+}
+public void testTagSee06() throws JavaModelException {
+	formatUnit("tags.see", "X06.java");
 }
 
 /*
@@ -803,6 +818,9 @@ public void testBlockComments09() throws JavaModelException {
 public void testBlockComments10() throws JavaModelException {
 	formatUnit("comments.block", "X10.java");
 }
+public void testBlockComments11() throws JavaModelException {
+	formatUnit("comments.block", "X11.java");
+}
 
 /*
  * Test formatter on example got from workspaces
@@ -869,8 +887,49 @@ public void testWkspEclipse12b() throws JavaModelException {
 public void testWkspEclipse13() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X13.java");
 }
+public void testWkspEclipse14() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X14.java");
+}
 // JUnit 3.8.2
 public void testWkspJUnit01() throws JavaModelException {
 	formatUnit("wksp.junit", "X01.java");
+}
+
+/**
+ * @bug 228652: [formatter] New line inserted while formatting a region of a compilation unit.
+ * @test Insure that no new line is inserted before the formatted region
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228652"
+ */
+// TODO (frederic) See https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
+public void _testBug228652() {
+	String input =
+			"package a;\r\n" + 
+			"\r\n" + 
+			"public class Test {\r\n" + 
+			"\r\n" + 
+			"	private int field;\r\n" + 
+			"	\r\n" + 
+			"	/**\r\n" + 
+			"	 * fds \r\n" + 
+			"	 */\r\n" + 
+			"	public void foo() {\r\n" + 
+			"	}\r\n" + 
+			"}";
+
+	String expected =
+			"package a;\r\n" + 
+			"\r\n" + 
+			"public class Test {\r\n" + 
+			"\r\n" + 
+			"	private int field;\r\n" + 
+			"	\r\n" + 
+			"	/**\r\n" + 
+			"	 * fds\r\n" + 
+			"	 */\r\n" + 
+			"	public void foo() {\r\n" + 
+			"	}\r\n" + 
+			"}";
+	
+	formatSource(input, expected, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, false, 62, 19, null);
 }
 }

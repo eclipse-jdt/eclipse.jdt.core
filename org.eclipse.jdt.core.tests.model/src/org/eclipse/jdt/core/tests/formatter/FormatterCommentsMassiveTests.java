@@ -132,13 +132,13 @@ import org.eclipse.text.edits.TextEdit;
  * <ul>
  * 	<li>3.0 performance workspace (9951 units):<ul>
  * 		<li>0 error</li>
- * 		<li>199 failures</li>
- * 		<li>751 different lines leading spaces</li>
+ * 		<li>104 failures</li>
+ * 		<li>799 different lines leading spaces</li>
  *		</ul></li>
  *		<li>ganymede workspace (25819 units):<ul>
  * 		<li>0 error</li>
- * 		<li>376 failures</li>
- * 		<li>1350 different lines leading spaces</li>
+ * 		<li>202 failures</li>
+ * 		<li>1410 different lines leading spaces</li>
  *		</ul></li>
  * </ul>
  * 

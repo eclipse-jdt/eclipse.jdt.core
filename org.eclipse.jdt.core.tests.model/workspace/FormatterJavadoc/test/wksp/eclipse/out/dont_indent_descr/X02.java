@@ -6,8 +6,8 @@ interface X02 {
 	 * will remove the charset setting for this resource.
 	 * <p>
 	 * This method changes resources; these changes will be reported in a
-	 * subsequent resource change event, including an indication that this file'
-	 * s encoding has changed.
+	 * subsequent resource change event, including an indication that this
+	 * file's encoding has changed.
 	 * </p>
 	 * <p>
 	 * This method is long-running; progress and cancellation are provided by
