@@ -2470,8 +2470,12 @@ public class JavaProject
 					if (container == null)
 						break;
 					IClasspathEntry[] containerEntries = container.getClasspathEntries();
-					if (containerEntries == null) 
+					if (containerEntries == null) {
+						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+							JavaModelManager.getJavaModelManager().verbose_missbehaving_container_null_entries(this, rawEntry.getPath());
+						}
 						break;
+					}
 
 					// container was bound
 					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
@@ -2562,7 +2566,12 @@ public class JavaProject
 						}
 	
 						IClasspathEntry[] containerEntries = container.getClasspathEntries();
-						if (containerEntries == null) break;
+						if (containerEntries == null) {
+							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+								JavaModelManager.getJavaModelManager().verbose_missbehaving_container_null_entries(this, rawEntry.getPath());
+							}
+							break;
+						}
 	
 						// container was bound
 						for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){

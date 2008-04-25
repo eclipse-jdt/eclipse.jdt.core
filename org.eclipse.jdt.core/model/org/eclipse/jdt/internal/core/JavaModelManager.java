@@ -680,6 +680,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		);
 	}
 
+	void verbose_missbehaving_container_null_entries(IJavaProject project, IPath containerPath) {
+		Util.verbose(
+			"CPContainer GET - missbehaving container (returning null as classpath entries)\n" + //$NON-NLS-1$
+			"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+			"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+			"	classpath entries: <null>" //$NON-NLS-1$
+		);
+	}
+
 	private void containerRemoveInitializationInProgress(IJavaProject project, IPath containerPath) {
 		Map initializations = (Map)this.containerInitializationInProgress.get();
 		if (initializations == null)
