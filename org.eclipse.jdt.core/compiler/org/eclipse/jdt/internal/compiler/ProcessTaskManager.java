@@ -157,7 +157,7 @@ public void shutdown() {
 			}
 		}
 		if (t != null)
-			t.join();
+			t.join(250); // do not wait forever
 	} catch (InterruptedException ignored) {
 		// ignore
 	}
