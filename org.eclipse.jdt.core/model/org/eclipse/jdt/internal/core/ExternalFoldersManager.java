@@ -222,7 +222,7 @@ public class ExternalFoldersManager {
 		if (!JavaProject.hasJavaNature(source))
 			return;
 		try {
-			HashSet externalFolders = getExternalFolders(JavaCore.create(source).getResolvedClasspath(true));
+			HashSet externalFolders = getExternalFolders(((JavaProject) JavaCore.create(source)).getResolvedClasspath());
 			if (externalFolders == null)
 				return;
 			final Iterator iterator = externalFolders.iterator();
