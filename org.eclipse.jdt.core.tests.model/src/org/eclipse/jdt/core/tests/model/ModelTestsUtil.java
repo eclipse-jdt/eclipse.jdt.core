@@ -560,23 +560,43 @@ public static String trimLinesLeadingWhitespaces(String input) {
 	StringTokenizer tokenizer = new StringTokenizer(input, "\r\n\f");
 	StringBuffer buffer = new StringBuffer();
 	while (tokenizer.hasMoreTokens()) {
-		String line = tokenizer.nextToken().trim();
-		int index = line.indexOf('*');
-		if (index >= 0) {
-			int length = line.length();
-			if (length > 80 && line.charAt(length-1) == '>') { // should not happen:  bug of old formatter
-				int idx = line.lastIndexOf('<');
-				buffer.append(line.substring(index+1, idx).trim());
-				buffer.append(Util.LINE_SEPARATOR);
-				buffer.append(line.substring(idx).trim());
-				continue;
-			} else {
-				buffer.append(line.substring(index+1).trim());
+		String line = tokenizer.nextToken();
+		int length = line.length();
+		int size = 0;
+		int idx = -1;
+		if (length > 0) {
+			loop: while ((idx+1) < length) {
+				char ch = line.charAt(++idx);
+				switch (ch) {
+					case '\t':
+						size += 4;
+						break;
+					case '*':
+					case ' ':
+						break;
+					default:
+						break loop;
+				}
 			}
+		}
+		if (length > 0 && idx > 0 && idx < length) {
+			int splitLineIndex = line.indexOf("||", idx);
+			if (splitLineIndex > 0) {
+				int commentStart = line.indexOf("/*", splitLineIndex);
+				if (commentStart >= 80-((size*3)/4)) {
+					StringBuffer newLine = new StringBuffer(line.substring(idx-1, splitLineIndex).trim());
+					newLine.append('\n');
+					newLine.append(line.substring(splitLineIndex).trim());
+					newLine.append('\n');
+					buffer.append(newLine);
+					continue;
+				}
+			}
+			buffer.append(line.substring(idx).trim());
 		} else {
 			buffer.append(line);
 		}
-		buffer.append(Util.LINE_SEPARATOR);
+		buffer.append('\n');
 	}
     return buffer.toString();
 }

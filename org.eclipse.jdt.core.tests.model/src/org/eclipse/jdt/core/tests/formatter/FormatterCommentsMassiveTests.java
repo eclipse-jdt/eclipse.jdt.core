@@ -13,9 +13,12 @@ package org.eclipse.jdt.core.tests.formatter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.ComparisonFailure;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -55,7 +58,7 @@ import org.eclipse.text.edits.TextEdit;
  * formatting of JUnit 3.8.2 files:
  * <ul>
  * 	<li>0 error</li>
- * 	<li>4 failures:
+ * 	<li>2 failures:
  * 		<ol>
  * 			<li>TestCase.java:
  * 				incorrect line length in old formatter
@@ -64,24 +67,19 @@ import org.eclipse.text.edits.TextEdit;
  * 			<li>TestCaseClassLoader.java:
  * 				incorrect line length in old formatter
  * 			</li>
- * 			<li>SimpleTest.java:
- * 				word break on punctuation
- * 			</li>
- * 			<li>AssertTest.java:
- * 				word break on ponctuation
- * 			</li>
  * 		</lo>
  * 	</li>
- * 	<li>8 lines leading spaces differences on 2nd formatting:
+ * 	<li>9 files have different line leading spaces than old formatter:
  * 		<ol>
- * 			<li>n°1: Assert.java</li>
- * 			<li>n°3: TestSuite.java</li>
- * 			<li>n°4: BaseTestRunner.java</li>
- * 			<li>n°5: AllTests.java</li>
- * 			<li>n°6: AllTests.java</li>
- * 			<li>n°7: AllTests.java</li>
- * 			<li>n°8: BaseTestRunnerTest.java</li>
- * 			<li>n°9: ResultPrinter.java</li>
+ * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\framework\Assert.java</li>
+ * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\framework\ComparisonFailure.java</li>
+ * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\framework\TestSuite.java</li>
+ * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\runner\BaseTestRunner.java</li>
+ * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\tests\extensions\AllTests.java</li>
+ * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\tests\framework\AllTests.java</li>
+ * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\tests\runner\AllTests.java</li>
+ * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\tests\runner\BaseTestRunnerTest.java</li>
+ * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\textui\ResultPrinter.java</li>
  * 		</ol>
  * 	</li>
  * 	<li>1 lines leading spaces differences with old formatter:
@@ -92,15 +90,8 @@ import org.eclipse.text.edits.TextEdit;
  *		</ul></li>
  * </p><p>
  * TODO Fix failures while running on workspaces without comparing.
- * <i>
- * <ul>
- * <li>0 error and 425 failures for 9950 tests on 3.0 performance workspace.</li>
- * <li>0 error and 4220 failures for 25819 tests on ganymede workspace</li>
- * </ul>
- * </i>
  * 
- * Numbers above where before the line comments formatting was activated.
- * It was not possible to continue to compare the entire files after 2 formatting
+ * It is not possible to continue to compare the entire files after 2 formatting
  * as the code formatter cannot handle properly following snippet:
  * <pre>
  * public class X02 {
@@ -132,28 +123,15 @@ import org.eclipse.text.edits.TextEdit;
  * <ul>
  * 	<li>3.0 performance workspace (9951 units):<ul>
  * 		<li>0 error</li>
- * 		<li>104 failures</li>
- * 		<li>799 different lines leading spaces</li>
+ * 		<li>65 failures</li>
+ * 		<li>811 files have different lines leading spaces</li>
+ * 		<li>12 files have different spaces</li>
  *		</ul></li>
  *		<li>ganymede workspace (25819 units):<ul>
  * 		<li>0 error</li>
- * 		<li>202 failures</li>
- * 		<li>1410 different lines leading spaces</li>
- *		</ul></li>
- * </ul>
- * 
- * Here are the results when setting the system property to
- * <code>all</code> (e.g. ignore all white spaces):
- * <ul>
- * 	<li>3.0 performance workspace (9951 units):<ul>
- * 		<li>0 error</li>
- * 		<li>376 failures</li>
- * 		<li>732 different spaces</li>
- *		</ul></li>
- *		<li>ganymede workspace (25819 units):<ul>
- * 		<li>? error</li>
- * 		<li>? failures</li>
- * 		<li>? different spaces</li>
+ * 		<li>126 files has still different output while reformatting!</li>
+ * 		<li>1447 files have different line leading spaces when reformatting!</li>
+ * 		<li>16 files have different spaces when reformatting!</li>
  *		</ul></li>
  * </ul>
  */
@@ -161,15 +139,18 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 
 	private static final String LINE_SEPARATOR = org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR;
 	final File file;
-	int failures = 0, spaceFailures= 0;
+	final String path;
+	int failures = 0;
+	List leadingWhitespacesFailures = new ArrayList();
+	List whitespacesFailures= new ArrayList();
 	boolean hasSpaceFailure;
 	private final static String DIR = System.getProperty("dir"); //$NON-NLS-1$
 	private final static boolean COMPARE = DefaultCodeFormatterConstants.TRUE.equals(System.getProperty("compare")); //$NON-NLS-1$
 	private final static boolean IGNORE_WHITESPACES = "all".equals(System.getProperty("ignoreWhitespaces")); //$NON-NLS-1$
 	private final static boolean IGNORE_LINES_LEADING_WHITESPACES = "linesLeading".equals(System.getProperty("ignoreWhitespaces")); //$NON-NLS-1$
 	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2")); //$NON-NLS-1$
-	private static final int MAX_FAILURES = 100; // Max failures using string comparison
-	private static boolean ASSERT_EQUALS_STRINGS = true;
+	private static final int MAX_FAILURES = Integer.parseInt(System.getProperty("maxFailures", "100")); // Max failures using string comparison
+	private static boolean ASSERT_EQUALS_STRINGS = MAX_FAILURES > 0;
 	
 public static Test suite() {
 	TestSuite suite = new Suite(FormatterCommentsMassiveTests.class.getName());
@@ -202,13 +183,14 @@ public static Test suite() {
 public FormatterCommentsMassiveTests(File file) {
 	super("testCompare");
 	this.file = file;
+	this.path = file.getPath().toString().substring(DIR.length()+1);
 }
 
 /* (non-Javadoc)
  * @see junit.framework.TestCase#getName()
  */
 public String getName() {
-	return super.getName()+" - " + this.file.toString();
+	return super.getName()+" - " + this.path;
 }
 
 /* (non-Javadoc)
@@ -238,6 +220,32 @@ public void tearDown() throws Exception {
  */
 public void tearDownSuite() throws Exception {
 	// skip standard model suite tear down
+	int wFailures = this.whitespacesFailures.size();
+	int lwFailures = this.leadingWhitespacesFailures.size();
+	String failuresType = COMPARE ? "than old formatter" : "when reformatting";
+	if (this.failures > 0) {
+		System.out.println(this.failures+" files has still different output while reformatting!");
+	}
+	if (lwFailures == 0) {
+		System.out.println("No file has different line leading spaces "+failuresType+" :-)");
+	} else {
+		System.out.println(lwFailures+" files have different line leading spaces "+failuresType+"!");
+	}
+	if (wFailures > 0) {
+		System.out.println(wFailures+" files have different spaces "+failuresType+"!");
+	}
+	if (lwFailures > 0) {
+		System.out.println("List of files with different line leading spaces "+failuresType+":");
+		for (int i=0; i<lwFailures; i++) {
+			System.out.println("	- "+this.leadingWhitespacesFailures.get(i));
+		}
+	}
+	if (wFailures > 0) {
+		System.out.println("List of files with different spaces "+failuresType+":");
+		for (int i=0; i<wFailures; i++) {
+			System.out.println("	- "+this.whitespacesFailures.get(i));
+		}
+	}
 }
 
 /*
@@ -251,34 +259,36 @@ protected void assertSourceEquals(String message, String expected, String actual
 		return;
 	}
 	actual = Util.convertToIndependantLineDelimiter(actual);
-	if (ASSERT_EQUALS_STRINGS) {
-		try {
+	try {
+		if (ASSERT_EQUALS_STRINGS) {
 			assertEquals(message, expected, actual);
+		} else {
+			assertTrue(message, actual.equals(expected));
 		}
-		catch (ComparisonFailure cf) {
-			if (IGNORE_WHITESPACES) {
-				String trimmedExpected = ModelTestsUtil.removeWhiteSpace(expected);
-				String trimmedActual= ModelTestsUtil.removeWhiteSpace(actual);
-				if (trimmedExpected.equals(trimmedActual)) {
-					this.spaceFailures++;
-					System.out.println("n°"+this.spaceFailures+": Different spaces than old formatter for "+this.file.getName());
-					return;
-				}
-			} else if (IGNORE_LINES_LEADING_WHITESPACES) {
-				String trimmedExpected = ModelTestsUtil.trimLinesLeadingWhitespaces(expected);
-				String trimmedActual= ModelTestsUtil.trimLinesLeadingWhitespaces(actual);
-				if (trimmedExpected.equals(trimmedActual)) {
-					this.spaceFailures++;
-					System.out.println("n°"+this.spaceFailures+": Different line leading spaces than old formatter for "+this.file.getName());
-					return;
-				}
+	}
+	catch (ComparisonFailure cf) {
+		if (IGNORE_WHITESPACES) {
+			String trimmedExpected = ModelTestsUtil.removeWhiteSpace(expected);
+			String trimmedActual= ModelTestsUtil.removeWhiteSpace(actual);
+			if (trimmedExpected.equals(trimmedActual)) {
+				this.whitespacesFailures.add(this.path);
+				return;
 			}
-			this.failures++;
-			ASSERT_EQUALS_STRINGS = this.failures < MAX_FAILURES;
-			throw cf;
+		} else if (IGNORE_LINES_LEADING_WHITESPACES) {
+			String trimmedExpected = ModelTestsUtil.trimLinesLeadingWhitespaces(expected);
+			String trimmedActual= ModelTestsUtil.trimLinesLeadingWhitespaces(actual);
+			if (trimmedExpected.equals(trimmedActual)) {
+				this.leadingWhitespacesFailures.add(this.path);
+				return;
+			}
 		}
-	} else {
-		assertTrue(message, actual.equals(expected));
+		this.failures++;
+		ASSERT_EQUALS_STRINGS = this.failures < MAX_FAILURES;
+		throw cf;
+	}
+	catch (AssertionFailedError afe) {
+		this.failures++;
+		throw afe;
 	}
 }
 
@@ -480,8 +490,7 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 					String trimmedResult = ModelTestsUtil.removeWhiteSpace(result);
 					String trimmedNewResult = ModelTestsUtil.removeWhiteSpace(newResult);
 					if (trimmedResult.equals(trimmedNewResult)) {
-						this.spaceFailures++;
-						System.out.println("n°"+this.spaceFailures+": "+counterString+" formatting has different spaces than first one for "+this.file.getName());
+						this.whitespacesFailures.add(this.path);
 						this.hasSpaceFailure = true;
 						return result;
 					}
@@ -489,8 +498,14 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 					String trimmedResult = ModelTestsUtil.trimLinesLeadingWhitespaces(result);
 					String trimmedNewResult = ModelTestsUtil.trimLinesLeadingWhitespaces(newResult);
 					if (trimmedResult.equals(trimmedNewResult)) {
-						this.spaceFailures++;
-						System.out.println("n°"+this.spaceFailures+": "+counterString+" formatting has different lines leading spaces than first one for "+this.file.getName());
+						this.leadingWhitespacesFailures.add(this.path);
+						this.hasSpaceFailure = true;
+						return result;
+					}
+					String compressedResult = ModelTestsUtil.removeWhiteSpace(result);
+					String compressedNewResult = ModelTestsUtil.removeWhiteSpace(newResult);
+					if (compressedResult.equals(compressedNewResult)) {
+						this.whitespacesFailures.add(this.path);
 						this.hasSpaceFailure = true;
 						return result;
 					}

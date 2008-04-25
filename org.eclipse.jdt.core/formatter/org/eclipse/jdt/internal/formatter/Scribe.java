@@ -1145,11 +1145,12 @@ public class Scribe implements IJavaDocTagConstants {
 
 
 		// Compute indentation
-		int firstColumn = this.column;
+		int maxColumn = this.formatter.preferences.comment_line_length + 1;
 		int indentLevel = this.indentationLevel;
 		int indentations = this.numberOfIndentations;
-		this.indentationLevel = getNextIndentationLevel(firstColumn);
-		this.numberOfIndentations = this.indentationLevel % this.indentationSize;
+		this.indentationLevel = (this.column / this.tabLength) * this.tabLength;
+		this.column = this.indentationLevel + 1;
+		this.numberOfIndentations = this.indentationLevel / this.indentationSize;
 
 		// Consume the comment prefix
 		StringBuffer buffer = new StringBuffer();
@@ -1160,7 +1161,6 @@ public class Scribe implements IJavaDocTagConstants {
 		StringBuffer tokensBuffer = new StringBuffer();
 
 		// Consume text token per token
-		int maxColumn = this.formatter.preferences.comment_line_length + 1;
 		int previousToken = -1;
 		boolean newLine = false;
 		boolean multiLines = false;
@@ -1209,7 +1209,7 @@ public class Scribe implements IJavaDocTagConstants {
 			}
 			
 			// Look at specific tokens
-    		boolean insertSpace = (previousToken == TerminalTokens.TokenNameWHITESPACE || newLine) && (!firstWord || !hasTokens);
+    		boolean insertSpace = (previousToken == TerminalTokens.TokenNameWHITESPACE || newLine || previousToken == -1) && (!firstWord || !hasTokens);
 			switch (token) {
 				case TerminalTokens.TokenNameWHITESPACE:
 					buffer.append(tokensBuffer);
@@ -1246,6 +1246,14 @@ public class Scribe implements IJavaDocTagConstants {
 					}
 					scannerLine = lineNumber;
 					continue;
+				case TerminalTokens.TokenNameMULTIPLY_EQUAL:
+					if (newLine) {
+						this.scanner.resetTo(this.scanner.startPosition, currentTokenEndPosition-1);
+						this.scanner.getNextChar(); // consume the multiply
+						previousToken = TerminalTokens.TokenNameMULTIPLY;
+						scannerLine = Util.getLineNumber(this.scanner.getCurrentTokenEndPosition(), this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
+						continue;
+					}
 			}
 
 			// Look at gap and insert corresponding lines if necessary
@@ -1303,7 +1311,7 @@ public class Scribe implements IJavaDocTagConstants {
     		// Append next token inserting a new line if max line is reached
 			if (!firstWord && lastColumn > maxColumn) {
 		    	String tokensString = tokensBuffer.toString().trim();
-				if ((firstColumn+tokensString.length()+tokenLength) > maxColumn) {
+				if ((this.indentationLevel+tokensString.length()+tokenLength) > maxColumn) {
 					// there won't be enough room even if we break the line before the buffered tokens
 					// So add the buffered tokens now
 					if (buffer.length() == 0) {
@@ -1357,11 +1365,6 @@ public class Scribe implements IJavaDocTagConstants {
 						this.column++;
 					}
 			    	this.column = col;
-				}
-			} else {
-				if (buffer.charAt(0) != ' ') {
-					replacement.append(' ');
-					this.column++;
 				}
 			}
 			replacement.append(buffer);
@@ -2874,7 +2877,7 @@ public class Scribe implements IJavaDocTagConstants {
 				try {
 					token = this.scanner.getNextToken();
 				} catch (InvalidInputException iie) {
-					boolean insertSpace = previousToken == TerminalTokens.TokenNameWHITESPACE;
+					boolean insertSpace = previousToken == TerminalTokens.TokenNameWHITESPACE || (this.scanner.startPosition == textStart && this.column > firstColumn && !(firstText || isHtmlTag));
 					String msg = iie.getMessage();
 					if (msg == Scanner.INVALID_CHARACTER_CONSTANT) {
 						if (insertSpace) {

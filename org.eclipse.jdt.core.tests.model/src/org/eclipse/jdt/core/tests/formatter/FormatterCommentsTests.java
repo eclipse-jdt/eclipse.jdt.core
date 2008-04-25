@@ -821,6 +821,19 @@ public void testBlockComments10() throws JavaModelException {
 public void testBlockComments11() throws JavaModelException {
 	formatUnit("comments.block", "X11.java");
 }
+public void testBlockComments12() throws JavaModelException {
+	formatUnit("comments.block", "X12.java");
+}
+// TODO (frederic) This one fail since 3.3 => the new comment formatter is not involved
+public void _testBlockComments13() throws JavaModelException {
+	formatUnit("comments.block", "X13.java");
+}
+public void testBlockComments14() throws JavaModelException {
+	formatUnit("comments.block", "X14.java");
+}
+public void testBlockComments15() throws JavaModelException {
+	formatUnit("comments.block", "X15.java");
+}
 
 /*
  * Test formatter on example got from workspaces
@@ -889,6 +902,9 @@ public void testWkspEclipse13() throws JavaModelException {
 }
 public void testWkspEclipse14() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X14.java");
+}
+public void testWkspEclipse15() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X15.java");
 }
 // JUnit 3.8.2
 public void testWkspJUnit01() throws JavaModelException {
