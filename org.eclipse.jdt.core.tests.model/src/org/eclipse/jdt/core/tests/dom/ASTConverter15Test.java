@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-		TESTS_NUMBERS = new int[] { 95, 218, 223, 224, 225, 235, 236, 237, 281 };
+//		TESTS_NUMBERS = new int[] { 286 };
 //		TESTS_RANGE = new int[] { 277, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -9582,5 +9582,35 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding iTypeBinding = (ITypeBinding) defaultValue;
 		assertEquals("Unexpected default value", "b187430.A.B", iTypeBinding.getQualifiedName());
 	}
-
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=228691
+	 */
+	public void test0286() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0286/X.java", true/*resolve*/);
+		String contents =
+			"package test0286;\n" +
+			"public class X {\n" +
+			"	int i;\n" +
+			"	Integer integer;\n" +
+			"}\n";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		ASTNode node2 = getASTNode(unit, 0, 0);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node2.getNodeType());
+		FieldDeclaration declaration = (FieldDeclaration) node2;
+		ITypeBinding typeBinding = declaration.getType().resolveBinding();
+		node2 = getASTNode(unit, 0, 1);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node2.getNodeType());
+		declaration = (FieldDeclaration) node2;
+		ITypeBinding typeBinding2 = declaration.getType().resolveBinding();
+		assertEquals("Wrong type", "int", typeBinding.getName());
+		assertEquals("Wrong type", "Integer", typeBinding2.getName());
+		assertTrue("Not assignmentCompatible: Integer -> int", typeBinding2.isAssignmentCompatible(typeBinding));
+		assertTrue("Not assignmentCompatible: int -> Integer", typeBinding.isAssignmentCompatible(typeBinding2));
+	}
 }
