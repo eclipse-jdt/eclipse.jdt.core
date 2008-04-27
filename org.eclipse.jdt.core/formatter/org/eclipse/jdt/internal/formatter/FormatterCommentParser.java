@@ -82,8 +82,8 @@ protected Object createMethodReference(Object receiver, List arguments) throws I
  */
 protected void createTag() {
 	int lineStart = this.scanner.getLineNumber(this.tagSourceStart);
-	FormatJavadocBlock block = new FormatJavadocBlock(this.tagSourceStart, this.tagSourceEnd, lineStart, this.tagValue);
 	if (this.inlineTagStarted) {
+		FormatJavadocBlock block = new FormatJavadocBlock(this.inlineTagStart, this.tagSourceEnd, lineStart, this.tagValue);
 		FormatJavadocBlock previousBlock = null;
 		if (this.astPtr == -1) {
 			previousBlock = new FormatJavadocBlock(this.inlineTagStart, this.tagSourceEnd, lineStart, NO_TAG_VALUE);
@@ -93,6 +93,7 @@ protected void createTag() {
 		}
 		previousBlock.addBlock(block, this.htmlTagsPtr == -1 ? 0 : this.htmlTagsPtr);
 	} else {
+		FormatJavadocBlock block = new FormatJavadocBlock(this.tagSourceStart, this.tagSourceEnd, lineStart, this.tagValue);
 		pushOnAstStack(block, true);
 	}
 }

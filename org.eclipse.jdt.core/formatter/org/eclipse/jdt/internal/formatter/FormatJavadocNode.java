@@ -26,6 +26,7 @@ public abstract class FormatJavadocNode implements JavadocTagConstants {
 	final static int INCREMENT_ARRAY_SIZE = 10;
 	protected int sourceStart, sourceEnd;
 	protected int lineStart;
+	protected int linesBefore = 0;
 
 public FormatJavadocNode(int start, int end, int line) {
 	this.sourceStart = start;

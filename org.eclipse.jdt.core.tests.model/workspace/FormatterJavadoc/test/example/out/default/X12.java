@@ -8,10 +8,10 @@ package test.prefs.example;
  * <p>
  * A breakpoint is defined in two parts:
  * <ol>
- * <li>By an extension of kind
- * <code>"org.eclipse.debug.core.breakpoints"</code></li>
- * <li>By a marker definition that corresponds to the above breakpoint
- * extension</li>
+ * <li>By an extension of kind <code>"org.eclipse.debug.core.breakpoints"</code>
+ * </li>
+ * <li>By a marker definition that corresponds to the above breakpoint extension
+ * </li>
  * </ol>
  * <p>
  * For example, following is a definition of corresponding breakpoint and
@@ -35,11 +35,10 @@ package test.prefs.example;
  *   &lt;/marker&gt;
  * &lt;/extension&gt;
  * </pre>
- * 
  * <p>
  * The breakpoint manager instantiates persisted breakpoints by traversing all
  * markers that are a subtype of
- * <code>"org.eclipse.debug.core.breakpointMarker"</code>, and instantiating
+ * <code>"org.eclipse.debug.core.breakpointMarker"</code> , and instantiating
  * the class defined by the <code>class</code> attribute on the associated
  * breakpoint extension. The method <code>setMarker</code> is then called to
  * associate a marker with the breakpoint.
@@ -48,8 +47,8 @@ package test.prefs.example;
  * Breakpoints may or may not be registered with the breakpoint manager, and are
  * persisted and restored as such. Since marker definitions only allow all or
  * none of a specific marker type to be persisted, breakpoints define a
- * <code>PERSISTED</code> attribute for selective persistence of breakpoints
- * of the same type.
+ * <code>PERSISTED</code> attribute for selective persistence of breakpoints of
+ * the same type.
  * </p>
  * 
  * @since 2.0

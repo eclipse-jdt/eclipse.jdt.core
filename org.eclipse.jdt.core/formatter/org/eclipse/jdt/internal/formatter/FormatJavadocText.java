@@ -31,7 +31,6 @@ public class FormatJavadocText extends FormatJavadocNode implements IJavaDocTagC
 	long[] separators;
 	int separatorsPtr = -1;
 	private int htmlTagIndex = -1;
-	int linesBefore = 0;
 	FormatJavadocNode[] htmlNodes;
 	int[] htmlIndexes;
 	int htmlNodesPtr = -1;

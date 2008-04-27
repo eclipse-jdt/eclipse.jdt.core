@@ -2,8 +2,8 @@ package test.wksp.eclipse;
 
 interface X02 {
 	/**
-	 * Sets the charset for this file. Passing a value of <code>null</code>
-	 * will remove the charset setting for this resource.
+	 * Sets the charset for this file. Passing a value of <code>null</code> will
+	 * remove the charset setting for this resource.
 	 * <p>
 	 * This method changes resources; these changes will be reported in a
 	 * subsequent resource change event, including an indication that this

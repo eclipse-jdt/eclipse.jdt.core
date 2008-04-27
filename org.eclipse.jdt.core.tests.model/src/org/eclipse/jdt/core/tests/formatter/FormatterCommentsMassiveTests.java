@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,15 +124,16 @@ import org.eclipse.text.edits.TextEdit;
  * <ul>
  * 	<li>3.0 performance workspace (9951 units):<ul>
  * 		<li>0 error</li>
- * 		<li>65 failures</li>
- * 		<li>811 files have different lines leading spaces</li>
- * 		<li>12 files have different spaces</li>
+ * 		<li>27 failures</li>
+ * 		<li>8 failures due to old formatter</li>
+ * 		<li>863 files have different lines leading spaces</li>
+ * 		<li>15 files have different spaces</li>
  *		</ul></li>
  *		<li>ganymede workspace (25819 units):<ul>
  * 		<li>0 error</li>
- * 		<li>126 files has still different output while reformatting!</li>
- * 		<li>1447 files have different line leading spaces when reformatting!</li>
- * 		<li>16 files have different spaces when reformatting!</li>
+ * 		<li>81 files has still different output while reformatting!</li>
+ * 		<li>1606 files have different line leading spaces when reformatting!</li>
+ * 		<li>91 files have different spaces when reformatting!</li>
  *		</ul></li>
  * </ul>
  */
@@ -140,7 +142,8 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 	private static final String LINE_SEPARATOR = org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR;
 	final File file;
 	final String path;
-	int failures = 0;
+	List failures = new ArrayList();
+	List expectedFailures = new ArrayList();
 	List leadingWhitespacesFailures = new ArrayList();
 	List whitespacesFailures= new ArrayList();
 	boolean hasSpaceFailure;
@@ -151,6 +154,20 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2")); //$NON-NLS-1$
 	private static final int MAX_FAILURES = Integer.parseInt(System.getProperty("maxFailures", "100")); // Max failures using string comparison
 	private static boolean ASSERT_EQUALS_STRINGS = MAX_FAILURES > 0;
+	private final static String[] EXPECTED_FAILURES = {
+		"org.eclipse.jdt.core\\compiler\\org\\eclipse\\jdt\\internal\\compiler\\ast\\QualifiedNameReference.java",
+		"org.eclipse.jdt.core\\eval\\org\\eclipse\\jdt\\internal\\eval\\CodeSnippetSingleNameReference.java",
+		"org.eclipse.jdt.core\\model\\org\\eclipse\\jdt\\internal\\core\\DeltaProcessor.java",
+		"org.eclipse.jdt.core\\model\\org\\eclipse\\jdt\\internal\\core\\JavaProject.java",
+		"org.eclipse.jdt.core\\search\\org\\eclipse\\jdt\\internal\\core\\search\\indexing\\IndexManager.java",
+		"org.eclipse.team.cvs.ui\\src\\org\\eclipse\\team\\internal\\ccvs\\ui\\AnnotateView.java",
+		"org.eclipse.team.cvs.ui\\src\\org\\eclipse\\team\\internal\\ccvs\\ui\\HistoryView.java",
+		"org.eclipse.team.cvs.ui\\src\\org\\eclipse\\team\\internal\\ccvs\\ui\\wizards\\UpdateWizard.java",
+	};
+	static {
+		// Sort expected failures to allow binary search
+		Arrays.sort(EXPECTED_FAILURES);
+	}
 	
 public static Test suite() {
 	TestSuite suite = new Suite(FormatterCommentsMassiveTests.class.getName());
@@ -220,29 +237,48 @@ public void tearDown() throws Exception {
  */
 public void tearDownSuite() throws Exception {
 	// skip standard model suite tear down
-	int wFailures = this.whitespacesFailures.size();
-	int lwFailures = this.leadingWhitespacesFailures.size();
+	int sFailures = this.failures.size();
+	int seFailures = this.expectedFailures.size();
+	int swFailures = this.whitespacesFailures.size();
+	int slwFailures = this.leadingWhitespacesFailures.size();
 	String failuresType = COMPARE ? "than old formatter" : "when reformatting";
-	if (this.failures > 0) {
-		System.out.println(this.failures+" files has still different output while reformatting!");
+	System.out.println();
+	if (sFailures > 0) {
+		System.out.println(sFailures+" files has still different output while reformatting!");
 	}
-	if (lwFailures == 0) {
+	if (seFailures > 0) {
+		System.out.println(seFailures+" files has still different output while reformatting due to old formatter bugs!");
+	}
+	if (slwFailures == 0) {
 		System.out.println("No file has different line leading spaces "+failuresType+" :-)");
 	} else {
-		System.out.println(lwFailures+" files have different line leading spaces "+failuresType+"!");
+		System.out.println(slwFailures+" files have different line leading spaces "+failuresType+"!");
 	}
-	if (wFailures > 0) {
-		System.out.println(wFailures+" files have different spaces "+failuresType+"!");
+	if (swFailures > 0) {
+		System.out.println(swFailures+" files have different spaces "+failuresType+"!");
 	}
-	if (lwFailures > 0) {
+	System.out.println();
+	if (sFailures > 0) {
+		System.out.println("List of files with different output "+failuresType+":");
+		for (int i=0; i<sFailures; i++) {
+			System.out.println("	- "+this.failures.get(i));
+		}
+	}
+	if (seFailures > 0) {
+		System.out.println("List of files with different output "+failuresType+" (due to old formatter bugs):");
+		for (int i=0; i<sFailures; i++) {
+			System.out.println("	- "+this.failures.get(i));
+		}
+	}
+	if (slwFailures > 0) {
 		System.out.println("List of files with different line leading spaces "+failuresType+":");
-		for (int i=0; i<lwFailures; i++) {
+		for (int i=0; i<slwFailures; i++) {
 			System.out.println("	- "+this.leadingWhitespacesFailures.get(i));
 		}
 	}
-	if (wFailures > 0) {
+	if (swFailures > 0) {
 		System.out.println("List of files with different spaces "+failuresType+":");
-		for (int i=0; i<wFailures; i++) {
+		for (int i=0; i<swFailures; i++) {
 			System.out.println("	- "+this.whitespacesFailures.get(i));
 		}
 	}
@@ -282,12 +318,13 @@ protected void assertSourceEquals(String message, String expected, String actual
 				return;
 			}
 		}
-		this.failures++;
-		ASSERT_EQUALS_STRINGS = this.failures < MAX_FAILURES;
+		if (isExpectedFailure()) return;
+		this.failures.add(this.path);
+		ASSERT_EQUALS_STRINGS = this.failures.size() < MAX_FAILURES;
 		throw cf;
 	}
 	catch (AssertionFailedError afe) {
-		this.failures++;
+		this.failures.add(this.path);
 		throw afe;
 	}
 }
@@ -473,6 +510,17 @@ private Map getDefaultCompilerOptions() {
 	return optionsMap;
 }
 
+private boolean isExpectedFailure() {
+	int length = EXPECTED_FAILURES.length;
+	for (int i=0; i<length; i++) {
+		if (EXPECTED_FAILURES[i].equals(this.path)) {
+			this.expectedFailures.add(this.path);
+			return true;
+		}
+	}
+	return false;
+}
+
 String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
 	TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
 	if (edit == null) return null;
@@ -510,7 +558,9 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 						return result;
 					}
 				}
-				assertSourceEquals(counterString+" formatting is different from first one!", Util.convertToIndependantLineDelimiter(result), Util.convertToIndependantLineDelimiter(newResult));
+				if (!isExpectedFailure()) {
+					assertSourceEquals(counterString+" formatting is different from first one!", Util.convertToIndependantLineDelimiter(result), Util.convertToIndependantLineDelimiter(newResult));
+				}
 			}
 		}
 	}

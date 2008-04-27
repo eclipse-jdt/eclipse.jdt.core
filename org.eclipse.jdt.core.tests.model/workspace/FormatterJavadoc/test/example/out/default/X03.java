@@ -1,7 +1,8 @@
 package test.prefs.example;
 
 /**
- * A test case defines the fixture to run multiple tests. To define a test case<br>
+ * A test case defines the fixture to run multiple tests. To define a test case
+ * <br>
  * 1) implement a subclass of TestCase<br>
  * 2) define instance variables that store the state of the fixture<br>
  * 3) initialize the fixture state by overriding <code>setUp</code><br>

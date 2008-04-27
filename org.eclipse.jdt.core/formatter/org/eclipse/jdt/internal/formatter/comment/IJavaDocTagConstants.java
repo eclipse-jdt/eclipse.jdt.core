@@ -131,7 +131,7 @@ public interface IJavaDocTagConstants {
 	/*
 	 *  Tags IDs
 	 */
-	static final int JAVADOC_TAGS_INDEX_MASK = 0x00FF;
+	static final int JAVADOC_TAGS_INDEX_MASK = 0xFFFF;
 	static final int JAVADOC_TAGS_ID_MASK = 0xFF00;
 	static final int JAVADOC_SINGLE_BREAK_TAG_ID = 0x100;
 	static final int JAVADOC_CODE_TAGS_ID = 0x200;

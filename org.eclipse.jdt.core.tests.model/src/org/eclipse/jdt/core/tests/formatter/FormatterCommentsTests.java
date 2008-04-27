@@ -426,8 +426,7 @@ public void testHtmlOthers06() throws JavaModelException {
 public void testHtmlOthers07() throws JavaModelException {
 	formatUnit("html.others", "X07.java");
 }
-// TODO (frederic) Pass this test
-public void _testHtmlOthers08() throws JavaModelException {
+public void testHtmlOthers08() throws JavaModelException {
 	formatUnit("html.others", "X08.java");
 }
 public void testHtmlOthers09() throws JavaModelException {
@@ -450,7 +449,7 @@ public void testHtmlPre() throws JavaModelException {
  * Blank lines inside the <pre> tag are preserved although there were removed
  * in JDT/Text formatter.
  * 
- * TODO (frederic) open a bug for this a retrieve an existing one
+ * TODO open a bug for this a retrieve an existing one
  */
 public void testHtmlPre02() throws JavaModelException {
 	formatUnit("html.pre", "X02.java");
@@ -462,7 +461,7 @@ public void testHtmlPre03() throws JavaModelException {
  * Blank lines inside the <pre> tag are preserved although there were removed
  * in JDT/Text formatter.
  * 
- * TODO (frederic) open a bug for this a retrieve an existing one
+ * TODO open a bug for this a retrieve an existing one
  */
 public void testHtmlPre04() throws JavaModelException {
 	formatUnit("html.pre", "X04.java");
@@ -575,12 +574,10 @@ public void testPreferencesExample() throws JavaModelException {
 public void testPreferencesExample02() throws JavaModelException {
 	formatUnit("example", "X02.java");
 }
-// TODO (frederic) Pass this test
-public void _testPreferencesExample03() throws JavaModelException {
+public void testPreferencesExample03() throws JavaModelException {
 	formatUnit("example", "X03.java");
 }
-// TODO (frederic) Pass this test
-public void _testPreferencesExample04() throws JavaModelException {
+public void testPreferencesExample04() throws JavaModelException {
 	formatUnit("example", "X04.java");
 }
 public void testPreferencesExample05() throws JavaModelException {
@@ -589,16 +586,14 @@ public void testPreferencesExample05() throws JavaModelException {
 public void testPreferencesExample06() throws JavaModelException {
 	formatUnit("example", "X06.java");
 }
-// TODO (frederic) Pass this test
+// TODO Fix bug ?
 public void _testPreferencesExample07() throws JavaModelException {
 	formatUnit("example", "X07.java");
 }
-// TODO (frederic) Pass this test
-public void _testPreferencesExample08() throws JavaModelException {
+public void testPreferencesExample08() throws JavaModelException {
 	formatUnit("example", "X08.java");
 }
-// TODO (frederic) Pass this test
-public void _testPreferencesExample09() throws JavaModelException {
+public void testPreferencesExample09() throws JavaModelException {
 	formatUnit("example", "X09.java");
 }
 // TODO (frederic) Pass this test
@@ -608,12 +603,10 @@ public void _testPreferencesExample10() throws JavaModelException {
 public void testPreferencesExample11() throws JavaModelException {
 	formatUnit("example", "X11.java");
 }
-// TODO (frederic) Pass this test
-public void _testPreferencesExample12() throws JavaModelException {
+public void testPreferencesExample12() throws JavaModelException {
 	formatUnit("example", "X12.java");
 }
-// TODO (frederic) Pass this test
-public void _testPreferencesExample13() throws JavaModelException {
+public void testPreferencesExample13() throws JavaModelException {
 	formatUnit("example", "X13.java");
 }
 public void testPreferencesExample14() throws JavaModelException {
@@ -723,12 +716,10 @@ public void testTagSee06() throws JavaModelException {
 public void testTagLink01() throws JavaModelException {
 	formatUnit("tags.link", "X01.java");
 }
-// TODO (frederic) Pass this test
-public void _testTagLink02() throws JavaModelException {
+public void testTagLink02() throws JavaModelException {
 	formatUnit("tags.link", "X02.java");
 }
-// TODO (frederic) Pass this test
-public void _testTagLink02b() throws JavaModelException {
+public void testTagLink02b() throws JavaModelException {
 	formatUnit("tags.link", "X02b.java");
 }
 public void testTagLink03a() throws JavaModelException {
@@ -736,6 +727,9 @@ public void testTagLink03a() throws JavaModelException {
 }
 public void testTagLink03b() throws JavaModelException {
 	formatUnit("tags.link", "X03b.java");
+}
+public void testTagLink04() throws JavaModelException {
+	formatUnit("tags.link", "X04.java");
 }
 
 /*
@@ -765,12 +759,10 @@ public void testLineComments05() throws JavaModelException {
 /*
  * Test formatter block lines
  */
-// TODO (frederic) Pass this test
-public void _testBlockComments01() throws JavaModelException {
+public void testBlockComments01() throws JavaModelException {
 	formatUnit("comments.block", "X01.java");
 }
-// TODO (frederic) Pass this test
-public void _testBlockComments02() throws JavaModelException {
+public void testBlockComments02() throws JavaModelException {
 	formatUnit("comments.block", "X02.java");
 }
 public void testBlockComments03() throws JavaModelException {
@@ -833,6 +825,9 @@ public void testBlockComments14() throws JavaModelException {
 }
 public void testBlockComments15() throws JavaModelException {
 	formatUnit("comments.block", "X15.java");
+}
+public void testBlockComments16() throws JavaModelException {
+	formatUnit("comments.block", "X16.java");
 }
 
 /*
@@ -905,6 +900,25 @@ public void testWkspEclipse14() throws JavaModelException {
 }
 public void testWkspEclipse15() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X15.java");
+}
+public void testWkspEclipse16() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X16.java");
+}
+public void testWkspEclipse17() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X17.java");
+}
+public void testWkspEclipse18() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X18.java");
+}
+public void testWkspEclipse19() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X19.java");
+}
+public void testWkspEclipse20() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X20.java");
+}
+// Ganymede
+public void testWkspGanymede02() throws JavaModelException {
+	formatUnit("wksp.ganymede", "X02.java");
 }
 // JUnit 3.8.2
 public void testWkspJUnit01() throws JavaModelException {

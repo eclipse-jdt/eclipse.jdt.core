@@ -29,6 +29,8 @@ public class FormatJavadocBlock extends FormatJavadocNode implements IJavaDocTag
 	final static int TEXT_ON_TAG_LINE = 0x0008;
 	final static int ONE_LINE_TAG = 0x0010;
 	final static int PARAM_TAG = 0x0020;
+	final static int IN_PARAM_TAG = 0x0040;
+	final static int IN_DESCRIPTION = 0x0080;
 	
 	// constants
 	final static int MAX_TAG_HIERARCHY = 10;
@@ -82,16 +84,22 @@ void addBlock(FormatJavadocBlock block, int htmlLevel) {
 				}
 				this.sourceEnd = block.sourceEnd;
 				if (isParamTag()) {
-					block.flags |= PARAM_TAG;
+					block.flags |= IN_PARAM_TAG;
+				} else if (isDescription()) {
+					block.flags |= IN_DESCRIPTION;
 				}
+				block.flags |= INLINED;
 				return;
 			}
 		}
 	}
 	addNode(block);
 	if (isParamTag()) {
-		block.flags |= PARAM_TAG;
+		block.flags |= IN_PARAM_TAG;
+	} else if (isDescription()) {
+		block.flags |= IN_DESCRIPTION;
 	}
+	block.flags |= INLINED;
 }
 
 void addText(FormatJavadocText text) {
@@ -252,9 +260,20 @@ public boolean isHeaderLine() {
 }
 
 /**
+ * Returns whether the block is a description or inlined in a description. 
+ * @see #isParamTag()
+ * 
+ * @return <code>true</code> if the block is a description or inlined in a
+ * 	description, <code>false</code> otherwise.
+ */
+public boolean isInDescription() {
+	return this.tagValue == NO_TAG_VALUE || (this.flags & IN_DESCRIPTION) == IN_DESCRIPTION;
+}
+
+/**
  * Returns whether the text is on the same line of the tag.
  * 
- * @return <code>true</code> if the text is on the same line than the tag
+ * @return <code>true</code> if the text is on the same line than the tag,
  * 	<code>false</code> otherwise.
  */
 public boolean isInlined() {
@@ -262,9 +281,20 @@ public boolean isInlined() {
 }
 
 /**
+ * Returns whether the block is a param tag or inlined in a param tag. 
+ * @see #isParamTag()
+ * 
+ * @return <code>true</code> if the block is a param tag or inlined in a param
+ * 	tag, <code>false</code> otherwise.
+ */
+public boolean isInParamTag() {
+	return (this.flags & (PARAM_TAG | IN_PARAM_TAG)) != 0;
+}
+
+/**
  * Returns whether the text is on the same line of the tag.
  * 
- * @return <code>true</code> if the text is on the same line than the tag
+ * @return <code>true</code> if the text is on the same line than the tag,
  * 	<code>false</code> otherwise.
  */
 public boolean isOneLineTag() {
@@ -275,7 +305,7 @@ public boolean isOneLineTag() {
  * Returns whether the block is a param tag or not.  Note that this also includes
  * &#064;serialField, &#064;throws and &#064;exception tags.
  * 
- * @return <code>true</code> if the bloc is a param tag,
+ * @return <code>true</code> if the block is a param tag,
  * 	<code>false</code> otherwise.
  */
 public boolean isParamTag() {
