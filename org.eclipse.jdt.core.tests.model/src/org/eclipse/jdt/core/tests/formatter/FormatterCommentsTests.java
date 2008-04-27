@@ -665,6 +665,9 @@ public void testTagOthers01() throws JavaModelException {
 public void testTagOthers02() throws JavaModelException {
 	formatUnit("tags.others", "X02.java");
 }
+public void testTagOthers03() throws JavaModelException {
+	formatUnit("tags.others", "X03.java");
+}
 
 /*
  * Test formatter @param
@@ -754,6 +757,9 @@ public void testLineComments04() throws JavaModelException {
 }
 public void testLineComments05() throws JavaModelException {
 	formatUnit("comments.line", "X05.java");
+}
+public void testLineComments06() throws JavaModelException {
+	formatUnit("comments.line", "X06.java");
 }
 
 /*
@@ -916,7 +922,14 @@ public void testWkspEclipse19() throws JavaModelException {
 public void testWkspEclipse20() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X20.java");
 }
+public void testWkspEclipse21() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X20.java");
+}
 // Ganymede
+// TODO pass this test
+public void _testWkspGanymede01() throws JavaModelException {
+	formatUnit("wksp.ganymede", "X02.java");
+}
 public void testWkspGanymede02() throws JavaModelException {
 	formatUnit("wksp.ganymede", "X02.java");
 }

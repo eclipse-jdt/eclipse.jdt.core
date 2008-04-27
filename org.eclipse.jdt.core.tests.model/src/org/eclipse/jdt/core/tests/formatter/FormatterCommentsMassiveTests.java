@@ -124,16 +124,16 @@ import org.eclipse.text.edits.TextEdit;
  * <ul>
  * 	<li>3.0 performance workspace (9951 units):<ul>
  * 		<li>0 error</li>
- * 		<li>27 failures</li>
+ * 		<li>17 failures</li>
  * 		<li>8 failures due to old formatter</li>
- * 		<li>863 files have different lines leading spaces</li>
- * 		<li>15 files have different spaces</li>
+ * 		<li>722 files have different lines leading spaces</li>
+ * 		<li>10 files have different spaces</li>
  *		</ul></li>
  *		<li>ganymede workspace (25819 units):<ul>
  * 		<li>0 error</li>
- * 		<li>81 files has still different output while reformatting!</li>
- * 		<li>1606 files have different line leading spaces when reformatting!</li>
- * 		<li>91 files have different spaces when reformatting!</li>
+ * 		<li>64 files has still different output while reformatting!</li>
+ * 		<li>1366 files have different line leading spaces when reformatting!</li>
+ * 		<li>11 files have different spaces when reformatting!</li>
  *		</ul></li>
  * </ul>
  */
@@ -388,17 +388,6 @@ private String expectedFormattedSource(String source) {
 				commentEnd = -commentEnd;
 				if (commentStart < 0) { // line comments have negative start position
 					commentStart = -commentStart;
-					String comment = formattedComments[i];
-					if (comment.trim().length() > 2) { // non empty comment
-						char ch = source.charAt(commentEnd);
-						if (ch == '\r' || ch == '\n') {
-							commentEnd++;
-							ch = source.charAt(commentEnd);
-							if (ch == '\r' || ch == '\n') {
-								commentEnd++;
-							}
-						}
-					}
 				}
 			}
 			document.replace(commentStart, commentEnd - commentStart, formattedComments[i]);

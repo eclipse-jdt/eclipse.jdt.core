@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.comment.MultiCommentLine;
 
 public class MultiLineTestCase extends CommentTestCase {
@@ -115,7 +116,11 @@ public class MultiLineTestCase extends CommentTestCase {
 				" * Member comment\n" +//$NON-NLS-1$ 
 				" */";//$NON-NLS-1$
 		String result= testFormat(input, 0, input.length(), CodeFormatter.K_MULTI_LINE_COMMENT , 2);
-		String expectedOutput = "/***********************************************************************\n" + 
+		String expectedOutput = DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT
+			?	"/**\n" + 
+				" * Member comment\n" + 
+				" */"
+			:	"/***********************************************************************\n" + 
 				"	 * Member comment\n" + 
 				"	 */";
 		assertEquals("Different output", expectedOutput, result);

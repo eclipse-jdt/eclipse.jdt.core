@@ -1789,7 +1789,7 @@ public class Scribe implements IJavaDocTagConstants {
     	int previousStart = currentTokenStartPosition;
 
 		if (!isNlsTag && includesLineComments()) {
-			printLineComment(currentTokenStartPosition, currentTokenEndPosition);
+			printLineComment(currentTokenStartPosition, currentTokenEndPosition-1);
 		} else {
 			// do nothing!?
 	    	loop: while (nextCharacterStart <= currentTokenEndPosition && (currentCharacter = this.scanner.getNextChar()) != -1) {
@@ -1843,6 +1843,7 @@ public class Scribe implements IJavaDocTagConstants {
 		this.numberOfIndentations = this.indentationLevel / this.indentationSize;
 
 		// Consume the comment prefix
+		this.scanner.resetTo(commentStart, commentEnd);
 		StringBuffer buffer = new StringBuffer();
 		this.scanner.getNextChar();
 		buffer.append(this.scanner.currentCharacter);
@@ -1856,6 +1857,7 @@ public class Scribe implements IJavaDocTagConstants {
 		int previousPosition = commentStart;
 		char previousChar = 0;
 		boolean firstWord = true;
+		this.scanner.skipComments = true;
 
 		// Consume text token per token
 		while (!this.scanner.atEnd()) {
@@ -1925,7 +1927,7 @@ public class Scribe implements IJavaDocTagConstants {
 			buffer.append(this.lineSeparator);
 			this.line++;
 			this.lastNumberOfNewLines++;
-		} else if (previousPosition < commentEnd) {
+		} else {
 			this.scanner.resetTo(previousPosition, commentEnd);
 			while (!this.scanner.atEnd()) {
 				this.scanner.getNextChar();
@@ -1941,7 +1943,8 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 
 		// Replace the existing comment with new one
-		addReplaceEdit(commentStart, commentEnd-1, buffer.toString());
+		addReplaceEdit(commentStart, commentEnd, buffer.toString());
+		this.scanner.skipComments = false;
 	}
 
 	public void printEmptyLines(int linesNumber) {
@@ -2071,9 +2074,6 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 		if (!block.isDescription()) {
 			this.column += previousEnd - block.sourceStart + 1;
-			if (block.isInlined()) 	{
-				this.column++; // Add extra character for inline tag
-			}
 			FormatJavadocReference reference= block.reference;
 			if (reference != null) {
 				// format reference
@@ -2107,7 +2107,10 @@ public class Scribe implements IJavaDocTagConstants {
 	                    while (token == TerminalTokens.TokenNameWHITESPACE || token == TerminalTokens.TokenNameMULTIPLY) {
 	                    	token = this.scanner.getNextToken();
 	                    }
-	                    buffer.append(this.scanner.source, this.scanner.startPosition, this.scanner.currentPosition-this.scanner.startPosition);
+	                    if (token == TerminalTokens.TokenNameRBRACE) {
+		                    buffer.append(this.scanner.source, this.scanner.startPosition, this.scanner.currentPosition-this.scanner.startPosition);
+					    	this.column += (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - this.scanner.startPosition;
+	                    }
                     } catch (InvalidInputException e) {
 						buffer.append('}');
                     }
@@ -2118,7 +2121,6 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 		
 		// tag section: iterate through the blocks composing this tag but the last one
-//		if (block.isHeaderLine()) maxColumn++;
 		for (int i=0; i<=maxNodes; i++) {
 			FormatJavadocNode node = block.nodes[i];
 			int nodeStart = node.sourceStart;

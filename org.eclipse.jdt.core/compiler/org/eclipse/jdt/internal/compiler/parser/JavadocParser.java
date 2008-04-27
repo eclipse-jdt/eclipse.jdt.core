@@ -334,6 +334,25 @@ public class JavadocParser extends AbstractCommentParser {
 		return null;
 	}
 
+	protected char[] getTagName(int previousPosition, int currentPosition) {
+	    if (currentPosition != this.scanner.startPosition) {
+			this.tagSourceStart = previousPosition;
+			this.tagSourceEnd = currentPosition;
+			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, this.tagSourceEnd);
+			return null;
+		}
+		if (this.index >= this.scanner.eofPosition) {
+			this.tagSourceStart = previousPosition;
+			this.tagSourceEnd = this.tokenPreviousPosition;
+			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, this.tagSourceEnd);
+			return null;
+		}
+		this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
+		this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+		char[] tagName = this.scanner.getCurrentIdentifierSource();
+	    return tagName;
+    }
+
 	/*
 	 * Parse @throws tag declaration and flag missing description if corresponding option is enabled
 	 */
@@ -411,21 +430,8 @@ public class JavadocParser extends AbstractCommentParser {
 		// Read tag name
 		int currentPosition = this.index;
 		int token = readTokenAndConsume();
-		if (currentPosition != this.scanner.startPosition) {
-			this.tagSourceStart = previousPosition;
-			this.tagSourceEnd = currentPosition;
-			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, this.tagSourceEnd);
-			return false;
-		}
-		if (this.index >= this.scanner.eofPosition) {
-			this.tagSourceStart = previousPosition;
-			this.tagSourceEnd = this.tokenPreviousPosition;
-			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, this.tagSourceEnd);
-			return false;
-		}
-		this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
-		this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-		char[] tagName = this.scanner.getCurrentIdentifierSource();
+		char[] tagName = getTagName(previousPosition, currentPosition);
+		if (tagName == null) return false;
 	
 		// Try to get tag name other than java identifier
 		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)

@@ -43,10 +43,10 @@ public class X18 {
 	 * </p>
 	 * <p>
 	 * Lexical or syntax errors detected while parsing can result in a result
-	 * node being marked as {@link ASTNode#MALFORMED MALFORMED} . In more
-	 * severe failure cases where the parser is unable to recognize the input,
-	 * this method returns a {@link CompilationUnit CompilationUnit} node with
-	 * at least the compiler messages.
+	 * node being marked as {@link ASTNode#MALFORMED MALFORMED} . In more severe
+	 * failure cases where the parser is unable to recognize the input, this
+	 * method returns a {@link CompilationUnit CompilationUnit} node with at
+	 * least the compiler messages.
 	 * </p>
 	 * <p>
 	 * Each node in the subtree (other than the contrived nodes) carries source

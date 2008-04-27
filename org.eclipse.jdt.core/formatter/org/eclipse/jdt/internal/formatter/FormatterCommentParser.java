@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.formatter.comment.IJavaDocTagConstants;
 public class FormatterCommentParser extends JavadocParser implements IJavaDocTagConstants {
 	char[][] htmlTags;
 	int htmlTagsPtr = -1;
+	private boolean invalidTagName;
 	
 FormatterCommentParser(Parser sourceParser) {
 	super(sourceParser);
@@ -115,6 +116,65 @@ protected Object createTypeReference(int primitiveToken) {
 }
 
 /*
+ * Return the html tag index in the various arrays of IJavaDocTagConstants.
+ * The returned int is set as follow:
+ * 	- the array index is set on bits 0 to 7
+ * 	- the tag category is set on bit 8 to 15 (0xFF00 if no array includes the tag)
+ */
+private int getHtmlTagIndex(char[] htmlTag) {
+	int length = htmlTag == null ? 0 : htmlTag.length;
+	if (length > 0) {
+		for (int i=0, max=JAVADOC_SINGLE_BREAK_TAG.length; i<max; i++) {
+			char[] tag = JAVADOC_SINGLE_BREAK_TAG[i];
+			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
+				return JAVADOC_SINGLE_BREAK_TAG_ID + i;
+			}
+		}
+		for (int i=0, max=JAVADOC_CODE_TAGS.length; i<max; i++) {
+			char[] tag = IJavaDocTagConstants.JAVADOC_CODE_TAGS[i];
+			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
+				return JAVADOC_CODE_TAGS_ID + i;
+			}
+		}
+		for (int i=0, max=IJavaDocTagConstants.JAVADOC_BREAK_TAGS.length; i<max; i++) {
+			char[] tag = IJavaDocTagConstants.JAVADOC_BREAK_TAGS[i];
+			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
+				return JAVADOC_BREAK_TAGS_ID + i;
+			}
+		}
+		for (int i=0, max=IJavaDocTagConstants.JAVADOC_IMMUTABLE_TAGS.length; i<max; i++) {
+			char[] tag = IJavaDocTagConstants.JAVADOC_IMMUTABLE_TAGS[i];
+			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
+				return JAVADOC_IMMUTABLE_TAGS_ID + i;
+			}
+		}
+		for (int i=0, max=IJavaDocTagConstants.JAVADOC_SEPARATOR_TAGS.length; i<max; i++) {
+			char[] tag = IJavaDocTagConstants.JAVADOC_SEPARATOR_TAGS[i];
+			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
+				return JAVADOC_SEPARATOR_TAGS_ID + i;
+			}
+		}
+	}
+	return JAVADOC_TAGS_ID_MASK;
+}
+
+protected char[] getTagName(int previousPosition, int currentPosition) {
+	this.invalidTagName = false;
+    if (currentPosition != this.scanner.startPosition) {
+		this.invalidTagName = true;
+		return null;
+	}
+	if (this.index >= this.scanner.eofPosition) {
+		this.invalidTagName = true;
+		return null;
+	}
+	this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
+	this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+	char[] tagName = this.scanner.getCurrentIdentifierSource();
+    return tagName;
+}
+
+/*
  * Parse an HTML tag expected to be either opening (e.g. <tag_name> ) or
  * closing (e.g. </tag_name>).
  */
@@ -132,7 +192,7 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 	    	case TerminalTokens.TokenNameIdentifier:
 	    		// HTML tag opening
 				htmlTag = this.scanner.getCurrentIdentifierSource();
-				htmlIndex = htmlTagIndex(htmlTag);
+				htmlIndex = getHtmlTagIndex(htmlTag);
 				if (htmlIndex == JAVADOC_TAGS_ID_MASK) return valid;
 				if ((htmlIndex & JAVADOC_TAGS_ID_MASK) > JAVADOC_SINGLE_TAGS_ID) {
 		    		if (this.htmlTagsPtr == -1 || !CharOperation.equals(this.htmlTags[this.htmlTagsPtr], htmlTag, false)) {
@@ -157,7 +217,7 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 	    			return valid;
 	    		}
 				char[] identifier = this.scanner.getCurrentIdentifierSource();
-				htmlIndex = htmlTagIndex(identifier);
+				htmlIndex = getHtmlTagIndex(identifier);
 				if (htmlIndex == JAVADOC_TAGS_ID_MASK) return valid;
 	    		while (!CharOperation.equals(htmlTag, identifier, false)) {
 	    			if (htmlTagsPtr <= 0) {
@@ -200,49 +260,6 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 		}
 	}
     return valid;
-}
-
-/*
- * Return the html tag index in the various arrays of IJavaDocTagConstants.
- * The returned int is set as follow:
- * 	- the array index is set on bits 0 to 7
- * 	- the tag category is set on bit 8 to 15 (0xFF00 if no array includes the tag)
- */
-private int htmlTagIndex(char[] htmlTag) {
-	int length = htmlTag == null ? 0 : htmlTag.length;
-	if (length > 0) {
-		for (int i=0, max=JAVADOC_SINGLE_BREAK_TAG.length; i<max; i++) {
-			char[] tag = JAVADOC_SINGLE_BREAK_TAG[i];
-			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
-				return JAVADOC_SINGLE_BREAK_TAG_ID + i;
-			}
-		}
-		for (int i=0, max=JAVADOC_CODE_TAGS.length; i<max; i++) {
-			char[] tag = IJavaDocTagConstants.JAVADOC_CODE_TAGS[i];
-			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
-				return JAVADOC_CODE_TAGS_ID + i;
-			}
-		}
-		for (int i=0, max=IJavaDocTagConstants.JAVADOC_BREAK_TAGS.length; i<max; i++) {
-			char[] tag = IJavaDocTagConstants.JAVADOC_BREAK_TAGS[i];
-			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
-				return JAVADOC_BREAK_TAGS_ID + i;
-			}
-		}
-		for (int i=0, max=IJavaDocTagConstants.JAVADOC_IMMUTABLE_TAGS.length; i<max; i++) {
-			char[] tag = IJavaDocTagConstants.JAVADOC_IMMUTABLE_TAGS[i];
-			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
-				return JAVADOC_IMMUTABLE_TAGS_ID + i;
-			}
-		}
-		for (int i=0, max=IJavaDocTagConstants.JAVADOC_SEPARATOR_TAGS.length; i<max; i++) {
-			char[] tag = IJavaDocTagConstants.JAVADOC_SEPARATOR_TAGS[i];
-			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
-				return JAVADOC_SEPARATOR_TAGS_ID + i;
-			}
-		}
-	}
-	return JAVADOC_TAGS_ID_MASK;
 }
 
 /* (non-Javadoc)
@@ -303,6 +320,8 @@ protected boolean parseTag(int previousPosition) throws InvalidInputException {
 				createTag();
 				break;
 		}
+	} else if (this.invalidTagName) {
+		this.textStart = previousPosition;
 	} else if (this.astPtr == ptr) {
 		createTag();
 	}

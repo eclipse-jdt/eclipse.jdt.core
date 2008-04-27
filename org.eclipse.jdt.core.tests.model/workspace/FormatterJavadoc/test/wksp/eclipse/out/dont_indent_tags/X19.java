@@ -17,18 +17,18 @@ public class X19 {
 	 * source string. It includes entries for comments of all kinds (line,
 	 * block, and doc), arranged in order of increasing source position.
 	 * </p>
-	 * Note on comment parenting: The {@link ASTNode#getParent() getParent()}
-	 * of a doc comment associated with a body declaration is the body
-	 * declaration node; for these comment nodes {@link ASTNode#getRoot()
-	 * getRoot()} will return the compilation unit (assuming an unmodified AST)
-	 * reflecting the fact that these nodes are property located in the AST for
-	 * the compilation unit. However, for other comment nodes, {@link
-	 * ASTNode#getParent() getParent()} will return <code>null</code>, and
-	 * {@link ASTNode#getRoot() getRoot()} will return the comment node itself,
-	 * indicating that these comment nodes are not directly connected to the AST
-	 * for the compilation unit. The {@link Comment#getAlternateRoot
-	 * Comment.getAlternateRoot} method provides a way to navigate from a
-	 * comment to its compilation unit. </p>
+	 * Note on comment parenting: The {@link ASTNode#getParent() getParent()} of
+	 * a doc comment associated with a body declaration is the body declaration
+	 * node; for these comment nodes {@link ASTNode#getRoot() getRoot()} will
+	 * return the compilation unit (assuming an unmodified AST) reflecting the
+	 * fact that these nodes are property located in the AST for the compilation
+	 * unit. However, for other comment nodes, {@link ASTNode#getParent()
+	 * getParent()} will return <code>null</code>, and {@link ASTNode#getRoot()
+	 * getRoot()} will return the comment node itself, indicating that these
+	 * comment nodes are not directly connected to the AST for the compilation
+	 * unit. The {@link Comment#getAlternateRoot Comment.getAlternateRoot}
+	 * method provides a way to navigate from a comment to its compilation unit.
+	 * </p>
 	 * <p>
 	 * A note on visitors: The only comment nodes that will be visited when
 	 * visiting a compilation unit are the doc comments parented by body
