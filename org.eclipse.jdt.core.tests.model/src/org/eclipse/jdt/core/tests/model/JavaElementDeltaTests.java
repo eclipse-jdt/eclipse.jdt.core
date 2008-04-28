@@ -359,6 +359,7 @@ public void testAddExternalLibFolder4() throws CoreException {
 public void testAddZIPArchive1() throws CoreException {
 	try {
 		IJavaProject p = createJavaProject("P");
+		refreshExternalArchives(p);
 		createExternalFile("externalLib.abc", "");
 		
 		startDeltas();
