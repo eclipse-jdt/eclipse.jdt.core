@@ -534,8 +534,10 @@ public class JavadocParser extends AbstractCommentParser {
 							if (this.astPtr==-1) {
 								this.inheritedPositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
 							}
-							valid = true;
+							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=227730
+							// no argument expected for @inheritedDoc
 							this.tagValue = TAG_INHERITDOC_VALUE;
+							return true;
 						}
 						break;
 					case 'l':
