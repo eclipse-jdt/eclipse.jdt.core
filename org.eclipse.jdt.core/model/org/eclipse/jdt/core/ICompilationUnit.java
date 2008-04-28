@@ -30,9 +30,8 @@ import org.eclipse.text.edits.UndoEdit;
  * If a source file cannot be parsed, its structure remains unknown.
  * Use {@link IJavaElement#isStructureKnown} to determine whether this is
  * the case.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ *
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ICompilationUnit extends ITypeRoot, IWorkingCopy, ISourceManipulation {
 /**

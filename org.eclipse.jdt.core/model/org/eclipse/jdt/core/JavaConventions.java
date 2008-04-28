@@ -31,9 +31,9 @@ import org.eclipse.jdt.internal.core.util.Messages;
 /**
  * Provides methods for checking Java-specific conventions such as name syntax.
  * <p>
- * This class provides static methods and constants only; it is not intended to be
- * instantiated or subclassed by clients.
+ * This class provides static methods and constants only.
  * </p>
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class JavaConventions {
 

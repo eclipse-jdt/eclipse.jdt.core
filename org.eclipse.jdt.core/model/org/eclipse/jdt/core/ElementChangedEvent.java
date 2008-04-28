@@ -23,6 +23,8 @@ import java.util.EventObject;
  *
  * @see IElementChangedListener
  * @see IJavaElementDelta
+ * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class ElementChangedEvent extends EventObject {
 	

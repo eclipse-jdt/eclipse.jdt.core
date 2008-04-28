@@ -51,12 +51,11 @@ import org.eclipse.jdt.core.IJavaElement;
  * in source code. The DOM does not have a notion of type signatures, only raw text. Example type
  * names are <code>"Object"</code>, <code>"java.io.File"</code>, and <code>"int[]"</code>.
  * </p>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * 
  * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
  * powerful, fine-grained DOM/AST API found in the 
  * org.eclipse.jdt.core.dom package.
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IDOMNode extends Cloneable  {
 

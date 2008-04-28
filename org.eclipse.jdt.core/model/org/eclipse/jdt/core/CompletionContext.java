@@ -17,12 +17,10 @@ import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadoc;
  * Completion context.
  * 
  * Represent the context in which the completion occurs.
- * <p>
- * This class is not intended to be instantiated or subclassed by clients.
- * </p>
  * 
  * @see CompletionRequestor#acceptContext(CompletionContext)
  * @since 3.1
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class CompletionContext extends InternalCompletionContext {
 

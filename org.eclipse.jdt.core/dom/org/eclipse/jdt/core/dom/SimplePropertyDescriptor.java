@@ -20,6 +20,7 @@ package org.eclipse.jdt.core.dom;
  * @see org.eclipse.jdt.core.dom.ASTNode#getStructuralProperty(StructuralPropertyDescriptor)
  * @see org.eclipse.jdt.core.dom.ASTNode#setStructuralProperty(StructuralPropertyDescriptor, Object)
  * @since 3.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class SimplePropertyDescriptor extends StructuralPropertyDescriptor {
 	

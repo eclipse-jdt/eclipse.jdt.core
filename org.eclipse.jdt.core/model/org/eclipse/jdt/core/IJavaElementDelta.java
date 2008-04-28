@@ -99,9 +99,8 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
  * {@link IJavaElementDelta} object are not valid outside the dynamic scope
  * of the notification.
  * </p>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IJavaElementDelta {
 

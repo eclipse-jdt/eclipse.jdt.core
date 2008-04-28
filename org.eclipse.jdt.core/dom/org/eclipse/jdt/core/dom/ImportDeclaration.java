@@ -28,6 +28,7 @@ import java.util.List;
  *    <b>import</b> [ <b>static</b> ] Name [ <b>.</b> <b>*</b> ] <b>;</b>
  * </pre>
  * @since 2.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class ImportDeclaration extends ASTNode {
 	

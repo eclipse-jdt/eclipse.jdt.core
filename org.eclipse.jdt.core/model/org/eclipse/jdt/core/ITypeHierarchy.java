@@ -36,9 +36,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * Most type hierarchy queries are oblivious to cycles; the <code>getAll* </code>
  * methods are implemented such that they are unaffected by cycles.
  * </p>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ *
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ITypeHierarchy {
 /**

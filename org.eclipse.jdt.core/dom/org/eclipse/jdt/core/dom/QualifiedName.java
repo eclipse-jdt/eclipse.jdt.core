@@ -30,6 +30,7 @@ import java.util.List;
  * 
  * @see FieldAccess
  * @since 2.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class QualifiedName extends Name {
 	

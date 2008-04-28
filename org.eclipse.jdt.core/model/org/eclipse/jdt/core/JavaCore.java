@@ -150,6 +150,7 @@ import org.osgi.framework.BundleContext;
  * <code>JavaCore.getJavaCore()</code>. The Java model plug-in will be activated
  * automatically if not already active.
  * </p>
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class JavaCore extends Plugin {
 

@@ -39,6 +39,7 @@ import java.util.List;
  * </p>
  * 
  * @since 3.1
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class EnumDeclaration extends AbstractTypeDeclaration {
 	

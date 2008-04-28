@@ -38,12 +38,10 @@ package org.eclipse.jdt.core.dom;
  * with substitutions for its type parameters</li>
  * <li>a capture - represents a capture binding</li>
  * </ul>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
  *
  * @see ITypeBinding#getDeclaredTypes()
  * @since 2.0
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ITypeBinding extends IBinding {
 

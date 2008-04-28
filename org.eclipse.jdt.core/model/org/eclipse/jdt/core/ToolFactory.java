@@ -42,10 +42,12 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 /**
  * Factory for creating various compiler tools, such as scanners, parsers and compilers.
  * <p>
- *  This class provides static methods only; it is not intended to be instantiated or subclassed by clients.
+ *  This class provides static methods only.
  * </p>
  * 
  * @since 2.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class ToolFactory {
 	

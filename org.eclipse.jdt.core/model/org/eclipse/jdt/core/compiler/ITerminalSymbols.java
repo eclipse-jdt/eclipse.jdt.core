@@ -13,13 +13,11 @@ package org.eclipse.jdt.core.compiler;
  
 /**
  * Maps each terminal symbol in the java-grammar into a unique integer. 
- * This integer is used to represent the terminal when computing a parsing action. 
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * This integer is used to represent the terminal when computing a parsing action.
  * 
  * @see IScanner
  * @since 2.0
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ITerminalSymbols {
 

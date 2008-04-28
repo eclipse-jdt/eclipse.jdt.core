@@ -46,10 +46,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * A working copy cannot be created from another working copy.
  * Calling <code>getWorkingCopy</code> on a working copy returns the receiver.
  * </p>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ *
  * @deprecated Use {@link ICompilationUnit} instead
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IWorkingCopy {
 	

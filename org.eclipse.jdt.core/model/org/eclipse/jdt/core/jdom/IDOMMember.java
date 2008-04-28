@@ -13,10 +13,7 @@ package org.eclipse.jdt.core.jdom;
 /**
  * An <code>IDOMMember</code> defines functionality common to nodes, which
  * can be members of types.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
- *
+ * 
  * @see IDOMType
  * @see IDOMMethod
  * @see IDOMField
@@ -24,6 +21,7 @@ package org.eclipse.jdt.core.jdom;
  * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
  * powerful, fine-grained DOM/AST API found in the 
  * org.eclipse.jdt.core.dom package.
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IDOMMember extends IDOMNode {
 /**

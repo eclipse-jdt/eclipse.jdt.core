@@ -32,9 +32,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * the set of package fragments in an analogous manner.
  * Package fragment roots need to be opened before they can be navigated or manipulated.
  * The children are of type <code>IPackageFragment</code>, and are in no particular order.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IPackageFragmentRoot
 	extends IParent, IJavaElement, IOpenable {

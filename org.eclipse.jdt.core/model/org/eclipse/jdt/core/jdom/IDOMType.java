@@ -21,12 +21,11 @@ package org.eclipse.jdt.core.jdom;
  * Children are listed in the order in which they appear in the source. The parent of a type
  * is a type (in the case of a member type) or a compilation unit (in the case of a top-level type).
  * </p>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ *
  * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
  * powerful, fine-grained DOM/AST API found in the 
  * org.eclipse.jdt.core.dom package.
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IDOMType extends IDOMMember {
 /**

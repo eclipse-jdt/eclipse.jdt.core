@@ -16,12 +16,12 @@ package org.eclipse.jdt.core;
 /**
  * Status codes used with Java model status objects.
  * <p>
- * This interface declares constants only; it is not intended to be implemented
- * or extended.
+ * This interface declares constants only.
  * </p>
  *
  * @see IJavaModelStatus
  * @see org.eclipse.core.runtime.IStatus#getCode()
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IJavaModelStatusConstants {
 

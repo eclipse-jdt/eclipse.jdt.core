@@ -13,9 +13,9 @@ package org.eclipse.jdt.core.compiler;
 
 /**
  * Exception thrown by a scanner when encountering lexical errors.
- * <p>
- * This class is not intended to be instantiated or subclassed by clients.
- * </p>
+ *
+ * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class InvalidInputException extends Exception {
 

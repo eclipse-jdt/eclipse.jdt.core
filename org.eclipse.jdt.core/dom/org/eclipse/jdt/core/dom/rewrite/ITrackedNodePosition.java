@@ -19,6 +19,7 @@ package org.eclipse.jdt.core.dom.rewrite;
  * 
  * @see ASTRewrite#track(org.eclipse.jdt.core.dom.ASTNode)
  * @since 3.0
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ITrackedNodePosition {
 	

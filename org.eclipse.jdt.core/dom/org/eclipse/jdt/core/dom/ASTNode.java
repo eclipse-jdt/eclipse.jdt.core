@@ -114,11 +114,11 @@ import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
  * an alternative way to describe and serialize changes to a
  * read-only AST.
  * </p>
- * This class is not intended to be subclassed by clients.
  * 
  * @see ASTParser
  * @see ASTVisitor
  * @since 2.0
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public abstract class ASTNode {
 	/*

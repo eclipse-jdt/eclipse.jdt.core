@@ -88,6 +88,9 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 	
 	private Vector stack = new Vector();
 	
+	/**
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
 	ASTRecoveryPropagator(CategorizedProblem[] problems, RecoveryScannerData data) {
 		// visit Javadoc.tags() as well
 		this.problems = problems;

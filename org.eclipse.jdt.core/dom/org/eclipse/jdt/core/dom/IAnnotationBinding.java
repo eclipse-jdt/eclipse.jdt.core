@@ -15,11 +15,9 @@ package org.eclipse.jdt.core.dom;
 /**
  * Represents a resolved annotation. Resolved annotations are computed along with other
  * bindings; they correspond to {@link Annotation} nodes.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
  * 
  * @since 3.2
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IAnnotationBinding extends IBinding {
 

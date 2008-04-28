@@ -28,9 +28,7 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
  * <code>JavaModelException.isDoesNotExist</code> can be used to recognize
  * this common special case.
  * </p>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IJavaElement extends IAdaptable {
 

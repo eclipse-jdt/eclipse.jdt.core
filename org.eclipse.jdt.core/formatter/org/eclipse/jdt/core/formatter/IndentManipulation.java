@@ -28,6 +28,7 @@ import org.eclipse.text.edits.ReplaceEdit;
  * Helper class to provide String manipulation functions dealing with indentations.
  * 
  * @since 3.2
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class IndentManipulation {
 	

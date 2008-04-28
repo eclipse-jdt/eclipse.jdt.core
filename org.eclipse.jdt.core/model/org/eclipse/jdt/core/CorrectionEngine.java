@@ -25,9 +25,10 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * This class is the entry point for source corrections.
  * 
- * This class is not intended to be subclassed by clients. This class is intended to be instantiated by clients.
+ * This class is intended to be instantiated by clients.
  * 
  * @since 2.0 
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class CorrectionEngine implements ProblemReasons {
 	

@@ -37,9 +37,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * For example, opening a compilation unit provides access to all its constituent elements,
  * but opening a package fragment does not open all compilation units in the package fragment.
  * </p>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ *
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IOpenable {
 

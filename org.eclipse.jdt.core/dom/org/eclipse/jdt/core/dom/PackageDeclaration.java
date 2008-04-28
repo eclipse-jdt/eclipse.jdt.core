@@ -33,6 +33,7 @@ import java.util.List;
  * The Javadoc comment in that file contains the package description.
  * 
  * @since 2.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class PackageDeclaration extends ASTNode {
 	

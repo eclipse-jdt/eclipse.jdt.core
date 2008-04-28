@@ -52,13 +52,13 @@ import org.eclipse.jdt.core.eval.IEvaluationContext;
  * does not include package fragment roots for other projects).
  * </p>
  * <p>
- * This interface is not intended to be implemented by clients. An instance
- * of one of these handles can be created via 
+ * An instance of one of these handles can be created via 
  * <code>JavaCore.create(project)</code>.
  * </p>
  *
  * @see JavaCore#create(org.eclipse.core.resources.IProject)
  * @see IClasspathEntry
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 

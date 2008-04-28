@@ -27,12 +27,10 @@ package org.eclipse.jdt.core.dom;
  * parameters (for these, <code>getTypeArguments</code> returns
  * an empty list, and both <code>isParameterizedMethod</code> and
  * <code>isRawMethod</code> return <code>false</code>).
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
  *
  * @see ITypeBinding#getDeclaredMethods()
  * @since 2.0
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IMethodBinding extends IBinding {
 	

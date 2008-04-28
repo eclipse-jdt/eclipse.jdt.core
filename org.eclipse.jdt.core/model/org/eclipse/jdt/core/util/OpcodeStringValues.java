@@ -12,11 +12,10 @@ package org.eclipse.jdt.core.util;
 
 /**
  * Description of each opcode mnemonic according to the JVM specifications.
- * <p>
- * This class is not intended to be instantiated or subclassed by clients.
- * </p>
  *  
  * @since 2.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class OpcodeStringValues implements IOpcodeMnemonics {
 

@@ -31,6 +31,7 @@ import java.util.List;
  * </p>
  * 
  * @since 3.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class BlockComment extends Comment {
 	

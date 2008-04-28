@@ -13,9 +13,8 @@ package org.eclipse.jdt.core;
 
 /**
  * Represents a method (or constructor) declared in a type.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IMethod extends IMember, IAnnotatable {
 /**

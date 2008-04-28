@@ -23,9 +23,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * <code>IClassFile</code> (representing a binary class file).
  * The children are listed in no particular order.
  * </p>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISourceManipulation {
 

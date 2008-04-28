@@ -17,12 +17,11 @@ package org.eclipse.jdt.core.jdom;
  * The corresponding syntactic unit is CompilationUnit (JLS2 7.3).  
  * Allowable child types for a compilation unit are <code>IDOMPackage</code>, <code>IDOMImport</code>,
  * and <code>IDOMType</code>.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * 
  * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
  * powerful, fine-grained DOM/AST API found in the 
  * org.eclipse.jdt.core.dom package.
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IDOMCompilationUnit extends IDOMNode {
 /**

@@ -22,13 +22,12 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
   * ITerminalSymbols#TokenNameEOF</code>.
   * </p><p>
   * When encountering lexical errors, an <code>InvalidInputException</code> is thrown.
- * </p><p>
- * This interface is not intended to be implemented by clients.
  * </p>
   * 
   * @see org.eclipse.jdt.core.ToolFactory
   * @see ITerminalSymbols
   * @since 2.0
+ * @noimplement This interface is not intended to be implemented by clients.
   */
 public interface IScanner {
 

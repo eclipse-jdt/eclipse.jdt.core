@@ -12,12 +12,11 @@ package org.eclipse.jdt.core.eval;
 
 /**
  * A global variable declared in an evaluation context.
- * <p>
- * This interface is not intended to be implemented by clients. 
- * <code>IEvaluationContext.newVariable</code> can be used to obtain an instance.
+ * <p><code>IEvaluationContext.newVariable</code> can be used to obtain an instance.
  * </p>
  *
  * @see IEvaluationContext#newVariable(String, String, String)
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IGlobalVariable {
 /**

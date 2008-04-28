@@ -16,11 +16,9 @@ package org.eclipse.jdt.core.dom;
  * Represents a resolved instance of an annotation's member value pair.
  * Resolved annotation are computed along with other bindings; these objects
  * correspond to {@link MemberValuePair} nodes.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
  * 
  * @since 3.2
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IMemberValuePairBinding extends IBinding {
 /**

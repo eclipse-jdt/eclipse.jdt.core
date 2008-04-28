@@ -14,9 +14,8 @@ package org.eclipse.jdt.core;
  * Represents an import container is a child of a Java compilation unit that contains
  * all (and only) the import declarations. If a compilation unit has no import
  * declarations, no import container will be present.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ *
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IImportContainer extends IJavaElement, IParent, ISourceReference {
 /**

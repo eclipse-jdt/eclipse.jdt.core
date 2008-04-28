@@ -23,13 +23,15 @@ import org.eclipse.jdt.internal.core.JavaModelStatus;
  * Java model exceptions contain a Java-specific status object describing the
  * cause of the exception.
  * <p>
- * This class is not intended to be subclassed by clients. Instances of this
- * class are automatically created by the Java model when problems arise, so
- * there is generally no need for clients to create instances.
+ * Instances of this class are automatically created by the Java model
+ * when problems arise, so there is generally no need for clients to create
+ * instances.
  * </p>
  *
  * @see IJavaModelStatus
  * @see IJavaModelStatusConstants
+ * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class JavaModelException extends CoreException {
 

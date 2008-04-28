@@ -22,6 +22,7 @@ import java.util.List;
  * </pre>
  * 
  * @since 3.1
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class TypeParameter extends ASTNode {
 	

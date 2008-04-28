@@ -91,6 +91,7 @@ import org.eclipse.text.edits.TextEdit;
  * @see ASTParser
  * @see ASTNode
  * @since 2.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class AST {
 	/**
@@ -249,6 +250,7 @@ public final class AST {
 	 * @param isResolved whether the given compilation unit declaration is resolved
 	 * @return the compilation unit node
 	 * @since 3.4
+	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public static CompilationUnit convertCompilationUnit(
 		int level,
@@ -282,6 +284,37 @@ public final class AST {
 		return unit;
 	}
 
+	/**
+	 * Internal method.
+	 * <p>
+	 * This method converts the given internal compiler AST for the given source string
+	 * into a compilation unit. This method is not intended to be called by clients.
+	 * </p>
+	 *
+ 	 * @param level the API level; one of the LEVEL constants
+	 * @param compilationUnitDeclaration an internal AST node for a compilation unit declaration
+	 * @param source the string of the Java compilation unit
+	 * @param options compiler options
+	 * @param workingCopy the working copy that the AST is created from
+	 * @param monitor the progress monitor used to report progress and request cancelation,
+	 *     or <code>null</code> if none
+	 * @param isResolved whether the given compilation unit declaration is resolved
+	 * @return the compilation unit node
+	 * @deprecated Use org.eclipse.jdt.core.dom.AST.convertCompilationUnit(int, CompilationUnitDeclaration, Map, boolean, CompilationUnit, int, IProgressMonitor) instead
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public static CompilationUnit convertCompilationUnit(
+			int level,
+			org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration compilationUnitDeclaration,
+			char[] source,
+			Map options,
+			boolean isResolved,
+			org.eclipse.jdt.internal.core.CompilationUnit workingCopy,
+			int reconcileFlags,
+			IProgressMonitor monitor) {
+		return null;
+	}
+	
 	/**
 	 * Creates a new, empty abstract syntax tree using the given options.
 	 * <p>

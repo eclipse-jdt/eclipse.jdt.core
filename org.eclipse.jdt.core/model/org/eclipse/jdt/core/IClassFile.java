@@ -25,11 +25,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * class file. The source associated with a class file is the source code of
  * the compilation unit it was (nominally) generated from.
  * </p>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
  *
  * @see IPackageFragmentRoot#attachSource(org.eclipse.core.runtime.IPath, org.eclipse.core.runtime.IPath, IProgressMonitor)
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 
 public interface IClassFile extends ITypeRoot {

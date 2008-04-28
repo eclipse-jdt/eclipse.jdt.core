@@ -23,6 +23,7 @@ import java.util.List;
  * </pre>
  * 
  * @since 2.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class EmptyStatement extends Statement {
 

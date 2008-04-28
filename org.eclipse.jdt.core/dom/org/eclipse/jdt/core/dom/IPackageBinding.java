@@ -13,11 +13,9 @@ package org.eclipse.jdt.core.dom;
 
 /**
  * A package binding represents a named or unnamed package.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
  * 
  * @since 2.0
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IPackageBinding extends IBinding {
 

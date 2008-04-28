@@ -15,12 +15,11 @@ package org.eclipse.jdt.core.jdom;
  * syntactic units are FieldDeclaration (JLS2 8.3) and ConstantDeclaration
  * (JLS2 9.3) restricted to a single VariableDeclarator clause.
  * A field has no children. The parent of a field is a type.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * 
  * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
  * powerful, fine-grained DOM/AST API found in the 
  * org.eclipse.jdt.core.dom package.
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IDOMField extends IDOMMember {
 /**

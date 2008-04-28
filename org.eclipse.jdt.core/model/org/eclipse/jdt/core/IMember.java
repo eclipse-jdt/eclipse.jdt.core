@@ -14,9 +14,8 @@ package org.eclipse.jdt.core;
  * Common protocol for Java elements that can be members of types.
  * This set consists of <code>IType</code>, <code>IMethod</code>, 
  * <code>IField</code>, and <code>IInitializer</code>.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IMember extends IJavaElement, ISourceReference, ISourceManipulation, IParent {
 /**

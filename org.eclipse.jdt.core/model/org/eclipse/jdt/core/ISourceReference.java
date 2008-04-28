@@ -26,11 +26,9 @@ package org.eclipse.jdt.core;
  * Source reference elements may be working copies if they were created from
  * a compilation unit that is a working copy.
  * </p>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
  *
  * @see IPackageFragmentRoot#attachSource(org.eclipse.core.runtime.IPath, org.eclipse.core.runtime.IPath, org.eclipse.core.runtime.IProgressMonitor)
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ISourceReference {
 /**

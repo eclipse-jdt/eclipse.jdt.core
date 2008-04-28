@@ -20,9 +20,6 @@ import org.eclipse.jdt.core.IJavaElement;
  * seen from the compiler's point of view. This interface declare protocol
  * common to the various different kinds of named entities in the Java language:
  * packages, types, fields, methods, constructors, and local variables.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
  *
  * @see IPackageBinding
  * @see ITypeBinding
@@ -31,6 +28,7 @@ import org.eclipse.jdt.core.IJavaElement;
  * @see IAnnotationBinding
  * @see IMemberValuePairBinding
  * @since 2.0
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IBinding {
 

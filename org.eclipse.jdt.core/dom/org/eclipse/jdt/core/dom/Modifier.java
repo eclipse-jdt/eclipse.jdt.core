@@ -40,6 +40,7 @@ import java.util.Map;
  * </p>
  * 
  * @since 2.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class Modifier extends ASTNode implements IExtendedModifier {
 

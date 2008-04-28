@@ -37,6 +37,7 @@ import java.util.List;
  * 
  * @see Javadoc
  * @since 3.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class MethodRefParameter extends ASTNode {
 	

@@ -39,12 +39,12 @@ import org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation;
  * A reconcile participant can also create and return problems using 
  * {@link #putProblems(String, CategorizedProblem[])}. These problems are then reported 
  * to the problem requestor of the reconcile operation.
- * </p><p>
- * This class is not intended to be instanciated or subclassed by clients.
  * </p>
  * 
  * @see CompilationParticipant#reconcile(ReconcileContext)
  * @since 3.2
+ * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class ReconcileContext {
 	

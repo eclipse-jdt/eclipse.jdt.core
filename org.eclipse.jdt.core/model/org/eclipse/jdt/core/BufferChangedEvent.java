@@ -37,11 +37,12 @@ import java.util.EventObject;
  * is 0, and <code>getText</code> is <code>null</code>.
  * </p>
  * <p>
- * This class is not intended to be instantiated or subclassed by clients.
  * Instances of this class are automatically created by the Java model.
  * </p>
  *
  * @see IBuffer
+ * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class BufferChangedEvent extends EventObject {
 

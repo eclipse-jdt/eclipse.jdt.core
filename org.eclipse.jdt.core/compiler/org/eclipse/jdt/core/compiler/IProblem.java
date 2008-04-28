@@ -135,6 +135,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
  * their ID (attribute "id") is set to one of the IDs defined on this interface.
  * 
  * @since 2.0
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IProblem { 
 	

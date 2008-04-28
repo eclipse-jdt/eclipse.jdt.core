@@ -14,12 +14,11 @@ package org.eclipse.jdt.core.jdom;
  * Represents an initializer. The corresponding syntactic
  * units are InstanceInitializer (JLS2 8.6) and StaticDeclaration (JLS2 8.7).
  * An initializer has no children and its parent is a type.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * 
  * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
  * powerful, fine-grained DOM/AST API found in the 
  * org.eclipse.jdt.core.dom package.
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IDOMInitializer extends IDOMMember {
 /**

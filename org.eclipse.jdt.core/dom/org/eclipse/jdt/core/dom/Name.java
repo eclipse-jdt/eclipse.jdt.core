@@ -24,6 +24,7 @@ package org.eclipse.jdt.core.dom;
  * </p>
  * 
  * @since 2.0
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public abstract class Name extends Expression implements IDocElement {
 	

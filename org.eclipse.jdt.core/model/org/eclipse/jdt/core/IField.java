@@ -13,9 +13,8 @@ package org.eclipse.jdt.core;
 
 /**
  * Represents a field declared in a type.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ *
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IField extends IMember, IAnnotatable {
 

@@ -27,11 +27,11 @@ import org.eclipse.text.edits.TextEditGroup;
 /**
  * Operation for sorting members within a compilation unit.
  * <p>
- * This class provides all functionality via static members; it is not
- * intended to be instantiated or subclassed.
+ * This class provides all functionality via static members.
  * </p>
  * 
  * @since 2.1
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class CompilationUnitSorter {
 	

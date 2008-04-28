@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.dom;
  * 
  * @see org.eclipse.jdt.core.dom.ASTNode#getStructuralProperty(StructuralPropertyDescriptor)
  * @since 3.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class ChildListPropertyDescriptor extends StructuralPropertyDescriptor {
 	

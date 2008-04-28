@@ -27,6 +27,7 @@ package org.eclipse.jdt.core.dom;
  * </ul>
  * 
  * @since 3.0
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public abstract class StructuralPropertyDescriptor {
 	

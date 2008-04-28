@@ -43,6 +43,7 @@ import java.util.List;
  * </p>
  * 
  * @since 2.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class VariableDeclarationStatement extends Statement {
 	

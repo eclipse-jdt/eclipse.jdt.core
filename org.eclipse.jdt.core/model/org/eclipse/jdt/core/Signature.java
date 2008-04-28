@@ -136,9 +136,9 @@ import org.eclipse.jdt.internal.core.util.Util;
  * </ul>
  * </p>
  * <p>
- * This class provides static methods and constants only; it is not intended to be
- * instantiated or subclassed by clients.
+ * This class provides static methods and constants only.
  * </p>
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class Signature {
 

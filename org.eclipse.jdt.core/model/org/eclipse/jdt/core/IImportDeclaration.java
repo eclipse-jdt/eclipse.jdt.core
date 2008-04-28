@@ -13,9 +13,8 @@ package org.eclipse.jdt.core;
 
 /**
  * Represents an import declaration in Java compilation unit.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IImportDeclaration extends IJavaElement, ISourceReference, ISourceManipulation {
 /**

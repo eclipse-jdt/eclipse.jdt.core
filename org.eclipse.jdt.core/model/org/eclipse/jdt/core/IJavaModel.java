@@ -26,12 +26,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * delete operations on multiple Java elements.
  * </p>
  * <p>
- * This interface is not intended to be implemented by clients. An instance
- * of one of these handles can be created via
+ * An instance of one of these handles can be created via
  * <code>JavaCore.create(workspace.getRoot())</code>.
  * </p>
  *
  * @see JavaCore#create(org.eclipse.core.resources.IWorkspaceRoot)
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IJavaModel extends IJavaElement, IOpenable, IParent {
 /**

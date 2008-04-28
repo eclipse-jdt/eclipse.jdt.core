@@ -30,12 +30,10 @@ import org.eclipse.core.runtime.IStatus;
  *   <li>elements - optional handles to Java elements associated with the failure</li>
  *   <li>string - optional string associated with the failure</li>
  * </ul>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
  *
  * @see org.eclipse.core.runtime.IStatus
  * @see IJavaModelStatusConstants
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IJavaModelStatus extends IStatus {
 /**

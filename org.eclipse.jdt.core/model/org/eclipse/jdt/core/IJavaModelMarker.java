@@ -13,9 +13,9 @@ package org.eclipse.jdt.core;
 /**
  * Markers used by the Java model.
  * <p>
- * This interface declares constants only; it is not intended to be implemented
- * or extended.
+ * This interface declares constants only.
  * </p>
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IJavaModelMarker {
 

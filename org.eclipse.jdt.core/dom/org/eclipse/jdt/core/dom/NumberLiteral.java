@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * Number literal nodes.
  * 
  * @since 2.0
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class NumberLiteral extends Expression {
 

@@ -39,13 +39,13 @@ import org.eclipse.jdt.internal.core.InternalNamingConventions;
  * For programmaticaly change these options, see <code>JavaCore#setOptions()</code>.
  * </p>
  * <p>
- * This class provides static methods and constants only; it is not intended to be
- * instantiated or subclassed by clients.
+ * This class provides static methods and constants only.
  * </p>
  * 
  * @see JavaCore#setOptions(java.util.Hashtable)
  * @see JavaCore#getDefaultOptions()
  * @since 2.1
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class NamingConventions {
 	private static final char[] GETTER_BOOL_NAME = "is".toCharArray(); //$NON-NLS-1$

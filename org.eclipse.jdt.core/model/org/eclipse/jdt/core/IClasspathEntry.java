@@ -101,7 +101,6 @@ import org.eclipse.core.runtime.IPath;
  * classpath entries. The project's output folder(s) are always listed first,
  * followed by the any exported entries.
  * <p>
- * This interface is not intended to be implemented by clients.
  * Classpath entries can be created via methods on {@link JavaCore}.
  * </p>
  *
@@ -112,6 +111,7 @@ import org.eclipse.core.runtime.IPath;
  * @see JavaCore#newContainerEntry(org.eclipse.core.runtime.IPath)
  * @see ClasspathVariableInitializer
  * @see ClasspathContainerInitializer
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IClasspathEntry {
 

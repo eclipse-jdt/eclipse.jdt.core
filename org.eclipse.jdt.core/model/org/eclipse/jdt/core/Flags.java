@@ -17,8 +17,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 /**
  * Utility class for decoding modifier flags in Java elements.
  * <p>
- * This class provides static methods only; it is not intended to be
- * instantiated or subclassed by clients.
+ * This class provides static methods only.
  * </p>
  * <p>
  * Note that the numeric values of these flags match the ones for class files
@@ -28,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
  * </p>
  *
  * @see IMember#getFlags()
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class Flags {
 

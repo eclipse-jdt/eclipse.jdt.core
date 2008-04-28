@@ -32,9 +32,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * <code>IMethod</code>, <code>IInitializer</code> and <code>IType</code>.
  * The children are listed in the order in which they appear in the source or class file.
  * </p>
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ *
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IType extends IMember, IAnnotatable {
 	/**

@@ -15,9 +15,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 /**
  * Common protocol for Java elements that support source code manipulations such
  * as copy, move, rename, and delete.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ISourceManipulation {
 /**

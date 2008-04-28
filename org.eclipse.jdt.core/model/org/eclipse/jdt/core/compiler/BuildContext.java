@@ -20,10 +20,10 @@ import org.eclipse.jdt.internal.core.builder.SourceFile;
  * The context of a build event that is notified to interested compilation 
  * participants when {@link CompilationParticipant#buildStarting(BuildContext[], boolean) a build is starting},
  * or to annotations processors when {@link CompilationParticipant#processAnnotations(BuildContext[]) a source file has annotations}.
- * <p>
- * This class is not intended to be instanciated or subclassed by clients.
- * </p>
+ * 
  * @since 3.2
+ * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class BuildContext extends CompilationParticipantResult {
 

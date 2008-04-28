@@ -27,6 +27,7 @@ import java.util.List;
  *
  * @see NormalAnnotation
  * @since 3.1
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class MemberValuePair extends ASTNode {
 	

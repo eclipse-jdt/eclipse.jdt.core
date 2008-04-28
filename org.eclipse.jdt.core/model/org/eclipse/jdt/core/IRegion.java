@@ -22,11 +22,11 @@ package org.eclipse.jdt.core;
  * <b>cannot</b> be selectively excluded.
  * </p>
  * <p>
- * This interface is not intended to be implemented by clients.
  * Instances can be created via the <code>JavaCore.newRegion</code>.
  * </p>
  *
  * @see JavaCore#newRegion()
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IRegion {
 	/**

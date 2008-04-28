@@ -19,10 +19,10 @@ package org.eclipse.jdt.core;
  * <p>
  * In particular such a pseudo-element should not be used as a handle. For example its name range won't be updated
  * if the underlying source changes.
- * </p><p>
- * This interface is not intended to be implemented by clients.
  * </p>
+ * 
  * @since 3.0
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ILocalVariable extends IJavaElement, ISourceReference, IAnnotatable {
 

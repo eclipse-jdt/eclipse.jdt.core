@@ -79,12 +79,12 @@ import org.eclipse.jdt.core.JavaModelException;
  * </pre>
  * </p>
  * <p>
- * This interface is not intended to be implemented by clients. 
  * <code>IJavaProject.newEvaluationContext</code> can be used to obtain an
  * instance.
  * </p>
  *
  * @see IJavaProject#newEvaluationContext()
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IEvaluationContext {
 	/**

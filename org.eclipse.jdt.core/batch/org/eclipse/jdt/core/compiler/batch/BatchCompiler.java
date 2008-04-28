@@ -20,11 +20,9 @@ import org.eclipse.jdt.internal.compiler.batch.Main;
  * <pre>
  * BatchCompiler.compile("C:\\mySources\\X.java -d C:\\myOutput", new PrintWriter(System.out), new PrintWriter(System.err), null);
  * </pre>
- * <p>
- * This class is not intended to be instantiated or subclassed by clients.
- * </p>
  * 
  * @since 3.4
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public final class BatchCompiler {
 
@@ -80,5 +78,9 @@ public final class BatchCompiler {
 	 */
 	public static boolean compile(String[] commandLineArguments, PrintWriter outWriter, PrintWriter errWriter, CompilationProgress progress) {
 		return Main.compile(commandLineArguments, outWriter, errWriter, progress);
+	}
+
+	private BatchCompiler() {
+		// prevent instantiation
 	}
 }

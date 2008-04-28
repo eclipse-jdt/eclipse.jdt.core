@@ -15,12 +15,10 @@ package org.eclipse.jdt.core.dom;
  * A variable binding represents either a field of a class or interface, or 
  * a local variable declaration (including formal parameters, local variables, 
  * and exception variables).
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
  *
  * @see ITypeBinding#getDeclaredFields()
  * @since 2.0
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IVariableBinding extends IBinding {
 	

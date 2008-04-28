@@ -26,6 +26,7 @@ import java.util.List;
  * other kinds of types are meaningless.
  * 
  * @since 3.1
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class ParameterizedType extends Type {
     /**

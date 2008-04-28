@@ -30,8 +30,9 @@ import org.eclipse.jdt.internal.core.search.matching.*;
  * or one can search for the declarations of types starting with "Abstract" in a project.
  * </p>
  * <p>
- * This class may be instantiated; it is not intended to be subclassed.
+ * This class may be instantiated.
  * </p>
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class SearchEngine {
 

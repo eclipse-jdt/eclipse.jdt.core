@@ -17,12 +17,11 @@ package org.eclipse.jdt.core.jdom;
  * A method has no children and its parent is a type.
  * Local classes are considered to be part of the body of a method, not a child.
  * Annotation type members, added in J2SE 1.5, are represented as methods.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
+ * 
  * @deprecated The JDOM was made obsolete by the addition in 2.0 of the more
  * powerful, fine-grained DOM/AST API found in the 
  * org.eclipse.jdt.core.dom package.
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IDOMMethod extends IDOMMember {
 /**
