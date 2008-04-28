@@ -792,10 +792,6 @@ public class Scribe implements IJavaDocTagConstants {
 		return false;
 	}
 
-	boolean isFormattingJavadoc() {
-	    return (this.formatComments & CodeFormatter.K_JAVA_DOC) != 0;
-    }
-
 	private boolean includesBlockComments() {
 	    return ((this.formatComments & INCLUDE_BLOCK_COMMENTS) == INCLUDE_BLOCK_COMMENTS && this.headerEndPosition < this.scanner.currentPosition) ||
 	    	(this.formatter.preferences.comment_format_header && this.headerEndPosition >= this.scanner.currentPosition);
@@ -2063,11 +2059,14 @@ public class Scribe implements IJavaDocTagConstants {
 		// Compute indentation
 		boolean headerLine = block.isHeaderLine() && this.lastNumberOfNewLines == 0;
 		int firstColumn = 1 + this.indentationLevel + BLOCK_LINE_PREFIX_LENGTH;
-		if (headerLine) firstColumn++;
+		int maxColumn = this.formatter.preferences.comment_line_length + 1;
+		if (headerLine) {
+			firstColumn++;
+			maxColumn++;
+		}
 		StringBuffer indentationBuffer = printJavadocIndentationBuffer(block, firstColumn);
 
 		// format tag section if necessary
-		int maxColumn = this.formatter.preferences.comment_line_length + 1;
 		boolean clearBlankLines = this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment;
 		if (!block.isInlined()) {
 			this.lastNumberOfNewLines = 0;
@@ -2088,7 +2087,7 @@ public class Scribe implements IJavaDocTagConstants {
 				if (block.isInlined()) {
 					// Need to print the closing brace
 					StringBuffer buffer = new StringBuffer();
-					if ((this.column+2) > (maxColumn+1)) {
+					if ((this.column+1) > maxColumn) {
 						this.lastNumberOfNewLines++;
 						this.line++;
 				    	buffer.append(this.lineSeparator);
@@ -2100,6 +2099,8 @@ public class Scribe implements IJavaDocTagConstants {
 							buffer.append(indentationBuffer);
 							this.column += indentationBuffer.length();
 				    	}
+				    	headerLine = false;
+				    	maxColumn--;
 					}
 					this.scanner.resetTo(previousEnd+1, block.sourceEnd+1);
 					try {
@@ -2153,6 +2154,10 @@ public class Scribe implements IJavaDocTagConstants {
 				if (newLines > 0 || nodeStart > (previousEnd+1)) {
 		   			printJavadocGapLines(previousEnd+1, nodeStart-1, newLines, clearBlankLines, false, null);
 				}
+			}
+			if (headerLine && newLines > 0) {
+				headerLine = false;
+				maxColumn--;
 			}
 
 			// Print node
@@ -2736,13 +2741,14 @@ public class Scribe implements IJavaDocTagConstants {
 	    int max = text.separatorsPtr;
 		int linesAfter = 0;
 		int previousEnd = -1;
-	    boolean isBreak = htmlTagID == JAVADOC_SINGLE_BREAK_TAG_ID;
-		if (!isBreak) {
+	    boolean isHtmlBreakTag = htmlTagID == JAVADOC_SINGLE_BREAK_TAG_ID;
+		boolean isHtmlSeparatorTag = htmlTagID == JAVADOC_SEPARATOR_TAGS_ID;
+		if (!isHtmlBreakTag) {
 
 			// Iterate on text line separators
 			boolean isCode = htmlTagID == JAVADOC_CODE_TAGS_ID;
 			for (int idx=0, ptr=0; idx<=max || (text.htmlNodesPtr != -1 && ptr <= text.htmlNodesPtr); idx++) {
-	
+
 				// append text to buffer realigning with the line length
 				int end = (idx > max) ? text.sourceEnd : (int) (text.separators[idx] >>> 32);
 				int nodeKind = 0; // text break
@@ -2760,7 +2766,7 @@ public class Scribe implements IJavaDocTagConstants {
 					boolean immutable = htmlTag == null ? false : htmlTag.isImmutableHtmlTag();
 					boolean overEndLine = false;
 					if (immutable) {
-						overEndLine = (this.column + htmlTag.getLength()) > this.formatter.preferences.comment_line_length;
+						overEndLine = (this.column + getTextLength(block, htmlTag)) > (this.formatter.preferences.comment_line_length+1);
 						if (overEndLine) {
 							if (newLines < 1) newLines = 1;
 						}
@@ -2768,7 +2774,9 @@ public class Scribe implements IJavaDocTagConstants {
 					if (newLines == 0) {
 						newLines = printJavadocBlockNodesNewLines(block, node, previousEnd);
 					}
-					printJavadocGapLines(previousEnd+1, node.sourceStart-1, newLines, clearBlankLines, false, null);
+					if (newLines > 0 || (idx > 1 && (previousEnd+1) <= (nextStart-1))) {
+						printJavadocGapLines(previousEnd+1, node.sourceStart-1, newLines, clearBlankLines, false, null);
+					}
 					if (newLines > 0) textOnNewLine = true;
 					buffer = new StringBuffer();
 					if (node.isText()) {
@@ -2803,14 +2811,18 @@ public class Scribe implements IJavaDocTagConstants {
 					}
 					boolean needIndentation = textOnNewLine;
 					if (idx > 0) {
-						if (!needIndentation && (text.htmlIndexes[idx-1] & JAVADOC_TAGS_ID_MASK) == JAVADOC_SEPARATOR_TAGS_ID) {
+						if (!needIndentation && text.isTextAfterHtmlSeparatorTag(idx-1)) {
 							needIndentation = true;
 						}
 					}
-					printJavadocTextLine(buffer, nextStart, end, block, idx==1/*first text?*/, needIndentation, idx==0/* opening html tag?*/ || text.htmlIndexes[idx-1] != -1);
+					boolean firstText = idx==1;
+					if (idx > 1 && (previousEnd+1) > (nextStart-1)) {
+						firstText = true;
+					}
+					printJavadocTextLine(buffer, nextStart, end, block, firstText, needIndentation, idx==0/* opening html tag?*/ || text.htmlIndexes[idx-1] != -1);
 					linesAfter = 0;
 				    if (idx==0) {
-				    	if (htmlTagID == JAVADOC_SEPARATOR_TAGS_ID) {
+				    	if (isHtmlSeparatorTag) {
 					    	linesAfter = 1;
 					    }
 					} else if (text.htmlIndexes[idx-1] == JAVADOC_SINGLE_BREAK_TAG_ID) {
@@ -2858,18 +2870,18 @@ public class Scribe implements IJavaDocTagConstants {
 							if (gapLines > 0) textOnNewLine = true;
 						}
 	    			}
-    				return 1;
+					return 1;
 				}
-				
+
 				// store previous end
 				previousEnd = end;
 			}
 	    }
-		
+
 		// Insert last gap
-	    boolean closingTag = isBreak || (text.htmlIndexes != null && (text.htmlIndexes[max] & JAVADOC_TAGS_ID_MASK) == htmlTagID);
+	    boolean closingTag = isHtmlBreakTag || (text.htmlIndexes != null && (text.htmlIndexes[max] & JAVADOC_TAGS_ID_MASK) == htmlTagID);
 		if (previousEnd != -1) {
-		    if (max > 0 && htmlTagID == JAVADOC_SEPARATOR_TAGS_ID && closingTag) {
+		    if (max > 0 && isHtmlSeparatorTag && closingTag) {
 				if (linesAfter == 0) linesAfter = 1;
 			}
 			if (linesAfter > 0) {
@@ -2877,10 +2889,10 @@ public class Scribe implements IJavaDocTagConstants {
 				textOnNewLine = true;
 			}
 		}
-	    
+
 	    // Print closing tag
 		boolean needIndentation = textOnNewLine;
-		if (!needIndentation && !isBreak && text.htmlIndexes != null && (text.htmlIndexes[max] & JAVADOC_TAGS_ID_MASK) == JAVADOC_SEPARATOR_TAGS_ID) {
+		if (!needIndentation && !isHtmlBreakTag && text.htmlIndexes != null && text.isTextAfterHtmlSeparatorTag(max)) {
 			needIndentation = true;
 		}
 		printJavadocTextLine(buffer, nextStart, text.sourceEnd, block, max<=0 /*not the first text*/, needIndentation, closingTag/* closing html tag*/);
@@ -2891,13 +2903,13 @@ public class Scribe implements IJavaDocTagConstants {
 		// Reset
 		needSpace = false;
 		this.scanner.resetTo(text.sourceEnd+1, this.scannerEndPosition - 1);
-		
+
 		// Return the new lines to insert after
-	    if (max > 0 && htmlTagID == JAVADOC_SEPARATOR_TAGS_ID) {
+	    if (max > 0 && isHtmlSeparatorTag) {
 			return 1;
 		}
 	    return 0;
-	}
+    }
 
 	private StringBuffer printJavadocIndentationBuffer(FormatJavadocBlock block, int firstColumn) {
 	    boolean indentRootTags = this.formatter.preferences.comment_indent_root_tags && !block.isInDescription();
@@ -2947,7 +2959,7 @@ public class Scribe implements IJavaDocTagConstants {
 			int end = (int) (text.separators[idx] >>> 32);
 			boolean needIndentation = buffer.length() == 0 && textOnNewLine;
 			if (idx > 0) {
-				if (!needIndentation && (text.htmlIndexes[idx-1] & JAVADOC_TAGS_ID_MASK) == JAVADOC_SEPARATOR_TAGS_ID) {
+				if (!needIndentation && text.isTextAfterHtmlSeparatorTag(idx-1)) {
 					needIndentation = true;
 				}
 			}

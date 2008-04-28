@@ -24,32 +24,32 @@ public class X21 {
 	 * @param searchFor
 	 * determines the nature of the searched elements
 	 * <ul>
-	 * <li> <code>IJavaSearchConstants.CLASS</code> : only look for classes</li>
-	 * <li> <code>IJavaSearchConstants.INTERFACE</code> : only look for
+	 * <li><code>IJavaSearchConstants.CLASS</code>: only look for classes</li>
+	 * <li><code>IJavaSearchConstants.INTERFACE</code>: only look for interfaces
+	 * </li>
+	 * <li><code>IJavaSearchConstants.TYPE</code>: look for both classes and
 	 * interfaces</li>
-	 * <li> <code>IJavaSearchConstants.TYPE</code> : look for both classes and
-	 * interfaces</li>
-	 * <li> <code>IJavaSearchConstants.FIELD</code> : look for fields</li>
-	 * <li> <code>IJavaSearchConstants.METHOD</code> : look for methods</li>
-	 * <li> <code>IJavaSearchConstants.CONSTRUCTOR</code> : look for
-	 * constructors</li>
-	 * <li> <code>IJavaSearchConstants.PACKAGE</code> : look for packages</li>
+	 * <li><code>IJavaSearchConstants.FIELD</code>: look for fields</li>
+	 * <li><code>IJavaSearchConstants.METHOD</code>: look for methods</li>
+	 * <li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for constructors
+	 * </li>
+	 * <li><code>IJavaSearchConstants.PACKAGE</code>: look for packages</li>
 	 * </ul>
 	 * @param limitTo
 	 * determines the nature of the expected matches
 	 * <ul>
-	 * <li> <code>IJavaSearchConstants.DECLARATIONS</code> : will search
+	 * <li><code>IJavaSearchConstants.DECLARATIONS</code>: will search
 	 * declarations matching with the corresponding element. In case the element
 	 * is a method, declarations of matching methods in subtypes will also be
 	 * found, allowing to find declarations of abstract methods, etc.</li>
 	 * 
-	 * <li> <code>IJavaSearchConstants.REFERENCES</code> : will search
-	 * references to the given element.</li>
+	 * <li><code>IJavaSearchConstants.REFERENCES</code>: will search references
+	 * to the given element.</li>
 	 * 
-	 * <li> <code>IJavaSearchConstants.ALL_OCCURRENCES</code> : will search for
+	 * <li><code>IJavaSearchConstants.ALL_OCCURRENCES</code>: will search for
 	 * either declarations or references as specified above.</li>
 	 * 
-	 * <li> <code>IJavaSearchConstants.IMPLEMENTORS</code> : for interface, will
+	 * <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will
 	 * find all types which implements a given interface.</li>
 	 * </ul>
 	 * 

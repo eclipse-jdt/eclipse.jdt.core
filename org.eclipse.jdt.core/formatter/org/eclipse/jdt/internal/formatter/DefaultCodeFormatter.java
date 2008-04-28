@@ -64,10 +64,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	 * TODO remove when bugs 102780 & 227043 will have been stabilized
 	 */
 	private final static String NEW_COMMENTS_FORMAT = System.getProperty("org.eclipse.jdt.core.formatter.comments.new"); //$NON-NLS-1$
-	public static final boolean ENABLE_NEW_COMMENTS_FORMAT = !JavaCore.DISABLED.equals(NEW_COMMENTS_FORMAT);
-//	private static final boolean FORCE_NEW_COMMENTS_FORMAT = "forced".equals(NEW_COMMENTS_FORMAT); //$NON-NLS-1$
-//	private static final String WARNING_FORMAT_COMMENTS = "WARNING: Comments are still formatted using regions!"; //$NON-NLS-1$
-//	private static boolean PRINTED_FORMAT_COMMENTS_WARNING = false;
+	public static boolean ENABLE_NEW_COMMENTS_FORMAT = !JavaCore.DISABLED.equals(NEW_COMMENTS_FORMAT);
 
 	// Scanner use to probe the kind of the source given to the formatter
 	private static Scanner PROBING_SCANNER;
@@ -179,24 +176,11 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				if (ENABLE_NEW_COMMENTS_FORMAT) {
 	                return formatComment(kind & K_MASK, source, indentationLevel, lineSeparator, new IRegion[] {new Region(offset, length)});
 				}
-//				if (FORCE_NEW_COMMENTS_FORMAT) {
-//					// Skip the javadoc formatting using this constant
-//					return null;
-//				}
-//				// In all other cases, use the old way to format javadoc comments
-//				if (!PRINTED_FORMAT_COMMENTS_WARNING) {
-//					if (DEBUG) System.out.println(WARNING_FORMAT_COMMENTS);
-//					PRINTED_FORMAT_COMMENTS_WARNING = true;
-//				}
 			case K_MULTI_LINE_COMMENT :
 			case K_SINGLE_LINE_COMMENT :
 				if (ENABLE_NEW_COMMENTS_FORMAT) {
 	                return formatComment(kind & K_MASK, source, indentationLevel, lineSeparator, new IRegion[] {new Region(offset, length)});
 				}
-//				if (FORCE_NEW_COMMENTS_FORMAT) {
-//					// Skip the javadoc formatting using this constant
-//					return null;
-//				}
 				this.codeSnippetParsingUtil = new CodeSnippetParsingUtil();
 				return formatComment(kind, source, indentationLevel, lineSeparator, new IRegion[] {new Region(offset, length)}, false);
 		}
@@ -541,11 +525,6 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				if (ENABLE_NEW_COMMENTS_FORMAT /*|| FORCE_NEW_COMMENTS_FORMAT*/) {
 					return formatComment(kind, source, indentationLevel, lineSeparator, regions);
 				}
-//				// In all other cases, use the old way to format javadoc comments
-//				if (!PRINTED_FORMAT_COMMENTS_WARNING) {
-//					if (DEBUG) System.out.println(WARNING_FORMAT_COMMENTS);
-//					PRINTED_FORMAT_COMMENTS_WARNING = true;
-//				}
 				return formatComment(kind, source, indentationLevel, lineSeparator, regions, includeComments);
 			}
 		} catch (InvalidInputException e) {

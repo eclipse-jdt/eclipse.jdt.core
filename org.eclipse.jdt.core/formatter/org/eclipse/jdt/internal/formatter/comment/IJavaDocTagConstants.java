@@ -85,7 +85,18 @@ public interface IJavaDocTagConstants {
 			"p".toCharArray(), //$NON-NLS-1$
 			"pre".toCharArray(), //$NON-NLS-1$
 			"ul".toCharArray(), //$NON-NLS-1$
-			"ol".toCharArray() //$NON-NLS-1$
+			"ol".toCharArray(), //$NON-NLS-1$
+			"table".toCharArray(), //$NON-NLS-1$
+	};
+
+	/**
+	 * Following table is used to identify special tags which may have more complex
+	 * opening than just &lt;name&gt;
+	 */
+	public static final char[][] JAVADOC_SPECIAL_TAGS= new char[][] {
+			"table".toCharArray(), //$NON-NLS-1$
+			"tr".toCharArray(), //$NON-NLS-1$
+			"td".toCharArray(), //$NON-NLS-1$
 	};
 
 	/** Javadoc tag prefix */
@@ -140,4 +151,5 @@ public interface IJavaDocTagConstants {
 	static final int JAVADOC_SEPARATOR_TAGS_ID = 0x1000;
 	static final int JAVADOC_SINGLE_TAGS_ID = JAVADOC_SINGLE_BREAK_TAG_ID; // ID max for tags ID with no opening/closing (e.g. <bla>....</bla>)
 	static final int JAVADOC_CLOSED_TAG = 0x10000;
+	static final int JAVADOC_SPECIAL_TAGS_ID = 0x20000;
 }

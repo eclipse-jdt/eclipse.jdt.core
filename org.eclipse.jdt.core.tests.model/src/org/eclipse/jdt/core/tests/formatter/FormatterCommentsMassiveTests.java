@@ -124,10 +124,10 @@ import org.eclipse.text.edits.TextEdit;
  * <ul>
  * 	<li>3.0 performance workspace (9951 units):<ul>
  * 		<li>0 error</li>
- * 		<li>17 failures</li>
+ * 		<li>16 failures</li>
  * 		<li>8 failures due to old formatter</li>
- * 		<li>722 files have different lines leading spaces</li>
- * 		<li>10 files have different spaces</li>
+ * 		<li>719 files have different lines leading spaces</li>
+ * 		<li>15 files have different spaces</li>
  *		</ul></li>
  *		<li>ganymede workspace (25819 units):<ul>
  * 		<li>0 error</li>
@@ -155,14 +155,14 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 	private static final int MAX_FAILURES = Integer.parseInt(System.getProperty("maxFailures", "100")); // Max failures using string comparison
 	private static boolean ASSERT_EQUALS_STRINGS = MAX_FAILURES > 0;
 	private final static String[] EXPECTED_FAILURES = {
-		"org.eclipse.jdt.core\\compiler\\org\\eclipse\\jdt\\internal\\compiler\\ast\\QualifiedNameReference.java",
-		"org.eclipse.jdt.core\\eval\\org\\eclipse\\jdt\\internal\\eval\\CodeSnippetSingleNameReference.java",
-		"org.eclipse.jdt.core\\model\\org\\eclipse\\jdt\\internal\\core\\DeltaProcessor.java",
-		"org.eclipse.jdt.core\\model\\org\\eclipse\\jdt\\internal\\core\\JavaProject.java",
-		"org.eclipse.jdt.core\\search\\org\\eclipse\\jdt\\internal\\core\\search\\indexing\\IndexManager.java",
-		"org.eclipse.team.cvs.ui\\src\\org\\eclipse\\team\\internal\\ccvs\\ui\\AnnotateView.java",
-		"org.eclipse.team.cvs.ui\\src\\org\\eclipse\\team\\internal\\ccvs\\ui\\HistoryView.java",
-		"org.eclipse.team.cvs.ui\\src\\org\\eclipse\\team\\internal\\ccvs\\ui\\wizards\\UpdateWizard.java",
+		"org\\eclipse\\jdt\\internal\\compiler\\ast\\QualifiedNameReference.java",
+		"org\\eclipse\\jdt\\internal\\eval\\CodeSnippetSingleNameReference.java",
+		"org\\eclipse\\jdt\\internal\\core\\DeltaProcessor.java",
+		"org\\eclipse\\jdt\\internal\\core\\JavaProject.java",
+		"org\\eclipse\\jdt\\internal\\core\\search\\indexing\\IndexManager.java",
+		"org\\eclipse\\team\\internal\\ccvs\\ui\\AnnotateView.java",
+		"org\\eclipse\\team\\internal\\ccvs\\ui\\HistoryView.java",
+		"org\\eclipse\\team\\internal\\ccvs\\ui\\wizards\\UpdateWizard.java",
 	};
 	static {
 		// Sort expected failures to allow binary search
@@ -352,50 +352,57 @@ void compareFormattedSource() throws IOException, Exception {
 }
 
 private String expectedFormattedSource(String source) {
-	DefaultCodeFormatter codeFormatter = codeFormatter();
-	Scanner scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_4/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-	CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
-	CompilationUnitDeclaration compilationUnitDeclaration = codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
-	scanner.setSource(source.toCharArray());
-	scanner.lineEnds = codeSnippetParsingUtil.recordedParsingInformation.lineEnds;
-	int[][] commentsPositions = compilationUnitDeclaration.comments;
-	int length = commentsPositions == null ? 0 : commentsPositions.length;
-	String[] formattedComments = new String[length];
-	for (int i=0; i<length; i++) {
-		int[] positions = commentsPositions[i];
-		int commentKind = CodeFormatter.K_JAVA_DOC;
-		int commentStart = positions [0];
-		int commentEnd = positions [1];
-		if (commentEnd < 0) { // line or block comments have negative end position
-			commentEnd = -commentEnd;
-			if (commentStart > 0) { // block comments have positive start position
-				commentKind = CodeFormatter.K_MULTI_LINE_COMMENT;
-			} else {
-				commentStart = -commentStart;
-				commentKind = CodeFormatter.K_SINGLE_LINE_COMMENT;
-			}
-		}
-		int indentationLevel = getIndentationLevel(scanner, commentStart);
-		formattedComments[i] = runFormatter(codeFormatter, source.substring(commentStart, commentEnd), commentKind, indentationLevel, 0, commentEnd - commentStart, LINE_SEPARATOR);
-	}
-	SimpleDocument document = new SimpleDocument(source);
-	for (int i=length-1; i>=0; i--) {
-		if (formattedComments[i] != null) {
+	boolean enableNewCommentFormatter = DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT;
+	try {
+		DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT = false;
+		DefaultCodeFormatter codeFormatter = codeFormatter();
+		Scanner scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_4/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
+		CompilationUnitDeclaration compilationUnitDeclaration = codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
+		scanner.setSource(source.toCharArray());
+		scanner.lineEnds = codeSnippetParsingUtil.recordedParsingInformation.lineEnds;
+		int[][] commentsPositions = compilationUnitDeclaration.comments;
+		int length = commentsPositions == null ? 0 : commentsPositions.length;
+		String[] formattedComments = new String[length];
+		for (int i=0; i<length; i++) {
 			int[] positions = commentsPositions[i];
+			int commentKind = CodeFormatter.K_JAVA_DOC;
 			int commentStart = positions [0];
 			int commentEnd = positions [1];
 			if (commentEnd < 0) { // line or block comments have negative end position
 				commentEnd = -commentEnd;
-				if (commentStart < 0) { // line comments have negative start position
+				if (commentStart > 0) { // block comments have positive start position
+					commentKind = CodeFormatter.K_MULTI_LINE_COMMENT;
+				} else {
 					commentStart = -commentStart;
+					commentKind = CodeFormatter.K_SINGLE_LINE_COMMENT;
 				}
 			}
-			document.replace(commentStart, commentEnd - commentStart, formattedComments[i]);
+			int indentationLevel = getIndentationLevel(scanner, commentStart);
+			formattedComments[i] = runFormatter(codeFormatter, source.substring(commentStart, commentEnd), commentKind, indentationLevel, 0, commentEnd - commentStart, LINE_SEPARATOR);
 		}
+		SimpleDocument document = new SimpleDocument(source);
+		for (int i=length-1; i>=0; i--) {
+			if (formattedComments[i] != null) {
+				int[] positions = commentsPositions[i];
+				int commentStart = positions [0];
+				int commentEnd = positions [1];
+				if (commentEnd < 0) { // line or block comments have negative end position
+					commentEnd = -commentEnd;
+					if (commentStart < 0) { // line comments have negative start position
+						commentStart = -commentStart;
+					}
+				}
+				document.replace(commentStart, commentEnd - commentStart, formattedComments[i]);
+			}
+		}
+		String newSource = document.get();
+		String oldResult = runFormatter(codeFormatter, newSource, CodeFormatter.K_COMPILATION_UNIT, 0, 0, newSource.length(), null);
+		return oldResult == null ? newSource : oldResult;
 	}
-	String newSource = document.get();
-	String oldResult = runFormatter(codeFormatter, newSource, CodeFormatter.K_COMPILATION_UNIT, 0, 0, newSource.length(), null);
-	return oldResult == null ? newSource : oldResult;
+	finally {
+		DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT = enableNewCommentFormatter;
+	}
 }
 
 private int getIndentationLevel(Scanner scanner, int position) {
@@ -502,7 +509,7 @@ private Map getDefaultCompilerOptions() {
 private boolean isExpectedFailure() {
 	int length = EXPECTED_FAILURES.length;
 	for (int i=0; i<length; i++) {
-		if (EXPECTED_FAILURES[i].equals(this.path)) {
+		if (this.path.endsWith(EXPECTED_FAILURES[i])) {
 			this.expectedFailures.add(this.path);
 			return true;
 		}

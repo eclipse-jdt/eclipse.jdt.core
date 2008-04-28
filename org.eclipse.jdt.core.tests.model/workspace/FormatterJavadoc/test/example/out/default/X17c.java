@@ -16,7 +16,7 @@ public interface X17c {
 	 * 		<li>an exception occurs while accessing its corresponding resource
 	 * 		</li>
 	 * 		<li>a classpath variable or classpath container was not resolvable
-	 * 		and <code>ignoreUnresolvedEntry</code> is <code>false</code> .</li>
+	 * 		and <code>ignoreUnresolvedEntry</code> is <code>false</code>.</li>
 	 * 		</ul>
 	 * @see String
 	 */

@@ -312,6 +312,15 @@ public boolean isParamTag() {
 	return (this.flags & PARAM_TAG) == PARAM_TAG;
 }
 
+void setHeaderLine(int javadocLineStart) {
+	if (javadocLineStart == this.lineStart) {
+		this.flags |= ON_HEADER_LINE;
+	}
+	for (int i=0; i<this.nodesPtr; i++) {
+		this.nodes[i].setHeaderLine(javadocLineStart);
+	}
+}
+
 protected void toString(StringBuffer buffer) {
 	if ((this.flags & INLINED) != 0) buffer.append('{');
 	buffer.append('@');

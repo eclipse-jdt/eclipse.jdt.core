@@ -38,8 +38,8 @@ package test.prefs.example;
  * <p>
  * The breakpoint manager instantiates persisted breakpoints by traversing all
  * markers that are a subtype of
- * <code>"org.eclipse.debug.core.breakpointMarker"</code> , and instantiating
- * the class defined by the <code>class</code> attribute on the associated
+ * <code>"org.eclipse.debug.core.breakpointMarker"</code>, and instantiating the
+ * class defined by the <code>class</code> attribute on the associated
  * breakpoint extension. The method <code>setMarker</code> is then called to
  * associate a marker with the breakpoint.
  * </p>

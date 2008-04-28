@@ -923,7 +923,16 @@ public void testWkspEclipse20() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X20.java");
 }
 public void testWkspEclipse21() throws JavaModelException {
-	formatUnit("wksp.eclipse", "X20.java");
+	formatUnit("wksp.eclipse", "X21.java");
+}
+public void testWkspEclipse22() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X22.java");
+}
+public void testWkspEclipse23() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X23.java");
+}
+public void testWkspEclipse24() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X24.java");
 }
 // Ganymede
 // TODO pass this test

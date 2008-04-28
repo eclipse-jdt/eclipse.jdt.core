@@ -123,35 +123,43 @@ protected Object createTypeReference(int primitiveToken) {
  */
 private int getHtmlTagIndex(char[] htmlTag) {
 	int length = htmlTag == null ? 0 : htmlTag.length;
+	int tagId = 0;
 	if (length > 0) {
+		for (int i=0, max=IJavaDocTagConstants.JAVADOC_SPECIAL_TAGS.length; i<max; i++) {
+			char[] tag = IJavaDocTagConstants.JAVADOC_SPECIAL_TAGS[i];
+			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
+				tagId = JAVADOC_SPECIAL_TAGS_ID;
+				break;
+			}
+		}
 		for (int i=0, max=JAVADOC_SINGLE_BREAK_TAG.length; i<max; i++) {
 			char[] tag = JAVADOC_SINGLE_BREAK_TAG[i];
 			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
-				return JAVADOC_SINGLE_BREAK_TAG_ID + i;
+				return (tagId | JAVADOC_SINGLE_BREAK_TAG_ID) + i;
 			}
 		}
 		for (int i=0, max=JAVADOC_CODE_TAGS.length; i<max; i++) {
 			char[] tag = IJavaDocTagConstants.JAVADOC_CODE_TAGS[i];
 			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
-				return JAVADOC_CODE_TAGS_ID + i;
+				return (tagId | JAVADOC_CODE_TAGS_ID) + i;
 			}
 		}
 		for (int i=0, max=IJavaDocTagConstants.JAVADOC_BREAK_TAGS.length; i<max; i++) {
 			char[] tag = IJavaDocTagConstants.JAVADOC_BREAK_TAGS[i];
 			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
-				return JAVADOC_BREAK_TAGS_ID + i;
+				return (tagId | JAVADOC_BREAK_TAGS_ID) + i;
 			}
 		}
 		for (int i=0, max=IJavaDocTagConstants.JAVADOC_IMMUTABLE_TAGS.length; i<max; i++) {
 			char[] tag = IJavaDocTagConstants.JAVADOC_IMMUTABLE_TAGS[i];
 			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
-				return JAVADOC_IMMUTABLE_TAGS_ID + i;
+				return (tagId | JAVADOC_IMMUTABLE_TAGS_ID) + i;
 			}
 		}
 		for (int i=0, max=IJavaDocTagConstants.JAVADOC_SEPARATOR_TAGS.length; i<max; i++) {
 			char[] tag = IJavaDocTagConstants.JAVADOC_SEPARATOR_TAGS[i];
 			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
-				return JAVADOC_SEPARATOR_TAGS_ID + i;
+				return (tagId | JAVADOC_SEPARATOR_TAGS_ID) + i;
 			}
 		}
 	}
@@ -193,7 +201,7 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 	    		// HTML tag opening
 				htmlTag = this.scanner.getCurrentIdentifierSource();
 				htmlIndex = getHtmlTagIndex(htmlTag);
-				if (htmlIndex == JAVADOC_TAGS_ID_MASK) return valid;
+				if (htmlIndex == JAVADOC_TAGS_ID_MASK) return false;
 				if ((htmlIndex & JAVADOC_TAGS_ID_MASK) > JAVADOC_SINGLE_TAGS_ID) {
 		    		if (this.htmlTagsPtr == -1 || !CharOperation.equals(this.htmlTags[this.htmlTagsPtr], htmlTag, false)) {
 						if (++this.htmlTagsPtr == 0) { // lazy initialization
@@ -214,15 +222,15 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 	    		htmlTag = this.htmlTags[this.htmlTagsPtr];
 	    		if ((token = readTokenAndConsume()) != TerminalTokens.TokenNameIdentifier) {
 	    			// not a closing html tag
-	    			return valid;
+	    			return false;
 	    		}
 				char[] identifier = this.scanner.getCurrentIdentifierSource();
 				htmlIndex = getHtmlTagIndex(identifier);
-				if (htmlIndex == JAVADOC_TAGS_ID_MASK) return valid;
+				if (htmlIndex == JAVADOC_TAGS_ID_MASK) return false;
 	    		while (!CharOperation.equals(htmlTag, identifier, false)) {
 	    			if (htmlTagsPtr <= 0) {
 	    				// consider the closing tag as invalid
-	    				return valid;
+	    				return false;
 	    			}
 	    			this.htmlTagsPtr--;
 		    		htmlTag = this.htmlTags[this.htmlTagsPtr];
@@ -232,11 +240,21 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 				closing = true;
 	    		break;
 	    	default:
-    			return valid;
+    			return false;
 	    }
 	    if ((token = readTokenAndConsume()) != TerminalTokens.TokenNameGREATER) {
-	    	// invalid syntax
-			return valid;
+	    	if ((htmlIndex & JAVADOC_SPECIAL_TAGS_ID) == JAVADOC_SPECIAL_TAGS_ID) {
+	    		// Special tags may have attributes, so consume tokens until the greater token is encountered
+	    		while (token != TerminalTokens.TokenNameGREATER) {
+	    			token = readTokenAndConsume();
+	    			if (token == TerminalTokens.TokenNameEOF) {
+	    				return false;
+	    			}
+	    		}
+	    	} else {
+		    	// invalid syntax
+				return false;
+	    	}
 	    }
 		if (this.lineStarted && this.textStart != -1 && this.textStart < endTextPosition) {
 			pushText(this.textStart, endTextPosition, -1, htmlPtr == -1 ? 0 : htmlPtr);
@@ -511,9 +529,7 @@ protected void updateDocComment() {
 	formatJavadoc.lineEnd = this.scanner.getLineNumber(this.javadocTextEnd);
 	FormatJavadocBlock firstBlock = formatJavadoc.getFirstBlock();
 	if (firstBlock != null) {
-		if (formatJavadoc.lineStart == firstBlock.lineStart) {
-			firstBlock.flags |= FormatJavadocBlock.ON_HEADER_LINE;
-		}
+		firstBlock.setHeaderLine(formatJavadoc.lineStart);
 	}
 	this.docComment = formatJavadoc;
 	if (DefaultCodeFormatter.DEBUG) {

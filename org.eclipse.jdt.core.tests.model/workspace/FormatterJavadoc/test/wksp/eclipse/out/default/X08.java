@@ -38,7 +38,7 @@ package test.wksp.eclipse;
  * <p>
  * If merging is allowed, the modification state of the compared constituents
  * must be tracked and the dirty state returned from method
- * <code>isSaveNeeded</code> . The value <code>true</code> triggers a subsequent
+ * <code>isSaveNeeded</code>. The value <code>true</code> triggers a subsequent
  * call to <code>save</code> where the modified resources can be saved.
  * <p>
  * The most important part of this implementation is the setup of the

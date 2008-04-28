@@ -173,11 +173,39 @@ public boolean isImmutableHtmlTag() {
 	
 }
 
+/**
+ * Returns whether the text at the given separator index position is after a
+ * separator tag or not.
+ * 
+ * @return <code>true</code> if the text is after a separator tag,
+ *		<code>false</code> otherwise or if the given index is out the range of
+ *		the text separators.
+ */
+public boolean isTextAfterHtmlSeparatorTag(int separatorIndex) {
+	int ptr = separatorIndex;
+	if (ptr > this.separatorsPtr) return false;
+	int tagIndex = this.htmlIndexes[ptr] & JAVADOC_TAGS_ID_MASK;
+	return tagIndex != -1 && tagIndex == JAVADOC_SEPARATOR_TAGS_ID;
+	
+}
+
 /* (non-Javadoc)
  * @see org.eclipse.jdt.internal.formatter.FormatJavadocNode#isText()
  */
 public boolean isText() {
 	return true;
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.formatter.FormatJavadocNode#setHeaderLine(int)
+ */
+void setHeaderLine(int javadocLineStart) {
+	for (int i=0; i<this.htmlNodesPtr; i++) {
+		FormatJavadocNode node = this.htmlNodes[i];
+		if (!node.isText()) {
+			((FormatJavadocBlock) node).setHeaderLine(javadocLineStart);
+		}
+	}
 }
 
 protected void toString(StringBuffer buffer) {

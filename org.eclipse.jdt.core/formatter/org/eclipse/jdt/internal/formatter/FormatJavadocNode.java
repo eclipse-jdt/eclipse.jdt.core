@@ -79,4 +79,8 @@ public void toStringDebug(StringBuffer buffer, char[] source) {
 	buffer.append(' ');
 }
 
+void setHeaderLine(int javadocLineStart) {
+	// do nothing
+}
+
 }
