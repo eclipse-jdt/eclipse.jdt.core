@@ -63,8 +63,9 @@ public boolean encloses(String resourcePathString) {
  * @see org.eclipse.jdt.core.search.IJavaSearchScope#enclosingProjectsAndJars()
  */
 public IPath[] enclosingProjectsAndJars() {
-	if (this.enclosingPaths != null) {
-		return this.enclosingPaths;
+	IPath[] result = this.enclosingPaths;
+	if (result != null) {
+		return result;
 	}
 	long start = BasicSearchEngine.VERBOSE ? System.currentTimeMillis() : -1;
 	try {
@@ -90,7 +91,7 @@ public IPath[] enclosingProjectsAndJars() {
 				}
 			}
 		}
-		IPath[] result = new IPath[paths.size()];
+		result = new IPath[paths.size()];
 		paths.toArray(result);
 		return this.enclosingPaths = result;
 	} catch (JavaModelException e) {
@@ -99,7 +100,7 @@ public IPath[] enclosingProjectsAndJars() {
 	} finally {
 		if (BasicSearchEngine.VERBOSE) {
 			long time = System.currentTimeMillis() - start;
-			int length = this.enclosingPaths == null ? 0 : this.enclosingPaths.length;
+			int length = result == null ? 0 : result.length;
 			Util.verbose("JavaWorkspaceScope.enclosingProjectsAndJars: "+length+" paths computed in "+time+"ms."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 	}
