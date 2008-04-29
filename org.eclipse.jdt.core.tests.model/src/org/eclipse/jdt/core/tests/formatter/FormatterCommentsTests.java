@@ -765,6 +765,7 @@ public void testLineComments06() throws JavaModelException {
 /*
  * Test formatter block lines
  */
+//static { TESTS_PREFIX = "testBlockComments"; }
 public void testBlockComments01() throws JavaModelException {
 	formatUnit("comments.block", "X01.java");
 }
@@ -834,6 +835,12 @@ public void testBlockComments15() throws JavaModelException {
 }
 public void testBlockComments16() throws JavaModelException {
 	formatUnit("comments.block", "X16.java");
+}
+public void testBlockComments17() throws JavaModelException {
+	formatUnit("comments.block", "X17.java");
+}
+public void testBlockComments18() throws JavaModelException {
+	formatUnit("comments.block", "X18.java");
 }
 
 /*

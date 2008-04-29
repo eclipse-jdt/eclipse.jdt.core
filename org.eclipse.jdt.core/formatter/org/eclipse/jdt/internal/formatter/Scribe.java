@@ -1164,7 +1164,6 @@ public class Scribe implements IJavaDocTagConstants {
 		boolean hasTokens = false;
 		boolean bufferHasTokens = false;
 		int hasTextOnFirstLine = 0;
-		boolean textOnFirstLine = false;
 		boolean firstWord = true;
 		boolean clearBlankLines = this.formatter.preferences.comment_clear_blank_lines_in_block_comment;
 		int scannerLine = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, 0, this.maxLines);
@@ -1202,25 +1201,31 @@ public class Scribe implements IJavaDocTagConstants {
 				// Need to retrieve correct position
 				this.scanner.resetTo(this.scanner.startPosition, currentTokenEndPosition-1);
 				this.scanner.getNextChar();
-				previousToken = 1;
+				previousToken = 2000;
 				newLine = false;
 				continue;
 			}
 			
 			// Look at specific tokens
-    		boolean insertSpace = (previousToken == TerminalTokens.TokenNameWHITESPACE || newLine || previousToken == -1) && (!firstWord || !hasTokens);
+    		boolean insertSpace = (previousToken == TerminalTokens.TokenNameWHITESPACE) && (!firstWord || !hasTokens);
 			switch (token) {
 				case TerminalTokens.TokenNameWHITESPACE:
 					if (tokensBuffer.length() > 0) {
+						if (hasTextOnFirstLine == 1 && multiLines) {
+							printBlockCommentHeaderLine(buffer);
+							hasTextOnFirstLine = -1;
+						}
 						buffer.append(tokensBuffer);
 						this.column += tokensBuffer.length();
 						tokensBuffer.setLength(0);
 						bufferHasTokens = true;
-						if (!textOnFirstLine && multiLines) {
-							textOnFirstLine = true;
-						}
 					}
-					previousToken = token;
+					if (previousToken == -1) {
+						// do not remember the first whitespace
+						previousToken = -2;
+					} else {
+						previousToken = token;
+					}
 					lineNumber = Util.getLineNumber(this.scanner.getCurrentTokenEndPosition(), this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 					if (lineNumber > scannerLine) {
 						hasMultiLines = true;
@@ -1264,6 +1269,7 @@ public class Scribe implements IJavaDocTagConstants {
 			// Look at gap and insert corresponding lines if necessary
 			int linesGap;
 			int max;
+			lineNumber = Util.getLineNumber(this.scanner.getCurrentTokenEndPosition(), this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 			if (lastTextLine == -1) {
 				linesGap = lineNumber - firstLine;
 				max = 0;
@@ -1287,6 +1293,10 @@ public class Scribe implements IJavaDocTagConstants {
 				for (int i=0; i<linesGap; i++) {
 					// Add remaining buffered tokens
 					if (tokensBuffer.length() > 0) {
+						if (hasTextOnFirstLine == 1) {
+							printBlockCommentHeaderLine(buffer);
+							hasTextOnFirstLine = -1;
+						}
 						buffer.append(tokensBuffer);
 						tokensBuffer.setLength(0);
 						bufferHasTokens = true;
@@ -1301,46 +1311,42 @@ public class Scribe implements IJavaDocTagConstants {
 				}
 				insertSpace = insertSpace && linesGap == 0;
 			}
-			scannerLine = lineNumber;
-			lastTextLine = lineNumber;
 
 			// Increment column
 			int tokenStart = this.scanner.getCurrentTokenStartPosition();
     		int tokenLength = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - tokenStart;
     		hasTokens = true;
-    		if (hasTextOnFirstLine == 0 && scannerLine == firstLine) {
-    			hasTextOnFirstLine = 1;
-    			textOnFirstLine = true;
+    		if (hasTextOnFirstLine == 0) {
+    			if (firstLine == lineNumber) {
+	    			hasTextOnFirstLine = 1;
+	    			this.column++; // include first space
+	    		} else {
+	    			hasTextOnFirstLine = -1;
+	    		}
     		}
     		int lastColumn = this.column + tokensBuffer.length() + tokenLength;
-    		if (previousToken == -1 || insertSpace) lastColumn++;
+    		if (insertSpace) lastColumn++;
 
     		// Append next token inserting a new line if max line is reached
 			if (!firstWord && lastColumn > maxColumn) {
-				boolean alreadyHasNewLine = !bufferHasTokens && tokensBuffer.length() > 0 && multiLines;
 		    	String tokensString = tokensBuffer.toString().trim();
+				// not enough space on the line
+				if (hasTextOnFirstLine == 1) {
+					printBlockCommentHeaderLine(buffer);
+				}
 				if ((this.indentationLevel+tokensString.length()+tokenLength) > maxColumn) {
 					// there won't be enough room even if we break the line before the buffered tokens
 					// So add the buffered tokens now
-					if (buffer.length() == 0) {
-						buffer.append(' ');
-						this.column++;
-					}
 					buffer.append(tokensString);
 					this.column += tokensString.length();
 					tokensBuffer.setLength(0);
-					alreadyHasNewLine = false;
 				}
-				// not enough space on the line
-				if (!alreadyHasNewLine) {
+				if (bufferHasTokens) {
 			    	buffer.append(this.lineSeparator);
 			    	this.column = 1;
 			    	printIndentationIfNecessary(buffer);
 		    		buffer.append(BLOCK_LINE_PREFIX);
 			    	this.column += BLOCK_LINE_PREFIX_LENGTH;
-					if (!bufferHasTokens) {
-						textOnFirstLine = false;
-					}
 				}
 		    	if (tokensBuffer.length() > 0) {
 					buffer.append(tokensString);
@@ -1351,6 +1357,7 @@ public class Scribe implements IJavaDocTagConstants {
 				bufferHasTokens = true;
 				this.column += tokenLength;
 				multiLines = true;
+				hasTextOnFirstLine = -1;
 			} else {
 				// append token to the line
 				if (insertSpace)  {
@@ -1361,24 +1368,24 @@ public class Scribe implements IJavaDocTagConstants {
 			previousToken = token;
 			newLine = false;
     		firstWord = false;
+			scannerLine = lineNumber;
+			lastTextLine = lineNumber;
 		}
 
 		// Replace block comment text
 		if (hasTokens || multiLines) {
 			StringBuffer replacement = new StringBuffer(BLOCK_HEADER);
-			if ((hasMultiLines || multiLines) && hasTextOnFirstLine == 1 && textOnFirstLine) {
-				int col = this.column;
-				replacement.append(this.lineSeparator);
-				this.column = 1;
-				printIndentationIfNecessary(replacement);
-				if (buffer.charAt(0) == ' ') {
-					replacement.append(' ');
-					replacement.append('*');
-				} else {
+			if (hasTextOnFirstLine == 1) {
+				if ((hasMultiLines || multiLines)) {
+					int col = this.column;
+					replacement.append(this.lineSeparator);
+					this.column = 1;
+					printIndentationIfNecessary(replacement);
 					replacement.append(BLOCK_LINE_PREFIX);
-					this.column++;
+			    	this.column = col;
+				} else {
+					replacement.append(' ');
 				}
-		    	this.column = col;
 			}
 			replacement.append(buffer);
 			addReplaceEdit(currentTokenStartPosition, currentTokenEndPosition-1, replacement.toString());
@@ -1392,6 +1399,24 @@ public class Scribe implements IJavaDocTagConstants {
 		this.scanner.resetTo(currentTokenEndPosition, this.scannerEndPosition - 1);
 		this.scanner.skipComments = false;
 	}
+
+	private void printBlockCommentHeaderLine(StringBuffer buffer) {
+	    if (buffer.length() == 0) {
+	    	buffer.append(this.lineSeparator);
+	    	this.column = 1;
+	    	printIndentationIfNecessary(buffer);
+	    	buffer.append(BLOCK_LINE_PREFIX);
+	    	this.column += BLOCK_LINE_PREFIX_LENGTH;
+	    } else {
+	    	StringBuffer insert = new StringBuffer();
+	    	insert.append(this.lineSeparator);
+	    	this.column = 1;
+	    	printIndentationIfNecessary(insert);
+	    	insert.append(BLOCK_LINE_PREFIX);
+	    	this.column += BLOCK_LINE_PREFIX_LENGTH;
+	    	buffer.insert(0, insert.toString());
+	    }
+    }
 
 	public void printEndOfCompilationUnit() {
 		try {

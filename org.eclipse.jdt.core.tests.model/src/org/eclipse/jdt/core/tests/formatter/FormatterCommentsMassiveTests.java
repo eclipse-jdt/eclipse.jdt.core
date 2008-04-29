@@ -124,16 +124,17 @@ import org.eclipse.text.edits.TextEdit;
  * <ul>
  * 	<li>3.0 performance workspace (9951 units):<ul>
  * 		<li>0 error</li>
- * 		<li>16 failures</li>
+ * 		<li>14 failures</li>
  * 		<li>8 failures due to old formatter</li>
- * 		<li>719 files have different lines leading spaces</li>
- * 		<li>15 files have different spaces</li>
+ * 		<li>721 files have different lines leading spaces</li>
+ * 		<li>14 files have different spaces</li>
  *		</ul></li>
- *		<li>ganymede workspace (25819 units):<ul>
+ *		<li>ganymede M6a workspace (26336 units):<ul>
  * 		<li>0 error</li>
- * 		<li>64 files has still different output while reformatting!</li>
- * 		<li>1366 files have different line leading spaces when reformatting!</li>
- * 		<li>11 files have different spaces when reformatting!</li>
+ * 		<li>49 files has still different output while reformatting!</li>
+ * 		<li>3 failures due to old formatter</li>
+ * 		<li>1470 files have different line leading spaces when reformatting!</li>
+ * 		<li>21 files have different spaces when reformatting!</li>
  *		</ul></li>
  * </ul>
  */
