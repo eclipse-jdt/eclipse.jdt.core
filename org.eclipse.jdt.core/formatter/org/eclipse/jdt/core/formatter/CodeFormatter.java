@@ -26,8 +26,8 @@ public abstract class CodeFormatter {
 	 * Unknown kind
 	 * 
 	 * Note that since 3.4, the {@link #F_INCLUDE_COMMENTS} flag can be added
-	 * to this constant in order to get the comments formatted if a
-	 * compilation unit is processed.
+	 * to this constant in order to get the comments formatted if a compilation unit
+	 * is processed.
 	 */
 	public static final int K_UNKNOWN = 0x00;
 
