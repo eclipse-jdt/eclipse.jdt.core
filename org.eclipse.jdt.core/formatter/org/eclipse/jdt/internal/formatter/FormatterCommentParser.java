@@ -227,9 +227,11 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 				char[] identifier = this.scanner.getCurrentIdentifierSource();
 				htmlIndex = getHtmlTagIndex(identifier);
 				if (htmlIndex == JAVADOC_TAGS_ID_MASK) return false;
+				int ptr = this.htmlTagsPtr;
 	    		while (!CharOperation.equals(htmlTag, identifier, false)) {
 	    			if (htmlTagsPtr <= 0) {
 	    				// consider the closing tag as invalid
+	    				this.htmlTagsPtr = ptr;
 	    				return false;
 	    			}
 	    			this.htmlTagsPtr--;

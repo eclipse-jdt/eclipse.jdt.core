@@ -941,6 +941,9 @@ public void testWkspEclipse23() throws JavaModelException {
 public void testWkspEclipse24() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X24.java");
 }
+public void testWkspEclipse25() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X25.java");
+}
 // Ganymede
 // TODO pass this test
 public void _testWkspGanymede01() throws JavaModelException {
