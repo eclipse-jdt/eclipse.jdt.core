@@ -7047,7 +7047,7 @@ public class JavadocBugsTest extends JavadocTest {
 	 * @bug 227730: [Javadoc] Missing description should not be warned for @inheritDoc
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=227730"
 	 */
-	public void testBug227730() {
+	public void testBug227730a() {
 		String[] units = new String[] {
 			"pkg/X.java",
 			"package pkg;\n" +
@@ -7055,6 +7055,25 @@ public class JavadocBugsTest extends JavadocTest {
 			"public class X extends Object {\n" +
 			"	/**\n" +
 			"	 * {@inheritDoc}\n" +
+			"	 */\n" +
+			"	public String toString() { \n" +
+			"		return \"foo\";\n" +
+			"	}\n" +
+			"}\n"
+		};
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+		runConformTest(units);
+	}
+	
+	public void testBug227730b() {
+		String[] units = new String[] {
+			"pkg/X.java",
+			"package pkg;\n" +
+			"\n" +
+			"public class X extends Object {\n" +
+			"	/**\n" +
+			"	 * {@docRoot}\n" +
 			"	 */\n" +
 			"	public String toString() { \n" +
 			"		return \"foo\";\n" +

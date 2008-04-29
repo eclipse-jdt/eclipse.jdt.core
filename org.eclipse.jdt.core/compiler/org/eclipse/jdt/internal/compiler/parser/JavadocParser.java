@@ -515,6 +515,12 @@ public class JavadocParser extends AbstractCommentParser {
 							this.deprecated = true;
 							valid = true;
 							this.tagValue = TAG_DEPRECATED_VALUE;
+						} else if (length == TAG_DOC_ROOT_LENGTH && CharOperation.equals(TAG_DOC_ROOT, tagName)) {
+							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=227730
+							// identify @docRoot tag as a base tag that does not expect any argument
+							valid = true;
+							this.tagValue = TAG_DOC_ROOT_VALUE;
+							alreadyParsedTag = true;
 						}
 						break;
 					case 'e':
@@ -534,10 +540,11 @@ public class JavadocParser extends AbstractCommentParser {
 							if (this.astPtr==-1) {
 								this.inheritedPositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
 							}
-							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=227730
-							// no argument expected for @inheritedDoc
+							valid = true;
 							this.tagValue = TAG_INHERITDOC_VALUE;
-							return true;
+							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=227730
+							// no argument expected for @inheritedDoc tag
+							alreadyParsedTag = true;
 						}
 						break;
 					case 'l':
