@@ -601,6 +601,49 @@ public void testExternalFolder2() throws CoreException {
 }
 
 /*
+ * Ensures that search all type names returns the types in an external library folder
+ * when using a workspace scope
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=229304 )
+ */
+public void testExternalFolder3() throws CoreException {
+	try {
+		createExternalFolder("externalLib");
+		Util.compile(
+			new String[] {
+				"p/ExternalType229304.java", 
+				"package p;\n" +
+				"public class ExternalType229304 {\n" +
+				"}"
+			},
+			new HashMap(),
+			getExternalResourcePath("externalLib")
+		);
+		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
+		
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			"ExternalType229304".toCharArray(),
+			SearchPattern.R_EXACT_MATCH,
+			TYPE,
+			SearchEngine.createWorkspaceScope(),
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"ExternalType229304 (not open) [in ExternalType229304.class [in p [in "+ getExternalPath() + "externalLib]]]",
+			collector
+		);
+	} finally {
+		deleteProject("P");
+		deleteExternalResource("externalLib");
+	}
+
+}
+
+/*
  * Ensures that a method declaration in an external ZIP archive can be found
  */
 public void testZIPArchive1() throws Exception {

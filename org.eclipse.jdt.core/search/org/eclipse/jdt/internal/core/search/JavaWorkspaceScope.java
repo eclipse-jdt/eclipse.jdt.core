@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -25,6 +26,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.core.DeltaProcessor;
+import org.eclipse.jdt.internal.core.ExternalFoldersManager;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -130,10 +132,16 @@ public IPackageFragmentRoot packageFragmentRoot(String resourcePathString, int j
 		rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(path);
 	} else {
 		IPath path = new Path(resourcePathString);
-		rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(path);
-		while (rootInfo == null && path.segmentCount() > 0) {
-			path = path.removeLastSegments(1);
+		if (ExternalFoldersManager.isInternalPathForExternalFolder(path)) {
+			IResource resource = JavaModel.getWorkspaceTarget(path.uptoSegment(2/*linked folders for external folders are always of size 2*/));
+			if (resource != null)
+				rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(resource.getLocation());
+		} else {
 			rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(path);
+			while (rootInfo == null && path.segmentCount() > 0) {
+				path = path.removeLastSegments(1);
+				rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(path);
+			}
 		}
 	}
 	if (rootInfo == null)
