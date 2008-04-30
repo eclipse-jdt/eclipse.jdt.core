@@ -536,9 +536,6 @@ public void testBug68993() throws CoreException, BackingStoreException {
 			new String[] {}, // projects
 			"");
 
-		// Store project eclipse prefs
-		IEclipsePreferences eclipsePreferences = projectA.getEclipsePreferences();
-
 		// set all project options as custom ones: this is what happens when user select
 		// "Use project settings" in project 'Java Compiler' preferences page...
 		Hashtable options = new Hashtable(projectA.getOptions(true));
@@ -551,7 +548,6 @@ public void testBug68993() throws CoreException, BackingStoreException {
 		projectA.setOptions(options);
 
 		// verify that project preferences have been reset
-		assertFalse("projA: Preferences should have been reset", eclipsePreferences == projectA.getEclipsePreferences());
 		assertEquals("projA: We should not have any custom options!", 0, projectA.getEclipsePreferences().keys().length);
 	} finally {
 		this.deleteProject("A");
