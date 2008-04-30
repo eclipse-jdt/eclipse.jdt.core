@@ -46,8 +46,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 286 };
-//		TESTS_RANGE = new int[] { 277, -1 };
+//		TESTS_NUMBERS = new int[] { 287 };
+//		TESTS_RANGE = new int[] { 287, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -6330,30 +6330,21 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0208() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"@Override(x= 1)\n" +
+			"/*start*/@Override(x= 1)/*end*/\n" +
 			"public class X { }";
-		ASTNode node = buildAST(
+		NormalAnnotation normalAnnotation = (NormalAnnotation) buildAST(
 				contents,
 				this.workingCopy,
+				false,
+				true,
 				false);
-		assertNotNull("No node", node);
-		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-		CompilationUnit compilationUnit = (CompilationUnit) node;
-		String problems =
-			"The annotation @Override is disallowed for this location\n" +
-			"The attribute x is undefined for the annotation type Override";
-		assertProblemsSize(compilationUnit, 2, problems);
-		node = getASTNode(compilationUnit, 0);
-		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
-		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
-		List modifiers = typeDeclaration.modifiers();
-		assertEquals("Wrong size", 2, modifiers.size());
-		assertTrue("Wrong type", modifiers.get(0) instanceof NormalAnnotation);
-		NormalAnnotation normalAnnotation = (NormalAnnotation) modifiers.get(0);
 		IAnnotationBinding annotationBinding = normalAnnotation.resolveAnnotationBinding();
 		IMemberValuePairBinding[] pairs = annotationBinding.getDeclaredMemberValuePairs();
-		assertEquals("Wrong size", 1, pairs.length);
-		assertNotNull("Should not be null", pairs[0].getValue());
+		assertEquals("Wrong size", 0, pairs.length);
+		List values = normalAnnotation.values();
+		assertEquals("Wrong size", 1, values.size());
+		MemberValuePair pair = (MemberValuePair) values.get(0);
+		assertNotNull("no value", pair.getValue());
 	}
 
 	public void test0209() throws JavaModelException {
@@ -9612,5 +9603,201 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong type", "Integer", typeBinding2.getName());
 		assertTrue("Not assignmentCompatible: Integer -> int", typeBinding2.isAssignmentCompatible(typeBinding));
 		assertTrue("Not assignmentCompatible: int -> Integer", typeBinding.isAssignmentCompatible(typeBinding2));
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=228651
+	 */
+	public void test0287() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0287/A.java", true/*resolve*/);
+		MemberValuePair pair = (MemberValuePair) buildAST(
+			"package test0287;\n" +
+			"@ABC (/*start*/name1=\"\"/*end*/)\n" + 
+			"public class A {}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		IMemberValuePairBinding resolveMemberValuePairBinding = pair.resolveMemberValuePairBinding();
+		assertNull("Got a binding", resolveMemberValuePairBinding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=228651
+	 */
+	public void test0288() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0288/A.java", true/*resolve*/);
+		MemberValuePair pair = (MemberValuePair) buildAST(
+			"package test0288;\n" +
+			"@ABC (/*start*/name1=\"\"/*end*/)\n" + 
+			"public class A {}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			false);
+		IMemberValuePairBinding resolveMemberValuePairBinding = pair.resolveMemberValuePairBinding();
+		assertNull("Got a binding", resolveMemberValuePairBinding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=228651
+	 */
+	public void test0289() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0289/A.java", true/*resolve*/);
+		NormalAnnotation annotation = (NormalAnnotation) buildAST(
+			"package test0289;\n" +
+			"/*start*/@ABC (name1=\"\")/*end*/\n" + 
+			"public class A {}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			false);
+		IAnnotationBinding resolveAnnotationBinding = annotation.resolveAnnotationBinding();
+		assertNull("No binding", resolveAnnotationBinding);
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=228651
+	 */
+	public void test0290() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0290/A.java", true/*resolve*/);
+		NormalAnnotation annotation = (NormalAnnotation) buildAST(
+			"package test0290;\n" +
+			"/*start*/@ABC (name1=\"\")/*end*/\n" + 
+			"public class A {}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		IAnnotationBinding resolveAnnotationBinding = annotation.resolveAnnotationBinding();
+		assertTrue("Not recovered", resolveAnnotationBinding.isRecovered());
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=228651
+	 */
+	public void test0291() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0291/A.java", true/*resolve*/);
+		NormalAnnotation annotation = (NormalAnnotation) buildAST(
+			"package test0291;\n" +
+			"/*start*/@ABC (name1=\"\")/*end*/\n" + 
+			"public class A {}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		IAnnotationBinding resolveAnnotationBinding = annotation.resolveAnnotationBinding();
+		assertEquals("Wrong size", 0, resolveAnnotationBinding.getAllMemberValuePairs().length);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=228651
+	 */
+	public void test0292() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0292/A.java", true/*resolve*/);
+		NormalAnnotation annotation = (NormalAnnotation) buildAST(
+			"package test0292;\n" +
+			"@interface ABC {\n" +
+			"	String name1() default \"\";\n" +
+			"}\n" +
+			"/*start*/@ABC(name1=\"\", id=0)/*end*/\n" + 
+			"public class A {}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		IAnnotationBinding resolveAnnotationBinding = annotation.resolveAnnotationBinding();
+		assertFalse("Recovered", resolveAnnotationBinding.isRecovered());
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=228651
+	 */
+	public void test0293() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0293/A.java", true/*resolve*/);
+		NormalAnnotation annotation = (NormalAnnotation) buildAST(
+			"package test0293;\n" +
+			"@interface ABC {\n" +
+			"	String name1() default \"\";\n" +
+			"}\n" +
+			"/*start*/@ABC(name1=\"\", id=0)/*end*/\n" + 
+			"public class A {}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		IAnnotationBinding resolveAnnotationBinding = annotation.resolveAnnotationBinding();
+		assertEquals("Wrong size", 1, resolveAnnotationBinding.getAllMemberValuePairs().length);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=228651
+	 */
+	public void test0294() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0294/A.java", true/*resolve*/);
+		NormalAnnotation annotation = (NormalAnnotation) buildAST(
+			"package test0294;\n" +
+			"@interface ABC {\n" +
+			"	String name1() default \"\";\n" +
+			"}\n" +
+			"/*start*/@ABC(name1=\"\", id=0)/*end*/\n" + 
+			"public class A {}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		IAnnotationBinding resolveAnnotationBinding = annotation.resolveAnnotationBinding();
+		assertEquals("Wrong size", 1, resolveAnnotationBinding.getDeclaredMemberValuePairs().length);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=228651
+	 */
+	public void test0295() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0295/A.java", true/*resolve*/);
+		NormalAnnotation annotation = (NormalAnnotation) buildAST(
+			"package test0295;\n" +
+			"@interface ABC {\n" +
+			"	String name1() default \"\";\n" +
+			"}\n" +
+			"/*start*/@ABC(id=0)/*end*/\n" + 
+			"public class A {}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		IAnnotationBinding resolveAnnotationBinding = annotation.resolveAnnotationBinding();
+		assertEquals("Wrong size", 1, resolveAnnotationBinding.getAllMemberValuePairs().length);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=228651
+	 */
+	public void test0296() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0296/A.java", true/*resolve*/);
+		NormalAnnotation annotation = (NormalAnnotation) buildAST(
+			"package test0296;\n" +
+			"@interface ABC {\n" +
+			"	String name1() default \"\";\n" +
+			"}\n" +
+			"/*start*/@ABC(id=0)/*end*/\n" + 
+			"public class A {}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			false);
+		IAnnotationBinding resolveAnnotationBinding = annotation.resolveAnnotationBinding();
+		assertEquals("Wrong size", 1, resolveAnnotationBinding.getAllMemberValuePairs().length);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=228651
+	 */
+	public void test0297() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0297/A.java", true/*resolve*/);
+		NormalAnnotation annotation = (NormalAnnotation) buildAST(
+			"package test0297;\n" +
+			"@interface ABC {\n" +
+			"	String name1() default \"\";\n" +
+			"}\n" +
+			"/*start*/@ABC(name1=\"\", id=0)/*end*/\n" + 
+			"public class A {}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			false);
+		IAnnotationBinding resolveAnnotationBinding = annotation.resolveAnnotationBinding();
+		assertEquals("Wrong size", 1, resolveAnnotationBinding.getDeclaredMemberValuePairs().length);
 	}
 }

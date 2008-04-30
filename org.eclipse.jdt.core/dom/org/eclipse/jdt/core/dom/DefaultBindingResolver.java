@@ -246,7 +246,7 @@ class DefaultBindingResolver extends BindingResolver {
 	}
 
 	synchronized IMemberValuePairBinding getMemberValuePairBinding(ElementValuePair valuePair) {
-		if (valuePair == null) return null;
+		if (valuePair == null || valuePair.binding == null) return null;
 		IMemberValuePairBinding binding =
 			(IMemberValuePairBinding) this.bindingTables.compilerBindingsToASTBindings.get(valuePair);
 		if (binding != null)
@@ -480,6 +480,12 @@ class DefaultBindingResolver extends BindingResolver {
 
 	synchronized IAnnotationBinding getAnnotationInstance(org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalInstance) {
 		if (internalInstance == null) return null;
+		ReferenceBinding annotationType = internalInstance.getAnnotationType();
+		if (annotationType == null || ((annotationType.tagBits & TagBits.HasMissingType) != 0)) {
+			if (!this.isRecoveringBindings) {
+				return null;
+			}
+		}
 		IAnnotationBinding domInstance =
 			(IAnnotationBinding) this.bindingTables.compilerBindingsToASTBindings.get(internalInstance);
 		if (domInstance != null)

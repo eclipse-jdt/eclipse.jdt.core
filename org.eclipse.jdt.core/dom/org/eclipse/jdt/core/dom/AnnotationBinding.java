@@ -49,18 +49,31 @@ class AnnotationBinding implements IAnnotationBinding {
 	}
 	
 	public IMemberValuePairBinding[] getDeclaredMemberValuePairs() {
+		ReferenceBinding typeBinding = this.binding.getAnnotationType();
+		if (typeBinding == null || ((typeBinding.tagBits & TagBits.HasMissingType) != 0)) {
+			return MemberValuePairBinding.NoPair;
+		}
 		ElementValuePair[] internalPairs = this.binding.getElementValuePairs();
 		int length = internalPairs.length;
 		IMemberValuePairBinding[] pairs = length == 0 ? MemberValuePairBinding.NoPair : new MemberValuePairBinding[length];
-		for (int i = 0; i < length; i++)
-			pairs[i] = this.bindingResolver.getMemberValuePairBinding(internalPairs[i]);
+		int counter = 0;
+		for (int i = 0; i < length; i++) {
+			ElementValuePair valuePair = internalPairs[i];
+			if (valuePair.binding == null) continue;
+			pairs[counter++] = this.bindingResolver.getMemberValuePairBinding(valuePair);
+		}
+		if (counter == 0) return MemberValuePairBinding.NoPair;
+		if (counter != length) {
+			// resize
+			System.arraycopy(pairs, 0, (pairs = new MemberValuePairBinding[counter]), 0, counter);
+		}
 		return pairs;
 	}
 
 	public IMemberValuePairBinding[] getAllMemberValuePairs() {
 		IMemberValuePairBinding[] pairs = getDeclaredMemberValuePairs();
 		ReferenceBinding typeBinding = this.binding.getAnnotationType();
-		if (typeBinding == null) return pairs;
+		if (typeBinding == null || ((typeBinding.tagBits & TagBits.HasMissingType) != 0)) return pairs;
 		MethodBinding[] methods = typeBinding.availableMethods(); // resilience
 		int methodLength = methods == null ? 0 : methods.length;
 		if (methodLength == 0) return pairs;
@@ -70,8 +83,11 @@ class AnnotationBinding implements IAnnotationBinding {
 			return pairs;
 
 		HashtableOfObject table = new HashtableOfObject(declaredLength);
-		for (int i = 0; i < declaredLength; i++)
-			table.put(((MemberValuePairBinding) pairs[i]).internalName(), pairs[i]);
+		for (int i = 0; i < declaredLength; i++) {
+			char[] internalName = ((MemberValuePairBinding) pairs[i]).internalName();
+			if (internalName == null) continue;
+			table.put(internalName, pairs[i]);
+		}
 
 		// handle case of more methods than declared members
 		IMemberValuePairBinding[] allPairs = new  IMemberValuePairBinding[methodLength];
