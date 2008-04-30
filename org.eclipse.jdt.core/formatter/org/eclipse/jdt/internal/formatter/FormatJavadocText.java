@@ -219,7 +219,28 @@ protected void toString(StringBuffer buffer) {
 	buffer.append(this.htmlNodesPtr+1).append(" html tags, "); //$NON-NLS-1$
 	buffer.append(this.depth).append(" depth, "); //$NON-NLS-1$
 	buffer.append(this.linesBefore).append(" before, "); //$NON-NLS-1$
-	buffer.append(this.htmlTagIndex).append(" tag index)"); //$NON-NLS-1$
+	String tagID = "no"; //$NON-NLS-1$
+	switch (getHtmlTagID()) {
+		case JAVADOC_TAGS_ID_MASK:
+			tagID = "mask"; //$NON-NLS-1$
+			break;
+		case JAVADOC_SINGLE_BREAK_TAG_ID:
+			tagID = "single break"; //$NON-NLS-1$
+			break;
+		case JAVADOC_CODE_TAGS_ID:
+			tagID = "code"; //$NON-NLS-1$
+			break;
+		case JAVADOC_BREAK_TAGS_ID:
+			tagID = "break"; //$NON-NLS-1$
+			break;
+		case JAVADOC_IMMUTABLE_TAGS_ID:
+			tagID = "immutable"; //$NON-NLS-1$
+			break;
+		case JAVADOC_SEPARATOR_TAGS_ID:
+			tagID = "separator"; //$NON-NLS-1$
+			break;
+	}
+	buffer.append(tagID).append(" tag id)"); //$NON-NLS-1$
 	buffer.append('\n');
 }
 

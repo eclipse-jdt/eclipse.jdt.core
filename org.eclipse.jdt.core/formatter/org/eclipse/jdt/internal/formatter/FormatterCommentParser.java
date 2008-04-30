@@ -125,8 +125,8 @@ private int getHtmlTagIndex(char[] htmlTag) {
 	int length = htmlTag == null ? 0 : htmlTag.length;
 	int tagId = 0;
 	if (length > 0) {
-		for (int i=0, max=IJavaDocTagConstants.JAVADOC_SPECIAL_TAGS.length; i<max; i++) {
-			char[] tag = IJavaDocTagConstants.JAVADOC_SPECIAL_TAGS[i];
+		for (int i=0, max=JAVADOC_SPECIAL_TAGS.length; i<max; i++) {
+			char[] tag = JAVADOC_SPECIAL_TAGS[i];
 			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
 				tagId = JAVADOC_SPECIAL_TAGS_ID;
 				break;
@@ -139,25 +139,25 @@ private int getHtmlTagIndex(char[] htmlTag) {
 			}
 		}
 		for (int i=0, max=JAVADOC_CODE_TAGS.length; i<max; i++) {
-			char[] tag = IJavaDocTagConstants.JAVADOC_CODE_TAGS[i];
+			char[] tag = JAVADOC_CODE_TAGS[i];
 			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
 				return (tagId | JAVADOC_CODE_TAGS_ID) + i;
 			}
 		}
-		for (int i=0, max=IJavaDocTagConstants.JAVADOC_BREAK_TAGS.length; i<max; i++) {
-			char[] tag = IJavaDocTagConstants.JAVADOC_BREAK_TAGS[i];
+		for (int i=0, max=JAVADOC_BREAK_TAGS.length; i<max; i++) {
+			char[] tag = JAVADOC_BREAK_TAGS[i];
 			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
 				return (tagId | JAVADOC_BREAK_TAGS_ID) + i;
 			}
 		}
-		for (int i=0, max=IJavaDocTagConstants.JAVADOC_IMMUTABLE_TAGS.length; i<max; i++) {
-			char[] tag = IJavaDocTagConstants.JAVADOC_IMMUTABLE_TAGS[i];
+		for (int i=0, max=JAVADOC_IMMUTABLE_TAGS.length; i<max; i++) {
+			char[] tag = JAVADOC_IMMUTABLE_TAGS[i];
 			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
 				return (tagId | JAVADOC_IMMUTABLE_TAGS_ID) + i;
 			}
 		}
-		for (int i=0, max=IJavaDocTagConstants.JAVADOC_SEPARATOR_TAGS.length; i<max; i++) {
-			char[] tag = IJavaDocTagConstants.JAVADOC_SEPARATOR_TAGS[i];
+		for (int i=0, max=JAVADOC_SEPARATOR_TAGS.length; i<max; i++) {
+			char[] tag = JAVADOC_SEPARATOR_TAGS[i];
 			if (length == tag.length && CharOperation.equals(htmlTag, tag, false)) {
 				return (tagId | JAVADOC_SEPARATOR_TAGS_ID) + i;
 			}
@@ -202,6 +202,28 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 				htmlTag = this.scanner.getCurrentIdentifierSource();
 				htmlIndex = getHtmlTagIndex(htmlTag);
 				if (htmlIndex == JAVADOC_TAGS_ID_MASK) return false;
+				if (htmlPtr >= 0) {
+		    		int lastHtmlTagIndex = getHtmlTagIndex(this.htmlTags[htmlPtr]);
+					if ((lastHtmlTagIndex & JAVADOC_TAGS_ID_MASK) == JAVADOC_IMMUTABLE_TAGS_ID) {
+						// Do not accept tags inside immutable tags except the <pre> tag
+						if ((htmlIndex & JAVADOC_TAGS_ID_MASK) == JAVADOC_CODE_TAGS_ID) {
+							FormatJavadocBlock previousBlock = (FormatJavadocBlock) this.astStack[this.astPtr];
+							FormatJavadocNode parentNode = previousBlock;
+							FormatJavadocNode lastNode = parentNode;
+							while (lastNode.getLastNode() != null) {
+								parentNode = lastNode;
+								lastNode = lastNode.getLastNode();
+							}
+							if (lastNode.isText()) {
+								FormatJavadocText text = (FormatJavadocText) lastNode;
+								if (text.separatorsPtr == -1) {
+									break;
+								}
+							}
+						}
+		    			return false;
+					}
+	    		}
 				if ((htmlIndex & JAVADOC_TAGS_ID_MASK) > JAVADOC_SINGLE_TAGS_ID) {
 		    		if (this.htmlTagsPtr == -1 || !CharOperation.equals(this.htmlTags[this.htmlTagsPtr], htmlTag, false)) {
 						if (++this.htmlTagsPtr == 0) { // lazy initialization
@@ -258,6 +280,8 @@ protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws
 				return false;
 	    	}
 	    }
+
+	    // Push texts
 		if (this.lineStarted && this.textStart != -1 && this.textStart < endTextPosition) {
 			pushText(this.textStart, endTextPosition, -1, htmlPtr == -1 ? 0 : htmlPtr);
 		}

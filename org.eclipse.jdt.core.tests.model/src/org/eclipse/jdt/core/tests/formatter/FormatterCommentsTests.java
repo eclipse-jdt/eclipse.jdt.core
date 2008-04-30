@@ -655,6 +655,12 @@ public void testPreferencesExample17c() throws JavaModelException {
 public void testTagImmutable01() throws JavaModelException {
 	formatUnit("tags.immutable", "X01.java");
 }
+public void testTagImmutable02() throws JavaModelException {
+	formatUnit("tags.immutable", "X02.java");
+}
+public void testTagImmutable03() throws JavaModelException {
+	formatUnit("tags.immutable", "X03.java");
+}
 
 /*
  * Test formatter other tags
@@ -943,6 +949,9 @@ public void testWkspEclipse24() throws JavaModelException {
 }
 public void testWkspEclipse25() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X25.java");
+}
+public void testWkspEclipse26() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X26.java");
 }
 // Ganymede
 // TODO pass this test
