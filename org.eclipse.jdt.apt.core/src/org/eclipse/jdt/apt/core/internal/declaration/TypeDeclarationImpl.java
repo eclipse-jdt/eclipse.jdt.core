@@ -327,10 +327,19 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 
     public boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }
 
+    // This is not just a call to ITypeBinding.isAssignmentCompatible(),
+    // because that can fail in the so-called "multiverse" case where the
+    // left and right types are drawn from different parser instances.
 	public boolean isAssignmentCompatible(EclipseMirrorType left) {
+		ITypeBinding leftBinding = left.getTypeBinding();
+		if (leftBinding.isPrimitive()) {
+			// Primitives, thankfully, are immune to the multiverse problem;
+			// but are eligible for autoboxing and unboxing.
+			return getTypeBinding().isAssignmentCompatible(leftBinding);
+		}
 		return isSubTypeCompatible(left);
 	}
-
+	
 	public boolean isSubTypeCompatible(EclipseMirrorType type) {
 		// Operate on erasures - ignore generics for now
 		// Also ignore boxing for now
