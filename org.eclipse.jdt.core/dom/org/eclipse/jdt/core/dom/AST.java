@@ -245,7 +245,7 @@ public final class AST {
 	 * @param compilationUnitDeclaration an internal AST node for a compilation unit declaration
 	 * @param options compiler options
 	 * @param workingCopy the working copy that the AST is created from
-	 * @param monitor the progress monitor used to report progress and request cancelation,
+	 * @param monitor the progress monitor used to report progress and request cancellation,
 	 *     or <code>null</code> if none
 	 * @param isResolved whether the given compilation unit declaration is resolved
 	 * @return the compilation unit node
@@ -296,7 +296,7 @@ public final class AST {
 	 * @param source the string of the Java compilation unit
 	 * @param options compiler options
 	 * @param workingCopy the working copy that the AST is created from
-	 * @param monitor the progress monitor used to report progress and request cancelation,
+	 * @param monitor the progress monitor used to report progress and request cancellation,
 	 *     or <code>null</code> if none
 	 * @param isResolved whether the given compilation unit declaration is resolved
 	 * @return the compilation unit node
