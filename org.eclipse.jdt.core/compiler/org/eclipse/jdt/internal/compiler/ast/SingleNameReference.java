@@ -89,21 +89,8 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 		case Binding.FIELD : // assigning to a field
 			manageSyntheticAccessIfNecessary(currentScope, flowInfo, false /*write-access*/);
 
-			FieldBinding fieldBinding = (FieldBinding) this.binding;
-			ReferenceBinding declaringClass = fieldBinding.declaringClass;
-			// check if accessing enum static field in initializer
-			if (declaringClass.isEnum()) {
-				MethodScope methodScope = currentScope.methodScope();
-				SourceTypeBinding sourceType = currentScope.enclosingSourceType();
-				if (fieldBinding.isStatic()
-						&& this.constant == Constant.NotAConstant
-						&& !methodScope.isStatic
-						&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
-						&& methodScope.isInsideInitializerOrConstructor()) {
-					currentScope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
-				}
-			}					
 			// check if assigning a final field
+			FieldBinding fieldBinding = (FieldBinding) this.binding;
 			if (fieldBinding.isFinal()) {
 				// inside a context where allowed
 				if (!isCompound && fieldBinding.isBlankFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
@@ -158,21 +145,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 				manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 			}
-			FieldBinding fieldBinding = (FieldBinding) this.binding;
-			ReferenceBinding declaringClass = fieldBinding.declaringClass;
-			// check if accessing enum static field in initializer
-			if (declaringClass.isEnum()) {
-				MethodScope methodScope = currentScope.methodScope();
-				SourceTypeBinding sourceType = currentScope.enclosingSourceType();
-				if (fieldBinding.isStatic()
-						&& this.constant == Constant.NotAConstant
-						&& !methodScope.isStatic
-						&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
-						&& methodScope.isInsideInitializerOrConstructor()) {
-					currentScope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
-				}
-			}				
 			// check if reading a final blank field
+			FieldBinding fieldBinding = (FieldBinding) this.binding;
 			if (fieldBinding.isBlankFinal() && currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)) {
 				if (!flowInfo.isDefinitelyAssigned(fieldBinding)) {
 					currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
@@ -198,20 +172,33 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 public TypeBinding checkFieldAccess(BlockScope scope) {
 	FieldBinding fieldBinding = (FieldBinding) this.binding;
+	this.constant = fieldBinding.constant();
 	
 	this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
 	this.bits |= Binding.FIELD;
 	MethodScope methodScope = scope.methodScope();
-	boolean isStatic = fieldBinding.isStatic();
-	if (!isStatic) {
+	if (fieldBinding.isStatic()) {
+		// check if accessing enum static field in initializer
+		ReferenceBinding declaringClass = fieldBinding.declaringClass;
+		if (declaringClass.isEnum()) {
+			SourceTypeBinding sourceType = scope.enclosingSourceType();
+			if (this.constant == Constant.NotAConstant
+					&& !methodScope.isStatic
+					&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
+					&& methodScope.isInsideInitializerOrConstructor()) {
+				scope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
+			}
+		}		
+	} else {
+		if (scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
+			scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
+		}		
 		// must check for the static status....
 		if (methodScope.isStatic) {
 			scope.problemReporter().staticFieldAccessToNonStaticVariable(this, fieldBinding);
-			this.constant = Constant.NotAConstant;
 			return fieldBinding.type;
 		}
 	}
-	this.constant = fieldBinding.constant();
 
 	if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & ASTNode.IsStrictlyAssigned) !=0))
 		scope.problemReporter().deprecatedField(fieldBinding, this);
@@ -858,10 +845,6 @@ public TypeBinding resolveType(BlockScope scope) {
 						this.constant = (this.bits & ASTNode.IsStrictlyAssigned) == 0 ? variable.constant() : Constant.NotAConstant;
 					} else {
 						// a field
-						FieldBinding field = (FieldBinding) this.binding;
-						if (!field.isStatic() && scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
-							scope.problemReporter().unqualifiedFieldAccess(this, field);
-						}
 						variableType = checkFieldAccess(scope);
 					}
 					// perform capture conversion if read access

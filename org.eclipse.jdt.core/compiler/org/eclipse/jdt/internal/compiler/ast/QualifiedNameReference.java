@@ -70,21 +70,6 @@ public FlowInfo analyseAssignment(BlockScope currentScope, 	FlowContext flowCont
 			if (needValue || complyTo14) {
 				manageSyntheticAccessIfNecessary(currentScope, lastFieldBinding, this.actualReceiverType, 0, flowInfo);
 			}
-			if (this.indexOfFirstFieldBinding == 1) { // was an implicit reference to the first field binding
-				ReferenceBinding declaringClass = lastFieldBinding.declaringClass;
-				// check if accessing enum static field in initializer					
-				if (declaringClass.isEnum()) {
-					MethodScope methodScope = currentScope.methodScope();
-					SourceTypeBinding sourceType = methodScope.enclosingSourceType();
-					if (lastFieldBinding.isStatic()
-							&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
-							&& lastFieldBinding.constant() == Constant.NotAConstant
-							&& !methodScope.isStatic
-							&& methodScope.isInsideInitializerOrConstructor()) {
-						currentScope.problemReporter().enumStaticFieldUsedDuringInitialization(lastFieldBinding, this);
-					}
-				}				
-			}
 			// check if final blank field
 			if (lastFieldBinding.isBlankFinal()
 				    && this.otherBindings != null // the last field binding is only assigned
@@ -225,19 +210,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 			if (this.indexOfFirstFieldBinding == 1) { // was an implicit reference to the first field binding
 				FieldBinding fieldBinding = (FieldBinding) this.binding;
-				ReferenceBinding declaringClass = fieldBinding.declaringClass;
-				// check if accessing enum static field in initializer					
-				if (declaringClass.isEnum()) {
-					MethodScope methodScope = currentScope.methodScope();
-					SourceTypeBinding sourceType = methodScope.enclosingSourceType();
-					if (fieldBinding.isStatic()
-							&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
-							&& fieldBinding.constant() == Constant.NotAConstant
-							&& !methodScope.isStatic
-							&& methodScope.isInsideInitializerOrConstructor()) {
-						currentScope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
-					}
-				}				
 				// check if reading a final blank field
 				if (fieldBinding.isBlankFinal()
 						&& currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)
@@ -739,13 +711,10 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 				scope.problemReporter().staticFieldAccessToNonStaticVariable(this, field);
 				return null;
 			 }
-		} else {
-			// indirect static reference ?
-			if (this.indexOfFirstFieldBinding > 1 
+		} else if (this.indexOfFirstFieldBinding > 1 
 					&& field.declaringClass != this.actualReceiverType
 					&& field.declaringClass.canBeSeenBy(scope)) {
-				scope.problemReporter().indirectAccessToStaticField(this, field);
-			}
+			scope.problemReporter().indirectAccessToStaticField(this, field);
 		}
 		// only last field is actually a write access if any
 		if (isFieldUseDeprecated(field, scope, (this.bits & ASTNode.IsStrictlyAssigned) != 0 && this.indexOfFirstFieldBinding == length))
@@ -808,6 +777,18 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			}
 
 			if (field.isStatic()) {
+				// check if accessing enum static field in initializer
+				ReferenceBinding declaringClass = field.declaringClass;
+				if (declaringClass.isEnum()) {
+					MethodScope methodScope = scope.methodScope();
+					SourceTypeBinding sourceType = methodScope.enclosingSourceType();
+					if ((sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
+							&& field.constant() == Constant.NotAConstant
+							&& !methodScope.isStatic
+							&& methodScope.isInsideInitializerOrConstructor()) {
+						scope.problemReporter().enumStaticFieldUsedDuringInitialization(field, this);
+					}
+				}					
 				// static field accessed through receiver? legal but unoptimal (optional warning)
 				scope.problemReporter().nonStaticAccessToStaticField(this, field, index);
 				// indirect static reference ?
@@ -1029,9 +1010,19 @@ public TypeBinding resolveType(BlockScope scope) {
 							&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
 						scope.problemReporter().forwardReference(this, 0, methodScope.enclosingSourceType());
 					}
-					if (!fieldBinding.isStatic() 
-							&& this.indexOfFirstFieldBinding == 1
-							&& scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
+					if (fieldBinding.isStatic()) {
+						ReferenceBinding declaringClass = fieldBinding.declaringClass;
+						// check if accessing enum static field in initializer					
+						if (declaringClass.isEnum()) {
+							SourceTypeBinding sourceType = methodScope.enclosingSourceType();
+							if ((sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
+									&& fieldBinding.constant() == Constant.NotAConstant
+									&& !methodScope.isStatic
+									&& methodScope.isInsideInitializerOrConstructor()) {
+								scope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
+							}
+						}						
+					} else if (this.indexOfFirstFieldBinding == 1 && scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
 						scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
 					}
 					this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
