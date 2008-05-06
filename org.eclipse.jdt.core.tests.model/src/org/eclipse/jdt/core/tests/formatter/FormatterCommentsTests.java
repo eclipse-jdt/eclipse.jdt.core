@@ -767,6 +767,18 @@ public void testLineComments05() throws JavaModelException {
 public void testLineComments06() throws JavaModelException {
 	formatUnit("comments.line", "X06.java");
 }
+public void _testLineComments07() throws JavaModelException {
+	formatUnit("comments.line", "X07.java");
+}
+public void testLineComments08() throws JavaModelException {
+	formatUnit("comments.line", "X08.java");
+}
+public void testLineComments09() throws JavaModelException {
+	formatUnit("comments.line", "X09.java");
+}
+public void testLineComments10() throws JavaModelException {
+	formatUnit("comments.line", "X10.java");
+}
 
 /*
  * Test formatter block lines
@@ -953,6 +965,27 @@ public void testWkspEclipse25() throws JavaModelException {
 public void testWkspEclipse26() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X26.java");
 }
+public void testWkspEclipse27() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X27.java");
+}
+public void testWkspEclipse28() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X28.java");
+}
+public void testWkspEclipse28b() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X28b.java");
+}
+public void _testWkspEclipse28c() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X28c.java");
+}
+public void testWkspEclipse28d() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X28d.java");
+}
+public void _testWkspEclipse29() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X29.java");
+}
+public void _testWkspEclipse30() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X30.java");
+}
 // Ganymede
 // TODO pass this test
 public void _testWkspGanymede01() throws JavaModelException {
@@ -960,6 +993,12 @@ public void _testWkspGanymede01() throws JavaModelException {
 }
 public void testWkspGanymede02() throws JavaModelException {
 	formatUnit("wksp.ganymede", "X02.java");
+}
+public void testWkspGanymede03() throws JavaModelException {
+	formatUnit("wksp.ganymede", "X03.java");
+}
+public void testWkspGanymede04() throws JavaModelException {
+	formatUnit("wksp.ganymede", "X04.java");
 }
 // JUnit 3.8.2
 public void testWkspJUnit01() throws JavaModelException {

@@ -28,8 +28,8 @@ public class X18 {
 	 * <ul>
 	 * <li>{@linkplain CompilationUnit#lineNumber(int) Line number map}. Line
 	 * numbers start at 1 and only cover the subrange scanned (
-	 * <code>source[offset]</code> through <code>source[offset+length-1]</code>).
-	 * </li>
+	 * <code>source[offset]</code> through <code>source[offset+length-1]</code>
+	 * ).</li>
 	 * <li>{@linkplain CompilationUnit#getMessages() Compiler messages} and
 	 * {@linkplain CompilationUnit#getProblems() detailed problem reports}.
 	 * Character positions are relative to the start of <code>source</code>;

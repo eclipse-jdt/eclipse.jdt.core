@@ -252,6 +252,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							}
 						} else if (verifText && this.tagValue == TAG_RETURN_VALUE && this.returnStatement != null) {
 							refreshReturnStatement();
+						} else if (isFormatterParser) {
+							if (this.textStart == -1) this.textStart = previousPosition;
 						}
 						this.lineStarted = true;
 						break;

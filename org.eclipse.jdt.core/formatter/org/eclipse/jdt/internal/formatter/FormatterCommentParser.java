@@ -315,15 +315,20 @@ protected boolean parseParam() throws InvalidInputException {
 		this.scanner.resetTo(this.tagSourceEnd+1, this.javadocEnd);
 		this.index = this.tagSourceEnd+1;
 		char ch = peekChar();
-		if (ch != ' ' && !ScannerHelper.isWhitespace(ch)) {
-			// no space after the tag, just create a normal tag
-			return false;
+		// Try to push an identifier in the stack, otherwise restart from the end tag position
+		if (ch == ' ' || ScannerHelper.isWhitespace(ch)) {
+			int token = this.scanner.getNextToken();
+			if (token == TerminalTokens.TokenNameIdentifier) {
+				ch = peekChar();
+				if (ch == ' ' || ScannerHelper.isWhitespace(ch)) {
+					pushIdentifier(true, false);
+					pushParamName(false);
+					this.index = this.scanner.currentPosition;
+					valid = true;
+				}
+			}
+			this.scanner.resetTo(this.tagSourceEnd+1, this.javadocEnd);
 		}
-		this.scanner.getNextToken(); // consume first token
-		pushIdentifier(true, false); // force the identifier even if invalid
-		pushParamName(false);
-		this.index = this.scanner.currentPosition;
-		valid = true;
 	}
 	return valid;
 }
@@ -367,9 +372,23 @@ protected boolean parseTag(int previousPosition) throws InvalidInputException {
 	} else if (this.invalidTagName) {
 		this.textStart = previousPosition;
 	} else if (this.astPtr == ptr) {
+		this.tagValue = TAG_OTHERS_VALUE; // tag is invalid, do not keep the parsed tag value
 		createTag();
 	}
 	return true;
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#parseThrows()
+ */
+protected boolean parseThrows() {
+	boolean valid = super.parseThrows();
+	if (!valid) {
+		// If invalid, restart from the end tag position
+		this.scanner.resetTo(this.tagSourceEnd+1, this.javadocEnd);
+		this.index = this.tagSourceEnd+1;
+	}
+	return valid;
 }
 
 /* (non-Javadoc)
@@ -561,5 +580,10 @@ protected void updateDocComment() {
 	if (DefaultCodeFormatter.DEBUG) {
 		System.out.println(toDebugString());
 	}
+}
+
+protected boolean verifySpaceOrEndComment() {
+	// Don't care if there's no spaces after a reference...
+	return true;
 }
 }

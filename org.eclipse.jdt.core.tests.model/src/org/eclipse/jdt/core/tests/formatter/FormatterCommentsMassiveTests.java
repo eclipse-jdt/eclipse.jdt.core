@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.ComparisonFailure;
@@ -29,9 +30,11 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.ModelTestsUtil;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.core.util.SimpleDocument;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
@@ -124,17 +127,17 @@ import org.eclipse.text.edits.TextEdit;
  * <ul>
  * 	<li>3.0 performance workspace (9951 units):<ul>
  * 		<li>0 error</li>
- * 		<li>14 failures</li>
+ * 		<li>5 failures</li>
  * 		<li>8 failures due to old formatter</li>
- * 		<li>721 files have different lines leading spaces</li>
- * 		<li>14 files have different spaces</li>
+ * 		<li>720 files have different lines leading spaces</li>
+ * 		<li>17 files have different spaces</li>
  *		</ul></li>
  *		<li>ganymede M6a workspace (26336 units):<ul>
  * 		<li>0 error</li>
- * 		<li>49 files has still different output while reformatting!</li>
- * 		<li>3 failures due to old formatter</li>
- * 		<li>1470 files have different line leading spaces when reformatting!</li>
- * 		<li>21 files have different spaces when reformatting!</li>
+ * 		<li>21 files has still different output while reformatting!</li>
+ * 		<li>17 failures due to old formatter</li>
+ * 		<li>1469 files have different line leading spaces when reformatting!</li>
+ * 		<li>25 files have different spaces when reformatting!</li>
  *		</ul></li>
  * </ul>
  */
@@ -148,22 +151,62 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 	List leadingWhitespacesFailures = new ArrayList();
 	List whitespacesFailures= new ArrayList();
 	boolean hasSpaceFailure;
+	private final static boolean DEBUG_TESTS = "true".equals(System.getProperty("debugTests"));
 	private final static String DIR = System.getProperty("dir"); //$NON-NLS-1$
 	private final static boolean COMPARE = DefaultCodeFormatterConstants.TRUE.equals(System.getProperty("compare")); //$NON-NLS-1$
-	private final static boolean IGNORE_WHITESPACES = "all".equals(System.getProperty("ignoreWhitespaces")); //$NON-NLS-1$
-	private final static boolean IGNORE_LINES_LEADING_WHITESPACES = "linesLeading".equals(System.getProperty("ignoreWhitespaces")); //$NON-NLS-1$
+	private final static int IGNORE_SPACES;
+	private final static int ALL_SPACES = 1;	// ignore all spaces
+	private final static int LINES_LEADING_SPACES = 2;	// ignore all spaces at the beginning of all lines
+	private final static int ALL_COMMENTS_SPACES = 3;	// ignore all spaces inside all comments
+	private final static int ALL_COMMENTS_LINES_LEADING_SPACES = 4;	// ignore all spaces at the beginning of all comments lines
+	static {
+		String ignoreSpaces = System.getProperty("ignoreSpaces"); //$NON-NLS-1$
+		int filterValue;
+		if ("all".equals(ignoreSpaces)) {
+			filterValue = ALL_SPACES;
+		} else if ("linesLeading".equals(ignoreSpaces)) {
+			filterValue = LINES_LEADING_SPACES;
+		} else if ("comments".equals(ignoreSpaces)) {
+			filterValue = ALL_COMMENTS_SPACES;
+		} else if ("commentsLinesLeading".equals(ignoreSpaces)) {
+			filterValue = ALL_COMMENTS_LINES_LEADING_SPACES;
+		} else {
+			filterValue = 0; // no filter
+		}
+		IGNORE_SPACES = filterValue;
+	}
 	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2")); //$NON-NLS-1$
 	private static final int MAX_FAILURES = Integer.parseInt(System.getProperty("maxFailures", "100")); // Max failures using string comparison
 	private static boolean ASSERT_EQUALS_STRINGS = MAX_FAILURES > 0;
-	private final static String[] EXPECTED_FAILURES = {
-		"org\\eclipse\\jdt\\internal\\compiler\\ast\\QualifiedNameReference.java",
-		"org\\eclipse\\jdt\\internal\\eval\\CodeSnippetSingleNameReference.java",
-		"org\\eclipse\\jdt\\internal\\core\\DeltaProcessor.java",
-		"org\\eclipse\\jdt\\internal\\core\\JavaProject.java",
-		"org\\eclipse\\jdt\\internal\\core\\search\\indexing\\IndexManager.java",
-		"org\\eclipse\\team\\internal\\ccvs\\ui\\AnnotateView.java",
-		"org\\eclipse\\team\\internal\\ccvs\\ui\\HistoryView.java",
-		"org\\eclipse\\team\\internal\\ccvs\\ui\\wizards\\UpdateWizard.java",
+	private final static String[] EXPECTED_FAILURES = DIR.indexOf("ganymede") < 0
+		? new String[] {
+			"org\\eclipse\\jdt\\internal\\compiler\\ast\\QualifiedNameReference.java",
+			"org\\eclipse\\jdt\\internal\\eval\\CodeSnippetSingleNameReference.java",
+			"org\\eclipse\\jdt\\internal\\core\\DeltaProcessor.java",
+			"org\\eclipse\\jdt\\internal\\core\\JavaProject.java",
+			"org\\eclipse\\jdt\\internal\\core\\search\\indexing\\IndexManager.java",
+			"org\\eclipse\\team\\internal\\ccvs\\ui\\AnnotateView.java",
+			"org\\eclipse\\team\\internal\\ccvs\\ui\\HistoryView.java",
+			"org\\eclipse\\team\\internal\\ccvs\\ui\\wizards\\UpdateWizard.java",
+		}
+		:	new String[] {
+			"org\\eclipse\\jdt\\core\\JavaCore.java",
+			"org\\eclipse\\jdt\\internal\\codeassist\\CompletionEngine.java",
+			"org\\eclipse\\jdt\\internal\\codeassist\\SelectionEngine.java",
+			"org\\eclipse\\jdt\\internal\\compiler\\ast\\QualifiedNameReference.java",
+			"org\\eclipse\\jdt\\internal\\compiler\\ast\\SingleNameReference.java",
+			"org\\eclipse\\jdt\\internal\\eval\\CodeSnippetSingleNameReference.java",
+			"org\\eclipse\\jdt\\internal\\compiler\\batch\\Main.java",
+			"org\\eclipse\\jdt\\internal\\compiler\\lookup\\ParameterizedMethodBinding.java",
+			"org\\eclipse\\jdt\\internal\\core\\CompilationUnit.java",
+			"org\\eclipse\\jdt\\internal\\core\\ExternalJavaProject.java",
+			"org\\eclipse\\jdt\\internal\\core\\hierarchy\\HierarchyResolver.java",
+			"org\\eclipse\\jdt\\internal\\core\\hierarchy\\TypeHierarchy.java",
+			"org\\eclipse\\jdt\\internal\\core\\search\\indexing\\IndexAllProject.java",
+			"org\\eclipse\\jdt\\internal\\core\\search\\JavaSearchScope.java",
+			"org\\eclipse\\jdt\\internal\\eval\\EvaluationContext.java",
+			"org\\eclipse\\jdt\\internal\\ui\\text\\javadoc\\JavadocContentAccess2.java",
+			"org\\eclipse\\team\\internal\\ccvs\\ui\\mappings\\WorkspaceSubscriberContext.java",
 	};
 	static {
 		// Sort expected failures to allow binary search
@@ -304,22 +347,45 @@ protected void assertSourceEquals(String message, String expected, String actual
 		}
 	}
 	catch (ComparisonFailure cf) {
-		if (IGNORE_WHITESPACES) {
-			String trimmedExpected = ModelTestsUtil.removeWhiteSpace(expected);
-			String trimmedActual= ModelTestsUtil.removeWhiteSpace(actual);
-			if (trimmedExpected.equals(trimmedActual)) {
-				this.whitespacesFailures.add(this.path);
-				return;
+		if (COMPARE) {
+			String trimmedExpected;
+			String trimmedActual;
+			switch (IGNORE_SPACES) {
+				case ALL_SPACES:
+					trimmedExpected = ModelTestsUtil.removeWhiteSpace(expected);
+					trimmedActual= ModelTestsUtil.removeWhiteSpace(actual);
+					if (trimmedExpected.equals(trimmedActual)) {
+						this.whitespacesFailures.add(this.path);
+						return;
+					}
+					break;
+				case LINES_LEADING_SPACES:
+					trimmedExpected = ModelTestsUtil.trimLinesLeadingWhitespaces(expected);
+					trimmedActual= ModelTestsUtil.trimLinesLeadingWhitespaces(actual);
+					if (trimmedExpected.equals(trimmedActual)) {
+						this.leadingWhitespacesFailures.add(this.path);
+						return;
+					}
+					trimmedExpected = ModelTestsUtil.removeWhiteSpace(expected);
+					trimmedActual= ModelTestsUtil.removeWhiteSpace(actual);
+					if (trimmedExpected.equals(trimmedActual)) {
+						this.whitespacesFailures.add(this.path);
+						return;
+					}
+					break;
+				default:
+					trimmedExpected = filterFormattingInComments(expected);
+					trimmedActual= filterFormattingInComments(actual);
+					if (trimmedExpected.equals(trimmedActual)) {
+						this.whitespacesFailures.add(this.path);
+						return;
+					}
+					break;
 			}
-		} else if (IGNORE_LINES_LEADING_WHITESPACES) {
-			String trimmedExpected = ModelTestsUtil.trimLinesLeadingWhitespaces(expected);
-			String trimmedActual= ModelTestsUtil.trimLinesLeadingWhitespaces(actual);
-			if (trimmedExpected.equals(trimmedActual)) {
-				this.leadingWhitespacesFailures.add(this.path);
-				return;
+			if (DEBUG_TESTS && ASSERT_EQUALS_STRINGS) {
+				assertEquals(message, trimmedExpected, trimmedActual);
 			}
 		}
-		if (isExpectedFailure()) return;
 		this.failures.add(this.path);
 		ASSERT_EQUALS_STRINGS = this.failures.size() < MAX_FAILURES;
 		throw cf;
@@ -360,6 +426,8 @@ private String expectedFormattedSource(String source) {
 		Scanner scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_4/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
 		CompilationUnitDeclaration compilationUnitDeclaration = codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
+		final TypeDeclaration[] types = compilationUnitDeclaration.types;
+		int headerEndPosition = types == null ? compilationUnitDeclaration.sourceEnd : types[0].declarationSourceStart;
 		scanner.setSource(source.toCharArray());
 		scanner.lineEnds = codeSnippetParsingUtil.recordedParsingInformation.lineEnds;
 		int[][] commentsPositions = compilationUnitDeclaration.comments;
@@ -379,8 +447,10 @@ private String expectedFormattedSource(String source) {
 					commentKind = CodeFormatter.K_SINGLE_LINE_COMMENT;
 				}
 			}
-			int indentationLevel = getIndentationLevel(scanner, commentStart);
-			formattedComments[i] = runFormatter(codeFormatter, source.substring(commentStart, commentEnd), commentKind, indentationLevel, 0, commentEnd - commentStart, LINE_SEPARATOR);
+			if (commentStart >= headerEndPosition) {
+				int indentationLevel = getIndentationLevel(scanner, commentStart);
+				formattedComments[i] = runFormatter(codeFormatter, source.substring(commentStart, commentEnd), commentKind, indentationLevel, 0, commentEnd - commentStart, LINE_SEPARATOR);
+			}
 		}
 		SimpleDocument document = new SimpleDocument(source);
 		for (int i=length-1; i>=0; i--) {
@@ -404,6 +474,170 @@ private String expectedFormattedSource(String source) {
 	finally {
 		DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT = enableNewCommentFormatter;
 	}
+}
+private String filterFormattingInComments(String input) {
+	StringTokenizer tokenizer = new StringTokenizer(input, "\r\n\f");
+	StringBuffer buffer = new StringBuffer();
+	boolean skipToken = false;
+	String line =  null;
+	lineLoop: while (tokenizer.hasMoreTokens()) {
+		if (!skipToken) {
+			line = tokenizer.nextToken();
+		}
+		skipToken = false;
+		int length = line.length();
+		int lineStart = 0;
+		if (length > 0) {
+			// Trim leading whitespaces
+			if (IGNORE_SPACES > 0) {
+				while (lineStart < length && ScannerHelper.isWhitespace(line.charAt(lineStart))) {
+					lineStart++;
+				}
+			}
+			// Search if a comment starts
+			int commentKind = 0;
+			int idx = line.indexOf('/', lineStart);
+			if (idx >= 0 && (idx+1) < length) {
+				idx++;
+				char ch = line.charAt(idx++);
+				switch (ch) {
+					case '/':
+						commentKind = 1; // line comment
+						break;
+					case '*':
+						commentKind = 2; // block comment
+						if (idx < length && line.charAt(idx) == '*') {
+							commentKind = 3; // javadoc comment
+							idx++;
+						}
+						break;
+				}
+				if (commentKind != 0) {
+					// Enter a comment
+					switch (IGNORE_SPACES) {
+						case ALL_COMMENTS_SPACES:
+							switch (commentKind) {
+								case 1:
+									int start = idx;
+									buffer.append(line.substring(0, start).trim());
+									while (true) {
+										if (start < length) {
+											while (start < length && ScannerHelper.isWhitespace(line.charAt(start))) {
+												start++;
+											}
+											buffer.append(ModelTestsUtil.removeWhiteSpace(line.substring(start)));
+										}
+										line = tokenizer.nextToken();
+										length = line.length();
+										start = 0;
+										while (start < length && ScannerHelper.isWhitespace(line.charAt(start))) {
+											start++;
+										}
+										if (start > length+1 || line.charAt(start) != '/' || line.charAt(start+1) != '/') {
+											buffer.append('\n');
+											skipToken = true;
+											// only gate to break the loop
+											continue lineLoop;
+										}
+										start += 2;
+									}
+								case 2:
+								case 3:
+									buffer.append(line.substring(0, idx).trim());
+									int endComment = line.indexOf("*/");
+									if (endComment > 0) {
+										buffer.append(ModelTestsUtil.removeWhiteSpace(line.substring(0, endComment + 2)));
+										line = line.substring(endComment+2);
+										skipToken = true;
+										continue lineLoop;
+									}
+									while (endComment < 0) {
+										buffer.append(ModelTestsUtil.removeWhiteSpace(line));
+										line = tokenizer.nextToken();
+										endComment = line.indexOf("*/");
+									}
+									buffer.append(ModelTestsUtil.removeWhiteSpace(line.substring(0, endComment + 2)));
+									buffer.append('\n');
+									continue;
+							}
+							break;
+						case ALL_COMMENTS_LINES_LEADING_SPACES:
+							switch (commentKind) {
+								case 1:
+									int start = idx;
+									buffer.append(line.substring(0, start).trim());
+									while (true) {
+										if (start < length) {
+											while (start < length && ScannerHelper.isWhitespace(line.charAt(start))) {
+												start++;
+											}
+											if (start < length) {
+												buffer.append(line.substring(start));
+											}
+										}
+										line = tokenizer.nextToken();
+										length = line.length();
+										start = 0;
+										while (start < length && ScannerHelper.isWhitespace(line.charAt(start))) {
+											start++;
+										}
+										if (start < length && (line.charAt(start) != '/' || line.charAt(start+1) != '/')) {
+											buffer.append('\n');
+											skipToken = true;
+											// only gate to break the loop
+											continue lineLoop;
+										}
+										buffer.append(' ');
+										start += 2; // skip next line starting comment
+									}
+								case 3:
+								case 2:
+									start = idx;
+									int endComment = line.indexOf("*/");
+									if (endComment > 0) {
+										buffer.append(line.substring(0, endComment + 2));
+										line = line.substring(endComment+2);
+										skipToken = true;
+										continue lineLoop;
+									}
+									buffer.append(line.substring(0, start).trim());
+									while (endComment < 0) {
+										if (start < length) {
+											while (start < length && ScannerHelper.isWhitespace(line.charAt(start))) {
+												start++;
+											}
+											if (start < length && ch == '*') {
+												start++;
+												while (start < length && ScannerHelper.isWhitespace(line.charAt(start))) {
+													start++;
+												}
+											}
+											if (start < length) {
+												buffer.append(line.substring(start));
+											}
+										}
+										line = tokenizer.nextToken();
+										length = line.length();
+										endComment = line.indexOf("*/");
+										start = 0;
+										buffer.append(' ');
+									}
+									buffer.append(line.substring(0, endComment + 2));
+									buffer.append('\n');
+									continue;
+							}
+					}
+				}
+			}
+		}
+		if (length > 0 && lineStart > 0 && lineStart < length) {
+			buffer.append(line.substring(lineStart).trim());
+		} else {
+			buffer.append(line);
+		}
+		buffer.append('\n');
+	}
+    return buffer.toString();
 }
 
 private int getIndentationLevel(Scanner scanner, int position) {
@@ -524,65 +758,53 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 	String result = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 
 	int count = 1;
-	if (length == source.length()) {
+	if (!COMPARE && length == source.length()) {
 		while (count++ < FORMAT_REPEAT) {
 			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
 			if (edit == null) return null;
 			String newResult = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
 			if (!result.equals(newResult)) {
-				String counterString = counterString(count);
-				if (IGNORE_WHITESPACES) {
-					String trimmedResult = ModelTestsUtil.removeWhiteSpace(result);
-					String trimmedNewResult = ModelTestsUtil.removeWhiteSpace(newResult);
-					if (trimmedResult.equals(trimmedNewResult)) {
-						this.whitespacesFailures.add(this.path);
-						this.hasSpaceFailure = true;
-						return result;
-					}
-				} else if (IGNORE_LINES_LEADING_WHITESPACES) {
-					String trimmedResult = ModelTestsUtil.trimLinesLeadingWhitespaces(result);
-					String trimmedNewResult = ModelTestsUtil.trimLinesLeadingWhitespaces(newResult);
-					if (trimmedResult.equals(trimmedNewResult)) {
-						this.leadingWhitespacesFailures.add(this.path);
-						this.hasSpaceFailure = true;
-						return result;
-					}
-					String compressedResult = ModelTestsUtil.removeWhiteSpace(result);
-					String compressedNewResult = ModelTestsUtil.removeWhiteSpace(newResult);
-					if (compressedResult.equals(compressedNewResult)) {
-						this.whitespacesFailures.add(this.path);
-						this.hasSpaceFailure = true;
-						return result;
-					}
+				switch (IGNORE_SPACES) {
+					case ALL_SPACES:
+						String trimmedExpected = ModelTestsUtil.removeWhiteSpace(result);
+						String trimmedActual= ModelTestsUtil.removeWhiteSpace(newResult);
+						if (trimmedExpected.equals(trimmedActual)) {
+							this.whitespacesFailures.add(this.path);
+							this.hasSpaceFailure = true;
+							return result;
+						}
+						break;
+					case LINES_LEADING_SPACES:
+						trimmedExpected = ModelTestsUtil.trimLinesLeadingWhitespaces(result);
+						trimmedActual= ModelTestsUtil.trimLinesLeadingWhitespaces(newResult);
+						if (trimmedExpected.equals(trimmedActual)) {
+							this.leadingWhitespacesFailures.add(this.path);
+							this.hasSpaceFailure = true;
+							return result;
+						}
+						if (ModelTestsUtil.removeWhiteSpace(result).equals(ModelTestsUtil.removeWhiteSpace(newResult))) {
+							this.whitespacesFailures.add(this.path);
+							this.hasSpaceFailure = true;
+							return result;
+						}
+						break;
+					default:
+						trimmedExpected = filterFormattingInComments(result);
+						trimmedActual= filterFormattingInComments(newResult);
+						if (trimmedExpected.equals(trimmedActual)) {
+							this.whitespacesFailures.add(this.path);
+							this.hasSpaceFailure = true;
+							return result;
+						}
+						break;
 				}
 				if (!isExpectedFailure()) {
-					assertSourceEquals(counterString+" formatting is different from first one!", Util.convertToIndependantLineDelimiter(result), Util.convertToIndependantLineDelimiter(newResult));
+					assertSourceEquals("2nd formatting is different from first one!", Util.convertToIndependantLineDelimiter(result), Util.convertToIndependantLineDelimiter(newResult));
 				}
 			}
 		}
 	}
 	return result;
-}
-
-private String counterString(int count) {
-	int reminder = count%10;
-	StringBuffer buffer = new StringBuffer();
-	buffer.append(count);
-	switch (reminder) {
-		case 1:
-			buffer.append("st");
-			break;
-		case 2:
-			buffer.append("nd");
-			break;
-		case 3:
-			buffer.append("rd");
-			break;
-		default:
-			buffer.append("th");
-			break;
-	}
-	return buffer.toString();
 }
 
 public void testCompare() throws IOException, Exception {
