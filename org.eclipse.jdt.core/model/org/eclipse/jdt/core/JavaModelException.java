@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.core.JavaModelStatus;
  *
  * @see IJavaModelStatus
  * @see IJavaModelStatusConstants
- * @noinstantiate This class is not intended to be instantiated by clients.
+ *
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class JavaModelException extends CoreException {
