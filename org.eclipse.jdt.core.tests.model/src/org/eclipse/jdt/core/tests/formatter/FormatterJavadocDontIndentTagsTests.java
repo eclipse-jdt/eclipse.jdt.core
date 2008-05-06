@@ -16,7 +16,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
-import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 
 /**
  * Javadoc formatter test suite with following options changes from the Eclipse
@@ -47,9 +46,8 @@ protected void setUp() throws Exception {
 }
 
 DefaultCodeFormatter codeFormatter() {
-	DefaultCodeFormatterOptions preferences = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
-	preferences.comment_indent_root_tags = false; // Eclipse default is true
-	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+	this.preferences.comment_indent_root_tags = false; // Eclipse default is true
+	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.preferences);
 	return codeFormatter;
 }
 

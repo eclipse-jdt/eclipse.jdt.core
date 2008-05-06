@@ -16,7 +16,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
-import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 
 /**
  * Javadoc formatter test suite with following options changes from the Eclipse
@@ -49,11 +48,10 @@ protected void setUp() throws Exception {
 }
 
 DefaultCodeFormatter codeFormatter() {
-	DefaultCodeFormatterOptions preferences = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
-	preferences.comment_clear_blank_lines_in_block_comment = true;
-	preferences.comment_clear_blank_lines_in_javadoc_comment = true;
-	preferences.comment_format_header = true;
-	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+	this.preferences.comment_clear_blank_lines_in_block_comment = true;
+	this.preferences.comment_clear_blank_lines_in_javadoc_comment = true;
+	this.preferences.comment_format_header = true;
+	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.preferences);
 	return codeFormatter;
 }
 
