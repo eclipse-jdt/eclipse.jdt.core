@@ -2281,7 +2281,74 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	^\n" + 
 			"The type M is ambiguous\n" + 
 			"----------\n"
-		);		
+		);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026
+	public void _testONLY_065() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.I.E.C;\n" + 
+				"\n" + 
+				"class C {}\n" + 
+				"class B<T> {}\n" + 
+				"public class X extends B<C>{\n" + 
+				"}",
+				"p/I.java",
+				"package p;\n" + 
+				"\n" + 
+				"public interface I <T extends Object> {\n" + 
+				"	enum E { C }\n" + 
+				"}",
+			},
+			""
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026 - variation
+	public void test066() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.I.E.C;\n" + 
+				"\n" + 
+				"class C {}\n" + 
+				"class B<T> {}\n" + 
+				"public class X extends B<C>{\n" + 
+				"}",
+				"p/I.java",
+				"package p;\n" + 
+				"\n" + 
+				"public interface I <T extends Object> {\n" + 
+				"	enum E { ; public static void C(){} }\n" + 
+				"}",
+			},
+			""
+		);
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026 - variation
+	public void test067() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static p.I.E.C;\n" + 
+				"\n" + 
+				"class C {}\n" + 
+				"class B<T> {}\n" + 
+				"public class X extends B<C>{\n" + 
+				"}",
+				"p/I.java",
+				"package p;\n" + 
+				"\n" + 
+				"public interface I <T extends Object> {\n" + 
+				"	enum E { ; static void C(){} }\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\r\n" + 
+			"	import static p.I.E.C;\r\n" + 
+			"	              ^^^^^^^\n" + 
+			"The import p.I.E.C cannot be resolved\n" + 
+			"----------\n");
+	}		
 }
 
