@@ -23,6 +23,7 @@ public class ReadManager implements Runnable {
 	Thread[] readingThreads;
 	char[] readInProcessMarker = new char[0];
 	int sleepingThreadCount;
+	private Throwable caughtException;
 
 	static int START_CUSHION = 5;
 	public static int THRESHOLD = 10;
@@ -65,9 +66,16 @@ public ReadManager(ICompilationUnit[] files, int length) {
 	}
 }
 
-public char[] getContents(ICompilationUnit unit) {
-	if (this.readingThreads == null || this.units.length == 0)
+public char[] getContents(ICompilationUnit unit) throws Error {
+	if (this.readingThreads == null || this.units.length == 0) {
+		if (this.caughtException != null) {
+			// rethrow the caught exception from the readingThreads in the main compiler thread
+			if (caughtException instanceof Error)
+				throw (Error) caughtException;
+			throw (RuntimeException) caughtException;
+		}
 		return unit.getContents();
+	}
 
 	boolean yield = false;
 	char[] result = null;
@@ -124,38 +132,52 @@ public char[] getContents(ICompilationUnit unit) {
 }
 
 public void run() {
-	while (this.readingThreads != null && this.nextFileToRead < this.units.length) {
-		ICompilationUnit unit = null;
-		int position = -1;
-		synchronized (this) {
-			if (this.readingThreads == null) return;
-
-			while (this.filesRead[this.nextAvailablePosition] != null) {
-				this.sleepingThreadCount++;
-				try {
-					wait(250); // wait until a spot in contents is available
-				} catch (InterruptedException e) { // ignore
-				}
-				this.sleepingThreadCount--;
+	try {
+		while (this.readingThreads != null && this.nextFileToRead < this.units.length) {
+			ICompilationUnit unit = null;
+			int position = -1;
+			synchronized (this) {
 				if (this.readingThreads == null) return;
+	
+				while (this.filesRead[this.nextAvailablePosition] != null) {
+					this.sleepingThreadCount++;
+					try {
+						wait(250); // wait until a spot in contents is available
+					} catch (InterruptedException e) { // ignore
+					}
+					this.sleepingThreadCount--;
+					if (this.readingThreads == null) return;
+				}
+	
+				if (this.nextFileToRead >= this.units.length) return;
+				unit = this.units[this.nextFileToRead++];
+				position = this.nextAvailablePosition;
+				if (++this.nextAvailablePosition >= this.contentsRead.length)
+					this.nextAvailablePosition = 0;
+				this.filesRead[position] = unit;
+				this.contentsRead[position] = readInProcessMarker; // mark the spot so we know its being read
 			}
-
-			if (this.nextFileToRead >= this.units.length) return;
-			unit = this.units[this.nextFileToRead++];
-			position = this.nextAvailablePosition;
-			if (++this.nextAvailablePosition >= this.contentsRead.length)
-				this.nextAvailablePosition = 0;
-			this.filesRead[position] = unit;
-			this.contentsRead[position] = readInProcessMarker; // mark the spot so we know its being read
+			char[] result = unit.getContents();
+			synchronized (this) {
+				if (this.filesRead[position] == unit) {
+					if (this.contentsRead[position] == null) // wake up main thread which is waiting for this file
+						notifyAll();
+					this.contentsRead[position] = result;
+				}
+			}
 		}
-		char[] result = unit.getContents();
+	} catch (Error e) {
 		synchronized (this) {
-			if (this.filesRead[position] == unit) {
-				if (this.contentsRead[position] == null) // wake up main thread which is waiting for this file
-					notifyAll();
-				this.contentsRead[position] = result;
-			}
+			this.caughtException = e;
+			shutdown();
 		}
+		return;
+	} catch (RuntimeException e) {
+		synchronized (this) {
+			this.caughtException = e;
+			shutdown();
+		}
+		return;
 	}
 }
 
