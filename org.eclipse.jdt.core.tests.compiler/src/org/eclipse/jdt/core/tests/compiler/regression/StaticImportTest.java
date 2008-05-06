@@ -2284,7 +2284,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026
-	public void _testONLY_065() {
+	public void _test065() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2305,7 +2305,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026 - variation
-	public void test066() {
+	public void _test066() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2326,7 +2326,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026 - variation
-	public void test067() {
+	public void _test067() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
