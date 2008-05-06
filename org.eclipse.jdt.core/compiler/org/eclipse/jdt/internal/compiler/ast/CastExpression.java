@@ -326,39 +326,33 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 								return true;
 							}
 							// [JLS 5.5] S has no subtype X != T, such that |X| == |T|
-							TypeBinding genericCastType = castType.erasure(); // jump to generic type
-							TypeBinding genericMatch = genericCastType.findSuperTypeOriginatingFrom(expressionType);
-							if (genericMatch == match) {
+							// if I2<T,U> extends I1<T>, then cast from I1<T> to I2<T,U> is unchecked
+							ParameterizedTypeBinding paramCastType = (ParameterizedTypeBinding) castType;
+							ParameterizedTypeBinding paramMatch = (ParameterizedTypeBinding) match;
+							// easy case if less parameters on match
+							TypeBinding[] castArguments = paramCastType.arguments;
+							int length = castArguments.length;
+							if (length > paramMatch.arguments.length) {
 								this.bits |= ASTNode.UnsafeCast;
-							} else {
-								// if I2<T,U> extends I1<T>, then cast from I1<T> to I2<T,U> is unchecked
-								ParameterizedTypeBinding paramCastType = (ParameterizedTypeBinding) castType;
-								ParameterizedTypeBinding paramMatch = (ParameterizedTypeBinding) match;
-								// easy case if less parameters on match
-								TypeBinding[] castArguments = paramCastType.arguments;
-								int length = castArguments.length;
-								if (length > paramMatch.arguments.length) {
-									this.bits |= ASTNode.UnsafeCast;
-								} else if ((paramCastType.tagBits & (TagBits.HasDirectWildcard|TagBits.HasTypeVariable)) != 0) {
-									// verify alternate cast type, substituting different type arguments
+							} else if ((paramCastType.tagBits & (TagBits.HasDirectWildcard|TagBits.HasTypeVariable)) != 0) {
+								// verify alternate cast type, substituting different type arguments
+								nextAlternateArgument: for (int i = 0; i < length; i++) {
+									switch (castArguments[i].kind()) {
+										case Binding.WILDCARD_TYPE :
+										case Binding.TYPE_PARAMETER :
+											break; // check substituting with other
+										default:
+											continue nextAlternateArgument; // no alternative possible
+									}
+									TypeBinding[] alternateArguments;
+									// need to clone for each iteration to avoid env paramtype cache interference
+									System.arraycopy(paramCastType.arguments, 0, alternateArguments = new TypeBinding[length], 0, length);
+									alternateArguments[i] = scope.getJavaLangObject();
 									LookupEnvironment environment = scope.environment();
-									nextAlternateArgument: for (int i = 0; i < length; i++) {
-										switch (castArguments[i].kind()) {
-											case Binding.WILDCARD_TYPE :
-											case Binding.TYPE_PARAMETER :
-												break; // check substituting with other
-											default:
-												continue nextAlternateArgument; // no alternative possible
-										}
-										TypeBinding[] alternateArguments;
-										// need to clone for each iteration to avoid env paramtype cache interference
-										System.arraycopy(paramCastType.arguments, 0, alternateArguments = new TypeBinding[length], 0, length);
-										alternateArguments[i] = scope.getJavaLangObject();
-										ParameterizedTypeBinding alternateCastType = environment.createParameterizedType((ReferenceBinding)genericCastType, alternateArguments, castType.enclosingType());
-										if (alternateCastType.findSuperTypeOriginatingFrom(expressionType) == match) {
-											this.bits |= ASTNode.UnsafeCast;
-											break;
-										}
+									ParameterizedTypeBinding alternateCastType = environment.createParameterizedType((ReferenceBinding)castType.erasure(), alternateArguments, castType.enclosingType());
+									if (alternateCastType.findSuperTypeOriginatingFrom(expressionType) == match) {
+										this.bits |= ASTNode.UnsafeCast;
+										break;
 									}
 								}
 							}

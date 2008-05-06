@@ -43743,4 +43743,31 @@ public void test1314() {
 			"Unnecessary cast from B to Object\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=228291
+public void test1315() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.*;\n" + 
+					"\n" + 
+					"public class X<T> extends Vector<Collection<T>> {\n" + 
+					"	private static final long serialVersionUID = 1L;\n" + 
+					"	public Vector<T> cast(List<T> in) {\n" + 
+					"		return (Vector<T>) in;\n" + 
+					"	}\n" + 
+					"	public X<T> castSilly(Vector<Collection<T>> in) {\n" + 
+					"		return (X<T>) in;\n" + 
+					"	}\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Zork z;\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 }
