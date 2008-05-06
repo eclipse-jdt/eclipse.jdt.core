@@ -2273,4 +2273,77 @@ public void test065() {
 		""
 	);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=214558
+public void test066() {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"import java.util.*;\n" + 
+			"public class A {\n" + 
+			"	void foo(Collection<Object[]> c) {}\n" +
+			"	void foo(Collection<Object[]> c, Object o) {}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new B().foo(new ArrayList());\n" +
+			"		new B().foo(new ArrayList(), args[0]);\n" +
+			"	}\n" +
+			"}\n" + 
+			"class B extends A {\n" + 
+			"	void foo(ArrayList a) {}\n" + 
+			"	void foo(ArrayList a, Object o) {}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 6)\n" + 
+		"	new B().foo(new ArrayList());\n" + 
+		"	        ^^^\n" + 
+		"The method foo(ArrayList) is ambiguous for the type B\n" + 
+		"----------\n" + 
+		"2. WARNING in A.java (at line 6)\n" + 
+		"	new B().foo(new ArrayList());\n" + 
+		"	                ^^^^^^^^^\n" + 
+		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in A.java (at line 7)\n" + 
+		"	new B().foo(new ArrayList(), args[0]);\n" + 
+		"	        ^^^\n" + 
+		"The method foo(ArrayList, Object) is ambiguous for the type B\n" + 
+		"----------\n" + 
+		"4. WARNING in A.java (at line 7)\n" + 
+		"	new B().foo(new ArrayList(), args[0]);\n" + 
+		"	                ^^^^^^^^^\n" + 
+		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in A.java (at line 11)\n" + 
+		"	void foo(ArrayList a) {}\n" + 
+		"	         ^^^^^^^^^\n" + 
+		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+		"----------\n" + 
+		"6. WARNING in A.java (at line 12)\n" + 
+		"	void foo(ArrayList a, Object o) {}\n" + 
+		"	         ^^^^^^^^^\n" + 
+		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+		"----------\n"
+	);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=214558 - positive case
+public void test067() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"import java.util.*;\n" + 
+			"public class A {\n" + 
+			"	void foo(Collection<Object[]> c) {}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new B().foo(new ArrayList<Object>());\n" +
+			"	}\n" +
+			"}\n" + 
+			"class B extends A {\n" + 
+			"	void foo(ArrayList<Object> a) {System.out.print(1);}\n" + 
+			"}"
+		},
+		"1"
+	);
+}
 }
