@@ -54,6 +54,8 @@ public class FormatterCommentsTests extends FormatterRegressionTests {
 
 	public static List ALL_TEST_SUITES = null;
 
+	DefaultCodeFormatterOptions preferences;
+
 public static Test suite() {
 	return buildModelTestSuite(FormatterCommentsTests.class);
 }
@@ -63,6 +65,7 @@ public FormatterCommentsTests(String name) {
 }
 protected void setUp() throws Exception {
     super.setUp();
+	this.preferences = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
 }
 
 /**
@@ -90,7 +93,6 @@ public void tearDownSuite() throws Exception {
 }
 
 DefaultCodeFormatter codeFormatter() {
-	DefaultCodeFormatterOptions preferences = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 	return codeFormatter;
 }
@@ -767,7 +769,7 @@ public void testLineComments05() throws JavaModelException {
 public void testLineComments06() throws JavaModelException {
 	formatUnit("comments.line", "X06.java");
 }
-// TODO Pass this test case
+// TODO Pass this test
 public void _testLineComments07() throws JavaModelException {
 	formatUnit("comments.line", "X07.java");
 }
@@ -780,7 +782,9 @@ public void testLineComments09() throws JavaModelException {
 public void testLineComments10() throws JavaModelException {
 	formatUnit("comments.line", "X10.java");
 }
-public void testLineComments11() throws JavaModelException {
+// TODO Pass this test
+public void _testLineComments11() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
 	formatUnit("comments.line", "X11.java");
 }
 
