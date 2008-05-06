@@ -43640,4 +43640,107 @@ public void test1313() {
 			"Type mismatch: cannot convert from List<?>[] to List<? extends Object>\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=230070
+public void test1314() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"class B {\n" + 
+					"}\n" + 
+					"class Y<K> {\n" + 
+					"	Y(K k) {\n" + 
+					"		System.out.println(k);\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"public class X<K> {\n" + 
+					"	static final B b = new B();\n" + 
+					"	Object foo(K toKey) {\n" + 
+					"		if (false) return new Y(b);//1\n" + 
+					"		if (false) return new Y((K) b);//2\n" + 
+					"		return new Y((K) (Object) b);//3\n" + 
+					"	}\n" + 
+					"	Object bar(K toKey) {\n" + 
+					"		if (false) return new Y<K>(b);//4\n" + 
+					"		if (false) return new Y<K>((K) b);//5\n" + 
+					"		return new Y<K>((K) (Object) b);//6\n" + 
+					"	}	\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 11)\n" + 
+			"	if (false) return new Y(b);//1\n" + 
+			"	                  ^^^^^^^^\n" + 
+			"Type safety: The constructor Y(Object) belongs to the raw type Y. References to generic type Y<K> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 11)\n" + 
+			"	if (false) return new Y(b);//1\n" + 
+			"	                      ^\n" + 
+			"Y is a raw type. References to generic type Y<K> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 12)\n" + 
+			"	if (false) return new Y((K) b);//2\n" + 
+			"	                  ^^^^^^^^^^^^\n" + 
+			"Type safety: The constructor Y(Object) belongs to the raw type Y. References to generic type Y<K> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 12)\n" + 
+			"	if (false) return new Y((K) b);//2\n" + 
+			"	                      ^\n" + 
+			"Y is a raw type. References to generic type Y<K> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 12)\n" + 
+			"	if (false) return new Y((K) b);//2\n" + 
+			"	                        ^^^^^\n" + 
+			"Type safety: Unchecked cast from B to K\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 12)\n" + 
+			"	if (false) return new Y((K) b);//2\n" + 
+			"	                        ^^^^^\n" + 
+			"Unnecessary cast from B to K\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 13)\n" + 
+			"	return new Y((K) (Object) b);//3\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The constructor Y(Object) belongs to the raw type Y. References to generic type Y<K> should be parameterized\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 13)\n" + 
+			"	return new Y((K) (Object) b);//3\n" + 
+			"	           ^\n" + 
+			"Y is a raw type. References to generic type Y<K> should be parameterized\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 13)\n" + 
+			"	return new Y((K) (Object) b);//3\n" + 
+			"	             ^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from Object to K\n" + 
+			"----------\n" + 
+			"10. WARNING in X.java (at line 13)\n" + 
+			"	return new Y((K) (Object) b);//3\n" + 
+			"	             ^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from Object to K\n" + 
+			"----------\n" + 
+			"11. WARNING in X.java (at line 13)\n" + 
+			"	return new Y((K) (Object) b);//3\n" + 
+			"	                 ^^^^^^^^^^\n" + 
+			"Unnecessary cast from B to Object\n" + 
+			"----------\n" + 
+			"12. ERROR in X.java (at line 16)\n" + 
+			"	if (false) return new Y<K>(b);//4\n" + 
+			"	                  ^^^^^^^^^^^\n" + 
+			"The constructor Y<K>(B) is undefined\n" + 
+			"----------\n" + 
+			"13. WARNING in X.java (at line 17)\n" + 
+			"	if (false) return new Y<K>((K) b);//5\n" + 
+			"	                           ^^^^^\n" + 
+			"Type safety: Unchecked cast from B to K\n" + 
+			"----------\n" + 
+			"14. WARNING in X.java (at line 18)\n" + 
+			"	return new Y<K>((K) (Object) b);//6\n" + 
+			"	                ^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from Object to K\n" + 
+			"----------\n" + 
+			"15. WARNING in X.java (at line 18)\n" + 
+			"	return new Y<K>((K) (Object) b);//6\n" + 
+			"	                    ^^^^^^^^^^\n" + 
+			"Unnecessary cast from B to Object\n" + 
+			"----------\n");
+}
 }
