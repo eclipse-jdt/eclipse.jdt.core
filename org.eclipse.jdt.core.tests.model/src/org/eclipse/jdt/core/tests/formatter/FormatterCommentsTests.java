@@ -767,6 +767,7 @@ public void testLineComments05() throws JavaModelException {
 public void testLineComments06() throws JavaModelException {
 	formatUnit("comments.line", "X06.java");
 }
+// TODO Pass this test case
 public void _testLineComments07() throws JavaModelException {
 	formatUnit("comments.line", "X07.java");
 }
@@ -778,6 +779,9 @@ public void testLineComments09() throws JavaModelException {
 }
 public void testLineComments10() throws JavaModelException {
 	formatUnit("comments.line", "X10.java");
+}
+public void testLineComments11() throws JavaModelException {
+	formatUnit("comments.line", "X11.java");
 }
 
 /*
