@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.search.AbstractJavaSearchScope;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -82,7 +83,7 @@ public class HandleFactory {
 					|| (rootPathLength = this.lastPkgFragmentRootPath.length()) != resourcePath.length()
 					|| !resourcePath.regionMatches(0, this.lastPkgFragmentRootPath, 0, rootPathLength)) {
 				String jarPath= resourcePath.substring(0, separatorIndex);
-				PackageFragmentRoot root= getJarPkgFragmentRoot(jarPath, scope);
+				PackageFragmentRoot root= getJarPkgFragmentRoot(resourcePath, separatorIndex, jarPath, scope);
 				if (root == null)
 					return null; // match is outside classpath
 				this.lastPkgFragmentRootPath= jarPath;
@@ -240,7 +241,7 @@ public class HandleFactory {
 	 * See createOpenable(...) for the format of the jar path string.
 	 * If not null, uses the given scope as a hint for getting Java project handles.
 	 */
-	private PackageFragmentRoot getJarPkgFragmentRoot(String jarPathString, IJavaSearchScope scope) {
+	private PackageFragmentRoot getJarPkgFragmentRoot(String resourcePathString, int jarSeparatorIndex, String jarPathString, IJavaSearchScope scope) {
 
 		IPath jarPath= new Path(jarPathString);
 		
@@ -264,22 +265,28 @@ public class HandleFactory {
 		// walk projects in the scope and find the first one that has the given jar path in its classpath
 		IJavaProject[] projects;
 		if (scope != null) {
-			IPath[] enclosingProjectsAndJars = scope.enclosingProjectsAndJars();
-			int length = enclosingProjectsAndJars.length;
-			projects = new IJavaProject[length];
-			int index = 0;
-			for (int i = 0; i < length; i++) {
-				IPath path = enclosingProjectsAndJars[i];
-				if (path.segmentCount() == 1) {
-					projects[index++] = this.javaModel.getJavaProject(path.segment(0));
+			if (scope instanceof AbstractJavaSearchScope) {
+				PackageFragmentRoot root = (PackageFragmentRoot) ((AbstractJavaSearchScope) scope).packageFragmentRoot(resourcePathString, jarSeparatorIndex, jarPathString);
+				if (root != null)
+					return root;
+			} else {
+				IPath[] enclosingProjectsAndJars = scope.enclosingProjectsAndJars();
+				int length = enclosingProjectsAndJars.length;
+				projects = new IJavaProject[length];
+				int index = 0;
+				for (int i = 0; i < length; i++) {
+					IPath path = enclosingProjectsAndJars[i];
+					if (path.segmentCount() == 1) {
+						projects[index++] = this.javaModel.getJavaProject(path.segment(0));
+					}
 				}
-			}
-			if (index < length) {
-				System.arraycopy(projects, 0, projects = new IJavaProject[index], 0, index);
-			}
-			PackageFragmentRoot root = getJarPkgFragmentRoot(jarPath, target, projects);
-			if (root != null) {
-				return root;
+				if (index < length) {
+					System.arraycopy(projects, 0, projects = new IJavaProject[index], 0, index);
+				}
+				PackageFragmentRoot root = getJarPkgFragmentRoot(jarPath, target, projects);
+				if (root != null) {
+					return root;
+				}
 			}
 		} 
 		
