@@ -41207,4 +41207,43 @@ public void test1315() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=230466
+public void test1316() {
+	this.runConformTest(
+			new String[] {
+					"e/AbstractClass.java", // =================
+					"package e;\n" + 
+					"public abstract class AbstractClass<E> {\n" + 
+					"        protected abstract void method1();\n" + 
+					"}\n",
+					"q/AbstractTest.java", // =================
+					"package q;\n" + 
+					"import java.util.Map;\n" + 
+					"import e.AbstractClass;\n" +
+					"public abstract class AbstractTest<T> {\n" + 
+					"        protected class InnerClass extends AbstractClass<InnerClass>{\n" + 
+					"                public void innerMethod() {\n" + 
+					"                        System.out.println(\"innerMethod\");\n" + 
+					"                }\n" + 
+					"                @Override\n" + 
+					"                protected void method1() {\n" + 
+					"                        System.out.println(\"method1\");\n" + 
+					"                }\n" + 
+					"        }\n" + 
+					"        protected Map<String, InnerClass> records;\n" + 
+					"        public abstract void method(); \n" + 
+					"}\n",
+					"w/Test.java", // =================
+					"package w;\n" + 
+					"import q.AbstractTest;\n" + 
+					"public class Test extends AbstractTest<Test> {\n" + 
+					"        @Override\n" + 
+					"        public void method() {\n" + 
+					"            // Error here\n" + 
+					"                InnerClass inner = records.get(\"1\");\n" + 
+					"        }\n" + 
+					"}\n", // =================
+			},
+			"");
+}
 }
