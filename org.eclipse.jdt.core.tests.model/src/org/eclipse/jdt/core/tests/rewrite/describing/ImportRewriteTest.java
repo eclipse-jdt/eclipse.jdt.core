@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -263,6 +263,84 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("\n");
 		buf.append("import java.util.Set; // comment\n");
 		buf.append("import java.util.Vector;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
+	
+	public void testAddImportsWithGroupsOfUnmatched1() throws Exception {
+
+		IPackageFragment pack1= sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "java", "", "org", "#", "pack" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, true);
+		imports.addImport("org.x.Y");
+		imports.addImport("pack.P");
+		imports.addImport("my.M");
+		imports.addImport("java.util.Vector");
+		imports.addStaticImport("stat.X", "CONST", true);
+
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.util.Vector;\n");
+		buf.append("\n");
+		buf.append("import my.M;\n");
+		buf.append("\n");
+		buf.append("import org.x.Y;\n");
+		buf.append("\n");
+		buf.append("import static stat.X.CONST;\n");
+		buf.append("\n");		
+		buf.append("import pack.P;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
+	
+	public void testAddImportsWithGroupsOfUnmatched2() throws Exception {
+
+		IPackageFragment pack1= sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "org", "com", "pack", "#", "" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, true);
+		imports.addImport("com.x.Y");
+		imports.addImport("pack.P");
+		imports.addImport("my.M");
+		imports.addImport("org.Vector");
+		imports.addStaticImport("stat.X", "CONST", true);
+
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import org.Vector;\n");
+		buf.append("\n");
+		buf.append("import com.x.Y;\n");
+		buf.append("\n");
+		buf.append("import pack.P;\n");
+		buf.append("\n");	
+		buf.append("import static stat.X.CONST;\n");
+		buf.append("\n");
+		buf.append("import my.M;\n");
 		buf.append("\n");
 		buf.append("public class C {\n");
 		buf.append("}\n");
