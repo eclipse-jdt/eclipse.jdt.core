@@ -1421,28 +1421,23 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Bug 51911.
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51911">51911</a>
+	 * @bug 51911: [Javadoc] @see method w/out ()
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=51911"
 	 */
+	// Conform since bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=191322 has been fixed 
 	public void testBug51911() {
 		// Warn an ambiguous method reference
-		runNegativeTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"/**\n" +
-					" * @see #foo\n" +
-					" */\n" +
-					"public class X {\n" +
-					"	public void foo(int i, float f) {}\n" +
-					"	public void foo(String str) {}\n" +
-					"}\n"
-		 	},
-			"----------\n" + 
-				"1. ERROR in X.java (at line 2)\n" + 
-				"	* @see #foo\n" + 
-				"	        ^^^\n" + 
-				"Javadoc: foo is an ambiguous method reference or is not a field\n" + 
-				"----------\n"
+				" * @see #foo\n" +
+				" */\n" +
+				"public class X {\n" +
+				"	public void foo(int i, float f) {}\n" +
+				"	public void foo(String str) {}\n" +
+				"}\n"
+		 	}
 		);
 	}
 	public void testBug51911a() {
@@ -1451,11 +1446,11 @@ public class JavadocBugsTest extends JavadocTest {
 			new String[] {
 				"X.java",
 				"/**\n" +
-					" * @see #foo\n" +
-					" */\n" +
-					"public class X {\n" +
-					"	public void foo(String str) {}\n" +
-					"}\n"
+				" * @see #foo\n" +
+				" */\n" +
+				"public class X {\n" +
+				"	public void foo(String str) {}\n" +
+				"}\n"
 		 	}
 		);
 	}
@@ -1465,12 +1460,12 @@ public class JavadocBugsTest extends JavadocTest {
 			new String[] {
 				"X.java",
 				"/**\n" +
-					" * @see #foo\n" +
-					" */\n" +
-					"public class X {\n" +
-					"	public int foo;\n" +
-					"	public void foo(String str) {}\n" +
-					"}\n"
+				" * @see #foo\n" +
+				" */\n" +
+				"public class X {\n" +
+				"	public int foo;\n" +
+				"	public void foo(String str) {}\n" +
+				"}\n"
 		 	}
 		);
 	}
@@ -1479,14 +1474,14 @@ public class JavadocBugsTest extends JavadocTest {
 		runConformTest(
 			new String[] {
 				"X.java",
-					"/**\n" +
-					" * @see #foo\n" +
-					" */\n" +
-					"public class X {\n" +
-					"	public int foo;\n" +
-					"	public void foo() {}\n" +
-					"	public void foo(String str) {}\n" +
-					"}\n"
+				"/**\n" +
+				" * @see #foo\n" +
+				" */\n" +
+				"public class X {\n" +
+				"	public int foo;\n" +
+				"	public void foo() {}\n" +
+				"	public void foo(String str) {}\n" +
+				"}\n"
 		 	}
 		);
 	}
@@ -1903,35 +1898,30 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Bug 65180: Spurious "Javadoc: xxx cannot be resolved or is not a field" error with inner classes
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=65180">65180</a>
+	 * @bug 65180: Spurious "Javadoc: xxx cannot be resolved or is not a field" error with inner classes
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65180"
 	 */
+	 // Conform since bug "http://bugs.eclipse.org/bugs/show_bug.cgi?id=191322" has been fixed
 	public void testBug65180() {
-		runNegativeTest(
+		runConformTest(
 			new String[] {
 				"Test.java",
 				"public class Test {\n" + 
-					"	public class Inner {\n" + 
-					"		/**\n" + 
-					"		 * Does something.\n" + 
-					"		 * \n" + 
-					"		 * @see #testFunc\n" + 
-					"		 */\n" + 
-					"		public void innerFunc() {\n" + 
-					"			testFunc();\n" + 
-					"		}\n" + 
-					"	}\n" + 
-					"	\n" + 
-					"	public void testFunc() {}\n" + 
-					"}\n" + 
-					"\n"
-			},
-			"----------\n" + 
-				"1. ERROR in Test.java (at line 6)\r\n" + 
-				"	* @see #testFunc\r\n" + 
-				"	        ^^^^^^^^\n" + 
-				"Javadoc: testFunc cannot be resolved or is not a field\n" + 
-				"----------\n"
+				"	public class Inner {\n" + 
+				"		/**\n" + 
+				"		 * Does something.\n" + 
+				"		 * \n" + 
+				"		 * @see #testFunc\n" + 
+				"		 */\n" + 
+				"		public void innerFunc() {\n" + 
+				"			testFunc();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public void testFunc() {}\n" + 
+				"}\n" + 
+				"\n"
+			}
 		);
 	}
 	public void testBug65180a() {
@@ -1939,20 +1929,19 @@ public class JavadocBugsTest extends JavadocTest {
 			new String[] {
 				"Test.java",
 				"public class Test {\n" + 
-					"	public class Inner {\n" + 
-					"		/**\n" + 
-					"		 * Does something.\n" + 
-					"		 * \n" + 
-					"		 * @see #testFunc()\n" + 
-					"		 */\n" + 
-					"		public void innerFunc() {\n" + 
-					"			testFunc();\n" + 
-					"		}\n" + 
-					"	}\n" + 
-					"	\n" + 
-					"	public void testFunc() {}\n" + 
-					"}\n" + 
-					"\n"
+				"	public class Inner {\n" + 
+				"		/**\n" + 
+				"		 * Does something.\n" + 
+				"		 * \n" + 
+				"		 * @see #testFunc()\n" + 
+				"		 */\n" + 
+				"		public void innerFunc() {\n" + 
+				"			testFunc();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public void testFunc() {}\n" + 
+				"}\n"
 			}
 		);
 	}
@@ -1961,51 +1950,44 @@ public class JavadocBugsTest extends JavadocTest {
 			new String[] {
 				"Test.java",
 				"public class Test {\n" + 
-					"	public class Inner {\n" + 
-					"		/**\n" + 
-					"		 * Does something.\n" + 
-					"		 * \n" + 
-					"		 * @see Test#testFunc\n" + 
-					"		 * @see Test#testFunc()\n" + 
-					"		 */\n" + 
-					"		public void innerFunc() {\n" + 
-					"			testFunc();\n" + 
-					"		}\n" + 
-					"	}\n" + 
-					"	\n" + 
-					"	public void testFunc() {}\n" + 
-					"}\n" + 
-					"\n"
+				"	public class Inner {\n" + 
+				"		/**\n" + 
+				"		 * Does something.\n" + 
+				"		 * \n" + 
+				"		 * @see Test#testFunc\n" + 
+				"		 * @see Test#testFunc()\n" + 
+				"		 */\n" + 
+				"		public void innerFunc() {\n" + 
+				"			testFunc();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public void testFunc() {}\n" + 
+				"}\n"
 			}
 		);
 	}
+	 // Conform since bug "http://bugs.eclipse.org/bugs/show_bug.cgi?id=191322" has been fixed
 	public void testBug65180c() {
-		runNegativeTest(
+		runConformTest(
 			new String[] {
 				"Test.java",
 				"public class Test {\n" + 
-					"	public class Inner {\n" + 
-					"		/**\n" + 
-					"		 * Does something.\n" + 
-					"		 * \n" + 
-					"		 * @see #testFunc\n" + 
-					"		 */\n" + 
-					"		public void innerFunc() {\n" + 
-					"			testFunc();\n" + 
-					"		}\n" + 
-					"	}\n" + 
-					"	\n" + 
-					"	public void testFunc() {}\n" + 
-					"	public void testFunc(String str) {}\n" + 
-					"}\n" + 
-					"\n"
-			},
-			"----------\n" + 
-				"1. ERROR in Test.java (at line 6)\n" + 
-				"	* @see #testFunc\n" + 
-				"	        ^^^^^^^^\n" + 
-				"Javadoc: testFunc cannot be resolved or is not a field\n" + 
-				"----------\n"
+				"	public class Inner {\n" + 
+				"		/**\n" + 
+				"		 * Does something.\n" + 
+				"		 * \n" + 
+				"		 * @see #testFunc\n" + 
+				"		 */\n" + 
+				"		public void innerFunc() {\n" + 
+				"			testFunc();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public void testFunc() {}\n" + 
+				"	public void testFunc(String str) {}\n" + 
+				"}\n"
+			}
 		);
 	}
 	public void testBug65180d() {
@@ -2014,23 +1996,22 @@ public class JavadocBugsTest extends JavadocTest {
 				"Test.java",
 				"public class Test {\n" + 
 					"	int testField;\n" + 
-					"	public class Inner {\n" + 
-					"		/**\n" + 
-					"		 * Does something.\n" + 
-					"		 * \n" + 
-					"		 * @see #testField\n" + 
-					"		 * @see #testFunc(int)\n" + 
-					"		 */\n" + 
-					"		public void innerFunc() {\n" + 
-					"			testFunc(testField);\n" + 
-					"		}\n" + 
-					"	}\n" + 
-					"	\n" + 
-					"	public void testFunc(int test) {\n" + 
-					"		testField = test; \n" + 
-					"	}\n" + 
-					"}\n" + 
-					"\n"
+				"	public class Inner {\n" + 
+				"		/**\n" + 
+				"		 * Does something.\n" + 
+				"		 * \n" + 
+				"		 * @see #testField\n" + 
+				"		 * @see #testFunc(int)\n" + 
+				"		 */\n" + 
+				"		public void innerFunc() {\n" + 
+				"			testFunc(testField);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public void testFunc(int test) {\n" + 
+				"		testField = test; \n" + 
+				"	}\n" + 
+				"}\n"
 			}
 		);
 	}
@@ -2039,15 +2020,15 @@ public class JavadocBugsTest extends JavadocTest {
 			new String[] {
 				"ITest.java",
 				"public interface ITest {\n" + 
-					"	/**\n" + 
-					"	 * @see #foo() \n" + 
-					"	 */\n" + 
-					"	public static int field = 0;\n" + 
-					"	/**\n" + 
-					"	 * @see #field\n" + 
-					"	 */\n" + 
-					"	public void foo();\n" + 
-					"}\n"
+				"	/**\n" + 
+				"	 * @see #foo() \n" + 
+				"	 */\n" + 
+				"	public static int field = 0;\n" + 
+				"	/**\n" + 
+				"	 * @see #field\n" + 
+				"	 */\n" + 
+				"	public void foo();\n" + 
+				"}\n"
 			}
 		);
 	}
@@ -2056,24 +2037,24 @@ public class JavadocBugsTest extends JavadocTest {
 			new String[] {
 				"Test.java",
 				"public class Test {\n" + 
-					"    static class SuperInner {\n" + 
-					"    	public int field;\n" + 
-					"        public void foo() {}\n" + 
-					"     }\n" + 
-					"    \n" + 
-					"	public static class Inner extends SuperInner {\n" + 
-					"		/**\n" + 
-					"		 * @see #field\n" + 
-					"		 */\n" + 
-					"		public static int f;\n" + 
-					"		/**\n" + 
-					"		 * @see #foo()\n" + 
-					"		 */\n" + 
-					"		public static void bar() {}\n" + 
-					"	}\n" + 
-					"	\n" + 
-					"	public void foo() {}\n" + 
-					"}"
+				"    static class SuperInner {\n" + 
+				"    	public int field;\n" + 
+				"        public void foo() {}\n" + 
+				"     }\n" + 
+				"    \n" + 
+				"	public static class Inner extends SuperInner {\n" + 
+				"		/**\n" + 
+				"		 * @see #field\n" + 
+				"		 */\n" + 
+				"		public static int f;\n" + 
+				"		/**\n" + 
+				"		 * @see #foo()\n" + 
+				"		 */\n" + 
+				"		public static void bar() {}\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public void foo() {}\n" + 
+				"}"
 			}
 		);
 	}
@@ -6085,6 +6066,188 @@ public class JavadocBugsTest extends JavadocTest {
 		null,
 		false,
 		customOptions
+		);
+	}
+	
+//	static { TESTS_PREFIX = "testBug191322"; }
+	/**
+	 * @bug 191322: [javadoc] @see or @link reference to method without signature fails to resolve to base class method
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=191322"
+	 */
+	public void testBug191322() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo() {}\n" + 
+				"	/**\n" + 
+				"	 * {@link #foo}.\n" + 
+				"	 * @see #foo\n" + 
+				"	 */\n" + 
+				"	void goo() {}\n" + 
+				"}\n",
+				"Y.java",
+				"class Y extends X {\n" + 
+				"	/**\n" + 
+				"	 * {@link #foo}\n" + 
+				"	 * @see #foo\n" + 
+				"	 */\n" + 
+				"	void hoo() {}\n" + 
+				"}"
+			}
+		);
+	}
+	public void testBug191322b() {
+		runConformTest(
+			new String[] {
+				"b/X.java",
+				"package b;\n" + 
+				"public class X {\n" + 
+				"	void foo() {}\n" + 
+				"}\n" + 
+				"class Y extends X {}\n" + 
+				"class W extends Y {}\n" + 
+				"class Z extends W {\n" + 
+				"	/**\n" + 
+				"	 * {@link #foo}\n" + 
+				"	 * @see #foo\n" + 
+				"	 */\n" + 
+				"	void hoo() {}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug191322c() {
+		runConformTest(
+			new String[] {
+				"c/X.java",
+				"package c;\n" + 
+				"public interface X {\n" + 
+				"	void foo();\n" + 
+				"}\n" + 
+				"interface Y extends X {\n" + 
+				"	/**\n" + 
+				"	 * {@link #foo}\n" + 
+				"	 * @see #foo\n" + 
+				"	 */\n" + 
+				"	void hoo();\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug191322d() {
+		runConformTest(
+			new String[] {
+				"d/X.java",
+				"package d;\n" + 
+				"public interface X {\n" + 
+				"	void foo();\n" + 
+				"}\n" + 
+				"interface Y extends X {}\n" + 
+				"abstract class W implements Y {}\n" + 
+				"abstract class Z extends W {\n" + 
+				"	/**\n" + 
+				"	 * {@link #foo}\n" + 
+				"	 * @see #foo\n" + 
+				"	 */\n" + 
+				"	void hoo() {}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug191322e() {
+		runConformTest(
+			new String[] {
+				"e/X.java",
+				"package e;\n" + 
+				"public class X {\n" + 
+				"	void foo() {}\n" + 
+				"	class Y {\n" + 
+				"		/**\n" + 
+				"		 * {@link #foo}\n" + 
+				"		 * @see #foo\n" + 
+				"		 */\n" + 
+				"		void hoo() {}\n" + 
+				"	}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug191322f() {
+		runConformTest(
+			new String[] {
+				"f/X.java",
+				"package f;\n" + 
+				"public class X {\n" + 
+				"	void foo() {}\n" + 
+				"	void foo(String str) {}\n" + 
+				"}\n" + 
+				"class Y extends X {\n" + 
+				"	/**\n" + 
+				"	 * {@link #foo}\n" + 
+				"	 * @see #foo\n" + 
+				"	 */\n" + 
+				"	void hoo() {}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug191322g() {
+		runConformTest(
+			new String[] {
+				"g/X.java",
+				"package g;\n" + 
+				"public class X {\n" + 
+				"	void foo(String str) {}\n" + 
+				"	void foo(int x) {}\n" + 
+				"}\n" + 
+				"class Y extends X {\n" + 
+				"	/**\n" + 
+				"	 * {@link #foo}\n" + 
+				"	 * @see #foo\n" + 
+				"	 */\n" + 
+				"	void hoo() {}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug191322h() {
+		runConformTest(
+			new String[] {
+				"h/X.java",
+				"package h;\n" + 
+				"public class X {\n" + 
+				"	void foo(String str) {}\n" + 
+				"}\n" + 
+				"class Y extends X {\n" + 
+				"	/**\n" + 
+				"	 * {@link #foo}\n" + 
+				"	 * @see #foo\n" + 
+				"	 */\n" + 
+				"	void hoo() {}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug191322i() {
+		runConformTest(
+			new String[] {
+				"i/X.java",
+				"package i;\n" + 
+				"interface X {\n" + 
+				"	void foo();\n" + 
+				"}\n" + 
+				"interface Y {\n" + 
+				"	void foo(int i);\n" + 
+				"}\n" + 
+				"abstract class Z implements X, Y {\n" + 
+				"	/**\n" + 
+				"	 * @see #foo\n" + 
+				"	 */\n" + 
+				"	void bar() {\n" + 
+				"	}\n" + 
+				"}"
+			}
 		);
 	}
 	

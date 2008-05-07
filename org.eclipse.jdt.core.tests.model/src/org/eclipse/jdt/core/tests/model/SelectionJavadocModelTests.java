@@ -1022,4 +1022,293 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			elements
 		);
 	}
+
+	/**
+	 * @bug 191322: [javadoc] @see or @link reference to method without signature fails to resolve to base class method
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=191322"
+	 */
+	public void testBug191322a() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b191322/X.java",
+			"package b191322;\n" + 
+			"public class X {\n" + 
+			"	void foo() {}\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"	/**\n" + 
+			"	 * {@link #foo}\n" + 
+			"	 * @see #foo\n" + 
+			"	 */\n" + 
+			"	void hoo() {}\n" + 
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "foo", 2);
+		assertElementsEqual("Invalid selection(s)",
+			"foo() [in X [in [Working copy] X.java [in b191322 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	public void testBug191322b() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b191322/X.java",
+			"package b191322;\n" + 
+			"public class X {\n" + 
+			"	void foo() {}\n" + 
+			"}\n" + 
+			"class Y extends X {}\n" + 
+			"class W extends Y {}\n" + 
+			"class Z extends W {\n" + 
+			"	/**\n" + 
+			"	 * @see #foo\n" + 
+			"	 */\n" + 
+			"	void hoo() {}\n" + 
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "foo", 2);
+		assertElementsEqual("Invalid selection(s)",
+			"foo() [in X [in [Working copy] X.java [in b191322 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	public void testBug191322c() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b191322/X.java",
+			"package b191322;\n" + 
+			"public interface X {\n" + 
+			"	void foo();\n" + 
+			"}\n" + 
+			"interface Y extends X {\n" + 
+			"	/**\n" + 
+			"	 * {@link #foo}\n" + 
+			"	 */\n" + 
+			"	void hoo();\n" + 
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "foo", 2);
+		assertElementsEqual("Invalid selection(s)",
+			"foo() [in X [in [Working copy] X.java [in b191322 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	public void testBug191322d() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b191322/X.java",
+			"package b191322;\n" + 
+			"public interface X {\n" + 
+			"	void foo();\n" + 
+			"}\n" + 
+			"interface Y extends X {}\n" + 
+			"abstract class W implements Y {}\n" + 
+			"abstract class Z extends W {\n" + 
+			"	/**\n" + 
+			"	 * @see #foo\n" + 
+			"	 */\n" + 
+			"	void hoo() {}\n" + 
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "foo", 2);
+		assertElementsEqual("Invalid selection(s)",
+			"foo() [in X [in [Working copy] X.java [in b191322 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	public void testBug191322e() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b191322/X.java",
+			"package b191322;\n" + 
+			"public class X {\n" + 
+			"	void foo() {}\n" + 
+			"	class Y {\n" + 
+			"		/**\n" + 
+			"		 * @see #foo\n" + 
+			"		 */\n" + 
+			"		void hoo() {}\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "foo", 2);
+		assertElementsEqual("Invalid selection(s)",
+			"foo() [in X [in [Working copy] X.java [in b191322 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	public void testBug191322f() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b191322/X.java",
+			"package b191322;\n" + 
+			"public class X {\n" + 
+			"	void foo() {}\n" + 
+			"	void foo(String str) {}\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"	/**\n" + 
+			"	 * @see #foo\n" + 
+			"	 */\n" + 
+			"	void hoo() {}\n" + 
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "foo", 3);
+		assertElementsEqual("Invalid selection(s)",
+			"foo() [in X [in [Working copy] X.java [in b191322 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	public void testBug191322g() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b191322/X.java",
+			"package b191322;\n" + 
+			"public class X {\n" + 
+			"	void foo(String str) {}\n" + 
+			"	void foo() {}\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"	/**\n" + 
+			"	 * {@link #foo}\n" + 
+			"	 */\n" + 
+			"	void hoo() {}\n" + 
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "foo", 3);
+		assertElementsEqual("Invalid selection(s)",
+			"foo() [in X [in [Working copy] X.java [in b191322 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	public void testBug191322h() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b191322/X.java",
+			"package b191322;\n" + 
+			"public class X {\n" + 
+			"	void foo(String str) {}\n" + 
+			"	void foo(int x) {}\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"	/**\n" + 
+			"	 * @see #foo\n" + 
+			"	 */\n" + 
+			"	void hoo() {}\n" + 
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "foo", 3);
+		assertElementsEqual("Invalid selection(s)",
+			"foo(String) [in X [in [Working copy] X.java [in b191322 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	public void testBug191322i() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b191322/X.java",
+			"package b191322;\n" + 
+			"public class X {\n" + 
+			"	void foo(String str) {}\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"	/**\n" + 
+			"	 * @see #foo\n" + 
+			"	 */\n" + 
+			"	void hoo() {}\n" + 
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "foo", 2);
+		assertElementsEqual("Invalid selection(s)",
+			"foo(String) [in X [in [Working copy] X.java [in b191322 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	public void testBug191322j1() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b191322/X.java",
+			"package b191322;\n" + 
+			"interface X {\n" + 
+			"	void foo();\n" + 
+			"}\n" + 
+			"interface Y {\n" + 
+			"	void foo(int i);\n" + 
+			"}\n" + 
+			"abstract class Z implements X, Y {\n" + 
+			"	/**\n" + 
+			"	 * @see #foo\n" + 
+			"	 */\n" + 
+			"	void bar() {\n" + 
+			"	}\n" + 
+			"}"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "foo", 3);
+		assertElementsEqual("Invalid selection(s)",
+			"foo() [in X [in [Working copy] X.java [in b191322 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	public void testBug191322j2() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b191322/X.java",
+			"package b191322;\n" + 
+			"interface X {\n" + 
+			"	void foo(int x);\n" + 
+			"}\n" + 
+			"interface Y {\n" + 
+			"	void foo();\n" + 
+			"}\n" + 
+			"abstract class Z implements X, Y {\n" + 
+			"	/**\n" + 
+			"	 * @see #foo\n" + 
+			"	 */\n" + 
+			"	void bar() {\n" + 
+			"	}\n" + 
+			"}"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "foo", 3);
+		assertElementsEqual("Invalid selection(s)",
+			"foo() [in Y [in [Working copy] X.java [in b191322 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	public void testBug191322j3() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b191322/X.java",
+			"package b191322;\n" + 
+			"interface X {\n" + 
+			"	void foo(int x);\n" + 
+			"}\n" + 
+			"interface Y {\n" + 
+			"	void foo(String str);\n" + 
+			"}\n" + 
+			"abstract class Z implements X, Y {\n" + 
+			"	/**\n" + 
+			"	 * @see #foo\n" + 
+			"	 */\n" + 
+			"	void bar() {\n" + 
+			"	}\n" + 
+			"}"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "foo", 3);
+		assertElementsEqual("Invalid selection(s)",
+			"foo(int) [in X [in [Working copy] X.java [in b191322 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
 }

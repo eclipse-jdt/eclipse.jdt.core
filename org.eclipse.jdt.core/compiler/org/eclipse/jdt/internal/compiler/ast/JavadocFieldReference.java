@@ -74,24 +74,17 @@ public class JavadocFieldReference extends FieldReference {
 			}						
 			if (this.receiverType instanceof ReferenceBinding) {
 				ReferenceBinding refBinding = (ReferenceBinding) this.receiverType;
-				MethodBinding[] methodBindings = refBinding.getMethods(this.token);
-				if (methodBindings == null) {
-					scope.problemReporter().javadocInvalidField(this, fieldBinding, this.receiverType, scope.getDeclarationModifiers());
+				MethodBinding possibleMethod = this.receiver.isThis()
+					? scope.getImplicitMethod(this.token, Binding.NO_TYPES, this)
+					: scope.getMethod(refBinding, this.token, Binding.NO_TYPES, this);
+				if (possibleMethod.isValidBinding()) {
+					this.methodBinding = possibleMethod;
 				} else {
-					switch (methodBindings.length) {
-						case 0:
-							// no method was found: report problem
-							scope.problemReporter().javadocInvalidField(this, fieldBinding, this.receiverType, scope.getDeclarationModifiers());
-							break;
-						case 1:
-							// one method binding was found: store binding in specific field
-							this.methodBinding = methodBindings[0];
-							break;
-						default:
-							// several method binding were found: store first binding in specific field and report ambiguous error
-							this.methodBinding = methodBindings[0];
-							scope.problemReporter().javadocAmbiguousMethodReference(this.sourceStart, this.sourceEnd, fieldBinding, scope.getDeclarationModifiers());
-							break;
+					ProblemMethodBinding problemMethodBinding = (ProblemMethodBinding) possibleMethod;
+					if (problemMethodBinding.closestMatch == null) {
+						scope.problemReporter().javadocInvalidField(this, fieldBinding, this.receiverType, scope.getDeclarationModifiers());
+					} else {
+						this.methodBinding = problemMethodBinding.closestMatch;
 					}
 				}
 			}
@@ -104,7 +97,7 @@ public class JavadocFieldReference extends FieldReference {
 		}
 		return this.resolvedType = this.binding.type;
 	}
-	
+
 	public boolean isSuperAccess() {
 		return (this.bits & ASTNode.SuperAccess) != 0;
 	}
