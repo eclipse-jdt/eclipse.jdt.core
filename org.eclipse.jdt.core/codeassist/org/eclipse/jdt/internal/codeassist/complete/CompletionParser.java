@@ -1024,30 +1024,39 @@ private Statement buildMoreCompletionEnclosingContext(Statement statement) {
 	
 	int blockIndex = this.lastIndexOfElement(K_BLOCK_DELIMITER);
 	int controlIndex = this.lastIndexOfElement(K_CONTROL_STATEMENT_DELIMITER);
-	if (blockIndex != -1 && controlIndex < blockIndex) {
-		if (this.elementInfoStack[blockIndex] == IF && this.elementObjectInfoStack[blockIndex] != null) {
-			Expression condition = (Expression)this.elementObjectInfoStack[blockIndex];
-			IfStatement ifStatement =
-				new IfStatement(
+	int index = blockIndex != -1 && controlIndex < blockIndex ? blockIndex : controlIndex;
+	
+	if (index != -1 && this.elementInfoStack[index] == IF && this.elementObjectInfoStack[index] != null) {
+		Expression condition = (Expression)this.elementObjectInfoStack[index];
+		
+		// If currentElement is a RecoveredLocalVariable then it can be contained in the if statement
+		if (this.currentElement instanceof RecoveredLocalVariable &&
+				this.currentElement.parent instanceof RecoveredBlock) {
+			RecoveredLocalVariable recoveredLocalVariable = (RecoveredLocalVariable) this.currentElement;
+			if (recoveredLocalVariable.localDeclaration.initialization == null &&
+					statement instanceof Expression &&
+					condition.sourceStart < recoveredLocalVariable.localDeclaration.sourceStart) {
+				this.currentElement.add(statement, 0);
+				
+				statement = recoveredLocalVariable.updatedStatement();
+				
+				// RecoveredLocalVariable must be removed from its parent because the IfStatement will be added instead
+				RecoveredBlock recoveredBlock =  (RecoveredBlock) recoveredLocalVariable.parent;
+				recoveredBlock.statements[--recoveredBlock.statementCount] = null;
+				
+				this.currentElement = recoveredBlock;
+				
+			}
+		}
+		
+		IfStatement ifStatement = 
+			new IfStatement(
 					condition, 
 					statement, 
 					condition.sourceStart, 
 					statement.sourceEnd);
-			this.enclosingNode = ifStatement;
-			return ifStatement;
-		}
-	} else if (controlIndex != -1) {
-		if (this.elementInfoStack[controlIndex] == IF && this.elementObjectInfoStack[controlIndex] != null) {
-			Expression condition = (Expression)this.elementObjectInfoStack[controlIndex];
-			IfStatement ifStatement =
-				new IfStatement(
-					condition, 
-					statement, 
-					condition.sourceStart, 
-					statement.sourceEnd);
-			this.enclosingNode = ifStatement;
-			return ifStatement;
-		}
+		this.enclosingNode = ifStatement;
+		return ifStatement;
 	}
 	
 	return statement;

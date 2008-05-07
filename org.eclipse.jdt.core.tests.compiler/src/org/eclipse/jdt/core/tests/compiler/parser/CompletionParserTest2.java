@@ -11754,4 +11754,47 @@ public void test0177_Diet() {
 			expectedReplacedSource,
 	"diet ast");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=229927
+public void test0178_Method() {
+
+	String str = 
+		"package p;\n"+
+		"\n"+
+		"public class P {\n"+
+		"        private void foo(String key){\n"+
+		"                if (key != null) {\n"+
+		"                        String[] keys= { k };\n"+
+		"                }\n"+
+		"        }\n"+
+		"}\n"; 
+
+	String completeBehind = "k";
+	int cursorLocation = str.lastIndexOf("k") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:k>";
+	String expectedParentNodeToString = "String[] keys = {<CompleteOnName:k>};";
+	String completionIdentifier = "k";
+	String expectedReplacedSource = "k";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class P {\n" + 
+			"  public P() {\n" + 
+			"  }\n" + 
+			"  private void foo(String key) {\n" + 
+			"    {\n" + 
+			"      if ((key != null))\n" + 
+			"          String[] keys = {<CompleteOnName:k>};\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }
