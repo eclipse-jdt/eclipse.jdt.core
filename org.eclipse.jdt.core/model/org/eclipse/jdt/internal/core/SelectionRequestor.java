@@ -80,7 +80,7 @@ private void acceptBinaryMethod(
 		char[] uniqueKey,
 		boolean isConstructor) {
 	try {
-		if(!isConstructor || ((JavaElement)method).getSourceMapper() == null) {
+		if(!isConstructor || ((JavaElement)method).getClassFile().getBuffer() == null) {
 			if (uniqueKey != null) {
 				ResolvedBinaryMethod resolvedMethod = new ResolvedBinaryMethod(
 						(JavaElement)method.getParent(),

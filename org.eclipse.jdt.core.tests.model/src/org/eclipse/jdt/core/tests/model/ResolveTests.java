@@ -333,6 +333,50 @@ public void testConstructor4() throws JavaModelException {
 	);
 }
 /**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=194743
+ * ResolveConstructorCall2.class has no attached source
+ */
+public void testConstructor5() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/Test.java",
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    new ResolveConstructorCall2();\n" +
+		"  }\n" + 
+		"}\n" +
+		"\n"
+	);
+	IJavaElement[] elements = codeSelect(this.workingCopies[0], "ResolveConstructorCall2", "ResolveConstructorCall2");
+	assertElementsEqual(
+		"Unexpected elements",
+		"ResolveConstructorCall2() [in ResolveConstructorCall2 [in ResolveConstructorCall2.class [in <default> [in class-folder [in Resolve]]]]]",
+		elements
+	);
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=194743
+ * ResolveConstructorCall3.class has attached source and a default constructor
+ */
+public void testConstructor6() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/Test.java",
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    new ResolveConstructorCall3();\n" +
+		"  }\n" + 
+		"}\n" +
+		"\n"
+	);
+	IJavaElement[] elements = codeSelect(this.workingCopies[0], "ResolveConstructorCall3", "ResolveConstructorCall3");
+	assertElementsEqual(
+		"Unexpected elements",
+		"ResolveConstructorCall3 [in ResolveConstructorCall3.class [in <default> [in class-folder [in Resolve]]]]",
+		elements
+	);
+}
+/**
  * Resolve constructor call
  */
 public void testConstructorCallOfMemberType() throws JavaModelException {
