@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IProgressMonitor; 
 
 /**
  * A package fragment root contains a set of package fragments.
@@ -37,8 +37,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
  */
 public interface IPackageFragmentRoot
 	extends IParent, IJavaElement, IOpenable {
-	
-	public String getElementName();
 	/**
 	 * Kind constant for a source path root. Indicates this root
 	 * only contains source files.
