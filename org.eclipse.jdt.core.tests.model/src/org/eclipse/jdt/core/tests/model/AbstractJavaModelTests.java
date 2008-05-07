@@ -1887,9 +1887,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		else
 			workingCopy.becomeWorkingCopy(null/*no progress monitor*/);
 		workingCopy.getBuffer().setContents(source);
-		IProblemRequestor problemRequestor = owner.getProblemRequestor(workingCopy);
-		if (problemRequestor instanceof ProblemRequestor) {
-			((ProblemRequestor) problemRequestor).initialize(source.toCharArray());
+		if (owner != null) {
+			IProblemRequestor problemRequestor = owner.getProblemRequestor(workingCopy);
+			if (problemRequestor instanceof ProblemRequestor) {
+				((ProblemRequestor) problemRequestor).initialize(source.toCharArray());
+			}
 		}
 		workingCopy.makeConsistent(null/*no progress monitor*/);
 		return workingCopy;

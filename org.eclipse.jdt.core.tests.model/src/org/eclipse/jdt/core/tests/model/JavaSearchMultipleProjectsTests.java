@@ -1278,4 +1278,62 @@ public void testBug210689() throws CoreException {
 	}
 }
 
+/**
+ * @bug 229128: JDT Search finding matches in working copies that are not part of scope
+ * @test Ensure that an annotation reference is not found in a working copy if outside the scope
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=229128"
+ */
+public void testBug229128() throws CoreException {
+	ICompilationUnit[] copies = new ICompilationUnit[2];
+	try {
+		// setup project P1
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/MyAnnot.java",
+			"package p;\n" + 
+			"public @interface MyAnnot {\n" + 
+			"}\n"
+		);
+		copies[0] = getWorkingCopy(
+			"/P1/p/X.java",
+			"package p;\n" + 
+			"@MyAnnot\n" +
+			"public class X {\n" + 
+			"}\n",
+			null/*default working copy owner*/
+		);
+
+		// setup project P2
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL15_LIB"}, new String[] { "/P1" }, "", "1.5");
+		createFolder("/P2/q");
+		copies[1] = getWorkingCopy(
+			"/P2/q/Y.java",
+			"package q;\n" + 
+			"@p.MyAnnot\n" +
+			"public class Y {\n" + 
+			"}\n",
+			null/*default working copy owner*/
+		);
+
+		// Get annotation type
+		IType type = getCompilationUnit("/P1/p/MyAnnot.java").getType("MyAnnot");
+
+		// search annotation type reference in P2 scope
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p2}, false/*don't include referenced projects*/);
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		resultCollector.showAccuracy = true;
+		search(type, ANNOTATION_TYPE_REFERENCE, scope, resultCollector);
+		assertSearchResults(
+			"Unexpected references of annotation type MyAnnot",
+			"q/Y.java [in P2] q.Y [p.MyAnnot] EXACT_MATCH",
+			resultCollector);
+	} finally {
+		discardWorkingCopies(copies);
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
 }

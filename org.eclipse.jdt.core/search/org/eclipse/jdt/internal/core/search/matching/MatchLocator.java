@@ -2169,7 +2169,7 @@ protected void reportMatching(Annotation[] annotations, IJavaElement enclosingEl
 		// Look for annotation type ref
 		TypeReference typeRef = annotationType.type;
 		Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeRef);
-		if (level != null && matchedContainer) {
+		if (level != null && enclosesElement && matchedContainer) {
 			localElement = createHandle(annotationType, (IAnnotatable) enclosingElement);
 			this.patternLocator.matchReportReference(typeRef, enclosingElement, localElement, otherElements, elementBinding, level.intValue(), this);
 		}
