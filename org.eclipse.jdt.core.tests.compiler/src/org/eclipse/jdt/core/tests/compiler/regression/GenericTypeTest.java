@@ -43809,4 +43809,157 @@ public void test1316() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=229928
+public void test1317() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"public class X {\n" + 
+					"        void foo(String name, String value) {}\n" + 
+					"        <T extends M> void foo(String name, T value) {}\n" + 
+					"\n" + 
+					"        void foo2(String name, String value) {}\n" + 
+					"        <T extends N<T>> void foo2(String name, T value) {}\n" + 
+					"\n" + 
+					"        <T extends N<T>> T foo3(String name, T value) {}\n" + 
+					"}\n" + 
+					"class M {}\n" + 
+					"class N<T> {}\n" + 
+					"\n" + 
+					"class Test {\n" + 
+					"        void test() {\n" + 
+					"                new X().foo(\"HI\", null); // correctly report error\n" + 
+					"                new X().foo2(\"HI\", null); // miss ambiguous error\n" + 
+					"                \n" + 
+					"                Thread t1 = foo3(\"HI\", null);\n" + 
+					"                Thread t2 = (Thread)foo3(\"HI\", null);\n" + 
+					"        }\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	<T extends N<T>> T foo3(String name, T value) {}\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"This method must return a result of type T\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
+			"	new X().foo(\"HI\", null); // correctly report error\n" + 
+			"	        ^^^\n" + 
+			"The method foo(String, String) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 18)\n" + 
+			"	Thread t1 = foo3(\"HI\", null);\n" + 
+			"	            ^^^^\n" + 
+			"The method foo3(String, null) is undefined for the type Test\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 19)\n" + 
+			"	Thread t2 = (Thread)foo3(\"HI\", null);\n" + 
+			"	                    ^^^^\n" + 
+			"The method foo3(String, null) is undefined for the type Test\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=229928 - variation
+public void test1318() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"public class X {\n" + 
+					"        <T extends N<T>> void foo2(String name, T value) {}\n" + 
+					"}\n" +
+					"class N<T> {}\n" + 
+					"\n" + 
+					"class Test {\n" + 
+					"        void test() {\n" + 
+					"                new X().foo2(\"HI\", null);\n" + 
+					"                new X().<N<?>>foo2(\"HI\", null);\n" + 
+					"                new X().<N<? extends N<?>>>foo2(\"HI\", null);\n" + 
+					"        }\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	new X().foo2(\"HI\", null);\n" + 
+			"	        ^^^^\n" + 
+			"Bound mismatch: The generic method foo2(String, T) of type X is not applicable for the arguments (String, null). The inferred type N<N<T>> is not a valid substitute for the bounded parameter <T extends N<T>>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	new X().<N<?>>foo2(\"HI\", null);\n" + 
+			"	              ^^^^\n" + 
+			"Bound mismatch: The generic method foo2(String, T) of type X is not applicable for the arguments (String, null). The inferred type N<?> is not a valid substitute for the bounded parameter <T extends N<T>>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	new X().<N<? extends N<?>>>foo2(\"HI\", null);\n" + 
+			"	                           ^^^^\n" + 
+			"Bound mismatch: The generic method foo2(String, T) of type X is not applicable for the arguments (String, null). The inferred type N<? extends N<?>> is not a valid substitute for the bounded parameter <T extends N<T>>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=229928 - variation
+public void test1319() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"        <T extends List<U>, U extends List<W>, W extends List<T>> void foo2(String name, U u, T t, W w) {}\n" + 
+					"}\n" + 
+					"\n" + 
+					"class Test {\n" + 
+					"        void test() {\n" + 
+					"                new X().foo2(\"HI\", null, null, null);\n" + 
+					"        }\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	new X().foo2(\"HI\", null, null, null);\n" + 
+			"	        ^^^^\n" + 
+			"Bound mismatch: The generic method foo2(String, U, T, W) of type X is not applicable for the arguments (String, null, null, null). The inferred type List<List<W>> is not a valid substitute for the bounded parameter <T extends List<U>>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=229928 - variation
+public void test1320() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"        <T extends List<U>, U extends List<W>, W extends List<U>> void foo2(String name, U u, T t, W w) {}\n" + 
+					"}\n" + 
+					"\n" + 
+					"class Test {\n" + 
+					"        void test() {\n" + 
+					"                new X().foo2(\"HI\", null, null, null);\n" + 
+					"        }\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	new X().foo2(\"HI\", null, null, null);\n" + 
+			"	        ^^^^\n" + 
+			"Bound mismatch: The generic method foo2(String, U, T, W) of type X is not applicable for the arguments (String, null, null, null). The inferred type List<List<W>> is not a valid substitute for the bounded parameter <T extends List<U>>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=229928 - variation
+public void test1321() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"        <T, U extends List<T>, W extends List<U>> void foo2(String name, U u, T t, W w) {}\n" + 
+					"}\n" + 
+					"\n" + 
+					"class Test {\n" + 
+					"        void test() {\n" + 
+					"                new X().foo2(\"HI\", null, null, null);\n" + 
+					"        }\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	new X().foo2(\"HI\", null, null, null);\n" + 
+			"	        ^^^^\n" + 
+			"Bound mismatch: The generic method foo2(String, U, T, W) of type X is not applicable for the arguments (String, null, null, null). The inferred type List<List<T>> is not a valid substitute for the bounded parameter <W extends List<U>>\n" + 
+			"----------\n");
+}
 }
