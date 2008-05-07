@@ -1566,10 +1566,16 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 		if (unit.isEmpty()) {
 			if (this.currentPossibleMatch.openable instanceof ClassFile) {
 				ClassFile classFile = (ClassFile) this.currentPossibleMatch.openable;
-				IBinaryType info = getBinaryInfo(classFile, classFile.resource());
+				IBinaryType info = null;
+				try {
+					info = getBinaryInfo(classFile, classFile.resource());
+				}
+				catch (CoreException ce) {
+					// Do nothing
+				}
 				if (info != null) {
 					boolean mayBeGeneric = this.patternLocator.mayBeGeneric;
-					this.patternLocator.mayBeGeneric = false; // there's no longer generics in class files
+					this.patternLocator.mayBeGeneric = false; // there's no longer generic in class files
 					try {
 						new ClassFileMatchLocator().locateMatches(this, classFile, info);
 					}

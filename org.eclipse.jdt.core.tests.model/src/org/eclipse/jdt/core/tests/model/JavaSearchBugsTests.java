@@ -17,6 +17,8 @@ import java.util.List;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -10000,6 +10002,53 @@ public void testBug221110b() throws CoreException {
 	assertSearchResults(
 		"src/Z.java Z [public class Z<T extends X<?> & §|I|§<?>> {] ERASURE_MATCH"
 	);
+}
+
+/**
+ * @bug 222284: [search] ZipException while searching if linked jar doesn't exist any longer
+ * @test Ensure that no exception is raised while searching for a type of the missing jar file
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222284"
+ */
+public void testBug222284() throws Exception {
+	String jarName = "lib222284.jar";
+	String jarPath = getExternalPath()+jarName;
+	IFile jarFile = JAVA_PROJECT.getProject().getFile(jarName);
+	try {
+		// Create jar and add it to JavaSearchBugs project build path
+		String[] pathsAndContents = new String[] {
+			"pack/Ref.java",
+			"package pack;\n" +
+			"public class Ref {\n" +
+			"}",
+			};
+		createJar(pathsAndContents, jarPath);
+		jarFile.createLink(new Path(jarPath), IResource.NONE, null);
+		addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib222284.jar", null);
+
+		// Create file and wait for indexes
+		createFile("/JavaSearchBugs/src/Test.java",
+			"import pack.Ref;" +
+			"public class Test {\n" +
+			"	Ref ref;" + 
+			"}\n"
+		);
+		waitUntilIndexesReady();
+
+		// Exit, delete jar and restart
+		simulateExit();
+		deleteExternalResource(jarName);
+		simulateRestart();
+
+		// Search for references to a class of deleted jar file, expect no result
+		search("pack.Ref", TYPE, REFERENCES);
+		assertSearchResults(
+			"src/Test.java [Ref] POTENTIAL_MATCH\n" + 
+			"src/Test.java Test.ref [Ref] POTENTIAL_MATCH"
+		);
+	} finally {
+		deleteResource(jarFile);
+		removeClasspathEntry(JAVA_PROJECT, new Path(jarPath));
+	}
 }
 
 /**
