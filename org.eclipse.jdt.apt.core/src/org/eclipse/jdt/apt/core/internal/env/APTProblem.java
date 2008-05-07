@@ -15,9 +15,8 @@ import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.core.compiler.IProblem;
 
-class APTProblem extends CategorizedProblem implements IProblem 
+class APTProblem extends CategorizedProblem 
 {	
 	private static final String[] NO_ARGS = new String[0];
 	private final Severity _severity;
