@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -2081,6 +2082,12 @@ class ASTConverter {
 		start = memberValuePair.sourceStart;
 		end = value.getStartPosition() + value.getLength() - 1;
 		pair.setSourceRange(start, end - start + 1);
+		
+		if (memberValuePair.value instanceof SingleNameReference &&
+				((SingleNameReference)memberValuePair.value).token == RecoveryScanner.FAKE_IDENTIFIER) {
+			pair.setFlags(pair.getFlags() | ASTNode.RECOVERED);
+		}
+		
 		if (this.resolveBindings) {
 			recordNodes(simpleName, memberValuePair);
 			recordNodes(pair, memberValuePair);
@@ -2116,14 +2123,22 @@ class ASTConverter {
 	public NormalAnnotation convert(org.eclipse.jdt.internal.compiler.ast.NormalAnnotation annotation) {
 		final NormalAnnotation normalAnnotation = new NormalAnnotation(this.ast);
 		setTypeNameForAnnotation(annotation, normalAnnotation);
+		
+		int start = annotation.sourceStart;
+		int end = annotation.declarationSourceEnd;
+		
 		org.eclipse.jdt.internal.compiler.ast.MemberValuePair[] memberValuePairs = annotation.memberValuePairs;
 		if (memberValuePairs != null) {
 			for (int i = 0, max = memberValuePairs.length; i < max; i++) {
-				normalAnnotation.values().add(convert(memberValuePairs[i]));
+				MemberValuePair memberValuePair = convert(memberValuePairs[i]);
+				int memberValuePairEnd = memberValuePair.getStartPosition() + memberValuePair.getLength() - 1;
+				if (end == memberValuePairEnd) {
+					normalAnnotation.setFlags(normalAnnotation.getFlags() | ASTNode.RECOVERED);
+				}
+				normalAnnotation.values().add(memberValuePair);
 			}
 		}
-		int start = annotation.sourceStart;
-		int end = annotation.declarationSourceEnd;
+		
 		normalAnnotation.setSourceRange(start, end - start + 1);
 		if (this.resolveBindings) {
 			recordNodes(normalAnnotation, annotation);

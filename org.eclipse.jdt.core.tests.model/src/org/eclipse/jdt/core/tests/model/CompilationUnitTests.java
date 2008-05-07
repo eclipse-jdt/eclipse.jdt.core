@@ -823,7 +823,22 @@ public void testAnnotations26() throws CoreException {
 		"@MyAnnot([unknown]{<null>})\n",
 		annotations);
 }
-
+/*
+ * Ensure that the recovered annotation is correct
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=228464 )
+ */
+public void testAnnotations27() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"@MyAnnot(name=)\n" +
+		"public class Y {\n" +
+		"}"
+	);
+	IAnnotation[] annotations = this.workingCopy.getType("Y").getAnnotations();
+	assertAnnotationsEqual(
+		"@MyAnnot(name=<null>)\n",
+		annotations);
+}
 /*
  * Ensures that getFullyQualifiedName() behaves correctly for a top level source type
  */

@@ -10003,6 +10003,39 @@ public void testBug221110b() throws CoreException {
 }
 
 /**
+ * @bug 228464: Annotation.getMemberValuePairs() empty for single attribute with empty value
+ * @test Ensure that annotation are correctly recovered
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228464"
+ */
+public void testBug228464() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" + 
+		"    void m() {\n" + 
+		"        @TestAnnotation(name=) Test iii;\n" + 
+				"    }\n" + 
+		"\n" + 
+		"}\n"
+	);
+	this.resultCollector.showSelection = true;
+	IType type = workingCopies[0].getType("Test");
+	search(type, REFERENCES, getJavaSearchWorkingCopiesScope());
+	
+	IAnnotation[] annotations = new IAnnotation[0];
+	if (resultCollector.match != null &&
+			resultCollector.match instanceof ReferenceMatch) {
+		IJavaElement element = ((ReferenceMatch)resultCollector.match).getLocalElement();
+		if (element instanceof ILocalVariable) {
+			annotations = ((ILocalVariable)element).getAnnotations();
+		}
+	}
+	
+	assertAnnotationsEqual(
+		"@TestAnnotation(name=<null>)\n",
+		annotations);
+}
+
+/**
  * @bug 228852: classes opened via Open Type not found
  * @test Ensure that types found in an internal jar exist when using a workspace scope
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228852"

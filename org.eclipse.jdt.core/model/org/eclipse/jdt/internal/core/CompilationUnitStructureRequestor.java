@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -664,6 +665,10 @@ protected Object getMemberValue(org.eclipse.jdt.internal.core.MemberValuePair me
 		return new String(qualifiedName);		
 	} else if (expression instanceof SingleNameReference) {
 		char[] simpleName = ((SingleNameReference) expression).token;
+		if (simpleName == RecoveryScanner.FAKE_IDENTIFIER) {
+			memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+			return null;
+		}
 		memberValuePair.valueKind = IMemberValuePair.K_SIMPLE_NAME;
 		return new String(simpleName);		
 	} else if (expression instanceof ArrayInitializer) {

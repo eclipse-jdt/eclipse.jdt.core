@@ -919,7 +919,7 @@ public void test0018() {
 
 	String expectedDietUnitToString = 
 		"package a;\n" + 
-		"public @AnAnnotation @AnAnnotation2(name2) class X {\n" + 
+		"public @AnAnnotation(name = $missing$) @AnAnnotation2(name2) class X {\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -927,7 +927,7 @@ public void test0018() {
 	
 	String expectedDietPlusBodyUnitToString = 
 		"package a;\n" + 
-		"public @AnAnnotation @AnAnnotation2(name2) class X {\n" + 
+		"public @AnAnnotation(name = $missing$) @AnAnnotation2(name2) class X {\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
@@ -965,14 +965,14 @@ public void test0019() {
 
 	String expectedDietUnitToString = 
 		"package a;\n" + 
-		"public @AnAnnotation(name) @AnAnnotation2 class X {\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2(name2 = $missing$) class X {\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
 	
 	String expectedDietPlusBodyUnitToString = 
 		"package a;\n" + 
-		"public @AnAnnotation(name) @AnAnnotation2 class X {\n" + 
+		"public @AnAnnotation(name) @AnAnnotation2(name2 = $missing$) class X {\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
@@ -1059,7 +1059,7 @@ public void test0021() {
 	String expectedDietUnitToString = 
 		"package a;\n" + 
 		"public class X {\n" + 
-		"  @AnAnnotation int field;\n" + 
+		"  @AnAnnotation(name = $missing$) int field;\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
@@ -1067,7 +1067,7 @@ public void test0021() {
 	String expectedDietPlusBodyUnitToString = 
 		"package a;\n" + 
 		"public class X {\n" + 
-		"  @AnAnnotation int field;\n" + 
+		"  @AnAnnotation(name = $missing$) int field;\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
@@ -1160,7 +1160,7 @@ public void test0023() {
 		"public class X {\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
-		"  @AnAnnotation void foo() {\n" + 
+		"  @AnAnnotation(name = $missing$) void foo() {\n" + 
 		"  }\n" + 
 		"}\n";
 	
@@ -1170,7 +1170,7 @@ public void test0023() {
 		"  public X() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  @AnAnnotation void foo() {\n" + 
+		"  @AnAnnotation(name = $missing$) void foo() {\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -1641,14 +1641,14 @@ public void test0035() {
 
 	String expectedDietUnitToString = 
 		"package a;\n" + 
-		"public @AnAnnotation1 class X {\n" + 
+		"public @AnAnnotation1(name = $missing$) class X {\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
 	
 	String expectedDietPlusBodyUnitToString = 
 		"package a;\n" + 
-		"public @AnAnnotation1 class X {\n" + 
+		"public @AnAnnotation1(name = $missing$) class X {\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
@@ -1762,6 +1762,141 @@ public void test0037() {
 		"  public int id0;\n" + 
 		"  private @SuppressWarnings(value = \"\") int id;\n" + 
 		"  public Test() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=228464
+public void test0038() {
+
+	String s = 
+		"package a;										\n"
+			+ "@AnAnnotation(name=)						\n"
+			+ "public class X {							\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name = $missing$) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name = $missing$) class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=228464
+public void test0039() {
+
+	String s = 
+		"package a;										\n"
+			+ "@AnAnnotation(name1=a,name2=)			\n"
+			+ "public class X {							\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name1 = a,name2 = $missing$) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name1 = a,name2 = $missing$) class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=228464
+public void test0040() {
+
+	String s = 
+		"package a;										\n"
+			+ "@AnAnnotation(name1=a,name2=,name3=c)	\n"
+			+ "public class X {							\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name1 = a,name2 = $missing$) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public @AnAnnotation(name1 = a,name2 = $missing$) class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String expectedFullUnitToString = 
+		expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
 		"  }\n" + 
 		"}\n";
 	

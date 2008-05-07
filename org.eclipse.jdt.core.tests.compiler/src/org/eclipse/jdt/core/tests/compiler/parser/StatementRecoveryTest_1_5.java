@@ -611,7 +611,7 @@ public void test0006() {
 		"    super();\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    @AnAnnotation class Y {\n" + 
+		"    @AnAnnotation(name = $missing$) class Y {\n" + 
 		"      Y() {\n" + 
 		"        super();\n" + 
 		"      }\n" + 
@@ -627,7 +627,7 @@ public void test0006() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    foo1();\n" + 
-		"    @AnAnnotation class Y {\n" + 
+		"    @AnAnnotation(name = $missing$) class Y {\n" + 
 		"      Y() {\n" + 
 		"        super();\n" + 
 		"      }\n" + 

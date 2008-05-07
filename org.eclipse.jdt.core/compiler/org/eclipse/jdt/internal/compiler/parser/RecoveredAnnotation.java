@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 
@@ -29,6 +30,8 @@ public class RecoveredAnnotation extends RecoveredElement {
 	private int identifierPtr;
 	private int identifierLengthPtr;
 	private int sourceStart;
+	public boolean hasPendingMemberValueName;
+	public int memberValuPairEqualEnd = -1;
 	public Annotation annotation;
 
 	public RecoveredAnnotation(int identifierPtr, int identifierLengthPtr, int sourceStart, RecoveredElement parent, int bracketBalance) {
@@ -69,32 +72,62 @@ public class RecoveredAnnotation extends RecoveredElement {
 			
 			boolean needUpdateRParenPos = false;
 			
+			MemberValuePair pendingMemberValueName = null;
+			if (this.hasPendingMemberValueName && this.identifierPtr < parser.identifierPtr) {
+				char[] memberValueName = parser.identifierStack[this.identifierPtr + 1];
+				
+				long pos = parser.identifierPositionStack[this.identifierPtr + 1];
+				int start = (int) (pos >>> 32);
+				int end = (int)pos;
+				int valueEnd = this.memberValuPairEqualEnd > -1 ? this.memberValuPairEqualEnd : end;
+				
+				SingleNameReference fakeExpression = new SingleNameReference(RecoveryScanner.FAKE_IDENTIFIER, (((long) valueEnd + 1) << 32) + (valueEnd));
+				pendingMemberValueName = new MemberValuePair(memberValueName, start, end, fakeExpression);
+			}
 			parser.identifierPtr = this.identifierPtr;
 			parser.identifierLengthPtr = this.identifierLengthPtr;
 			TypeReference typeReference = parser.getAnnotationType();
 			
 			switch (this.kind) {
 				case NORMAL:
-					MemberValuePair[] memberValuePairs = null;
 					if (parser.astPtr > -1 && parser.astStack[parser.astPtr] instanceof MemberValuePair) {
+						MemberValuePair[] memberValuePairs = null;
+						
 						int argLength = parser.astLengthStack[parser.astLengthPtr];
 						int argStart = parser.astPtr - argLength + 1;
 						
 						if (argLength > 0) {
-							System.arraycopy(parser.astStack, argStart, memberValuePairs = new MemberValuePair[argLength], 0, argLength);
-							parser.astLengthPtr--;
-							parser.astPtr -= argLength;
-							
-							MemberValuePair lastMemberValuePair = memberValuePairs[memberValuePairs.length - 1];
-							
-							NormalAnnotation normalAnnotation = new NormalAnnotation(typeReference, this.sourceStart);
-							normalAnnotation.memberValuePairs = memberValuePairs;
-							normalAnnotation.declarationSourceEnd =
-								lastMemberValuePair.value != null
+							int annotationEnd;
+							if (pendingMemberValueName != null) {
+								memberValuePairs = new MemberValuePair[argLength + 1];
+								
+								System.arraycopy(parser.astStack, argStart, memberValuePairs, 0, argLength);
+								parser.astLengthPtr--;
+								parser.astPtr -= argLength;
+								
+								memberValuePairs[argLength] = pendingMemberValueName;
+								
+								annotationEnd = pendingMemberValueName.sourceEnd;
+							} else {
+								memberValuePairs = new MemberValuePair[argLength];
+								
+								System.arraycopy(parser.astStack, argStart, memberValuePairs, 0, argLength);
+								parser.astLengthPtr--;
+								parser.astPtr -= argLength;
+								
+								MemberValuePair lastMemberValuePair = memberValuePairs[memberValuePairs.length - 1];
+								
+								annotationEnd = 
+									lastMemberValuePair.value != null
 										? lastMemberValuePair.value instanceof Annotation
 												? ((Annotation)lastMemberValuePair.value).declarationSourceEnd
 												: lastMemberValuePair.value.sourceEnd
 										: lastMemberValuePair.sourceEnd;
+							}
+							
+							NormalAnnotation normalAnnotation = new NormalAnnotation(typeReference, this.sourceStart);
+							normalAnnotation.memberValuePairs = memberValuePairs;
+							normalAnnotation.declarationSourceEnd = annotationEnd;
 							normalAnnotation.bits |= ASTNode.IsRecovered;
 							
 							annot = normalAnnotation;
@@ -122,11 +155,20 @@ public class RecoveredAnnotation extends RecoveredElement {
 			}
 			
 			if (!needUpdateRParenPos) {
-				MarkerAnnotation markerAnnotation = new MarkerAnnotation(typeReference, this.sourceStart);
-				markerAnnotation.declarationSourceEnd = markerAnnotation.sourceEnd;
-				markerAnnotation.bits |= ASTNode.IsRecovered;
-				
-				annot = markerAnnotation;
+				if (pendingMemberValueName != null) {
+					NormalAnnotation normalAnnotation = new NormalAnnotation(typeReference, this.sourceStart);
+					normalAnnotation.memberValuePairs = new MemberValuePair[]{pendingMemberValueName};
+					normalAnnotation.declarationSourceEnd = pendingMemberValueName.value.sourceEnd;
+					normalAnnotation.bits |= ASTNode.IsRecovered;
+					
+					annot = normalAnnotation;
+				} else {
+					MarkerAnnotation markerAnnotation = new MarkerAnnotation(typeReference, this.sourceStart);
+					markerAnnotation.declarationSourceEnd = markerAnnotation.sourceEnd;
+					markerAnnotation.bits |= ASTNode.IsRecovered;
+					
+					annot = markerAnnotation;
+				}
 			}
 			
 			parser.currentElement = this.addAnnotation(annot, this.identifierPtr);

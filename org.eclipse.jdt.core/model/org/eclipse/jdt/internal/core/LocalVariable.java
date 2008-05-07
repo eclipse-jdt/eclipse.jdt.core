@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
+import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -174,6 +175,10 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 			return new String(qualifiedName);		
 		} else if (expression instanceof SingleNameReference) {
 			char[] simpleName = ((SingleNameReference) expression).token;
+			if (simpleName == RecoveryScanner.FAKE_IDENTIFIER) {
+				memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
+				return null;
+			}
 			memberValuePair.valueKind = IMemberValuePair.K_SIMPLE_NAME;
 			return new String(simpleName);		
 		} else if (expression instanceof ArrayInitializer) {

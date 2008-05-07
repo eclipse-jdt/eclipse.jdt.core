@@ -3046,7 +3046,10 @@ protected void consumeEnterCompilationUnit() {
 }
 protected void consumeEnterMemberValue() {
 	// EnterMemberValue ::= $empty
-	// do nothing by default
+	if (this.currentElement != null && this.currentElement instanceof RecoveredAnnotation) {
+		RecoveredAnnotation recoveredAnnotation = (RecoveredAnnotation)this.currentElement;
+		recoveredAnnotation.hasPendingMemberValueName = true;
+	}
 }
 protected void consumeEnterMemberValueArrayInitializer() {
 	// EnterMemberValueArrayInitializer ::= $empty
@@ -3541,7 +3544,11 @@ protected void consumeEqualityExpressionWithName(int op) {
 }
 protected void consumeExitMemberValue() {
 	// ExitMemberValue ::= $empty
-	// do nothing by default
+	if (this.currentElement != null && this.currentElement instanceof RecoveredAnnotation) {
+		RecoveredAnnotation recoveredAnnotation = (RecoveredAnnotation)this.currentElement;
+		recoveredAnnotation.hasPendingMemberValueName = false;
+		recoveredAnnotation.memberValuPairEqualEnd = -1;
+	}
 }
 protected void consumeExitTryBlock() {
 	//ExitTryBlock ::= $empty
@@ -7613,10 +7620,17 @@ protected void consumeToken(int type) {
 			break;
 		case TokenNameELLIPSIS :
 			pushOnIntStack(this.scanner.currentPosition - 1);
-			break;			
+			break;
+		case TokenNameEQUAL  :
+			if (this.currentElement != null && this.currentElement instanceof RecoveredAnnotation) {
+				RecoveredAnnotation recoveredAnnotation = (RecoveredAnnotation) this.currentElement;
+				if (recoveredAnnotation.memberValuPairEqualEnd == -1) {
+					recoveredAnnotation.memberValuPairEqualEnd = this.scanner.currentPosition - 1;
+				}
+			}
+			break;
 			//  case TokenNameCOMMA :
 			//  case TokenNameCOLON  :
-			//  case TokenNameEQUAL  :
 			//  case TokenNameLBRACKET  :
 			//  case TokenNameDOT :
 			//  case TokenNameERROR :

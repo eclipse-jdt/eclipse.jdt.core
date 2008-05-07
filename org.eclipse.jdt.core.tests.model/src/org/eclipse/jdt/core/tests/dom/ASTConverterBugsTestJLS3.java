@@ -441,7 +441,7 @@ public void testBug130778i() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
 			"package a;\n" +
-			"[*1*]@AnAnnotation[*1*](value=)\n" +
+			"[*1*]@AnAnnotation(value=[*1*])\n" +
 			"[*2*]@AnAnnotation2(value=\"b\")[*2*]\n" +
 			"[*3*]public[*3*] class X {\n" +
 			"}\n");
@@ -449,11 +449,11 @@ public void testBug130778i() throws JavaModelException {
 	assertASTResult(
 			"===== AST =====\n" + 
 			"package a;\n" + 
-			"[*1*]@AnAnnotation[*1*] [*2*]@AnAnnotation2(value=\"b\")[*2*] [*3*]public[*3*] class X {\n" + 
+			"[*1*]@AnAnnotation(value=$missing$)[*1*] [*2*]@AnAnnotation2(value=\"b\")[*2*] [*3*]public[*3*] class X {\n" + 
 			"}\n" + 
 			"\n" + 
 			"===== Details =====\n" + 
-			"1:MARKER_ANNOTATION,[11,13],,,[ANNOTATION,La/X;@La/AnAnnotation;,]\n" + 
+			"1:NORMAL_ANNOTATION,[11,20],,RECOVERED,[ANNOTATION,La/X;@La/AnAnnotation;,]\n" + 
 			"2:NORMAL_ANNOTATION,[33,25],,,[ANNOTATION,La/X;@La/AnAnnotation2;,]\n" + 
 			"3:MODIFIER,[59,6],,,[N/A]\n" + 
 			"===== Problems =====\n" + 
@@ -486,19 +486,19 @@ public void testBug130778j() throws JavaModelException {
 			"/Converter15/src/a/X.java",
 			"package a;\n" +
 			"[*1*]@AnAnnotation(value=\"a\")[*1*]\n" +
-			"[*2*]@AnAnnotation2[*2*](value=)\n" +
+			"[*2*]@AnAnnotation2(value=[*2*])\n" +
 			"[*3*]public[*3*] class X {\n" +
 			"}\n");
 	
 	assertASTResult(
 			"===== AST =====\n" + 
 			"package a;\n" + 
-			"[*1*]@AnAnnotation(value=\"a\")[*1*] [*2*]@AnAnnotation2[*2*] [*3*]public[*3*] class X {\n" + 
+			"[*1*]@AnAnnotation(value=\"a\")[*1*] [*2*]@AnAnnotation2(value=$missing$)[*2*] [*3*]public[*3*] class X {\n" + 
 			"}\n" + 
 			"\n" + 
 			"===== Details =====\n" + 
 			"1:NORMAL_ANNOTATION,[11,24],,,[ANNOTATION,La/X;@La/AnAnnotation;,]\n" + 
-			"2:MARKER_ANNOTATION,[36,14],,,[ANNOTATION,La/X;@La/AnAnnotation2;,]\n" + 
+			"2:NORMAL_ANNOTATION,[36,21],,RECOVERED,[ANNOTATION,La/X;@La/AnAnnotation2;,]\n" + 
 			"3:MODIFIER,[59,6],,,[N/A]\n" + 
 			"===== Problems =====\n" + 
 			"1. ERROR in /Converter15/src/a/X.java (at line 3)\n" + 
@@ -529,20 +529,20 @@ public void testBug130778k() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
 			"package a;\n" +
-			"[*1*]@AnAnnotation[*1*](value=)\n" +
-			"[*2*]@AnAnnotation2[*2*](value=)\n" +
+			"[*1*]@AnAnnotation(value=[*1*])\n" +
+			"[*2*]@AnAnnotation2(value=[*2*])\n" +
 			"[*3*]public[*3*] class X {\n" +
 			"}\n");
 	
 	assertASTResult(
 			"===== AST =====\n" + 
 			"package a;\n" + 
-			"[*1*]@AnAnnotation[*1*] [*2*]@AnAnnotation2[*2*] [*3*]public[*3*] class X {\n" + 
+			"[*1*]@AnAnnotation(value=$missing$)[*1*] [*2*]@AnAnnotation2(value=$missing$)[*2*] [*3*]public[*3*] class X {\n" + 
 			"}\n" + 
 			"\n" + 
 			"===== Details =====\n" + 
-			"1:MARKER_ANNOTATION,[11,13],,,[ANNOTATION,La/X;@La/AnAnnotation;,]\n" + 
-			"2:MARKER_ANNOTATION,[33,14],,,[ANNOTATION,La/X;@La/AnAnnotation2;,]\n" + 
+			"1:NORMAL_ANNOTATION,[11,20],,RECOVERED,[ANNOTATION,La/X;@La/AnAnnotation;,]\n" + 
+			"2:NORMAL_ANNOTATION,[33,21],,RECOVERED,[ANNOTATION,La/X;@La/AnAnnotation2;,]\n" + 
 			"3:MODIFIER,[56,6],,,[N/A]\n" + 
 			"===== Problems =====\n" + 
 			"1. ERROR in /Converter15/src/a/X.java (at line 2)\n" + 
@@ -579,7 +579,7 @@ public void testBug130778l() throws JavaModelException {
 			"package a;\n" +
 			"public class X {\n" +
 			"  public void foo(){\n" +
-			"    [*1*]@AnAnnotation[*1*](value=)\n" +
+			"    [*1*]@AnAnnotation(value=[*1*])\n" +
 			"    [*2*]@AnAnnotation2(value=\"b\")[*2*]\n" +
 			"    class Y {}\n" +
 			"  }\n" +
@@ -590,13 +590,13 @@ public void testBug130778l() throws JavaModelException {
 			"package a;\n" + 
 			"public class X {\n" + 
 			"  public void foo(){\n" + 
-			"[*1*]@AnAnnotation[*1*] [*2*]@AnAnnotation2(value=\"b\")[*2*] class Y {\n" + 
+			"[*1*]@AnAnnotation(value=$missing$)[*1*] [*2*]@AnAnnotation2(value=\"b\")[*2*] class Y {\n" + 
 			"    }\n" + 
 			"  }\n" + 
 			"}\n" + 
 			"\n" + 
 			"===== Details =====\n" + 
-			"1:MARKER_ANNOTATION,[53,13],,,[ANNOTATION,La/X$115$Y;@La/AnAnnotation;,]\n" + 
+			"1:NORMAL_ANNOTATION,[53,20],,RECOVERED,[ANNOTATION,La/X$115$Y;@La/AnAnnotation;,]\n" + 
 			"2:NORMAL_ANNOTATION,[79,25],,,[ANNOTATION,La/X$115$Y;@La/AnAnnotation2;,]\n" + 
 			"===== Problems =====\n" + 
 			"1. ERROR in /Converter15/src/a/X.java (at line 4)\n" + 
@@ -705,20 +705,20 @@ public void testBug130778o() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
 			"package a;\n" +
-			"[*1*][*2*]@AnAnnotation[*2*]([*3*]name1=[*3*])\n" +
+			"[*1*][*2*]@AnAnnotation([*3*]name1=[*3*][*2*])\n" +
 			"public class X {\n" +
 			"}[*1*]\n");
 	
 	assertASTResult(
 			"===== AST =====\n" + 
 			"package a;\n" + 
-			"[*1*][*2*]@AnAnnotation[*2*] public class X {\n" + 
+			"[*1*][*2*]@AnAnnotation([*3*]name1=$missing$[*3*])[*2*] public class X {\n" + 
 			"}[*1*]\n" + 
 			"\n" + 
 			"===== Details =====\n" + 
-			"1:TYPE_DECLARATION,[11,40],,MALFORMED|RECOVERED,[TYPE,La/X;,]\n" + 
-			"2:MARKER_ANNOTATION,[11,13],,,[ANNOTATION,La/X;@La/AnAnnotation;,]\n" + 
-			"3:No corresponding node\n" + 
+			"1:TYPE_DECLARATION,[11,40],,MALFORMED,[TYPE,La/X;,]\n" + 
+			"2:NORMAL_ANNOTATION,[11,20],,RECOVERED,[ANNOTATION,La/X;@La/AnAnnotation;,]\n" + 
+			"3:MEMBER_VALUE_PAIR,[25,6],,RECOVERED,[N/A]\n" + 
 			"===== Problems =====\n" + 
 			"1. ERROR in /Converter15/src/a/X.java (at line 2)\n" + 
 			"	@AnAnnotation(name1=)\n" + 
@@ -831,19 +831,20 @@ public void testBug130778r() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
 			"package a;\n" +
-			"[*1*][*2*]@AnAnnotation[*2*](value=@AnAnnotation2(value=))\n" +
+			"[*1*][*2*]@AnAnnotation(value=[*2*][*3*]@AnAnnotation2(value=[*3*]))\n" +
 			"public class X {\n" +
 			"}[*1*]\n");
 	
 	assertASTResult(
 			"===== AST =====\n" + 
 			"package a;\n" + 
-			"[*1*][*2*]@AnAnnotation[*2*] public class X {\n" + 
+			"[*1*][*2*]@AnAnnotation(value=$missing$)[*2*] public class X {\n" + 
 			"}[*1*]\n" + 
 			"\n" + 
 			"===== Details =====\n" + 
 			"1:TYPE_DECLARATION,[11,62],,MALFORMED|RECOVERED,[TYPE,La/X;,]\n" + 
-			"2:MARKER_ANNOTATION,[11,13],,,[ANNOTATION,La/X;@La/AnAnnotation;,]\n" + 
+			"2:NORMAL_ANNOTATION,[11,20],,RECOVERED,[ANNOTATION,La/X;@La/AnAnnotation;,]\n" + 
+			"3:No corresponding node\n" + 
 			"===== Problems =====\n" + 
 			"1. ERROR in /Converter15/src/a/X.java (at line 2)\n" + 
 			"	@AnAnnotation(value=@AnAnnotation2(value=))\n" + 
@@ -874,21 +875,22 @@ public void testBug130778s() throws JavaModelException {
 	ASTResult result = this.buildMarkedAST(
 			"/Converter15/src/a/X.java",
 			"package a;\n" +
-			"[*1*][*2*]@AnAnnotation[*2*](value1=,[*3*]value=[*4*]@AnAnnotation2(value=\"b\")[*4*][*3*])\n" +
+			"[*1*][*2*]@AnAnnotation([*3*]value1=[*3*][*2*],[*4*]value=[*5*]@AnAnnotation2(value=\"b\")[*5*][*4*])\n" +
 			"public class X {\n" +
 			"}[*1*]\n");
 	
 	assertASTResult(
 			"===== AST =====\n" + 
 			"package a;\n" + 
-			"[*1*][*2*]@AnAnnotation[*2*] [*4*]@AnAnnotation2(value=\"b\")[*4*] public class X {\n" + 
+			"[*1*][*2*]@AnAnnotation([*3*]value1=$missing$[*3*])[*2*] [*5*]@AnAnnotation2(value=\"b\")[*5*] public class X {\n" + 
 			"}[*1*]\n" + 
 			"\n" + 
 			"===== Details =====\n" + 
-			"1:TYPE_DECLARATION,[11,73],,MALFORMED|RECOVERED,[TYPE,La/X;,]\n" + 
-			"2:MARKER_ANNOTATION,[11,13],,,[ANNOTATION,La/X;@La/AnAnnotation;,]\n" + 
-			"4:NORMAL_ANNOTATION,[39,25],,,[ANNOTATION,La/X;@La/AnAnnotation2;,]\n" + 
-			"3:No corresponding node\n" + 
+			"1:TYPE_DECLARATION,[11,73],,MALFORMED,[TYPE,La/X;,]\n" + 
+			"2:NORMAL_ANNOTATION,[11,21],,RECOVERED,[ANNOTATION,La/X;@La/AnAnnotation;,]\n" + 
+			"3:MEMBER_VALUE_PAIR,[25,7],,RECOVERED,[N/A]\n" + 
+			"5:NORMAL_ANNOTATION,[39,25],,,[ANNOTATION,La/X;@La/AnAnnotation2;,]\n" + 
+			"4:No corresponding node\n" + 
 			"===== Problems =====\n" + 
 			"1. ERROR in /Converter15/src/a/X.java (at line 2)\n" + 
 			"	@AnAnnotation(value1=,value=@AnAnnotation2(value=\"b\"))\n" + 
