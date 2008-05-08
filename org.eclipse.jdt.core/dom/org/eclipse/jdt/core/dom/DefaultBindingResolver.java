@@ -234,6 +234,9 @@ class DefaultBindingResolver extends BindingResolver {
  		}
 
 		if (methodBinding != null) {
+			if (!isRecoveringBindings && ((methodBinding.tagBits & TagBits.HasMissingType) != 0)) {
+				return null;
+			}
 			IMethodBinding binding = (IMethodBinding) this.bindingTables.compilerBindingsToASTBindings.get(methodBinding);
 			if (binding != null) {
 				return binding;
@@ -364,6 +367,9 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 			return null;
 		} else {
+			if ((referenceBinding.tagBits & TagBits.HasMissingType) != 0 && !this.isRecoveringBindings) {
+				return null;
+			}
 			ITypeBinding binding = (ITypeBinding) this.bindingTables.compilerBindingsToASTBindings.get(referenceBinding);
 			if (binding != null) {
 				return binding;
@@ -438,9 +444,13 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	synchronized IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding variableBinding) {
- 		if (variableBinding != null) {
-	 		if (variableBinding.isValidBinding()) {
-	 			if (variableBinding.type != null) {
+		if (variableBinding != null) {
+			if (variableBinding.isValidBinding()) {
+				org.eclipse.jdt.internal.compiler.lookup.TypeBinding variableType = variableBinding.type;
+				if (variableType != null) {
+					if (!this.isRecoveringBindings && ((variableType.tagBits & TagBits.HasMissingType) != 0)) {
+						return null;
+					}
 					IVariableBinding binding = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(variableBinding);
 					if (binding != null) {
 						return binding;
@@ -448,8 +458,8 @@ class DefaultBindingResolver extends BindingResolver {
 					binding = new VariableBinding(this, variableBinding);
 					this.bindingTables.compilerBindingsToASTBindings.put(variableBinding, binding);
 					return binding;
-	 			}
-	 		} else {
+				}
+			} else {
 				/*
 				 * http://dev.eclipse.org/bugs/show_bug.cgi?id=24449
 				 */
@@ -473,16 +483,16 @@ class DefaultBindingResolver extends BindingResolver {
 							break;
 					}
 				}
-	 		}
- 		}
+			}
+		}
 		return null;
 	}
 
 	synchronized IAnnotationBinding getAnnotationInstance(org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalInstance) {
 		if (internalInstance == null) return null;
 		ReferenceBinding annotationType = internalInstance.getAnnotationType();
-		if (annotationType == null || ((annotationType.tagBits & TagBits.HasMissingType) != 0)) {
-			if (!this.isRecoveringBindings) {
+		if (!this.isRecoveringBindings) {
+			if (annotationType == null || ((annotationType.tagBits & TagBits.HasMissingType) != 0)) {
 				return null;
 			}
 		}
@@ -1621,20 +1631,13 @@ class DefaultBindingResolver extends BindingResolver {
 		final Object node = this.newAstToOldAst.get(variable);
 		if (node instanceof AbstractVariableDeclaration) {
 			AbstractVariableDeclaration abstractVariableDeclaration = (AbstractVariableDeclaration) node;
+			IVariableBinding variableBinding = null;
 			if (abstractVariableDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
 				org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) abstractVariableDeclaration;
-				IVariableBinding variableBinding = this.getVariableBinding(fieldDeclaration.binding, variable);
-				if (variableBinding == null) {
-					return null;
-				}
-				this.bindingsToAstNodes.put(variableBinding, variable);
-				String key = variableBinding.getKey();
-				if (key != null) {
-					this.bindingTables.bindingKeysToBindings.put(key, variableBinding);
-				}
-				return variableBinding;
+				variableBinding = this.getVariableBinding(fieldDeclaration.binding, variable);
+			} else {
+				variableBinding = this.getVariableBinding(((LocalDeclaration) abstractVariableDeclaration).binding, variable);
 			}
-			IVariableBinding variableBinding = this.getVariableBinding(((LocalDeclaration) abstractVariableDeclaration).binding, variable);
 			if (variableBinding == null) {
 				return null;
 			}

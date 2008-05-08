@@ -5560,7 +5560,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	 */
 	public void test0234() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0234", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true, true);
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertTrue("The fiels is not malformed", !isMalformed(node)); //$NON-NLS-1$
@@ -5576,6 +5576,28 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No binding", variableBinding); //$NON-NLS-1$
 		assertEquals("Ltest0234/Test;.field)LList;", variableBinding.getKey()); //$NON-NLS-1$
 	}
+
+	/**
+	 * Checking that null is returned for a resolveBinding if the type is unknown
+	 */
+	public void test0234_2() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0234", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true, false);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertTrue("The fiels is not malformed", !isMalformed(node)); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("No problem found", 1, unit.getMessages().length); //$NON-NLS-1$
+		assertEquals("No problem found", 1, unit.getProblems().length); //$NON-NLS-1$
+		assertTrue("FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		assertEquals("wrong size", 1, fragments.size()); //$NON-NLS-1$
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding variableBinding = fragment.resolveBinding();
+		assertNull("Got a binding", variableBinding); //$NON-NLS-1$
+	}
+
 
 	/**
 	 * Checking that null is returned for a resolveBinding if the type is unknown

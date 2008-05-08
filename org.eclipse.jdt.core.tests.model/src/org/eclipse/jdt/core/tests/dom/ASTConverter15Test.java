@@ -46,8 +46,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 287 };
-//		TESTS_RANGE = new int[] { 287, -1 };
+//		TESTS_NUMBERS = new int[] { 239 };
+//		TESTS_RANGE = new int[] { 308, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -4163,7 +4163,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	ASTNode node = buildAST(
 			contents,
 			this.workingCopy,
-			false);
+			false,
+			false,
+			true);
     	assertNotNull("No node", node);
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit compilationUnit = (CompilationUnit) node;
@@ -7668,6 +7670,35 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeBinding = typeBinding.getSuperclass();
 		IMethodBinding[] methodBindings = typeBinding.getDeclaredMethods();
 		assertNotNull("No method bindings", methodBindings);
+		assertEquals("wrong size", 1, methodBindings.length);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=173338
+	 */
+	public void test0238_2() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0238/X.java", true/*resolve*/);
+		String contents =
+			"package test0238;\n" +
+			"public class X extends A {\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false,
+				false,
+				true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		typeBinding = typeBinding.getSuperclass();
+		IMethodBinding[] methodBindings = typeBinding.getDeclaredMethods();
+		assertNotNull("No method bindings", methodBindings);
 		assertEquals("wrong size", 2, methodBindings.length);
 	}
 
@@ -7684,6 +7715,35 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				contents,
 				this.workingCopy,
 				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		typeBinding = typeBinding.getSuperclass();
+		IVariableBinding[] variableBindings = typeBinding.getDeclaredFields();
+		assertNotNull("No variable bindings", variableBindings);
+		assertEquals("wrong size", 0, variableBindings.length);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=173338
+	 */
+	public void test0239_2() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0239/X.java", true/*resolve*/);
+		String contents =
+			"package test0239;\n" +
+			"public class X extends A {\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false,
+				true,
+				true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -9799,5 +9859,259 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			false);
 		IAnnotationBinding resolveAnnotationBinding = annotation.resolveAnnotationBinding();
 		assertEquals("Wrong size", 1, resolveAnnotationBinding.getDeclaredMemberValuePairs().length);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0298() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0298/X.java", true/*resolve*/);
+		Type type = (Type) buildAST(
+			"package test0298;\n" +
+			"import java.util.List;\n" +
+			"public interface X {\n" + 
+			"	/*start*/List<IEntity>/*end*/ foo();\n" + 
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			false);
+		ITypeBinding binding = type.resolveBinding();
+		assertNull("Got a binding", binding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0299() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0299/X.java", true/*resolve*/);
+		Type type = (Type) buildAST(
+			"package test0299;\n" +
+			"public interface X {\n" + 
+			"	/*start*/List<IEntity>/*end*/ foo();\n" + 
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			false);
+		ITypeBinding binding = type.resolveBinding();
+		assertNull("Got a binding", binding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0300() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0300/X.java", true/*resolve*/);
+		Type type = (Type) buildAST(
+			"package test0300;\n" +
+			"public interface X {\n" + 
+			"	/*start*/ArrayList<IEntity>/*end*/ foo();\n" + 
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			false);
+		ITypeBinding binding = type.resolveBinding();
+		assertNull("Got a binding", binding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0301() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0301/X.java", true/*resolve*/);
+		Type type = (Type) buildAST(
+			"package test03018;\n" +
+			"import java.util.List;\n" +
+			"public interface X {\n" + 
+			"	/*start*/List<IEntity>/*end*/ foo();\n" + 
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		ITypeBinding binding = type.resolveBinding();
+		assertNotNull("No binding", binding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0302() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0302/X.java", true/*resolve*/);
+		Type type = (Type) buildAST(
+			"package test0302;\n" +
+			"public interface X {\n" + 
+			"	/*start*/List<IEntity>/*end*/ foo();\n" + 
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		ITypeBinding binding = type.resolveBinding();
+		assertNotNull("No binding", binding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0303() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0303/X.java", true/*resolve*/);
+		ParameterizedType type = (ParameterizedType) buildAST(
+			"package test0303;\n" +
+			"public interface X {\n" + 
+			"	/*start*/ArrayList<IEntity>/*end*/ foo();\n" + 
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		ITypeBinding binding = type.resolveBinding();
+		assertNotNull("No binding", binding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0304() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0304/X.java", true/*resolve*/);
+		Type type = (Type) buildAST(
+			"package test0304;\n" +
+			"public interface X {\n" + 
+			"	ArrayList</*start*/IEntity/*end*/> foo();\n" + 
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		ITypeBinding binding = type.resolveBinding();
+		assertNotNull("No binding", binding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0305() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0305/X.java", true/*resolve*/);
+		Type type = (Type) buildAST(
+			"package test0305;\n" +
+			"public interface X {\n" + 
+			"	ArrayList</*start*/IEntity/*end*/> foo();\n" + 
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			false);
+		ITypeBinding binding = type.resolveBinding();
+		assertNull("Got a binding", binding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0306() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0306/X.java", true/*resolve*/);
+		VariableDeclarationStatement statement= (VariableDeclarationStatement) buildAST(
+			"package test0306;\n" +
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		/*start*/ArrayList<IEntity> list;/*end*/\n" +
+			"	}\n" +
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			false);
+		List fragments = statement.fragments();
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding binding = fragment.resolveBinding();
+		assertNull("Got a binding", binding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0307() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0307/X.java", true/*resolve*/);
+		VariableDeclarationStatement statement= (VariableDeclarationStatement) buildAST(
+			"package test0307;\n" +
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		/*start*/ArrayList<IEntity> list;/*end*/\n" +
+			"	}\n" +
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		List fragments = statement.fragments();
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding binding = fragment.resolveBinding();
+		assertNotNull("No binding", binding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0308() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0308/X.java", true/*resolve*/);
+		MethodDeclaration declaration= (MethodDeclaration) buildAST(
+			"package test0308;\n" +
+			"public class X {\n" +
+			"	/*start*/ArrayList<IEntity> foo() {\n" +
+			"		 return null;\n" +
+			"	}/*end*/\n" +
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			false);
+		IMethodBinding binding = declaration.resolveBinding();
+		assertNull("Got a binding", binding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0309() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0309/X.java", true/*resolve*/);
+		MethodDeclaration declaration= (MethodDeclaration) buildAST(
+			"package test0309;\n" +
+			"public class X {\n" +
+			"	/*start*/ArrayList<IEntity> foo() {\n" +
+			"		 return null;\n" +
+			"	}/*end*/\n" +
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		IMethodBinding binding = declaration.resolveBinding();
+		assertNotNull("No binding", binding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0310() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0310/X.java", true/*resolve*/);
+		MethodDeclaration declaration= (MethodDeclaration) buildAST(
+			"package test0310;\n" +
+			"public class X {\n" +
+			"	/*start*/void foo(ArrayList<IEntity> list) {\n" +
+			"	}/*end*/\n" +
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			false);
+		IMethodBinding binding = declaration.resolveBinding();
+		assertNull("Got a binding", binding);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=230127
+	 */
+	public void test0311() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0311/X.java", true/*resolve*/);
+		MethodDeclaration declaration= (MethodDeclaration) buildAST(
+			"package test0311;\n" +
+			"public class X {\n" +
+			"	/*start*/void foo(ArrayList<IEntity> list) {\n" +
+			"	}/*end*/\n" +
+			"}",
+			this.workingCopy, 
+			false/*don't report errors*/,
+			true,
+			true);
+		IMethodBinding binding = declaration.resolveBinding();
+		assertNotNull("No binding", binding);
 	}
 }

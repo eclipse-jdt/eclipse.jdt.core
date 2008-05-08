@@ -1,6 +1,6 @@
 package javadoc.testBug54424;
 import java.io.IOException;
-import java.util.AbstractList;
+import java.util.ArrayList;
 
 public class Test {
 	/**
@@ -21,5 +21,5 @@ public class Test {
 	 * @throws IOException.
 	 * @todo it
 	 */
-	public AbstractList getList(int from, long to) throws IOException {return null;}
+	public ArrayList getList(int from, long to) throws IOException {return null;}
 }

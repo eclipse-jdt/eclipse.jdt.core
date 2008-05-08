@@ -8793,7 +8793,9 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			ASTNode node = buildAST(
 				contents,
 				workingCopy,
-				false);
+				false,
+				true,
+				true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
 			String expectedError = 
@@ -8807,7 +8809,49 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 			IVariableBinding variableBinding = fragment.resolveBinding();
 			assertNotNull("No binding", variableBinding);
-			assertEquals("LX;.foo()Ljava/lang/String;#c", variableBinding.getKey());	
+			assertEquals("LX;.foo()Ljava/lang/String;#c", variableBinding.getKey());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=149567
+	 */
+	public void test0666_2() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"import java.util.ArrayList;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	protected String foo() {\n" +
+				"		List c = new ArrayList();\n" +
+				"		c.add(null);\n" +
+				"		return c;\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false,
+				true,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			String expectedError = 
+				"List cannot be resolved to a type";
+			assertProblemsSize(unit, 1, expectedError);
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+			VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+			List fragments = statement.fragments();
+			assertEquals("No fragments", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			assertNull("Got a binding", variableBinding);
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
@@ -8841,8 +8885,44 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 			MethodDeclaration declaration = (MethodDeclaration) node;
 			IMethodBinding binding = declaration.resolveBinding();
+			assertNull("Got a binding", binding);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=149567
+	 */
+	public void test0667_2() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"import java.util.ArrayList;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	List foo() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false,
+				false,
+				true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			String expectedError = "List cannot be resolved to a type";
+			assertProblemsSize(unit, 1, expectedError);
+			node = getASTNode(unit, 0, 0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration declaration = (MethodDeclaration) node;
+			IMethodBinding binding = declaration.resolveBinding();
 			assertNotNull("No binding", binding);
-			assertEquals("LX;.foo()LList;", binding.getKey());				
+			assertEquals("LX;.foo()LList;", binding.getKey());
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
