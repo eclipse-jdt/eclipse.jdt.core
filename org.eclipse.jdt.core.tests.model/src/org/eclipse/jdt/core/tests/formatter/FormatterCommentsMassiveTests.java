@@ -127,17 +127,24 @@ import org.eclipse.text.edits.TextEdit;
  * <ul>
  * 	<li>3.0 performance workspace (9951 units):<ul>
  * 		<li>0 error</li>
- * 		<li>5 failures</li>
+ * 		<li>0 failures</li>
  * 		<li>8 failures due to old formatter</li>
- * 		<li>720 files have different lines leading spaces</li>
- * 		<li>17 files have different spaces</li>
+ * 		<li>726 files have different lines leading spaces</li>
+ * 		<li>9 files have different spaces</li>
+ *		</ul></li>
+ *		<li>ganymede M5 workspace (25819 units):<ul>
+ * 		<li>0 error</li>
+ * 		<li>17 files has still different output while reformatting!</li>
+ * 		<li>15 failures due to old formatter</li>
+ * 		<li>1373 files have different line leading spaces when reformatting!</li>
+ * 		<li>14 files have different spaces when reformatting!</li>
  *		</ul></li>
  *		<li>ganymede M6a workspace (26336 units):<ul>
  * 		<li>0 error</li>
- * 		<li>21 files has still different output while reformatting!</li>
- * 		<li>17 failures due to old formatter</li>
- * 		<li>1469 files have different line leading spaces when reformatting!</li>
- * 		<li>25 files have different spaces when reformatting!</li>
+ * 		<li>? files has still different output while reformatting!</li>
+ * 		<li>? failures due to old formatter</li>
+ * 		<li>? files have different line leading spaces when reformatting!</li>
+ * 		<li>? files have different spaces when reformatting!</li>
  *		</ul></li>
  * </ul>
  */
@@ -311,7 +318,7 @@ public void tearDownSuite() throws Exception {
 	if (seFailures > 0) {
 		System.out.println("List of files with different output "+failuresType+" (due to old formatter bugs):");
 		for (int i=0; i<sFailures; i++) {
-			System.out.println("	- "+this.failures.get(i));
+			System.out.println("	- "+this.expectedFailures.get(i));
 		}
 	}
 	if (slwFailures > 0) {
