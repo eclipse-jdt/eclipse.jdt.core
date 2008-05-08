@@ -317,7 +317,7 @@ public void tearDownSuite() throws Exception {
 	}
 	if (seFailures > 0) {
 		System.out.println("List of files with different output "+failuresType+" (due to old formatter bugs):");
-		for (int i=0; i<sFailures; i++) {
+		for (int i=0; i<seFailures; i++) {
 			System.out.println("	- "+this.expectedFailures.get(i));
 		}
 	}
