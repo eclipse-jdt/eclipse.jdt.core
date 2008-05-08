@@ -582,6 +582,37 @@ protected void updateDocComment() {
 	}
 }
 
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#verifyEndLine(int)
+ */
+protected boolean verifyEndLine(int textPosition) {
+	int endPosition = this.scanner.currentPosition;
+	this.scanner.resetTo(textPosition, this.javadocEnd);
+	boolean tokenizeWhiteSpace = this.scanner.tokenizeWhiteSpace;
+	this.scanner.tokenizeWhiteSpace = true;
+	try {
+		int token = this.scanner.getNextToken();
+		int startPosition = textPosition;
+		if (token == TerminalTokens.TokenNameWHITESPACE) {
+			while (this.scanner.currentCharacter == '*' || ScannerHelper.isWhitespace(this.scanner.currentCharacter)) {
+				token = this.scanner.getNextToken();
+			}
+			startPosition = this.scanner.currentPosition;
+		}
+		createTag();
+		pushText(startPosition, endPosition);
+	}
+	catch (InvalidInputException iie) {
+		// skip
+	}
+	finally {
+		this.scanner.tokenizeWhiteSpace = tokenizeWhiteSpace;
+	}
+	this.scanner.resetTo(endPosition, this.javadocEnd);
+	this.index = endPosition;
+	return true;
+}
+
 protected boolean verifySpaceOrEndComment() {
 	// Don't care if there's no spaces after a reference...
 	return true;

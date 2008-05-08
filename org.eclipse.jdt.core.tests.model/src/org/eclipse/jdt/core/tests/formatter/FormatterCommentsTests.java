@@ -868,6 +868,9 @@ public void testBlockComments17() throws JavaModelException {
 public void testBlockComments18() throws JavaModelException {
 	formatUnit("comments.block", "X18.java");
 }
+public void testBlockComments19() throws JavaModelException {
+	formatUnit("comments.block", "X19.java");
+}
 
 /*
  * Test formatter on example got from workspaces
@@ -988,11 +991,17 @@ public void _testWkspEclipse28c() throws JavaModelException {
 public void testWkspEclipse28d() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X28d.java");
 }
-public void _testWkspEclipse29() throws JavaModelException {
+public void testWkspEclipse29() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X29.java");
 }
-public void _testWkspEclipse30() throws JavaModelException {
+public void testWkspEclipse30() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X30.java");
+}
+public void testWkspEclipse31() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X31.java");
+}
+public void testWkspEclipse32() throws JavaModelException {
+	formatUnit("wksp.eclipse", "X32.java");
 }
 // Ganymede
 // TODO pass this test
