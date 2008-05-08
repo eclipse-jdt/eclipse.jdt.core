@@ -1025,8 +1025,9 @@ public class Scribe implements IJavaDocTagConstants {
 		this.pendingSpace = false;
 		
 		if (includesBlockComments()) {
-			printBlockComment(currentTokenStartPosition, currentTokenEndPosition);
-			return;
+			if (printBlockComment(currentTokenStartPosition, currentTokenEndPosition)) {
+				return;
+			}
 		}
 
 		int currentCommentOffset = onFirstColumn ? 0 : getCurrentCommentOffset(start);
@@ -1137,7 +1138,7 @@ public class Scribe implements IJavaDocTagConstants {
 		this.scanner.resetTo(currentTokenEndPosition, this.scannerEndPosition - 1);
 	}
 
-	private void printBlockComment(int currentTokenStartPosition, int currentTokenEndPosition) {
+	private boolean printBlockComment(int currentTokenStartPosition, int currentTokenEndPosition) {
 
 
 		// Compute indentation
@@ -1263,6 +1264,17 @@ public class Scribe implements IJavaDocTagConstants {
 						previousToken = TerminalTokens.TokenNameMULTIPLY;
 						scannerLine = Util.getLineNumber(this.scanner.getCurrentTokenEndPosition(), this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 						continue;
+					}
+				case TerminalTokens.TokenNameMINUS:
+					if (previousToken == -1) {
+						// Do not format comment starting with /*- 
+						// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=230944
+						this.indentationLevel = indentLevel;
+						this.numberOfIndentations = indentations;
+						this.lastNumberOfNewLines = 0;
+						needSpace = false;
+						this.scanner.skipComments = false;
+						return false;
 					}
 			}
 
@@ -1398,6 +1410,7 @@ public class Scribe implements IJavaDocTagConstants {
 		needSpace = false;
 		this.scanner.resetTo(currentTokenEndPosition, this.scannerEndPosition - 1);
 		this.scanner.skipComments = false;
+		return true;
 	}
 
 	private void printBlockCommentHeaderLine(StringBuffer buffer) {
@@ -2899,8 +2912,9 @@ public class Scribe implements IJavaDocTagConstants {
 					if (newLines == 0) {
 						newLines = printJavadocBlockNodesNewLines(block, node, previousEnd);
 					}
-					if (newLines > 0 || (idx > 1 && (previousEnd+1) <= (nextStart-1))) {
-						printJavadocGapLines(previousEnd+1, node.sourceStart-1, newLines, clearBlankLines, false, null);
+					int nodeStart = node.sourceStart;
+					if (newLines > 0 || (idx > 1 && nodeStart > (previousEnd+1))) {
+						printJavadocGapLines(previousEnd+1, nodeStart-1, newLines, clearBlankLines, false, null);
 					}
 					if (newLines > 0) textOnNewLine = true;
 					buffer = new StringBuffer();
@@ -2937,6 +2951,7 @@ public class Scribe implements IJavaDocTagConstants {
 					}
 					boolean firstText = idx==1;
 					if (idx > 1 && (previousEnd+1) > (nextStart-1)) {
+						// There's no space between text and html tag or inline block => do not insert space a the beginning of the text
 						firstText = true;
 					}
 					printJavadocTextLine(buffer, nextStart, end, block, firstText, needIndentation, idx==0/* opening html tag?*/ || text.htmlIndexes[idx-1] != -1);
@@ -3015,7 +3030,9 @@ public class Scribe implements IJavaDocTagConstants {
 		if (!needIndentation && !isHtmlBreakTag && text.htmlIndexes != null && text.isTextAfterHtmlSeparatorTag(max)) {
 			needIndentation = true;
 		}
-		printJavadocTextLine(buffer, nextStart, text.sourceEnd, block, max<=0 /*not the first text*/, needIndentation, closingTag/* closing html tag*/);
+		boolean firstText = max <= 0 // single tag (e.g. <br>)
+			|| (previousEnd+1) > (nextStart-1); // There's no space between text and html tag or inline block => do not insert space a the beginning of the text
+		printJavadocTextLine(buffer, nextStart, text.sourceEnd, block, firstText, needIndentation, closingTag/* closing html tag*/);
 		if (textStart < text.sourceEnd) {
 			addReplaceEdit(textStart, text.sourceEnd, buffer.toString());
 		}
@@ -3193,6 +3210,8 @@ public class Scribe implements IJavaDocTagConstants {
 					continue;
 				}
 	    		int tokensBufferLength = tokensBuffer.length();
+    			int tokenStart = this.scanner.getCurrentTokenStartPosition();
+	    		boolean insertSpace = previousToken == TerminalTokens.TokenNameWHITESPACE || (tokenStart == textStart && this.column > firstColumn && !(firstText || isHtmlTag));
 				switch (token) {
 					case TerminalTokens.TokenNameWHITESPACE:
 						previousToken = token;
@@ -3203,13 +3222,6 @@ public class Scribe implements IJavaDocTagConstants {
 						}
 						textOnNewLine = false;
 						continue;
-					case TerminalTokens.TokenNameStringLiteral:
-						if (this.scanner.currentPosition > this.scanner.eofPosition) {
-							this.scanner.resetTo(this.scanner.startPosition, textEnd);
-							this.scanner.getNextChar();
-							token = 1;
-						}
-						break;
 					case TerminalTokens.TokenNameCharacterLiteral:
 						if (this.scanner.currentPosition > this.scanner.eofPosition) {
 							this.scanner.resetTo(this.scanner.startPosition, textEnd);
@@ -3218,9 +3230,7 @@ public class Scribe implements IJavaDocTagConstants {
 						}
 						break;
 				}
-    			int tokenStart = this.scanner.getCurrentTokenStartPosition();
 	    		int tokenLength = (this.scanner.atEnd() ? this.scanner.eofPosition : this.scanner.currentPosition) - tokenStart;
-	    		boolean insertSpace = previousToken == TerminalTokens.TokenNameWHITESPACE || (tokenStart == textStart && this.column > firstColumn && !(firstText || isHtmlTag));
 	    		int lastColumn = this.column + tokensBufferLength + tokenLength;
 	    		if (insertSpace) lastColumn++;
 	    		if (headerLine) {
@@ -3233,7 +3243,7 @@ public class Scribe implements IJavaDocTagConstants {
 	    		}
 				if (lastColumn > maxColumn && token != TerminalTokens.TokenNameAT && (tokensBufferLength == 0 || tokensBuffer.charAt(tokensBufferLength-1) != '@')) {
 					// not enough space on the line
-					if (!isHtmlTag && (firstColumn+tokensBufferLength+tokenLength) >= maxColumn) {
+					if (!isHtmlTag && tokensBufferLength > 0 && (firstColumn+tokensBufferLength+tokenLength) >= maxColumn) {
 						// there won't be enough room even if we break the line before the buffered tokens
 						// So add the buffered tokens now
 						buffer.append(tokensBuffer);
