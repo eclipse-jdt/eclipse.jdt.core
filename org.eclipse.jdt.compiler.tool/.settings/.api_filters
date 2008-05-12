@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.jdt.compiler.tool" version="2">
+    <resource path="src/org/eclipse/jdt/internal/compiler/tool/EclipseCompilerImpl.java" type="org.eclipse.jdt.internal.compiler.tool.EclipseCompilerImpl">
+        <filter id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.tool.EclipseCompilerImpl"/>
+                <message_argument value="org.eclipse.jdt.compiler.tool_1.0.100"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/jdt/internal/compiler/tool/EclipseFileObject.java" type="org.eclipse.jdt.internal.compiler.tool.EclipseFileObject">
+        <filter id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.tool.EclipseFileObject"/>
+                <message_argument value="org.eclipse.jdt.compiler.tool_1.0.100"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/jdt/internal/compiler/tool/Options.java" type="org.eclipse.jdt.internal.compiler.tool.Options">
+        <filter id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.tool.Options"/>
+                <message_argument value="org.eclipse.jdt.compiler.tool_1.0.100"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/jdt/internal/compiler/tool/ArchiveFileObject.java" type="org.eclipse.jdt.internal.compiler.tool.ArchiveFileObject">
+        <filter id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.tool.ArchiveFileObject"/>
+                <message_argument value="org.eclipse.jdt.compiler.tool_1.0.100"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/jdt/internal/compiler/tool/Util.java" type="org.eclipse.jdt.internal.compiler.tool.Util">
+        <filter id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.tool.Util"/>
+                <message_argument value="org.eclipse.jdt.compiler.tool_1.0.100"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/jdt/internal/compiler/tool/Archive.java" type="org.eclipse.jdt.internal.compiler.tool.Archive">
+        <filter id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.tool.Archive"/>
+                <message_argument value="org.eclipse.jdt.compiler.tool_1.0.100"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/jdt/internal/compiler/tool/EclipseCompiler.java" type="org.eclipse.jdt.internal.compiler.tool.EclipseCompiler">
+        <filter id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.tool.EclipseCompiler"/>
+                <message_argument value="org.eclipse.jdt.compiler.tool_1.0.100"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/jdt/internal/compiler/tool/EclipseFileManager.java" type="org.eclipse.jdt.internal.compiler.tool.EclipseFileManager">
+        <filter id="305365105">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.tool.EclipseFileManager"/>
+                <message_argument value="org.eclipse.jdt.compiler.tool_1.0.100"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
