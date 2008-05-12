@@ -51,13 +51,6 @@ public class SearchableEnvironment
 			|| !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true));
 		this.workingCopies = workingCopies;
 		this.nameLookup = project.newNameLookup(workingCopies);
-
-		// Create search scope with visible entry on the project's classpath
-		if(this.checkAccessRestrictions) {
-			this.searchScope = BasicSearchEngine.createJavaSearchScope(new IJavaElement[] {project});
-		} else {
-			this.searchScope = BasicSearchEngine.createJavaSearchScope(this.nameLookup.packageFragmentRoots);
-		}
 	}
 
 	/**
@@ -225,7 +218,7 @@ public class SearchableEnvironment
 					name,
 					SearchPattern.R_EXACT_MATCH,
 					searchFor,
-					this.searchScope,
+					getSearchScope(),
 					typeRequestor,
 					CANCEL_IF_NOT_READY_TO_SEARCH,
 					progressMonitor);
@@ -387,7 +380,7 @@ public class SearchableEnvironment
 					simpleName,
 					matchRule, // not case sensitive
 					searchFor,
-					this.searchScope,
+					getSearchScope(),
 					typeRequestor,
 					CANCEL_IF_NOT_READY_TO_SEARCH,
 					progressMonitor);
@@ -432,6 +425,18 @@ public class SearchableEnvironment
 		}
 	}
 
+	private IJavaSearchScope getSearchScope() {
+		if (this.searchScope == null) {
+			// Create search scope with visible entry on the project's classpath
+			if(this.checkAccessRestrictions) {
+				this.searchScope = BasicSearchEngine.createJavaSearchScope(new IJavaElement[] {project});
+			} else {
+				this.searchScope = BasicSearchEngine.createJavaSearchScope(this.nameLookup.packageFragmentRoots);
+			}
+		}
+		return this.searchScope;
+	}
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.env.INameEnvironment#isPackage(char[][], char[])
 	 */

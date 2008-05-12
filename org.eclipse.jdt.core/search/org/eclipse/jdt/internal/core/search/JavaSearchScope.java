@@ -92,8 +92,8 @@ private void addEnclosingProjectOrJar(IPath path) {
  * Add java project all fragment roots to current java search scope.
  * @see #add(JavaProject, IPath, int, HashSet, IClasspathEntry)
  */
-public void add(JavaProject project, int includeMask, HashSet visitedProject) throws JavaModelException {
-	add(project, null, includeMask, visitedProject, null);
+public void add(JavaProject project, int includeMask, HashSet projectsToBeAdded) throws JavaModelException {
+	add(project, null, includeMask, projectsToBeAdded, null);
 }
 /**
  * Add a path to current java search scope or all project fragment roots if null.
@@ -102,13 +102,13 @@ public void add(JavaProject project, int includeMask, HashSet visitedProject) th
  * @param javaProject Project used to get resolved classpath entries
  * @param pathToAdd Path to add in case of single element or null if user want to add all project package fragment roots
  * @param includeMask Mask to apply on classpath entries
- * @param visitedProjects Set to avoid infinite recursion
+ * @param projectsToBeAdded Set to avoid infinite recursion
  * @param referringEntry Project raw entry in referring project classpath
  * @throws JavaModelException May happen while getting java model info 
  */
-void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visitedProjects, IClasspathEntry referringEntry) throws JavaModelException {
+void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet projectsToBeAdded, IClasspathEntry referringEntry) throws JavaModelException {
 	IProject project = javaProject.getProject();
-	if (!project.isAccessible() || !visitedProjects.add(project)) return;
+	if (!project.isAccessible() || projectsToBeAdded.contains(project)) return;
 
 	IPath projectPath = project.getFullPath();
 	String projectPathString = projectPath.toString();
@@ -125,10 +125,6 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 			// Add only exported entries.
 			// Source folder are implicitly exported.
 			if (!entry.isExported() && entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) {
-				// Need to remove the project from visited projects list to be sure
-				// not to skip library when the project will be added as a top level.
-				// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=176831
-				visitedProjects.remove(project);
 				continue;
 			}
 			cpEntry = cpEntry.combineWith((ClasspathEntry)referringEntry);
@@ -188,7 +184,9 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 				if ((includeMask & REFERENCED_PROJECTS) != 0) {
 					IPath path = entry.getPath();
 					if (pathToAdd == null || pathToAdd.equals(path)) {
-						add((JavaProject) model.getJavaProject(path.lastSegment()), null, includeMask, visitedProjects, cpEntry);
+						projectsToBeAdded.add(project); // avoid infinite recursion
+						add((JavaProject) model.getJavaProject(path.lastSegment()), null, includeMask, projectsToBeAdded, cpEntry);
+						projectsToBeAdded.remove(project);
 					}
 				}
 				break;

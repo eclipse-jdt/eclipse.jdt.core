@@ -50,13 +50,6 @@ protected void tearDown() throws Exception {
 
 	super.tearDown();
 }
-protected void assertScopeEquals(String expected, IJavaSearchScope scope) {
-	String actual = scope.toString();
-	if (!expected.equals(actual)) {
-		System.out.println(displayString(actual, 3) + ",");
-	}
-	assertEquals("Unexpected scope", expected, actual);
-}
 /*
  * Ensures that a Java search scope with SOURCES only is correct.
  */

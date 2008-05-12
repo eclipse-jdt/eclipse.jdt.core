@@ -267,6 +267,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			actual
 		);
 	}
+	protected void assertScopeEquals(String expected, IJavaSearchScope scope) {
+		String actual = scope.toString();
+		if (!expected.equals(actual)) {
+			System.out.println(displayString(actual, 3) + ",");
+		}
+		assertEquals("Unexpected scope", expected, actual);
+	}
 	protected void addClasspathEntry(IJavaProject project, IClasspathEntry entry) throws JavaModelException{
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;

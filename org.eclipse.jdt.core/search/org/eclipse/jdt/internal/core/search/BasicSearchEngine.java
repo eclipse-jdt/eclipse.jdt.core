@@ -129,14 +129,20 @@ public class BasicSearchEngine {
 	 * @see SearchEngine#createJavaSearchScope(IJavaElement[], int) for detailed comment.
 	 */
 	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, int includeMask) {
+		HashSet projectsToBeAdded = new HashSet(2);
+		for (int i = 0, length = elements.length; i < length; i++) {
+			IJavaElement element = elements[i];
+			if (element instanceof JavaProject) {
+				projectsToBeAdded.add(element);
+			}
+		}
 		JavaSearchScope scope = new JavaSearchScope();
-		HashSet visitedProjects = new HashSet(2);
 		for (int i = 0, length = elements.length; i < length; i++) {
 			IJavaElement element = elements[i];
 			if (element != null) {
 				try {
-					if (element instanceof JavaProject) {
-						scope.add((JavaProject)element, includeMask, visitedProjects);
+					if (projectsToBeAdded.remove(element)) {
+						scope.add((JavaProject)element, includeMask, projectsToBeAdded);
 					} else {
 						scope.add(element);
 					}

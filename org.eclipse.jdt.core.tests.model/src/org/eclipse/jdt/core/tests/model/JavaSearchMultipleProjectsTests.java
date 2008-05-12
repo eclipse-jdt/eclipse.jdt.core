@@ -1336,4 +1336,97 @@ public void testBug229128() throws CoreException {
 	}
 }
 
+/**
+ * @bug 229951: StackOverflowError during JavaSearchScope.add for large workspace
+ * @test Ensure that no StackOverFlowError occurs when searching in a project referencing a cycle
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=229951"
+ */
+public void testBug229951a() throws Exception {
+	try {
+		createJavaProject("P1");
+		createFile("/P1/test.jar", "");
+		editFile(
+			"/P1/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" + 
+			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P2\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>"
+		);
+		createJavaProject("P2");
+		createFile("/P2/test.jar", "");
+		editFile(
+			"/P2/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" + 
+			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P1\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>"
+		);
+		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P2"}, "");
+		createFile(
+			"/P3/X229951.java",
+			"public class X229951 {\n" +
+			"}"
+		);
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		search("X229951", TYPE, DECLARATIONS, scope, resultCollector);
+		assertSearchResults(
+			"Unexpected references of annotation type MyAnnot",
+			"X229951.java X229951 [X229951]",
+			resultCollector);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2", "P3"});
+	}
+}
+
+/**
+ * @bug 229951: StackOverflowError during JavaSearchScope.add for large workspace
+ * @test Ensure that no StackOverFlowError occurs when creating a search scope on a project referencing a cycle
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=229951"
+ */
+public void testBug229951b() throws Exception {
+	try {
+		createJavaProject("P1");
+		createFile("/P1/test.jar", "");
+		editFile(
+			"/P1/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" + 
+			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P2\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>"
+		);
+		createJavaProject("P2");
+		createFile("/P2/test.jar", "");
+		editFile(
+			"/P2/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"lib\" path=\"test.jar\"/>\n" + 
+			"	<classpathentry exported=\"true\" kind=\"src\" path=\"/P1\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>"
+		);
+		IJavaProject p3 = createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P2"}, "");
+		createFile(
+			"/P3/X229951.java",
+			"public class X229951 {\n" +
+			"}"
+		);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p3});
+		assertScopeEquals(
+			"JavaSearchScope on [\n" + 
+			"	/P3\n" + 
+			"	" + getExternalJCLPathString() + "\n" + 
+			"]",
+			scope);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2", "P3"});
+	}
+}
 }
