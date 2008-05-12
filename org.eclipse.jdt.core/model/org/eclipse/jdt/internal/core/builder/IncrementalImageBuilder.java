@@ -545,6 +545,12 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 							}
 						}
 					}
+					if ((sourceDelta.getFlags() & IResourceDelta.MOVED_TO) != 0) {
+						// same idea as moving a source file
+						// see bug 163200
+						IResource movedFolder = javaBuilder.workspaceRoot.getFolder(sourceDelta.getMovedToPath());
+						JavaBuilder.removeProblemsAndTasksFor(movedFolder); 
+					}
 					IFolder removedPackageFolder = md.binaryFolder.getFolder(removedPackagePath);
 					if (removedPackageFolder.exists())
 						removedPackageFolder.delete(IResource.FORCE, null);

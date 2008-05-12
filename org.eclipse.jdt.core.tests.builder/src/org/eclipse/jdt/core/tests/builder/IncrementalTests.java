@@ -12,7 +12,10 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaModelException;
@@ -486,6 +489,43 @@ public class IncrementalTests extends BuilderTests {
 		env.addClass(src2, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p; \n"+ //$NON-NLS-1$
 			"public class A {}"); //$NON-NLS-1$
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
+
+	public void testMovePackage2() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$ 
+		IPath other = env.addFolder(projectPath, "other"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		IPath classA = env.addClass(src, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p; \n"+ //$NON-NLS-1$
+			"public class A extends Missing {}"); //$NON-NLS-1$
+		IPath classB = env.addClass(src, "p.q", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p.q; \n"+ //$NON-NLS-1$
+			"public class B extends Missing {}"); //$NON-NLS-1$
+
+		fullBuild(projectPath);
+		expectingSpecificProblemFor(
+			classA, 
+			new Problem("", "Missing cannot be resolved to a type", new Path("/Project/src/p/A.java"), 35, 42, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+		);
+		expectingSpecificProblemFor(
+			classB, 
+			new Problem("", "Missing cannot be resolved to a type", new Path("/Project/src/p/q/B.java"), 37, 44, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+		);
+		
+		try {
+			IProject p = env.getProject(projectPath);
+			IFolder pFolder = p.getWorkspace().getRoot().getFolder(classA.removeLastSegments(1));
+			pFolder.move(other.append("p"), true, false, null);
+		} catch (CoreException e) {
+			env.handle(e);
+		}
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
