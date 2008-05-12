@@ -62,8 +62,8 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.scope = scope;
 
 	// expect the fields & methods to be initialized correctly later
-	this.fields = Binding.NO_FIELDS;
-	this.methods = Binding.NO_METHODS;
+	this.fields = Binding.UNINITIALIZED_FIELDS;
+	this.methods = Binding.UNINITIALIZED_METHODS;
 
 	computeId();
 }
@@ -539,6 +539,12 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 	}
 	return accessMethod;
 }
+boolean areFieldsInitialized() {
+	return this.fields != Binding.UNINITIALIZED_FIELDS;
+}
+boolean areMethodsInitialized() {
+	return this.methods != Binding.UNINITIALIZED_METHODS;
+}
 public int kind() {
 	if (this.typeVariables != Binding.NO_TYPE_VARIABLES) return Binding.GENERIC_TYPE;
 	return Binding.TYPE;
@@ -992,6 +998,17 @@ public void initializeDeprecatedAnnotationTagBits() {
 			this.modifiers |= ClassFileConstants.AccDeprecated;
 		}
 	}
+}
+
+// ensure the receiver knows its hierarchy & fields/methods so static imports can be resolved correctly
+// see bug 230026
+void initializeForStaticImports() {
+	if (this.scope == null) return; // already initialized
+
+	if (this.superInterfaces == null)
+		this.scope.connectTypeHierarchy();
+	this.scope.buildFields();
+	this.scope.buildMethods();
 }
 
 /**

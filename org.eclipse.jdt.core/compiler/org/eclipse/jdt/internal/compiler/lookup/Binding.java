@@ -44,6 +44,9 @@ public abstract class Binding {
 	public static final AnnotationBinding[] NO_ANNOTATIONS = new AnnotationBinding[0];
 	public static final ElementValuePair[] NO_ELEMENT_VALUE_PAIRS = new ElementValuePair[0];
 
+	public static final FieldBinding[] UNINITIALIZED_FIELDS = new FieldBinding[0];
+	public static final MethodBinding[] UNINITIALIZED_METHODS = new MethodBinding[0];
+
 	/*
 	* Answer the receiver's binding type from Binding.BindingID.
 	*/

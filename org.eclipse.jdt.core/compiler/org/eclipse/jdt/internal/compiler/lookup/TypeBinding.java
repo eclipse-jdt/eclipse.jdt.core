@@ -359,6 +359,10 @@ public char[] genericTypeSignature() {
 
 public abstract PackageBinding getPackage();
 
+void initializeForStaticImports() {
+	// only applicable to source types
+}
+
 public boolean isAnnotationType() {
 	return false;
 }

@@ -857,6 +857,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		if (!currentType.canBeSeenBy(this))
 			return new ProblemFieldBinding(currentType, fieldName, ProblemReasons.ReceiverTypeNotVisible);
 
+		currentType.initializeForStaticImports();
 		FieldBinding field = currentType.getField(fieldName, needResolve);
 		if (field != null) {
 			if (invocationSite == null
@@ -874,10 +875,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		// we could hold onto the not visible field for extra error reporting
 		while (keepLooking) {
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces == null) { // needed for statically imported types which don't know their hierarchy yet
-				((SourceTypeBinding) currentType).scope.connectTypeHierarchy();
-				itsInterfaces = currentType.superInterfaces();
-			}
 			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (interfacesToVisit == null) {
 					interfacesToVisit = itsInterfaces;
@@ -898,6 +895,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				break;
 
 			unitScope.recordTypeReference(currentType);
+			currentType.initializeForStaticImports();
 			if ((field = currentType.getField(fieldName, needResolve)) != null) {
 				keepLooking = false;
 				if (field.canBeSeenBy(receiverType, invocationSite, this)) {

@@ -69,8 +69,9 @@ public class ClassScope extends Scope {
 		anonymousType.verifyMethods(environment().methodVerifier());
 	}
 	
-	private void buildFields() {
-		SourceTypeBinding sourceType = this.referenceContext.binding;		
+	void buildFields() {
+		SourceTypeBinding sourceType = this.referenceContext.binding;
+		if (sourceType.areFieldsInitialized()) return;
 		if (this.referenceContext.fields == null) {
 			sourceType.setFields(Binding.NO_FIELDS);
 			return;
@@ -270,7 +271,10 @@ public class ClassScope extends Scope {
 		sourceType.memberTypes = memberTypeBindings;
 	}
 	
-	private void buildMethods() {
+	void buildMethods() {
+		SourceTypeBinding sourceType = this.referenceContext.binding;
+		if (sourceType.areMethodsInitialized()) return;
+
 		boolean isEnum = TypeDeclaration.kind(this.referenceContext.modifiers) == TypeDeclaration.ENUM_DECL;
 		if (this.referenceContext.methods == null && !isEnum) {
 			this.referenceContext.binding.setMethods(Binding.NO_METHODS);
@@ -292,7 +296,6 @@ public class ClassScope extends Scope {
 		int count = isEnum ? 2 : 0; // reserve 2 slots for special enum methods: #values() and #valueOf(String)
 		MethodBinding[] methodBindings = new MethodBinding[(clinitIndex == -1 ? size : size - 1) + count];
 		// create special methods for enums
-		SourceTypeBinding sourceType = this.referenceContext.binding;
 		if (isEnum) {
 			methodBindings[0] = sourceType.addSyntheticEnumMethod(TypeConstants.VALUES); // add <EnumType>[] values() 
 			methodBindings[1] = sourceType.addSyntheticEnumMethod(TypeConstants.VALUEOF); // add <EnumType> valueOf() 

@@ -666,6 +666,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	    // do nothing for true parameterized types (only for raw types)
 	}
 
+	void initializeForStaticImports() {
+		this.type.initializeForStaticImports();
+	}
+
 	public boolean isEquivalentTo(TypeBinding otherType) {
 		if (this == otherType) 
 		    return true;

@@ -547,11 +547,13 @@ private Binding findSingleStaticImport(char[][] compoundName) {
 		return new ProblemReferenceBinding(compoundName, ((ProblemReferenceBinding) type).closestMatch, ProblemReasons.NotVisible);
 	return type;
 }
-MethodBinding findStaticMethod(ReferenceBinding currentType, char[] selector) {
+// helper method for findSingleStaticImport()
+private MethodBinding findStaticMethod(ReferenceBinding currentType, char[] selector) {
 	if (!currentType.canBeSeenBy(this))
 		return null;
 
 	do {
+		currentType.initializeForStaticImports();
 		MethodBinding[] methods = currentType.getMethods(selector);
 		if (methods != Binding.NO_METHODS) {
 			for (int i = methods.length; --i >= 0;) {
@@ -560,8 +562,6 @@ MethodBinding findStaticMethod(ReferenceBinding currentType, char[] selector) {
 					return method;
 			}
 		}
-		if (currentType.superInterfaces() == null) // needed for statically imported types which don't know their hierarchy yet
-			((SourceTypeBinding) currentType).scope.connectTypeHierarchy();
 	} while ((currentType = currentType.superclass()) != null);
 	return null;
 }

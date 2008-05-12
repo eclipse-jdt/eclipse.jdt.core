@@ -2284,7 +2284,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026
-	public void _test065() {
+	public void test065() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2305,7 +2305,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026 - variation
-	public void _test066() {
+	public void test066() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2324,9 +2324,9 @@ public class StaticImportTest extends AbstractComparableTest {
 			},
 			""
 		);
-	}	
+	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026 - variation
-	public void _test067() {
+	public void test067() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2349,6 +2349,46 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	              ^^^^^^^\n" + 
 			"The import p.I.E.C cannot be resolved\n" + 
 			"----------\n");
-	}		
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026 - variation
+	public void test068() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.I.E.C;\n" + 
+				"class C {}\n" + 
+				"class B<T> {}\n" + 
+				"public class X extends B<C>{\n" +
+				"	static void test() { int i = C; }\n" +
+				"}",
+				"p/I.java",
+				"package p;\n" + 
+				"public interface I<T extends Object> {\n" +
+				"	public static class E extends F {}\n" +
+				"	public static class F { public static int C; }\n" +
+				"}",
+			},
+			"");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026 - variation
+	public void test069() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.I.E.C;\n" + 
+				"class C {}\n" + 
+				"class B<T> {}\n" + 
+				"public class X extends B<C>{\n" +
+				"	static void test() { C(); }\n" +
+				"}",
+				"p/I.java",
+				"package p;\n" + 
+				"public interface I<T extends Object> {\n" +
+				"	public static class E extends F {}\n" +
+				"	public static class F { public static void C() {} }\n" +
+				"}",
+			},
+			"");
+	}
 }
 
