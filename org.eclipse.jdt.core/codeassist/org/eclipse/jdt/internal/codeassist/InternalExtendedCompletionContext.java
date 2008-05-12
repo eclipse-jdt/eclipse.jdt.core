@@ -86,6 +86,7 @@ public class InternalExtendedCompletionContext {
 	private boolean hasComputedEnclosingJavaElements;
 	Map bindingsToNodes;
 	private Map bindingsToHandles;
+	private Map nodesWithProblemsToHandles;
 	private ICompilationUnit compilationUnit;
 	
 	public InternalExtendedCompletionContext(
@@ -117,6 +118,7 @@ public class InternalExtendedCompletionContext {
 			
 			HashMap handleToBinding = new HashMap();
 			HashMap bindingToHandle = new HashMap();
+			HashMap nodeWithProblemToHandle = new HashMap();
 			HashMap handleToInfo = new HashMap();
 			
 			org.eclipse.jdt.core.ICompilationUnit handle = new AssistCompilationUnit(original, this.owner, handleToBinding, handleToInfo);
@@ -132,6 +134,7 @@ public class InternalExtendedCompletionContext {
 						this.assistNode,
 						handleToBinding,
 						bindingToHandle,
+						nodeWithProblemToHandle,
 						handleToInfo);
 			
 			CompletionElementNotifier notifier =
@@ -149,6 +152,7 @@ public class InternalExtendedCompletionContext {
 					new HashMap());
 			
 			this.bindingsToHandles = bindingToHandle;
+			this.nodesWithProblemsToHandles = nodeWithProblemToHandle;
 			this.compilationUnit = handle;
 		}
 	}
@@ -218,12 +222,12 @@ public class InternalExtendedCompletionContext {
 		ReferenceContext referenceContext = binding.declaringScope.referenceContext();
 		if (referenceContext instanceof AbstractMethodDeclaration) {
 			AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) referenceContext;
-			parent = this.getJavaElementOfCompilationUnit(methodDeclaration.binding);
+			parent = this.getJavaElementOfCompilationUnit(methodDeclaration, methodDeclaration.binding);
 		} else if (referenceContext instanceof TypeDeclaration){
 			// Local variable is declared inside an initializer
 			TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
 			
-			IType type = (IType)this.getJavaElementOfCompilationUnit(typeDeclaration.binding);
+			IType type = (IType)this.getJavaElementOfCompilationUnit(typeDeclaration, typeDeclaration.binding);
 			if (type != null) {
 				try {
 					IInitializer[] initializers = type.getInitializers();
@@ -266,6 +270,19 @@ public class InternalExtendedCompletionContext {
 		}
 		if (this.bindingsToHandles == null) return null;
 		return (JavaElement)this.bindingsToHandles.get(binding);
+	}
+	
+	private JavaElement getJavaElementOfCompilationUnit(ASTNode node, Binding binding) {
+		if (!this.hasComputedEnclosingJavaElements) {
+			computeEnclosingJavaElements();
+		}
+		if (binding != null) {
+			if (this.bindingsToHandles == null) return null;
+			return (JavaElement)this.bindingsToHandles.get(binding);
+		} else {
+			if (this.nodesWithProblemsToHandles == null) return null;
+			return (JavaElement)this.nodesWithProblemsToHandles.get(node);
+		}
 	}
 	
 	private TypeBinding getTypeFromSignature(String typeSignature, Scope scope) {
@@ -353,7 +370,8 @@ public class InternalExtendedCompletionContext {
 			next : for (int i = 0; i < size; i++) {
 				LocalVariableBinding binding = (LocalVariableBinding) visibleLocalVariables.elementAt(i);
 				if (assignableTypeBinding != null && !binding.type.isCompatibleWith(assignableTypeBinding)) continue next;
-				result[elementCount++] = getJavaElement(binding);
+				JavaElement localVariable = getJavaElement(binding);
+				if (localVariable != null) result[elementCount++] = localVariable;
 			}
 		
 		}

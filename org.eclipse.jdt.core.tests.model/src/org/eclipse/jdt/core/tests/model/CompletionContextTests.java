@@ -4779,4 +4779,89 @@ public void test0162() throws JavaModelException {
 		"}",
 		result.context);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230885
+public void test0163() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"public class Foo  {\n"+
+		"\n"+
+		"        private void addDepencency(int source, int target, int depth) {\n"+
+		"        }\n"+
+		"\n"+
+		"        private void addDataDependencies(int source) {\n"+
+		"                addD/**/\n"+
+		"        }\n"+
+		"\n"+
+		"        private void addDataDependencies(int source) {\n"+
+		"        }\n"+
+		"}");
+	
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("addD/**/");
+	int tokenEnd = tokenStart + "addD".length() - 1;
+	int cursorLocation = str.lastIndexOf("addD/**/") + "addD".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "I");
+	
+	String jclPath = getExternalJCLPathString();
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"addD\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	source [in addDataDependencies(int) [in Foo [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"}",
+		result.context);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230885
+public void test0164() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"public class Foo  {\n"+
+		"\n"+
+		"        private void addDepencency(int source, int target, int depth) {\n"+
+		"        }\n"+
+		"\n"+
+		"        private int addDataDependencies(int source) {\n"+
+		"        }\n"+
+		"\n"+
+		"        private int addDataDependencies(int source) {\n"+
+		"                addD/**/\n"+
+		"        }\n"+
+		"\n"+
+		"        private int addDataDependencies(int source) {\n"+
+		"        }\n"+
+		"}");
+	
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("addD/**/");
+	int tokenEnd = tokenStart + "addD".length() - 1;
+	int cursorLocation = str.lastIndexOf("addD/**/") + "addD".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true, "I");
+	
+	String jclPath = getExternalJCLPathString();
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"addD\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"visibleElements={\n" +
+		"	source [in addDataDependencies(int)#2 [in Foo [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +
+		"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in "+jclPath+"]]]],\n" +
+		"}",
+		result.context);
+}
 }

@@ -59,6 +59,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 	
 	private Map bindingCache;
 	private Map elementCache;
+	private Map elementWithProblemCache;
 	
 	public CompletionUnitStructureRequestor(
 			ICompilationUnit unit,
@@ -67,12 +68,14 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 			ASTNode assistNode,
 			Map bindingCache,
 			Map elementCache,
+			Map elementWithProblemCache,
 			Map newElements) {
 		super(unit, unitInfo, newElements);
 		this.parser = parser;
 		this.assistNode = assistNode;
 		this.bindingCache = bindingCache;
 		this.elementCache = elementCache;
+		this.elementWithProblemCache = elementWithProblemCache;
 	}
 	
 	protected Annotation createAnnotation(JavaElement parent, String name) {
@@ -85,6 +88,8 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 		if (fieldInfo.node.binding != null) {
 			this.bindingCache.put(field, fieldInfo.node.binding);
 			this.elementCache.put(fieldInfo.node.binding, field);
+		} else {
+			this.elementWithProblemCache.put(fieldInfo.node, field);
 		}
 		return field;
 	}
@@ -108,6 +113,8 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 		if (methodInfo.node.binding != null) {
 			this.bindingCache.put(method, methodInfo.node.binding);
 			this.elementCache.put(methodInfo.node.binding, method);
+		} else {
+			this.elementWithProblemCache.put(methodInfo.node, method);
 		}
 		return method;
 	}
@@ -122,6 +129,8 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 		if (typeInfo.node.binding != null) {
 			this.bindingCache.put(type, typeInfo.node.binding);
 			this.elementCache.put(typeInfo.node.binding, type);
+		} else {
+			this.elementWithProblemCache.put(typeInfo.node, type);
 		}
 		return type;
 	}

@@ -25,6 +25,7 @@ public class AssistSourceField extends ResolvedSourceField {
 	private Map infoCache;
 	
 	private String uniqueKey;
+	private boolean isResolved;
 	
 	public AssistSourceField(JavaElement parent, String name, Map bindingCache, Map infoCache) {
 		super(parent, name, null);
@@ -43,14 +44,24 @@ public class AssistSourceField extends ResolvedSourceField {
 		if (this.uniqueKey == null) {
 			Binding binding = (Binding) this.bindingCache.get(this);
 			if (binding != null) {
+				this.isResolved = true;
 				this.uniqueKey = new String(binding.computeUniqueKey());
+			} else {
+				this.isResolved = false;
+				try {
+					this.uniqueKey = getKey(this, false/*don't open*/);
+				} catch (JavaModelException e) {
+					// happen only if force open is true
+					return null;
+				}
 			}
 		}
 		return this.uniqueKey;
 	}
 	
 	public boolean isResolved() {
-		return getKey() != null;
+		getKey();
+		return this.isResolved;
 	}
 	
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info,boolean showResolvedInfo) {
