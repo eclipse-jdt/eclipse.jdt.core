@@ -1830,15 +1830,16 @@ public final class CompletionEngine
 				this.insideQualifiedReference = true;
 				this.completionToken = messageSend.selector;
 				boolean onlyStatic = false;
-				TypeBinding receiverType = null;
-				if(qualifiedBinding instanceof VariableBinding) {
-					receiverType = ((VariableBinding)qualifiedBinding).type;
-				} else if(qualifiedBinding instanceof MethodBinding) {
-					receiverType = ((MethodBinding)qualifiedBinding).returnType;
-				} else if(qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
+				if (messageSend.receiver instanceof NameReference) {
+					onlyStatic = ((NameReference)messageSend.receiver).isTypeReference();
+				} else if (!(messageSend.receiver instanceof MessageSend) &&
+						!(messageSend.receiver instanceof FieldReference) &&
+						!(messageSend.receiver.isThis())) {
 					onlyStatic = true;
-					receiverType = (TypeBinding)qualifiedBinding;
 				}
+				
+				TypeBinding receiverType = (TypeBinding)qualifiedBinding;
+				
 				if(receiverType != null && receiverType instanceof ReferenceBinding) {
 					TypeBinding[] typeArgTypes = computeTypesIfCorrect(messageSend.typeArguments);
 					if(typeArgTypes != null) {

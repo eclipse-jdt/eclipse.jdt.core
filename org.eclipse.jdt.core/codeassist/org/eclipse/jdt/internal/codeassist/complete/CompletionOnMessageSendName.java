@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.codeassist.complete;
 
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
-import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -41,12 +40,7 @@ public class CompletionOnMessageSendName extends MessageSend {
 				this.genericTypeArguments[i] = this.typeArguments[i].resolveType(scope, true /* check bounds*/);
 			}
 		}
-	
-		if(this.receiver instanceof NameReference) {
-			throw new CompletionNodeFound(this, ((NameReference)this.receiver).binding, scope);
-		} else if(this.receiver instanceof MessageSend) {
-			throw new CompletionNodeFound(this, ((MessageSend)this.receiver).binding, scope);
-		}
+		
 		throw new CompletionNodeFound(this, this.actualReceiverType, scope);
 	}
 	
