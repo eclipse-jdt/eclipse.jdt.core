@@ -95,8 +95,8 @@ public void testApplicationLibrairiesJarAndClassFolder() throws CoreException {
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
 			"JavaSearchScope on [\n" + 
-			"	/P/internal.jar\n" + 
 			"	/P/classfolder\n" + 
+			"	/P/internal.jar\n" + 
 			"]",
 			scope);
 	} finally {
@@ -109,8 +109,8 @@ public void testApplicationLibrairiesNonExistingJarAndClassFolder() throws CoreE
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
 			"JavaSearchScope on [\n" + 
-			"	/P/internal.jar\n" + 
 			"	/P/classfolder\n" + 
+			"	/P/internal.jar\n" + 
 			"]",
 			scope);
 	} finally {

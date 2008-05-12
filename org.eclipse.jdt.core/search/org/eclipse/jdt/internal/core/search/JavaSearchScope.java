@@ -650,20 +650,29 @@ public String toString() {
 			result.append("[empty scope]"); //$NON-NLS-1$
 		} else {
 			result.append("["); //$NON-NLS-1$
+			String[] paths = new String[this.relativePaths.length];
+			int index = 0;
 			for (int i = 0; i < this.relativePaths.length; i++) {
 				String path = this.relativePaths[i];
 				if (path == null) continue;
-				result.append("\n\t"); //$NON-NLS-1$
+				String containerPath;
 				if (ExternalFoldersManager.isInternalPathForExternalFolder(new Path(this.containerPaths[i]))) {
 					Object target = JavaModel.getWorkspaceTarget(new Path(this.containerPaths[i]));
-					result.append(((IFolder) target).getLocation().toOSString());
+					containerPath = ((IFolder) target).getLocation().toOSString();
 				} else {
-					result.append(this.containerPaths[i]);
+					containerPath = this.containerPaths[i];
 				}
 				if (path.length() > 0) {
-					result.append('/');
-					result.append(path);
+					paths[index++] = containerPath + '/' + path;
+				} else {
+					paths[index++] = containerPath;
 				}
+			}
+			System.arraycopy(paths, 0, paths = new String[index], 0, index);
+			Util.sort(paths);
+			for (int i = 0; i < index; i++) {
+				result.append("\n\t"); //$NON-NLS-1$
+				result.append(paths[i]);
 			}
 			result.append("\n]"); //$NON-NLS-1$
 		}
