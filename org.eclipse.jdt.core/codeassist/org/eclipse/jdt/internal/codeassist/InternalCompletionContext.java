@@ -35,6 +35,7 @@ public class InternalCompletionContext {
 	protected int tokenKind;
 	protected int tokenLocation;
 	
+	protected boolean isExtended;
 	protected InternalExtendedCompletionContext extendedContext;
 	
 	protected void setExpectedTypesKeys(char[][] expectedTypesKeys) {
@@ -45,6 +46,10 @@ public class InternalCompletionContext {
 		this.expectedTypesSignatures = expectedTypesSignatures;
 	}
 	
+	protected void setExtended() {
+		this.isExtended = true;
+	}
+	
 	protected void setExtendedData(
 			ITypeRoot typeRoot,
 			CompilationUnitDeclaration compilationUnitDeclaration,
@@ -53,6 +58,7 @@ public class InternalCompletionContext {
 			ASTNode astNode,
 			WorkingCopyOwner owner,
 			CompletionParser parser) {
+		this.isExtended = true;
 		this.extendedContext =
 			new InternalExtendedCompletionContext(
 					this,

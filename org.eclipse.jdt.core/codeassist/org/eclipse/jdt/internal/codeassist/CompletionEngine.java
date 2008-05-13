@@ -2311,7 +2311,9 @@ public final class CompletionEngine
 				if(this.noProposal && this.problem != null) {
 					if(!contextAccepted) {
 						contextAccepted = true;
-						this.requestor.acceptContext(new CompletionContext());
+						CompletionContext context = new CompletionContext();
+						if (this.requestor.isExtendedContextRequired()) context.setExtended();
+						this.requestor.acceptContext(context);
 					}
 					this.requestor.completionFailure(this.problem);
 					if(DEBUG) {
@@ -2344,7 +2346,9 @@ public final class CompletionEngine
 		}
 		if(!contextAccepted) {
 			contextAccepted = true;
-			this.requestor.acceptContext(new CompletionContext());
+			CompletionContext context = new CompletionContext();
+			if (this.requestor.isExtendedContextRequired()) context.setExtended();
+			this.requestor.acceptContext(context);
 		}
 		if(this.requestor != null){
 			this.requestor.endReporting();
@@ -2565,6 +2569,7 @@ public final class CompletionEngine
 					CompletionContext context = new CompletionContext();
 					context.setOffset(completionPosition - this.offset);
 					context.setTokenKind(CompletionContext.TOKEN_KIND_UNKNOWN);
+					if (this.requestor.isExtendedContextRequired()) context.setExtended();
 					this.requestor.acceptContext(context);
 				}
 				this.requestor.completionFailure(this.problem);
@@ -2610,6 +2615,7 @@ public final class CompletionEngine
 				CompletionContext context = new CompletionContext();
 				context.setTokenKind(CompletionContext.TOKEN_KIND_UNKNOWN);
 				context.setOffset(completionPosition - this.offset);
+				if (this.requestor.isExtendedContextRequired()) context.setExtended();
 				this.requestor.acceptContext(context);
 			}
 			this.requestor.endReporting();
