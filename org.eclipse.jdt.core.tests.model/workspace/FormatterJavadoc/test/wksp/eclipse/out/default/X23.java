@@ -35,7 +35,7 @@ public class X23 {
 	 * </p>
 	 * <p>
 	 * The body declarations passed as parameters to the comparator always carry
-	 * at least the following minimal signature information:<br>
+	 * at least the following minimal signature information: <br>
 	 * <table border="1" width="80%" cellpadding="5">
 	 * <tr>
 	 * <td width="20%"><code>TypeDeclaration</code></td>
@@ -71,35 +71,38 @@ public class X23 {
 	 * </p>
 	 * 
 	 * @param compilationUnit
-	 * 		the given compilation unit, which must be a working copy
+	 *            the given compilation unit, which must be a working copy
 	 * @param positions
-	 * 		an array of source positions to map, or <code>null</code> if none.
-	 * 		If supplied, the positions must character-based source positions
-	 * 		within the original source code for the given compilation unit,
-	 * 		arranged in non-decreasing order. The array is updated in place when
-	 * 		this method returns to reflect the corresponding source positions in
-	 * 		the permuted source code string (but not necessarily any longer in
-	 * 		non-decreasing order).
+	 *            an array of source positions to map, or <code>null</code> if
+	 *            none. If supplied, the positions must character-based source
+	 *            positions within the original source code for the given
+	 *            compilation unit, arranged in non-decreasing order. The array
+	 *            is updated in place when this method returns to reflect the
+	 *            corresponding source positions in the permuted source code
+	 *            string (but not necessarily any longer in non-decreasing
+	 *            order).
 	 * @param comparator
-	 * 		the comparator capable of ordering <code>BodyDeclaration</code>s
+	 *            the comparator capable of ordering
+	 *            <code>BodyDeclaration</code>s
 	 * @param options
-	 * 		bitwise-or of option flags; <code>0</code> for default behavior
-	 * 		(reserved for future growth)
+	 *            bitwise-or of option flags; <code>0</code> for default
+	 *            behavior (reserved for future growth)
 	 * @param monitor
-	 * 		the progress monitor to notify, or <code>null</code> if none
+	 *            the progress monitor to notify, or <code>null</code> if none
 	 * @exception JavaModelException
-	 * 		if the compilation unit could not be sorted. Reasons include:
-	 * 		<ul>
-	 * 		<li>The given compilation unit does not exist
-	 * 		(ELEMENT_DOES_NOT_EXIST)</li>
-	 * 		<li>The given compilation unit is not a working copy
-	 * 		(INVALID_ELEMENT_TYPES)</li>
-	 * 		<li>A <code>CoreException</code> occurred while accessing the
-	 * 		underlying resource
-	 * 		</ul>
+	 *                if the compilation unit could not be sorted. Reasons
+	 *                include:
+	 *                <ul>
+	 *                <li>The given compilation unit does not exist
+	 *                (ELEMENT_DOES_NOT_EXIST)</li>
+	 *                <li>The given compilation unit is not a working copy
+	 *                (INVALID_ELEMENT_TYPES)</li>
+	 *                <li>A <code>CoreException</code> occurred while accessing
+	 *                the underlying resource
+	 *                </ul>
 	 * @exception IllegalArgumentException
-	 * 		if the given compilation unit is null or if the given comparator is
-	 * 		null.
+	 *                if the given compilation unit is null or if the given
+	 *                comparator is null.
 	 * @see org.eclipse.jdt.core.dom.BodyDeclaration
 	 * @see #RELATIVE_ORDER
 	 */

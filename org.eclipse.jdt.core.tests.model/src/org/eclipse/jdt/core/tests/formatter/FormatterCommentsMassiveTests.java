@@ -62,36 +62,10 @@ import org.eclipse.text.edits.TextEdit;
  * formatting of JUnit 3.8.2 files:
  * <ul>
  * 	<li>0 error</li>
- * 	<li>2 failures:
- * 		<ol>
- * 			<li>TestCase.java:
- * 				incorrect line length in old formatter
- * 				incorrect indentation in tag param in old formatter
- * 			</li>
- * 			<li>TestCaseClassLoader.java:
- * 				incorrect line length in old formatter
- * 			</li>
- * 		</lo>
- * 	</li>
- * 	<li>9 files have different line leading spaces than old formatter:
- * 		<ol>
- * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\framework\Assert.java</li>
- * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\framework\ComparisonFailure.java</li>
- * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\framework\TestSuite.java</li>
- * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\runner\BaseTestRunner.java</li>
- * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\tests\extensions\AllTests.java</li>
- * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\tests\framework\AllTests.java</li>
- * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\tests\runner\AllTests.java</li>
- * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\tests\runner\BaseTestRunnerTest.java</li>
- * 			<li>	- C:\eclipse\workspaces\tests\v34\Javadoc\JUnit_3.8.2\src\junit\textui\ResultPrinter.java</li>
- * 		</ol>
- * 	</li>
- * 	<li>1 lines leading spaces differences with old formatter:
- * 		<ol>
- * 			<li>n°2: ComparisonFailure.java</li>
- * 		</ol>
- * 	</li>
- *		</ul></li>
+ * 	<li>0 failure</li>
+ * 	<li>0 file has different line leading spaces than old formatter</li>
+ * 	<li>23 files have spaces differences with old formatter</li>
+ *		</ul>
  * </p><p>
  * TODO Fix failures while running on workspaces without comparing.
  * 
@@ -129,22 +103,22 @@ import org.eclipse.text.edits.TextEdit;
  * 		<li>0 error</li>
  * 		<li>0 failures</li>
  * 		<li>8 failures due to old formatter</li>
- * 		<li>726 files have different lines leading spaces</li>
+ * 		<li>722 files have different lines leading spaces</li>
  * 		<li>9 files have different spaces</li>
  *		</ul></li>
  *		<li>ganymede M5 workspace (25819 units):<ul>
  * 		<li>0 error</li>
- * 		<li>17 files has still different output while reformatting!</li>
+ * 		<li>17 failures due to different output while reformatting!</li>
  * 		<li>15 failures due to old formatter</li>
- * 		<li>1373 files have different line leading spaces when reformatting!</li>
+ * 		<li>1368 files have different line leading spaces when reformatting!</li>
  * 		<li>14 files have different spaces when reformatting!</li>
  *		</ul></li>
  *		<li>ganymede M6a workspace (26336 units):<ul>
  * 		<li>0 error</li>
- * 		<li>? files has still different output while reformatting!</li>
- * 		<li>? failures due to old formatter</li>
- * 		<li>? files have different line leading spaces when reformatting!</li>
- * 		<li>? files have different spaces when reformatting!</li>
+ * 		<li>16 failures due to different output while reformatting!</li>
+ * 		<li>17 failures due to old formatter</li>
+ * 		<li>1469 files have different line leading spaces when reformatting!</li>
+ * 		<li>14 files have different spaces when reformatting!</li>
  *		</ul></li>
  * </ul>
  */

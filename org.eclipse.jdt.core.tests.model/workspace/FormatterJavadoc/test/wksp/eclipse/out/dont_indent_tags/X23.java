@@ -35,7 +35,7 @@ public class X23 {
 	 * </p>
 	 * <p>
 	 * The body declarations passed as parameters to the comparator always carry
-	 * at least the following minimal signature information:<br>
+	 * at least the following minimal signature information: <br>
 	 * <table border="1" width="80%" cellpadding="5">
 	 * <tr>
 	 * <td width="20%"><code>TypeDeclaration</code></td>
@@ -90,8 +90,7 @@ public class X23 {
 	 * @exception JavaModelException
 	 * if the compilation unit could not be sorted. Reasons include:
 	 * <ul>
-	 * <li>The given compilation unit does not exist (ELEMENT_DOES_NOT_EXIST)
-	 * </li>
+	 * <li>The given compilation unit does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * <li>The given compilation unit is not a working copy
 	 * (INVALID_ELEMENT_TYPES)</li>
 	 * <li>A <code>CoreException</code> occurred while accessing the underlying

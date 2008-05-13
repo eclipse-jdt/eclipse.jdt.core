@@ -9,7 +9,7 @@ public class X05 {
 	 * </p>
 	 * 
 	 * @param toolBarManager
-	 * 	the <code>ToolBarManager</code> to which to contribute
+	 *        the <code>ToolBarManager</code> to which to contribute
 	 */
 	void foo(Object toolBarManager) {
 	}

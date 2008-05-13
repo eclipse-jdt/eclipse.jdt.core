@@ -7,7 +7,7 @@ public class X05 {
 	 * set.
 	 * 
 	 * @param str
-	 * 		The input string
+	 *            The input string
 	 */
 	void foo(String str) {
 	}

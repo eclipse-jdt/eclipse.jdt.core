@@ -33,10 +33,10 @@ interface Example {
 	 * the javadoc comment.
 	 * 
 	 * @param a
-	 * 		The first parameter. For an optimum result, this should be an odd
-	 * 		number between 0 and 100.
+	 *            The first parameter. For an optimum result, this should be an
+	 *            odd number between 0 and 100.
 	 * @param b
-	 * 		The second parameter.
+	 *            The second parameter.
 	 * @return The result of the foo operation, usually within 0 and 1000.
 	 */
 	int foo(int a, int b);

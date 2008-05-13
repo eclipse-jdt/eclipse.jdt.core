@@ -9,22 +9,22 @@ public class X18 {
 	 * When the parse is successful the result returned includes the ASTs for
 	 * the requested source:
 	 * <ul>
-	 * <li>{@link #K_COMPILATION_UNIT}: The result node is a {@link
-	 * CompilationUnit}.</li>
-	 * <li>{@link #K_CLASS_BODY_DECLARATIONS}: The result node is a {@link
-	 * TypeDeclaration} whose {@link TypeDeclaration#bodyDeclarations()
+	 * <li>{@link #K_COMPILATION_UNIT}: The result node is a
+	 * {@link CompilationUnit}.</li>
+	 * <li>{@link #K_CLASS_BODY_DECLARATIONS}: The result node is a
+	 * {@link TypeDeclaration} whose {@link TypeDeclaration#bodyDeclarations()
 	 * bodyDeclarations} are the new trees. Other aspects of the type
 	 * declaration are unspecified.</li>
 	 * <li>{@link #K_STATEMENTS}: The result node is a {@link Block Block} whose
 	 * {@link Block#statements() statements} are the new trees. Other aspects of
 	 * the block are unspecified.</li>
-	 * <li>{@link #K_EXPRESSION}: The result node is a subclass of {@link
-	 * Expression Expression}. Other aspects of the expression are unspecified.
-	 * </li>
+	 * <li>{@link #K_EXPRESSION}: The result node is a subclass of
+	 * {@link Expression Expression}. Other aspects of the expression are
+	 * unspecified.</li>
 	 * </ul>
-	 * The resulting AST node is rooted under (possibly contrived) {@link
-	 * CompilationUnit CompilationUnit} node, to allow the client to retrieve
-	 * the following pieces of information available there:
+	 * The resulting AST node is rooted under (possibly contrived)
+	 * {@link CompilationUnit CompilationUnit} node, to allow the client to
+	 * retrieve the following pieces of information available there:
 	 * <ul>
 	 * <li>{@linkplain CompilationUnit#lineNumber(int) Line number map}. Line
 	 * numbers start at 1 and only cover the subrange scanned (
@@ -68,9 +68,9 @@ public class X18 {
 	 * </p>
 	 * 
 	 * @param kind
-	 * 	the kind of construct to parse: one of {@link #K_COMPILATION_UNIT},
-	 * 	{@link #K_CLASS_BODY_DECLARATIONS}, {@link #K_EXPRESSION}, {@link
-	 * 	#K_STATEMENTS}
+	 *        the kind of construct to parse: one of {@link #K_COMPILATION_UNIT}
+	 *        , {@link #K_CLASS_BODY_DECLARATIONS}, {@link #K_EXPRESSION},
+	 *        {@link #K_STATEMENTS}
 	 */
 	void setKind(int kind) {
 	}

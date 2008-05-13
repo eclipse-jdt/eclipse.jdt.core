@@ -1,4 +1,4 @@
-package test.example;
+package test.prefs.example;
 
 public class X14c {
 	/**

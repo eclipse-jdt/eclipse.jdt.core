@@ -13,15 +13,15 @@ public class X24 {
 	 * </p>
 	 * 
 	 * @param expression
-	 * 	the expression
+	 *        the expression
 	 * @return a new unparented statement node
 	 * @exception IllegalArgumentException
-	 * 	if:
-	 * 	<ul>
-	 * 	<li>the node belongs to a different AST</li>
-	 * 	<li>the node already has a parent</li>
-	 * 	<li>a cycle in would be created</li>
-	 * 	</ul>
+	 *            if:
+	 *            <ul>
+	 *            <li>the node belongs to a different AST</li>
+	 *            <li>the node already has a parent</li>
+	 *            <li>a cycle in would be created</li>
+	 *            </ul>
 	 */
 	void foo() {
 	}

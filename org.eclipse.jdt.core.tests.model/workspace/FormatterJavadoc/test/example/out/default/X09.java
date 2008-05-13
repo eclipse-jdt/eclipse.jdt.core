@@ -3,12 +3,12 @@ package test.prefs.example;
 public class X09 {
 	/**
 	 * @param parent
-	 * 		the parent control under which the control must be created
+	 *            the parent control under which the control must be created
 	 * @param direction
-	 * 		the layout direction of the contents, either
-	 * 		<code>SWT.HORIZONTAL</code> or <code>SWT.VERTICAL</code>
+	 *            the layout direction of the contents, either
+	 *            <code>SWT.HORIZONTAL</code> or <code>SWT.VERTICAL</code>
 	 * @return the SWT control hierarchy for the outline part of the compare
-	 * 	editor
+	 *         editor
 	 * @since 3.0
 	 */
 	String foo(Object parent, int direction) {

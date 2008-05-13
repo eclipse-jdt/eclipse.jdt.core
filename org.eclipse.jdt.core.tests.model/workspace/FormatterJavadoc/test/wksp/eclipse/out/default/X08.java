@@ -16,8 +16,7 @@ package test.wksp.eclipse;
  * <LI>tracking the dirty state of the model in case of merge,
  * <LI>saving the model.
  * </UL>
- * The Compare plug-in's
- * <code>openCompareEditor</code> method takes an
+ * The Compare plug-in's <code>openCompareEditor</code> method takes an
  * <code>ICompareEditorInput</code> and starts sequencing through the above
  * steps. If the compare result is not empty a new compare editor is opened and
  * takes over the sequence until eventually closed.

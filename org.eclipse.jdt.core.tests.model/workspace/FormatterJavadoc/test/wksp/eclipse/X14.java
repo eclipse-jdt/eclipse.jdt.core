@@ -9,12 +9,10 @@ public class X14 {
 	 * @param href
 	 *            the URL (as a string) of the help resource
 	 *            <p>
-	 *            Valid href are as described in
-	 *            {@link  org.eclipse.help.IHelpResource#getHref IHelpResource.getHref}
+	 *            Valid href are as described in {@link org.eclipse.help.IHelpResource#getHref IHelpResource.getHref}
 	 *            </p>
 	 * @return an input stream containing the contents of the help resource, or
-	 *         <code>null</code> if the help resource could not be found and
-	 *         opened
+	 * <code>null</code> if the help resource could not be found and opened
 	 */
 	int foo(String href) {
 		return 0;

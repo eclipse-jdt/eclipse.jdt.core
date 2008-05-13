@@ -6,7 +6,7 @@ public class X04 {
 	 * Text
 	 * 
 	 * @param str
-	 * 	{@inheritDoc}
+	 *        {@inheritDoc}
 	 */
 	void foo(String str) {
 	}

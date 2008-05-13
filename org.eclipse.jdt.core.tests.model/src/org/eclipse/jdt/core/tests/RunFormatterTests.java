@@ -29,6 +29,7 @@ public class RunFormatterTests extends junit.framework.TestCase {
 	
 	public final static List TEST_SUITES = new ArrayList();
 	static {
+		TEST_SUITES.add(FormatterCommentsBugsTest.class);
 		TEST_SUITES.add(FormatterCommentsTests.class);
 		TEST_SUITES.add(FormatterCommentsClearBlankLinesTests.class);
 		TEST_SUITES.add(FormatterJavadocDontIndentTagsTests.class);

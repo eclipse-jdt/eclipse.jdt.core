@@ -7,7 +7,7 @@ public class X13 {
 	 * found.
 	 * 
 	 * @param key
-	 * 		the resource string key
+	 *            the resource string key
 	 * @return the resource string for the given key
 	 */
 	String foo(String key) {

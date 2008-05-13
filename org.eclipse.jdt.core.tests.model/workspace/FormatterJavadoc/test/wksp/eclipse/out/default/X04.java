@@ -9,8 +9,7 @@ package test.wksp.eclipse;
  * Starts the OSGi framework with a console window. Any command line arguments
  * not recognized are passed to the console for it to execute. If a port is
  * specified the console will listen on that port for commands. If no port is
- * specified, the console will use System.in and System.out.
- * </li>
+ * specified, the console will use System.in and System.out. </li>
  * <li><b>-adaptor[:adaptor-name][adaptor-args]</b>
  * 
  * <pre>
@@ -31,8 +30,8 @@ package test.wksp.eclipse;
  * class. They are passed to the adaptor class as an array of Strings. Example
  * arguments used by the DefaultAdaptor are:
  * <ul>
- * <li>"bundledir=<i>directory"</i>. The directory to be used by the adaptor to
- * store data.
+ * <li>"bundledir=<i>directory"</i>. The directory to be used by the adaptor
+ * to store data.
  * <li>reset</i>. Perform the reset action to clear the bundledir.
  * <p>
  * Actions can be defined by an adaptor. Multiple actions can be specified,
@@ -49,7 +48,7 @@ package test.wksp.eclipse;
  * <li>-app[lication]:application-args
  * 
  * <pre>
- * [application-args] := *( &quot;:&quot; [value])
+ *    [application-args] := *( &quot;:&quot; [value])
  *    [value] := [token] | [quoted-string]
  * </pre>
  * 
@@ -58,8 +57,7 @@ package test.wksp.eclipse;
  * launch time. This is for eclipse plugins installed as applications. The
  * arguments are as Eclipse currently needs them - one list of key=value pairs
  * which are parsed by the applications. The application peels off only the args
- * that apply to it. Others are ignored.
- * </li>
+ * that apply to it. Others are ignored. </li>
  * <p>
  * Any other command line arguments are passed on to the console window of the
  * framework if started with the -console option. If the console is not started,

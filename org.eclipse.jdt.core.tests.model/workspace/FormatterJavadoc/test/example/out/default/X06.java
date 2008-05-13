@@ -5,7 +5,7 @@ public class X06 {
 	 * Runs the bare test sequence.
 	 * 
 	 * @exception Throwable
-	 * 		if any exception is thrown
+	 *                if any exception is thrown
 	 */
 	public void runBare() throws Throwable {
 	}
@@ -14,7 +14,7 @@ public class X06 {
 	 * Override to run the test and assert its state.
 	 * 
 	 * @exception Throwable
-	 * 		if any exception is thrown
+	 *                if any exception is thrown
 	 */
 	protected void runTest() throws Throwable {
 	}

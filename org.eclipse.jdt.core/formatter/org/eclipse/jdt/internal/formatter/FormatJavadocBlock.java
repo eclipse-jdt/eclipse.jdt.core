@@ -179,7 +179,17 @@ FormatJavadocText[] getTextHierarchy(FormatJavadocNode node, int htmlDepth) {
 			// Text breakage
 			if (lastText.isHtmlTag() && text != null) {
 				// Set some lines before if previous was specific html tag
-				if (lastText.separatorsPtr == -1 || lastText.isClosingHtmlTag()) {
+				// The added text is concerned if the parent has no child yet or is top level and closing html tag
+				boolean setLinesBefore = lastText.separatorsPtr == -1 || (ptr == 0 && lastText.isClosingHtmlTag());
+				if (!setLinesBefore && ptr > 0 && lastText.isClosingHtmlTag()) {
+					// for non-top level closing html tag, text is concerned only if no new text has been written after
+					FormatJavadocText parentText = textHierarchy[ptr-1];
+					int textStart = (int) parentText.separators[parentText.separatorsPtr];
+					if (textStart < lastText.sourceStart) {
+						setLinesBefore = true;
+					}
+				}
+				if (setLinesBefore) {
 					switch (lastText.getHtmlTagID()) {
 						case JAVADOC_CODE_TAGS_ID:
 							if (text.linesBefore < 2) {

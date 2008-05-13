@@ -15,22 +15,22 @@ interface X02 {
 	 * </p>
 	 * 
 	 * @param newCharset
-	 * 		a charset name, or <code>null</code>
+	 *            a charset name, or <code>null</code>
 	 * @param monitor
-	 * 		a progress monitor, or <code>null</code> if progress reporting is
-	 * 		not desired
+	 *            a progress monitor, or <code>null</code> if progress reporting
+	 *            is not desired
 	 * @exception OperationCanceledException
-	 * 		if the operation is canceled. Cancelation can occur even if no
-	 * 		progress monitor is provided.
+	 *                if the operation is canceled. Cancelation can occur even
+	 *                if no progress monitor is provided.
 	 * @exception CoreException
-	 * 		if this method fails. Reasons include:
-	 * 		<ul>
-	 * 		<li>This resource does not exist.</li>
-	 * 		<li>An error happened while persisting this setting.</li>
-	 * 		<li>Resource changes are disallowed during certain types of resource
-	 * 		change event notification. See {@link IResourceChangeEvent} for more
-	 * 		details.</li>
-	 * 		</ul>
+	 *                if this method fails. Reasons include:
+	 *                <ul>
+	 *                <li>This resource does not exist.</li>
+	 *                <li>An error happened while persisting this setting.</li>
+	 *                <li>Resource changes are disallowed during certain types
+	 *                of resource change event notification. See
+	 *                {@link IResourceChangeEvent} for more details.</li>
+	 *                </ul>
 	 * @see #getCharset()
 	 * @since 3.0
 	 */

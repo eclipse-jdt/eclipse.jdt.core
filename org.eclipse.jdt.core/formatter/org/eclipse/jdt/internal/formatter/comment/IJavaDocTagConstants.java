@@ -31,7 +31,6 @@ public interface IJavaDocTagConstants {
 		"li".toCharArray(), //$NON-NLS-1$
 		"td".toCharArray(), //$NON-NLS-1$
 		"th".toCharArray(), //$NON-NLS-1$
-		"tr".toCharArray(), //$NON-NLS-1$
 		"h1".toCharArray(), //$NON-NLS-1$
 		"h2".toCharArray(), //$NON-NLS-1$
 		"h3".toCharArray(), //$NON-NLS-1$
@@ -87,6 +86,7 @@ public interface IJavaDocTagConstants {
 			"ul".toCharArray(), //$NON-NLS-1$
 			"ol".toCharArray(), //$NON-NLS-1$
 			"table".toCharArray(), //$NON-NLS-1$
+			"tr".toCharArray(), //$NON-NLS-1$
 	};
 
 	/**

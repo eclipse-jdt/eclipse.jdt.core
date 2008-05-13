@@ -5,7 +5,9 @@ public class X21 {
 	/**
 	 * Returns a search pattern based on a given string pattern. The string
 	 * patterns support '*' wild-cards. The remaining parameters are used to
-	 * narrow down the type of expected results. <br>
+	 * narrow down the type of expected results.
+	 * 
+	 * <br>
 	 * Examples:
 	 * <ul>
 	 * <li>search for case insensitive references to <code>Object</code>:
@@ -31,8 +33,7 @@ public class X21 {
 	 * interfaces</li>
 	 * <li><code>IJavaSearchConstants.FIELD</code>: look for fields</li>
 	 * <li><code>IJavaSearchConstants.METHOD</code>: look for methods</li>
-	 * <li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for constructors
-	 * </li>
+	 * <li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for constructors</li>
 	 * <li><code>IJavaSearchConstants.PACKAGE</code>: look for packages</li>
 	 * </ul>
 	 * @param limitTo
@@ -57,8 +58,8 @@ public class X21 {
 	 * indicates whether the search is case sensitive or not.
 	 * @return a search pattern on the given string pattern, or
 	 * <code>null</code> if the string pattern is ill-formed.
-	 * @deprecated Use {@link SearchPattern#createPattern(String, int, int, int)
-	 * } instead.
+	 * @deprecated Use
+	 * {@link SearchPattern#createPattern(String, int, int, int)} instead.
 	 */
 	void createSearchPattern() {
 	}

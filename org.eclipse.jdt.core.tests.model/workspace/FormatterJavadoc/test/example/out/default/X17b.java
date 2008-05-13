@@ -8,7 +8,7 @@ public interface X17b {
 	 * not resolvable).
 	 * 
 	 * @param entry
-	 * 		the given entry
+	 *            the given entry
 	 * @return the existing package fragment roots identified by the given entry
 	 */
 	Object findPackageFragmentRoots(String entry);

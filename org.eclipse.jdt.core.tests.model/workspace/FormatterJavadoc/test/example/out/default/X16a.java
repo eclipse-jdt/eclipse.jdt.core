@@ -10,7 +10,7 @@ public class X16a {
 	 * failure has occurred).
 	 * 
 	 * @return <code>true</code> if the checkIn failed, and <code>false</code>
-	 * 	otherwise.
+	 *         otherwise.
 	 */
 	boolean foo() {
 		return false;

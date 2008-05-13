@@ -9,7 +9,9 @@ package test.wksp.eclipse;
  * launching a dialog by placing a button above a control.
  * 
  * <p>
- * Here is an example of using a ControlEditor: <code><pre>
+ * Here is an example of using a ControlEditor:
+ * 
+ * <code><pre>
  * Canvas canvas = new Canvas(shell, SWT.BORDER);
  * canvas.setBounds(10, 10, 300, 300);	
  * Color color = new Color(null, 255, 0, 0);

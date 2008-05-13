@@ -7,13 +7,13 @@ public class X16b {
 	 * The given message is included in that exception, to aid debugging.
 	 * 
 	 * @param expression
-	 * 	the outcode of the check
+	 *        the outcode of the check
 	 * @param message
-	 * 	the message to include in the exception
+	 *        the message to include in the exception
 	 * @return <code>true</code> if the check passes (does not return if the
-	 * 	check fails)
+	 *         check fails)
 	 * @exception IllegalArgumentException
-	 * 	if the legality test failed
+	 *            if the legality test failed
 	 */
 	boolean foo(int expression, String message) {
 		return false;

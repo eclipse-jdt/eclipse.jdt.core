@@ -1,4 +1,4 @@
-package test.tags.param;
+package test.prefs.example;
 
 public class X14d {
 	/**

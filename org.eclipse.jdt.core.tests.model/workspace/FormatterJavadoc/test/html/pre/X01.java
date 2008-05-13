@@ -1,6 +1,6 @@
 package test.html.pre;
 
-interface X {
+interface X01 {
 	/**
 	* The following is some sample code which illustrates source formatting within javadoc comments:
 	* <pre>public class Example {final int a= 1;final boolean b= true;}</pre>

@@ -7,11 +7,11 @@ public class X30 {
 	 * The method acts on the current build state and does not recompile.
 	 * 
 	 * @param resource
-	 * 		the resource to check for errors
+	 *            the resource to check for errors
 	 * @return <code>true</code> if the resource (and its children) are error
-	 * 	free
+	 *         free
 	 * @throws import org.eclipse.core.runtime.CoreException if there's a marker
-	 * 	problem
+	 *         problem
 	 */
 	void foo() {
 	}

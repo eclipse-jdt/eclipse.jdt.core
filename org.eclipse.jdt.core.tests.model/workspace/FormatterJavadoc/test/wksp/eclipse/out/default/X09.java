@@ -6,8 +6,7 @@ public class X09 {
 	int foo80;
 
 	/**
-	 * Test_immutable_tag____at_the_end_of_line (value: <code>enablement</code>
-	 * )
+	 * Test_immutable_tag____at_the_end_of_line (value: <code>enablement</code>)
 	 */
 	int foo81;
 

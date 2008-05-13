@@ -3,11 +3,14 @@ package test.prefs.example;
 public class X07 {
 
 	/**
-	 * Don't format this:
-	 *    it has been formatted by the user!
+	 * The foo method.
+	 * foo is a substitute for bar.
 	 * 
-	 * @param    param   format   this comment    
+	 * @param param1 The first parameter
+	 * @param param2
+	 *            The second parameter.
+	 *            If <b>null</b>the first parameter is used
 	 */
-	void foo(String param) {
+	public void foo(Object param1, Object param2) {
 	}
 }

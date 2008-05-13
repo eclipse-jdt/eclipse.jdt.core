@@ -5,8 +5,7 @@ package test.html.others;
  * P1:
  * <ul>
  * <li>T1.L1<b>B1<i>I1</i></b><br>
- * T1.L11
- * </li>
+ * T1.L11</li>
  * <li><b>T1.L2</b>
  * 
  * <pre>
@@ -29,13 +28,12 @@ package test.html.others;
  * <li>X.L1
  * 
  * <pre>
- * [application-args] := *( &quot;:&quot; [value])
+ *    [application-args] := *( &quot;:&quot; [value])
  *    [value] := [token] | [quoted-string]
  * </pre>
  * 
  * <p>
- * X.L2.P1
- * </li>
+ * X.L2.P1</li>
  * <p>
  * P2
  * <p>

@@ -10,13 +10,15 @@ public interface X17c {
 	 * </p>
 	 * 
 	 * @exception Exception
-	 * 	in one of the corresponding situation:
-	 * 	<ul>
-	 * 	<li>this element does not exist</li>
-	 * 	<li>an exception occurs while accessing its corresponding resource</li>
-	 * 	<li>a classpath variable or classpath container was not resolvable and
-	 * 	<code>ignoreUnresolvedEntry</code> is <code>false</code>.</li>
-	 * 	</ul>
+	 *            in one of the corresponding situation:
+	 *            <ul>
+	 *            <li>this element does not exist</li>
+	 *            <li>an exception occurs while accessing its corresponding
+	 *            resource</li>
+	 *            <li>a classpath variable or classpath container was not
+	 *            resolvable and <code>ignoreUnresolvedEntry</code> is
+	 *            <code>false</code>.</li>
+	 *            </ul>
 	 * @see String
 	 */
 	String getResolvedClasspath(boolean ignoreUnresolvedEntry) throws Exception;

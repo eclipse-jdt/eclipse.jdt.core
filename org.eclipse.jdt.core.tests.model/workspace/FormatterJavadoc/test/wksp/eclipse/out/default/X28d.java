@@ -7,7 +7,7 @@ public class X28d {
 	 * in the receiver. Uses the public API.
 	 * 
 	 * @param key
-	 * 		key of subtree whose contents we want to copy.
+	 *            key of subtree whose contents we want to copy.
 	 */
 	public void foo(String key) {
 	}

@@ -10,12 +10,12 @@ public class X19 {
 	 * source text, it is problematic to locate comments in relation to the
 	 * structure of an AST. The one exception is doc comments which, by
 	 * convention, immediately precede type, field, and method declarations;
-	 * these comments are located in the AST by {@link
-	 * BodyDeclaration#getJavadoc BodyDeclaration.getJavadoc}. Other comments do
-	 * not show up in the AST. The table of comments is provided for clients
-	 * that need to find the source ranges of all comments in the original
-	 * source string. It includes entries for comments of all kinds (line,
-	 * block, and doc), arranged in order of increasing source position.
+	 * these comments are located in the AST by
+	 * {@link BodyDeclaration#getJavadoc BodyDeclaration.getJavadoc}. Other
+	 * comments do not show up in the AST. The table of comments is provided for
+	 * clients that need to find the source ranges of all comments in the
+	 * original source string. It includes entries for comments of all kinds
+	 * (line, block, and doc), arranged in order of increasing source position.
 	 * </p>
 	 * Note on comment parenting: The {@link ASTNode#getParent() getParent()} of
 	 * a doc comment associated with a body declaration is the body declaration
