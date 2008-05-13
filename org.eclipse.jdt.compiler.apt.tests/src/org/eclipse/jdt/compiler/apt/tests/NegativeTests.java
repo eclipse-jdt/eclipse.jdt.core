@@ -121,6 +121,16 @@ public class NegativeTests extends TestCase
 	}
 
 	/**
+	 * Inspect model of resources/targets.negative.pa.Negative8, 
+	 * using the Eclipse compiler.
+	 * @throws IOException 
+	 */
+	public void testNegativeModel8WithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestNegativeModel(compiler, 8, null);
+	}
+
+	/**
 	 * Attempt to report errors on various elements.
 	 * @throws IOException
 	 */

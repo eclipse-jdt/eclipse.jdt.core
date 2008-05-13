@@ -35,7 +35,9 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
@@ -116,8 +118,20 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		}
 		List<TypeMirror> interfaces = new ArrayList<TypeMirror>(binding.superInterfaces().length);
 		for (ReferenceBinding interfaceBinding : binding.superInterfaces()) {
-			TypeMirror interfaceType = _env.getFactory().newTypeMirror(interfaceBinding);
-			interfaces.add(interfaceType);
+			// JSR269 spec requires us to return unresolved superinterfaces, but javac has
+			// a bug in this regard; as of 5/08 we emulate javac, rather than follow the spec.
+			// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=231521
+			if (interfaceBinding.isValidBinding() &&
+				// using binding types...
+					!(interfaceBinding instanceof MissingTypeBinding) &&
+					!(interfaceBinding instanceof ParameterizedTypeBinding &&
+							((ParameterizedTypeBinding) interfaceBinding).genericType() instanceof MissingTypeBinding)
+				// since HasMissingType reports indirect missing types, which is not what we need
+				/* &&
+					(interfaceBinding.tagBits & TagBits.HasMissingType) == 0 */) {
+				TypeMirror interfaceType = _env.getFactory().newTypeMirror(interfaceBinding);
+				interfaces.add(interfaceType);
+			}
 		}
 		return Collections.unmodifiableList(interfaces);
 	}
