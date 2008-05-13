@@ -766,23 +766,12 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 	// Internal use only
 	public MethodBinding findExactMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
-		boolean checkArgsForRawTypes = false;
-		// in 1.5 mode or higher, we're expecting that an exact match with more than 2 args is not that common
-		// so save some time by not calling findExactMatch & use that time to handle the more common cases with 1 or 2 args.
-		switch (argumentTypes.length) {
-			case 0 : break;
-			case 1 :
-			case 2 :
-				checkArgsForRawTypes = compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
-			default :
-				if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5)
-					return null; // skip find exact match since its less likely to find a match & raw type check is not worth it
-		}
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordTypeReferences(argumentTypes);
 		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes, unitScope);
 		if (exactMethod != null && exactMethod.typeVariables == Binding.NO_TYPE_VARIABLES && !exactMethod.isBridge()) {
-			if (checkArgsForRawTypes)
+			// in >= 1.5 mode, ensure the exactMatch did not match raw types
+			if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5)
 				for (int i = argumentTypes.length; --i >= 0;)
 					if (argumentTypes[i].isRawType())
 						return null;
