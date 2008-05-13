@@ -69,6 +69,9 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 				// create delta
 				addDelta(delta);
 				
+				// need to recompute root infos
+				state.rootsAreStale = true;
+				
 				// ensure indexes are updated
 				change.requestIndexing();
 				

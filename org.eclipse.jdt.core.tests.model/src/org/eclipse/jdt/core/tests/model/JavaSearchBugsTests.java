@@ -10150,4 +10150,41 @@ public void testBug228852b() throws Exception {
 	}
 }
 
+/**
+ * @bug 231622: Some classes from Missing classes from Cntrl-Shift-T
+ * @test Ensure that types added through a container are found using a workspace scope
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=231622"
+ */
+public void testBug231622() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P", new String[] {}, new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
+		createJar(new String[] {
+			"p231622/X231622.java",
+			"package p231622;\n" +
+			"public class X231622 {\n" +
+			"}"
+		}, p.getProject().getLocation().append("lib231622.jar").toOSString());
+		refresh(p);
+		DefaultContainerInitializer initializer = new DefaultContainerInitializer(new String[] {"P", "/P/lib231622.jar"});
+		ContainerInitializer.setInitializer(initializer);
+		initializer.initialize(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"), p);
+		
+		char[][] packagesList = new char[][] {
+				"p231622".toCharArray()
+		};
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+			packagesList,
+			null,
+			SearchEngine.createWorkspaceScope(),
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		assertSearchResults(
+			"X231622 (not open) [in X231622.class [in p231622 [in lib231622.jar [in P]]]]",
+			collector);
+	} finally {
+		deleteProject("P");
+	}
+}
 }

@@ -1886,6 +1886,10 @@ public class DeltaProcessor {
 									int result = change.generateDelta(javaDelta);
 									if ((result & ClasspathChange.HAS_DELTA) != 0) {
 										hasDelta = true;
+
+										// need to recompute root infos
+										state.rootsAreStale = true;
+				
 										change.requestIndexing();
 										this.state.addClasspathValidation(change.project);
 									}
