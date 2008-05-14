@@ -452,6 +452,7 @@ public void testHtmlPre01() throws JavaModelException {
 public void testHtmlPre02() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) Blank lines inside the <pre> tag are now preserved
+	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231845
 	formatUnit("html.pre", "X02.java");
 }
 public void testHtmlPre03() throws JavaModelException {
@@ -460,6 +461,7 @@ public void testHtmlPre03() throws JavaModelException {
 public void testHtmlPre04() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) Blank lines inside the <pre> tag are now preserved
+	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231845
 	formatUnit("html.pre", "X04.java");
 }
 public void testHtmlPre05() throws JavaModelException {
@@ -471,6 +473,7 @@ public void testHtmlPre06() throws JavaModelException {
 public void testHtmlPre07() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) Blank lines inside the <pre> tag are now preserved
+	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231845
 	formatUnit("html.pre", "X07.java");
 }
 public void testHtmlPre08() throws JavaModelException {
@@ -617,7 +620,7 @@ public void testPreferencesExample12() throws JavaModelException {
 public void testPreferencesExample13() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) fixed wrong max length with immutable tags
-	// TODO the point is now put alone on a new line after the <code> tag
+	// 2) bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231800
 	formatUnit("example", "X13.java");
 }
 public void testPreferencesExample14() throws JavaModelException {
@@ -745,13 +748,13 @@ public void testTagLink01() throws JavaModelException {
 public void testTagLink02() throws JavaModelException {
 	// Difference with old formatter:
 	// 1) fixed description in inline tag we should be formatted as text
-	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
+	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
 	formatUnit("tags.link", "X02.java");
 }
 public void testTagLink02b() throws JavaModelException {
 	// Difference with old formatter:
 	// 1) fixed description in inline tag we should be formatted as text
-	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
+	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
 	formatUnit("tags.link", "X02b.java");
 }
 public void testTagLink03a() throws JavaModelException {
@@ -978,7 +981,7 @@ public void testWkspEclipse13() throws JavaModelException {
 public void testWkspEclipse14() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) fixed description in inline tag we should be formatted as text
-	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
+	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
 	formatUnit("wksp.eclipse", "X14.java");
 }
 public void testWkspEclipse15() throws JavaModelException {
@@ -993,15 +996,15 @@ public void testWkspEclipse16() throws JavaModelException {
 public void testWkspEclipse17() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) Consider that code is immutable => do not change the content of <pre> inside
-	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=229580
+	//		 see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=229580
 	formatUnit("wksp.eclipse", "X17.java");
 }
 public void testWkspEclipse18() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) fixed description in inline tag we should be formatted as text
-	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
+	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
 	// 2) fixed wrong max length with immutable tags
-	// TODO opening and closing parenthesis are separated from <code> tags
+	// 3) bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231800
 	formatUnit("wksp.eclipse", "X18.java");
 }
 public void testWkspEclipse19() throws JavaModelException {
@@ -1027,7 +1030,7 @@ public void testWkspEclipse21() throws JavaModelException {
 public void testWkspEclipse22() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) fixed max length issue when comment has only one line
-	// TODO the point is put alone on next line
+	// 2) bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231800
 	formatUnit("wksp.eclipse", "X22.java");
 }
 public void testWkspEclipse23() throws JavaModelException {
@@ -1041,7 +1044,7 @@ public void testWkspEclipse23() throws JavaModelException {
 public void testWkspEclipse24() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) fixed wrong max length with immutable tags
-	// TODO closing parenthesis is separated from <code> tags
+	// 2) bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231800
 	formatUnit("wksp.eclipse", "X24.java");
 }
 public void testWkspEclipse25() throws JavaModelException {
@@ -1052,7 +1055,7 @@ public void testWkspEclipse25() throws JavaModelException {
 public void testWkspEclipse26() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) Consider that code is immutable => do not change the content of <pre> inside
-	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=229580
+	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=229580
 	formatUnit("wksp.eclipse", "X26.java");
 }
 public void testWkspEclipse27() throws JavaModelException {
@@ -1070,7 +1073,7 @@ public void _testWkspEclipse28c() throws JavaModelException {
 public void testWkspEclipse28d() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) Do not split line when it will start with '@'
-	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=229683
+	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=229683
 	formatUnit("wksp.eclipse", "X28d.java");
 }
 public void testWkspEclipse29() throws JavaModelException {
@@ -1083,7 +1086,7 @@ public void testWkspEclipse29() throws JavaModelException {
 public void testWkspEclipse30() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) Consider any tag as normal root tag when syntax is invalid
-	// TODO verify that this new rules is OK
+	//		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231796
 	formatUnit("wksp.eclipse", "X30.java");
 }
 public void testWkspEclipse31() throws JavaModelException {
@@ -1094,7 +1097,7 @@ public void testWkspEclipse31() throws JavaModelException {
 public void testWkspEclipse32() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) fixed wrong max length with immutable tags
-	// TODO the final point is put alone on next line
+	// 2) bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231800
 	formatUnit("wksp.eclipse", "X32.java");
 }
 public void testWkspEclipse33() throws JavaModelException {
