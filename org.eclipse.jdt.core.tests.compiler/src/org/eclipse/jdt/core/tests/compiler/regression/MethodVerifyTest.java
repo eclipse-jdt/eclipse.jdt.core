@@ -8620,4 +8620,20 @@ public void test164() {
 		"----------\n"
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227185 - variant return types
+public void test165() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X { void foo() {} }\n" +
+			"class Y extends X { @Override int foo() { return 1; } }" 
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	class Y extends X { @Override int foo() { return 1; } }\n" + 
+		"	                              ^^^\n" + 
+		"The return type is incompatible with X.foo()\n" + 
+		"----------\n"
+	);
+}
 }
