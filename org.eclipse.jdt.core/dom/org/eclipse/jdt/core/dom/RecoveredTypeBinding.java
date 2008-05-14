@@ -14,14 +14,13 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
-import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.PackageFragment;
 
 /**
@@ -538,16 +537,13 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.IBinding#getJavaElement()
 	 */
 	public IJavaElement getJavaElement() {
-		try {
-			IPackageBinding packageBinding = getPackage();
-			if (packageBinding != null) {
-				final IJavaElement javaElement = packageBinding.getJavaElement();
-				if (javaElement != null && javaElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
-					return new CompilationUnit((PackageFragment) javaElement, this.getInternalName(), this.resolver.getWorkingCopyOwner()).getWorkingCopy(this.resolver.getWorkingCopyOwner(), null);
-				}
+		IPackageBinding packageBinding = getPackage();
+		if (packageBinding != null) {
+			final IJavaElement javaElement = packageBinding.getJavaElement();
+			if (javaElement != null && javaElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
+				// best effort: we don't know if the recovered binding is a binary or source binding, so go with a compilation unit
+				return ((PackageFragment) javaElement).getCompilationUnit(getInternalName() + SuffixConstants.SUFFIX_STRING_java);
 			}
-		} catch (JavaModelException e) {
-			//ignore
 		}
 		return null;
 	}

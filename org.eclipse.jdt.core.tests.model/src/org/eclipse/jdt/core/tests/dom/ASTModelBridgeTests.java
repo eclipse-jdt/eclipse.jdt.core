@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -1809,6 +1811,68 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertTrue("Element should exist", element.exists());
 	}
 	
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a recovered type is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=232037 )
+	 */
+	public void testRecoveredTypeBinding1() throws Exception {
+		try {
+			IJavaProject p = createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB", "/P15/util.jar"}, "", "1.5");
+			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+				"java/util/List.java",
+				"package java.util;\n" +
+				"public class List<T> {\n" +
+				"}"
+			}, p.getProject().getLocation() + File.separator + "util.jar",
+			"1.5");
+			p.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+			createFile("/P15/X.java", "");
+			ASTNode node = buildAST(
+				"public class X {\n" +
+				"  void m() {\n" +
+				"    /*start*/new java.util.List<URL>()/*end*/;\n" +
+				"  }\n" +
+				"}",
+				getCompilationUnit("/P15/X.java"),
+				false/*don't report errors*/,
+				true/*statement recovery*/,
+				true/*binding recovery*/
+			);
+			IBinding binding = ((ClassInstanceCreation) node).resolveTypeBinding();
+			IJavaElement element = binding.getJavaElement();
+			assertEquals(element, element); // equals should not throw an NPE
+		} finally {
+			deleteProject("P15");
+		}
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a recovered type is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=232037 )
+	 */
+	public void testRecoveredTypeBinding2() throws Exception {
+		try {
+			createJavaProject("P15", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+			createFile("/P15/X.java", "");
+			ASTNode node = buildAST(
+				"public class X {\n" +
+				"  void m() {\n" +
+				"    new /*start*/java.util.List<URL>/*end*/();\n" +
+				"  }\n" +
+				"}",
+				getCompilationUnit("/P15/X.java"),
+				false/*don't report errors*/,
+				true/*statement recovery*/,
+				true/*binding recovery*/
+			);
+			IBinding binding = ((ParameterizedType) node).resolveBinding();
+			IJavaElement element = binding.getJavaElement();
+			assertEquals(element, element); // equals should not throw an NPE
+		} finally {
+			deleteProject("P15");
+		}
+	}
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a top level type is correct.
 	 */

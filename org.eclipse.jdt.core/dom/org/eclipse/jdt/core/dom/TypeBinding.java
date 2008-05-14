@@ -12,7 +12,6 @@
 package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -34,7 +33,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
-import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.PackageFragment;
 
@@ -463,24 +462,21 @@ class TypeBinding implements ITypeBinding {
 	}
 
 	public IJavaElement getJavaElement() {
-		if (this.isRecovered()) {
-			try {
-				IPackageBinding packageBinding = getPackage();
-				if (packageBinding != null) {
-					final IJavaElement javaElement = packageBinding.getJavaElement();
-					if (javaElement != null && javaElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
-						return new CompilationUnit((PackageFragment) javaElement, new String(this.binding.sourceName()), this.resolver.getWorkingCopyOwner()).getWorkingCopy(this.resolver.getWorkingCopyOwner(), null);
-					}
+		JavaElement element = getUnresolvedJavaElement();
+		if (element != null)
+			return element.resolved(this.binding);
+		if (isRecovered()) {
+			IPackageBinding packageBinding = getPackage();
+			if (packageBinding != null) {
+				final IJavaElement javaElement = packageBinding.getJavaElement();
+				if (javaElement != null && javaElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
+					// best effort: we don't know if the recovered binding is a binary or source binding, so go with a compilation unit
+					return ((PackageFragment) javaElement).getCompilationUnit(new String(this.binding.sourceName()) + SuffixConstants.SUFFIX_STRING_java);
 				}
-			} catch (JavaModelException e) {
-				//ignore
-			}			
+			}
 			return null;
 		}
-		JavaElement element = getUnresolvedJavaElement();
-		if (element == null)
-			return null;
-		return element.resolved(this.binding);
+		return null;
 	}
 
 	private JavaElement getUnresolvedJavaElement() {
