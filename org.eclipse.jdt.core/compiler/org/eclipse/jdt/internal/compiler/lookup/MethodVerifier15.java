@@ -20,8 +20,22 @@ MethodVerifier15(LookupEnvironment environment) {
 	super(environment);
 }
 boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
-	MethodBinding sub = computeSubstituteMethod(two, one);
-	return sub != null && isSubstituteParameterSubsignature(one, sub) && areReturnTypesCompatible(one, sub);
+	// use the original methods to test compatibility, but do not check visibility, etc
+	one = one.original();
+	two = two.original();
+
+	TypeBinding match = one.declaringClass.findSuperTypeOriginatingFrom(two.declaringClass);
+	if (!(match instanceof ReferenceBinding))
+		return false; // method's declaringClass does not inherit from inheritedMethod's 
+
+	if (match != two.declaringClass) {
+		MethodBinding[] superMethods = ((ReferenceBinding) match).getMethods(two.selector);
+		for (int i = 0, length = superMethods.length; i < length; i++)
+			if (superMethods[i].original() == two)
+				return isParameterSubsignature(one, superMethods[i]);
+	}
+
+	return isParameterSubsignature(one, two);
 }
 boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 	TypeBinding[] oneArgs = one.parameters;
@@ -593,26 +607,7 @@ boolean detectNameClash(MethodBinding current, MethodBinding inherited) {
 	return true;
 }
 public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
-	if (!couldMethodOverride(method, inheritedMethod))
-		return false;
-
-	// need to switch back to the original if the method is from a ParameterizedType
-	if (method.declaringClass.isParameterizedType())
-		method = method.original();
-
-	inheritedMethod = inheritedMethod.original();
-	TypeBinding match = method.declaringClass.findSuperTypeOriginatingFrom(inheritedMethod.declaringClass);
-	if (!(match instanceof ReferenceBinding))
-		return false; // method's declaringClass does not inherit from inheritedMethod's 
-
-	if (match != inheritedMethod.declaringClass) {
-		MethodBinding[] superMethods = ((ReferenceBinding) match).getMethods(inheritedMethod.selector);
-		for (int i = 0, length = superMethods.length; i < length; i++)
-			if (superMethods[i].original() == inheritedMethod)
-				return isParameterSubsignature(method, superMethods[i]);
-	}
-
-	return isParameterSubsignature(method, inheritedMethod);
+	return couldMethodOverride(method, inheritedMethod) && areMethodsCompatible(method, inheritedMethod);
 }
 boolean hasGenericParameter(MethodBinding method) {
 	if (method.genericSignature() == null) return false;

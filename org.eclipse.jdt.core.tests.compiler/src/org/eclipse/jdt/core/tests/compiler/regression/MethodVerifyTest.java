@@ -8531,4 +8531,93 @@ public void test160() {
 		""
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227185
+public void test161() {
+	this.runConformTest(
+		new String[] {
+			"Concrete.java",
+			"abstract class SuperAbstract<Owner, Type> {\n" + 
+			"	abstract Object foo(Type other);\n" + 
+			"}\n" + 
+			"abstract class HalfGenericSuper<Owner> extends SuperAbstract<Owner, String> {\n" + 
+			"	@Override abstract Object foo(String other);\n" + 
+			"}\n" + 
+			"abstract class AbstractImpl<Owner> extends HalfGenericSuper<Owner> {\n" + 
+			"	@Override Object foo(String other) { return null; }\n" + 
+			"}\n" +
+			"class Concrete extends AbstractImpl{}" 
+		},
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227185 - variant
+public void test162() {
+	this.runConformTest(
+		new String[] {
+			"Concrete.java",
+			"abstract class SuperAbstract<Owner, Type> {\n" + 
+			"	abstract Object foo(Type other);\n" + 
+			"}\n" + 
+			"class HalfGenericSuper<Owner> extends SuperAbstract<Owner, String> {\n" + 
+			"	@Override Object foo(String other) { return null; }\n" +
+			"}\n" + 
+			"abstract class AbstractImpl<Owner> extends HalfGenericSuper<Owner> {}\n" + 
+			"class HalfConcrete extends HalfGenericSuper {}\n" + 
+			"class Concrete extends AbstractImpl{}" 
+		},
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227185 - variant return types
+public void test163() {
+	this.runNegativeTest(
+		new String[] {
+			"Concrete.java",
+			"abstract class SuperAbstract<Owner, Type> {\n" +
+			"	abstract Type foo(Type other);\n" +
+			"}\n" +
+			"class HalfGenericSuper<Owner> extends SuperAbstract<Owner, String> {\n" +
+			"	@Override Object foo(String other) { return null; }\n" +
+			"}\n" + 
+			"class Concrete extends HalfGenericSuper{}" 
+		},
+		"----------\n" + 
+		"1. ERROR in Concrete.java (at line 5)\n" + 
+		"	@Override Object foo(String other) { return null; }\n" + 
+		"	          ^^^^^^\n" + 
+		"The return type is incompatible with SuperAbstract<Owner,String>.foo(String)\n" + 
+		"----------\n" + 
+		"2. WARNING in Concrete.java (at line 7)\n" + 
+		"	class Concrete extends HalfGenericSuper{}\n" + 
+		"	                       ^^^^^^^^^^^^^^^^\n" + 
+		"HalfGenericSuper is a raw type. References to generic type HalfGenericSuper<Owner> should be parameterized\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=227185 - variant return types
+public void test164() {
+	this.runNegativeTest(
+		new String[] {
+			"Concrete.java",
+			"interface I<Owner, Type> {\n" + 
+			"	Type foo(Type other);\n" + 
+			"	Owner foo2(Type other);\n" + 
+			"	Object foo3(Type other);\n" + 
+			"}\n" + 
+			"class HalfGenericSuper {\n" + 
+			"	public Object foo(String other) { return null; }\n" +
+			"	public Integer foo2(String other) { return null; }\n" +
+			"	public String foo3(String other) { return null; }\n" +
+			"}\n" + 
+			"class HalfConcrete extends HalfGenericSuper {}\n" + 
+			"class Concrete extends HalfConcrete implements I<Object, String> {}" 
+		},
+		"----------\n" + 
+		"1. ERROR in Concrete.java (at line 12)\r\n" + 
+		"	class Concrete extends HalfConcrete implements I<Object, String> {}\r\n" + 
+		"	      ^^^^^^^^\n" + 
+		"The return type is incompatible with I<Object,String>.foo(String), HalfGenericSuper.foo(String)\n" + 
+		"----------\n"
+	);
+}
 }
