@@ -112,29 +112,34 @@ public void run() {
 		CompilationUnitDeclaration unitToProcess = null;
 		int index = -1;
 		try {
-			synchronized (this) {
-				if (this.processingThread == null) return;
-
-				unitToProcess = this.compiler.getUnitToProcess(this.unitIndex);
-				if (unitToProcess == null) {
-					this.processingThread = null;
-					return;
+			try {
+				synchronized (this) {
+					if (this.processingThread == null) return;
+	
+					unitToProcess = this.compiler.getUnitToProcess(this.unitIndex);
+					if (unitToProcess == null) {
+						this.processingThread = null;
+						return;
+					}
+					index = this.unitIndex++;
 				}
-				index = this.unitIndex++;
+	
+				this.compiler.reportProgress(Messages.bind(Messages.compilation_processing, new String(unitToProcess.getFileName())));
+				if (this.compiler.options.verbose)
+					this.compiler.out.println(
+						Messages.bind(Messages.compilation_process,
+						new String[] {
+							String.valueOf(index + 1),
+							String.valueOf(this.compiler.totalUnits),
+							new String(unitToProcess.getFileName())
+						}));
+				this.compiler.process(unitToProcess, index);
+	
+				addNextUnit(unitToProcess);
+			} finally {
+				if (unitToProcess != null)
+					unitToProcess.cleanUp();
 			}
-
-			this.compiler.reportProgress(Messages.bind(Messages.compilation_processing, new String(unitToProcess.getFileName())));
-			if (this.compiler.options.verbose)
-				this.compiler.out.println(
-					Messages.bind(Messages.compilation_process,
-					new String[] {
-						String.valueOf(index + 1),
-						String.valueOf(this.compiler.totalUnits),
-						new String(unitToProcess.getFileName())
-					}));
-			this.compiler.process(unitToProcess, index);
-
-			addNextUnit(unitToProcess);
 		} catch (Error e) {
 			synchronized (this) {
 				this.processingThread = null;
@@ -147,9 +152,6 @@ public void run() {
 				this.caughtException = e;
 			}
 			return;
-		} finally {
-			if (unitToProcess != null)
-				unitToProcess.cleanUp();
 		}
 	}
 }
