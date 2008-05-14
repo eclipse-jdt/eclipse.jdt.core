@@ -399,6 +399,27 @@ void compareFormattedSource() throws IOException, Exception {
 	}
 }
 
+private String counterToString(int count) {
+	int reminder = count%10;
+	StringBuffer buffer = new StringBuffer();
+	buffer.append(count);
+	switch (reminder) {
+		case 1:
+			buffer.append("st");
+			break;
+		case 2:
+			buffer.append("nd");
+			break;
+		case 3:
+			buffer.append("rd");
+			break;
+		default:
+			buffer.append("th");
+			break;
+	}
+	return buffer.toString();
+}
+
 private String expectedFormattedSource(String source) {
 	boolean enableNewCommentFormatter = DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT;
 	try {
@@ -740,49 +761,53 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 
 	int count = 1;
 	if (!COMPARE && length == source.length()) {
+		String previousResult = result;
 		while (count++ < FORMAT_REPEAT) {
 			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
 			if (edit == null) return null;
-			String newResult = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
-			if (!result.equals(newResult)) {
-				switch (IGNORE_SPACES) {
-					case ALL_SPACES:
-						String trimmedExpected = ModelTestsUtil.removeWhiteSpace(result);
-						String trimmedActual= ModelTestsUtil.removeWhiteSpace(newResult);
-						if (trimmedExpected.equals(trimmedActual)) {
-							this.whitespacesFailures.add(this.path);
-							this.hasSpaceFailure = true;
-							return result;
-						}
-						break;
-					case LINES_LEADING_SPACES:
-						trimmedExpected = ModelTestsUtil.trimLinesLeadingWhitespaces(result);
-						trimmedActual= ModelTestsUtil.trimLinesLeadingWhitespaces(newResult);
-						if (trimmedExpected.equals(trimmedActual)) {
-							this.leadingWhitespacesFailures.add(this.path);
-							this.hasSpaceFailure = true;
-							return result;
-						}
-						if (ModelTestsUtil.removeWhiteSpace(result).equals(ModelTestsUtil.removeWhiteSpace(newResult))) {
-							this.whitespacesFailures.add(this.path);
-							this.hasSpaceFailure = true;
-							return result;
-						}
-						break;
-					default:
-						trimmedExpected = filterFormattingInComments(result);
-						trimmedActual= filterFormattingInComments(newResult);
-						if (trimmedExpected.equals(trimmedActual)) {
-							this.whitespacesFailures.add(this.path);
-							this.hasSpaceFailure = true;
-							return result;
-						}
-						break;
-				}
-				if (!isExpectedFailure()) {
-					assertSourceEquals("2nd formatting is different from first one!", Util.convertToIndependantLineDelimiter(result), Util.convertToIndependantLineDelimiter(newResult));
-				}
+			previousResult = result;
+			result = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
+		}
+		if (!previousResult.equals(result)) {
+			switch (IGNORE_SPACES) {
+				case ALL_SPACES:
+					String trimmedExpected = ModelTestsUtil.removeWhiteSpace(previousResult);
+					String trimmedActual= ModelTestsUtil.removeWhiteSpace(result);
+					if (trimmedExpected.equals(trimmedActual)) {
+						this.whitespacesFailures.add(this.path);
+						this.hasSpaceFailure = true;
+						return previousResult;
+					}
+					break;
+				case LINES_LEADING_SPACES:
+					trimmedExpected = ModelTestsUtil.trimLinesLeadingWhitespaces(previousResult);
+					trimmedActual= ModelTestsUtil.trimLinesLeadingWhitespaces(result);
+					if (trimmedExpected.equals(trimmedActual)) {
+						this.leadingWhitespacesFailures.add(this.path);
+						this.hasSpaceFailure = true;
+						return previousResult;
+					}
+					if (ModelTestsUtil.removeWhiteSpace(previousResult).equals(ModelTestsUtil.removeWhiteSpace(result))) {
+						this.whitespacesFailures.add(this.path);
+						this.hasSpaceFailure = true;
+						return previousResult;
+					}
+					break;
+				default:
+					trimmedExpected = filterFormattingInComments(previousResult);
+					trimmedActual= filterFormattingInComments(result);
+					if (trimmedExpected.equals(trimmedActual)) {
+						this.whitespacesFailures.add(this.path);
+						this.hasSpaceFailure = true;
+						return previousResult;
+					}
+					break;
 			}
+			if (!isExpectedFailure()) {
+				String counterString = counterToString(count);
+				assertSourceEquals(counterString+" formatting is different from first one!", Util.convertToIndependantLineDelimiter(previousResult), Util.convertToIndependantLineDelimiter(result));
+			}
+			result = previousResult;
 		}
 	}
 	return result;
