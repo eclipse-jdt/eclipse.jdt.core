@@ -157,6 +157,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			char nextCharacter = 0;
 			if (realStart == javadocStart) {
 				nextCharacter = readChar(); // second '*'
+				while (peekChar() == '*') {
+					nextCharacter = readChar(); // read all contiguous '*'
+				}
 				this.javadocTextStart = this.index;
 			}
 			this.lineEnd = (this.linePtr == this.lastLinePtr) ? this.javadocEnd: this.scanner.getLineEnd(this.linePtr) - 1;
@@ -333,14 +336,16 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						break;
 					case '*' :
 						// Store the star position as text start while formatting
-						this.starPosition = previousPosition;
-						if (isDomParser || isFormatterParser) {
-							if (lineHasStar && !this.lineStarted) {
-								this.lineStarted = true;
-								this.textStart = previousPosition;
-							}
-							if (!this.lineStarted) {
-								lineHasStar = true;
+						if (previousChar != '*') {
+							this.starPosition = previousPosition;
+							if (isDomParser || isFormatterParser) {
+								if (lineHasStar && !this.lineStarted) {
+									this.lineStarted = true;
+									this.textStart = previousPosition;
+								}
+								if (!this.lineStarted) {
+									lineHasStar = true;
+								}
 							}
 						}
 						break;

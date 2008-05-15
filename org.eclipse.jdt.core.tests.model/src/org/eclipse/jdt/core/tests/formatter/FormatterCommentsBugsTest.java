@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 
@@ -17,6 +19,7 @@ import junit.framework.Test;
 
 public class FormatterCommentsBugsTest extends FormatterCommentsTests {
 
+	private static final IPath OUTPUT_FOLDER = new Path("out");
 
 public static Test suite() {
 	return buildModelTestSuite(FormatterCommentsBugsTest.class);
@@ -24,6 +27,13 @@ public static Test suite() {
 
 public FormatterCommentsBugsTest(String name) {
     super(name);
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.tests.formatter.FormatterCommentsTests#getOutputFolder()
+ */
+IPath getOutputFolder() {
+	return OUTPUT_FOLDER;
 }
 
 /**
@@ -107,6 +117,52 @@ public void testBug231297d() throws JavaModelException {
 	// 1) fixed non formatted inline tag description
 	this.preferences.comment_line_length = 40;
 	formatUnit("bugs.b231297", "X03b.java");
+}
+
+/**
+ * @bug 232138: [formatter] Javadoc header/footer formatting is different than 3.3
+ * @test Insure that new formatter do not add/remove stars in header and footer
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232138"
+ */
+public void testBug232138a() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b232138", "X01.java");
+}
+public void testBug232138b() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b232138", "X01b.java");
+}
+public void testBug232138c() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b232138", "X01c.java");
+}
+public void testBug232138d() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b232138", "X01d.java");
+}
+public void testBug232138e() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b232138", "X01e.java");
+}
+public void testBug232138f() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b232138", "X01f.java");
+}
+public void testBug232138g() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b232138", "X02.java");
+}
+public void testBug232138h() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b232138", "X03.java");
+}
+public void testBug232138i() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b232138", "X04.java");
+}
+public void testBug232138j() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b232138", "X04b.java");
 }
 
 }

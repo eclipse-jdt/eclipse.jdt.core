@@ -20,6 +20,7 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -51,6 +52,8 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
  * </ul>
  */
 public class FormatterCommentsTests extends FormatterRegressionTests {
+
+	private static final IPath OUTPUT_FOLDER = new Path("out").append("default");
 
 	public static List ALL_TEST_SUITES = null;
 
@@ -319,7 +322,6 @@ protected List getProjectCompilationUnits(IJavaProject javaProject) throws JavaM
 private String getOutputSource(ICompilationUnit unit) throws JavaModelException {
 	IPath outputPath = JAVA_PROJECT.getProject().getLocation().removeLastSegments(1)
 		.append(unit.getParent().getPath())
-		.append("out")
 		.append(getOutputFolder())
 		.append(unit.getElementName());
 	File outputFile = outputPath.toFile();
@@ -345,8 +347,8 @@ private String getOutputSource(ICompilationUnit unit) throws JavaModelException 
 	
 }
 
-String getOutputFolder() {
-	return "default";
+IPath getOutputFolder() {
+	return OUTPUT_FOLDER;
 }
 
 /*
@@ -1104,9 +1106,6 @@ public void testWkspEclipse33() throws JavaModelException {
 	// Difference with old formatter: 
 	// 1) fixed wrong max length with '*'
 	formatUnit("wksp.eclipse", "X33.java");
-}
-public void testWkspEclipse33b() throws JavaModelException {
-	formatUnit("wksp.eclipse", "X33b.java");
 }
 public void testWkspEclipse34() throws JavaModelException {
 	// Difference with old formatter: 

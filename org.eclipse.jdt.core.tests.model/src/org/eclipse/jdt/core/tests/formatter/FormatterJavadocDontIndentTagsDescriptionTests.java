@@ -15,6 +15,8 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 
 /**
@@ -25,6 +27,8 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
  * </ul>
  */
 public class FormatterJavadocDontIndentTagsDescriptionTests extends FormatterCommentsTests {
+
+	private static final IPath OUTPUT_FOLDER = new Path("out").append("dont_indent_descr");
 
 public static Test suite() {
 	// Get all superclass tests
@@ -51,8 +55,11 @@ DefaultCodeFormatter codeFormatter() {
 	return codeFormatter;
 }
 
-String getOutputFolder() {
-	return "dont_indent_descr";
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.tests.formatter.FormatterCommentsTests#getOutputFolder()
+ */
+IPath getOutputFolder() {
+	return OUTPUT_FOLDER;
 }
 
 }

@@ -1,6 +1,4 @@
-package test.wksp.eclipse;
-
-public class X33b {
+public class X04b {
 
 	void foo() {
 		if (true) {
