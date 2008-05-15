@@ -19,6 +19,7 @@ public class ProcessTaskManager implements Runnable {
 	Compiler compiler;
 	private int unitIndex;
 	private Thread processingThread;
+	CompilationUnitDeclaration unitToProcess;
 	private Throwable caughtException;
 
 	// queue
@@ -109,21 +110,21 @@ public CompilationUnitDeclaration removeNextUnit() throws Error {
 
 public void run() {
 	while (this.processingThread != null) {
-		CompilationUnitDeclaration unitToProcess = null;
+		unitToProcess = null;
 		int index = -1;
 		try {
-			try {
-				synchronized (this) {
-					if (this.processingThread == null) return;
-	
-					unitToProcess = this.compiler.getUnitToProcess(this.unitIndex);
-					if (unitToProcess == null) {
-						this.processingThread = null;
-						return;
-					}
-					index = this.unitIndex++;
+			synchronized (this) {
+				if (this.processingThread == null) return;
+
+				unitToProcess = this.compiler.getUnitToProcess(this.unitIndex);
+				if (unitToProcess == null) {
+					this.processingThread = null;
+					return;
 				}
+				index = this.unitIndex++;
+			}
 	
+			try {
 				this.compiler.reportProgress(Messages.bind(Messages.compilation_processing, new String(unitToProcess.getFileName())));
 				if (this.compiler.options.verbose)
 					this.compiler.out.println(
@@ -134,12 +135,12 @@ public void run() {
 							new String(unitToProcess.getFileName())
 						}));
 				this.compiler.process(unitToProcess, index);
-	
-				addNextUnit(unitToProcess);
 			} finally {
 				if (unitToProcess != null)
 					unitToProcess.cleanUp();
 			}
+
+			addNextUnit(unitToProcess);
 		} catch (Error e) {
 			synchronized (this) {
 				this.processingThread = null;

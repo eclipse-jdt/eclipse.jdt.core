@@ -469,7 +469,15 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				// the processTask can continue to process units until its fixed sized cache is full then it must wait
 				// for this this thread to accept the units as they appear (it only waits if no units are available)
 				while (true) {
-					unit = processingTask.removeNextUnit(); // waits if no units are in the processed queue
+					try {
+						unit = processingTask.removeNextUnit(); // waits if no units are in the processed queue
+					} catch (Error e) {
+						unit = processingTask.unitToProcess;
+						throw e;
+					} catch (RuntimeException e) {
+						unit = processingTask.unitToProcess;
+						throw e;
+					}
 					if (unit == null) break;
 					reportWorked(1, acceptedCount++);
 					this.stats.lineCount += unit.compilationResult.lineSeparatorPositions.length;
@@ -485,17 +493,11 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				}
 			}
 		} catch (AbortCompilation e) {
-			if (processingTask != null)
-				processingTask.shutdown();
 			this.handleInternalException(e, unit);
 		} catch (Error e) {
-			if (processingTask != null)
-				processingTask.shutdown();
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} catch (RuntimeException e) {
-			if (processingTask != null)
-				processingTask.shutdown();
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {
