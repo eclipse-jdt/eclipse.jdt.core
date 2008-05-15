@@ -1111,7 +1111,6 @@ class JavacCompiler {
 	 * Log contains all problems (warnings+errors)
 	 */
 	protected void runNegativeTest(String[] testFiles, String expectedProblemLog) {
-		runNegativeTest(testFiles, expectedProblemLog, null, true);
 		runNegativeTest(
 			testFiles, 
 			expectedProblemLog, 
