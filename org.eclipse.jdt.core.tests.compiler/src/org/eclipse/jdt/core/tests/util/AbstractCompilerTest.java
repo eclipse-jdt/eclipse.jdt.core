@@ -54,6 +54,10 @@ public class AbstractCompilerTest extends TestCase {
 	 */
 	public static Test buildAllCompliancesTestSuite(Class evaluationTestClass) {
 		TestSuite suite = new TestSuite(evaluationTestClass.getName());
+		buildAllCompliancesTestSuite(suite, evaluationTestClass);
+		return suite;
+	}
+	public static void buildAllCompliancesTestSuite(TestSuite suite, Class evaluationTestClass) {
 		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 		if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
 			suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK1_3));
@@ -70,7 +74,6 @@ public class AbstractCompilerTest extends TestCase {
 		if ((complianceLevels & AbstractCompilerTest.F_1_7) != 0) {
 			suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK1_7));
 		}
-		return suite;
 	}
 
 	/**
@@ -129,22 +132,11 @@ public class AbstractCompilerTest extends TestCase {
 	 * @return built test suite (see {@link TestSuite}
 	 */
 	private static Test buildComplianceTestSuite(List testClasses, Class setupClass, long complianceLevel) {
-		TestSuite complianceSuite = new TestSuite();
-		for (int i=0, m=testClasses.size(); i<m ; i++) {
-			Class testClass = (Class)testClasses.get(i);
-			TestSuite suite = new TestSuite(testClass.getName());
-			List tests = buildTestsList(testClass);
-			for (int index=0, size=tests.size(); index<size; index++) {
-				suite.addTest((Test)tests.get(index));
-			}
-			complianceSuite.addTest(suite);
-		}
-	
-		// call the setup constructor with the suite and compliance level
+		// call the setup constructor with the compliance level
+		TestSuite complianceSuite = null;
 		try {
-			Constructor constructor = setupClass.getConstructor(new Class[]{Test.class, long.class});
-			Test setUp = (Test)constructor.newInstance(new Object[]{complianceSuite, new Long(complianceLevel)});
-			return setUp;
+			Constructor constructor = setupClass.getConstructor(new Class[]{long.class});
+			complianceSuite = (TestSuite)constructor.newInstance(new Object[]{new Long(complianceLevel)});
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
@@ -154,8 +146,20 @@ public class AbstractCompilerTest extends TestCase {
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		}
-	
-		return null;
+		if (complianceSuite == null)
+			return null;
+
+		// add tests
+		for (int i=0, m=testClasses.size(); i<m ; i++) {
+			Class testClass = (Class)testClasses.get(i);
+			TestSuite suite = new TestSuite(testClass.getName());
+			List tests = buildTestsList(testClass);
+			for (int index=0, size=tests.size(); index<size; index++) {
+				suite.addTest((Test)tests.get(index));
+			}
+			complianceSuite.addTest(suite);
+		}
+		return complianceSuite;
 	}
 
 	/**
@@ -229,14 +233,12 @@ public class AbstractCompilerTest extends TestCase {
 			System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+highestLevel+"!");
 			return new TestSuite();
 		}
-		TestSuite complianceSuite = new TestSuite(CompilerOptions.versionFromJdkLevel(uniqueCompliance));
+		TestSuite complianceSuite = new RegressionTestSetup(uniqueCompliance);
 		List tests = buildTestsList(evaluationTestClass);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			complianceSuite.addTest((Test)tests.get(index));
 		}
-		TestSuite suite = new TestSuite(evaluationTestClass.getName());
-		suite.addTest(new RegressionTestSetup(complianceSuite, uniqueCompliance));
-		return suite;
+		return complianceSuite;
 	}
 
 	/*
@@ -357,7 +359,24 @@ public class AbstractCompilerTest extends TestCase {
 	 * (see AbstractCompilerTest for valid values) and using the given setup class (CompilerTestSetup or a subclass)
 	 */
 	public static Test suiteForComplianceLevel(long complianceLevel, Class setupClass, ArrayList testClasses) {
-		TestSuite suite;
+		// call the setup constructor with the compliance level
+		TestSuite suite = null;
+		try {
+			Constructor constructor = setupClass.getConstructor(new Class[]{String.class});
+			suite = (TestSuite)constructor.newInstance(new Object[]{CompilerOptions.versionFromJdkLevel(complianceLevel)});
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.getTargetException().printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		}
+		if (suite == null)
+			return null;
+		
+		// add tests
 		Class testClass;
 		if (testClasses.size() == 1) {
 			suite = new TestSuite(testClass = (Class)testClasses.get(0), CompilerOptions.versionFromJdkLevel(complianceLevel));
@@ -370,23 +389,7 @@ public class AbstractCompilerTest extends TestCase {
 				suite.addTest(innerSuite);
 			}
 		}
-
-		// call the setup constructor with the suite and compliance level
-		try {
-			Constructor constructor = setupClass.getConstructor(new Class[]{Test.class, String.class});
-			Test setUp = (Test)constructor.newInstance(new Object[]{suite, CompilerOptions.versionFromJdkLevel(complianceLevel)});
-			return setUp;
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.getTargetException().printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		}
-
-		return null;
+		return suite;
 	}
 
 	public static Test setupSuite(Class clazz) {
@@ -403,20 +406,18 @@ public class AbstractCompilerTest extends TestCase {
 	}
 
 	public static Test buildTestSuite(Class evaluationTestClass, long complianceLevel) {
-		TestSuite suite = new TestSuite(CompilerOptions.versionFromJdkLevel(complianceLevel));
+		TestSuite suite = new RegressionTestSetup(complianceLevel);
 		List tests = buildTestsList(evaluationTestClass);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			suite.addTest((Test)tests.get(index));
 		}
-		TestSuite test = new TestSuite(evaluationTestClass.getName());
-		test.addTest(new RegressionTestSetup(suite, complianceLevel));
 		String className = evaluationTestClass.getName();
 		Integer testsNb;
-		int newTestsNb = test.countTestCases();
+		int newTestsNb = suite.countTestCases();
 		if ((testsNb = (Integer) TESTS_COUNTERS.get(className)) != null)
 			newTestsNb += testsNb.intValue();
 		TESTS_COUNTERS.put(className, new Integer(newTestsNb));
-		return test;
+		return suite;
 	}
 
 	

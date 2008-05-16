@@ -14,8 +14,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.tests.runtime.LocalVirtualMachine;
 
 import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
@@ -37,8 +35,8 @@ public class EvaluationSetup extends CompilerTestSetup {
 	LocalVirtualMachine launchedVM;
 	INameEnvironment env;
 
-	public EvaluationSetup(Test test, long complianceLevel) {
-		super(test, complianceLevel);
+	public EvaluationSetup(long complianceLevel) {
+		super(complianceLevel);
 	}
 
 	protected void setUp() {

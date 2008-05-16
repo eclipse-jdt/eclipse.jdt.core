@@ -12,17 +12,17 @@ package org.eclipse.jdt.core.tests.util;
 
 import java.util.Enumeration;
 
-import junit.extensions.TestDecorator;
-import junit.framework.Test;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
 
-public class CompilerTestSetup extends TestDecorator {
+public class CompilerTestSetup extends TestSuite {
 
 	long complianceLevel;
 
-	public CompilerTestSetup(Test test, long complianceLevel) {
-		super(test);
+	public CompilerTestSetup(long complianceLevel) {
+		super(CompilerOptions.versionFromJdkLevel(complianceLevel));
 		this.complianceLevel = complianceLevel;
 	}
 
@@ -35,6 +35,13 @@ public class CompilerTestSetup extends TestDecorator {
 		if (test instanceof TestSuite) {
 			TestSuite testSuite = (TestSuite)test;
 			Enumeration evaluationTestClassTests = testSuite.tests();
+			while (evaluationTestClassTests.hasMoreElements()) {
+				initTest(evaluationTestClassTests.nextElement());
+			}
+			return;
+		}
+		if (test instanceof Enumeration) {
+			Enumeration evaluationTestClassTests = (Enumeration) test;
 			while (evaluationTestClassTests.hasMoreElements()) {
 				initTest(evaluationTestClassTests.nextElement());
 			}
@@ -53,7 +60,7 @@ public class CompilerTestSetup extends TestDecorator {
 
 	protected void setUp() {
 		// Init wrapped suite
-		initTest(fTest);
+		initTest(tests());
 	}
 
 	protected void tearDown() {

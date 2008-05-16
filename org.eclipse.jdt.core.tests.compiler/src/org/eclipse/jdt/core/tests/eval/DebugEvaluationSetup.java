@@ -32,8 +32,8 @@ public class DebugEvaluationSetup extends EvaluationSetup {
 
 	VirtualMachine vm;
 
-	public DebugEvaluationSetup(junit.framework.Test test, long complianceLevel) {
-		super(test, complianceLevel);
+	public DebugEvaluationSetup(long complianceLevel) {
+		super(complianceLevel);
 	}
 
 	protected void setUp() {

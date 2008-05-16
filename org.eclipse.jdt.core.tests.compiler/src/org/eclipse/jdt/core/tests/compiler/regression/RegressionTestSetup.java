@@ -16,15 +16,13 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 
-import junit.framework.*;
-
 public class RegressionTestSetup extends CompilerTestSetup {
 	
 	TestVerifier verifier = new TestVerifier(true);
 	INameEnvironment javaClassLib;
 	
-	public RegressionTestSetup(Test test, long complianceLevel) {
-		super(test, complianceLevel);
+	public RegressionTestSetup(long complianceLevel) {
+		super(complianceLevel);
 	}
 
 	protected void setUp() {

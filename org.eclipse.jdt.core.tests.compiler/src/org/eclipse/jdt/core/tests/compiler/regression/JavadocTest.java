@@ -82,8 +82,9 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	}
 	
 	public static Test suiteForComplianceLevel(long level, Class testClass) {
-		Test suite = buildAllCompliancesTestSuite(testClass);
-		return new RegressionTestSetup(suite, level);
+		TestSuite suite = new RegressionTestSetup(level);
+		buildAllCompliancesTestSuite(suite, testClass);
+		return suite;
 	}
 	
 	public JavadocTest(String name) {
