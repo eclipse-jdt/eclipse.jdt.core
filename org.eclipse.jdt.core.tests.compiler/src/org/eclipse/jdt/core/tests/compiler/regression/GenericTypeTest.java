@@ -43962,4 +43962,312 @@ public void test1321() {
 			"Bound mismatch: The generic method foo2(String, U, T, W) of type X is not applicable for the arguments (String, null, null, null). The inferred type List<List<T>> is not a valid substitute for the bounded parameter <W extends List<U>>\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094
+public void _test1322() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		X x = new X();\n" + 
+					"\n" + 
+					"		/** OK: Bob.class is correct. No idea about the Thingy */\n" + 
+					"		x.doStuff(Bob.class, new Thingy());\n" + 
+					"\n" + 
+					"		/**\n" + 
+					"		 * This line will fail when compiled with the Java 5 SDK: Test.java:25:\n" + 
+					"		 * <T>doStuff(java.lang.Class<T>,Thingy<T>) in Test cannot be applied to\n" + 
+					"		 * (java.lang.Class<Bill>,Thingy) test.doStuff(Bill.class, new\n" + 
+					"		 * Thingy()); ^ Note: Test.java uses unchecked or unsafe operations.\n" + 
+					"		 * Note: Recompile with -Xlint:unchecked for details. 1 error\n" + 
+					"		 */\n" + 
+					"		x.doStuff(Jim.class, new Thingy());\n" + 
+					"	}\n" + 
+					"	<T extends Bob> void doStuff(Class<T> klass, Thingy<T> thingy) {\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"class Jim {}\n" + 
+					"class Bob {}\n" + 
+					"class Bob2 extends Bob {}\n" + 
+					"class Thingy<T extends Bob> {}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	x.doStuff(Bob.class, new Thingy());\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation doStuff(Class, Thingy) of the generic method doStuff(Class<T>, Thingy<T>) of type X\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	x.doStuff(Bob.class, new Thingy());\n" + 
+			"	                     ^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Thingy needs unchecked conversion to conform to Thingy<T>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	x.doStuff(Bob.class, new Thingy());\n" + 
+			"	                         ^^^^^^\n" + 
+			"Thingy is a raw type. References to generic type Thingy<T> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 15)\n" + 
+			"	x.doStuff(Jim.class, new Thingy());\n" + 
+			"	  ^^^^^^^\n" + 
+			"Bound mismatch: The generic method doStuff(Class<T>, Thingy<T>) of type X is not applicable for the arguments (Class<Jim>, Thingy). The inferred type Jim is not a valid substitute for the bounded parameter <T extends Bob>\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 15)\n" + 
+			"	x.doStuff(Jim.class, new Thingy());\n" + 
+			"	                         ^^^^^^\n" + 
+			"Thingy is a raw type. References to generic type Thingy<T> should be parameterized\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094 - variation
+public void _test1323() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		X x = new X();\n" + 
+					"		x.doStuff2(Jim.class, new Thingy());\n" + 
+					"		String s = x.doStuff2(Bob2.class, new Thingy());\n" + 
+					"	}\n" + 
+					"	<T extends Bob, U extends Bob> T doStuff2(Class<T> klass, Thingy<U> thingy) { return null; }\n" + 
+					"}\n" + 
+					"class Jim {}\n" + 
+					"class Bob {}\n" + 
+					"class Bob2 extends Bob {}\n" + 
+					"class Thingy<T extends Bob> {}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	x.doStuff2(Jim.class, new Thingy());\n" + 
+			"	  ^^^^^^^^\n" + 
+			"Bound mismatch: The generic method doStuff2(Class<T>, Thingy<U>) of type X is not applicable for the arguments (Class<Jim>, Thingy). The inferred type Jim is not a valid substitute for the bounded parameter <T extends Bob>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	x.doStuff2(Jim.class, new Thingy());\n" + 
+			"	                          ^^^^^^\n" + 
+			"Thingy is a raw type. References to generic type Thingy<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	String s = x.doStuff2(Bob2.class, new Thingy());\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation doStuff2(Class<Bob2>, Thingy<Bob>) of the generic method doStuff2(Class<T>, Thingy<U>) of type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
+			"	String s = x.doStuff2(Bob2.class, new Thingy());\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Bob2 to String\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 5)\n" + 
+			"	String s = x.doStuff2(Bob2.class, new Thingy());\n" + 
+			"	                                  ^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Thingy needs unchecked conversion to conform to Thingy<U>\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 5)\n" + 
+			"	String s = x.doStuff2(Bob2.class, new Thingy());\n" + 
+			"	                                      ^^^^^^\n" + 
+			"Thingy is a raw type. References to generic type Thingy<T> should be parameterized\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094 - variation
+public void _test1324() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		X x = new X();\n" + 
+					"\n" + 
+					"		/** OK: Bob.class is correct. No idea about the Thingy */\n" + 
+					"		x.doStuff(Bob.class, new Thingy());\n" + 
+					"		x.doStuff(Bob.class, new Thingy<Bob>()); // second invocation is NOT unchecked\n" + 
+					"		Zork z;\n" + 
+					"	}\n" + 
+					"	<T extends Bob> T doStuff(Class<T> klass, Thingy<T> thingy) { return null; }\n" + 
+					"}\n" + 
+					"class Jim {}\n" + 
+					"class Bob {}\n" + 
+					"class Thingy<T extends Bob> {}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	x.doStuff(Bob.class, new Thingy());\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation doStuff(Class<Bob>, Thingy<Bob>) of the generic method doStuff(Class<T>, Thingy<T>) of type X\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	x.doStuff(Bob.class, new Thingy());\n" + 
+			"	                     ^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Thingy needs unchecked conversion to conform to Thingy<T>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	x.doStuff(Bob.class, new Thingy());\n" + 
+			"	                         ^^^^^^\n" + 
+			"Thingy is a raw type. References to generic type Thingy<T> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 8)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094 - variation
+public void test1325() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"public class X<E> {\n" + 
+					"	<T,U> U foo(X<T> xt) {\n" + 
+					"		return null;\n" + 
+					"	}\n" + 
+					"	void bar(X x) {\n" + 
+					"		X<String> xs2 = foo(x);\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	void bar(X x) {\n" + 
+			"	         ^\n" + 
+			"X is a raw type. References to generic type X<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	X<String> xs2 = foo(x);\n" + 
+			"	                ^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(X) of the generic method foo(X<T>) of type X<E>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	X<String> xs2 = foo(x);\n" + 
+			"	                ^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to X<String>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 6)\n" + 
+			"	X<String> xs2 = foo(x);\n" + 
+			"	                    ^\n" + 
+			"Type safety: The expression of type X needs unchecked conversion to conform to X<T>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094 - variation
+public void _test1326() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"public class X<E> {\n" + 
+					"	<T extends Thread,U> X<T> foo(X<T> xt, X<U> xt2) {\n" + 
+					"		return null;\n" + 
+					"	}\n" + 
+					"	X<E> identity() {\n" + 
+					"		return this;\n" + 
+					"	}\n" + 
+					"	void bar(X x, X<String> xs) {\n" + 
+					"		X<String> xs2 = foo(xs, x).identity();\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	void bar(X x, X<String> xs) {\n" + 
+			"	         ^\n" + 
+			"X is a raw type. References to generic type X<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	X<String> xs2 = foo(xs, x).identity();\n" + 
+			"	                ^^^\n" + 
+			"Bound mismatch: The generic method foo(X<T>, X<U>) of type X<E> is not applicable for the arguments (X<String>, X). The inferred type String is not a valid substitute for the bounded parameter <T extends Thread>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094 - variation
+public void test1327() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"public class X<E> {\n" + 
+					"	<T,U> X<Object> foo(X<T> xt, X<U> xt2) {\n" + 
+					"		return null;\n" + 
+					"	}\n" + 
+					"	X<E> identity() {\n" + 
+					"		return this;\n" + 
+					"	}\n" + 
+					"	void bar(X x, X<String> xs) {\n" + 
+					"		X<String> xs2 = foo(x, xs).identity();\n" + 
+					"	}\n" + 
+					"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	void bar(X x, X<String> xs) {\n" + 
+			"	         ^\n" + 
+			"X is a raw type. References to generic type X<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	X<String> xs2 = foo(x, xs).identity();\n" + 
+			"	                ^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(X, X) of the generic method foo(X<T>, X<U>) of type X<E>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	X<String> xs2 = foo(x, xs).identity();\n" + 
+			"	                ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type X needs unchecked conversion to conform to X<String>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
+			"	X<String> xs2 = foo(x, xs).identity();\n" + 
+			"	                    ^\n" + 
+			"Type safety: The expression of type X needs unchecked conversion to conform to X<T>\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094 - variation
+public void test1328() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", // =================
+					"import java.util.List;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"	\n" + 
+					"	void bar(List<B> lb, List<C> lc) {\n" + 
+					"		String s = foo(lb, lc);\n" + 
+					"	}\n" + 
+					"	<U extends A> U foo(List<? extends U> u, List<? extends U> v) { return null; }\n" + 
+					"}\n" + 
+					"class A {}\n" + 
+					"class B extends A {}\n" + 
+					"class C extends A {}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	String s = foo(lb, lc);\n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from A to String\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=232174
+public void test1329() {
+	this.runConformTest(
+			new String[] {
+					"com/b/p1/A.java", // =================
+					"package com.b.p1;\n" + 
+					"public class A<K> {\n" + 
+					"    protected final class Inner {}\n" + 
+					"}\n",
+					"com/b/p1/ADerivedSamePkg.java", // =================
+					"package com.b.p1;\n" + 
+					"import java.util.Map;\n" + 
+					"public class ADerivedSamePkg extends A<Object> {\n" + 
+					"    protected void someMethod() {\n" + 
+					"        Map.Entry<String, Inner> some = null;\n" + 
+					"        Inner x = some.getValue();\n" + 
+					"    }\n" + 
+					"}\n",
+					"com/b/p2/ADerivedDifferentPkg.java", // =================
+					"package com.b.p2;\n" + 
+					"import java.util.Map;\n" + 
+					"import com.b.p1.A;\n" + 
+					"public class ADerivedDifferentPkg extends A<Object> {\n" + 
+					"    protected void someMethod()     {\n" + 
+					"        Map.Entry<String, Inner> some = null;\n" + 
+					"        Inner x = some.getValue(); // <-- error in this line\n" + 
+					"    }\n" + 
+					"}\n", // =================
+			},
+			"");
+}
 }
