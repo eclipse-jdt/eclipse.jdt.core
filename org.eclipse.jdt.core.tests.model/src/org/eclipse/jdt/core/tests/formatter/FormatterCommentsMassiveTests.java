@@ -133,6 +133,7 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 	boolean hasSpaceFailure;
 	private int changedHeaderFooter;
 	private int changedPreTags;
+	private int changedCodeTags;
 	private final static boolean DEBUG_TESTS = "true".equals(System.getProperty("debugTests"));
 	private final static String DIR = System.getProperty("dir"); //$NON-NLS-1$
 	private final static String COMPARE = System.getProperty("compare"); //$NON-NLS-1$
@@ -160,7 +161,7 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2")); //$NON-NLS-1$
 	private static final int MAX_FAILURES = Integer.parseInt(System.getProperty("maxFailures", "100")); // Max failures using string comparison
 	private static boolean ASSERT_EQUALS_STRINGS = MAX_FAILURES > 0;
-	private final static String[] EXPECTED_FAILURES = DIR.indexOf("ganymede") < 0
+	private final static String[] EXPECTED_FAILURES = DIR.indexOf("v34") < 0
 		? new String[] {
 			"org\\eclipse\\jdt\\internal\\compiler\\ast\\QualifiedNameReference.java",
 			"org\\eclipse\\jdt\\internal\\eval\\CodeSnippetSingleNameReference.java",
@@ -376,7 +377,7 @@ protected void assertSourceEquals(String message, String expected, String actual
 	}
 }
 
-private String removeKnownDifferences(String comment) {
+private String cleanAllKnownDifferences(String comment) {
 	int kind = comment.charAt(1) == '/' ? 1 : comment.charAt(2) == '*' ? 3 : 2;
 	String cleanedComment = comment;
 	switch (kind) {
@@ -384,13 +385,18 @@ private String removeKnownDifferences(String comment) {
 			cleanedComment = cleanBlankLinesAfterLineComment(comment);
 			break;
 		case 3: // javadoc comment
-			cleanedComment = removeHeaderAndFooter(comment);
-			cleanedComment = cleanPreTags(cleanedComment);
+			cleanedComment = cleanHeaderAndFooter(comment);
+			String newComment = cleanPreTags(cleanedComment);
+			if (cleanedComment == newComment) {
+				cleanedComment = cleanCodeTags(cleanedComment);
+			} else {
+				cleanedComment = newComment;
+			}
 			break;
 	}
 	return cleanedComment;
 }
-private String removeHeaderAndFooter(String comment) {
+private String cleanHeaderAndFooter(String comment) {
 	int start = 1; // skip starting '/'
 	int length = comment.length();
 	int end = length - 1; // skip ending '/'
@@ -410,18 +416,33 @@ private String removeHeaderAndFooter(String comment) {
 
 private String cleanBlankLinesAfterLineComment(String comment) {
 	int length = comment.length();
-	int ch =  comment.charAt(length-1);
-	if (ch == '\r') {
+	if (comment.charAt(length-1) == '\n') {
 		length--;
-		if (ch == '\n') {
+		if (comment.charAt(length-1) == '\r') {
 			length--;
 		}
 		return comment.substring(0, length);
-	} else if (ch == '\n') {
-		length--;
-		return comment.substring(0, length);
 	}
 	return comment;
+}
+
+private String cleanCodeTags(String comment) {
+	if (comment.indexOf("<code>") < 0) return comment;
+	StringTokenizer tokenizer = new StringTokenizer(comment, "\r\n\f");
+	StringBuffer buffer = new StringBuffer();
+	while (tokenizer.hasMoreTokens()) {
+		String line = tokenizer.nextToken();
+		if (line.indexOf("<pre>") >= 0) {
+			while (line.indexOf("</pre>") < 0) {
+				line = tokenizer.nextToken();
+			}
+		} else {
+			buffer.append(line);
+			buffer.append("\n");
+		}
+	}
+	this.changedCodeTags++;
+	return buffer.toString();
 }
 
 private String cleanPreTags(String comment) {
@@ -440,6 +461,10 @@ private String cleanPreTags(String comment) {
 			} else {
 				emptyLines.append(line);
 				emptyLines.append("\n");
+			}
+		} else if (line.indexOf("<code>") >= 0) {
+			while (line.indexOf("</code>") < 0) {
+				line = tokenizer.nextToken();
 			}
 		} else if (emptyLines.length() != 0) {
 			if (line.indexOf("</pre>") < 0) {
@@ -480,8 +505,8 @@ void compareFormattedSource() throws IOException, Exception {
 				if (oldComment == null) {
 					assertNull("Unexpected non-null new comment", newComment);
 				} else {
-					String expected = removeKnownDifferences(oldComment);
-					String actual = removeKnownDifferences(newComment);
+					String expected = cleanAllKnownDifferences(oldComment);
+					String actual = cleanAllKnownDifferences(newComment);
 					if (!expected.equals(actual)) {
 						String actualResult = runFormatter(codeFormatter, source, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, 0, source.length(), null);
 						String expectedResult = expectedFormattedSource(source);
@@ -775,7 +800,7 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 					break;
 			}
 			if (!isExpectedFailure()) {
-				String counterString = counterToString(count);
+				String counterString = counterToString(count-1);
 				assertSourceEquals(counterString+" formatting is different from first one!", Util.convertToIndependantLineDelimiter(previousResult), Util.convertToIndependantLineDelimiter(result));
 			}
 			result = previousResult;
