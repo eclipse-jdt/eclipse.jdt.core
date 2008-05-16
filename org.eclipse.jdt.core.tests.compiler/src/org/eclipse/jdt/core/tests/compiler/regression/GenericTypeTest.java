@@ -41246,4 +41246,57 @@ public void test1316() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=231861
+public void test1330() {
+	this.runConformTest(
+			new String[] {
+				"p/BaseValue.java", // =================
+				"package p;\n" + 
+				"interface Value<B> {}\n" + 
+				"public class BaseValue<B> implements Value<B> {}\n",
+				"p/Model.java", // =================
+				"package p;\n" + 
+				"public class Model {\n" + 
+				"  public java.util.Map<String, Value> map = new java.util.LinkedHashMap<String,Value>();\n" + 
+				"}\n", // =================
+			},
+			"");
+	this.runConformTest(
+			new String[] {
+				"p2/Person.java", // =================
+				"package p2;\n" + 
+				"public class Person extends p.Model {\n" + 
+				"        void test() {\n" + 
+				"                this.map.put(\"name\", new p.BaseValue<String>());\n" + 
+				"        }\n" + 
+				"}\n", // =================
+			},
+			"",
+			null,
+			false,
+			null);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=231861 - variation
+public void test1331() {
+	this.runConformTest(
+			new String[] {
+				"p/BaseValue.java", // =================
+				"package p;\n" + 
+				"interface Value<B> {}\n" + 
+				"public class BaseValue<B> implements Value<B> {}\n",
+				"p/Model.java", // =================
+				"package p;\n" + 
+				"public class Model {\n" + 
+				"  public java.util.Map<String, Value> map = new java.util.LinkedHashMap<String,Value>();\n" + 
+				"}\n",
+				"p2/Person.java", // =================
+				"package p2;\n" + 
+				"public class Person extends p.Model {\n" + 
+				"        void test() {\n" + 
+				"                this.map.put(\"name\", new p.BaseValue<String>());\n" + 
+				"        }\n" + 
+				"}\n", // =================
+			},
+			"");
+}
 }
