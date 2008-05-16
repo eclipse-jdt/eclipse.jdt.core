@@ -44323,4 +44323,82 @@ public void test1331() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=232487
+public void test1332() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X implements Runnable {\n" + 
+			"	public void run() {/**/}\n" + 
+			"	void foo() {\n" + 
+			"		  List<X> runnables = new ArrayList<X>();\n" + 
+			"		  for (Runnable r : runnables) {\n" + 
+			"			  r.run();\n" + 
+			"		  }\n" + 
+			"		  Object o = runnables.get(0);\n" + 
+			"		  Runnable r = runnables.get(1);\n" + 
+			"	}\n" + 
+			"} \n",
+		},
+		"");		
+	String expectedOutput =
+		"  // Method descriptor #8 ()V\n" + 
+		"  // Stack: 2, Locals: 4\n" + 
+		"  void foo();\n" + 
+		"     0  new java.util.ArrayList [18]\n" + 
+		"     3  dup\n" + 
+		"     4  invokespecial java.util.ArrayList() [20]\n" + 
+		"     7  astore_1 [runnables]\n" + 
+		"     8  aload_1 [runnables]\n" + 
+		"     9  invokeinterface java.util.List.iterator() : java.util.Iterator [21] [nargs: 1]\n" + 
+		"    14  astore_3\n" + 
+		"    15  goto 34\n" + 
+		"    18  aload_3\n" + 
+		"    19  invokeinterface java.util.Iterator.next() : java.lang.Object [27] [nargs: 1]\n" + 
+		"    24  checkcast java.lang.Runnable [5]\n" + 
+		"    27  astore_2 [r]\n" + 
+		"    28  aload_2 [r]\n" + 
+		"    29  invokeinterface java.lang.Runnable.run() : void [33] [nargs: 1]\n" + 
+		"    34  aload_3\n" + 
+		"    35  invokeinterface java.util.Iterator.hasNext() : boolean [35] [nargs: 1]\n" + 
+		"    40  ifne 18\n" + 
+		"    43  aload_1 [runnables]\n" + 
+		"    44  iconst_0\n" + 
+		"    45  invokeinterface java.util.List.get(int) : java.lang.Object [39] [nargs: 2]\n" + 
+		"    50  astore_2 [o]\n" + 
+		"    51  aload_1 [runnables]\n" + 
+		"    52  iconst_1\n" + 
+		"    53  invokeinterface java.util.List.get(int) : java.lang.Object [39] [nargs: 2]\n" + 
+		"    58  checkcast java.lang.Runnable [5]\n" + 
+		"    61  astore_3 [r]\n" + 
+		"    62  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 6]\n" + 
+		"        [pc: 8, line: 7]\n" + 
+		"        [pc: 28, line: 8]\n" + 
+		"        [pc: 34, line: 7]\n" + 
+		"        [pc: 43, line: 10]\n" + 
+		"        [pc: 51, line: 11]\n" + 
+		"        [pc: 62, line: 12]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 63] local: this index: 0 type: X\n" + 
+		"        [pc: 8, pc: 63] local: runnables index: 1 type: java.util.List\n" + 
+		"        [pc: 28, pc: 34] local: r index: 2 type: java.lang.Runnable\n" + 
+		"        [pc: 51, pc: 63] local: o index: 2 type: java.lang.Object\n" + 
+		"        [pc: 62, pc: 63] local: r index: 3 type: java.lang.Runnable\n";
+	
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
 }
