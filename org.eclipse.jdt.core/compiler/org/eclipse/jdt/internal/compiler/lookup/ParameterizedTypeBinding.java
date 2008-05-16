@@ -310,7 +310,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public String debugName() {
 	    StringBuffer nameBuffer = new StringBuffer(10);
-		nameBuffer.append(this.type.sourceName());
+	    if (this.type instanceof UnresolvedReferenceBinding) {
+	    	nameBuffer.append(this.type);
+	    } else {
+			nameBuffer.append(this.type.sourceName());
+	    }
 		if (this.arguments != null) {
 			nameBuffer.append('<');
 		    for (int i = 0, length = this.arguments.length; i < length; i++) {
@@ -830,7 +834,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (this.arguments != null) {
 			int argLength = this.arguments.length;
 			for (int i = 0; i < argLength; i++)
-				this.arguments[i] = BinaryTypeBinding.resolveType(this.arguments[i], this.environment, this, i);
+				this.arguments[i] = BinaryTypeBinding.resolveType(this.arguments[i], this.environment, null, 0);
 			// arity check
 			TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
 			if (refTypeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
@@ -988,7 +992,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public String toString() {
 	    StringBuffer buffer = new StringBuffer(30);
 	    if (this.type instanceof UnresolvedReferenceBinding) {
-	    	buffer.append(this.type);
+	    	buffer.append(this.debugName());
 	    } else {
 			if (isDeprecated()) buffer.append("deprecated "); //$NON-NLS-1$
 			if (isPublic()) buffer.append("public "); //$NON-NLS-1$
