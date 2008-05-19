@@ -1853,6 +1853,13 @@ public abstract class Scope implements TypeConstants, TypeIds {
 											invocationSite.setDepth(depth);
 											invocationSite.setActualReceiverType(receiverType);
 										}
+										// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
+										if (receiverType.id != T_JavaLangObject
+											&& argumentTypes == Binding.NO_PARAMETERS
+										    && CharOperation.equals(selector, GETCLASS)
+										    && methodBinding.returnType.isParameterizedType()/*1.5*/) {
+												return ParameterizedMethodBinding.instantiateGetClass(receiverType, methodBinding, this);
+										}
 										return methodBinding;
 									}
 

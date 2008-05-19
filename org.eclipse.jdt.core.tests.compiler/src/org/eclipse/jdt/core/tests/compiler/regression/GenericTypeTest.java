@@ -44401,4 +44401,66 @@ public void test1332() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=225737
+public void test1333() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"public class X extends AbstractProject<X, Object> {\n" + 
+				"	public void testBug() {\n" + 
+				"		// javac compiles the following line without complaining\n" + 
+				"		BuildStepDescriptor.filter(BuildStep.PUBLISHERS, getClass());\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().testBug();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface BuildStep {\n" + 
+				"	public static final PublisherList PUBLISHERS = new PublisherList();\n" + 
+				"}\n" + 
+				"\n" + 
+				"@SuppressWarnings(\"serial\")\n" + 
+				"class PublisherList extends ArrayList<Descriptor<Publisher>> {\n" + 
+				"}\n" + 
+				"abstract class Publisher implements BuildStep, Describable<Publisher> {\n" + 
+				"}\n" + 
+				"interface Describable<T extends Describable<T>> {\n" + 
+				"}\n" + 
+				"abstract class Descriptor<T extends Describable<T>> {\n" + 
+				"}\n" + 
+				"abstract class BuildStepDescriptor<T extends BuildStep & Describable<T>> extends Descriptor<T> {\n" + 
+				"	\n" + 
+				"	public static <T extends BuildStep & Describable<T>> List<Descriptor<T>> filter(\n" + 
+				"			List<Descriptor<T>> base,\n" + 
+				"			Class<? extends AbstractProject<?, ?>> type) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"abstract class AbstractProject<P extends AbstractProject<P, R>, R> {\n" + 
+				"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=225737 - variation
+public void test1334() {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"public class X extends AbstractProject<X, Object> {\n" + 
+				"	public void testBug() {\n" + 
+				"		filter(getClass());//1\n" + 
+				"		filter(this.getClass());//2\n" + 
+				"		filter(X.class);//3\n" + 
+				"	}\n" + 
+				"	public static void filter(Class<? extends AbstractProject<?, ?>> type) {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"abstract class AbstractProject<P extends AbstractProject<P, R>, R> {\n" + 
+				"}\n", // =================
+			},
+			"");
+}
 }
