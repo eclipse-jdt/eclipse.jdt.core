@@ -1,8 +1,8 @@
-public class X02 {
+public class X03 {
 
           /**
            **
-           ** Returns true
+           ** Returns true if the operator expects...
            **/
           void foo() {
           }
