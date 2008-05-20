@@ -76,7 +76,7 @@ protected void setUp() throws Exception {
  */
 public void setUpSuite() throws Exception {
 	if (JAVA_PROJECT == null) {
-		JAVA_PROJECT = setUpJavaProject("FormatterJavadoc"); //$NON-NLS-1$
+		JAVA_PROJECT = setUpJavaProject("FormatterJavadoc", "1.5"); //$NON-NLS-1$
 	}
 	super.setUpSuite();
 }	
@@ -96,7 +96,7 @@ public void tearDownSuite() throws Exception {
 }
 
 DefaultCodeFormatter codeFormatter() {
-	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, JAVA_PROJECT.getOptions(true));
 	return codeFormatter;
 }
 

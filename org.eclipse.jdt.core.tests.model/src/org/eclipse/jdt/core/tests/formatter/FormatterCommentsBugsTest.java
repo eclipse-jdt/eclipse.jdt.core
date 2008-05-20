@@ -164,4 +164,14 @@ public void testBug232285j() throws JavaModelException {
 	this.preferences.comment_line_length = 40;
 	formatUnit("bugs.b232285", "X04b.java");
 }
+
+/**
+ * @bug 232488: [formatter] Code formatter scrambles JavaDoc of Generics
+ * @test Insure that comment formatter format properly generic param tags
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232488"
+ */
+public void testBug232488() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b232488", "X01.java");
+}
 }

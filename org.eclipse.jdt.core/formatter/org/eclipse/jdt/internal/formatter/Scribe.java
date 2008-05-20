@@ -831,7 +831,7 @@ public class Scribe implements IJavaDocTagConstants {
 	
 	private void initFormatterCommentParser() {
 		if (this.formatterCommentParser == null) {
-			this.formatterCommentParser = new FormatterCommentParser(null);
+			this.formatterCommentParser = new FormatterCommentParser(this.scanner.sourceLevel);
 		}
 		this.formatterCommentParser.scanner.setSource(this.scanner.source);
 		this.formatterCommentParser.source = this.scanner.source;

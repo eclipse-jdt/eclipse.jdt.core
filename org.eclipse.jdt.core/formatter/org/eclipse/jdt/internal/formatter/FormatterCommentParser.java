@@ -15,7 +15,6 @@ import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
-import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.formatter.comment.IJavaDocTagConstants;
@@ -28,11 +27,12 @@ public class FormatterCommentParser extends JavadocParser implements IJavaDocTag
 	int htmlTagsPtr = -1;
 	private boolean invalidTagName;
 	
-FormatterCommentParser(Parser sourceParser) {
-	super(sourceParser);
+public FormatterCommentParser(long sourceLevel) {
+	super(null);
 	this.kind = FORMATTER_COMMENT_PARSER | TEXT_PARSE;
 	this.reportProblems = false;
 	this.checkDocComment = true;
+	this.sourceLevel = sourceLevel;
 }
 
 public boolean parse(int start, int end) {
