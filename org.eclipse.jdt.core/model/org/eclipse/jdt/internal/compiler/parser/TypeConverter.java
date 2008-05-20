@@ -36,10 +36,12 @@ public abstract class TypeConverter {
 	
 	protected ProblemReporter problemReporter;
 	protected boolean has1_5Compliance;
+	private char memberTypeSeparator;
 	
-	protected TypeConverter(ProblemReporter problemReporter) {
+	protected TypeConverter(ProblemReporter problemReporter, char memberTypeSeparator) {
 		this.problemReporter = problemReporter;
 		this.has1_5Compliance = problemReporter.options.complianceLevel >= ClassFileConstants.JDK1_5;
+		this.memberTypeSeparator = memberTypeSeparator;
 	}
 	
 	private void addIdentifiers(String typeSignature, int start, int endExclusive, int identCount, ArrayList fragments) {
@@ -248,8 +250,10 @@ public abstract class TypeConverter {
 					nameFragmentEnd = this.namePos-1;
 					this.namePos++;
 					break typeLoop;
-				case Signature.C_DOT :
 				case Signature.C_DOLLAR:
+					if (this.memberTypeSeparator != Signature.C_DOLLAR)
+						break;
+				case Signature.C_DOT :
 					if (!nameStarted) {
 						nameFragmentStart = this.namePos+1;
 						nameStarted = true;
@@ -545,7 +549,8 @@ public abstract class TypeConverter {
 		int charIndex = start;
 		int i = 0;
 		while (charIndex < endInclusive) {
-			if (typeSignature.charAt(charIndex) == Signature.C_DOT || typeSignature.charAt(charIndex) == Signature.C_DOLLAR) {
+			char currentChar;
+			if ((currentChar = typeSignature.charAt(charIndex)) == this.memberTypeSeparator || currentChar == Signature.C_DOT) {
 				typeSignature.getChars(start, charIndex, result[i++] = new char[charIndex - start], 0); 
 				start = ++charIndex;
 			} else

@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -70,7 +71,7 @@ public class SourceTypeConverter extends TypeConverter {
 	private char[] source;
 	
 	private SourceTypeConverter(int flags, ProblemReporter problemReporter) {
-		super(problemReporter);
+		super(problemReporter, Signature.C_DOT);
 		this.flags = flags;
 	}
 

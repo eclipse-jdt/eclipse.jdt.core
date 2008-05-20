@@ -3434,6 +3434,43 @@ public void testTypeWithDollarName2() throws CoreException {
 	}
 }
 /*
+ * Ensures that a working copy with a type with a dollar name can be reconciled against without errors.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=232803 )
+ */
+public void testTypeWithDollarName3() throws CoreException {
+	ICompilationUnit workingCopy2 = null;
+	try {
+		WorkingCopyOwner owner = this.workingCopy.getOwner();
+		workingCopy2 = getWorkingCopy(
+			"/Reconciler/src/p1/Cl$ss.java",
+			"package p1;\n" +
+			"public interface Cl$ss {\n" + 
+			"        public void test(Cl$ss c);\n" + 
+			"        public void foo();\n" + 
+			"}",
+			owner
+		);
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"public class X {\n" + 
+			"        void m(Cl$ss c2) {\n" + 
+			"                c2.test(c2);\n" + 
+			"                c2.foo();\n" + 
+			"        }\n" + 
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" +
+			"----------\n"
+		);
+	} finally {
+		if (workingCopy2 != null)
+			workingCopy2.discardWorkingCopy();
+	}
+}
+/*
  * Ensures that a varargs method can be referenced from another working copy.
  */
 public void testVarargs() throws CoreException {

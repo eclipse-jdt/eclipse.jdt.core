@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -47,7 +48,7 @@ public class BinaryTypeConverter extends TypeConverter {
 	private HashSetOfCharArrayArray typeNames;
 	
 	public BinaryTypeConverter(ProblemReporter problemReporter, CompilationResult compilationResult, HashSetOfCharArrayArray typeNames) {
-		super(problemReporter);
+		super(problemReporter, Signature.C_DOLLAR);
 		this.compilationResult = compilationResult;
 		this.typeNames = typeNames;
 	}
