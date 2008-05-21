@@ -13,8 +13,10 @@ package org.eclipse.jdt.core.tests.formatter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -210,6 +212,9 @@ public static Test suite() {
             }
 		};
 		long start = System.currentTimeMillis();
+		SimpleDateFormat format = new SimpleDateFormat();
+		Date now = new Date(start);
+		System.out.println("Date of test: "+format.format(now));
 		System.out.print("Get all Java files located in "+testDir+"...");
 		File[] allFiles = ModelTestsUtil.getAllFiles(testDir, filter);
 		int length = allFiles.length;
