@@ -2411,14 +2411,17 @@ public class Scribe implements IJavaDocTagConstants {
 				switch (token) {
 					case TerminalTokens.TokenNameWHITESPACE:
 						if (previousToken != -1 || tokenLength > 1 || this.scanner.currentCharacter != ' ') needFormat = true;
-						if (previousToken == -1) { // space before reference
-							buffer.append(' ');
-							this.column++;
-						}
-						if (previousToken == TerminalTokens.TokenNameCOMMA) { // space between method arguments
-							spacePosition = buffer.length();
-							buffer.append(' ');
-							this.column++; // space before reference
+						switch (previousToken) {
+							case TerminalTokens.TokenNameMULTIPLY :
+							case TerminalTokens.TokenNameLPAREN:
+								break;
+							default:	// space between method arguments
+								spacePosition = buffer.length();
+								// fall through next case
+							case -1:
+								buffer.append(' ');
+								this.column++;
+								break;
 						}
 						break;
 					case TerminalTokens.TokenNameMULTIPLY:

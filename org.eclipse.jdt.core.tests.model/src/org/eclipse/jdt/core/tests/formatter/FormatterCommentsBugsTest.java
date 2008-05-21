@@ -174,4 +174,18 @@ public void testBug232488() throws JavaModelException {
 	this.preferences.comment_line_length = 40;
 	formatUnit("bugs.b232488", "X01.java");
 }
+
+/**
+ * @bug 232466: [formatter] References of inlined tags are still split in certain circumstances
+ * @test Insure that new formatter do not add/remove stars in header and footer
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232466"
+ */
+public void testBug233466a() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b232466", "X01.java");
+}
+public void testBug233466b() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b232466", "X02.java");
+}
 }
