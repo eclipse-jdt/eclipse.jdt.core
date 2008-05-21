@@ -252,7 +252,10 @@ public void test0105() throws JavaModelException, CoreException, IOException {
 			outputFolder.setReadOnly();
 			// outputFolder.setReadable(false);
 			// PREMATURE no appropriate solution for Windows/NTFS/JDK 1.4
+			System.err.println("\n\n=== EXPECTED EXCEPTION =========================================================");
+			System.err.println("ErrorsTests#test0105 will emit an expected exception below");
 			cleanBuild();
+			System.err.println("=== END OF EXPECTED EXCEPTION ==================================================\n\n");
 			expectingOnlySpecificProblemFor(env.getWorkspaceRootPath(), 
 					new Problem("", 
 						"The project was not built due to \"Could not delete \'" + 
