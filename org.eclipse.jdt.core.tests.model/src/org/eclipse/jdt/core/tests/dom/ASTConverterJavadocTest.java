@@ -3472,4 +3472,13 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assumeEquals("Enum constant declaration "+constantDeclaration+" does not have the correct length", commentEnd, declarationEnd);
 		}
 	}
+	
+	/**
+	 * @bug 228648: AST: no binding for Javadoc reference to inner class
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228648"
+	 */
+	public void testBug228648() throws JavaModelException {
+		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug228648", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		verifyComments(unit);
+	}
 }

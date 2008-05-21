@@ -47,7 +47,8 @@ public class JavadocArgumentExpression extends Expression {
 						this.resolvedType.leafComponentType().enclosingType() != null &&
 						scope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_4) {
 					scope.problemReporter().javadocInvalidMemberTypeQualification(this.sourceStart, this.sourceEnd, scope.getDeclarationModifiers());
-					return null;
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=228648
+					// do not return now but report unresolved reference as expected depending on compliance settings
 				}
 				if (!this.resolvedType.isValidBinding()) {
 					scope.problemReporter().javadocInvalidType(typeRef, this.resolvedType, scope.getDeclarationModifiers());
