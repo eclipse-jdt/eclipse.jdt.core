@@ -56,12 +56,10 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		| K_JAVA_DOC;
 
 	/*
-	 * Temporary internal constants to format javadoc comments using the version
-	 * before bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=102780 was
-	 * released.
-	 * The default is to enable old version of formatting to minimize impacts on
-	 * existing clients.
-	 * TODO remove when bugs 102780 & 227043 will have been stabilized
+	 * Temporary internal statics to enable new comments formatter 
+	 * see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=102780
+	 * see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=227043
+	 * TODO (frederic) remove in 3.5
 	 */
 	private final static String NEW_COMMENTS_FORMAT = System.getProperty("org.eclipse.jdt.core.formatter.comments.new"); //$NON-NLS-1$
 	public static boolean ENABLE_NEW_COMMENTS_FORMAT = !JavaCore.DISABLED.equals(NEW_COMMENTS_FORMAT);
