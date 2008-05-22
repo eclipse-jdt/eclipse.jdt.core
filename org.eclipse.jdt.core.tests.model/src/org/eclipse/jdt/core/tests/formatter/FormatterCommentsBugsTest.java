@@ -188,4 +188,14 @@ public void testBug233466b() throws JavaModelException {
 	this.preferences.comment_line_length = 40;
 	formatUnit("bugs.b232466", "X02.java");
 }
+
+/**
+ * @bug 233224: [formatter] References of inlined tags are still split in certain circumstances
+ * @test Ensure that doclet tags are preserved while formatting
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233224"
+ */
+public void testBug233224() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b233224", "X01.java");
+}
 }

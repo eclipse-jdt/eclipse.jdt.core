@@ -176,7 +176,7 @@ protected char[] getTagName(int previousPosition, int currentPosition) {
 		this.invalidTagName = true;
 		return null;
 	}
-	this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
+	this.tagSourceStart = previousPosition;
 	this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
 	char[] tagName = this.scanner.getCurrentIdentifierSource();
     return tagName;
