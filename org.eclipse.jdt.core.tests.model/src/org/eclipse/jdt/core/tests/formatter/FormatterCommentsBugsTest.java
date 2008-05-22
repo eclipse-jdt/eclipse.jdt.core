@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 
 import junit.framework.Test;
 
@@ -187,6 +188,72 @@ public void testBug232466a() throws JavaModelException {
 public void testBug232466b() throws JavaModelException {
 	this.preferences.comment_line_length = 40;
 	formatUnit("bugs.b232466", "X02.java");
+}
+
+/**
+ * @bug 232788: [formatter] Formatter misaligns stars when formatting block comments
+ * @test Ensure that block comment formatting is correct even with indentation size=1
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232788"
+ */
+public void testBug232788_Tabs01() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	this.preferences.tab_size = 1;
+	this.preferences.indentation_size = 1;
+	formatUnit("bugs.b232788", "X01_tabs.java");
+}
+public void testBug232788_Spaces01() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	this.preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.preferences.tab_size = 1;
+	this.preferences.indentation_size = 1;
+	formatUnit("bugs.b232788", "X01_spaces.java");
+}
+public void testBug232788_Mixed01() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	this.preferences.tab_char = DefaultCodeFormatterOptions.MIXED;
+	this.preferences.tab_size = 1;
+	this.preferences.indentation_size = 1;
+	formatUnit("bugs.b232788", "X01_mixed.java");
+}
+public void testBug232788_Tabs02() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	this.preferences.tab_size = 0;
+	this.preferences.indentation_size = 0;
+	formatUnit("bugs.b232788", "X02_tabs.java");
+}
+public void testBug232788_Spaces02() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	this.preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.preferences.tab_size = 0;
+	this.preferences.indentation_size = 0;
+	formatUnit("bugs.b232788", "X02_spaces.java");
+}
+public void testBug232788_Mixed02() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	this.preferences.tab_char = DefaultCodeFormatterOptions.MIXED;
+	this.preferences.tab_size = 0;
+	this.preferences.indentation_size = 0;
+	formatUnit("bugs.b232788", "X02_mixed.java");
+}
+public void testBug232788_Tabs03() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	this.preferences.tab_size = 1;
+	this.preferences.indentation_size = 1;
+	formatUnit("bugs.b232788", "X03_tabs.java");
+}
+public void testBug232788_Spaces03() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	this.preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.preferences.tab_size = 1;
+	this.preferences.indentation_size = 1;
+	formatUnit("bugs.b232788", "X03_spaces.java");
+}
+public void testBug232788_Mixed03() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	this.preferences.tab_char = DefaultCodeFormatterOptions.MIXED;
+	this.preferences.tab_size = 1;
+	this.preferences.indentation_size = 1;
+	formatUnit("bugs.b232788", "X03_mixed.java");
 }
 
 /**

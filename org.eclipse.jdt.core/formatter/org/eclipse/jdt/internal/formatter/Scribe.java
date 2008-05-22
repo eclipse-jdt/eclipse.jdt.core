@@ -1164,9 +1164,44 @@ public class Scribe implements IJavaDocTagConstants {
 		int maxColumn = this.formatter.preferences.comment_line_length + 1;
 		int indentLevel = this.indentationLevel;
 		int indentations = this.numberOfIndentations;
-		this.indentationLevel = (this.column / this.tabLength) * this.tabLength;
-		this.column = this.indentationLevel + 1;
-		this.numberOfIndentations = this.indentationLevel / this.indentationSize;
+		switch (this.tabChar) {
+			case DefaultCodeFormatterOptions.TAB:
+				switch (this.tabLength) {
+					case 0:
+						this.indentationLevel = 0;
+						this.column = 1;
+						this.numberOfIndentations = 0;
+						break;
+					case 1:
+						this.indentationLevel = this.column - 1;
+						this.numberOfIndentations = this.indentationLevel;
+						break;
+					default:
+						this.indentationLevel = (this.column / this.tabLength) * this.tabLength;
+						this.column = this.indentationLevel + 1;
+						this.numberOfIndentations = this.indentationLevel / this.tabLength;
+				}
+				break;
+			case DefaultCodeFormatterOptions.MIXED:
+				if (this.tabLength == 0) {
+					this.indentationLevel = 0;
+					this.column = 1;
+					this.numberOfIndentations = 0;
+				} else {
+					this.indentationLevel = this.column - 1;
+					this.numberOfIndentations = this.indentationLevel / this.tabLength;
+				}
+				break;
+			case DefaultCodeFormatterOptions.SPACE:
+				if (this.indentationSize == 0) {
+					this.indentationLevel = 0;
+					this.column = 1;
+					this.numberOfIndentations = 0;
+				} else {
+					this.indentationLevel = this.column - 1;
+				}
+				break;
+		}
 
 		// Consume the comment prefix
 		StringBuffer buffer = new StringBuffer();
