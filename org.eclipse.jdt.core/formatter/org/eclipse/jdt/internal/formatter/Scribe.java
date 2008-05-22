@@ -1303,6 +1303,7 @@ public class Scribe implements IJavaDocTagConstants {
 						this.lastNumberOfNewLines = 0;
 						needSpace = false;
 						this.scanner.skipComments = false;
+						this.scanner.resetTo(currentTokenStartPosition, currentTokenEndPosition - 1);
 						return false;
 					}
 			}

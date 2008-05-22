@@ -76,6 +76,19 @@ public void _testBug228652() {
 }
 
 /**
+ * @bug 230944: [formatter] Formatter does not respect /*-
+ * @test Ensure that new formatter does not format block comment starting with '/*-'
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=230944"
+ */
+public void testBug230944a() throws JavaModelException {
+	formatUnit("bugs.b230944", "X01.java");
+}
+public void testBug230944b() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	formatUnit("bugs.b230944", "X02.java");
+}
+
+/**
  * @bug 231263: [formatter] New JavaDoc formatter wrongly indent tags description
  * @test Ensure that new formatter indent tags description as the old one
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=231263"
