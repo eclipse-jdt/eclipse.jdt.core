@@ -38,7 +38,7 @@ IPath getOutputFolder() {
 
 /**
  * @bug 228652: [formatter] New line inserted while formatting a region of a compilation unit.
- * @test Insure that no new line is inserted before the formatted region
+ * @test Ensure that no new line is inserted before the formatted region
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228652"
  */
 // TODO (frederic) See https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
@@ -76,7 +76,7 @@ public void _testBug228652() {
 
 /**
  * @bug 231263: [formatter] New JavaDoc formatter wrongly indent tags description
- * @test Insure that new formatter indent tags description as the old one
+ * @test Ensure that new formatter indent tags description as the old one
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=231263"
  */
 public void testBug231263() throws JavaModelException {
@@ -89,7 +89,7 @@ public void testBug231263a() throws JavaModelException {
 
 /**
  * @bug 231297: [formatter] New JavaDoc formatter wrongly split inline tags before reference
- * @test Insure that new formatter do not split reference in inline tags
+ * @test Ensure that new formatter do not split reference in inline tags
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297"
  */
 public void testBug231297() throws JavaModelException {
@@ -121,7 +121,7 @@ public void testBug231297d() throws JavaModelException {
 
 /**
  * @bug 232285: [formatter] New comment formatter wrongly formats javadoc header/footer with several contiguous stars
- * @test Insure that new formatter do not add/remove stars in header and footer
+ * @test Ensure that new formatter do not add/remove stars in header and footer
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232285"
  */
 public void testBug232285a() throws JavaModelException {
@@ -167,7 +167,7 @@ public void testBug232285j() throws JavaModelException {
 
 /**
  * @bug 232488: [formatter] Code formatter scrambles JavaDoc of Generics
- * @test Insure that comment formatter format properly generic param tags
+ * @test Ensure that comment formatter format properly generic param tags
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232488"
  */
 public void testBug232488() throws JavaModelException {
@@ -177,20 +177,41 @@ public void testBug232488() throws JavaModelException {
 
 /**
  * @bug 232466: [formatter] References of inlined tags are still split in certain circumstances
- * @test Insure that new formatter do not add/remove stars in header and footer
+ * @test Ensure that new formatter do not add/remove stars in header and footer
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232466"
  */
-public void testBug233466a() throws JavaModelException {
+public void testBug232466a() throws JavaModelException {
 	this.preferences.comment_line_length = 40;
 	formatUnit("bugs.b232466", "X01.java");
 }
-public void testBug233466b() throws JavaModelException {
+public void testBug232466b() throws JavaModelException {
 	this.preferences.comment_line_length = 40;
 	formatUnit("bugs.b232466", "X02.java");
 }
 
 /**
- * @bug 233224: [formatter] References of inlined tags are still split in certain circumstances
+ * @bug 233228: [formatter] line comments which contains \\u are not correctly formatted
+ * @test Ensure that the new formatter is not screwed up by invalid unicode value inside comments
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233228"
+ */
+public void testBug233228a() throws JavaModelException {
+	formatUnit("bugs.b233228", "X01.java");
+}
+public void testBug233228b() throws JavaModelException {
+	formatUnit("bugs.b233228", "X01b.java");
+}
+public void testBug233228c() throws JavaModelException {
+	formatUnit("bugs.b233228", "X01c.java");
+}
+public void testBug233228d() throws JavaModelException {
+	formatUnit("bugs.b233228", "X02.java");
+}
+public void testBug233228e() throws JavaModelException {
+	formatUnit("bugs.b233228", "X03.java");
+}
+
+/**
+ * @bug 233224: [formatter] Xdoclet tags looses @ on format
  * @test Ensure that doclet tags are preserved while formatting
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233224"
  */

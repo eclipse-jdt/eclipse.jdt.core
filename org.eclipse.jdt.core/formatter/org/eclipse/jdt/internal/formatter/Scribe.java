@@ -324,6 +324,27 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 	}
 
+	private int consumeInvalidToken(int end) {
+	    this.scanner.resetTo(this.scanner.startPosition, end);
+    	// In case of invalid unicode character, consume the current backslash character before continuing
+    	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=233228
+	    if (this.scanner.currentCharacter == '\\') {
+	    	this.scanner.currentPosition = this.scanner.startPosition+1;
+	    }
+	    int previousPosition = this.scanner.currentPosition;
+	    char ch = (char) this.scanner.getNextChar();
+	    while (!this.scanner.atEnd() && ch != '*' && !ScannerHelper.isWhitespace(ch)) {
+	    	previousPosition = this.scanner.currentPosition;
+	    	ch = (char) this.scanner.getNextChar();
+	    }
+    	if (this.scanner.atEnd()) {
+    		return TerminalTokens.TokenNameEOF;
+    	}
+	    // restore last whitespace
+	    this.scanner.currentPosition = previousPosition;
+	    return 2000; // invalid token
+    }
+
 	public Alignment createAlignment(String name, int mode, int count, int sourceRestart){
 		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart);
 	}
@@ -1169,7 +1190,6 @@ public class Scribe implements IJavaDocTagConstants {
 		int firstLine = scannerLine;
 		int lineNumber = scannerLine;
 		int lastTextLine = -1;
-		boolean openedString = false;
 		while (!this.scanner.atEnd()) {
 			
 			// Consume token
@@ -1177,32 +1197,8 @@ public class Scribe implements IJavaDocTagConstants {
 			try {
 				token = this.scanner.getNextToken();
 			} catch (InvalidInputException iie) {
-				String msg = iie.getMessage();
-				boolean insertSpace = (previousToken == TerminalTokens.TokenNameWHITESPACE || newLine) && !firstWord;
-				if (msg == Scanner.INVALID_CHARACTER_CONSTANT) {
-					if (insertSpace) {
-						tokensBuffer.append(' ');
-					}
-					tokensBuffer.append('\'');
-				} else if (msg == Scanner.INVALID_CHAR_IN_STRING) {
-					if (openedString) {
-						openedString = false;
-					} else {
-						if (insertSpace) {
-							tokensBuffer.append(' ');
-						}
-						openedString = true;
-					}
-					tokensBuffer.append('"');
-				} else {
-					// skip failure
-				}
-				// Need to retrieve correct position
-				this.scanner.resetTo(this.scanner.startPosition, currentTokenEndPosition-1);
-				this.scanner.getNextChar();
-				previousToken = 2000;
+	    		token = consumeInvalidToken(currentTokenEndPosition-1);
 				newLine = false;
-				continue;
 			}
 			
 			// Look at specific tokens
@@ -1896,21 +1892,7 @@ public class Scribe implements IJavaDocTagConstants {
 			try {
 				token = this.scanner.getNextToken();
 			} catch (InvalidInputException iie) {
-	    		if (previousToken == -1 || previousToken == TerminalTokens.TokenNameWHITESPACE) {
-	    			tokensBuffer.append(' ');
-	    		}
-				this.scanner.resetTo(this.scanner.startPosition, commentEnd);
-	    		char ch = (char) this.scanner.getNextChar();
-				previousToken = TerminalTokens.TokenNameWHITESPACE;
-				while (!ScannerHelper.isWhitespace(ch)) {
-					tokensBuffer.append(ch);
-					if (this.scanner.atEnd()) {
-						previousToken = TerminalTokens.TokenNameEOF;
-						break;
-					}
-					ch = (char) this.scanner.getNextChar();
-				}
-				continue;
+	    		token = consumeInvalidToken(commentEnd);
 			}
 			switch (token) {
 				case TerminalTokens.TokenNameWHITESPACE:
@@ -3140,29 +3122,7 @@ public class Scribe implements IJavaDocTagConstants {
 				try {
 					token = this.scanner.getNextToken();
 				} catch (InvalidInputException iie) {
-					boolean insertSpace = (previousToken == TerminalTokens.TokenNameWHITESPACE || this.needSpace) && !isHtmlTag && !textOnNewLine;
-		    		if (insertSpace) {
-		    			tokensBuffer.append(' ');
-		    		}
-					int restart = this.scanner.startPosition;
-					this.scanner.resetTo(restart, textEnd);
-		    		char ch = (char) this.scanner.getNextChar();
-					while (!this.scanner.atEnd() && !ScannerHelper.isWhitespace(ch)) {
-						tokensBuffer.append(ch);
-						if (this.scanner.atEnd()) {
-							previousToken = TerminalTokens.TokenNameEOF;
-							break;
-						}
-						restart = this.scanner.currentPosition;
-						ch = (char) this.scanner.getNextChar();
-					}
-					// restart at the beginning of the whitespace
-					if (this.scanner.atEnd()) {
-						tokensBuffer.append(ch);
-					} else {
-						this.scanner.resetTo(restart, textEnd);
-					}
-					continue;
+					token = consumeInvalidToken(textEnd);
 				}
 	    		int tokensBufferLength = tokensBuffer.length();
     			int tokenStart = this.scanner.getCurrentTokenStartPosition();

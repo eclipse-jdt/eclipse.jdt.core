@@ -9,5 +9,5 @@ public class X05dc {
  *       "String 
  *       "
  */
-class Y05 {
+class Y05dc {
 }

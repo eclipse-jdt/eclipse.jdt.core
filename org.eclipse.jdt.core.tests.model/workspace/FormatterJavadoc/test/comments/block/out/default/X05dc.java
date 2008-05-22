@@ -5,7 +5,7 @@ public class X05dc {
 }
 
 /*
- * Text "String"
+ * Text "String "
  */
-class Y05 {
+class Y05dc {
 }
