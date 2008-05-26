@@ -497,8 +497,6 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 			break;
 		case Binding.LOCAL : // assigning to a local variable (cannot assign to outer local)
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
-			Constant assignConstant;
-			int increment;
 			// using incr bytecode if possible
 			switch (localBinding.type.id) {
 				case T_JavaLangString :
@@ -509,19 +507,23 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 					codeStream.store(localBinding, false);
 					return;
 				case T_int :
+					Constant assignConstant;
 					if (((assignConstant = expression.constant) != Constant.NotAConstant) 
-						&& (assignConstant.typeID() != TypeIds.T_float) // only for integral types
-						&& (assignConstant.typeID() != TypeIds.T_double)
-						&& ((increment = assignConstant.intValue()) == (short) increment)) { // 16 bits value
+							&& (assignConstant.typeID() != TypeIds.T_float) // only for integral types
+							&& (assignConstant.typeID() != TypeIds.T_double)) {
 						switch (operator) {
 							case PLUS :
+								int increment  = assignConstant.intValue();
+								if (increment != (short) increment) break; // not representable as a 16-bits value
 								codeStream.iinc(localBinding.resolvedPosition, increment);
 								if (valueRequired) {
 									codeStream.load(localBinding);
 								}
 								return;
 							case MINUS :
-								codeStream.iinc(localBinding.resolvedPosition, -increment);
+								increment  = -assignConstant.intValue();
+								if (increment != (short) increment) break; // not representable as a 16-bits value
+								codeStream.iinc(localBinding.resolvedPosition, increment);
 								if (valueRequired) {
 									codeStream.load(localBinding);
 								}

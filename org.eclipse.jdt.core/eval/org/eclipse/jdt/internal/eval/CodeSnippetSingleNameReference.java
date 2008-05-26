@@ -23,17 +23,6 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 /**
  * A single name reference inside a code snippet can denote a field of a remote
@@ -335,8 +324,6 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 			break;
 		case Binding.LOCAL : // assigning to a local variable (cannot assign to outer local)
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
-			Constant assignConstant;
-			int increment;
 			// using incr bytecode if possible
 			switch (localBinding.type.id) {
 				case T_JavaLangString :
@@ -347,19 +334,23 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 					codeStream.store(localBinding, false);
 					return;
 				case T_int :
+					Constant assignConstant;
 					if (((assignConstant = expression.constant) != Constant.NotAConstant) 
-						&& (assignConstant.typeID() != T_float) // only for integral types
-						&& (assignConstant.typeID() != T_double)		
-						&& ((increment = assignConstant.intValue()) == (short) increment)) { // 16 bits value
+							&& (assignConstant.typeID() != TypeIds.T_float) // only for integral types
+							&& (assignConstant.typeID() != TypeIds.T_double)) {
 						switch (operator) {
 							case PLUS :
+								int increment  = assignConstant.intValue();
+								if (increment != (short) increment) break; // not representable as a 16-bits value
 								codeStream.iinc(localBinding.resolvedPosition, increment);
 								if (valueRequired) {
 									codeStream.load(localBinding);
 								}
 								return;
 							case MINUS :
-								codeStream.iinc(localBinding.resolvedPosition, -increment);
+								increment  = -assignConstant.intValue();
+								if (increment != (short) increment) break; // not representable as a 16-bits value
+								codeStream.iinc(localBinding.resolvedPosition, increment);
 								if (valueRequired) {
 									codeStream.load(localBinding);
 								}

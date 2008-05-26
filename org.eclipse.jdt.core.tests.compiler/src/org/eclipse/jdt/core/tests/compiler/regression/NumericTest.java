@@ -89,6 +89,55 @@ public void test004() {
 	"The literal 9223372036854775808L of type long is out of range \n" + 
 	"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=232814
+public void test005() {
+	this.runConformTest(new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		int result;\n" + 
+		"		if (130 != (result = testShort1())) System.out.println(\"failed-testShort1():\" + result);\n" + 
+		"		if (130 != (result = testShort2())) System.out.println(\"failed-testShort2():\" + result);\n" + 
+		"		if (130 != (result = testInt1())) System.out.println(\"failed-testInt1():\" + result);\n" + 
+		"		if (130 != (result = testInt2())) System.out.println(\"failed-testInt2():\" + result);\n" + 
+		"		if (30 != (result = testByte1())) System.out.println(\"failed-testByte1():\" + result);\n" + 
+		"		if (30 != (result = testByte2())) System.out.println(\"failed-testByte2():\" + result);\n" + 
+		"		System.out.println(\"done\");\n" + 
+		"	}\n" + 
+		"	static int testShort1() {\n" + 
+		"		short min = Short.MIN_VALUE;\n" + 
+		"		int num = -32638;\n" + 
+		"		return num = num - min;\n" + 
+		"	}\n" + 
+		"	static int testShort2() {\n" + 
+		"		final short min = Short.MIN_VALUE;\n" + 
+		"		int num = -32638;\n" + 
+		"		return num = num - min;\n" + 
+		"	}\n" + 
+		"	static int testInt1() {\n" + 
+		"		short min = Short.MIN_VALUE;\n" + 
+		"		int num = -32638;\n" + 
+		"		return num = num - min;\n" + 
+		"	}\n" + 
+		"	static int testInt2() {\n" + 
+		"		final short min = Short.MIN_VALUE;\n" + 
+		"		int num = -32638;\n" + 
+		"		return num = num - min;\n" + 
+		"	}	\n" + 
+		"	static int testByte1() {\n" + 
+		"		byte min = Byte.MIN_VALUE;\n" + 
+		"		int num = -98;\n" + 
+		"		return num = num - min;\n" + 
+		"	}\n" + 
+		"	static int testByte2() {\n" + 
+		"		final byte min = Byte.MIN_VALUE;\n" + 
+		"		int num = -98;\n" + 
+		"		return num = num - min;\n" + 
+		"	}		\n" + 
+		"}\n",
+	},
+	"done");
+}
 public static Class testClass() {
 	return NumericTest.class;
 }
