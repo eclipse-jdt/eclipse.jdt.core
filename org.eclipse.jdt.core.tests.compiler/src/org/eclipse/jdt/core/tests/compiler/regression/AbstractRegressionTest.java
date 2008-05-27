@@ -126,6 +126,7 @@ static class JavacCompiler {
 		}
 		this.compliance = CompilerOptions.versionToJdkLevel(this.version);
 		this.minor = minorFromRawVersion(version, rawVersion);
+		this.rawVersion = rawVersion;
 		StringBuffer classpathBuffer = new StringBuffer(" -classpath ");
 		for (int i = 0, l = jarsNames.length; i < l; i++) {
 			classpathBuffer.append(rootDirectoryPath);
@@ -1404,7 +1405,7 @@ protected void runJavac(
 					JavaRuntime runtime = JavaRuntime.runtimeFor(compiler);
 					StringBuffer stderr = new StringBuffer();
 					StringBuffer stdout = new StringBuffer();
-					runtime.execute(javacOutputDirectory, "", "\"" + testFiles[0].substring(0, testFiles[0].length() - 5) + "\"", stdout, stderr);
+					runtime.execute(javacOutputDirectory, "", testFiles[0].substring(0, testFiles[0].length() - 5), stdout, stderr);
 					if (expectedOutputString != null /* null skips output test */) {
 						output = stdout.toString().trim();
 						if (!expectedOutputString.equals(output)) {
