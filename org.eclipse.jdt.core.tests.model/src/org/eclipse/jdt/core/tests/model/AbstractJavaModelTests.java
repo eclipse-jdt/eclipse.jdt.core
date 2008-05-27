@@ -600,6 +600,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual);
 		if (!actual.equals(expected)) {
+			System.out.println("Expected source in "+getName()+" should be:");
 			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), 2));
 			System.out.println(this.endChar);
 		}

@@ -139,7 +139,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		return result;
 	}
 	
-	private String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, IRegion[] regions, String lineSeparator) {
+	String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, IRegion[] regions, String lineSeparator) {
 //		long time = System.currentTimeMillis();
 		TextEdit edit = codeFormatter.format(kind, source, regions, indentationLevel, lineSeparator);//$NON-NLS-1$
 //		System.out.println((System.currentTimeMillis() - time) + " ms");

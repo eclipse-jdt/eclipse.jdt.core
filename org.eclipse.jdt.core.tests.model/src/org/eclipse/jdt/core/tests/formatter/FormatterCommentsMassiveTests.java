@@ -515,7 +515,7 @@ void compareFormattedSource() throws IOException, Exception {
 					if (!expected.equals(actual)) {
 						String actualResult = runFormatter(codeFormatter, source, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, 0, source.length(), null);
 						String expectedResult = expectedFormattedSource(source);
-						assertEquals("Unexpected difference with formatted comment "+(i+1), expectedResult, actualResult);
+						assertEquals("Unexpected difference with formatted comment "+(i+1), Util.convertToIndependantLineDelimiter(expectedResult), Util.convertToIndependantLineDelimiter(actualResult));
 					}
 				}
 			}

@@ -204,6 +204,629 @@ public void testBug232466b() throws JavaModelException {
 }
 
 /**
+ * @bug 232768: [formatter] does not format block and single line comment if too much selected
+ * @test Ensure that the new comment formatter formats comments touched by the selection
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232768"
+ */
+public void testBug232768a() throws JavaModelException {
+	String source = "public class A {\r\n" + 
+			"[#\r\n" + 
+			"        /*\r\n" + 
+			"         * A block comment \r\n" + 
+			"         * on two lines\r\n" + 
+			"         */\r\n" + 
+			"\r\n#]" + 
+			"}\r\n" + 
+			"";
+	// TODO fix the incorrect indentation before the javadoc comment (also in 3.3 and 3.4M6)
+	formatSource(source,
+		"public class A {\n" + 
+		"\n" + 
+		"        /*\n" + 
+		"	 * A block comment on two lines\n" + 
+		"	 */\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug232768b() throws JavaModelException {
+	String source = "public class B {\r\n" + 
+			"[#\r\n" + 
+			"        public void \r\n" + 
+			"        foo() {}\r\n" + 
+			"#]\r\n" + 
+			"        /*\r\n" + 
+			"         * A block comment \r\n" + 
+			"         * on two lines\r\n" + 
+			"         */\r\n" + 
+			"\r\n" + 
+			"}\r\n";
+	formatSource(source,
+		"public class B {\n" + 
+		"\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"         * A block comment \n" + 
+		"         * on two lines\n" + 
+		"         */\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug232768_Javadoc01() throws JavaModelException {
+	// Selection starts before and ends after the javadoc comment
+	String source = "public class C {\n" + 
+		"	\n" + 
+		"[#        /**\n" + 
+		"         * a\n" + 
+		"         * b\n" + 
+		"         * c\n" + 
+		"         * d\n" + 
+		"         * .\n" + 
+		"         */\n" + 
+		"        void		m1  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"#]\n" + 
+		"\n" + 
+		"}";
+	// TODO fix the incorrect indentation before the javadoc comment (also in 3.3 and 3.4M6)
+	formatSource(source,
+		"public class C {\n" + 
+		"	\n" + 
+		"        /**\n" + 
+		"	 * a b c d .\n" + 
+		"	 */\n" + 
+		"	void m1() {\n" + 
+		"\n" + 
+		"	}     \n" + 
+		"\n" + 
+		"\n" + 
+		"}"
+	);
+}
+public void testBug232768_Javadoc02() throws JavaModelException {
+	// Selection starts at javadoc comment begin and ends after it
+	String source = "public class C {\n" + 
+		"	\n" + 
+		"        [#/**\n" + 
+		"         * a\n" + 
+		"         * b\n" + 
+		"         * c\n" + 
+		"         * d\n" + 
+		"         * .\n" + 
+		"         */\n" + 
+		"        void		m1  (   )   {\n" + 
+		"	#]\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}";
+	// Note that the incorrect indentation before the javadoc is fixed in this test case...
+	// This is due to the fact that the region is adapted to include the edit just before the comment
+	formatSource(source,
+		"public class C {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * a b c d .\n" + 
+		"	 */\n" + 
+		"	void m1() {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}"
+	);
+}
+public void testBug232768_Javadoc03() throws JavaModelException {
+	// Selection starts inside the javadoc comment and ends after it
+	String source = "public class C {\n" + 
+		"	\n" + 
+		"        /**\n" + 
+		"         * a\n" + 
+		"         * b\n" + 
+		"         * [#c\n" + 
+		"         * d\n" + 
+		"         * .\n" + 
+		"         */\n" + 
+		"        void		#]m1  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}";
+	// Note that the incorrect indentation before the javadoc is fixed in this test case...
+	// This is due to the fact that the region is adapted to include the edit just before the comment
+	formatSource(source,
+		"public class C {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * a b c d .\n" + 
+		"	 */\n" + 
+		"	void m1  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}"
+	);
+}
+public void testBug232768_Javadoc04() throws JavaModelException {
+	// Selection starts before the javadoc comment and ends at its end
+	String source = "public class C {\n" + 
+		"[#	\n" + 
+		"        /**\n" + 
+		"         * a\n" + 
+		"         * b\n" + 
+		"         * c\n" + 
+		"         * d\n" + 
+		"         * .\n" + 
+		"         */#]\n" + 
+		"        void		m1  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}";
+	// TODO fix the incorrect indentation before the javadoc comment (also in 3.3 and 3.4M6)
+	formatSource(source,
+		"public class C {\n" + 
+		"	\n" + 
+		"        /**\n" + 
+		"	 * a b c d .\n" + 
+		"	 */\n" + 
+		"        void		m1  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}"
+	);
+}
+public void testBug232768_Javadoc05() throws JavaModelException {
+	// Selection starts before the javadoc comment and ends inside it
+	String source = "[#   public     class			C{\n" + 
+		"	\n" + 
+		"        /**\n" + 
+		"         * a\n" + 
+		"         * b\n" + 
+		"         * c#]\n" + 
+		"         * d\n" + 
+		"         * .\n" + 
+		"         */\n" + 
+		"        void		m1  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}";
+	// Note that the incorrect indentation before the javadoc is fixed in this test case...
+	// This is due to the fact that the region is adapted to include the edit just before the comment
+	formatSource(source,
+		"public class C {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * a b c d .\n" + 
+		"	 */\n" + 
+		"        void		m1  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}"
+	);
+}
+public void testBug232768_Javadoc06() throws JavaModelException {
+	// Selection starts and ends inside the javadoc comment
+	String source = "   public     class			C{    \n" + 
+		"	\n" + 
+		"        /**\n" + 
+		"         * a\n" + 
+		"         * b\n" + 
+		"         * [#c#]\n" + 
+		"         * d\n" + 
+		"         * .\n" + 
+		"         */\n" + 
+		"        void		m1  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}";
+	// Note that the incorrect indentation before the javadoc is fixed in this test case...
+	// This is due to the fact that the region is adapted to include the edit just before the comment
+	formatSource(source,
+		"   public     class			C{\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * a b c d .\n" + 
+		"	 */\n" + 
+		"        void		m1  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}"
+	);
+}
+public void testBug232768_Block01() throws JavaModelException {
+	// Selection starts before and ends after the block comment
+	String source = "public class D {\n" + 
+		"	\n" + 
+		"[#        /*\n" + 
+		"         * a\n" + 
+		"         * b\n" + 
+		"         * c\n" + 
+		"         * d\n" + 
+		"         * .\n" + 
+		"         */\n" + 
+		"        void		m2  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"#]\n" + 
+		"\n" + 
+		"}";
+	// TODO fix the incorrect indentation before the block comment (also in 3.3 and 3.4M6)
+	formatSource(source,
+		"public class D {\n" + 
+		"	\n" + 
+		"        /*\n" + 
+		"	 * a b c d .\n" + 
+		"	 */\n" + 
+		"	void m2() {\n" + 
+		"\n" + 
+		"	}     \n" + 
+		"\n" + 
+		"\n" + 
+		"}"
+	);
+}
+public void testBug232768_Block02() throws JavaModelException {
+	// Selection starts at block comment begin and ends after it
+	String source = "public class D {\n" + 
+		"	\n" + 
+		"        [#/*\n" + 
+		"         * a\n" + 
+		"         * b\n" + 
+		"         * c\n" + 
+		"         * d\n" + 
+		"         * .\n" + 
+		"         */\n" + 
+		"        void		m2  (   )   {\n" + 
+		"	#]\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}";
+	// Note that the incorrect indentation before the javadoc is fixed in this test case...
+	// This is due to the fact that the region is adapted to include the edit just before the comment
+	formatSource(source,
+		"public class D {\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	 * a b c d .\n" + 
+		"	 */\n" + 
+		"	void m2() {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}"
+	);
+}
+public void testBug232768_Block03() throws JavaModelException {
+	// Selection starts inside the block comment and ends after it
+	String source = "public class D {\n" + 
+		"	\n" + 
+		"        /*\n" + 
+		"         * a\n" + 
+		"         * b\n" + 
+		"         * [#c\n" + 
+		"         * d\n" + 
+		"         * .\n" + 
+		"         */\n" + 
+		"        void		#]m2  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}";
+	// Note that the incorrect indentation before the javadoc is fixed in this test case...
+	// This is due to the fact that the region is adapted to include the edit just before the comment
+	formatSource(source,
+		"public class D {\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	 * a b c d .\n" + 
+		"	 */\n" + 
+		"	void m2  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}"
+	);
+}
+public void testBug232768_Block04() throws JavaModelException {
+	// Selection starts before the block comment and ends at its end
+	String source = "public class D {\n" + 
+		"[#	\n" + 
+		"        /*\n" + 
+		"         * a\n" + 
+		"         * b\n" + 
+		"         * c\n" + 
+		"         * d\n" + 
+		"         * .\n" + 
+		"         */#]\n" + 
+		"        void		m2  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}";
+	// TODO fix the incorrect indentation before the block comment (also in 3.3 and 3.4M6)
+	formatSource(source,
+		"public class D {\n" + 
+		"	\n" + 
+		"        /*\n" + 
+		"	 * a b c d .\n" + 
+		"	 */\n" + 
+		"        void		m2  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}"
+	);
+}
+public void testBug232768_Block05() throws JavaModelException {
+	// Selection starts before the block comment and ends inside it
+	String source = "[#   public     class			D{\n" + 
+		"	\n" + 
+		"        /*\n" + 
+		"         * a\n" + 
+		"         * b\n" + 
+		"         * c#]\n" + 
+		"         * d\n" + 
+		"         * .\n" + 
+		"         */\n" + 
+		"        void		m2  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}";
+	// Note that the incorrect indentation before the javadoc is fixed in this test case...
+	// This is due to the fact that the region is adapted to include the edit just before the comment
+	formatSource(source,
+		"public class D {\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	 * a b c d .\n" + 
+		"	 */\n" + 
+		"        void		m2  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}"
+	);
+}
+public void testBug232768_Block06() throws JavaModelException {
+	// Selection starts and ends inside the block comment
+	String source = "   public     class			D{    \n" + 
+		"	\n" + 
+		"        /*\n" + 
+		"         * a\n" + 
+		"         * b\n" + 
+		"         * [#c#]\n" + 
+		"         * d\n" + 
+		"         * .\n" + 
+		"         */\n" + 
+		"        void		m2  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}";
+	// Note that the incorrect indentation before the javadoc is fixed in this test case...
+	// This is due to the fact that the region is adapted to include the edit just before the comment
+	formatSource(source,
+		"   public     class			D{\n" + 
+		"\n" + 
+		"	/*\n" + 
+		"	 * a b c d .\n" + 
+		"	 */\n" + 
+		"        void		m2  (   )   {\n" + 
+		"	\n" + 
+		"        }     \n" + 
+		"\n" + 
+		"\n" + 
+		"}"
+	);
+}
+public void testBug232768_Line01() throws JavaModelException {
+	// Selection starts before and ends after the line comment
+	String source = "public class E {\n" + 
+		"	\n" + 
+		"\n" + 
+		"[#        void            m3()         { // this        is        a    bug\n" + 
+		"\n" + 
+		"        }\n" + 
+		"#]   \n" + 
+		"}";
+	// TODO fix the incorrect indentation before the method declaration (also in 3.3 and 3.4M6)
+	// Note that the line comment wasn't formatted using 3.3 and 3.4 M6
+	formatSource(source,
+		"public class E {\n" + 
+		"	\n" + 
+		"\n" + 
+		"        void m3() { // this is a bug\n" + 
+		"\n" + 
+		"	}\n" + 
+		"   \n" + 
+		"}"
+	);
+}
+public void testBug232768_Line02() throws JavaModelException {
+	// Selection starts at line comment begin and ends after it
+	String source = "public class E {\n" + 
+		"	\n" + 
+		"\n" + 
+		"        void            m3()         { [#// this        is        a    bug\n" + 
+		"\n#]" + 
+		"        }\n" + 
+		"   \n" + 
+		"}";
+	// Note that the line comment wasn't formatted using 3.3 and 3.4 M6
+	formatSource(source,
+		"public class E {\n" + 
+		"	\n" + 
+		"\n" + 
+		"        void            m3()         { // this is a bug\n" + 
+		"\n" + 
+		"        }\n" + 
+		"   \n" + 
+		"}"
+	);
+}
+public void testBug232768_Line03() throws JavaModelException {
+	// Selection starts inside line comment and ends after it
+	String source = "public class E {\n" + 
+		"	\n" + 
+		"\n" + 
+		"        void            m3()         { // this        [#is        a    bug\n" + 
+		"\n" + 
+		"        }\n" + 
+		"   \n" + 
+		"              }#]";
+	// Note that the line comment wasn't formatted using 3.3 and 3.4 M6
+	formatSource(source,
+		"public class E {\n" + 
+		"	\n" + 
+		"\n" + 
+		"        void            m3()         { // this is a bug\n" + 
+		"\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}"
+	);
+}
+public void testBug232768_Line04() throws JavaModelException {
+	// Selection starts before the line comment and ends at its end
+	String source = "public class E {[#       \n" + 
+		"	\n" + 
+		"\n" + 
+		"        void            m3()         { // this        is        a    bug#]\n" + 
+		"\n" + 
+		"        }\n" + 
+		"   \n" + 
+		"		}";
+	// Note that the line comment wasn't formatted using 3.3 and 3.4 M6
+	formatSource(source,
+		"public class E {\n" + 
+		"\n" + 
+		"	void m3() { // this is a bug\n" + 
+		"\n" + 
+		"        }\n" + 
+		"   \n" + 
+		"		}"
+	);
+}
+public void testBug232768_Line05() throws JavaModelException {
+	// Selection starts before the line comment and ends inside it
+	String source = "public class E {       \n" + 
+		"	\n" + 
+		"\n[#" + 
+		"        void            m3()         { // this   #]     is        a    bug\n" + 
+		"\n" + 
+		"        }\n" + 
+		"   \n" + 
+		"		}";
+	// Note that the line comment wasn't formatted using 3.3 and 3.4 M6
+	formatSource(source,
+		"public class E {       \n" + 
+		"	\n" + 
+		"\n" + 
+		"        void m3() { // this is a bug\n" + 
+		"\n" + 
+		"        }\n" + 
+		"   \n" + 
+		"		}"
+	);
+}
+public void testBug232768_Line06() throws JavaModelException {
+	// Selection starts and ends inside the line comment
+	String source = "public class E {       \n" + 
+		"	\n" + 
+		"\n" + 
+		"        void            m3()         { // this        is        [#a#]    bug\n" + 
+		"\n" + 
+		"        }\n" + 
+		"   \n" + 
+		"              }";
+	// Note that the line comment wasn't formatted using 3.3 and 3.4 M6
+	formatSource(source,
+		"public class E {       \n" + 
+		"	\n" + 
+		"\n" + 
+		"        void            m3()         { // this is a bug\n" + 
+		"\n" + 
+		"        }\n" + 
+		"   \n" + 
+		"              }"
+	);
+}
+public void testBug232768_Line07() throws JavaModelException {
+	// Selection starts and ends inside the line comment
+	String source = "public class F {\n" + 
+		"	\n" + 
+		"\n" + 
+		"        void            m3()         {     \n" + 
+		"[#        	// this        is        a    bug\n" + 
+		"#]\n" + 
+		"        }\n" + 
+		"   \n" + 
+		"}";
+	// Note that the line comment wasn't formatted using 3.3 and 3.4 M6
+	formatSource(source,
+		"public class F {\n" + 
+		"	\n" + 
+		"\n" + 
+		"        void            m3()         {     \n" + 
+		"        	// this is a bug\n" + 
+		"\n" + 
+		"        }\n" + 
+		"   \n" + 
+		"}"
+	);
+}
+public void testBug232768_Line08() throws JavaModelException {
+	// Selection starts and ends inside the line comment
+	String source = "public class G {\n" + 
+		"	void foo() {\n" + 
+		"	\n" + 
+		"        // Now we parse one of 'CustomActionTagDependent',\n" + 
+		"        // 'CustomActionJSPContent', or 'CustomActionScriptlessContent'.\n" + 
+		"        // depending on body-content in TLD.\n" + 
+		"	}\n" + 
+		"}";
+	// Note that the line comment wasn't formatted using 3.3 and 3.4 M6
+	formatSource(source,
+		"public class G {\n" + 
+		"	void foo() {\n" + 
+		"\n" + 
+		"		// Now we parse one of 'CustomActionTagDependent',\n" + 
+		"		// 'CustomActionJSPContent', or 'CustomActionScriptlessContent'.\n" + 
+		"		// depending on body-content in TLD.\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+
+/**
  * @bug 232788: [formatter] Formatter misaligns stars when formatting block comments
  * @test Ensure that block comment formatting is correct even with indentation size=1
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232788"
@@ -267,6 +890,38 @@ public void testBug232788_Mixed03() throws JavaModelException {
 	this.preferences.tab_size = 1;
 	this.preferences.indentation_size = 1;
 	formatUnit("bugs.b232788", "X03_mixed.java");
+}
+
+/**
+ * @bug 233011: [formatter] Formatting edited lines has problems (esp. with comments)
+ * @test Ensure that new comment formatter format all comments concerned by selections
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233011"
+ */
+public void testBug233011() throws JavaModelException {
+	String source = "\n" + 
+		"public class E01 {\n" + 
+		"        /** \n" + 
+		"         * Javadoc      [# #]            \n" + 
+		"         * comment\n" + 
+		"         */\n" + 
+		"        /*\n" + 
+		"         * block           [# #]            \n" + 
+		"         * comment\n" + 
+		"         */\n" + 
+		"        // single          [# #]            line comment\n" + 
+		"}";
+	formatSource(source,
+		"\n" + 
+		"public class E01 {\n" + 
+		"	/**\n" + 
+		"	 * Javadoc comment\n" + 
+		"	 */\n" + 
+		"	/*\n" + 
+		"	 * block comment\n" + 
+		"	 */\n" + 
+		"	// single line comment\n" + 
+		"}"
+	);
 }
 
 /**

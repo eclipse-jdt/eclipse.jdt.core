@@ -53,7 +53,7 @@ public class SingleLineTestCase extends CommentTestCase {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_BLOCK_COMMENT, DefaultCodeFormatterConstants.FALSE);
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, DefaultCodeFormatterConstants.FALSE);
 		String expected = DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT
-			? PREFIX + "test" + DELIMITER + PREFIX + "test" + DELIMITER + "//"+ DELIMITER + PREFIX + "test"
+			? PREFIX + "test" + DELIMITER + PREFIX + "test" + DELIMITER + PREFIX + DELIMITER + PREFIX + "test"
 			: PREFIX + "test" + DELIMITER + PREFIX + "test" + DELIMITER + PREFIX + "test" + DELIMITER;
 		assertEquals(expected, testFormat("//test\t\ttest" + DELIMITER + PREFIX + DELIMITER + "//\t\ttest")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 	}
@@ -227,7 +227,7 @@ public class SingleLineTestCase extends CommentTestCase {
 		String expected = DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT
 			? "// test test" + DELIMITER +
 				"// test" + DELIMITER +
-				"//" + DELIMITER +
+				"// " + DELIMITER +
 				"// test test" + DELIMITER +
 				"// test test"
 			: PREFIX + "test test" + DELIMITER + PREFIX + "test test" + DELIMITER + PREFIX + "test test" + DELIMITER + PREFIX + "test" + DELIMITER;
@@ -267,8 +267,7 @@ public class SingleLineTestCase extends CommentTestCase {
 	
 	public void testNoChange1() {
 		String content= PREFIX;
-		String expected = DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT ? "//" : content;
-		assertEquals(expected, testFormat(content));
+		assertEquals(content, testFormat(content));
 	}
 	
 	public void testNoFormat1() {

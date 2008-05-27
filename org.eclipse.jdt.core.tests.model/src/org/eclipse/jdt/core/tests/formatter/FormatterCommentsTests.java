@@ -39,6 +39,8 @@ import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.core.util.SimpleDocument;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.Region;
 
 /**
  * Javadoc formatter test suite using the Eclipse default settings.
@@ -109,7 +111,30 @@ void assertLineEquals(String actualContents, String originalSource, String expec
 }
 
 void formatSource(String source, String formattedOutput) {
-	formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, false, 0, -1, null);
+	int regionStart = source.indexOf("[#");
+	if (regionStart != -1) {
+		IRegion[] regions =  new Region[10];
+		int idx = 0;
+		int start = 0;
+		int delta = 0;
+		StringBuffer buffer = new StringBuffer();
+		while (regionStart != -1) {
+			buffer.append(source.substring(start, regionStart));
+			int regionEnd = source.indexOf("#]", regionStart+2);
+			buffer.append(source.substring(regionStart+2, regionEnd));
+			regions[idx++] = new Region(regionStart-delta, regionEnd-(regionStart+2));
+			delta += 4;
+			start = regionEnd + 2;
+			regionStart = source.indexOf("[#", start);
+		}
+		System.arraycopy(regions, 0, regions = new Region[idx], 0, idx);
+		buffer.append(source.substring(start, source.length()));
+		String newSource = buffer.toString();
+		String result = runFormatter(codeFormatter(), newSource, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, regions, Util.LINE_SEPARATOR);
+		assertLineEquals(result, newSource, formattedOutput, false);
+	} else {
+		formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, false, 0, -1, null);
+	}
 }
 
 void formatSource(String source, String formattedOutput, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
