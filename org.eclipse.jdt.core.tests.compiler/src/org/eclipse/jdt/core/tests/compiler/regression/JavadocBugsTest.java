@@ -7247,4 +7247,41 @@ public class JavadocBugsTest extends JavadocTest {
 		reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 		runConformTest(units);
 	}
+
+	/**
+	 * @bug 233887: Build of Eclipse project stop by NullPointerException and will not continue on Eclipse version later than 3.4M7
+	 * @test Ensure that no NPE is raised when a 1.5 param tag syntax is incorrectly used on a fiel with an initializer
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233887"
+	 */
+	public void testBug233887() {
+		String expectedError = this.complianceLevel <= ClassFileConstants.JDK1_4 ?
+			"----------\n" + 
+			"1. ERROR in NPETest.java (at line 5)\n" + 
+			"	* @param <name> <description>\n" + 
+			"	         ^^^^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n"
+		:
+			"----------\n" + 
+			"1. ERROR in NPETest.java (at line 5)\n" + 
+			"	* @param <name> <description>\n" + 
+			"	   ^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n";
+		runNegativeTest(
+			new String[] {
+				"NPETest.java",
+				"public class NPETest {\n" + 
+				"	public NPETest() {\n" + 
+				"	}\n" + 
+				"	/**\n" + 
+				"	 * @param <name> <description>\n" + 
+				"	 */\n" + 
+				"	private static final int MAX = 50;\n" + 
+				"\n" + 
+				"}\n"
+			},
+			expectedError
+		);
+	}
 }

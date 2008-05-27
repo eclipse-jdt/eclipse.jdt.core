@@ -529,7 +529,7 @@ public class Javadoc extends ASTNode {
 				// If no referenced method (field initializer for example) then report a problem for each param tag
 				if (methodDeclaration == null) {
 					for (int i = 0; i < paramTypeParamLength; i++) {
-						JavadocSingleNameReference param = this.paramReferences[i];
+						JavadocSingleTypeReference param = this.paramTypeParameters[i];
 						scope.problemReporter().javadocUnexpectedTag(param.tagSourceStart, param.tagSourceEnd);
 					}
 					return;
