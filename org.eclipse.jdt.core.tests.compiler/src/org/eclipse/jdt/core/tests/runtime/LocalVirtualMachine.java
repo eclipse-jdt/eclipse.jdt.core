@@ -40,14 +40,6 @@ public LocalVirtualMachine(Process p, int debugPort, String evalTargetPath) {
 	this.debugPort = debugPort;
 	this.evalTargetPath = evalTargetPath;
 }
-/**
- * Destroys the process running this VM.
- */
-protected void basicShutDown() {
-	if ((this.process != null) && this.isRunning()) {
-		this.process.destroy();
-	}
-}
 /*
  * Cleans up the given directory by removing all the files it contains as well
  * but leaving the directory.
@@ -199,33 +191,13 @@ public boolean isRunning() {
  * This causes the VM to exit. This operation is ignored
  * if the VM has already shut down.
  *
- * @exception TargetException if the target VM could not be shut down.
+ * @throws TargetException if the target path could not be cleaned up
  */
-public void shutDown()  throws TargetException {
-	this.basicShutDown();
-	int retry = 0;
-	while (this.isRunning() && (++retry < 20)) {
-		try {
-			Thread.sleep(retry * 100);
-		} catch (InterruptedException e) {
-		}
+public synchronized void shutDown() throws TargetException {
+	if (this.process != null) {
+		this.process.destroy();
+		this.process = null;
+		this.cleanupTargetPath();
 	}
-	if (this.isRunning()) { // give up cleaning the target path if VM is still running
-		throw new TargetException("Could not shut the VM down");
-	}
-	this.cleanupTargetPath();
-}
-/**
- * Waits for the VM to shut down. This method returns 
- * immediately if the VM has already shut down. If the
- * VM has not yet shut down, the calling thread will be
- * blocked until the VM shuts down.
- *
- * @exception  InterruptedException  if the <code>waitForTermination</code> was
- *               interrupted.
- */
-public void waitForTermination() throws InterruptedException {
-	if (this.process == null) return;
-	this.process.waitFor();
 }
 }

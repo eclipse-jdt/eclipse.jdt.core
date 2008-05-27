@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -133,8 +133,11 @@ private void assertEncodeDecodeEntry(String projectName, String expectedEncoded,
 protected File createFile(File parent, String name, String content) throws IOException {
 	File file = new File(parent, name);
 	FileOutputStream out = new FileOutputStream(file);
-	out.write(content.getBytes());
-	out.close();
+	try {
+		out.write(content.getBytes());
+	} finally {
+		out.close();
+	}
 	/*
 	 * Need to change the time stamp to realize that the file has been modified
 	 */

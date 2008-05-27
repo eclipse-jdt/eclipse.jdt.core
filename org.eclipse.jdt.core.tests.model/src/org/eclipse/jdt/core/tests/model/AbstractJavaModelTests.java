@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -954,8 +954,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	
 		// write bytes to dest
 		FileOutputStream out = new FileOutputStream(dest);
-		out.write(srcBytes);
-		out.close();
+		try {
+			out.write(srcBytes);
+		} finally {
+			out.close();
+		}
 	}
 	
 	public boolean convertToIndependantLineDelimiter(File file) {
@@ -2032,12 +2035,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		java.io.FileInputStream stream = new java.io.FileInputStream(file);
 		int bytesRead = 0;
 		int lastReadSize = 0;
-		while ((lastReadSize != -1) && (bytesRead != fileLength)) {
-			lastReadSize = stream.read(fileBytes, bytesRead, fileLength - bytesRead);
-			bytesRead += lastReadSize;
+		try {
+			while ((lastReadSize != -1) && (bytesRead != fileLength)) {
+				lastReadSize = stream.read(fileBytes, bytesRead, fileLength - bytesRead);
+				bytesRead += lastReadSize;
+			}
+			return fileBytes;
+		} finally {
+			stream.close();
 		}
-		stream.close();
-		return fileBytes;
 	}
 
 	public void refresh(final IJavaProject javaProject) throws CoreException {

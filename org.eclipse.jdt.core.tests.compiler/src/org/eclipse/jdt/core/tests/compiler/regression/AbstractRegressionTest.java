@@ -84,7 +84,7 @@ class JavacCompiler {
 				rawVersion = rawVersion.substring(0, eol);
 			} finally {
 				if (fetchVersionProcess != null) {
-					fetchVersionProcess.destroy();
+					fetchVersionProcess.destroy(); // closes process streams
 				}
 			}
 		}
@@ -226,17 +226,24 @@ class JavacCompiler {
 			if (index == -1) {
 				assertEquals("Wrong contents", expectedOutput, result);
 			}
-			
+			FileInputStream stream = null;
 			try {
-				FileInputStream stream = new FileInputStream(f);
+				stream = new FileInputStream(f);
 				ClassFileReader.read(stream, className + ".class", true);
-				stream.close();
 			} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
 				e.printStackTrace();
 				assertTrue("ClassFormatException", false);
 			} catch (IOException e) {
 				e.printStackTrace();
 				assertTrue("IOException", false);
+			} finally {
+				if (stream != null) {
+					try {
+						stream.close();
+					} catch (IOException e) {
+						/* ignore */
+					}
+				}
 			}
 		} finally {
 			removeTempClass(className);
@@ -256,16 +263,24 @@ class JavacCompiler {
 			}
 			File f = new File(directory, disassembledClassName + ".class");
 			ClassFileReader classFileReader = null;
+			FileInputStream stream = null;
 			try {
-				FileInputStream stream = new FileInputStream(f);
+				stream = new FileInputStream(f);
 				classFileReader = ClassFileReader.read(stream, className + ".class", true);
-				stream.close();
 			} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
 				e.printStackTrace();
 				assertTrue("ClassFormatException", false);
 			} catch (IOException e) {
 				e.printStackTrace();
 				assertTrue("IOException", false);
+			} finally {
+				if (stream != null) {
+					try {
+						stream.close();
+					} catch (IOException e) {
+						/* ignore */
+					}
+				}
 			}
 			return classFileReader;
 		} finally {
@@ -291,9 +306,19 @@ class JavacCompiler {
 		if (index == -1) {
 			assertEquals("Wrong contents", expectedOutput, result);
 		}
-		FileInputStream stream = new FileInputStream(classFile);
-		ClassFileReader.read(stream, className + ".class", true);
-		stream.close();
+		FileInputStream stream = null;
+		try {
+			stream = new FileInputStream(classFile);
+			ClassFileReader.read(stream, className + ".class", true);
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					/* ignore */
+				}
+			}
+		}
 	}
 
 	protected void compileAndDeploy(String source, String directoryName, String className) {
@@ -459,10 +484,10 @@ class JavacCompiler {
 		if (!classFile.exists()) {
 			assertTrue(".class file doesn't exist", false);
 		}
+		FileInputStream stream = null;
 		try {
-			FileInputStream stream = new FileInputStream(classFile);
+			stream = new FileInputStream(classFile);
 			ClassFileReader reader = ClassFileReader.read(stream, className + ".class", true);
-			stream.close();
 			return reader;
 		} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
 			e.printStackTrace();
@@ -470,6 +495,14 @@ class JavacCompiler {
 		} catch (IOException e) {
 			e.printStackTrace();
 			assertTrue("IOException", false);
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					/* ignore */
+				}
+			}
 		}
 		return null;
 	}
@@ -1102,7 +1135,7 @@ class JavacCompiler {
 		} 
 		finally {
 			if (compileProcess != null) {
-				compileProcess.destroy();
+				compileProcess.destroy(); // closes process streams
 			}
 		}
 		return true;
@@ -1544,7 +1577,7 @@ class JavacCompiler {
                     					    (new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()) +
                     					    ".txt";
 					javacFullLog = 
-					  	new PrintWriter(new FileOutputStream(javacFullLogFileName));
+					  	new PrintWriter(new FileOutputStream(javacFullLogFileName)); // static that is initialized once, closed at process end
 					javacFullLog.println(version); // so that the contents is self sufficient
 					System.out.println("***************************************************************************");
 					System.out.println("* Sun Javac compiler output archived into file:");

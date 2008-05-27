@@ -264,20 +264,32 @@ public void test0105() throws JavaModelException, CoreException, IOException {
 						"it since it may be inconsistent", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
 		} finally {
 			// waiting for JDK 6: outputFolder.setWritable(true); -- workaround:
+			Process process = null;
 			try {
-				Runtime.getRuntime().exec("chmod -R a+w " + outputFolder.getAbsolutePath()).waitFor();
+				process = Runtime.getRuntime().exec("chmod -R a+w " + outputFolder.getAbsolutePath());
+				process.waitFor();
 			} catch (InterruptedException e) {
 				// go ahead
+			} finally {
+				if (process != null) {
+					process.destroy();
+				}
 			}
 		}
 		try {
 			cleanBuild();
 			expectingNoProblems();
 		} catch (Throwable t) {
+			Process process = null;
 			try {
-				Runtime.getRuntime().exec("chmod -R a+w " + outputFolder.getAbsolutePath()).waitFor();
+				process = Runtime.getRuntime().exec("chmod -R a+w " + outputFolder.getAbsolutePath());
+				process.waitFor();
 			} catch (InterruptedException ie) {
 				// go ahead
+			} finally {
+				if (process != null) {
+					process.destroy();
+				}
 			}
 			fail(t.getMessage());
 		}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,24 +66,32 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 	}
 	
 	private boolean areStructurallyDifferent(String classFile1, String classFile2, boolean orderRequired, boolean excludeSynthetic) {
+		FileInputStream stream = null;
 		try {
 			ClassFileReader reader = ClassFileReader.read(EVAL_DIRECTORY + File.separator + classFile1 + ".class");
 			int fileLength;
 			File file = new File(EVAL_DIRECTORY + File.separator + classFile2 + ".class");
 			byte classFileBytes[] = new byte[fileLength = (int) file.length()];
-			java.io.FileInputStream stream = new java.io.FileInputStream(file);
+			stream = new java.io.FileInputStream(file);
 			int bytesRead = 0;
 			int lastReadSize = 0;
 			while ((lastReadSize != -1) && (bytesRead != fileLength)) {
 				lastReadSize = stream.read(classFileBytes, bytesRead, fileLength - bytesRead);
 				bytesRead += lastReadSize;
 			}
-			stream.close();
 			return reader.hasStructuralChanges(classFileBytes, orderRequired, excludeSynthetic);
 		} catch(IOException e) {
 			return true;
 		} catch(ClassFormatException e) {
 			return true;
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					/* ignore */
+				}
+			}
 		}
 	}
 	

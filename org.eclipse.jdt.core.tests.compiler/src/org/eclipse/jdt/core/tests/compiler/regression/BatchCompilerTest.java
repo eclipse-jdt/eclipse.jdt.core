@@ -497,8 +497,11 @@ private String getLibraryClassesAsQuotedString() {
 						innerOutputDirectory.mkdirs();
 					}
 					sourceFileWriter = new PrintWriter(new FileOutputStream(file));
-					sourceFileWriter.write(testFiles[i + 1]);
-					sourceFileWriter.close();
+					try {
+						sourceFileWriter.write(testFiles[i + 1]);
+					} finally {
+						sourceFileWriter.close();
+					}
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -626,8 +629,11 @@ private void runTest(
 				innerOutputDirectory.mkdirs();
 			}
 			sourceFileWriter = new PrintWriter(new FileOutputStream(file));
-			sourceFileWriter.write(testFiles[i + 1]);
-			sourceFileWriter.close();
+			try {
+				sourceFileWriter.write(testFiles[i + 1]);
+			} finally {
+				sourceFileWriter.close();
+			}
 		}
 	} catch (FileNotFoundException e) {
 		e.printStackTrace();
@@ -2114,20 +2120,26 @@ public void test018a(){
 		try {
 			File file = new File(xPath);
 			sourceFileWriter = new PrintWriter(new FileOutputStream(file));
-			sourceFileWriter.write(
-				"/** */\n" +
-				"public class X {\n" +
-				"	OK1 ok1;\n" +
-				"}");
-			sourceFileWriter.close();
+			try {
+				sourceFileWriter.write(
+					"/** */\n" +
+					"public class X {\n" +
+					"	OK1 ok1;\n" +
+					"}");
+			} finally {
+				sourceFileWriter.close();
+			}
 			file = new File(ok1Path);
 			sourceFileWriter = new PrintWriter(new FileOutputStream(file));
-			sourceFileWriter.write(
-				"/** */\n" +
-				"public class OK1 {\n" +
-				"	// empty\n" +
-				"}");
-			sourceFileWriter.close();
+			try {
+				sourceFileWriter.write(
+					"/** */\n" +
+					"public class OK1 {\n" +
+					"	// empty\n" +
+					"}");
+			} finally {
+				sourceFileWriter.close();
+			}
 			this.runTest(
 				true,
 				new String[] {

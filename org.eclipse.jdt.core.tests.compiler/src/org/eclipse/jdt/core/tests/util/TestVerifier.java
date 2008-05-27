@@ -412,8 +412,8 @@ private void launchAndRun(String className, String[] classpaths, String[] progra
 
 	// wait for vm to shut down by itself
 	try {
-		outputThread.join(5000);
-		errorThread.join(5000);
+		outputThread.join(10000); // we shut VMs down forcefully downstream, 
+		errorThread.join(10000);  // hence let's have some slack here
 	} catch (InterruptedException e) {
 	}
 }

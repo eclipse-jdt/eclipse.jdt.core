@@ -70,8 +70,11 @@ static public void copy(File src, File dest) throws IOException {
 
 	// write bytes to dest
 	FileOutputStream out = new FileOutputStream(dest);
-	out.write(srcBytes);
-	out.close();
+	try {
+		out.write(srcBytes);
+	} finally {
+		out.close();
+	}
 }
 
 /**
@@ -366,12 +369,15 @@ static public byte[] read(java.io.File file) throws java.io.IOException {
 	java.io.FileInputStream stream = new java.io.FileInputStream(file);
 	int bytesRead = 0;
 	int lastReadSize = 0;
-	while ((lastReadSize != -1) && (bytesRead != fileLength)) {
-		lastReadSize = stream.read(fileBytes, bytesRead, fileLength - bytesRead);
-		bytesRead += lastReadSize;
+	try {
+		while ((lastReadSize != -1) && (bytesRead != fileLength)) {
+			lastReadSize = stream.read(fileBytes, bytesRead, fileLength - bytesRead);
+			bytesRead += lastReadSize;
+		}
+		return fileBytes;
+	} finally {
+		stream.close();		
 	}
-	stream.close();
-	return fileBytes;
 }
 
 /**

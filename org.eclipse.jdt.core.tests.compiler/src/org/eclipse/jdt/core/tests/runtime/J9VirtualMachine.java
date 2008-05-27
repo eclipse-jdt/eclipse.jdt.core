@@ -46,37 +46,16 @@ public J9VirtualMachine(Process vmProcess, int debugPort, String evalTargetPath,
 	}
 
 }
-private boolean isProxyRunning() {
-	if (this.proxyProcess == null) {
-		return false;
-	}
-	boolean hasExited;
-	try {
-		this.proxyProcess.exitValue();
-		hasExited = true;
-	} catch (IllegalThreadStateException e) {
-		hasExited = false;
-	}
-	return !hasExited;
-}
 /**
  * @see LocalVirtualMachine#shutDown
  */
-public void shutDown()  throws TargetException {
+public synchronized void shutDown() throws TargetException {
 	super.shutDown();
 	if (this.proxyConsoleReader != null)
 		this.proxyConsoleReader.stop();
-	if ((this.proxyProcess != null) && isProxyRunning()) 
+	if (this.proxyProcess != null) { 
 		this.proxyProcess.destroy();
-}
-/**
- * @see LocalVirtualMachine#shutDown
- */
-public void waitForTermination() throws InterruptedException {
-	super.waitForTermination();
-	if (this.proxyProcess != null)
-		this.proxyProcess.waitFor();
-	if (this.proxyConsoleReader != null)
-		this.proxyConsoleReader.stop();
+		this.proxyProcess = null;
+	}
 }
 }
