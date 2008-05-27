@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,23 +20,19 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
-import org.eclipse.jdt.internal.compiler.IProblemFactory;
 
 public class Requestor extends Assert implements ICompilerRequestor {
 	public boolean hasErrors = false;
-	public IProblemFactory problemFactory;
 	public String outputPath;
-	private boolean generateOutput;
+	private boolean forceOutputGeneration;
 	public Hashtable expectedProblems = new Hashtable();
 	public String problemLog = "";
 	public ICompilerRequestor clientRequestor;
 	public boolean showCategory = false;
 	public boolean showWarningToken = false;
 	
-public Requestor(IProblemFactory problemFactory, String outputPath, boolean generateOutput, ICompilerRequestor clientRequestor, boolean showCategory, boolean showWarningToken) {
-	this.problemFactory = problemFactory;
-	this.outputPath = outputPath;
-	this.generateOutput = generateOutput;
+public Requestor(boolean forceOutputGeneration, ICompilerRequestor clientRequestor, boolean showCategory, boolean showWarningToken) {
+	this.forceOutputGeneration = forceOutputGeneration;
 	this.clientRequestor = clientRequestor;
 	this.showCategory = showCategory;
 	this.showWarningToken = showWarningToken;
@@ -50,8 +46,8 @@ public void acceptResult(CompilationResult compilationResult) {
 	}
 }
 protected void outputClassFiles(CompilationResult unitResult) {
-	if ((unitResult != null) && (!unitResult.hasErrors() || generateOutput)) {
-		ClassFile[]classFiles = unitResult.getClassFiles();
+	if ((unitResult != null) && (!unitResult.hasErrors() || forceOutputGeneration)) {
+		ClassFile[] classFiles = unitResult.getClassFiles();
 		if (outputPath != null) {
 			for (int i = 0, fileCount = classFiles.length; i < fileCount; i++) {
 				// retrieve the key and the corresponding classfile

@@ -411,7 +411,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			testName = testName();
 
 			// Cleanup javac output dir if needed
-			File javacOutputDirectory = new File(JAVAC_OUTPUT_DIR);
+			File javacOutputDirectory = new File(JAVAC_OUTPUT_DIR_NAME);
 			if (shouldFlushOutputDirectory) {
 				Util.delete(javacOutputDirectory);
 			}
@@ -422,7 +422,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			// Prepare command line
 			StringBuffer cmdLine = new StringBuffer(javadocCommandLineHeader);
 			// compute extra classpath
-			String[] classpath = Util.concatWithClassLibs(JAVAC_OUTPUT_DIR, false);
+			String[] classpath = Util.concatWithClassLibs(JAVAC_OUTPUT_DIR_NAME, false);
 			StringBuffer cp = new StringBuffer(" -classpath ");
 			int length = classpath.length;
 			for (int i = 0; i < length; i++) {

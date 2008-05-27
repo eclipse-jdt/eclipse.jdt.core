@@ -155,12 +155,11 @@ public static void compile(String[] pathsAndContents, Map options, String output
         IProblemFactory problemFactory = new DefaultProblemFactory(Locale.getDefault());
         Requestor requestor =
             new Requestor(
-                problemFactory,
-                outputPath.endsWith(File.separator) ? outputPath : outputPath + File.separator,
                 false,
-                null/*no custom requestor*/,
+                null /*no custom requestor*/,
                 false, /* show category */
                 false /* show warning token*/);
+        requestor.outputPath = outputPath.endsWith(File.separator) ? outputPath : outputPath + File.separator;
 
         INameEnvironment nameEnvironment = new FileSystem(getJavaClassLibs(), new String[] {}, null);
         IErrorHandlingPolicy errorHandlingPolicy =

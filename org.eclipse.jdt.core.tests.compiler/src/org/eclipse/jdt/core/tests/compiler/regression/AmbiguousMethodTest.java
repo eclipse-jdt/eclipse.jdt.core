@@ -1367,10 +1367,9 @@ public void test027() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
-// **
 public void test028() {
 	this.runConformTest(
-		new String[] {
+		new String[] { /* test files */
 			"X.java",
 			"interface Irrelevant {}\n" + 
 			"interface I {\n" + 
@@ -1388,14 +1387,13 @@ public void test028() {
 			"  }\n" + 
 			"}"
 		},
-		"");
+	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */); 
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - simplified
-// **
 public void test029() {
 	this.runConformTest(
-		new String[] {
+		new String[] { /* test files */
 			"X.java",
 			"interface J {\n" + 
 			"  String foo(Number n);\n" + 
@@ -1409,7 +1407,7 @@ public void test029() {
 			"  }\n" + 
 			"}"
 		},
-		"");
+	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */); 
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - same return type
@@ -1433,10 +1431,9 @@ public void test030() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant
-// **
 public void test031() {
 	this.runConformTest(
-		new String[] {
+		new String[] { /* test files */
 			"X.java",
 			"interface Irrelevant {}\n" + 
 			"interface I {\n" + 
@@ -1454,9 +1451,9 @@ public void test031() {
 			"  }\n" + 
 			"}"
 		},
-		"");
+	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */); 
 }
-//tests 32-34 were moved to MethodVerityTest 134-140
+// tests 32-34 were moved to MethodVerifyTest 134-140
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - the inheriting class implements foo
@@ -1483,10 +1480,10 @@ public void test035() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - extending instead of implementing
-// **
 public void test037() {
 	this.runConformTest(
-		new String[] {
+ 		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"interface I {\n" + 
 			"  Object foo(Number n);\n" + 
@@ -1500,14 +1497,14 @@ public void test037() {
 			"  }\n" + 
 			"}"
 		},
-		"");
+		// javac options
+	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */); 
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - no promotion of parameter from float to Number
-// **
 public void test038() {
 	this.runConformTest(
-		new String[] {
+		new String[] { /* test files */
 			"X.java",
 			"interface I {\n" + 
 			"  Object foo(float f);\n" + 
@@ -1521,7 +1518,7 @@ public void test038() {
 			"  }\n" + 
 			"}"
 		},
-		"");
+	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */); 
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - an explicit cast solves the issue
@@ -1590,10 +1587,10 @@ public void test041() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - a further inheriting class implements String foo
-// **
 public void test042() {
-	this.runNegativeTest(
-		new String[] {
+	this.runConformTest(
+ 		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"interface I {\n" + 
 			"  Object foo(float f);\n" + 
@@ -1613,7 +1610,8 @@ public void test042() {
 			"  }\n" + 
 			"}"
 		},
-		"");
+		// javac options
+	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */); 	
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - a further inheriting class implements Object foo
@@ -1729,10 +1727,10 @@ public void test046() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163590
-// **
 public void test047() {
 	this.runNegativeTest(
-		new String[] {
+ 		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"public class X<T extends I & J> {\n" + 
 			"  void foo(T t) {\n" + 
@@ -1745,12 +1743,15 @@ public void test047() {
 			"  public boolean method();\n" + 
 			"}\n"
 		},
-		"----------\n" + 
+		// compiler results
+		"----------\n" + /* expected compiler log */ 
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X<T extends I & J> {\n" + 
 		"	               ^\n" + 
 		"The return type is incompatible with J.method(), I.method()\n" + 
-		"----------\n");
+		"----------\n",
+		// javac options
+	  	JavacTestOptions.JavacHasABug.JavacBug5061359 /* javac test options */); 
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163590
 // Variant: javac complains as well if we attempt to use method, but noone
@@ -1839,7 +1840,9 @@ public void test050() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 public void test051() {
 	this.runConformTest(
-		new String[] {
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"interface I<T> {\n" + 
 			"}\n" + 
@@ -1857,7 +1860,23 @@ public void test051() {
 			"  }\n" + 
 			"}\n"
 		},
-		"");
+		// compiler results
+		"----------\n" + /* expected compiler log */ 
+		"1. WARNING in X.java (at line 9)\n" + 
+		"	bar(new Z());\n" + 
+		"	    ^^^^^^^\n" + 
+		"Access to enclosing constructor X.Z() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 13)\n" + 
+		"	private static final class Z implements I {\n" + 
+		"	                                        ^\n" + 
+		"I is a raw type. References to generic type I<T> should be parameterized\n" + 
+		"----------\n",
+		// runtime options
+		"" /* expected output string */,
+		"" /* do not check error string */,
+		// javac options
+		JavacTestOptions.EclipseHasABug.EclipseBug166355 /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 // variant
@@ -1887,7 +1906,9 @@ public void test052() {
 // variant
 public void test053() {
 	this.runConformTest(
-		new String[] {
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"interface I<T> {\n" + 
 			"}\n" + 
@@ -1905,7 +1926,23 @@ public void test053() {
 			"  }\n" + 
 			"}\n"
 		},
-		"");
+		// compiler results
+		"----------\n" + /* expected compiler log */ 
+		"1. WARNING in X.java (at line 9)\n" + 
+		"	bar(new Z(){});\n" + 
+		"	        ^^^\n" + 
+		"Access to enclosing constructor X.Z() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 13)\n" + 
+		"	private static class Z implements I {\n" + 
+		"	                                  ^\n" + 
+		"I is a raw type. References to generic type I<T> should be parameterized\n" + 
+		"----------\n",
+		// runtime results
+		"" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.EclipseHasABug.EclipseBug166355 /* javac test options */);	
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 // variant

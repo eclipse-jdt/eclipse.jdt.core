@@ -9107,19 +9107,24 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		// recompile and run result using various levels of javac
 		Iterator javacCompilersIterator = javacCompilers.iterator();
 		String specialOptions = commonOptions + " -Xprefer:source ";
-		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		String sourceFileNames[] = new String[] {sourceFilePath};
+		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
 			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
 			assertTrue(javacCompiler.compile(
+					outputDir, /* directory */
 					commonOptions /* options */, 
-					sourceFileNames /* source file names */));
+					sourceFileNames /* source file names */,
+					null /* log */) == 0);
 			this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin2"});
 			assertEquals('1', this.verifier.getExecutionOutput().charAt(0)); // skip trailing newline
 			// 1 means javac selected bin1 by default
 			if (javacCompiler.version.compareTo(JavaCore.VERSION_1_6) >= 0) {
 				assertTrue(javacCompiler.compile(
+						outputDir, /* directory */
 						specialOptions /* options */, 
-						sourceFileNames /* source file names */));
+						sourceFileNames /* source file names */,
+						null /* log */) == 0);
 				this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin2"});
 				assertEquals('2', this.verifier.getExecutionOutput().charAt(0)); // skip trailing newline
 				// 2 means javac selected src2
@@ -9187,11 +9192,14 @@ public void test231_sourcepath_vs_classpath() throws IOException, InterruptedExc
 	if (RUN_JAVAC) {
 		Iterator javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
 			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
 			assertFalse(javacCompiler.compile(
+					outputDir /* directory */,
 					commonOptions /* options */, 
-					sourceFileNames /* source file names */));
+					sourceFileNames /* source file names */,
+					null /* log */) == 0);
 			// compile fails as well
 		}
 		assertFalse(runJavac(commonOptions, new String[] {sourceFilePath}, OUTPUT_DIR));
@@ -9243,14 +9251,19 @@ public void test232_repeated_classpath() throws IOException, InterruptedExceptio
 		// error in the split case here)
 		Iterator javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
 			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
 			assertTrue(javacCompiler.compile(
+					outputDir /* directory */,
 					combinedClasspathOptions /* options */, 
-					sourceFileNames /* source file names */));
+					sourceFileNames,
+					null /* log */) == 0);
 			assertFalse(javacCompiler.compile(
+					outputDir /* directory */,
 					splitClasspathOptions /* options */, 
-					sourceFileNames /* source file names */));
+					sourceFileNames,
+					null /* log */) == 0);
 		}
 	}
 }
@@ -9291,16 +9304,21 @@ public void test233_repeated_sourcepath() throws IOException, InterruptedExcepti
 		Iterator javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNamesZ[] = new String[] {sourceFilePathZ}; 
 		String sourceFileNamesW[] = new String[] {sourceFilePathW}; 
+		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
 			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
 			// succeeds because it picks src2 up
 			assertTrue(javacCompiler.compile(
+					outputDir /* directory */,
 					commonOptions /* options */, 
-					sourceFileNamesZ /* source file names */));
+					sourceFileNamesZ /* source file names */,
+					null /* log */) == 0);
 			// fails because it misses src1
 			assertFalse(javacCompiler.compile(
+					outputDir /* directory */,
 					commonOptions /* options */, 
-					sourceFileNamesW /* source file names */));
+					sourceFileNamesW /* source file names */,
+					null /* log */) == 0);
 		}
 	}
 }
@@ -9340,11 +9358,14 @@ public void test234_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		// search in classpath directories
 		Iterator javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
 			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
 			assertFalse(javacCompiler.compile(
+					outputDir, /* directory */
 					commonOptions /* options */, 
-					sourceFileNames /* source file names */));
+					sourceFileNames /* source file names */,
+					null /* log */) == 0);
 		}
 	}
 }
@@ -9419,11 +9440,14 @@ public void test235_classpath() throws IOException, InterruptedException {
 	if (RUN_JAVAC) {
 		Iterator javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
 			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
 			assertTrue(javacCompiler.compile(
+					outputDir /* directory */,
 					commonOptions /* options */, 
-					sourceFileNames /* source file names */));
+					sourceFileNames /* source file names */,
+					null /* log */) == 0);
 		}
 	}
 }
@@ -9488,11 +9512,14 @@ public void test236_classpath() throws IOException, InterruptedException {
 	if (RUN_JAVAC) {
 		Iterator javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
 			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
 			assertTrue(javacCompiler.compile(
+					outputDir /* directory */,
 					commonOptions /* options */, 
-					sourceFileNames /* source file names */));
+					sourceFileNames,
+					null /* log */) == 0);
 			this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin"});
 			assertEquals('1', this.verifier.getExecutionOutput().charAt(0)); // skip trailing newline
 		}
@@ -9552,11 +9579,14 @@ public void test237_classpath() throws IOException, InterruptedException {
 	if (RUN_JAVAC) {
 		Iterator javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
 			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
 			assertTrue(javacCompiler.compile(
+					outputDir /* directory */,
 					commonOptions /* options */, 
-					sourceFileNames /* source file names */));
+					sourceFileNames /* source file names */,
+					null /* log */) == 0);
 			this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin"});
 			assertEquals('2', this.verifier.getExecutionOutput().charAt(0)); // skip trailing newline
 			// 2 means javac selected src2 (because the source file was more recent than bin1/X.class)
@@ -9609,11 +9639,14 @@ public void test238_classpath() throws IOException, InterruptedException {
 	if (RUN_JAVAC) {
 		Iterator javacCompilersIterator = javacCompilers.iterator();
 		String sourceFileNames[] = new String[] {sourceFilePath}; 
+		File outputDir = new File(OUTPUT_DIR);
 		while (javacCompilersIterator.hasNext()) {
 			JavacCompiler javacCompiler = (JavacCompiler) javacCompilersIterator.next();
 			assertTrue(javacCompiler.compile(
+					outputDir /* directory */,
 					commonOptions /* options */, 
-					sourceFileNames /* source file names */));
+					sourceFileNames /* source file names */,
+					null /* log */) == 0);
 			this.verifier.execute("Y", new String[] {OUTPUT_DIR + File.separator + "bin"});
 			assertEquals('1', this.verifier.getExecutionOutput().charAt(0)); // skip trailing newline
 			// 1 means javac selected src1 (because src1/X.java comes ahead of src2/X.java on the classpath)

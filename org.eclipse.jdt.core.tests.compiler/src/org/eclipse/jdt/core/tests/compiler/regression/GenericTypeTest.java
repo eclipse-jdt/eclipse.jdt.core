@@ -1174,10 +1174,10 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// Access to enclosing 't' of type 'T' (not substituted from X<X> as private thus non inherited)
-	// **
 	public void test0048() {
 		this.runNegativeTest(
-			new String[] {
+			// test directory preparation
+			new String[] { /* test files */
 				"X.java",
 				"public class X <T> {\n" + 
 				"    private T t;\n" + 
@@ -1201,7 +1201,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    }\n" + 
 				"}\n",
 			},
-			"----------\n" + 
+			// compiler results
+			"----------\n" + /* expected compiler log */
 			"1. WARNING in X.java (at line 10)\n" + 
 			"	new X<X>(this) {\n" + 
 			"	      ^\n" + 
@@ -1216,7 +1217,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	X x = t;\n" + 
 			"	      ^\n" + 
 			"Type mismatch: cannot convert from T to X\n" + 
-			"----------\n");
+			"----------\n",
+			// javac options
+			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 	}
 	public void test0049() {
 		this.runConformTest(
@@ -3628,10 +3631,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// test generic method
-	// **
 	public void test0118a() {
 		this.runConformTest(
-			new String[] {
+			// test directory preparation
+			true /* flush output directory */, 
+			new String[] { /* test files */
 				"X.java",
 				"class A<T> {}\n" + 
 				"\n" + 
@@ -3641,8 +3645,14 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"		foo();\n" + 
 				"	}\n" + 
 				"}"
-			}, 
-			"");
+			},
+			// compiler results
+			null /* do not check compiler log */,
+			// runtime results
+			"" /* expected output string */,
+			null /* do not check error string */,
+			// javac options
+			JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 	}	
 	// test binary member types **
 	public void _test0119() {
@@ -3707,7 +3717,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// test generic method
 	public void test0120a() {
 		this.runConformTest(
-			new String[] {
+			// test directory preparation
+			new String[] { /* test files */
 				"X.java",
 				"public class X<E> {\n" + 
 				"    <U extends X<?>> U foo() {\n" + 
@@ -3717,8 +3728,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"        return foo();\n" + 
 				"    }\n" + 
 				"}"
-			}, 
-			"");
+			},
+			// javac options
+			JavacTestOptions.JavacHasABug.JavacBug6302954 /* javac test options */);
 	}
 	// substitute array types
 	public void test0121() {
@@ -5244,9 +5256,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// cast to type variable allowed, can be diagnosed as unnecessary
 	public void test0177() {
-		Map customOptions = getCompilerOptions();
-		this.runNegativeTest(
-			new String[] {
+		Map options = getCompilerOptions();
+		runConformTest(
+	 		// test directory preparation
+			true /* flush output directory */, 
+			new String[] { /* test files */
 				"X.java",
 				"public class X <T> {\n" + 
 				"	\n" + 
@@ -5255,15 +5269,21 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	}\n" + 
 				"}\n", 
 			},
-			"----------\n" + 
+			// compiler options
+			null /* no class libraries */,
+			options /* custom options - happen to be the default not changed by the test suite */,
+			// compiler results
+			"----------\n" + /* expected compiler log */ 
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	return (T) t;\n" + 
 			"	       ^^^^^\n" + 
 			"Unnecessary cast from T to T\n" + 
 			"----------\n",
-			null,
-			true,
-			customOptions);
+			// runtime results
+			null /* do not check output string */,
+			null /* do not check error string */,
+			// javac options
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);
 	}
 	// reject instanceof type variable or parameterized type
 	public void test0178() {
@@ -6416,8 +6436,10 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69135 - unnecessary cast operation
 	public void test0217() {
 		Map customOptions = getCompilerOptions();
-		this.runNegativeTest(
-			new String[] {
+		runConformTest(
+			// test directory preparation
+			true /* flush output directory */, 
+			new String[] { /* test files */
 				"X.java",
 				"import java.util.ArrayList;\n" + 
 				"public class X {\n" + 
@@ -6427,15 +6449,21 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    }\n" + 
 				"}\n", 
 			},
-			"----------\n" + 
+			// compiler options
+			null /* no class libraries */,
+			customOptions /* custom options */,
+			// compiler results
+			"----------\n" + /* expected compiler log */
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	String string = (String) l.get(0);\n" + 
 			"	                ^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from String to String\n" + 
 			"----------\n",
-			null,
-			true,
-			customOptions);
+			// runtime results
+			null /* do not check output string */,
+			null /* do not check error string */,
+			// javac options
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=64154 visibility issue due to invalid use of parameterized binding
 	public void test0218() {
@@ -23763,10 +23791,10 @@ public void test0764() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98379
-// **
 public void test0765() {
 	this.runConformTest(
-		new String[] {
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"    static <T extends X> T f1() throws Exception{\n" + 
@@ -23777,7 +23805,8 @@ public void test0765() {
 			"    }\n" + 
 			"}\n",
 		},
-		"");
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBug6302954 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99453
 public void test0766() {

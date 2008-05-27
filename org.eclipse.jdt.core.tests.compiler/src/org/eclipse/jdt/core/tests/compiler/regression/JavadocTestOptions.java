@@ -1014,10 +1014,8 @@ public class JavadocTestOptions extends JavadocTest {
 		runNegativeTest(testFiles, expectedProblemLog.toString());
     }
 
-	/* (non-Javadoc)
-     * @see org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest#computeProblemLog(java.lang.String[], org.eclipse.jdt.core.tests.compiler.regression.Requestor, java.lang.String, java.lang.Throwable)
-     */
-    protected void computeProblemLog(String[] testFiles, Requestor requestor, String platformIndependantExpectedLog, Throwable exception) {
+    protected void checkCompilerLog(String[] testFiles, Requestor requestor, 
+    		String platformIndependantExpectedLog, Throwable exception) {
     	char firstChar = platformIndependantExpectedLog.charAt(0);
     	boolean isMethod;
     	switch (firstChar) {
@@ -1028,7 +1026,8 @@ public class JavadocTestOptions extends JavadocTest {
     			isMethod = false;
     			break;
     		default:
-    			super.computeProblemLog(testFiles, requestor, platformIndependantExpectedLog, exception);
+    			super.checkCompilerLog(testFiles, requestor, 
+					platformIndependantExpectedLog, exception);
     		return;
     	}
     	int level = platformIndependantExpectedLog.charAt(1) - '0';

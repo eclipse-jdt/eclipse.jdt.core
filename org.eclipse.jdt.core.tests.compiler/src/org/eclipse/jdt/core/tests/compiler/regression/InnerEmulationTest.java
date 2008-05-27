@@ -5145,8 +5145,9 @@ public void test129() {
 public void test130() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	if (options.sourceLevel <= ClassFileConstants.JDK1_3) {
-    	this.runConformTestThrowingError(
-    		new String[] {
+    	runConformTest(
+   			true /* flush output directory */, 
+    		new String[] { /* test files */
     			"X.java", //========================
     			"public class X {\n" + 
     			"    public static void main(String[] args) {\n" + 
@@ -5206,10 +5207,10 @@ public void test130() {
     			"	}\n" + 
     			"}\n"
     		}, 
-    		"NPE THROWN",
-    		null,
-    		true,
-    		null);
+			null /* do not check compiler log */,
+			"" /* expected output string */,
+			"NPE THROWN" /* expected error string */,
+			JavacTestOptions.DEFAULT /* default javac test options */);
     	return;
 	}
 	this.runConformTest(
