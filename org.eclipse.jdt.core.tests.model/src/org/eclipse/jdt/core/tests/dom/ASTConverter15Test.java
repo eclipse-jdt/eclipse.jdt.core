@@ -10114,4 +10114,43 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IMethodBinding binding = declaration.resolveBinding();
 		assertNotNull("No binding", binding);
 	}
+	
+	/*
+	 * Ensures that requesting a type binding with a non-existing parameterized type doesn't throw an OutOfMemoryError
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=233625 )
+	 */
+	public void test0312() throws JavaModelException {
+		String[] bindingKeys =  new String[] {"Ljava/util/Map<Ljava/lang/Class<Ljava/lang/Class;*>;Ljava/util/List<LUnknown;>;>;"};
+		BindingRequestor requestor = new BindingRequestor();
+    	resolveASTs(new ICompilationUnit[] {} , bindingKeys, requestor, getJavaProject("Converter15"), null);
+		assertBindingsEqual(
+			"<null>",
+			requestor.getBindings(bindingKeys));
+	}
+
+	/*
+	 * Ensures that requesting a method binding with a non-existing parameterized type doesn't throw an OutOfMemoryError
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=233625 )
+	 */
+	public void test0313() throws JavaModelException {
+		String[] bindingKeys =  new String[] {"Ljava/util/Collections;.emptyMap<K:Ljava/lang/Object;V:Ljava/lang/Object;>()Ljava/util/Map<TK;TV;>;%<Ljava/lang/Class<Ljava/lang/Class;*>;Ljava/util/List<LUnknown;>;>"};
+		BindingRequestor requestor = new BindingRequestor();
+    	resolveASTs(new ICompilationUnit[] {} , bindingKeys, requestor, getJavaProject("Converter15"), null);
+		assertBindingsEqual(
+			"<null>",
+			requestor.getBindings(bindingKeys));
+	}
+	
+	/*
+	 * Ensures that requesting a type binding with a non-existing parameterized type returns null
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=233625 )
+	 */
+	public void test0314() throws JavaModelException {
+		String[] bindingKeys =  new String[] {"Ljava/util/List<LZork;>.Map<Ljava/lang/Object;Ljava/lang/Number;>;"};
+		BindingRequestor requestor = new BindingRequestor();
+    	resolveASTs(new ICompilationUnit[] {} , bindingKeys, requestor, getJavaProject("Converter15"), null);
+		assertBindingsEqual(
+			"<null>",
+			requestor.getBindings(bindingKeys));
+	}
 }

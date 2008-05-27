@@ -227,6 +227,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 
 	public void consumeField(char[] fieldName) {
+		if (this.typeBinding == null)
+			return;
 		FieldBinding[] fields = ((ReferenceBinding) this.typeBinding).availableFields(); // resilience
 	 	for (int i = 0, length = fields.length; i < length; i++) {
 			FieldBinding field = fields[i];
@@ -242,6 +244,11 @@ public class BindingKeyResolver extends BindingKeyParser {
 		if (this.methodBinding == null)
 			return;
 		TypeBinding[] arguments = getTypeBindingArguments();
+		if (arguments == null) {
+			this.methodBinding = null;
+			this.compilerBinding = null;
+			return;
+		}
 		if (arguments.length != this.methodBinding.typeVariables().length)
 			this.methodBinding = this.environment.createParameterizedGenericMethod(this.methodBinding, (RawTypeBinding) null);
 		else
@@ -260,6 +267,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 
 	public void consumeLocalVar(char[] varName, int occurrenceCount) {
 		if (this.scope == null) {
+			if (this.methodBinding == null)
+				return;
 			this.scope = this.methodBinding.sourceMethod().scope;
 		}
 	 	for (int i = 0; i < this.scope.localIndex; i++) {
@@ -274,6 +283,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 
 	public void consumeMethod(char[] selector, char[] signature) {
+		if (this.typeBinding == null)
+			return;
 		MethodBinding[] methods = ((ReferenceBinding) this.typeBinding).availableMethods(); // resilience
 	 	for (int i = 0, methodLength = methods.length; i < methodLength; i++) {
 			MethodBinding method = methods[i];
@@ -301,7 +312,14 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public void consumeParameterizedType(char[] simpleTypeName, boolean isRaw) {
+		if (this.typeBinding == null)
+			return;
 		TypeBinding[] arguments = getTypeBindingArguments();
+		if (arguments == null) {
+			this.typeBinding = null;
+			this.genericType = null;
+			return;
+		}
 		if (simpleTypeName != null) {
 			if (this.genericType == null) {
 				// parameterized member type with raw enclosing type
@@ -333,6 +351,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 	
 	public void consumeScope(int scopeNumber) {
 		if (this.scope == null) {
+			if (this.methodBinding == null)
+				return;
 			this.scope = this.methodBinding.sourceMethod().scope;
 		}
 		if (scopeNumber >= this.scope.subscopeCount)
@@ -374,13 +394,22 @@ public class BindingKeyResolver extends BindingKeyParser {
 	
 	public void consumeTypeVariable(char[] position, char[] typeVariableName) {
 		if (position.length > 0) {
+			if (this.typeBinding == null)
+				return;
 			int pos = Integer.parseInt(new String(position));
 			MethodBinding[] methods = ((ReferenceBinding) this.typeBinding).availableMethods(); // resilience
 			if (methods != null && pos < methods.length) {
 				this.methodBinding = methods[pos];
 			}
 		}
-	 	TypeVariableBinding[] typeVariableBindings = this.methodBinding != null ? this.methodBinding.typeVariables() : this.typeBinding.typeVariables();
+	 	TypeVariableBinding[] typeVariableBindings;
+	 	if (this.methodBinding != null) {
+	 		typeVariableBindings = this.methodBinding.typeVariables();
+	 	} else if (this.typeBinding != null) {
+	 		typeVariableBindings = this.typeBinding.typeVariables();
+	 	} else {
+	 		return;
+	 	}
 	 	for (int i = 0, length = typeVariableBindings.length; i < length; i++) {
 			TypeVariableBinding typeVariableBinding = typeVariableBindings[i];
 			if (CharOperation.equals(typeVariableName, typeVariableBinding.sourceName())) {
@@ -527,7 +556,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 			BindingKeyResolver resolver = (BindingKeyResolver) this.types.get(i);
 			TypeBinding compilerBinding2 = (TypeBinding) resolver.compilerBinding;
 			if (compilerBinding2 == null) {
-				throw new IllegalArgumentException();
+				this.types = new ArrayList();
+				return null;
 			}
 			arguments[i] = compilerBinding2;
 		}
