@@ -14974,8 +14974,10 @@ public class GenericTypeTest extends AbstractComparableTest {
 public void test0498(){
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */,
+		new String[] { /* test files */
 			"X.java",
 			"interface I {\n" + 
 			"   String foo();\n" + 
@@ -14998,15 +15000,20 @@ public void test0498(){
 			"  }\n" + 
 			"}\n"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 15)\n" + 
 		"	J j = (J) i;\n" + 
 		"	      ^^^^^\n" + 
 		"Cannot cast from I to J\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		RUN_JAVAC ? /* javac test options */
+			new JavacTestOptions("-source 1.4") :
+			JavacTestOptions.DEFAULT );
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=85157
 public void test0499(){

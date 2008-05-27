@@ -249,6 +249,15 @@ static class JavacTestOptions {
 			return true;
 		}
 	};
+	private String compilerOptions = "";
+	public JavacTestOptions() {
+	}
+	public JavacTestOptions(String compilerOptions) {
+		this.compilerOptions = compilerOptions;
+	}
+	String getCompilerOptions() {
+		return this.compilerOptions;
+	}
 	boolean skip(JavacCompiler compiler) {
 		return false;
 	}
@@ -1354,7 +1363,7 @@ protected void runJavac(
 					sourceFileNames[j] = testFiles[i];
 				}
 				// compile
-				long compilerResult = compiler.compile(javacOutputDirectory, "" /* options */, sourceFileNames, compilerLog);
+				long compilerResult = compiler.compile(javacOutputDirectory, options.getCompilerOptions() /* options */, sourceFileNames, compilerLog);
 				// check cumulative javac results
 				// WORK need to use a per compiler approach
 				if (! testName.equals(javacTestName)) {
@@ -1412,6 +1421,9 @@ protected void runJavac(
 							mismatch = JavacTestOptions.MismatchType.StandardOutputMismatch;
 						}
 					}
+					// WORK move to a logic in which if stdout is empty whereas 
+					//      it should have had contents, stderr is leveraged as
+					//      potentially holding indications regarding the failure
 					if (expectedErrorString != null /* null skips error test */ && mismatch == 0) {
 						err = stderr.toString().trim();
 						if (!expectedErrorString.equals(err)) {
@@ -2154,6 +2166,65 @@ void runNegativeTest(
 		// compiler options
 		null /* no class libraries */,
 		null /* no custom options */,
+		false /* do not perform statements recovery */, 
+		null /* no custom requestor */,
+		// compiler results
+		true /* expecting compiler errors */,
+		expectedCompilerLog /* expected compiler log */,
+		// runtime options
+		false /* do not force execution */,
+		null /* no vm arguments */,
+		// runtime results
+		null /* do not check output string */,
+		null /* do not check error string */,
+		// javac options
+		javacTestOptions /* javac test options */);
+}
+//	runNegativeTest(
+//		// test directory preparation
+//		true /* flush output directory */, 
+//		false /* do not flush output directory */,
+//		shouldFlushOutputDirectory /* should flush output directory */,
+//
+//		new String[] { /* test files */
+//		},
+//		null /* no test files */,
+//
+//		// compiler options
+//		null /* no class libraries */,
+//		new String[] { /* class libraries */
+//		},
+//		classLibraries /* class libraries */,
+//
+//		null /* no custom options */,
+//		customOptions /* custom options */,
+//
+//		// compiler results
+//		null /* do not check compiler log */,
+//		"" /* expected compiler log */,
+//
+//		// javac options
+//		JavacTestOptions.SKIP /* skip javac tests */);
+//		JavacTestOptions.DEFAULT /* default javac test options */);
+//		javacTestOptions /* javac test options */);
+void runNegativeTest(
+		// test directory preparation
+		boolean shouldFlushOutputDirectory, 
+		String[] testFiles,
+		// compiler options
+		String[] classLibraries,
+		Map customOptions,
+		// compiler results
+		String expectedCompilerLog,
+		// javac options
+		JavacTestOptions javacTestOptions) {
+	runTest(
+		// test directory preparation
+		shouldFlushOutputDirectory /* should flush output directory */, 
+		testFiles /* test files */,
+		// compiler options
+		classLibraries /* class libraries */,
+		customOptions /* custom options */,
 		false /* do not perform statements recovery */, 
 		null /* no custom requestor */,
 		// compiler results
