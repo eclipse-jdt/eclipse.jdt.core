@@ -13491,17 +13491,18 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
-	// **
 	public void test0448a() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X<T> {\n" + 
-				"	class Y {}\n" + 
-				"	X<?>.Y[] tab = new X<?>.Y[] {};\n" + 
-				"}"
-			}, 
-			"");
+		runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
+			"X.java",
+			"public class X<T> {\n" + 
+			"	class Y {}\n" + 
+			"	X<?>.Y[] tab = new X<?>.Y[] {};\n" + 
+			"}"
+		},
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 	}
 
 	
