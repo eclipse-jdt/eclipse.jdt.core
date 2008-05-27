@@ -9580,7 +9580,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// wildcard captures bound and variable superinterfaces
 	public void test0327() {
 		this.runConformTest(
-			new String[] {
+	 		// test directory preparation
+			new String[] { /* test files */
 				"X.java",
 				"public class X<T extends IFoo> {\n" + 
 				"	\n" + 
@@ -9597,7 +9598,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	void bar();\n" + 
 				"}\n"
 			},
-			"");
+			// javac options
+			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 	}
 	// wildcard captures bound and variable superinterfaces
 	public void test0328() {
@@ -9664,7 +9666,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// wildcard captures bound and variable superinterfaces
 	public void test0329() {
 		this.runConformTest(
-			new String[] {
+			// test directory preparation
+			true /* flush output directory */, 
+			new String[] { /* test files */
 				"X.java",
 				"public class X<T extends IFoo> {\n" + 
 				"	T element;\n" + 
@@ -9695,7 +9699,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	}\n" + 
 				"}\n",
 			},
-			"FOOBAR");
+			// compiler results
+			null /* do not check compiler log */,
+			// runtime results
+			"FOOBAR" /* expected output string */,
+			null /* do not check error string */,
+			// javac options
+			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 	}	
 	// wildcard captures bound superclass and variable superclass
 	public void test0330() {
@@ -9735,7 +9745,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// wildcard captures bound superclass and variable superclass
 	public void test0331() {
 		this.runConformTest(
-			new String[] {
+			// test directory preparation
+			true /* flush output directory */, 
+			new String[] { /* test files */
 				"X.java",
 				"public class X<T extends Foo> {\n" + 
 				"	T element;\n" + 
@@ -9765,7 +9777,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	}\n" + 
 				"}\n",
 			},
-			"FOOBAR");
+			// compiler results
+			null /* do not check compiler log */,
+			// runtime results
+			"FOOBAR" /* expected output string */,
+			null /* do not check error string */,
+			// javac options
+			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 	}		
 	// wildcard considers bound superclass or variable superclass
 	public void test0332() {
