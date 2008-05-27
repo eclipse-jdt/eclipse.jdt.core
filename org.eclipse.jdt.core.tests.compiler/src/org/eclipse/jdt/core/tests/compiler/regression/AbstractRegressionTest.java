@@ -98,7 +98,12 @@ static class JavacCompiler {
 				versionLogger.join();  // make sure we get the whole output
 				rawVersion = versionLogger.buffer.toString();
 				int eol = rawVersion.indexOf('\n');
-				rawVersion = rawVersion.substring(0, eol);
+				if (eol != -1) {
+					rawVersion = rawVersion.substring(0, eol);
+				}
+				if (rawVersion.startsWith("javac ")) {
+					rawVersion = rawVersion.substring(6, rawVersion.length());
+				}
 			} finally {
 				if (fetchVersionProcess != null) {
 					fetchVersionProcess.destroy(); // closes process streams
