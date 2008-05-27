@@ -12696,24 +12696,26 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293
-	// **
 	public void test0429c() { 
-		this.runNegativeTest(
-			new String[] {
+		runNegativeTest(
+			// test directory preparation
+			new String[] { /* test files */
 				"X4.java",
 				"class X4 <T extends Comparable<Z> & Comparable<Z>> {}\n" +
 				"abstract class Y extends Z {}\n" +
 				"abstract class Z implements Comparable<Z> {}",
 			},
-			"----------\n" + 
+			// compiler results
+			"----------\n" + /* expected compiler log */
 			"1. ERROR in X4.java (at line 1)\n" + 
 			"	class X4 <T extends Comparable<Z> & Comparable<Z>> {}\n" + 
 			"	                                    ^^^^^^^^^^\n" + 
 			"Duplicate bound Comparable<Z>\n" + 
-			"----------\n"
-			// no complaints about duplicates if they are both parameterized with same args
-			// but you cannot extend Comparable & Comparable so we'll report an error
-		);
+			"----------\n",
+				// no complaints about duplicates if they are both parameterized with same args
+				// but you cannot extend Comparable & Comparable so we'll report an error
+			// javac options
+			JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293	
 	public void test0429d() { 
