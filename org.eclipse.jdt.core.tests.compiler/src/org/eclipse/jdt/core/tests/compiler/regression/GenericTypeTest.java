@@ -44520,4 +44520,83 @@ public void test1334() {
 			},
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=233800
+public void test1335() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"public class X<T> {\n" + 
+				"	public void doesNotCompile(SomeInterface i) {\n" + 
+				"		T t = ((SomeDerivedInterface<T>) i).getItem();\n" + 
+				"	}\n" + 
+				"	static interface SomeInterface {\n" + 
+				"	}\n" + 
+				"	static interface SomeDerivedInterface<T> extends SomeInterface {\n" + 
+				"		T getItem();\n" + 
+				"	}\n" + 
+				"	Zork z;\n" +
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	T t = ((SomeDerivedInterface<T>) i).getItem();\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from X.SomeInterface to X.SomeDerivedInterface<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=233800 - variation
+public void test1336() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"public class X {\n" + 
+				"	void foo(Other2<?>.Member2<?> om2) {\n" + 
+				"		Other<String>.Member m = (Other<String>.Member) om2;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Other<T> {\n" + 
+				"	class Member {}\n" + 
+				"}\n" + 
+				"class Other2<T> extends Other<T> {\n" + 
+				"	class Member2<U> extends Other<U>.Member {\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	Other<String>.Member m = (Other<String>.Member) om2;\r\n" + 
+			"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from Other2<?>.Member2<capture#1-of ?> to Other<String>.Member\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=233800 - variation
+public void test1337() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"public class X {\n" + 
+				"	void foo(Other2.Member2<?> om2) {\n" + 
+				"		Other<String>.Member m = (Other<String>.Member) om2;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Other<T> {\n" + 
+				"	class Member {}\n" + 
+				"}\n" + 
+				"class Other2 extends Other<X> {\n" + 
+				"	class Member2<U> extends Other<U>.Member {\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	Other<String>.Member m = (Other<String>.Member) om2;\r\n" + 
+			"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from Other2.Member2<capture#1-of ?> to Other<String>.Member\n" + 
+			"----------\n");
+}
 }
