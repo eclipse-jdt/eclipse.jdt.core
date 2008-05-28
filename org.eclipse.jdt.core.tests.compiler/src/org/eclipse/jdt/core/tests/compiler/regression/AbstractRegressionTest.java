@@ -360,7 +360,8 @@ static class JavacTestOptions {
 		public static JavacHasABug
 			JavacBug5061359 = null, // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5061359
 			JavacBug6294779 = null, // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6294779
-			JavacBug6302954 = null; // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6302954 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=98379
+			JavacBug6302954 = null, // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6302954 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=98379
+			JavacBug6400189 = null; // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6400189 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
 			JavacBugFixed_6_10 = null,
@@ -379,8 +380,10 @@ static class JavacTestOptions {
 				JavacBug6294779 = new JavacHasABug(
 					MismatchType.JavacErrorsEclipseNone);
 				JavacBug6302954 = new JavacHasABug(
-						MismatchType.JavacErrorsEclipseNone, 
-						ClassFileConstants.JDK1_7, 0 /* 1.7.0 b03 */);
+					MismatchType.JavacErrorsEclipseNone, 
+					ClassFileConstants.JDK1_7, 0 /* 1.7.0 b03 */);
+				JavacBug6400189 = new JavacHasABug(
+					MismatchType.EclipseErrorsJavacNone);
 			}
 		}	
 	}
@@ -1426,7 +1429,9 @@ protected void runJavac(
 					//      potentially holding indications regarding the failure
 					if (expectedErrorString != null /* null skips error test */ && mismatch == 0) {
 						err = stderr.toString().trim();
-						if (!expectedErrorString.equals(err)) {
+						if (!expectedErrorString.equals(err) && // special case: command-line java does not like missing main methods
+								!(expectedErrorString.length() == 0 && 
+									err.indexOf("java.lang.NoSuchMethodError: main") != -1)) {
 							mismatch = JavacTestOptions.MismatchType.ErrorOutputMismatch;
 						}
 					}

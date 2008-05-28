@@ -16943,22 +16943,24 @@ public void test0500(){
 			"----------\n");
 	}
 	public void test0547() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"import java.util.*;\n" + 
-				"public class X {\n" + 
-				"	public <K> TreeMap<K,K> essai(K type) {\n" + 
-				"		TreeMap<K,K> treeMap = new TreeMap<K,K>();\n" + 
-				"		return treeMap;\n" + 
-				"	}\n" + 
-				"	public static void main(String args[]) {\n" + 
-				"		X x = new X();\n" + 
-				"		TreeMap<?,?> treeMap = x.essai(null);\n" + 
-				"	}\n" + 
-				"}\n",
-			},
-			"");
+		runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	public <K> TreeMap<K,K> essai(K type) {\n" + 
+			"		TreeMap<K,K> treeMap = new TreeMap<K,K>();\n" + 
+			"		return treeMap;\n" + 
+			"	}\n" + 
+			"	public static void main(String args[]) {\n" + 
+			"		X x = new X();\n" + 
+			"		TreeMap<?,?> treeMap = x.essai(null);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 	}		
 	public void test0548() {
 		this.runNegativeTest(
@@ -17631,8 +17633,10 @@ public void test0500(){
 			"----------\n");	
 	}
 	public void test0571() {
-		this.runConformTest(
-			new String[] {
+		runConformTest(
+			// test directory preparation
+			true /* flush output directory */, 
+			new String[] { /* test files */
 				"X.java",
 				"interface IFoo {\n" + 
 				"	void foo();\n" + 
@@ -17660,7 +17664,16 @@ public void test0500(){
 				"	}\n" + 
 				"}\n",
 			},
-			"SUCCESS");	
+			// compiler options
+			null /* no class libraries */,
+			null /* no custom options */,
+			// compiler results
+			null /* do not check compiler log */,
+			// runtime results
+			"SUCCESS" /* expected output string */,
+			null /* do not check error string */,
+			// javac options
+			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90430
 	public void test0572() {
@@ -19407,8 +19420,10 @@ public void test0617() {
 	}				
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982 - variation
 	public void test0633() {
-	    this.runConformTest(
-            new String[] {
+	    runConformTest(
+    		// test directory preparation
+    		true /* flush output directory */, 
+    		new String[] { /* test files */
                 "X.java",
 				"import java.util.Vector;\n" + 
 				"\n" + 
@@ -19423,7 +19438,13 @@ public void test0617() {
 				"	}\n" + 
 				"}\n",
 	        },
-			"");
+			// compiler results
+			null /* do not check compiler log */,
+			// runtime results
+			"" /* expected output string */,
+			null /* do not check error string */,
+			// javac options
+			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 	}				
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90775
 	public void test0634() {
@@ -20083,7 +20104,7 @@ public void test0617() {
 			null);
 	}
 	public void test0651() {
-	    this.runConformTest(
+	    runConformTest(
             new String[] {
                 "X.java",
 				"public class X<U> {\n" + 
@@ -20111,7 +20132,7 @@ public void test0617() {
 				"abstract class Values<T> {\n" + 
 				"}\n",
 	        },
-			"");
+			JavacTestOptions.DEFAULT);
 	}	
 	public void test0652() {
 	    this.runConformTest(
@@ -21054,8 +21075,9 @@ public void _test0667() {
 		"----------\n");
 }	
 public void test0668() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"import java.util.List;\n" + 
 			" \n" + 
@@ -21065,7 +21087,8 @@ public void test0668() {
 			"    }\n" + 
 			"}\n",
 		},
-		"");
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95289
 public void test0669() {
@@ -21294,8 +21317,9 @@ public void test0674() {
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
 public void test0675() {
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"class Key<E extends Key<E>> {}\n" + 
 			"class Store<F extends Key<F>> {}\n" + 
@@ -21305,12 +21329,15 @@ public void test0675() {
 			"	Store<? extends Key<? extends T>> store2;\n" + 
 			"}\n",
 		},
-		"----------\n" + 
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	Store<? extends Key<T>> store1;\n" + 
 		"	                    ^\n" + 
 		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
-		"----------\n");
+		"----------\n",
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }	
 //check fault tolerance, in spite of bound mismatch, still pass param type for further resolving message send
 public void test0676() {
@@ -23052,10 +23079,10 @@ public void test0736() {
 		"Cannot cast from C to D<? extends Exception>\n" + 
 		"----------\n");
 }
-// **
 public void test0737() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"class Sup {\n" + 
 			"}\n" + 
@@ -23075,7 +23102,8 @@ public void test0737() {
 			"	}\n" + 
 			"}\n",
 		},
-		"");
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
 public void test0738() {
@@ -23577,10 +23605,10 @@ public void test0755() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99999 - variation
-// **
 public void test0756() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"public class X<T> {\n" +
 			"  public class B {}\n" +
@@ -23589,7 +23617,8 @@ public void test0756() {
 			"  }\n" +
 			"}",
 		},
-		"");
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100147
 public void test0757() {
@@ -24193,8 +24222,10 @@ public void test0775() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103023
 public void test0776() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"import java.util.*;\n" + 
 			"\n" + 
@@ -24217,7 +24248,13 @@ public void test0776() {
 			"}\n" + 
 			"interface I<U> {}\n",
 		},
-		"SUCCESS");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"SUCCESS" /* expected output string */,
+		null /* do not check error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103472
 public void test0777() {
@@ -24711,10 +24748,11 @@ public void test0790() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104655
-// **
 public void test0791() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */,
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"  <Sup, E1 extends Sup, E2 extends Sup> Sup method1(boolean b, E1 e1, E2 e2) {\n" + 
@@ -24729,13 +24767,19 @@ public void test0791() {
 			"  }\n" + 
 			"}\n",
 		},
-		"");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"" /* expected output string */,
+		null /* do not check error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104649
-// **
 public void test0792() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"public class X<E> {\n" + 
 			"	void shouldcompile() {\n" + 
@@ -24743,7 +24787,8 @@ public void test0792() {
 			"	}\n" + 
 			"}\n",
 		},
-		"");
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=105635
 public void test0793() {
@@ -24966,8 +25011,9 @@ public void test0799() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744
 public void test0800() {
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"import java.lang.reflect.Constructor;\n" + 
 			"\n" + 
@@ -24986,7 +25032,8 @@ public void test0800() {
 			"	String message();\n" + 
 			"}\n",
 		},
-		"----------\n" + 
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. WARNING in X.java (at line 6)\n" + 
 		"	Constructor[] constrs = X.class.getConstructors();\n" + 
 		"	^^^^^^^^^^^\n" + 
@@ -25006,7 +25053,9 @@ public void test0800() {
 		"	final String message = constructor.getAnnotation(AnnClass).message();\n" + 
 		"	                                                           ^^^^^^^\n" + 
 		"The method message() is undefined for the type Annotation\n" + 
-		"----------\n");
+		"----------\n",
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBug6400189 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744 - variation
 public void test0801() {
@@ -25345,10 +25394,11 @@ public void test0809() {
 		"Type mismatch: cannot convert from element type Object to Node\n" + 
 		"----------\n");
 }
-// **
 public void test0810() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"class A<T, U> {\n" +
 			"	public String toString() {\n" +
@@ -25368,7 +25418,13 @@ public void test0810() {
 			"	}\n" +
 			"}",
 		},
-		"SUCCESS");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"SUCCESS" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108372
 public void test0811() {
