@@ -303,7 +303,7 @@ public class CastExpression extends Expression {
 								// easy case if less parameters on match
 								TypeBinding[] castArguments = paramCastType.arguments;
 								int length = castArguments.length;
-								if (length > paramMatch.arguments.length) {
+								if (paramMatch.arguments == null || length > paramMatch.arguments.length) {
 									this.bits |= UnsafeCast;
 								} else if ((paramCastType.tagBits & (TagBits.HasDirectWildcard|TagBits.HasTypeVariable)) != 0) {
 									// verify alternate cast type, substituting different type arguments
