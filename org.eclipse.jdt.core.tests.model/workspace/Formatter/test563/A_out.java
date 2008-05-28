@@ -1,1 +1,0 @@
-Map map = new<String, Element> HashMap();
