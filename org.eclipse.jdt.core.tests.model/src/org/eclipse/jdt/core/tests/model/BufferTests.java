@@ -13,10 +13,12 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jdt.core.*;
+
 import junit.framework.Test;
 
 public class BufferTests extends ModifyingResourceTests implements IBufferChangedListener {
@@ -411,6 +413,32 @@ public void testReplaceEnd() throws CoreException {
 		assertTrue("should have unsaved changes", buffer.hasUnsavedChanges());
 	} finally {
 		this.deleteBuffer(buffer);
+	}
+}
+/*
+ * Ensure that saving a buffer on a non-yet existing resource and using the UTF-8 encoding doesn't throw an exception
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=234307 )
+ */
+public void testSaveNonExistingUTF8() throws Exception {
+	IBuffer buffer = (new WorkingCopyOwner() {}).createBuffer(getCompilationUnit("/P/X234307.java"));
+	buffer.setContents(
+		"public class X234307 {\n" +
+		"}"
+	);
+	IProject project = getProject("P");
+	String defaultCharset = project.getDefaultCharset();
+	try {
+		project.setDefaultCharset("UTF-8", null);
+		String newContents = 
+			"public interface X234307 {\n" +
+			"}";
+		buffer.setContents(newContents);
+		buffer.save(null, false/*don't force*/);
+		char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(getFile("/P/X234307.java").getLocation().toFile(), null);
+		assertSourceEquals("Unexpected source", newContents, new String(contents));
+	} finally {
+		deleteBuffer(buffer); // this deletes the file as well
+		project.setDefaultCharset(defaultCharset, null);
 	}
 }
 /**

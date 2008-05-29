@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
@@ -358,7 +359,15 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 		// Special case for UTF-8 BOM files
 		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=110576
 		if (encoding != null && encoding.equals(org.eclipse.jdt.internal.compiler.util.Util.UTF_8)) {
-			IContentDescription description = this.file.getContentDescription();
+			IContentDescription description;
+			try {
+				description = this.file.getContentDescription();
+			} catch (CoreException e) {
+				if (e.getStatus().getCode() != IResourceStatus.RESOURCE_NOT_FOUND)
+					throw e;
+				// file no longer exist (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=234307 )
+				description = null;
+			}
 			if (description != null && description.getProperty(IContentDescription.BYTE_ORDER_MARK) != null) {
 				int bomLength= IContentDescription.BOM_UTF_8.length;
 				byte[] bytesWithBOM= new byte[bytes.length + bomLength];
