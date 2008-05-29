@@ -28122,6 +28122,7 @@ public void test0886() {
 		null /* no class libraries */,
 		customOptions /* custom options */,
 		// compiler results
+		//	null /* do not check compiler log */,
 		"" /* expected compiler log */,
 		// runtime results
 		"" /* expected output string */,
@@ -28382,10 +28383,8 @@ public void test0893() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126177 - variation
 public void test0894() {
-	runConformTest(
-		// test directory preparation
-		true /* flush output directory */, 
-		new String[] { /* test files */
+	this.runConformTest(
+		new String[] {
 			"X.java", // =================
 			"public class X {\n" + 
 			"        static class C1 {\n" + 
@@ -28414,13 +28413,7 @@ public void test0894() {
 			"        }\n" + 
 			"}\n",
 		},
-		// compiler results
-		"" /* expected compiler log */,
-		// runtime results
-		"[c1m1][c1m1][c1m1]" /* expected output string */,
-		"" /* expected error string */,
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+		"[c1m1][c1m1][c1m1]");
 }
 public void test0895() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) {	
@@ -28464,10 +28457,8 @@ public void test0895() {
 			"----------\n");
 }
 public void test0896() {
-	runConformTest(
-		// test directory preparation
-		true /* flush output directory */, 
-		new String[] { /* test files */
+	this.runConformTest(
+		new String[] {
 			"X.java", // =================
 			"public class X {\n" + 
 			"	interface I {		void f(); 	}\n" + 
@@ -28495,18 +28486,11 @@ public void test0896() {
 			"	}\n" + 
 			"}\n",
 		},
-		// compiler results
-		"" /* expected compiler log */,
-		// runtime results
-		"[A#f()][A#g()][B#f()][B#g()]" /* expected output string */,
-		"" /* expected error string */,
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+		"[A#f()][A#g()][B#f()][B#g()]");
 }
 public void test0897() {
-	runConformTest(
-		// test directory preparation
-		new String[] { /* test files */	
+	this.runConformTest(
+		new String[] {
 			"Test.java", // =================
 			"interface I { }\n" + 
 			"class X { }\n" + 
@@ -28519,13 +28503,11 @@ public void test0897() {
 			"}\n" + 
 			"\n",
 		},
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+		"");
 }
 public void test0898() {
-	runConformTest(
-		// test directory preparation
-		new String[] { /* test files */
+	this.runConformTest(
+		new String[] {
 			"X.java", // =================
 			"interface I1 {\n" + 
 			"	void i1();\n" + 
@@ -28548,8 +28530,7 @@ public void test0898() {
 			"	}\n" + 
 			"}\n",
 		},
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122331
 public void test0899() {
@@ -28640,9 +28621,8 @@ public void test0900() {
 }
 // Object array vs Object into generic method
 public void test0901() {
-	runNegativeTest(
-		// test directory preparation
-		new String[] { /* test files */
+	this.runNegativeTest(
+		new String[] {
 			"X.java",
 			"public class X {\n" + 
 			"    static <T> T foo(T p1, T p2) {\n" + 
@@ -28657,16 +28637,13 @@ public void test0901() {
 		"	return foo(i, f);\n" + 
 		"	       ^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Object&Serializable&Cloneable to Object[]\n" + 
-		"----------\n",
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+		"----------\n");
 }
 
 // circular references amongst generic interfaces with co-implementing classes
 public void test0902() {
-	runConformTest(
-		// test directory preparation
-		new String[] { /* test files */
+	this.runConformTest(
+		new String[] {
 			"I.java",
 			"public interface I<U extends J<? extends I<U>>> {\n" + 
 			"}",
@@ -28683,8 +28660,7 @@ public void test0902() {
 			"			U extends CJ<T, U> & J<T>>\n" +
 			"	implements J<T> {\n" +
 			"}"},
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+		"");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126914
@@ -28710,9 +28686,8 @@ public void test0903() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126914
 public void test0904() {
-	runConformTest(
-		// test directory preparation
-		new String[] { /* test files */
+	this.runConformTest(
+		new String[] {
 			"X.java",
 			"interface I<T extends J<T,U>, U extends I<T,U>> {\n" + 
 			"    // empty\n" + 
@@ -28727,15 +28702,13 @@ public void test0904() {
 			"    // empty\n" + 
 			"}\n"
 			},
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+		"");
 }
 
 // array in super bound
 public void test0905() {
-	runConformTest(
-		// test directory preparation
-		new String[] { /* test files */
+	this.runConformTest(
+		new String[] {
 			"X.java",
 			"import java.util.List;\n" + 
 			" \n" + 
@@ -28744,8 +28717,7 @@ public void test0905() {
 			"        p.add(new Object[0]);\n" + 
 			"    }\n" + 
 			"}"},
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+		"");
 }
 
 // raw types in casts
@@ -28832,9 +28804,8 @@ public void test0907() {
 
 // check capture for conditional operator - variant
 public void test0908() {
-	runConformTest(
-		// test directory preparation
-		new String[] { /* test files */
+	this.runConformTest(
+		new String[] {
 			"X.java",
 			"public abstract class X {\n" + 
 			"    protected <T> void foo(Class<? extends T> clazz) {\n" + 
@@ -28842,8 +28813,7 @@ public void test0908() {
 			"    }\n" + 
 			"    abstract public <T> Class<? extends T> bar(Class<T> p);\n" + 
 			"}"},
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126105
 public void test0909() {
@@ -29306,9 +29276,8 @@ public void test0915() {
 
 // synchronized inheritance for multiple generic types
 public void test0916() {
-	runConformTest(
-		// test directory preparation
-		new String[] { /* test files */
+	this.runConformTest(
+		new String[] {
 			"X.java",
 			"public class X<T extends X2<?>> {\n" + 
 			"    T m2;\n" + 
@@ -29335,8 +29304,7 @@ public void test0916() {
 			"    public void bar() {\n" + 
 			"    }\n" + 
 			"}\n"},
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+		"");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128423
@@ -29407,9 +29375,8 @@ public void test0917c() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128560
 public void test0918() {
-	runConformTest(
-		// test directory preparation
-		new String[] { /* test files */
+	this.runConformTest(
+		new String[] {
 			"BasicNode.java",
 			"class BasicEdge<N extends BasicNode<E, N> & Node<E>, E extends BasicEdge<N, E> & Edge<N>>\n" + 
 			"		implements Edge<N> {\n" + 
@@ -29425,8 +29392,7 @@ public void test0918() {
 			"interface Node<E extends Edge<? extends Node<E>>> {\n" + 
 			"}\n",
 		},
-	// javac options
-	JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+		"");
 }
 
 public void test0919() {
@@ -29510,9 +29476,8 @@ public void test0920() {
 		"[15][14][13][12][done]");
 }
 public void test0921() {
-	runConformTest(
-		// test directory preparation
-		new String[] { /* test files */
+	this.runConformTest(
+		new String[] {
 			"Graph.java",
 			"class Node<N extends Node<N,E>, E extends Edge<N,E>> {\n" + 
 			"}\n" + 
@@ -29539,8 +29504,7 @@ public void test0921() {
 			"	}\n" + 
 			"}\n",
 		},
-	// javac options
-	JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+		"");
 }
 // Test case which comes from JDT/UI tests TypeEnvironmentTest.testWildcardAssignements
 public void test0922() {
@@ -29591,148 +29555,129 @@ public void test0923() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129190 
 public void test0924() {
-	runConformTest(
-		// test directory preparation
-		true /* flush output directory */, 
-		new String[] { /* test files */
-			"ExtendedOuter.java",
-			"class Outer<O> {\n" + 
-			"	class Inner {\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	static void method(Outer<?>.Inner x) {\n" + 
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" + 
-			"}\n" + 
-			"\n" + 
-			"public class ExtendedOuter<E> extends Outer<E> {\n" + 
-			"	class ExtendedInner extends Inner {\n" + 
-			"		{\n" + 
-			"			Outer.method(this);\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" +
-			"		new ExtendedOuter<String>().new ExtendedInner();\n" +
-			"	}\n" +
-			"}\n"		
+	this.runConformTest(
+		new String[] {
+		"ExtendedOuter.java",
+		"class Outer<O> {\n" + 
+		"	class Inner {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	static void method(Outer<?>.Inner x) {\n" + 
+		"		System.out.println(\"SUCCESS\");\n" +
+		"	}\n" + 
+		"}\n" + 
+		"\n" + 
+		"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+		"	class ExtendedInner extends Inner {\n" + 
+		"		{\n" + 
+		"			Outer.method(this);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	public static void main(String[] args) {\n" +
+		"		new ExtendedOuter<String>().new ExtendedInner();\n" +
+		"	}\n" +
+		"}\n"		
 		},
-		// compiler results
-		"" /* expected compiler log */,
-		// runtime results
-		"SUCCESS" /* expected output string */,
-		"" /* expected error string */,
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+		"SUCCESS");
 }
+// **
 public void test0925() {
-	runConformTest(
-		// test directory preparation
-		true /* flush output directory */, 
-		new String[] { /* test files */
-			"X.java",
-			"import java.util.*;\n" + 
-			"\n" + 
-			"public class X<A, B> {\n" + 
-			"	private List<A> toAdd;\n" + 
-			"\n" + 
-			"	public X(List<A> toAdd) {\n" + 
-			"		this.toAdd = toAdd;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	private List<A> getRelated(B b) {\n" + 
-			"		// some application logic\n" + 
-			"		// for demo\n" + 
-			"		return toAdd;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	@SuppressWarnings(\"unchecked\")\n" + 
-			"	public <L extends List<? super A>, LF extends Factory<L>> L addOrCreate4(\n" + 
-			"			B b, L l, LF lf) {\n" + 
-			"		if (l == null) {\n" + 
-			"			l = lf.create();\n" + 
-			"		}\n" + 
-			"		((List<? super A>) l).addAll(getRelated(b)); \n" + 
-			"		l.addAll(getRelated(b));\n" + 
-			"		return l;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static class ListFactory<T> implements Factory<List<T>> {\n" + 
-			"		public List<T> create() {\n" + 
-			"			return new ArrayList<T>();\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static interface Factory<T> {\n" + 
-			"		public T create();\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static void main(String... args) {\n" + 
-			"		ListFactory<Number> lf = new ListFactory<Number>();\n" + 
-			"		List<Long> longs = new ArrayList<Long>();\n" + 
-			"		longs.add(new Long(1));\n" + 
-			"		X<Long, Number> test = new X<Long, Number>(longs);\n" + 
-			"		List<Number> ret4 = null;\n" + 
-			"		ret4 = test.addOrCreate4(1, ret4, lf);\n" + 
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" + 
-			"}\n"
+	this.runConformTest(
+		new String[] {
+		"X.java",
+		"import java.util.*;\n" + 
+		"\n" + 
+		"public class X<A, B> {\n" + 
+		"	private List<A> toAdd;\n" + 
+		"\n" + 
+		"	public X(List<A> toAdd) {\n" + 
+		"		this.toAdd = toAdd;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	private List<A> getRelated(B b) {\n" + 
+		"		// some application logic\n" + 
+		"		// for demo\n" + 
+		"		return toAdd;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	@SuppressWarnings(\"unchecked\")\n" + 
+		"	public <L extends List<? super A>, LF extends Factory<L>> L addOrCreate4(\n" + 
+		"			B b, L l, LF lf) {\n" + 
+		"		if (l == null) {\n" + 
+		"			l = lf.create();\n" + 
+		"		}\n" + 
+		"		((List<? super A>) l).addAll(getRelated(b)); \n" + 
+		"		l.addAll(getRelated(b));\n" + 
+		"		return l;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	public static class ListFactory<T> implements Factory<List<T>> {\n" + 
+		"		public List<T> create() {\n" + 
+		"			return new ArrayList<T>();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	public static interface Factory<T> {\n" + 
+		"		public T create();\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	public static void main(String... args) {\n" + 
+		"		ListFactory<Number> lf = new ListFactory<Number>();\n" + 
+		"		List<Long> longs = new ArrayList<Long>();\n" + 
+		"		longs.add(new Long(1));\n" + 
+		"		X<Long, Number> test = new X<Long, Number>(longs);\n" + 
+		"		List<Number> ret4 = null;\n" + 
+		"		ret4 = test.addOrCreate4(1, ret4, lf);\n" + 
+		"		System.out.println(\"SUCCESS\");\n" +
+		"	}\n" + 
+		"}\n"
 		},
-		// compiler results
-		null /* do not check compiler log */,
-		// runtime results
-		"SUCCESS" /* expected output string */,
-		"" /* expected error string */,
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
+		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261
 public void test0926() {
-	runNegativeTest(
-		// test directory preparation
-		new String[] { /* test files */
-			"X.java",
-			"public class X {\n" + 
-			"\n" + 
-			"	public void foo() {\n" + 
-			"		NonTerminalSourcePart<? extends Tuple<Boolean, Term>> RESULT = null;\n" + 
-			"		NonTerminalSourcePart<? extends Tuple<? extends Term, ? extends Formula>> t = null;\n" + 
-			"		RESULT = NonTerminalSourcePart.create(Tuple.create(true, t.value().fst()));\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"\n" + 
-			"class Term {\n" + 
-			"}\n" + 
-			"\n" + 
-			"class Formula {\n" + 
-			"}\n" + 
-			"\n" + 
-			"final class NonTerminalSourcePart<V> {\n" + 
-			"	static <V> NonTerminalSourcePart<V> create(final V _value) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"	final V value() {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"\n" + 
-			"class Tuple<A, B> {\n" + 
-			"	public static <A, B> Tuple<A, B> create(final A a, final B b) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"	public A fst() {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"}\n"
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"\n" + 
+		"	public void foo() {\n" + 
+		"		NonTerminalSourcePart<? extends Tuple<Boolean, Term>> RESULT = null;\n" + 
+		"		NonTerminalSourcePart<? extends Tuple<? extends Term, ? extends Formula>> t = null;\n" + 
+		"		RESULT = NonTerminalSourcePart.create(Tuple.create(true, t.value().fst()));\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"\n" + 
+		"class Term {\n" + 
+		"}\n" + 
+		"\n" + 
+		"class Formula {\n" + 
+		"}\n" + 
+		"\n" + 
+		"final class NonTerminalSourcePart<V> {\n" + 
+		"	static <V> NonTerminalSourcePart<V> create(final V _value) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"	final V value() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"\n" + 
+		"class Tuple<A, B> {\n" + 
+		"	public static <A, B> Tuple<A, B> create(final A a, final B b) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"	public A fst() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
 		},
-		// compiler results
-		"----------\n" + /* expected compiler log */ 
+		"----------\n" + 
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	RESULT = NonTerminalSourcePart.create(Tuple.create(true, t.value().fst()));\n" + 
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from NonTerminalSourcePart<Tuple<Boolean,capture#3-of ? extends Term>> to NonTerminalSourcePart<? extends Tuple<Boolean,Term>>\n" + 
-		"----------\n",
-		// javac options
-		JavacTestOptions.JavacHasABug.JavacBug6557661 /* javac test options */);
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
 public void test0927() {
