@@ -25496,10 +25496,11 @@ public void test0812() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108372 - variation
-// **
 public void test0813() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X<T> {\n" + 
 			"    private T t;\n" + 
@@ -25512,7 +25513,13 @@ public void test0813() {
 			"    }\n" + 
 			"}\n",
 		},
-		"");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695
 public void test0814() {
@@ -27020,8 +27027,10 @@ public void test0853() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113236
 public void test0854() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -27049,12 +27058,20 @@ public void test0854() {
 			"	}\n" +
 			"}",
 		},
-		"SUCCESS");	
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"SUCCESS" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113218
 public void test0855() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -27105,11 +27122,19 @@ public void test0855() {
 			"ExtFieldManager.java",
 			"public interface ExtFieldManager<F extends Field> {}"
 		},
-		"true");	
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"true" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);	
 }
 public void test0856() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	static class MX<T> {\n" + 
@@ -27127,7 +27152,13 @@ public void test0856() {
 			"	}\n" + 
 			"}\n",
 		},
-		"SUCCESS");	
+		// compiler results
+		"" /* expected compiler log */,
+		// runtime results
+		"SUCCESS" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113070
 public void test0857() {
@@ -28076,8 +28107,10 @@ public void test0885() {
 public void test0886() {
 	Map customOptions= getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java", // =================
 			"public class X {\n" + 
 			"	void test() {\n" + 
@@ -28085,12 +28118,17 @@ public void test0886() {
 			"	}\n" + 
 			"}\n" ,
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null/*no custom requestor*/);
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		//	null /* do not check compiler log */,
+		"" /* expected compiler log */,
+		// runtime results
+		"" /* expected output string */,
+		null /* do not check error string */,
+		// javac options
+		new JavacTestOptions("-source 1.4") /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775
 public void test0887() {
@@ -28133,7 +28171,9 @@ public void test0888() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
 public void test0889() {
 	this.runConformTest(
-		new String[] {
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"Test.java", // =================
 			"import java.util.*;\n" + 
 			"\n" + 
@@ -28162,12 +28202,19 @@ public void test0889() {
 			"	}\n" + 
 			"}\n",
 		},
-		"");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
 public void test0890() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"Simple.java", // =================
 			"class A<T extends A<T>> {}\n" + 
 			"class B extends A<B> {}\n" + 
@@ -28182,7 +28229,8 @@ public void test0890() {
 			"	}\n" + 
 			"}\n",
 		},
-		"");
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
 public void test0891() {
