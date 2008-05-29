@@ -111,6 +111,10 @@ void assertLineEquals(String actualContents, String originalSource, String expec
 }
 
 void formatSource(String source, String formattedOutput) {
+	formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0);
+}
+
+void formatSource(String source, String formattedOutput, int kind, int indentationLevel) {
 	int regionStart = source.indexOf("[#");
 	if (regionStart != -1) {
 		IRegion[] regions =  new Region[10];
@@ -127,13 +131,19 @@ void formatSource(String source, String formattedOutput) {
 			start = regionEnd + 2;
 			regionStart = source.indexOf("[#", start);
 		}
-		System.arraycopy(regions, 0, regions = new Region[idx], 0, idx);
 		buffer.append(source.substring(start, source.length()));
 		String newSource = buffer.toString();
-		String result = runFormatter(codeFormatter(), newSource, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, regions, Util.LINE_SEPARATOR);
+		String result;
+		if (idx == 1) {
+			// Use offset and length until bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=233967 is fixed
+			result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions[0].getOffset(), regions[0].getLength(), Util.LINE_SEPARATOR);
+		} else {
+			System.arraycopy(regions, 0, regions = new Region[idx], 0, idx);
+			result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions, Util.LINE_SEPARATOR);
+		}
 		assertLineEquals(result, newSource, formattedOutput, false);
 	} else {
-		formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, false, 0, -1, null);
+		formatSource(source, formattedOutput, kind, indentationLevel, false, 0, -1, null);
 	}
 }
 

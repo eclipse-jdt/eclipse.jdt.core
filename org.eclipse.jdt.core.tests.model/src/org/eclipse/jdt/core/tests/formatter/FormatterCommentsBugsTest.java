@@ -954,4 +954,27 @@ public void testBug233224() throws JavaModelException {
 	this.preferences.comment_line_length = 40;
 	formatUnit("bugs.b233224", "X01.java");
 }
+
+/**
+ * @bug 234336: [formatter] JavaDocTestCase.testMultiLineCommentIndent* tests fail in I20080527-2000 build
+ * @test Ensure that new comment formatter format all comments concerned by selections
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=234336"
+ */
+public void testBug234336() throws JavaModelException {
+	String source = 
+		"public class Test {\n" + 
+		"	[#/**\n" + 
+		"			 * test test\n" + 
+		"				 */#]\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	/**\n" + 
+		"	 * test test\n" + 
+		"	 */\n" + 
+		"}\n",
+		CodeFormatter.K_JAVA_DOC,
+		1 /* indentation level */
+	);
+}
 }

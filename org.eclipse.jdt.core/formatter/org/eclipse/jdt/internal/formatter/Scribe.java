@@ -1896,7 +1896,11 @@ public class Scribe implements IJavaDocTagConstants {
 		// Set scanner
 		initializeScanner(source.toCharArray());
 		this.scanner.resetTo(start, end);
-		this.scannerEndPosition = end;
+		// Put back 3.4RC2 code => comment following line  as it has an impact on Linux tests
+		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=234336
+		// TODO (frederic) Need more investigations and a better fix in 
+		// isAdaptableRegion(int) and adaptRegions()
+		// this.scannerEndPosition = end;
 
 		// Set indentation level
 	    this.numberOfIndentations = level;
