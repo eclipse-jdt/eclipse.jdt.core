@@ -37,9 +37,7 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_1_6 = 0x08;
 	public static final int F_1_7 = 0x10;
 
-	public static final boolean RUN_JAVAC = 
-		false && // compiles bunches of code out; comment out in local workspace to test javac
-		CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
+	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	private static final int UNINITIALIZED = -1;
 	private static final int NONE = 0;
 	private static int possibleComplianceLevels = UNINITIALIZED;

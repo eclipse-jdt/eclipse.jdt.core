@@ -301,12 +301,8 @@ static class JavacTestOptions {
 			super(mismatchType);
 		}
 		public static EclipseHasABug
-			EclipseBug166355 = null; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
-		static {
-			if (RUN_JAVAC) {
-				EclipseBug166355 = new EclipseHasABug(MismatchType.JavacErrorsEclipseWarnings);
-			}
-		}	
+			EclipseBug166355 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseWarnings) : null;	
 	}
 	static class JavacHasABug extends Excuse {
 		long pivotCompliance;
@@ -358,34 +354,33 @@ static class JavacTestOptions {
 		}
 		// bugs that we know precisely of 
 		public static JavacHasABug
-			JavacBug5061359 = null, // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5061359
-			JavacBug6294779 = null, // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6294779
-			JavacBug6302954 = null, // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6302954 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=98379
-			JavacBug6400189 = null; // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6400189 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744
+			JavacBug5061359 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5061359
+				new JavacHasABug(
+					MismatchType.EclipseErrorsJavacNone, 
+					ClassFileConstants.JDK1_7, 0 /* 1.7.0 b03 */) : null,
+			JavacBug6294779 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6294779
+				new JavacHasABug(
+					MismatchType.JavacErrorsEclipseNone) : null,
+			JavacBug6302954 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6302954 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=98379
+				new JavacHasABug(
+					MismatchType.JavacErrorsEclipseNone, 
+					ClassFileConstants.JDK1_7, 0 /* 1.7.0 b03 */) : null,
+			JavacBug6400189 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6400189 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744
+				new JavacHasABug(
+					MismatchType.EclipseErrorsJavacNone) : null,
+			JavacBug6557661 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6557661 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261
+				new JavacHasABug(
+					MismatchType.EclipseErrorsJavacNone) : null;
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
-			JavacBugFixed_6_10 = null,
-			JavacBugFixed_7 = null;
-		static {
-			if (RUN_JAVAC) {
-				JavacBugFixed_6_10 = new JavacHasABug(
+			JavacBugFixed_6_10 = RUN_JAVAC ?
+				new JavacHasABug(
 					0 /* all */, 
-					ClassFileConstants.JDK1_6, 10 /* 1.6.0_10_b08 or better - maybe before */);
-				JavacBugFixed_7 = new JavacHasABug(
+					ClassFileConstants.JDK1_6, 10 /* 1.6.0_10_b08 or better - maybe before */) : null,
+			JavacBugFixed_7 = RUN_JAVAC ?
+				new JavacHasABug(
 					0 /* all */, 
-					ClassFileConstants.JDK1_7, 0 /* 1.7.0_b24 or better - maybe before */);
-				JavacBug5061359 = new JavacHasABug(
-					MismatchType.EclipseErrorsJavacNone, 
-					ClassFileConstants.JDK1_7, 0 /* 1.7.0 b03 */);
-				JavacBug6294779 = new JavacHasABug(
-					MismatchType.JavacErrorsEclipseNone);
-				JavacBug6302954 = new JavacHasABug(
-					MismatchType.JavacErrorsEclipseNone, 
-					ClassFileConstants.JDK1_7, 0 /* 1.7.0 b03 */);
-				JavacBug6400189 = new JavacHasABug(
-					MismatchType.EclipseErrorsJavacNone);
-			}
-		}	
+					ClassFileConstants.JDK1_7, 0 /* 1.7.0_b24 or better - maybe before */) : null;
 	}
 }
 
