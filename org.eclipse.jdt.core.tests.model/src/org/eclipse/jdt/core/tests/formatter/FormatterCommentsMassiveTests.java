@@ -27,6 +27,8 @@ import junit.framework.ComparisonFailure;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.ModelTestsUtil;
@@ -100,18 +102,25 @@ import org.eclipse.text.edits.TextEdit;
  * <code>linesLeading</code> (e.g. ignore white spaces at the beginning of the
  * lines, including the star inside javadoc or block comments):
  * <ul>
- * 	<li>3.0 performance workspace (9951 units):<ul>
+ * 	<li>Eclipse 3.0 performance workspace (9951 units):<ul>
  * 		<li>0 error</li>
  * 		<li>0 failures</li>
  * 		<li>8 failures due to old formatter</li>
- * 		<li>722 files have different lines leading spaces</li>
+ * 		<li>723 files have different lines leading spaces</li>
  * 		<li>9 files have different spaces</li>
+ *		</ul></li>
+ * 	<li>Eclipse 3.4 workspace (16592 units):<ul>
+ * 		<li>0 error</li>
+ * 		<li>11 failures</li>
+ * 		<li>17 failures due to old formatter</li>
+ * 		<li>1244 files have different lines leading spaces</li>
+ * 		<li>11 files have different spaces</li>
  *		</ul></li>
  *		<li>ganymede M5 workspace (25819 units):<ul>
  * 		<li>0 error</li>
- * 		<li>17 failures due to different output while reformatting!</li>
+ * 		<li>12 failures due to different output while reformatting!</li>
  * 		<li>15 failures due to old formatter</li>
- * 		<li>1368 files have different line leading spaces when reformatting!</li>
+ * 		<li>1371 files have different line leading spaces when reformatting!</li>
  * 		<li>14 files have different spaces when reformatting!</li>
  *		</ul></li>
  *		<li>ganymede M6a workspace (26336 units):<ul>
@@ -127,7 +136,7 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 
 	private static final String LINE_SEPARATOR = org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR;
 	final File file;
-	final String path;
+	final IPath path;
 	List failures = new ArrayList();
 	List expectedFailures = new ArrayList();
 	List leadingWhitespacesFailures = new ArrayList();
@@ -163,35 +172,38 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2")); //$NON-NLS-1$
 	private static final int MAX_FAILURES = Integer.parseInt(System.getProperty("maxFailures", "100")); // Max failures using string comparison
 	private static boolean ASSERT_EQUALS_STRINGS = MAX_FAILURES > 0;
-	private final static String[] EXPECTED_FAILURES = DIR.indexOf("v34") < 0
-		? new String[] {
-			"org\\eclipse\\jdt\\internal\\compiler\\ast\\QualifiedNameReference.java",
-			"org\\eclipse\\jdt\\internal\\eval\\CodeSnippetSingleNameReference.java",
-			"org\\eclipse\\jdt\\internal\\core\\DeltaProcessor.java",
-			"org\\eclipse\\jdt\\internal\\core\\JavaProject.java",
-			"org\\eclipse\\jdt\\internal\\core\\search\\indexing\\IndexManager.java",
-			"org\\eclipse\\team\\internal\\ccvs\\ui\\AnnotateView.java",
-			"org\\eclipse\\team\\internal\\ccvs\\ui\\HistoryView.java",
-			"org\\eclipse\\team\\internal\\ccvs\\ui\\wizards\\UpdateWizard.java",
+	private final static IPath[] EXPECTED_FAILURES = DIR.indexOf("v34") < 0
+		? new IPath[] {
+			new Path("org/eclipse/jdt/internal/compiler/ast/QualifiedNameReference.java"),
+			new Path("org/eclipse/jdt/internal/eval/CodeSnippetSingleNameReference.java"),
+			new Path("org/eclipse/jdt/internal/core/DeltaProcessor.java"),
+			new Path("org/eclipse/jdt/internal/core/JavaProject.java"),
+			new Path("org/eclipse/jdt/internal/core/search/indexing/IndexManager.java"),
+			new Path("org/eclipse/team/internal/ccvs/ui/AnnotateView.java"),
+			new Path("org/eclipse/team/internal/ccvs/ui/HistoryView.java"),
+			new Path("org/eclipse/team/internal/ccvs/ui/wizards/UpdateWizard.java"),
 		}
-		:	new String[] {
-			"org\\eclipse\\jdt\\core\\JavaCore.java",
-			"org\\eclipse\\jdt\\internal\\codeassist\\CompletionEngine.java",
-			"org\\eclipse\\jdt\\internal\\codeassist\\SelectionEngine.java",
-			"org\\eclipse\\jdt\\internal\\compiler\\ast\\QualifiedNameReference.java",
-			"org\\eclipse\\jdt\\internal\\compiler\\ast\\SingleNameReference.java",
-			"org\\eclipse\\jdt\\internal\\eval\\CodeSnippetSingleNameReference.java",
-			"org\\eclipse\\jdt\\internal\\compiler\\batch\\Main.java",
-			"org\\eclipse\\jdt\\internal\\compiler\\lookup\\ParameterizedMethodBinding.java",
-			"org\\eclipse\\jdt\\internal\\core\\CompilationUnit.java",
-			"org\\eclipse\\jdt\\internal\\core\\ExternalJavaProject.java",
-			"org\\eclipse\\jdt\\internal\\core\\hierarchy\\HierarchyResolver.java",
-			"org\\eclipse\\jdt\\internal\\core\\hierarchy\\TypeHierarchy.java",
-			"org\\eclipse\\jdt\\internal\\core\\search\\indexing\\IndexAllProject.java",
-			"org\\eclipse\\jdt\\internal\\core\\search\\JavaSearchScope.java",
-			"org\\eclipse\\jdt\\internal\\eval\\EvaluationContext.java",
-			"org\\eclipse\\jdt\\internal\\ui\\text\\javadoc\\JavadocContentAccess2.java",
-			"org\\eclipse\\team\\internal\\ccvs\\ui\\mappings\\WorkspaceSubscriberContext.java",
+		:	new IPath[] {
+			new Path("org/eclipse/equinox/internal/p2/director/NewDependencyExpander.java"),
+			new Path("org/eclipse/jdt/core/JavaCore.java"),
+			new Path("org/eclipse/jdt/internal/codeassist/CompletionEngine.java"),
+			new Path("org/eclipse/jdt/internal/codeassist/SelectionEngine.java"),
+			new Path("org/eclipse/jdt/internal/compiler/ast/Expression.java"),
+			new Path("org/eclipse/jdt/internal/compiler/ast/QualifiedNameReference.java"),
+			new Path("org/eclipse/jdt/internal/compiler/ast/SingleNameReference.java"),
+			new Path("org/eclipse/jdt/internal/eval/CodeSnippetSingleNameReference.java"),
+			new Path("org/eclipse/jdt/internal/compiler/lookup/WildcardBinding.java"),
+			new Path("org/eclipse/jdt/internal/compiler/batch/Main.java"),
+			new Path("org/eclipse/jdt/internal/compiler/lookup/ParameterizedMethodBinding.java"),
+			new Path("org/eclipse/jdt/internal/core/CompilationUnit.java"),
+			new Path("org/eclipse/jdt/internal/core/ExternalJavaProject.java"),
+			new Path("org/eclipse/jdt/internal/core/hierarchy/HierarchyResolver.java"),
+			new Path("org/eclipse/jdt/internal/core/hierarchy/TypeHierarchy.java"),
+			new Path("org/eclipse/jdt/internal/core/search/indexing/IndexAllProject.java"),
+			new Path("org/eclipse/jdt/internal/core/search/JavaSearchScope.java"),
+			new Path("org/eclipse/jdt/internal/eval/EvaluationContext.java"),
+			new Path("org/eclipse/jdt/internal/ui/text/javadoc/JavadocContentAccess2.java"),
+			new Path("org/eclipse/team/internal/ccvs/ui/mappings/WorkspaceSubscriberContext.java"),
 	};
 	static {
 		// Sort expected failures to allow binary search
@@ -232,7 +244,7 @@ public static Test suite() {
 public FormatterCommentsMassiveTests(File file) {
 	super("testCompare");
 	this.file = file;
-	this.path = file.getPath().toString().substring(DIR.length()+1);
+	this.path = new Path(file.getPath().substring(DIR.length()+1));
 }
 
 /* (non-Javadoc)
@@ -756,7 +768,8 @@ private Map getDefaultCompilerOptions() {
 private boolean isExpectedFailure() {
 	int length = EXPECTED_FAILURES.length;
 	for (int i=0; i<length; i++) {
-		if (this.path.endsWith(EXPECTED_FAILURES[i])) {
+		IPath expectedFailure= EXPECTED_FAILURES[i];
+		if (this.path.matchingFirstSegments(expectedFailure) == expectedFailure.segmentCount()) {
 			this.expectedFailures.add(this.path);
 			return true;
 		}
