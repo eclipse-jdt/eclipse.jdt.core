@@ -30355,43 +30355,51 @@ public void test0945() {
 		"----------\n");
 }
 public void test0946() {
-	this.runConformTest(
-		new String[] {
-		"X.java", //================================
-		"public class X {\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		operate(Operations.create());\n" + 
-		"	}\n" + 
-		"	static <O extends Num<O>> void operate(Operators<O> operators) {\n" + 
-		"		System.out.println(operators.spawn());\n" + 
-		"	}\n" + 
-		"}\n" + 
-		"class Operations {\n" + 
-		"	static Operators<?> create() {\n" + 
-		"		return new IntOperators();\n" + 
-		"	}\n" + 
-		"}\n" + 
-		"interface Num<O> {\n" + 
-		"	public O spawn();\n" + 
-		"}\n" + 
-		"class Int implements Num<Int> {\n" + 
-		"	public Int spawn() {\n" + 
-		"		return new Int();\n" + 
-		"	}\n" + 
-		"  public String toString() {\n" +
-		"    return \"Int\";\n" +
-		"  }\n" +
-		"}\n" + 
-		"interface Operators<O extends Num<O>> {\n" + 
-		"	O spawn();\n" + 
-		"}\n" + 
-		"class IntOperators implements Operators<Int> {\n" + 
-		"	public Int spawn() {\n" + 
-		"		return new Int();\n" + 
-		"	}\n" + 
-		"}\n",
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
+			"X.java", //================================
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		operate(Operations.create());\n" + 
+			"	}\n" + 
+			"	static <O extends Num<O>> void operate(Operators<O> operators) {\n" + 
+			"		System.out.println(operators.spawn());\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Operations {\n" + 
+			"	static Operators<?> create() {\n" + 
+			"		return new IntOperators();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface Num<O> {\n" + 
+			"	public O spawn();\n" + 
+			"}\n" + 
+			"class Int implements Num<Int> {\n" + 
+			"	public Int spawn() {\n" + 
+			"		return new Int();\n" + 
+			"	}\n" + 
+			"  public String toString() {\n" +
+			"    return \"Int\";\n" +
+			"  }\n" +
+			"}\n" + 
+			"interface Operators<O extends Num<O>> {\n" + 
+			"	O spawn();\n" + 
+			"}\n" + 
+			"class IntOperators implements Operators<Int> {\n" + 
+			"	public Int spawn() {\n" + 
+			"		return new Int();\n" + 
+			"	}\n" + 
+			"}\n",
 		},
-		"Int");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"Int" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
 public void test0947() {
@@ -30959,7 +30967,7 @@ public void test0961() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=134645
 public void test0962() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java", //================================
 			"public class X<T> {\n" + 
@@ -30973,7 +30981,8 @@ public void test0962() {
 			"    }\n" + 
 			"}\n"
 		},
-		"----------\n" + 
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	throw new Exception(\"Bug134645\") {\n" + 
 		"	          ^^^^^^^^^\n" + 
@@ -30983,7 +30992,9 @@ public void test0962() {
 		"	throw new Exception(\"Bug134645\") {\n" + 
 		"	          ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The serializable class  does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n");
+		"----------\n",
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=134645 - variation
 public void test0963() {
@@ -31218,32 +31229,41 @@ public void test0971() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=137203
 // simulate incremental compile
 public void test0972() {
-	this.runConformTest(
-			new String[] {
-				"Outer.java", //================================
-				"//Outer.java\n" + 
-				"public class Outer<O> {\n" + 
-				"  public class Inner {}\n" + 
-				"\n" + 
-				"  public static void method(Outer<?>.Inner x) {\n" + 
-				"    System.out.println(\"SUCCESS\");\n" +
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    Outer<?>.Inner x = null;\n" +
-				"    method(x);\n" +
-				"  }\n" + 
-				"}\n" + 
-				"\n",
-				"ExtendedOuter.java", //================================
-				"public class ExtendedOuter<E> extends Outer<E> {\n" + 
-				"  class ExtendedInner extends Inner {\n" + 
-				"    {\n" + 
-				"      Outer.method(this);\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"}\n"
-			},
-			"SUCCESS");
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
+			"Outer.java", //================================
+			"//Outer.java\n" + 
+			"public class Outer<O> {\n" + 
+			"  public class Inner {}\n" + 
+			"\n" + 
+			"  public static void method(Outer<?>.Inner x) {\n" + 
+			"    System.out.println(\"SUCCESS\");\n" +
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    Outer<?>.Inner x = null;\n" +
+			"    method(x);\n" +
+			"  }\n" + 
+			"}\n" + 
+			"\n",
+			"ExtendedOuter.java", //================================
+			"public class ExtendedOuter<E> extends Outer<E> {\n" + 
+			"  class ExtendedInner extends Inner {\n" + 
+			"    {\n" + 
+			"      Outer.method(this);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		// compiler results
+		"" /* expected compiler log */,
+		// runtime results
+		"SUCCESS" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+
 	this.runConformTest(
 			new String[] {
 				"Outer.java", //================================
@@ -31678,8 +31698,9 @@ public void test0983() {
 }
 // generic inner class within a non generic one
 public void test0984() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"  public class XX<T> {}\n" + 
@@ -31694,10 +31715,13 @@ public void test0984() {
 			"    return null;\n" + 
 			"  }\n" + 
 			"}",
-			},
-		"");
-	this.runConformTest(
-		new String[] {
+		},
+		// runtime results
+		"" /* expected output string */);
+	runConformTest(
+		// test directory preparation
+		false /* do not flush output directory */,
+		new String[] { /* test files */
 			"Y.java",
 			"public class Y extends X implements I {\n" + 
 			"  public XX<String> foo() {\n" +
@@ -31705,13 +31729,13 @@ public void test0984() {
 			"  }\n" + 
 			"}",
 			},
-		"",
-		null /* no extra class libraries */, 
-		false /* do not flush output directory */, 
-		null /* no vm arguments */,
-		null /* no custom options*/,
-		null /* no custom requestor*/,
-		false /* do not skip j for this peculiar test */);
+		// compiler results
+		"" /* expected compiler log */,
+		// runtime results
+		"" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141330
 public void test0985() {
@@ -32384,10 +32408,10 @@ public void test1003() {
 		},
 		"");
 }
-// **
 public void test1004() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	<B> B getOtherValue() {\n" + 
@@ -32398,13 +32422,15 @@ public void test1004() {
 			"	}\n" + 
 			"}", // =================
 		},
-		"");
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=145420
-// **
 public void test1005() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X<T1,T2> {\n" + 
 			"\n" + 
@@ -32424,10 +32450,15 @@ public void test1005() {
 			"    }\n" + 
 			"}", // =================
 		},
-		"");
+	// compiler results
+	null /* do not check compiler log */,
+	// runtime results
+	"" /* expected output string */,
+	"" /* expected error string */,
+	// javac options
+	JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=145420 - variant
-// **
 public void test1005b() {
 	this.runNegativeTest(
 		new String[] {
@@ -32984,10 +33015,11 @@ public void test1018() {
 		},
 		"");
 }
-// **
 public void test1018a() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"class A<T> {}\n" + 
 			"\n" + 
@@ -32999,7 +33031,13 @@ public void test1018a() {
 			"    }\n" + 
 			"}"
 		}, 
-		"SUCCESS");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"SUCCESS" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 public void test1019() {
 	this.runNegativeTest(
@@ -33241,10 +33279,10 @@ public void test1025() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753
-// **
 public void test1026() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"import java.util.LinkedHashSet;\n" + 
 			"import java.util.Set;\n" + 
@@ -33265,13 +33303,14 @@ public void test1026() {
 			"    }\n" + 
 			"}\n" // =================
 		},
-		"");
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753 - variation
-// **
 public void test1027() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"import java.util.LinkedHashSet;\n" + 
 			"import java.util.Set;\n" + 
@@ -33295,13 +33334,14 @@ public void test1027() {
 			"}\n" + 
 			"\n", // =================
 		},
-		"");
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753 - variation
-// **
 public void test1028() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"import java.util.LinkedHashSet;\n" + 
 			"import java.util.Set;\n" + 
@@ -33322,7 +33362,8 @@ public void test1028() {
 			"class A {};\n" + 
 			"class B extends A {};\n", // =================
 		},
-		"");
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156016
 public void test1029() {
@@ -33426,10 +33467,11 @@ public void test1031() {
 		"Type mismatch: cannot convert from Object to Comparable<? super Object>\n" + 
 		"----------\n");
 }
-// **
 public void test1032() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"import java.io.*;\n" + 
 			"\n" + 
@@ -33449,9 +33491,14 @@ public void test1032() {
 			"	}\n" + 
 			"}", // =================
 		},
-		"");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
-// **
 public void test1032a() {
 	this.runNegativeTest(
 		new String[] {
@@ -34626,8 +34673,10 @@ public void test1057() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141289
 public void test1058() throws Exception {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java", // =================
 			"public class X {\n" + 
 			"        public static void main(String[] args) {\n" + 
@@ -34641,7 +34690,13 @@ public void test1058() throws Exception {
 			"        }\n" + 
 			"}", // =================
 		},
-		"SUCCESS");
+		// compiler results
+		"" /* expected compiler log */,
+		// runtime results
+		"SUCCESS" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 3, Locals: 3\n" + 
@@ -34716,10 +34771,10 @@ public void test1059() {
 		"Type mismatch: cannot convert from capture#1-of ? to Number\n" + 
 		"----------\n");
 }
-// **
 public void test1060() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java", // =================
 			"import java.util.Collection;\n" + 
 			"import java.util.List;\n" + 
@@ -34730,13 +34785,14 @@ public void test1060() {
 			"    }\n" + 
 			"}", // =================
 		},
-		"");
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159752
-// **
 public void test1061() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"predicate/Predicate.java", // =================
 			"package predicate;\n" + 
 			"public interface Predicate<T> {\n" + 
@@ -34770,7 +34826,8 @@ public void test1061() {
 			"	}\n" + 
 			"}", // =================
 		},
-		"");
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148041
 public void test1062() {
@@ -34866,8 +34923,10 @@ public void test1064() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141289 - variation
 public void test1065() throws Exception {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java", // =================
 			"public class X {\n" + 
 			"	void testFoo(boolean t, A a, B b) {\n" + 
@@ -34897,7 +34956,13 @@ public void test1065() throws Exception {
 			"	public String bar() { return \"[B#bar()]\"; }\n" + 
 			"}\n", // =================
 		},
-		"[A#foo()][B#foo()][A#bar()][B#bar()]");
+		// compiler results
+		"" /* expected compiler log */,
+		// runtime results
+		"[A#foo()][B#foo()][A#bar()][B#bar()]" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 	// 	check presence of checkcast in #testFoo() and #testBar()
 	String expectedOutput = this.complianceLevel == ClassFileConstants.JDK1_5
 			?	"  // Method descriptor #15 (ZLA;LB;)V\n" + 
@@ -35765,8 +35830,9 @@ public void test1074() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=163680
 public void test1075() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"public class X <T extends X<?>.J>{\n" + 
 			"	public class J implements I<T>{}\n" + 
@@ -35776,18 +35842,22 @@ public void test1075() {
 			"Y.java",
 			"public class Y extends X {}\n",
 		},
-		""
-	);
-
-	this.runConformTest(
+		// runtime results
+		"" /* expected output string */);
+	runConformTest(
+		// test directory preparation
+		false /* do not flush output directory */,
 		new String[] {
 			"Y.java",
 			"public class Y extends X {}",
 		},
-		"",
-		null,
-		false, // do not flush output
-		null);
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 
 public void test1076() {
@@ -36218,10 +36288,10 @@ public void test1086() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165645 - variation
-// **
 public void test1087() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
 			"X.java",
 			"public class X<M> {\n" + 
 			"	static public class M {\n" + 
@@ -36231,7 +36301,8 @@ public void test1087() {
 			"}\n" + 
 			"\n", // =================
 		},
-		"");
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165679
 public void test1088() {
