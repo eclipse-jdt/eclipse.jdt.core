@@ -302,7 +302,23 @@ static class JavacTestOptions {
 		}
 		public static EclipseHasABug
 			EclipseBug166355 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
-				new EclipseHasABug(MismatchType.JavacErrorsEclipseWarnings) : null;	
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseWarnings) : null,
+			EclipseBug177715 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=177715
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug216558 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216558
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null;
+	}
+	// Eclipse bugs opened to investigate differences and closed as INVALID
+	// on grounds other than an identified javac bug
+	static class EclipseJustification extends Excuse {
+		private EclipseJustification(int mismatchType) {
+			super(mismatchType);
+		}
+		public static EclipseJustification
+			EclipseBug185422 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422
+				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug234815 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=234815
+				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null;
 	}
 	static class JavacHasABug extends Excuse {
 		long pivotCompliance;
@@ -354,6 +370,10 @@ static class JavacTestOptions {
 		}
 		// bugs that we know precisely of 
 		public static JavacHasABug
+			JavacBug5042462 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5042462 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=208873
+				new JavacHasABug(
+					MismatchType.JavacErrorsEclipseNone, 
+					ClassFileConstants.JDK1_7, 0 /* 1.7.0 b17 */) : null,
 			JavacBug5061359 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5061359
 				new JavacHasABug(
 					MismatchType.EclipseErrorsJavacNone, 
@@ -365,7 +385,13 @@ static class JavacTestOptions {
 				new JavacHasABug(
 					MismatchType.JavacErrorsEclipseNone, 
 					ClassFileConstants.JDK1_7, 0 /* 1.7.0 b03 */) : null,
-			JavacBug6400189 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6400189 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744
+			JavacBug6400189 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6400189 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=167952
+				new JavacHasABug(
+					MismatchType.EclipseErrorsJavacNone) : null,
+			JavacBug6500701 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6500701 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=209779
+				new JavacHasABug(
+					MismatchType.StandardOutputMismatch) : null,
+			JavacBug6573446 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6573446 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945
 				new JavacHasABug(
 					MismatchType.EclipseErrorsJavacNone) : null,
 			JavacBug6557661 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6557661 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261
