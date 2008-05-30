@@ -41390,4 +41390,55 @@ public void test1335() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=234619
+public void test1338() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"public class X {\n" + 
+				"        void m(Object someObject, Integer intObject) {\n" + 
+				"                Exception class1 = someObject.getClass();\n" + 
+				"                Exception class2 = intObject.getClass();\n" + 
+				"        }\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Exception class1 = someObject.getClass();\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Class<capture#1-of ? extends Object> to Exception\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	Exception class2 = intObject.getClass();\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Class<capture#2-of ? extends Integer> to Exception\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=234619 - variation
+public void test1339() {
+	this.runNegativeTest(
+			new String[] {
+				"java/lang/Object.java", // =================
+				"package java.lang;\n" + 
+				"\n" + 
+				"public class Object {\n" + 
+				"	void foo() {\n" + 
+				"		Exception e1 = getClass();\n" + 
+				"		Exception e2 = this.getClass();\n" + 
+				"	}\n" + 
+				"	public Class<?> getClass() { return null; }\n" +
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in java\\lang\\Object.java (at line 5)\n" + 
+			"	Exception e1 = getClass();\n" + 
+			"	               ^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Class<capture#1-of ? extends Object> to Exception\n" + 
+			"----------\n" + 
+			"2. ERROR in java\\lang\\Object.java (at line 6)\n" + 
+			"	Exception e2 = this.getClass();\n" + 
+			"	               ^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Class<capture#2-of ? extends Object> to Exception\n" + 
+			"----------\n");
+}
 }
