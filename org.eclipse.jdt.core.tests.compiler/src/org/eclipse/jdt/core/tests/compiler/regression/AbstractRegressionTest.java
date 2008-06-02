@@ -284,13 +284,13 @@ static class JavacTestOptions {
 			return this;
 		}
 		public boolean clears(int mismatch) {
-			return this.mismatchType == 0 || this.mismatchType == mismatch;
+			return this.mismatchType == 0 || (this.mismatchType & mismatch) == mismatch; // one excuse can clear multiple mismatches
 		}
 		public static Excuse 
 			EclipseHasSomeMoreWarnings = RUN_JAVAC ? 
 				new Excuse(MismatchType.EclipseWarningsJavacNone) : null,
 			EclipseWarningConfiguredAsError = RUN_JAVAC ? 
-				new Excuse(MismatchType.EclipseErrorsJavacNone) : null;
+				new Excuse(MismatchType.EclipseErrorsJavacWarnings | MismatchType.EclipseErrorsJavacNone) : null;
 	}
 	Excuse excuseFor(JavacCompiler compiler) {
 		return null;
@@ -308,12 +308,15 @@ static class JavacTestOptions {
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null;
 	}
 	// Eclipse bugs opened to investigate differences and closed as INVALID
-	// on grounds other than an identified javac bug
+	// on grounds other than an identified javac bug or Eclipse bugs that
+	// discuss the topic in depth and explain why we made a given choice
 	static class EclipseJustification extends Excuse {
 		private EclipseJustification(int mismatchType) {
 			super(mismatchType);
 		}
 		public static EclipseJustification
+			EclipseBug40839 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=40839
+				new EclipseJustification(MismatchType.JavacWarningsEclipseNone) : null,
 			EclipseBug185422 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug234815 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=234815
@@ -1652,9 +1655,7 @@ protected void runJavac(
 			null /* do not check output string */,
 			null /* do not check error string */,
 			// javac options
-			false ? 
-					JavacTestOptions.SKIP : 
-					JavacTestOptions.DEFAULT /* javac test options */);
+			JavacTestOptions.DEFAULT /* javac test options */);
 	}
 	 
 	/**

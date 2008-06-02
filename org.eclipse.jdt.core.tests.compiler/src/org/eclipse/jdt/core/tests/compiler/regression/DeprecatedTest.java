@@ -205,7 +205,6 @@ public void test005() {
 		null);  // custom options
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=40839
-// **
 public void test006() {
 	this.runConformTest(
 		new String[] {
@@ -227,19 +226,24 @@ public void test006() {
 		null, // special vm args
 		null,  // custom options
 		null); // custom requestor
-	this.runNegativeTest(
-		new String[] {
-			"A.java",
-			"public class A {\n" +
-			"   public static void main(String[] args) {	\n" +
-			"        System.out.print(X.i);	\n" +
-			"	}	\n" +
-			"}"
-		},
-		"",// expected output
-		null,
-		false, // flush previous output dir content
-		null);  // custom options
+		runConformTest(
+			// test directory preparation
+	 		false /* do not flush output directory */,
+			new String[] { /* test files */
+				"A.java",
+				"public class A {\n" +
+				"   public static void main(String[] args) {	\n" +
+				"        System.out.print(X.i);	\n" +
+				"	}	\n" +
+				"}"
+			},
+			// compiler results
+			"" /* expected compiler log */,
+			// runtime results
+			"0" /* expected output string */,
+			"" /* expected error string */,
+			// javac options
+			JavacTestOptions.EclipseJustification.EclipseBug40839 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=88124
 public void test007() {
@@ -418,8 +422,10 @@ public void test012() {
 		CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
 		CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
             "X.java",
 			"public class X {\n" + 
 			"    void foo() {\n" + 
@@ -435,17 +441,19 @@ public void test012() {
 			"public class Y {\n" + 
 			"    /** @deprecated */\n" + 
 			"    static int m;\n" +			
-			"}\n",
-		}, 
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	int i1 = Y.m;\n" + 
-		"	           ^\n" + 
-		"The field Y.m is deprecated\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+			"}\n",	},
+			// compiler options
+			null /* no class libraries */,
+			customOptions /* custom options */,
+			// compiler results
+			"----------\n" + /* expected compiler log */
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	int i1 = Y.m;\n" + 
+			"	           ^\n" + 
+			"The field Y.m is deprecated\n" + 
+			"----------\n",
+			// javac options
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 
 // @deprecated upon locals do not influence the deprecation diagnostic
@@ -458,8 +466,10 @@ public void test013() {
 			CompilerOptions.ERROR);
 		customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
 			CompilerOptions.IGNORE);
-		this.runNegativeTest(
-			new String[] {
+		runNegativeTest(
+			// test directory preparation
+			true /* flush output directory */, 
+			new String[] { /* test files */
 	            "X.java",
 				"public class X {\n" + 
 				"    void foo() {\n" + 
@@ -476,16 +486,19 @@ public void test013() {
 				"    @Deprecated\n" + 
 				"    static int m;\n" +			
 				"}\n",
-			}, 
-			"----------\n" + 
+			},
+			// compiler options
+			null /* no class libraries */,
+			customOptions /* custom options */,
+			// compiler results
+			"----------\n" + /* expected compiler log */
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	int i1 = Y.m;\n" + 
 			"	           ^\n" + 
 			"The field Y.m is deprecated\n" + 
 			"----------\n",
-			null,
-			true,
-			customOptions);
+			// javac options
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159243
@@ -550,8 +563,10 @@ public void test014() {
 public void test015() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"p/M1.java",
 			"package p;\n" +
 			"public class M1 {\n" +
@@ -570,8 +585,12 @@ public void test015() {
 			"    }" +
 			"  }" +
 			"}\n",
-		}, 
-		"----------\n" + 
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in p\\M1.java (at line 4)\n" + 
 		"	a.N1.N2.N3 m = null;\n" + 
 		"	^^^^^^^^^^\n" + 
@@ -587,19 +606,18 @@ public void test015() {
 		"	^^^^^^^\n" + 
 		"The method foo() from the type N1.N2.N3 is deprecated\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions,
-		true,
-		false,
-		false);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
+	
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
 public void test016() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"a/N1.java",
 			"package a;\n" +
 			"public class N1 {\n" +
@@ -618,8 +636,12 @@ public void test016() {
 			"    m.foo();\n" +
 			"  }\n" + 
 			"}\n",
-		}, 
-		"----------\n" + 
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in p\\M1.java (at line 4)\n" + 
 		"	a.N1.N2.N3 m = null;\n" + 
 		"	^^^^^^^^^^\n" + 
@@ -635,12 +657,9 @@ public void test016() {
 		"	^^^^^^^\n" + 
 		"The method foo() from the type N1.N2.N3 is deprecated\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions,
-		true,
-		false,
-		false);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
+
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
 // variant: self-contained case, hence no report
@@ -700,8 +719,10 @@ public void test018() {
 		customOptions,
 		null,
 		false);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		false /* do not flush output directory */, 
+		new String[] { /* test files */
 			"p/M1.java",
 			"package p;\n" +
 			"public class M1 {\n" +
@@ -710,8 +731,12 @@ public void test018() {
 			"    m.foo();\n" +
 			"  }\n" + 
 			"}\n"
-		}, 
-		"----------\n" + 
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in p\\M1.java (at line 4)\n" + 
 		"	a.N1.N2.N3 m = null;\n" + 
 		"	^^^^^^^^^^\n" + 
@@ -727,19 +752,17 @@ public void test018() {
 		"	^^^^^^^\n" + 
 		"The method foo() from the type N1.N2.N3 is deprecated\n" + 
 		"----------\n",
-		null,
-		false /* do not flush */,
-		customOptions,
-		true,
-		false,
-		false);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191909 (1.4 variant)
 public void test019() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"test1/E01.java",
 			"package test1;\n" + 
 			"public class E01 {\n" + 
@@ -754,8 +777,12 @@ public void test019() {
 			"		System.out.println(E01.y);\n" + 
 			"	}\n" + 
 			"}"
-		}, 
-		"----------\n" + 
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in test1\\E02.java (at line 4)\n" + 
 		"	System.out.println(E01.x);\n" + 
 		"	                       ^\n" + 
@@ -766,12 +793,8 @@ public void test019() {
 		"	                       ^\n" + 
 		"The field E01.y is deprecated\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions,
-		true,
-		false,
-		false);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 public static Class testClass() {
 	return DeprecatedTest.class;
