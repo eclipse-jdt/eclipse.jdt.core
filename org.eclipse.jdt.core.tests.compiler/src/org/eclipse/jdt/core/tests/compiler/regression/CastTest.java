@@ -95,8 +95,10 @@ public void test001() throws Exception {
 public void test002() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -108,7 +110,11 @@ public void test002() {
 			"	}\n" + 
 			"}\n"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	String s = (String) null;	// UNnecessary\n" + 
 		"	           ^^^^^^^^^^^^^\n" + 
@@ -124,15 +130,16 @@ public void test002() {
 		"	          ^^^^^^^^^^\n" + 
 		"Unnecessary cast from int to float\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 public void test003() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -150,21 +157,26 @@ public void test003() {
 			"	}\n" + 
 			"}\n"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	foo((String) \"hello\");			// UNnecessary\n" + 
 		"	    ^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from String to String\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 public void test004() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -183,21 +195,26 @@ public void test004() {
 			"	}\n" + 
 			"}\n"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	new X((String) \"hello\");	// UNnecessary\n" + 
 		"	      ^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from String to String\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 public void test005() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -224,7 +241,11 @@ public void test005() {
 			"	}	\n" + 
 			"}\n"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+			"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	new X().new XM3((String) \"hello\");	// UNnecessary\n" + 
 		"	                ^^^^^^^^^^^^^^^^\n" + 
@@ -235,9 +256,8 @@ public void test005() {
 		"	                ^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from String to String\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 public void _test006() { // TODO (philippe) add support to conditional expression for unnecessary cast
 	Map customOptions = getCompilerOptions();
@@ -276,8 +296,10 @@ public void _test006() { // TODO (philippe) add support to conditional expressio
 public void test007() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	X(){}\n" + 
@@ -314,22 +336,26 @@ public void test007() {
 			"	}\n" + 
 			"}\n"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 22)\n" + 
 		"	super((Object) t); // UNnecessary\n" + 
 		"	      ^^^^^^^^^^\n" + 
 		"Unnecessary cast from Thread to Object\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
-
 public void test008() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -340,22 +366,26 @@ public void test008() {
 			"	static class XM1 extends X {}\n" + 
 			"}\n"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	boolean b1 = new XM1() instanceof X; // UNnecessary\n" + 
 		"	             ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The expression of type X.XM1 is already an instance of type X\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
-
 public void test009() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -367,8 +397,11 @@ public void test009() {
 			"	static class XM2 extends X {}\n" + 
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */		"1. ERROR in X.java (at line 3)\n" + 
 		"	boolean b1 = ((X) new XM1()) == new X(); // UNnecessary\n" + 
 		"	             ^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from X.XM1 to X\n" + 
@@ -378,16 +411,16 @@ public void test009() {
 		"	             ^^^^^^^^^^\n" + 
 		"Unnecessary cast from null to X\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
-
 public void test010() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -398,7 +431,11 @@ public void test010() {
 			"	}\n" + 
 			"}\n"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	long l1 = ((long) 1) + 2L; // UNnecessary\n" + 
 		"	          ^^^^^^^^^^\n" + 
@@ -409,16 +446,16 @@ public void test010() {
 		"	            		      ^^^^^^^^\n" + 
 		"Unnecessary cast from int to long\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
-
 public void test011() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -429,21 +466,26 @@ public void test011() {
 			"	}\n" + 
 			"}\n"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	String s2 = ((String)\"hello\") + 2; // UNnecessary\n" + 
 		"	            ^^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from String to String\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 public void test012() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -459,7 +501,11 @@ public void test012() {
 			"  static class YM1 extends XM1 {}\n" +
 			"}\n"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	foo((X) x);			// UNnecessary\n" + 
 		"	    ^^^^^\n" + 
@@ -470,17 +516,17 @@ public void test012() {
 		"	    ^^^^^^^\n" + 
 		"Unnecessary cast from X to X.XM1\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
-
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=42289
 public void test013() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	\n" + 
@@ -494,7 +540,11 @@ public void test013() {
 			"}\n" + 
 			"\n",
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	d = (long)a; 				// unnecessary\n" + 
 		"	    ^^^^^^^\n" + 
@@ -505,37 +555,43 @@ public void test013() {
 		"	            ^^^^^^^\n" + 
 		"Unnecessary cast from int to long\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // 39925 - Unnecessary instanceof checking leads to a NullPointerException
 public void test014() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	boolean b = new Cloneable() {} instanceof Cloneable;\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	boolean b = new Cloneable() {} instanceof Cloneable;\n" + 
 		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The expression of type new Cloneable(){} is already an instance of type Cloneable\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // narrowing cast on base types may change value, thus necessary
 public void test015() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	void foo() {	\n" +
@@ -546,22 +602,27 @@ public void test015() {
 			"  } \n" +
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	double linePerSeconds2 = ((double) (lineCount * 10000.0 / time)) / 10.0; // UNnecessary \n" + 
 		"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from double to double\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // narrowing cast on base types may change value, thus necessary
 public void test016() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	void foo() {	\n" +
@@ -573,15 +634,18 @@ public void test016() {
 			"  void print(double d) {}  \n" +
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	print((double) (lineCount * 10000.0 / time)); // UNnecessary \n" + 
 		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from double to double\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //fault tolerance (40288)
 public void test017() {
@@ -776,8 +840,10 @@ public void test022() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {	\n" +
 			"  void foo(java.util.Map map){ \n" +
@@ -787,23 +853,28 @@ public void test022() {
 			"  } \n"+
 			"} \n",
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (fillPattern.equals((int[])map.get(\"x\"))) { \n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from Object to int[]\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 		
 // unnecessary cast diagnosis should tolerate array receiver type (40752)
 public void test023() { 
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"\n" + 
@@ -817,23 +888,28 @@ public void test023() {
 			"	}\n" + 
 			"}",
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	final long lgLow32BitMask3 = ~(~((long) 0L) << 32);	// unnecessary\n" + 
 		"	                                ^^^^^^^^^^^\n" + 
 		"Unnecessary cast from long to long\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }		
 
 // unnecessary cast diagnosis for message receiver (44400)
 public void test024() { 
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	public void foo(Object bar) {\n" + 
@@ -841,15 +917,18 @@ public void test024() {
 			"	}\n" + 
 			"}",
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	System.out.println(((Object) bar).toString());\n" + 
 		"	                   ^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from Object to Object\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }		
 
 // unnecessary cast diagnosis for message receiver (44400)
@@ -857,8 +936,10 @@ public void test024() {
 public void test025() { 
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	int i;\n" + 
@@ -867,15 +948,18 @@ public void test025() {
 			"	}\n" + 
 			"}",
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	System.out.println(((X) bar).i);\n" + 
 		"	                   ^^^^^^^^^\n" + 
 		"Unnecessary cast from X to X\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }	
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47074
@@ -1173,8 +1257,10 @@ public void test032() {
 public void test033() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"import java.util.ArrayList;\n" + 
 			"import java.util.List;\n" + 
@@ -1196,7 +1282,11 @@ public void test033() {
 			"    }\n" + 
 			"}\n"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	List list = (List) new ArrayList();\n" + 
 		"	            ^^^^^^^^^^^^^^^^^^^^^^\n" + 
@@ -1237,9 +1327,8 @@ public void test033() {
 		"	      ^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from ArrayList to List\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 /*
  * check non insertion of checkcast for unnecessary cast to interfaces
@@ -1349,11 +1438,15 @@ public void test035() {
 		"	return	(Test231i)this;\n" + 
 		"	      	^^^^^^^^^^^^^^\n" + 
 		"Cannot cast from new Object(){} to Test231i\n" + 
-		"----------\n");
+		"----------\n",
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 public void test036() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public final class X {\n" + 
 			"	private static final boolean DO_BUG = true;\n" + 
@@ -1383,9 +1476,15 @@ public void test036() {
 			"\n" + 
 			"		public abstract String test();\n" + 
 			"	}\n" + 
-			"}\n",
+			"}\n"
 		},
-		"no base");
+		// compiler results
+		"" /* expected compiler log */,
+		// runtime results
+		"no base" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacGeneratesByteCodeUponWhichJavaThrowsAnException /* javac test options */);
 }
 public void test037() {
 	this.runNegativeTest(

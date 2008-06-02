@@ -286,12 +286,11 @@ static class JavacTestOptions {
 		public boolean clears(int mismatch) {
 			return this.mismatchType == 0 || this.mismatchType == mismatch;
 		}
-		public static Excuse EclipseHasSomeMoreWarnings = null;
-		static {
-			if (RUN_JAVAC) {
-				EclipseHasSomeMoreWarnings = new Excuse(MismatchType.EclipseWarningsJavacNone);
-			}
-		}
+		public static Excuse 
+			EclipseHasSomeMoreWarnings = RUN_JAVAC ? 
+				new Excuse(MismatchType.EclipseWarningsJavacNone) : null,
+			EclipseWarningConfiguredAsError = RUN_JAVAC ? 
+				new Excuse(MismatchType.EclipseErrorsJavacNone) : null;
 	}
 	Excuse excuseFor(JavacCompiler compiler) {
 		return null;
@@ -407,6 +406,11 @@ static class JavacTestOptions {
 				new JavacHasABug(
 					0 /* all */, 
 					ClassFileConstants.JDK1_7, 0 /* 1.7.0_b24 or better - maybe before */) : null;
+		// bugs that have neither been fixed nor formally identified but which outcomes are obvious enough to clear any doubts
+		public static JavacHasABug
+			JavacGeneratesByteCodeUponWhichJavaThrowsAnException = RUN_JAVAC ?
+					new JavacHasABug(
+						MismatchType.StandardOutputMismatch) : null;
 	}
 }
 
