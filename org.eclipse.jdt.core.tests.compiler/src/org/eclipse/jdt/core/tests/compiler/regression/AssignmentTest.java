@@ -786,7 +786,7 @@ public void test035() {
 		"----------\n");
 }
 public void test036() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -812,7 +812,8 @@ public void test036() {
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=93588
 public void test037() {
@@ -928,8 +929,10 @@ public void test039() {
 public void test040() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"  void foo(boolean b) {\n" + 
@@ -937,13 +940,18 @@ public void test040() {
 			"  }\n" + 
 			"}\n",
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	b = false;\n" + 
 		"	^\n" + 
 		"The parameter b should not be assigned\n" + 
 		"----------\n",
-		null, true, options);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // warn upon parameter assignment
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=53773
@@ -951,8 +959,10 @@ public void test040() {
 public void test041() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"  void foo(boolean b) {\n" + 
@@ -962,13 +972,18 @@ public void test041() {
 			"  }\n" + 
 			"}\n",
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	b = false;\n" + 
 		"	^\n" + 
 		"The parameter b should not be assigned\n" + 
 		"----------\n",
-		null, true, options);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // warn upon parameter assignment
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=53773
@@ -976,8 +991,10 @@ public void test041() {
 public void test042() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"  void foo(boolean b) {\n" + 
@@ -988,13 +1005,18 @@ public void test042() {
 			"  }\n" + 
 			"}\n",
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	b = false;\n" + 
 		"	^\n" + 
 		"The parameter b should not be assigned\n" + 
 		"----------\n",
-		null, true, options);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // warn upon parameter assignment
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=53773
@@ -1075,7 +1097,8 @@ public void test044() {
 		"	length3 = length3 = 0; // not detected\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The assignment to variable length3 has no effect\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=133351
 public void test045() {
@@ -1100,7 +1123,8 @@ public void test045() {
 		"	length3 = length3 = 0; // second problem\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The assignment to variable length3 has no effect\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
 public void test046() {
@@ -1119,7 +1143,8 @@ public void test046() {
 		"	X.s = s;	}\n" + 
 		"	^^^^^^^\n" + 
 		"The assignment to variable s has no effect\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
 public void test047() {
@@ -1172,7 +1197,8 @@ public void test049() {
 		"	p.X.s = s;	}\n" + 
 		"	^^^^^^^^^\n" + 
 		"The assignment to variable s has no effect\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
 // adding an inner class to the picture
@@ -1220,7 +1246,8 @@ public void test051() {
 		"	s = X.s;	}\n" + 
 		"	^^^^^^^\n" + 
 		"The assignment to variable s has no effect\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=206017
 public void test052() {
