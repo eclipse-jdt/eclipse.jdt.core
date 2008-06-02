@@ -152,7 +152,7 @@ public class SetVariablesOperation extends ChangeClasspathOperation {
 						}
 					}
 				} catch (CoreException e) {
-					if (JavaModelManager.CP_RESOLVE_VERBOSE){
+					if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE){
 						verbose_failure(dbgVariableNames); 
 						e.printStackTrace();
 					}

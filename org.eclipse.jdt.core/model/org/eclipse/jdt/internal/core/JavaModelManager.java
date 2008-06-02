@@ -191,6 +191,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String JAVAMODELCACHE_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel/cache" ; //$NON-NLS-1$
 	private static final String CP_RESOLVE_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpresolution" ; //$NON-NLS-1$
 	private static final String CP_RESOLVE_ADVANCED_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpresolution/advanced" ; //$NON-NLS-1$
+	private static final String CP_RESOLVE_FAILURE_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpresolution/failure" ; //$NON-NLS-1$
 	private static final String ZIP_ACCESS_DEBUG = JavaCore.PLUGIN_ID + "/debug/zipaccess" ; //$NON-NLS-1$
 	private static final String DELTA_DEBUG =JavaCore.PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
 	private static final String DELTA_DEBUG_VERBOSE =JavaCore.PLUGIN_ID + "/debug/javadelta/verbose" ; //$NON-NLS-1$
@@ -565,24 +566,24 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				containerPut(project, containerPath, container);
 				return true;
 			} else {
-				if (CP_RESOLVE_VERBOSE)
+				if (CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
 					verbose_missbehaving_container(containerPath, projects, respectiveContainers, container, newEntries, null/*no old entries*/);
 				return false;
 			}
 		final IClasspathEntry[] oldEntries = previousContainer.getClasspathEntries();
 		if (oldEntries.length != newEntries.length) {
-			if (CP_RESOLVE_VERBOSE)
+			if (CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
 				verbose_missbehaving_container(containerPath, projects, respectiveContainers, container, newEntries, oldEntries);
 			return false;
 		}
 		for (int i = 0, length = newEntries.length; i < length; i++) {
 			if (newEntries[i] == null) {
-				if (CP_RESOLVE_VERBOSE)
+				if (CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
 					verbose_missbehaving_container(project, containerPath, newEntries);
 				return false;
 			}
 			if (!newEntries[i].equals(oldEntries[i])) {
-				if (CP_RESOLVE_VERBOSE)
+				if (CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
 					verbose_missbehaving_container(containerPath, projects, respectiveContainers, container, newEntries, oldEntries);
 				return false;
 			}
@@ -1263,6 +1264,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public static boolean VERBOSE = false;
 	public static boolean CP_RESOLVE_VERBOSE = false;
 	public static boolean CP_RESOLVE_VERBOSE_ADVANCED = false;
+	public static boolean CP_RESOLVE_VERBOSE_FAILURE = false;
 	public static boolean ZIP_ACCESS_VERBOSE = false;
 	
 	/**
@@ -1447,6 +1449,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 			option = Platform.getDebugOption(CP_RESOLVE_ADVANCED_DEBUG);
 			if(option != null) JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED = option.equalsIgnoreCase(TRUE) ;
+
+			option = Platform.getDebugOption(CP_RESOLVE_FAILURE_DEBUG);
+			if(option != null) JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(DELTA_DEBUG);
 			if(option != null) DeltaProcessor.DEBUG = option.equalsIgnoreCase(TRUE) ;
@@ -2374,11 +2379,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					// initializer failed to do its job: redirect to the failure container
 					container = initializer.getFailureContainer(containerPath, project);
 					if (container == null) {
-						if (CP_RESOLVE_VERBOSE)
+						if (CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
 							verbose_container_null_failure_container(project, containerPath, initializer);
 						return null; // break cycle
 					}
-					if (CP_RESOLVE_VERBOSE)
+					if (CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
 						verbose_container_using_failure_container(project, containerPath, initializer);
 					containerPut(project, containerPath, container);
 				}
@@ -2390,11 +2395,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					throw new JavaModelException(e);
 				}
 			} catch (RuntimeException e) {
-				if (JavaModelManager.CP_RESOLVE_VERBOSE)
+				if (JavaModelManager.CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
 					e.printStackTrace();
 				throw e;
 			} catch (Error e) {
-				if (JavaModelManager.CP_RESOLVE_VERBOSE)
+				if (JavaModelManager.CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE)
 					e.printStackTrace();
 				throw e;
 			} finally {
@@ -2405,7 +2410,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					// just remove initialization in progress and keep previous session container so as to avoid a full build
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=92588
 					containerRemoveInitializationInProgress(project, containerPath); 
-					if (CP_RESOLVE_VERBOSE) 
+					if (CP_RESOLVE_VERBOSE || CP_RESOLVE_VERBOSE_FAILURE) 
 						verbose_container_initialization_failed(project, containerPath, container, initializer);
 				}
 			}
@@ -2418,7 +2423,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					// not used
 				}
 			}).getFailureContainer(containerPath, project);
-			if (CP_RESOLVE_VERBOSE_ADVANCED)
+			if (CP_RESOLVE_VERBOSE_ADVANCED || CP_RESOLVE_VERBOSE_FAILURE)
 				verbose_no_container_initializer_found(project, containerPath);
 		}
 		return container;

@@ -22,6 +22,9 @@ org.eclipse.jdt.core/debug/cpresolution=false
 # Reports internals of classpath variable initialization, and classpath container resolution (to be used on the JDT/Core team request only)
 org.eclipse.jdt.core/debug/cpresolution/advanced=false
 
+# Reports failures during classpath variable initialization, and classpath container resolution
+org.eclipse.jdt.core/debug/cpresolution/failure=false
+
 # Report type hierarchy connections, refreshes and deltas
 org.eclipse.jdt.core/debug/hierarchy=false
 

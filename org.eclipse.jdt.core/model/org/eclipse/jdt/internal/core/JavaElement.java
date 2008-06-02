@@ -670,7 +670,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			for (int i= 0; i < entries.length; i++) {
 				IClasspathEntry curr = entries[i];
 				if (curr == null) {
-					if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+					if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
 						JavaModelManager.getJavaModelManager().verbose_missbehaving_container(jproject, containerPath, entries);
 					}
 					break;

@@ -2083,7 +2083,7 @@ public class JavaProject
 					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
 						IClasspathEntry resolvedEntry = containerEntries[j];
 						if (resolvedEntry == null) {
-							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+							if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
 								JavaModelManager.getJavaModelManager().verbose_missbehaving_container(this, rawEntry.getPath(), containerEntries);
 							}
 							return false;
@@ -2471,7 +2471,7 @@ public class JavaProject
 						break;
 					IClasspathEntry[] containerEntries = container.getClasspathEntries();
 					if (containerEntries == null) {
-						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+						if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
 							JavaModelManager.getJavaModelManager().verbose_missbehaving_container_null_entries(this, rawEntry.getPath());
 						}
 						break;
@@ -2481,7 +2481,7 @@ public class JavaProject
 					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
 						ClasspathEntry cEntry = (ClasspathEntry) containerEntries[j];
 						if (cEntry == null) {
-							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+							if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
 								JavaModelManager.getJavaModelManager().verbose_missbehaving_container(this, rawEntry.getPath(), containerEntries);
 							}
 							break;
@@ -2567,7 +2567,7 @@ public class JavaProject
 	
 						IClasspathEntry[] containerEntries = container.getClasspathEntries();
 						if (containerEntries == null) {
-							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+							if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
 								JavaModelManager.getJavaModelManager().verbose_missbehaving_container_null_entries(this, rawEntry.getPath());
 							}
 							break;
@@ -2577,7 +2577,7 @@ public class JavaProject
 						for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
 							ClasspathEntry cEntry = (ClasspathEntry) containerEntries[j];
 							if (cEntry == null) {
-								if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+								if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
 									JavaModelManager.getJavaModelManager().verbose_missbehaving_container(this, rawEntry.getPath(), containerEntries);
 								}
 								break;

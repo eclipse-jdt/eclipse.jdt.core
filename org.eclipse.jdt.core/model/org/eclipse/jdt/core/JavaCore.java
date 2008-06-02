@@ -2604,7 +2604,7 @@ public final class JavaCore extends Plugin {
 							}
 						} catch(CoreException e) {
 							// executable extension could not be created: ignore this initializer
-							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+							if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
 								verbose_failed_to_instanciate_container_initializer(containerID, configurationElement);
 								e.printStackTrace();
 							}
@@ -2683,18 +2683,18 @@ public final class JavaCore extends Plugin {
 				manager.variablesWithInitializer.add(variableName);
 				ok = true;
 			} catch (RuntimeException e) {
-				if (JavaModelManager.CP_RESOLVE_VERBOSE)
+				if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE)
 					e.printStackTrace();
 				throw e;
 			} catch (Error e) {
-				if (JavaModelManager.CP_RESOLVE_VERBOSE)
+				if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE)
 					e.printStackTrace();
 				throw e;
 			} finally {
 				if (!ok) JavaModelManager.getJavaModelManager().variablePut(variableName, null); // flush cache
 			}
 		} else {
-			if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
+			if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE)
 				verbose_no_variable_initializer_found(variableName);
 		}
 		return variablePath;
@@ -2816,7 +2816,7 @@ public final class JavaCore extends Plugin {
 						}
 					} catch(CoreException e){
 						// executable extension could not be created: ignore this initializer
-						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+						if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
 							verbose_failed_to_instanciate_variable_initializer(variable, configElement);
 							e.printStackTrace();
 						}

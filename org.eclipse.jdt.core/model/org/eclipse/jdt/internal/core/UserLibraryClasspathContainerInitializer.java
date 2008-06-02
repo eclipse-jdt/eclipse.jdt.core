@@ -54,10 +54,10 @@ public class UserLibraryClasspathContainerInitializer extends ClasspathContainer
 			if (userLibrary != null) {
 				UserLibraryClasspathContainer container = new UserLibraryClasspathContainer(userLibName);
 				JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, new IClasspathContainer[] { container }, null);
-			} else if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+			} else if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
 				verbose_no_user_library_found(project, userLibName);
 			}
-		} else if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+		} else if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
 			verbose_not_a_user_library(project, containerPath);
 		}
 	}

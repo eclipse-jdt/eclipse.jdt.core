@@ -66,7 +66,7 @@ public class UserLibraryClasspathContainer implements IClasspathContainer {
 	
 	private UserLibrary getUserLibrary() {
 		UserLibrary userLibrary = JavaModelManager.getUserLibraryManager().getUserLibrary(this.name);
-		if (userLibrary == null && JavaModelManager.CP_RESOLVE_VERBOSE) {
+		if (userLibrary == null && (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE)) {
 			verbose_no_user_library_found(this.name);
 		}
 		return userLibrary;
