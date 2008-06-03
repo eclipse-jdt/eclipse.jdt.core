@@ -242,7 +242,7 @@ static class JavaRuntime {
 		}
 	}
 }
-static class JavacTestOptions {
+protected static class JavacTestOptions {
 	static final JavacTestOptions DEFAULT = new JavacTestOptions();
 	static final JavacTestOptions SKIP = new JavacTestOptions() {
 		boolean skip(JavacCompiler compiler) {
@@ -310,7 +310,7 @@ static class JavacTestOptions {
 	// Eclipse bugs opened to investigate differences and closed as INVALID
 	// on grounds other than an identified javac bug or Eclipse bugs that
 	// discuss the topic in depth and explain why we made a given choice
-	static class EclipseJustification extends Excuse {
+	public static class EclipseJustification extends Excuse {
 		private EclipseJustification(int mismatchType) {
 			super(mismatchType);
 		}
