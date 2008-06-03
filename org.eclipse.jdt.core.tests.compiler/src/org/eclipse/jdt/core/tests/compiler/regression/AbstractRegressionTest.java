@@ -1351,8 +1351,10 @@ protected void runJavac(
 		String expectedOutputString,
 		String expectedErrorString,
 		boolean shouldFlushOutputDirectory, 
-		JavacTestOptions options) {
+		JavacTestOptions options,
+		String[] vmArguments) {
 	// WORK we're probably doing too much around class libraries in general - java should be able to fetch its own runtime libs
+	// WORK reorder parameters
 	if (options == JavacTestOptions.SKIP) {
 		return;
 	}
@@ -1445,7 +1447,19 @@ protected void runJavac(
 					JavaRuntime runtime = JavaRuntime.runtimeFor(compiler);
 					StringBuffer stderr = new StringBuffer();
 					StringBuffer stdout = new StringBuffer();
-					runtime.execute(javacOutputDirectory, "", testFiles[0].substring(0, testFiles[0].length() - 5), stdout, stderr);
+					String vmOptions = "";
+					if (vmArguments != null) {
+						int l = vmArguments.length;
+						if (l > 0) {
+							StringBuffer buffer = new StringBuffer(vmArguments[0]);
+							for (int i = 1; i < l; i++) {
+								buffer.append(' ');
+								buffer.append(vmArguments[i]);
+							}
+							vmOptions = buffer.toString();
+						}
+					}
+					runtime.execute(javacOutputDirectory, vmOptions, testFiles[0].substring(0, testFiles[0].length() - 5), stdout, stderr);
 					if (expectedOutputString != null /* null skips output test */) {
 						output = stdout.toString().trim();
 						if (!expectedOutputString.equals(output)) {
@@ -2001,7 +2015,7 @@ protected void runJavac(
 		if (RUN_JAVAC && javacTestOptions != JavacTestOptions.SKIP) {
 			runJavac(testFiles, expectingCompilerErrors, expectedCompilerLog, 
 					expectedOutputString, expectedErrorString, shouldFlushOutputDirectory, 
-					javacTestOptions);
+					javacTestOptions, vmArguments);
 		}
 	}
 
