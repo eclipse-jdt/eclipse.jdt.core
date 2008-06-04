@@ -39,7 +39,7 @@ private boolean checkBuffers(String outputString, String errorString,
 		platformIndependantString = Util.convertToIndependantLineDelimiter(outputString.trim());
 		if (!Util.convertToIndependantLineDelimiter(expectedOutputString).equals(platformIndependantString)) {
 			System.out.println(Util.displayString(platformIndependantString, 2));
-			this.failureReason +=
+			this.failureReason =
 				"Unexpected output running resulting class file for "
 					+ sourceFileName
 					+ ":\n"
@@ -62,7 +62,7 @@ private boolean checkBuffers(String outputString, String errorString,
 			 * matchers for specific needs.
 			 */
 			System.out.println(Util.displayString(platformIndependantString, 2));
-			this.failureReason +=
+			this.failureReason =
 				"Unexpected error running resulting class file for "
 					+ sourceFileName
 					+ ":\n"

@@ -295,7 +295,7 @@ protected static class JavacTestOptions {
 	Excuse excuseFor(JavacCompiler compiler) {
 		return null;
 	}
-	static class EclipseHasABug extends Excuse {
+	public static class EclipseHasABug extends Excuse {
 		private EclipseHasABug(int mismatchType) {
 			super(mismatchType);
 		}
@@ -305,6 +305,8 @@ protected static class JavacTestOptions {
 			EclipseBug177715 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=177715
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug216558 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216558
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug235550 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235550
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null;
 	}
 	// Eclipse bugs opened to investigate differences and closed as INVALID
@@ -320,6 +322,12 @@ protected static class JavacTestOptions {
 			EclipseBug185422 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug234815 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=234815
+				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug235543 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235543
+				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) : null,
+			EclipseBug235546 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235546
+				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug235555 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235555
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null;
 	}
 	static class JavacHasABug extends Excuse {
@@ -2082,7 +2090,7 @@ runTest(
 //		JavacTestOptions.SKIP /* skip javac tests */);
 //		JavacTestOptions.DEFAULT /* default javac test options */);
 //		javacTestOptions /* javac test options */);
-void runConformTest(
+protected void runConformTest(
 		// test directory preparation
 		boolean shouldFlushOutputDirectory, 
 		String[] testFiles,
@@ -2197,7 +2205,7 @@ void runConformTest(
 //		JavacTestOptions.SKIP /* skip javac tests */);
 //		JavacTestOptions.DEFAULT /* default javac test options */);
 //		javacTestOptions /* javac test options */);
-void runNegativeTest(
+protected void runNegativeTest(
 		// test directory preparation
 		String[] testFiles,
 		// compiler results
