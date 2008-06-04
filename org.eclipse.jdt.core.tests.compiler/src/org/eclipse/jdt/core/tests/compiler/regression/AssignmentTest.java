@@ -1421,6 +1421,30 @@ public void test057_definite_unassignment_infinite_while_loop() {
 		"" /* expected error string */,
 		JavacTestOptions.EclipseJustification.EclipseBug235546 /* javac test options */);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235550
+public void _test058_definite_unassignment_try_finally() {
+	runNegativeTest(
+		// test directory preparation
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    final int i;\n" + 
+			"    do {\n" + 
+			"      try {\n" + 
+			"        break;\n" + 
+			"      } finally {\n" + 
+			"        i = 0;\n" + 
+			"      }\n" + 
+			"    } while (args.length > 0);\n" + 
+			"  }\n" + 
+			"}"
+	 	},
+		// compiler results
+	 	"----------\n" + /* expected compiler log */
+		"1. ERROR in X.java...\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }
