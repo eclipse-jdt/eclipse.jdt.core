@@ -35,7 +35,6 @@ static {
 //	TESTS_NAMES = new String[] { "test000" };
 //	TESTS_NUMBERS = new int[] { 45 };
 //	TESTS_RANGE = new int[] { 11, -1 };
-	TESTS_RANGE = new int[] { 54, -1 };
 }
 public static Test suite() {
 	Test suite = buildAllCompliancesTestSuite(testClass());
@@ -1362,6 +1361,65 @@ public void test055_definite_unassignment_try_catch() {
 		"	^\n" + 
 		"The final local variable i may already have been assigned\n" + 
 		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235546
+public void test056_definite_unassignment_infinite_for_loop() {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    final int i;\n" + 
+			"    for (;true;) {\n" + 
+			"      if (true) {\n" + 
+			"        break;\n" + 
+			"      } else {\n" + 
+			"        i = 0;\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    i = 1;\n" + 
+			"    System.out.println(i);\n" + 
+			"  }\n" + 
+			"}"
+	 	},
+		// compiler results
+	 	null /* do not check compiler log */,
+	 	// runtime results
+		"1" /* expected output string */,
+		"" /* expected error string */,
+		JavacTestOptions.EclipseJustification.EclipseBug235546 /* javac test options */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235546
+// variant
+public void test057_definite_unassignment_infinite_while_loop() {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    final int i;\n" + 
+			"    while (true) {\n" + 
+			"      if (true) {\n" + 
+			"        break;\n" + 
+			"      } else {\n" + 
+			"        i = 0;\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    i = 1;\n" + 
+			"    System.out.println(i);\n" + 
+			"  }\n" + 
+			"}"
+	 	},
+		// compiler results
+	 	null /* do not check compiler log */,
+	 	// runtime results
+		"1" /* expected output string */,
+		"" /* expected error string */,
+		JavacTestOptions.EclipseJustification.EclipseBug235546 /* javac test options */);
 }
 public static Class testClass() {
 	return AssignmentTest.class;

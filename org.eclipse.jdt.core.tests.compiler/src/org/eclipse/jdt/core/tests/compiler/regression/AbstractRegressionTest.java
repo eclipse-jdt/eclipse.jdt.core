@@ -1553,7 +1553,13 @@ protected void runJavac(
 	}
 }
 
-	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
+//runNegativeTest(
+//	// test directory preparation
+//	new String[] { /* test files */
+// 	},
+//	// compiler results
+//	"" /* expected compiler log */);
+protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 		runTest(
 	 		// test directory preparation
 			true /* flush output directory */,
