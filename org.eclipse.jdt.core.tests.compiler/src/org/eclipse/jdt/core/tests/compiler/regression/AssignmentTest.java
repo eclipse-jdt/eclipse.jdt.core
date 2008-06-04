@@ -1445,6 +1445,50 @@ public void _test058_definite_unassignment_try_finally() {
 		"1. ERROR in X.java...\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235555
+public void test059_definite_unassignment_assign_in_for_condition() {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    final int i;\n" + 
+			"    for (; 0 < (i = 1); i = i + 1) {\n" + 
+			"      break;\n" + 
+			"    }\n" + 
+			"    System.out.println(\"SUCCESS\");\n" + 
+			"  }\n" + 
+			"}"
+	 	},
+		// compiler results
+	 	null /* do not check compiler log */,
+	 	// runtime results
+		"SUCCESS" /* expected output string */,
+		"" /* expected error string */,
+		JavacTestOptions.EclipseJustification.EclipseBug235555 /* javac test options */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235555
+// variant
+public void test060_definite_unassignment_assign_in_for_condition() {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    final int i;\n" + 
+			"    for (; 0 < (i = 1);) {\n" + 
+			"      break;\n" + 
+			"    }\n" + 
+			"    System.out.println(\"SUCCESS\");\n" + 
+			"  }\n" + 
+			"}"
+	 	},
+	 	// runtime results
+		"SUCCESS" /* expected output string */);
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }
