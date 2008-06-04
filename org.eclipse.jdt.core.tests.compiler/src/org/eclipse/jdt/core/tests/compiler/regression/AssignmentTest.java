@@ -35,6 +35,7 @@ static {
 //	TESTS_NAMES = new String[] { "test000" };
 //	TESTS_NUMBERS = new int[] { 45 };
 //	TESTS_RANGE = new int[] { 11, -1 };
+	TESTS_RANGE = new int[] { 54, -1 };
 }
 public static Test suite() {
 	Test suite = buildAllCompliancesTestSuite(testClass());
@@ -1296,6 +1297,71 @@ public void test053() {
 			"	    ^^^^^\n" + 
 			"Type mismatch: cannot convert from String to int\n" + 
 			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235543
+public void _test054_definite_unassignment_try_catch() {
+	runNegativeTest(
+		// test directory preparation
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    final int i;\n" + 
+			"    try {\n" + 
+			"      if (false) {\n" + 
+			"            i = 0;\n" + 
+			"            System.out.println(i);\n" + 
+			"            throw new MyException();\n" + 
+			"      }\n" + 
+			"    } catch (Exception e) {\n" + 
+			"      i = 1; // missing error\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class MyException extends Exception {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}"
+	 	},
+		// compiler results
+	 	"----------\n" + /* expected compiler log */
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	i = 1;\n" + 
+		"	^\n" + 
+		"The final local variable i may already have been assigned\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235543
+// variant
+public void test055_definite_unassignment_try_catch() {
+	runNegativeTest(
+		// test directory preparation
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    final int i;\n" + 
+			"    try {\n" + 
+			"      if (false) {\n" + 
+			"            i = 0;\n" + 
+			"            System.out.println(i);\n" + 
+			"            throw new MyException();\n" + 
+			"      }\n" + 
+			"    } catch (MyException e) {\n" + 
+			"      i = 1;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class MyException extends Exception {\n" + 
+			"  private static final long serialVersionUID = 1L;\n" + 
+			"}"
+	 	},
+		// compiler results
+	 	"----------\n" + /* expected compiler log */
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	i = 1;\n" + 
+		"	^\n" + 
+		"The final local variable i may already have been assigned\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return AssignmentTest.class;
