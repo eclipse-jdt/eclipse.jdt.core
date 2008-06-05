@@ -44980,4 +44980,31 @@ public void _test1339() {
 			"Type mismatch: cannot convert from Class<capture#2-of ? extends Object> to Exception\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=235837
+public void test1340() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"  void bar() {\n" + 
+				"    Integer i = 0;\n" + 
+				"    Double d = 0.0;\n" + 
+				"    foo((Collection<Number>) Arrays.asList(i, d));\n" + 
+				"  }\n" + 
+				"  void foo(Collection<Number> c) {}\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	foo((Collection<Number>) Arrays.asList(i, d));\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from List<Number&Comparable<?>> to Collection<Number>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	foo((Collection<Number>) Arrays.asList(i, d));\n" + 
+			"	                         ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety : A generic array of Number&Comparable<?> is created for a varargs parameter\n" + 
+			"----------\n");
+}
 }
