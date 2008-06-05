@@ -586,7 +586,7 @@ What's new in this drop</h2>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=131935">131935</a>
 [1.5][compiler] Illegal generic conversion allowed.
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=129082">129082</a>
-[regression] Refresh->Run action deletes all files in 'bin' directory and recompiles all classes
+[regression] Refresh-&gt;Run action deletes all files in 'bin' directory and recompiles all classes
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=132613">132613</a>
 NPE in java builder when trying to retrieve a file
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106090">106090</a>
@@ -1313,7 +1313,7 @@ What's new in this drop</h2>
 	 When not present, <code>"false"</code> is assumed. If the value of this attribute is <code>"true"</code>, 
 	 the classpath entry is optional. </li>
 <li>Added support for statement recovery in Parser<br>
-	 Currently this new behavior is incomplete (mapping non-terminals -> terminals) and disabled. The option JavaCore.COMPILER_STATEMENTS_RECOVERY must be set to ENABLED to use it (It's a temporary option).</li>
+	 Currently this new behavior is incomplete (mapping non-terminals -&gt; terminals) and disabled. The option JavaCore.COMPILER_STATEMENTS_RECOVERY must be set to ENABLED to use it (It's a temporary option).</li>
 <li>Added API for DOM ASTNode flag: <code>ASTNode.RECOVERED</code><br>
 	 It is a flag constant indicating that this node or a part of this node is recovered
 	 from source that contains a syntax error detected in the vicinity.</li>
@@ -2215,7 +2215,7 @@ Code completion on continue label: broken.
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113945">113945</a>
 No codeassist in anonymous class in generics
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114086">114086</a>
-Refactor->Rename of instance variables fails with "-1" when Code Style->Fields prefix list has dangling ","
+Refactor-&gt;Rename of instance variables fails with "-1" when Code Style-&gt;Fields prefix list has dangling ","
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114341">114341</a>
 [javadoc][assist] range of the qualified type completion in javadoc text isn't correct
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=114338">114338</a>
@@ -2264,10 +2264,10 @@ What's new in this drop</h2>
  * For example:
  *  - pattern = "NPE"
  *    name = NullPointerException
- *    result => true
+ *    result =&gt; true
  *  - pattern = "npe"
  *    name = NullPointerException
- *    result => false
+ *    result =&gt; false
  *
  * @see CharOperation#camelCaseMatch(char[], char[])
  * 	Implementation has been entirely copied from this method except for array lengthes
@@ -2303,14 +2303,14 @@ public static final boolean camelCaseMatch(String pattern, String name)
  *    name = NullPointerException
  *    nameStart = 0
  *    nameEnd = 20
- *    result => true
+ *    result =&gt; true
  *  - pattern = "npe"
  *    patternStart = 1
  *    patternEnd = 3
  *    name = NullPointerException
  *    nameStart = 0
  *    nameEnd = 20
- *    result => false
+ *    result =&gt; false
  *
  * @see CharOperation#camelCaseMatch(char[], int, int, char[], int, int)
  * 	Implementation has been entirely copied from this method except for array lengthes

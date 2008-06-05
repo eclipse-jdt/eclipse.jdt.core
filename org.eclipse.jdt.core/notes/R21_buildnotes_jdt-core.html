@@ -838,7 +838,7 @@ the unbound variable or container names. This allows clients to recognize these 
 suitable recovery actions for these.
 </li>
 <li> Project cycles can now be built as soon as the compiler severity for circular
-dependencies is lowered to a warning (see Preferences>Java>Compiler>Other>Circular dependencies>Warning).
+dependencies is lowered to a warning (see Preferences&gt;Java&gt;Compiler&gt;Other&gt;Circular dependencies&gt;Warning).
 </li>
 <li> Surfaced compiler options for reporting usage of char[] in String concatenations (default is still warning).
 <pre>
@@ -1341,7 +1341,7 @@ Surface non-java projects as model non-java resources
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=28531">28531</a>
 Classpath Entry: Output folder can not be set to project 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=28824">28824</a>
-Quick Fix: Type Mismatch -> Cast bug [quick fix]
+Quick Fix: Type Mismatch -&gt; Cast bug [quick fix]
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=28599">28599</a>
 validateClasspath rendering of paths 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=29079">29079</a>
@@ -2514,7 +2514,7 @@ Search does not find patterned type reference in binary project
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23812">23812</a>  
 Configurable (TODO) Markers priority in takslist  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=22840">22840</a>  
-Refactor->Move doesn't update Local History  
+Refactor-&gt;Move doesn't update Local History  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=24685">24685</a>  
 Inner package fragments gets deleted - model out of synch  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=24498">24498</a>  
@@ -2558,7 +2558,7 @@ JavaCore.setClasspathContainer is not generic enough
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=24623">24623</a>
 AST: No method body when abstract modifier is existing
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=24558">24558</a>
-compiler error, method declaration in interface -> NullPointerException
+compiler error, method declaration in interface -&gt; NullPointerException
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=24621">24621</a>
 Cannot specified JRE for each project separely ...
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=24600">24600</a>
@@ -2742,9 +2742,9 @@ At this point, it is unclear whether we will attempt to share these custom prope
 	/**
 	 * Helper method for returning one option value only. Equivalent to <code>(String)this.getOptions(inheritJavaCoreOptions).get(optionName)</code>
 	 * Note that it may answer <code>null</code> if this option does not exist, or if there is no custom value for it.
-	 * <p>
+	 * 
 	 * For a complete description of the configurable options, see <code>JavaCore#getDefaultOptions</code>.
-	 * </p>
+	 * 
 	 * @param optionName the name of an option
 	 * @param inheritJavaCoreOptions - boolean indicating whether JavaCore options should be inherited as well
 	 * @return the String value of a given option
@@ -2760,9 +2760,9 @@ At this point, it is unclear whether we will attempt to share these custom prope
 	 * Returns the table of the current custom options for this project. Projects remember their custom options,
 	 * i.e. only the options different from the the JavaCore global options for the workspace.
 	 * A boolean argument allows to directly merge the project options with global ones from <code>JavaCore</code>.
-	 * <p>
+	 * 
 	 * For a complete description of the configurable options, see <code>JavaCore#getDefaultOptions</code>.
-	 * </p>
+	 * 
 	 * 
 	 * @param inheritJavaCoreOptions - boolean indicating whether JavaCore options should be inherited as well
 	 * @return table of current settings of all options 
@@ -2779,9 +2779,9 @@ At this point, it is unclear whether we will attempt to share these custom prope
 	 * Sets the project custom options. All and only the options explicitly included in the given table 
 	 * are remembered; all previous option settings are forgotten, including ones not explicitly
 	 * mentioned.
-	 * <p>
+	 * 
 	 * For a complete description of the configurable options, see <code>JavaCore#getDefaultOptions</code>.
-	 * </p>
+	 * 
 	 * 
 	 * @param newOptions the new options (key type: <code>String</code>; value type: <code>String</code>),
 	 *   or <code>null</code> to flush all custom options (clients will automatically get the global JavaCore options).

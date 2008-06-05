@@ -92,7 +92,7 @@
 	being compatible with <code>IWorkingCopy</code>.
 
 <hr><h1>CharOperation.pathMatch(...) treats non absolute pattern as Ant does</h1>
-	Last edit: 2003/06/11 (->M2)
+	Last edit: 2003/06/11 (-&gt;M2)
 <h2>Problem description</h2>
 	<code>CharOperation.pathMatch(...)</code> used to treat non absolute pattern <code>'foo'</code>
 	as <code>'**/foo'</code> for free. This was inconsistent with Ant patternset rules.
@@ -105,7 +105,7 @@
 	TODO
 
 <hr><h1>Change in syntax error message ID</h1>
-	Last edit: 2003/06/11 (->M2)
+	Last edit: 2003/06/11 (-&gt;M2)
 <h2>Problem description</h2>
 	TODO
 <h2>Problem resolution</h2>
@@ -138,7 +138,7 @@
 	TODO
 
 <hr><h1>Force reload of .classpath file</h1>
-	Last edit: 2003/06/12 (->M2)
+	Last edit: 2003/06/12 (-&gt;M2)
 <h2>Problem description</h2>
 	TODO
 <h2>Problem resolution</h2>
@@ -171,7 +171,7 @@
 	TODO
 
 <hr><h1>Allow empty path to be equivalent to no source attachment</h1>
-	Last edit: 2003/06/13 (->M2)
+	Last edit: 2003/06/13 (-&gt;M2)
 <h2>Problem description</h2>
 	<code>JavaCore.newLibraryEntry(...)</code> used to not allow an empty source attachment (
 	<code>new Path("")</code>) to be equivalent to no source attachment (i.e. <code>null</code>). 
@@ -189,7 +189,7 @@
 	TODO
 
 <hr><h1>Close the gap between compilation units and working copies</h1>
-	Last edit: 2003/06/27 (->M2)
+	Last edit: 2003/06/27 (-&gt;M2)
 <h2>Problem description</h2>
 	TODO
 	<p>See also <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36888 ">bug 36888</a>.
@@ -419,7 +419,7 @@ public abstract class WorkingCopyOwner {
 	TODO
 
 <hr><h1>IJavaElement.getResource() returns a non null value for working copies</h1>
-	Last edit: 2003/06/18 (->M2)
+	Last edit: 2003/06/18 (-&gt;M2)
 <h2>Problem description</h2>
 	<code>IJavaElement.getResource()</code> was specified to return <code>null</code> for working copies. 
 	This didn't make sense as	this is a handle-only operation and an <code>IResource</code> is also a handle. 
@@ -430,7 +430,7 @@ public abstract class WorkingCopyOwner {
 	TODO
 
 <hr><h1>Rename getOriginalElement() into getPrimaryElement()</h1>
-	Last edit: 2003/06/20 (->M2)
+	Last edit: 2003/06/20 (-&gt;M2)
 <h2>Problem description</h2>
 	The 2.1 API <code>IWorkingCopy.getOriginalElement()</code> returns an <code>IJavaElement</code>. In practice 
 	the original element for a working copy is always an <code>ICompilationUnit</code> whose owner is the primary owner. 
@@ -471,7 +471,7 @@ IJavaElement getPrimaryElement();
 	TODO
 
 <hr><h1>JavaCore.newLibraryEntry(...) no longer accepts a relative source attachment path</h1>
-	Last edit: 2003/06/30 (->M2)
+	Last edit: 2003/06/30 (-&gt;M2)
 <h2>Problem description</h2>
 	The API <code>JavaCore.newLibraryEntry(IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath, boolean isExported)</code> 
 	for creating a library classpath entry with a source attachment used to accept a relative source attachment path. It was spec'ed as such, 
@@ -491,7 +491,7 @@ IJavaElement getPrimaryElement();
 	TODO
 
 <hr><h1>Read <code>.classpath</code> file contents even if project has not the java nature yet</h1>
-	Last edit: 2003/09/01 (->M4)
+	Last edit: 2003/09/01 (-&gt;M4)
 <h2>Problem description</h2>
 In 2.0 it was allowed to access IJavaProject.getOutputLocation/getRawClasspath on a project where the JavaNature was not set yet. Since 2.1 a
 JavaModelException is thrown if that happens.
@@ -505,19 +505,19 @@ location where the project will be created.
 /**
  * Returns the raw classpath for the project as defined by its <code>.classpath</code> file from disk, or <code>null</code>
  * if unable to read the file. 
- * <p>
+ * 
  * This classpath may differ from the in-memory classpath returned by <code>getRawClasspath</code>, in case the 
  * automatic reconciliation mechanism has not been performed yet. Usually, any change to the <code>.classpath</code> file 
  * is automatically noticed and reconciled at the next resource change notification event. 
  * However, if the file is modified within an operation, where this change needs to be taken into account before the 
  * operation ends, then the classpath from disk can be read using this method, and further assigned to the project 
  * using <code>setRawClasspath(...)</code>.
- * <p>
+ * 
  * A raw classpath may contain classpath variable and/or container entries. Classpath variable entries can be resolved 
  * individually (see <code>JavaCore#getClasspathVariable</code>), or the full classpath can be resolved at once using the 
  * helper method <code>getResolvedClasspath</code>.
  * TODO (jim) please reformulate to include classpath containers in resolution aspects
- * <p>
+ * 
  * Note that no check is performed whether the project has the Java nature set, allowing an existing <code>.classpath</code> 
  * file to be considered independantly (unlike <code>getRawClasspath</code> which requires the Java nature to be associated 
  * with the project). 
@@ -535,14 +535,14 @@ location where the project will be created.
 /**
  * Returns the default output location for the project as defined by its <code>.classpath</code> file from disk, or <code>null</code>
  * if unable to read the file. 
- * <p>
+ * 
  * This output location may differ from the in-memory one returned by <code>getOutputLocation</code>, in case the 
  * automatic reconciliation mechanism has not been performed yet. Usually, any change to the <code>.classpath</code> file 
  * is automatically noticed and reconciled at the next resource change notification event. 
  * However, if the file is modified within an operation, where this change needs to be taken into account before the 
  * operation ends, then the output location from disk can be read using this method, and further assigned to the project 
  * using <code>setRawClasspath(...)</code>.
- * <p>
+ * 
  * The default output location is where class files are ordinarily generated
  * (and resource files, copied). Each source classpath entry can also
  * specify an output location for the generated class files (and copied

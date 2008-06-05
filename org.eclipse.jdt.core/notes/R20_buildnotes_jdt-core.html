@@ -336,7 +336,7 @@ cancelling compiling does not always cancel
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=18539">18539</a>  
 unable to run JDBC program, class not found
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3292">3292</a>  
-Adding new class takes very long (>20s) (1GEUGFQ)
+Adding new class takes very long (&gt;20s) (1GEUGFQ)
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3333">3333</a>  
 JavaCore does not recognize dot notation for inner classes (1GI7GZG)  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=18507">18507</a>
@@ -557,7 +557,7 @@ What's new in this drop</h2>
 <ul>
 <li>Added API to retrieve cached flags on type hierarchies (see <code>ITypeHierarchy#getCachedFlags(IType)</code>). Note that these
 flags can help answering both isClass/isInterface queries as well (see <code>Flags.isInterface(int)</code></li>
-<li>Added API to trigger a Java model refresh with respect to external JARs: <code>IJavaModel#refreshExternalJARs</code>. </li>
+<li>Added API to trigger a Java model refresh with respect to external JARs: <code>IJavaModel#refreshExternalJARs</code>.
 <pre>
 /**
  * Triggers an update of the JavaModel with respect to the referenced external JARs.
@@ -573,7 +573,7 @@ flags can help answering both isClass/isInterface queries as well (see <code>Fla
  */
 void refreshExternalJARs(IProgressMonitor monitor) throws JavaModelException;
 </pre>
-<li>Added flag for notifying a JAR content change during Java delta notification: <code>IJavaElementDelta#F_ARCHIVE_CONTENT_CHANGED</code></li>
+ </li><li>Added flag for notifying a JAR content change during Java delta notification: <code>IJavaElementDelta#F_ARCHIVE_CONTENT_CHANGED</code></li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -600,7 +600,7 @@ NullPointerException while building
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=17827">17827</a>
 NullPointerException at  CompilationResult.computePriority
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=16761">16761</a>
-NPE when doing Project -> Rebuild All
+NPE when doing Project -&gt; Rebuild All
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3329">3329</a>
 Specification for IJavaElementDelta needed (1GHVW5M)  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=16753">16753</a>
@@ -729,14 +729,14 @@ Eclipse SDK Build 20020515 - 15th May 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-    <li> New compiler option added to control max number of problems reported on a unit. Default is 100. See <code>JavaCore#getDefaultOptions()</code> </li>
+    <li> New compiler option added to control max number of problems reported on a unit. Default is 100. See <code>JavaCore#getDefaultOptions()</code>
     <pre>
 	 * COMPILER / Maximum number of problems reported per compilation unit
 	 *    Specify the maximum number of problems reported on each compilation unit.
 	 *     - option id:			"org.eclipse.jdt.core.compiler.maxProblemPerUnit"
 	 *     - possible values:	"&lt;n&gt;" where &lt;n&gt; is zero or a positive integer (if zero then all problems are reported).
 	 *     - default:			"100"
-    </pre>
+    </pre> </li>
     <li>By default, the Java builder is now aborting build process on projects with classpath problems. This option can be disabled through the Java preferences:
     Window&gt;Preferences&gt;Java&gt;Builder&gt;</li>
 </ul>
@@ -1788,8 +1788,8 @@ operation. The problem requestor is passed along at creation time.
 </li>	
 <li>Some internal classes got deprecated (as client code relies on them), since being surfaced:
 	<ul>
-		<li> <code>org.eclipse.jdt.internal.core.parser.InvalidInputException</code> <br>==> <code>org.eclipse.jdt.core.compiler.InvalidInputException</code> </li>
-		<li> <code>org.eclipse.jdt.internal.core.parser.TerminalSymbols</code> <br>==> <code>org.eclipse.jdt.core.compiler.ITerminalSymbols</code> </li>
+		<li> <code>org.eclipse.jdt.internal.core.parser.InvalidInputException</code> <br>==&gt; <code>org.eclipse.jdt.core.compiler.InvalidInputException</code> </li>
+		<li> <code>org.eclipse.jdt.internal.core.parser.TerminalSymbols</code> <br>==&gt; <code>org.eclipse.jdt.core.compiler.ITerminalSymbols</code> </li>
 	</ul>
 	They will be removed in a subsequent build.
 </ul>
@@ -2886,7 +2886,7 @@ argument '-d' <tt>&lt;destination&gt;</tt> is omitted (compliant with standard b
      but the subtype (of the missing type) will be a root (this is the behavior of
      VA/Java and VAME.)
 <li> Adding a type that was missing from a hierarchy will update the hierarchy correctly.
-<li> New API on ICompletionRequestor for suggest anonymous type declaration:</li>
+<li> New API on ICompletionRequestor for suggest anonymous type declaration:
 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <tt>void acceptAnonymousType(</tt>
 <br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] superTypePackageName,</tt>
 <br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] superTypeName,</tt>
@@ -2898,6 +2898,7 @@ argument '-d' <tt>&lt;destination&gt;</tt> is omitted (compliant with standard b
 <br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionStart,</tt>
 <br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionEnd);</tt>
 <br>&nbsp;
+</li>
 </ul>
 
 <h3>
@@ -3443,10 +3444,10 @@ Code assist only qualifies implicit members when necessary</li>
 <li>
 New API for setting both classpath and output location at the same time
 (allowing to avoid classpath validation failures in case there is no way
-to change both independantly):</li>
+to change both independantly):
 
 <br><tt>IJavaProject.setRawClasspath(IClasspathEntry[] newClasspath, IPath
-newOutputLocation, IProgressMonitor monitor)</tt></ul>
+newOutputLocation, IProgressMonitor monitor)</tt></li></ul>
 
 <h3>
 Problem Reports Fixed</h3>
@@ -3763,7 +3764,7 @@ What's new in this drop</h2>
 
 <ul>
 <li>
-CodeAssist provides variable name suggestions.</li>
+CodeAssist provides variable name suggestions.
 
 <br>&nbsp;&nbsp;&nbsp; (breaking) API Changes on <tt>ICompletionRequestor</tt>
 <br>&nbsp;&nbsp;&nbsp; <b>+</b> <u>Added</u> API for suggest variable name:
@@ -3775,10 +3776,11 @@ CodeAssist provides variable name suggestions.</li>
 <br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionStart,</tt>
 <br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionEnd);</tt>
 <br>&nbsp;
+</li>
 <li>
-Helper method for computing a resolved and expanded path (all exports from
+<p>Helper method for computing a resolved and expanded path (all exports from
 prerequisites) which was introduced in 204, got <u>removed</u>. This is
-not an API change, it never made it out officially.</li>
+not an API change, it never made it out officially.</p>
 
 <br>&nbsp;&nbsp; <b>-</b> <tt>IJavaProject.getExpandedClasspath(boolean)</tt>
 <p><tt>SearchEngine.createJavaSearchScope(IResource[])</tt> has been deprecated.
@@ -3788,7 +3790,7 @@ well defined for projects, and it could not define a search scope for java
 elements that didn't have a corresponding resource (e.g. external jars).
 This deprecated API's behavior has also reverted to the 1.0 state for backward
 compatibility. The specification of <tt>createJavaSearchScope(IJavaElement[])</tt>
-is as follows:
+is as follows:</p>
 <ul>
 <li>
 If an element is an <tt>IJavaProject</tt>, then the project's source folders,
@@ -3803,7 +3805,7 @@ fragments of this package fragment root will be included.</li>
 If an element is an <tt>IPackageFragment</tt>, then only the compilation
 unit and class files of this package fragment will be included. Subpackages
 will NOT be included.</li>
-</ul>
+</ul></li>
 </ul>
 
 <h3>
@@ -3885,10 +3887,10 @@ upon creation. When exported, an entry is contributed to dependent projects
 along with its output location.</li>
 
 <li>
-Added APIs:</li>
+Added APIs:
 
 <br>&nbsp;&nbsp;&nbsp; Testing status of a given entry
-<br>&nbsp;&nbsp;&nbsp;&nbsp; + IClasspathEntry.isExported()</ul>
+<br>&nbsp;&nbsp;&nbsp;&nbsp; + IClasspathEntry.isExported()</li></ul>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Creating
 entries with export flag
 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3907,7 +3909,7 @@ CodeAssist inserts qualification on field/method references in case of
 ambiguities.</li>
 
 <li>
-CodeAssist provides parameter names on method completions.</li>
+CodeAssist provides parameter names on method completions.
 
 <br>&nbsp;&nbsp;&nbsp; API Changes on ICompletionRequestor
 <br>&nbsp;&nbsp; + Added API for answering method declaration completions:
@@ -3941,13 +3943,14 @@ ADDED
 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionStart,
 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionEnd);
 <br>&nbsp;
+</li>
 <li>
 CodeAssist optionally performs visibility checks (see JavaCore option:
 "org.eclipse.jdt.core.codeComplete.visibilityCheck").</li>
 
 <li>
 Search for field read and field write references. Two new constants have
-been added</li>
+been added
 
 <br>&nbsp;&nbsp;&nbsp; on IJavaSearchConstants to be used when creating
 a field reference search pattern:
@@ -3957,13 +3960,13 @@ read access to a field.
 write access to a field.
 <br>&nbsp;&nbsp;&nbsp; Note that if REFERENCES is used, then search results
 contain both read and write
-<br>&nbsp;&nbsp;&nbsp; accesss to a field.
+<br>&nbsp;&nbsp;&nbsp; accesss to a field.</li>
 <li>
-OpenOnSelection can now locate selected declarations which have a corresponding</li>
+OpenOnSelection can now locate selected declarations which have a corresponding
 
 <br>&nbsp;&nbsp;&nbsp; Java element (i.e. no local declaration is found),
 and is more tolerant of
-<br>&nbsp;&nbsp;&nbsp; incorrect code.</ul>
+<br>&nbsp;&nbsp;&nbsp; incorrect code.</li></ul>
 
 <h2>
 Problem Reports Fixed</h2>
@@ -4105,11 +4108,11 @@ What's new in this drop</h2>
 
 <ul>
 <li>
-New AST node for empty statements (org.eclipse.jdt.internal.compiler.ast.EmptyStatement)</li>
+New AST node for empty statements (org.eclipse.jdt.internal.compiler.ast.EmptyStatement)
 
 <br>&nbsp;&nbsp; i.e. 2 more APIs on the AST visitor. Note: this was not
 an official API
-<li>
+</li><li>
 ISourceElementRequestor notifies enter/exit initializers instead of just
 acceptInitializer. Note: this was not an official API</li>
 
@@ -4118,16 +4121,16 @@ Search in inner-classes now works. Indexes are recomputed automatically
 on start-up.</li>
 
 <li>
-&nbsp; Removed CodeAssist option for hungry mode (org.eclipse.jdt.core.codeComplete.entireWordReplacement)</li>
+&nbsp; Removed CodeAssist option for hungry mode (org.eclipse.jdt.core.codeComplete.entireWordReplacement)
 
 <br>&nbsp;&nbsp; Client code can decide whether using inferred end position
 (hungry behavior) or original cursor location (insert behavior)
-<br>&nbsp;&nbsp; based on the keystroke (enter/insert?).
+<br>&nbsp;&nbsp; based on the keystroke (enter/insert?).</li>
 <li>
 &nbsp; org.eclipse.jdt.core.search.IJavaSearchResultCollector now clearly
-states that</li>
+states that
 
-<br>&nbsp;&nbsp;&nbsp; the order of the search result is unspecified.</ul>
+<br>&nbsp;&nbsp;&nbsp; the order of the search result is unspecified.</li></ul>
 
 <h2>
 Problem reports fixed</h2>
@@ -4222,7 +4225,7 @@ What is new in this drop</h2>
 JCK1.3a compliant.</li>
 
 <li>
-Added 2 new APIs on JavaConventions for classpath validation.</li>
+Added 2 new APIs on JavaConventions for classpath validation.
 
 <ul>
 <li>
@@ -4233,7 +4236,7 @@ classpath, IPath outputLocation)</li>
 IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry
 entry, boolean checkSourceAttachment)</li>
 </ul>
-
+</li>
 <li>
 Ant Eclipse compiler task added (org.eclipse.jdt.core.ant.Jdtcom)</li>
 
@@ -4243,7 +4246,7 @@ it can optionally be turned into source 1.4 mode cf. JavaCore options.</li>
 
 <li>
 More options are surfaced on JavaCore. See JavaCore.getDefaultOptions()
-for description.</li>
+for description.
 
 <ul>
 <li>
@@ -4252,7 +4255,7 @@ for description.</li>
 <li>
 Evaluation in binaries is functional</li>
 </ul>
-
+</li>
 <li>
 Search for references now finds results in binaries. Indexes in old workspaces
 are recomputed when restarted which may result in longer startup times.</li>

@@ -2490,7 +2490,7 @@ has been modified to include the new <code>#R_CAMELCASE_SAME_PART_COUNT_MATCH</c
  * 		flag), then <b>the pattern match flag is reset</b>.
  * 		Reversely, when the string pattern has pattern characters and the pattern
  * 		match flag is <u>not</u> set, then <b>the pattern match flag is set</b>.
- * 	3.	>when the {@link #R_PATTERN_MATCH} flag is set then, <b>other
+ * 	3.	when the {@link #R_PATTERN_MATCH} flag is set then, <b>other
  * 		{@link #R_PREFIX_MATCH}, {@link #R_CAMELCASE_MATCH} or
  * 		{@link #R_CAMELCASE_SAME_PART_COUNT_MATCH} flags are reset</b>
  * 		if they are tentatively combined.
@@ -2539,7 +2539,7 @@ count of parts (i.e. uppercase characters) or not:
  *...
  * . pattern = "HM".toCharArray()
  * name = "HashMapEntry".toCharArray()
- * result => (samePartCount == false)
+ * result =&gt; (samePartCount == false)
  *...
  * @param samePartCount flag telling whether the pattern and the name should
  * 	have the same count of parts or not.
@@ -2569,7 +2569,7 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name, boolean 
  * name = "HashMapEntry".toCharArray()
  * nameStart = 0
  * nameEnd = 12
- * result => (samePartCount == false)
+ * result =&gt; (samePartCount == false)
  *...
  * @param samePartCount flag telling whether the pattern and the name should
  * 	have the same count of parts or not.
@@ -2904,28 +2904,28 @@ Following API methods have been added on <code>org.eclipse.jdt.core.compiler.Cha
  * Examples:
  *  1.	pattern = { 'N', 'P', 'E' }
  *  	name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *  	result => true
+ *  	result =&gt; true
  *  2.	pattern = { 'N', 'P', 'E' }
  *  	name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *  	result => true
+ *  	result =&gt; true
  *  3.	pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
  *  	name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *  	result => true
+ *  	result =&gt; true
  *  4.	pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
  *  	name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *  	result => false
+ *  	result =&gt; false
  *  5.	pattern = { 'n', p', 'e' }
  *  	name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
- *  	result => false
+ *  	result =&gt; false
  *  6.	pattern = { 'I', 'P', 'L', '3' }
  *  	name = { 'I', 'P', 'e', 'r', 's', 'p', 'e', 'c', 't', 'i', 'v', 'e', 'L', 'i', 's', 't', 'e', 'n', 'e', 'r', '3' }
- *  	result => true
+ *  	result =&gt; true
  *  7.	pattern = { 'H', M' }
  *  	name = { 'H', 'a', 's', 'h', 'M', 'a', 'p', 'E', 'n', 't', 'r', 'y' }
- *  	result => (prefixMatch == true)
+ *  	result =&gt; (prefixMatch == true)
  *  8.	pattern = { 'H', M', 'a', 'p' }
  *  	name = { 'H', 'a', 't', 'M', 'a', 'p', 'p', 'e', 'r' }
- *  	result => (prefixMatch == true)
+ *  	result =&gt; (prefixMatch == true)
  * 
  * @param pattern the given pattern
  * @param name the given name
@@ -2995,56 +2995,56 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name, boolean 
  *  	name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
  *  	nameStart = 0
  *  	nameEnd = 20
- *  	result => true
+ *  	result =&gt; true
  *  2.	pattern = { 'N', 'P', 'E' }
  *  	patternStart = 0
  *  	patternEnd = 3
  *  	name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
  *  	nameStart = 0
  *  	nameEnd = 21
- *  	result => true
+ *  	result =&gt; true
  *  3.	pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
  *  	patternStart = 0
  *  	patternEnd = 6
  *  	name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
  *  	nameStart = 0
  *  	nameEnd = 20
- *  	result => true
+ *  	result =&gt; true
  *  4.	pattern = { 'N', 'u', 'P', 'o', 'E', 'x' }
  *  	patternStart = 0
  *  	patternEnd = 6
  *  	name = { 'N', 'o', 'P', 'e', 'r', 'm', 'i', 's', 's', 'i', 'o', 'n', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
  *  	nameStart = 0
  *  	nameEnd = 21
- *  	result => false
+ *  	result =&gt; false
  *  5.	pattern = { 'n', p', 'e' }
  *  	patternStart = 0
  *  	patternEnd = 3
  *  	name = { 'N', 'u','l', 'l', 'P', 'o', 'i', 'n', 't', 'e', 'r', 'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n' }
  *  	nameStart = 20
  *  	nameEnd = 9
- *  	result => false
+ *  	result =&gt; false
  *  6.	pattern = { 'I', 'P', 'L', '3' }
  *  	patternStart = 0
  *  	patternEnd = 4
  *  	name = { 'I', 'P', 'e', 'r', 's', 'p', 'e', 'c', 't', 'i', 'v', 'e', 'L', 'i', 's', 't', 'e', 'n', 'e', 'r', '3' }
  *  	nameStart = 0
  *  	nameEnd = 21
- *  	result => true
+ *  	result =&gt; true
  *  7.	pattern = { 'H', M' }
  *  	patternStart = 0
  *  	patternEnd = 2
  *  	name = { 'H', 'a', 's', 'h', 'M', 'a', 'p', 'E', 'n', 't', 'r', 'y' }
  *  	nameStart = 0
  *  	nameEnd = 12
- *  	result => (prefixMatch == true)
+ *  	result =&gt; (prefixMatch == true)
  *  8.	pattern = { 'H', M', 'a', 'p' }
  *  	patternStart = 0
  *  	patternEnd = 4
  *  	name = { 'H', 'a', 't', 'M', 'a', 'p', 'p', 'e', 'r' }
  *  	nameStart = 0
  *  	nameEnd = 9
- *  	result => (prefixMatch == true)
+ *  	result =&gt; (prefixMatch == true)
  * 
  * @param pattern the given pattern
  * @param patternStart the start index of the pattern, inclusive
