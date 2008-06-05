@@ -249,6 +249,16 @@ protected static class JavacTestOptions {
 			return true;
 		}
 	};
+	// TODO (maxime) enable selective javac output dir manipulations between
+	//      tests steps
+	// some tests manipulate the OUTPUT_DIR explicitly between run*Test calls;
+	// however, these manipulations are not reflected in the javac output 
+	// directory (yet); skipping until we fix this
+	static final JavacTestOptions SKIP_UNTIL_FRAMEWORK_FIX = new JavacTestOptions() {
+		boolean skip(JavacCompiler compiler) {
+			return true;
+		}
+	};
 	private String compilerOptions = "";
 	public JavacTestOptions() {
 	}
@@ -319,6 +329,8 @@ protected static class JavacTestOptions {
 		public static EclipseJustification
 			EclipseBug40839 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=40839
 				new EclipseJustification(MismatchType.JavacWarningsEclipseNone) : null,
+			EclipseBug126744 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126744
+				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug185422 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug234815 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=234815
