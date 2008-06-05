@@ -48,9 +48,10 @@ public void test001() {
 		true,
 		false,
 		false);
-
-	this.runNegativeTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		false /* do not flush output directory */,
+		new String[] { /* test files */
 			"prs/Test2.java",
 			"package prs;	\n" +
 			"import java.io.IOException;	\n" +
@@ -66,9 +67,13 @@ public void test001() {
 			"}	\n" +
 			"}"
 		},
-		"",
-		null,
-		false);
+		// compiler results
+		"" /* expected compiler log */,
+		// runtime results
+		null /* do not check output string */,
+		null /* do not check error string */,
+		// javac options
+		JavacTestOptions.SKIP /* skip javac tests */);
 }
 // 49843
 public void test002() {

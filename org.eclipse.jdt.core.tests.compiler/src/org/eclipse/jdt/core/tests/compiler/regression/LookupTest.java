@@ -119,8 +119,8 @@ public void test003() {
 			"		System.out.println(\"SUCCESS\");			\n"+
 			"	}												\n"+
 			"}",
-			"SUCCESS"
-		}
+		},
+		"SUCCESS"
 	);									
 }
 /**
