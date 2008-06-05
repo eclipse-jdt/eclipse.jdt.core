@@ -733,8 +733,10 @@ public void test022() {
 public void test023() { 
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -748,7 +750,11 @@ public void test023() {
 			"class AX extends Exception {}\n" + 
 			"class BX extends AX {}\n"		
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	} catch(AX e) {\n" + 
 		"	        ^^\n" + 
@@ -764,9 +770,8 @@ public void test023() {
 		"	      ^^\n" + 
 		"The serializable class BX does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 
  /*
@@ -1071,9 +1076,10 @@ public void test030() {
 public void test031() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"import java.io.IOException;\n" +
 			"\n" +
@@ -1095,15 +1101,18 @@ public void test031() {
 			"    static void bar1() throws IOException {}\n" +
 			"}" 
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	} catch(IOException e) {\n" + 
 		"	        ^^^^^^^^^^^\n" + 
 		"Unreachable catch block for IOException. This exception is never thrown from the try statement body\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=114855
