@@ -141,7 +141,8 @@ public void test0500_synchronization() {
 // reflection - access to a public method of a package visible
 // class through a public extending class
 public void test0600_reflection() {
-	this.runConformTest(
+	runConformTest(
+		true,
 		new String[] {
 			"X.java",
 			"import java.lang.reflect.*;\n" + 
@@ -174,8 +175,11 @@ public void test0600_reflection() {
 			"  System.out.println(\"SUCCESS\"); //$NON-NLS-1$\n" + 
 			"  }\n" + 
 			"}\n"},
+		"",
 		"SUCCESS\n" + 
-		"FAILURE: IllegalAccessException"
+		"FAILURE: IllegalAccessException",
+		"",
+		JavacTestOptions.EclipseJustification.EclipseBug126712
 	);
 }
 
@@ -373,6 +377,7 @@ public void test1002_partial_rebuild() {
 			},
 		"1");
 	this.runConformTest(
+		false,
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -390,10 +395,10 @@ public void test1002_partial_rebuild() {
 			"  }\n" +
 			"}\n", 
 			},
+		"",
 		"2",
-		null,
-		false, // do not purge output directory - pick old version of Z.class
-		null);
+		"",
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
 
 // partial rebuild - method signature changed (visibility)
@@ -438,6 +443,7 @@ public void test1003_partial_rebuild() {
 			},
 		"1");
 	this.runConformTest(
+		false, // do not purge output directory - pick old version of Z.class
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -456,10 +462,10 @@ public void test1003_partial_rebuild() {
 			"  }\n" +
 			"}\n", 
 			},
+		"",
 		"2",
-		null,
-		false, // do not purge output directory - pick old version of Z.class
-		null);
+		"",
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
 
 // partial rebuild - extending class now redefines extended class fields and

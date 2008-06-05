@@ -319,18 +319,27 @@ protected static class JavacTestOptions {
 			EclipseBug235550 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235550
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug235781 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
-				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) : null;
+				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) : null,
+			EclipseBug235809 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235809
+				new EclipseHasABug(MismatchType.StandardOutputMismatch) : null;
 	}
 	// Eclipse bugs opened to investigate differences and closed as INVALID
 	// on grounds other than an identified javac bug or Eclipse bugs that
 	// discuss the topic in depth and explain why we made a given choice
 	public static class EclipseJustification extends Excuse {
-		private EclipseJustification(int mismatchType) {
+		EclipseJustification(int mismatchType) {
 			super(mismatchType);
 		}
 		public static EclipseJustification
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712
 			EclipseBug40839 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=40839
 				new EclipseJustification(MismatchType.JavacWarningsEclipseNone) : null,
+			EclipseBug126712 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712 & http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6342411
+				new EclipseJustification(MismatchType.StandardOutputMismatch) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
+					}
+				}: null,
 			EclipseBug126744 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126744
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug185422 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422
@@ -392,6 +401,8 @@ protected static class JavacTestOptions {
 		}
 		// bugs that we know precisely of 
 		public static JavacHasABug
+			JavacBug4094180 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4094180
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone) : null,
 			JavacBug4660984 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4660984 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=235555
 				new JavacHasABug(MismatchType.JavacErrorsEclipseNone) : null,
 			JavacBug5042462 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5042462 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=208873
@@ -698,14 +709,9 @@ protected static class JavacTestOptions {
 			String platformIndependantExpectedLog, Throwable exception) {
 		String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
 		if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
-			System.out.println(getClass().getName() + '#' + getName());
+			logTestTitle();
 			System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
-			for (int i = 0; i < testFiles.length; i += 2) {
-				System.out.print(testFiles[i]);
-				System.out.println(" ["); //$NON-NLS-1$
-				System.out.println(testFiles[i + 1]);
-				System.out.println("]"); //$NON-NLS-1$
-			}
+			logTestFiles(false, testFiles);
 		}
 		if (exception == null) {
 			assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
@@ -884,6 +890,21 @@ protected static class JavacTestOptions {
 		}
 	}
 
+	void logTestFiles(boolean logTitle, String[] testFiles) {
+		if (logTitle) {
+			logTestTitle();
+		}
+		for (int i = 0; i < testFiles.length; i += 2) {
+			System.out.print(testFiles[i]);
+			System.out.println(" ["); //$NON-NLS-1$
+			System.out.println(testFiles[i + 1]);
+			System.out.println("]"); //$NON-NLS-1$
+		}
+	}
+	void logTestTitle() {
+		System.out.println(getClass().getName() + '#' + getName());
+	}
+	
 	/*
 	 * Write given source test files in current output sub-directory.
 	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
@@ -1888,7 +1909,7 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 //   unable the comparison for tests which just happen to be fine;
 // - check the callees statistics for wrapper methods and tune them accordingly
 //   (aka, suppress low profile ones).
-	
+// WORK log test files in all failure cases (ez cut and paste)	
 	private void runTest(
 			// test directory preparation
 			boolean shouldFlushOutputDirectory, 
@@ -1951,9 +1972,15 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 		} finally {
 			if (exception == null) {
 				if (expectingCompilerErrors) {
-					assertTrue("Unexpected success", requestor.hasErrors);
+					if (!requestor.hasErrors) {
+						logTestFiles(true, testFiles);
+						fail("Unexpected success");
+					}
 				} else if (requestor.hasErrors) {
-					assertEquals("Unexpected failure", "", requestor.problemLog);
+					if (!"".equals(requestor.problemLog)) {
+						logTestFiles(true, testFiles);
+						assertEquals("Unexpected failure", "", requestor.problemLog);
+					}
 				}
 			}
 			if (expectedCompilerLog != null) {

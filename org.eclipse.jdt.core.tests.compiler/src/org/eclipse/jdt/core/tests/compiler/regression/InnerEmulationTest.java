@@ -2790,7 +2790,8 @@ public void test071() {
 		"	new X() {															\n" + 
 		"	    ^^^\n" + 
 		"Too many synthetic parameters, emulated parameter val$v126 is exceeding the limit of 255 words eligible for method parameters\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.SKIP /* javac simply does not catch this case */);
 }
 
 // test too many synthetic arguments
@@ -3488,26 +3489,30 @@ public void test087() {
 		return;
 	}
 	this.runConformTest(
+		true,
 		new String[] {
 			"X.java",
-			"public class X {	\n"+
-			"	public static void main(String[] arguments) {	\n"+
-			"		new X().f();	\n"+
-			"	}	\n"+
-			"    void f () {	\n"+
-			"        class C {	\n"+
-			"        	C() {	\n"+
+			"public class X {\n"+
+			"	public static void main(String[] arguments) {\n"+
+			"		new X().f();\n"+
+			"	}\n"+
+			"    void f () {\n"+
+			"        class C {\n"+
+			"        	C() {\n"+
 			"        		System.out.println(\"[\"+X.this.getClass().getName()+\"]\");	\n"+
-			"        	}	\n"+
-			"        }	\n"+
-			"        class N extends X {	\n"+
+			"        	}\n"+
+			"        }\n"+
+			"        class N extends X {\n"+
 			"            { new C(); } // selects N.this, not O.this	\n"+
-			"        }	\n"+
-			"        new N();	\n"+
+			"        }\n"+
+			"        new N();\n"+
 			"    }	\n"+
-			"}	\n"
+			"}\n"
 		},
-		"[X$1N]");
+		"",
+		"[X$1N]", // should be [X] indeed
+		"",
+		JavacTestOptions.EclipseHasABug.EclipseBug235809);
 }
 
 public void test088() {
@@ -3729,6 +3734,7 @@ public void test097() {
  */
 public void test098() { 
 	this.runConformTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X {	\n"+
@@ -3743,9 +3749,12 @@ public void test098() {
 			"	}	\n"+
 			"}	\n",
 		},
+		"",
 		"first inner class = class X$1\n" + 
 		"Always true\n" + 
-		"last inner class = class X$2");
+		"last inner class = class X$2",
+		"",
+		JavacTestOptions.SKIP /* optimization that we chose deliberately */);
 }
 
 /**
@@ -3786,6 +3795,7 @@ public void test099() {
 		return;
 	}
 	this.runNegativeTest(
+		false,
 		new String[] {
 			"X.java",
 			"public class X { \n" +
@@ -3794,14 +3804,15 @@ public void test099() {
 			"    } \n" +
 			"} \n",
 		},
+		null,
+		null,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	Object a = new Y$1Local();        // compile-time error \n" + 
 		"	               ^^^^^^^^\n" + 
 		"The nested type Y$1Local cannot be referenced using its binary name\n" + 
 		"----------\n",
-		null,
-		false);
+		JavacTestOptions.JavacHasABug.JavacBug4094180);
 }
 
 /*
@@ -5313,7 +5324,8 @@ public void test131() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165662
 public void test132() {
-	this.runNegativeTest(
+	this.runConformTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -5352,7 +5364,10 @@ public void test132() {
 		"	class Local {}\n" +
 		"	      ^^^^^\n" +
 		"The type Local is never used locally\n" +
-		"----------\n");
+		"----------\n",
+		"",
+		"",
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=168331
 public void test133() {
