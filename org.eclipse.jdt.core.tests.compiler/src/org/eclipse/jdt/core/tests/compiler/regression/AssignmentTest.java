@@ -1469,7 +1469,7 @@ public void test059_definite_unassignment_assign_in_for_condition() {
 	 	// runtime results
 		"SUCCESS" /* expected output string */,
 		"" /* expected error string */,
-		JavacTestOptions.EclipseJustification.EclipseBug235555 /* javac test options */);
+		JavacTestOptions.JavacHasABug.JavacBug4660984 /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235555
 // variant

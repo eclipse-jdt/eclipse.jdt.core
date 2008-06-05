@@ -340,11 +340,9 @@ protected static class JavacTestOptions {
 			EclipseBug235543 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235543
 				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) : null,
 			EclipseBug235546 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235546
-				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
-			EclipseBug235555 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235555
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null;
 	}
-	static class JavacHasABug extends Excuse {
+	public static class JavacHasABug extends Excuse {
 		long pivotCompliance;
 		int pivotMinor;
 		int[] minorsFixed;
@@ -394,6 +392,8 @@ protected static class JavacTestOptions {
 		}
 		// bugs that we know precisely of 
 		public static JavacHasABug
+			JavacBug4660984 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4660984 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=235555
+				new JavacHasABug(MismatchType.JavacErrorsEclipseNone) : null,
 			JavacBug5042462 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5042462 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=208873
 				new JavacHasABug(
 					MismatchType.JavacErrorsEclipseNone, 

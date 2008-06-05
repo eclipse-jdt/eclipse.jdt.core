@@ -1378,7 +1378,7 @@ public void test046() {
 		"",
 		"1",
 		"",
-		JavacTestOptions.EclipseJustification.EclipseBug235555);
+		JavacTestOptions.JavacHasABug.JavacBug4660984);
 }
 // do while and named labels
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
