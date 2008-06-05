@@ -466,35 +466,41 @@ public void test005() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 	
-	this.runNegativeTest(
-			new String[] {
-					"X.java", //-----------------------------------------------------------------------
-					"public class X {\n" + 
-					"	void foo() {\n" + 
-					"		p.OtherFoo ofoo = new p.OtherFoo();\n" +
-					"		ofoo.bar();\n" +
-					"		q1.q2.Zork z;\n" +
-					"	}\n" + 
-					"}	\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	ofoo.bar();\n" + 
-			"	^^^^^^^^^^\n" + 
-			"The type q1.q2.Zork cannot be resolved. It is indirectly referenced from required .class files\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	ofoo.bar();\n" + 
-			"	     ^^^\n" + 
-			"The method bar() from the type OtherFoo refers to the missing type Zork\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
-			"	q1.q2.Zork z;\n" + 
-			"	^^^^^^^^^^\n" + 
-			"q1.q2.Zork cannot be resolved to a type\n" + 
-			"----------\n",
-			null,
-			false);
+	runNegativeTest(
+		// test directory preparation
+		false /* do not flush output directory */,
+		new String[] { /* test files */
+			"X.java", //-----------------------------------------------------------------------
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		p.OtherFoo ofoo = new p.OtherFoo();\n" +
+			"		ofoo.bar();\n" +
+			"		q1.q2.Zork z;\n" +
+			"	}\n" + 
+			"}	\n",	
+		},
+		// compiler options
+		null /* no class libraries */,
+		null /* no custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	ofoo.bar();\n" + 
+		"	^^^^^^^^^^\n" + 
+		"The type q1.q2.Zork cannot be resolved. It is indirectly referenced from required .class files\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	ofoo.bar();\n" + 
+		"	     ^^^\n" + 
+		"The method bar() from the type OtherFoo refers to the missing type Zork\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	q1.q2.Zork z;\n" + 
+		"	^^^^^^^^^^\n" + 
+		"q1.q2.Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		// javac options
+		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test006() {
@@ -521,41 +527,47 @@ public void test006() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 	
-	this.runNegativeTest(
-			new String[] {
-					"X.java", //-----------------------------------------------------------------------
-					"import q1.q2.*;\n" +
-					"public class X {\n" + 
-					"	void foo() {\n" + 
-					"		p.OtherFoo ofoo = new p.OtherFoo();\n" +
-					"		ofoo.bar();\n" +
-					"		Zork z;\n" +
-					"	}\n" + 
-					"}	\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	import q1.q2.*;\n" + 
-			"	       ^^\n" + 
-			"The import q1 cannot be resolved\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	ofoo.bar();\n" + 
-			"	^^^^^^^^^^\n" + 
-			"The type q1.q2.Zork cannot be resolved. It is indirectly referenced from required .class files\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
-			"	ofoo.bar();\n" + 
-			"	     ^^^\n" + 
-			"The method bar() from the type OtherFoo refers to the missing type Zork\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 6)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n",
-			null,
-			false);
+	runNegativeTest(
+		// test directory preparation
+		false /* do not flush output directory */,
+		new String[] { /* test files */
+			"X.java", //-----------------------------------------------------------------------
+			"import q1.q2.*;\n" +
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		p.OtherFoo ofoo = new p.OtherFoo();\n" +
+			"		ofoo.bar();\n" +
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}	\n",
+		},
+		// compiler options
+		null /* no class libraries */,
+		null /* no custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	import q1.q2.*;\n" + 
+		"	       ^^\n" + 
+		"The import q1 cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	ofoo.bar();\n" + 
+		"	^^^^^^^^^^\n" + 
+		"The type q1.q2.Zork cannot be resolved. It is indirectly referenced from required .class files\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	ofoo.bar();\n" + 
+		"	     ^^^\n" + 
+		"The method bar() from the type OtherFoo refers to the missing type Zork\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		// javac options
+		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test007() {
@@ -582,41 +594,47 @@ public void test007() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 	
-	this.runNegativeTest(
-			new String[] {
-					"X.java", //-----------------------------------------------------------------------
-					"import q1.q2.Zork;\n" +
-					"public class X {\n" + 
-					"	void foo() {\n" + 
-					"		p.OtherFoo ofoo = new p.OtherFoo();\n" +
-					"		ofoo.bar();\n" +
-					"		Zork z;\n" +
-					"	}\n" + 
-					"}	\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	import q1.q2.Zork;\n" + 
-			"	       ^^\n" + 
-			"The import q1 cannot be resolved\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	ofoo.bar();\n" + 
-			"	^^^^^^^^^^\n" + 
-			"The type q1.q2.Zork cannot be resolved. It is indirectly referenced from required .class files\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
-			"	ofoo.bar();\n" + 
-			"	     ^^^\n" + 
-			"The method bar() from the type OtherFoo refers to the missing type Zork\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 6)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n",
-			null,
-			false);
+	runNegativeTest(
+		// test directory preparation
+		false /* do not flush output directory */,
+		new String[] { /* test files */
+			"X.java", //-----------------------------------------------------------------------
+			"import q1.q2.Zork;\n" +
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		p.OtherFoo ofoo = new p.OtherFoo();\n" +
+			"		ofoo.bar();\n" +
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}	\n",
+		},
+		// compiler options
+		null /* no class libraries */,
+		null /* no custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	import q1.q2.Zork;\n" + 
+		"	       ^^\n" + 
+		"The import q1 cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	ofoo.bar();\n" + 
+		"	^^^^^^^^^^\n" + 
+		"The type q1.q2.Zork cannot be resolved. It is indirectly referenced from required .class files\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	ofoo.bar();\n" + 
+		"	     ^^^\n" + 
+		"The method bar() from the type OtherFoo refers to the missing type Zork\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		// javac options
+		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test008() {
@@ -643,23 +661,29 @@ public void test008() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 	
-	this.runNegativeTest(
-			new String[] {
-					"X.java", //-----------------------------------------------------------------------
-					"public class X {\n" + 
-					"	void foo() {\n" + 
-					"		q1.q2.Zork z;\n" +
-					"	}\n" + 
-					"}	\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	q1.q2.Zork z;\n" + 
-			"	^^\n" + 
-			"q1 cannot be resolved to a type\n" + 
-			"----------\n",
-			null,
-			false);
+	runNegativeTest(
+		// test directory preparation
+		false /* do not flush output directory */,
+		new String[] { /* test files */
+			"X.java", //-----------------------------------------------------------------------
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		q1.q2.Zork z;\n" +
+			"	}\n" + 
+			"}	\n",
+		},
+		// compiler options
+		null /* no class libraries */,
+		null /* no custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	q1.q2.Zork z;\n" + 
+		"	^^\n" + 
+		"q1 cannot be resolved to a type\n" + 
+		"----------\n",
+		// javac options
+		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test009() {
@@ -686,29 +710,34 @@ public void test009() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 	
-	this.runNegativeTest(
-			new String[] {
-					"X.java", //-----------------------------------------------------------------------
-					"import q1.q2.*;\n" +
-					"public class X {\n" + 
-					"	void foo() {\n" + 
-					"		Zork z;\n" +
-					"	}\n" + 
-					"}	\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	import q1.q2.*;\n" + 
-			"	       ^^\n" + 
-			"The import q1 cannot be resolved\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n",
-			null,
-			false);
+	runNegativeTest(
+		// test directory preparation
+		false /* do not flush output directory */,
+		new String[] { /* test files */
+			"X.java", //-----------------------------------------------------------------------
+			"import q1.q2.*;\n" +
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}	\n",
+		},
+		// compiler options
+		null /* no class libraries */,
+		null /* no custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	import q1.q2.*;\n" + 
+		"	       ^^\n" + 
+		"The import q1 cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",			// javac options
+		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test010() {
@@ -735,29 +764,35 @@ public void test010() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 	
-	this.runNegativeTest(
-			new String[] {
-					"X.java", //-----------------------------------------------------------------------
-					"import q1.q2.Zork;\n" +
-					"public class X {\n" + 
-					"	void foo() {\n" + 
-					"		Zork z;\n" +
-					"	}\n" + 
-					"}	\n",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	import q1.q2.Zork;\n" + 
-			"	       ^^\n" + 
-			"The import q1 cannot be resolved\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n",
-			null,
-			false);
+	runNegativeTest(
+		// test directory preparation
+		false /* do not flush output directory */,
+		new String[] { /* test files */
+			"X.java", //-----------------------------------------------------------------------
+			"import q1.q2.Zork;\n" +
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}	\n",
+		},
+		// compiler options
+		null /* no class libraries */,
+		null /* no custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	import q1.q2.Zork;\n" + 
+		"	       ^^\n" + 
+		"The import q1 cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		// javac options
+		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test011() {
@@ -1673,16 +1708,21 @@ public void test033() {
 			false,
 			false);
 	
-	this.runConformTest(
-			new String[] {
-				"X.java", //-----------------------------------------------------------------------
-				"public class X extends Y {\n" + 
-				"}\n",
-			},
-			"",
-			null,
-			false, // do not flush output
-			null);
+	runConformTest(
+		// test directory preparation
+		false /* do not flush output directory */,
+		new String[] { /* test files */
+			"X.java", //-----------------------------------------------------------------------
+			"public class X extends Y {\n" + 
+			"}\n",
+		},
+		// compiler results
+		"" /* expected compiler log */,
+		// runtime results
+		"" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test034() {
