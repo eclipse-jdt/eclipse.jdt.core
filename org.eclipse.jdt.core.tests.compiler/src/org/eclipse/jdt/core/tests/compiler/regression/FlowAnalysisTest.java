@@ -166,8 +166,10 @@ public void test005() {
 public void test006() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"    public void test(int p) {\n" + 
@@ -188,13 +190,17 @@ public void test006() {
 			"    }\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	case 1:\n" + 
 		"	^^^^^^\n" + 
 		"Switch case may be entered by falling through previous case\n" + 
 		"----------\n",
-		null, true, options);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
@@ -238,8 +244,10 @@ public void test007() {
 public void test008() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"    public void test(int p) {\n" + 
@@ -255,13 +263,17 @@ public void test008() {
 			"    }\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	case 1:\n" + 
 		"	^^^^^^\n" + 
 		"Switch case may be entered by falling through previous case\n" + 
 		"----------\n",
-		null, true, options);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
@@ -300,8 +312,10 @@ public void test009() {
 public void test010() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"    public void test(int p, boolean b) {\n" + 
@@ -314,13 +328,17 @@ public void test010() {
 			"    }\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	case 1:\n" + 
 		"	^^^^^^\n" + 
 		"Switch case may be entered by falling through previous case\n" + 
 		"----------\n",
-		null, true, options);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
@@ -412,8 +430,10 @@ public void _test013() {
 public void test014() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"    public void test(int p) {\n" + 
@@ -428,13 +448,17 @@ public void test014() {
 			"    }\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	default:\n" + 
 		"	^^^^^^^\n" + 
 		"Switch case may be entered by falling through previous case\n" + 
 		"----------\n",
-		null, true, options);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
@@ -443,8 +467,10 @@ public void test014() {
 public void test015() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"    public void test(int p) {\n" + 
@@ -459,13 +485,17 @@ public void test015() {
 			"    }\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	case 1:\n" + 
 		"	^^^^^^\n" + 
 		"Switch case may be entered by falling through previous case\n" + 
 		"----------\n",
-		null, true, options);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
@@ -474,8 +504,10 @@ public void test015() {
 public void test016() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"    public void test(int p) {\n" + 
@@ -490,13 +522,17 @@ public void test016() {
 			"    }\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	case 1:\n" + 
 		"	^^^^^^\n" + 
 		"Switch case may be entered by falling through previous case\n" + 
 		"----------\n",
-		null, true, options);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127730
@@ -555,8 +591,10 @@ public void _test018() {
 public void test019() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"    public void test(int p, boolean b) {\n" + 
@@ -571,13 +609,17 @@ public void test019() {
 			"    }\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	case 1:\n" + 
 		"	^^^^^^\n" + 
 		"Switch case may be entered by falling through previous case\n" + 
 		"----------\n",
-		null, true, options);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=67836
@@ -620,8 +662,10 @@ public void test021() {
 public void test022() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -632,7 +676,10 @@ public void test022() {
 			"	}\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	;\n" + 
 		"	^\n" + 
@@ -643,7 +690,8 @@ public void test022() {
 		"	^\n" + 
 		"Empty control-flow statement\n" + 
 		"----------\n",
-		null, true, options);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 public void test023() {
 	this.runNegativeTest(
@@ -669,7 +717,8 @@ public void test023() {
 		"	x.foo();\n" + 
 		"	^\n" + 
 		"The local variable x may not have been initialized\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=132974
 public void test024() {
@@ -961,7 +1010,8 @@ public void test031() {
 		"	X() {\n" + 
 		"	^^^\n" + 
 		"The blank final field blank may not have been initialized\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.EclipseHasABug.EclipseBug235781);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
 public void test032() {
@@ -1311,9 +1361,9 @@ public void test045() {
 		"----------\n");
 }
 // for and definite assignment
-// **
 public void test046() {
 	this.runConformTest(
+		true,
 		new String[] {
 			"X.java",
 			"public abstract class X {\n" + 
@@ -1325,7 +1375,10 @@ public void test046() {
 			"  }\n" + 
 			"}\n",
 		},
-		"1");
+		"",
+		"1",
+		"",
+		JavacTestOptions.EclipseJustification.EclipseBug235555);
 }
 // do while and named labels
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
@@ -1417,6 +1470,41 @@ public void test049() {
 		null /* customOptions */,
 		null /* clientRequestor */,
 		true /* skipJavac */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
+public void _test050_definite_assigment_and_if_true() {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"  final int i;\n" + 
+			"  X() {\n" + 
+			"    if (true) {\n" + 
+			"      throw new NullPointerException();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
+// variant
+public void test051_definite_assigment_and_if_true() {
+	runConformTest(
+		// test directory preparation
+		new String[] { /* test files */
+			"X.java",
+			"public class X {\n" + 
+			"  X() {\n" + 
+			"    final int i;\n" + 
+			"    if (true) {\n" + 
+			"      throw new NullPointerException();\n" + 
+			"    }\n" + 
+			"    System.out.println(i);\n" + 
+			"  }\n" + 
+			"}\n"
+		}
+	);
 }
 public static Class testClass() {
 	return FlowAnalysisTest.class;

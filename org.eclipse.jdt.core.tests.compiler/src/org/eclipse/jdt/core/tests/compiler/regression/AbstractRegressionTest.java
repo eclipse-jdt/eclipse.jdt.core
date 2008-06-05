@@ -317,7 +317,9 @@ protected static class JavacTestOptions {
 			EclipseBug216558 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216558
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug235550 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235550
-				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null;
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug235781 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
+				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) : null;
 	}
 	// Eclipse bugs opened to investigate differences and closed as INVALID
 	// on grounds other than an identified javac bug or Eclipse bugs that
@@ -2178,11 +2180,8 @@ void runConformTest(
 //		new String[] { /* test files */
 //		},
 //		null /* no test files */,
-//
 //		// compiler results
-//		null /* do not check compiler log */,
-//		"" /* expected compiler log */,
-//
+//		"----------\n" + /* expected compiler log */
 //		// javac options
 //		JavacTestOptions.SKIP /* skip javac tests */);
 //		JavacTestOptions.DEFAULT /* default javac test options */);
@@ -2236,7 +2235,7 @@ protected void runNegativeTest(
 //
 //		// compiler results
 //		null /* do not check compiler log */,
-//		"" /* expected compiler log */,
+//		"----------\n" + /* expected compiler log */
 //
 //		// javac options
 //		JavacTestOptions.SKIP /* skip javac tests */);
