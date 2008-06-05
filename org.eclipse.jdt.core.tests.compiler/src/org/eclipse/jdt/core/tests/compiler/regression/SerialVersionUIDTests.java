@@ -87,7 +87,8 @@ public void test003() {
 		"	public class X implements java.io.Serializable {\n" + 
 		"	             ^\n" + 
 		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n"
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
@@ -104,7 +105,8 @@ public void test004() {
 		"	public class X implements java.io.Serializable {\n" + 
 		"	             ^\n" + 
 		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n"
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
@@ -120,7 +122,8 @@ public void test005() {
 		"	public class X implements java.io.Serializable {\n" + 
 		"	             ^\n" + 
 		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n"
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
@@ -155,7 +158,8 @@ public void test007() {
 		"	public class X extends A {}\n" + 
 		"	             ^\n" + 
 		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n"
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
 }

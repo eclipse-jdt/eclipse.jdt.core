@@ -79,7 +79,8 @@ public void test002() {
 		"	int v = foo.NextFoo.VAL;\n" + 
 		"	                    ^^^\n" + 
 		"The static field BaseFoo.VAL should be accessed directly\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=149004
 public void test003() {
@@ -116,6 +117,7 @@ public void test004() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"foo/BaseFoo.java",
 			"package foo;\n" + 
@@ -134,21 +136,22 @@ public void test004() {
 			"	int v = tab[0].VAL;\n" + 
 			"}"
 		},
+		null,
+		options,
 		"----------\n" + 
 		"1. ERROR in bar\\Bar.java (at line 5)\n" + 
 		"	int v = tab[0].VAL;\n" + 
 		"	               ^^^\n" + 
 		"The static field BaseFoo.VAL should be accessed directly\n" + 
 		"----------\n",
-		null,
-		true,
-		options);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142234
 public void test005() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -158,21 +161,22 @@ public void test005() {
 			"	}\n" + 
 			"}"
 		},
+		null,
+		options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	return (memberVariable);\n" + 
 		"	        ^^^^^^^^^^^^^^\n" + 
 		"Unqualified access to the field X.memberVariable \n" + 
 		"----------\n",
-		null,
-		true,
-		options);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142234
 public void test006() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -182,15 +186,15 @@ public void test006() {
 			"	}\n" + 
 			"}"
 		},
+		null,
+		options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	return \\u0028memberVariable\\u0029;\n" + 
 		"	             ^^^^^^^^^^^^^^\n" + 
 		"Unqualified access to the field X.memberVariable \n" + 
 		"----------\n",
-		null,
-		true,
-		options);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
 public void test007() {
