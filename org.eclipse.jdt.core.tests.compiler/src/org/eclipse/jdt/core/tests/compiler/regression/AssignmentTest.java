@@ -1360,7 +1360,9 @@ public void test055_definite_unassignment_try_catch() {
 		"	i = 1;\n" + 
 		"	^\n" + 
 		"The final local variable i may already have been assigned\n" + 
-		"----------\n");
+		"----------\n",
+		// javac options
+		JavacTestOptions.EclipseJustification.EclipseBug235543 /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235546
 public void test056_definite_unassignment_infinite_for_loop() {

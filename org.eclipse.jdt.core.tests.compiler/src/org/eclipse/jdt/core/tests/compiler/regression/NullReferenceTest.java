@@ -61,7 +61,7 @@ protected Map getCompilerOptions() {
   
 // null analysis -- simple case for local
 public void test0001_simple_local() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			  "public class X {\n" + 
@@ -75,7 +75,8 @@ public void test0001_simple_local() {
 	    "	o.toString();\n" + 
 	    "	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-	    "----------\n");
+	    "----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- simple case for field
@@ -103,7 +104,7 @@ public void test0002_simple_field() {
 
 // null analysis -- simple case for parameter
 public void test0003_simple_parameter() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -117,12 +118,13 @@ public void test0003_simple_parameter() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- final local
 public void test0004_final_local() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -136,7 +138,8 @@ public void test0004_final_local() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- final local
@@ -161,7 +164,7 @@ public void test0005_final_local() {
 
 // null analysis -- final local
 public void test0006_final_local() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -175,12 +178,13 @@ public void test0006_final_local() {
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
  
 // null analysis -- local with member
 public void test0007_local_with_member() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -195,12 +199,13 @@ public void test0007_local_with_member() {
 		"	x.m.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable x can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- local with member
 public void test0008_local_with_member() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -215,7 +220,8 @@ public void test0008_local_with_member() {
 		"	System.out.println(x.m);\n" + 
 		"	                   ^\n" + 
 		"Null pointer access: The variable x can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- local with member
@@ -566,7 +572,7 @@ public void test0026_suppress_warnings() {
 
 // null analysis -- embedded comparison
 public void test0027_embedded_comparison() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -581,7 +587,8 @@ public void test0027_embedded_comparison() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- field
@@ -601,7 +608,7 @@ public void test0028_field_as_initializer() {
 
 // null analysis -- field
 public void test0029_field_assignment() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -616,12 +623,13 @@ public void test0029_field_assignment() {
 		"	x.m = new Object();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable x can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- conditional expression
 public void test0030_conditional_expression() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -635,12 +643,13 @@ public void test0030_conditional_expression() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- conditional expression
 public void test0031_conditional_expression() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -654,7 +663,8 @@ public void test0031_conditional_expression() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- conditional expression
@@ -673,7 +683,7 @@ public void test0032_conditional_expression() {
 
 // null analysis -- conditional expression
 public void test0033_conditional_expression() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -687,7 +697,8 @@ public void test0033_conditional_expression() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- conditional expression
@@ -737,7 +748,7 @@ public void test0035_conditional_expression() {
 
 // null analysis -- conditional expression
 public void test0036_conditional_expression() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -752,13 +763,14 @@ public void test0036_conditional_expression() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- autoboxing
 public void test0040_autoboxing_compound_assignment() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -772,14 +784,15 @@ public void test0040_autoboxing_compound_assignment() {
 			"	i += 1;\n" + 
 			"	^\n" + 
 			"Null pointer access: The variable i can only be null at this location\n" +  
-			"----------\n");
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
 // null analysis -- autoboxing
 public void test0041_autoboxing_increment_operator() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -794,14 +807,15 @@ public void test0041_autoboxing_increment_operator() {
 			"	i++;\n" + 
 			"	^\n" + 
 			"Null pointer access: The variable i can only be null at this location\n" +  
-			"----------\n");
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
 // null analysis -- autoboxing
 public void test0042_autoboxing_literal() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -815,14 +829,15 @@ public void test0042_autoboxing_literal() {
 			"	if (i == null) {};\n" + 
 			"	    ^\n" + 
 			"Null comparison always yields false: The variable i cannot be null at this location\n" +  
-			"----------\n");
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
 // null analysis -- autoboxing
 public void test0043_autoboxing_literal() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -836,7 +851,8 @@ public void test0043_autoboxing_literal() {
 			"	System.out.println(i + 4);\n" + 
 			"	                   ^\n" + 
 			"Null pointer access: The variable i can only be null at this location\n" + 
-			"----------\n");
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -860,7 +876,7 @@ public void test0044_autoboxing() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=165346
 public void test0045_autoboxing_operator() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -875,7 +891,8 @@ public void test0045_autoboxing_operator() {
 			"	if (i == null) {}\n" + 
 			"	    ^\n" + 
 			"Null comparison always yields false: The variable i cannot be null at this location\n" + 
-			"----------\n");
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -897,7 +914,7 @@ public void test0050_array() {
 
 // null analysis -- array
 public void test0051_array() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -911,7 +928,8 @@ public void test0051_array() {
 		"	args[0].toString();\n" + 
 		"	^^^^\n" + 
 		"Null pointer access: The variable args can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- array
@@ -944,7 +962,7 @@ public void test0053_array() {
 
 // null analysis -- method call
 public void test0061_method_call_guard() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -958,12 +976,13 @@ public void test0061_method_call_guard() {
 		"	if (o == null) {};\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 } 
 
 // null analysis - method call
 public void test0062_method_call_isolation() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -981,7 +1000,8 @@ public void test0062_method_call_isolation() {
 		"	if (o == null) {/* empty */}\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }   
 
 // null analysis - method call
@@ -1004,7 +1024,7 @@ public void test0063_method_call_isolation() {
 
 // null analysis - method call
 public void test0064_method_call_isolation() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -1022,7 +1042,8 @@ public void test0064_method_call_isolation() {
 		"	if (o == null) {/* empty */}\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }   
 
 // null analysis - method call
@@ -1041,7 +1062,7 @@ public void test0065_method_call_invocation_target() {
 
 // null analysis - method call
 public void test0066_method_call_invocation_target() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -1055,12 +1076,13 @@ public void test0066_method_call_invocation_target() {
 		"	(o = null).toString();\n" + 
 		"	^^^^^^^^^^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }   
 
 // null analysis - method call
 public void test0067_method_call_invocation_target() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -1074,7 +1096,8 @@ public void test0067_method_call_invocation_target() {
 		"	if (o == null)  { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }  
 
 // null analysis - method call
@@ -1096,7 +1119,7 @@ public void test0068_method_call_assignment() {
 
 // null analysis -- type reference
 public void test0070_type_reference() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -1110,11 +1133,12 @@ public void test0070_type_reference() {
 		"	if (c == null) {};\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable c cannot be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test0080_shortcut_boolean_expressions() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -1127,12 +1151,12 @@ public void test0080_shortcut_boolean_expressions() {
 		"	if (o1 != null && (o2 = o1) != null) { /* */ }\n" + 
 		"	                  ^^^^^^^^^\n" + 
 		"Redundant null check: The variable o2 cannot be null at this location\n" +  
-		"----------\n"
-	);
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test0081_shortcut_boolean_expressions() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -1145,13 +1169,13 @@ public void test0081_shortcut_boolean_expressions() {
 		"	while (o1 != null && (o2 = o1) != null) { /* */ }\n" + 
 		"	                     ^^^^^^^^^\n" + 
 		"Redundant null check: The variable o2 cannot be null at this location\n" +  
-		"----------\n"
-	);
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - shortcut boolean expression
 public void test0082_shortcut_boolean_expression() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -1172,12 +1196,13 @@ public void test0082_shortcut_boolean_expression() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - shortcut boolean expression
 public void test0083_shortcut_boolean_expression() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -1198,13 +1223,14 @@ public void test0083_shortcut_boolean_expression() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - shortcut boolean expression
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=130311
 public void test0084_shortcut_boolean_expression() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -1218,13 +1244,14 @@ public void test0084_shortcut_boolean_expression() {
 		"	|| (i1.byteValue() == i2.byteValue());\n" + 
 		"	    ^^\n" + 
 		"Potential null pointer access: The variable i1 may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - shortcut boolean expression
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=130311
 public void test0085_shortcut_boolean_expression() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -1243,7 +1270,8 @@ public void test0085_shortcut_boolean_expression() {
 		"	|| (i1.byteValue() == i2.byteValue());\n" + 
 		"	                      ^^\n" + 
 		"Potential null pointer access: The variable i2 may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - shortcut boolean expression and correlation
@@ -1331,7 +1359,7 @@ public void test0091_instanceof() {
 // null analysis -- instanceof
 // can only be null always yields false
 public void test0092_instanceof() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"class X {\n" + 
@@ -1346,12 +1374,13 @@ public void test0092_instanceof() {
 		"	if (o instanceof X) { /* */ }\n" + 
 		"	    ^\n" + 
 		"instanceof always yields false: The variable o can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- instanceof
 public void test0093_instanceof() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"class X {\n" + 
@@ -1366,7 +1395,8 @@ public void test0093_instanceof() {
 		"	if (x == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable x cannot be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- instanceof
@@ -1389,7 +1419,7 @@ public void test0094_instanceof() {
 // null analysis -- instanceof combined with conditional or
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=145202
 public void test0095_instanceof_conditional_or() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"class X {\n" + 
@@ -1405,7 +1435,8 @@ public void test0095_instanceof_conditional_or() {
 		"	|| x == null) {\n" + 
 		"	   ^\n" + 
 		"Null comparison always yields false: The variable x cannot be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- strings concatenation
@@ -1457,7 +1488,8 @@ public void test0122_strings_concatenation() {
 		"	return s1.toString();\n" + 
 		"	       ^^\n" + 
 		"Potential null pointer access: The variable s1 may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- strings concatenation
@@ -1577,7 +1609,8 @@ public void test0300_if_else() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -1597,7 +1630,8 @@ public void test0301_if_else() {
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -1619,7 +1653,8 @@ public void test0302_if_else() {
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -1641,7 +1676,8 @@ public void test0303_if_else() {
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -1661,7 +1697,8 @@ public void test0304_if_else() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -1682,7 +1719,8 @@ public void test0305_if_else() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -1704,7 +1742,8 @@ public void test0306_if_else() {
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -1748,7 +1787,8 @@ public void test0308_if_else() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }   
 
 // null analysis - if/else
@@ -1773,7 +1813,8 @@ public void test0309_if_else() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }   
 
 // null analysis - if/else
@@ -1804,7 +1845,8 @@ public void test0310_if_else() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }   
 
 // null analysis - if/else
@@ -1846,7 +1888,8 @@ public void test0312_if_else() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
  
 // null analysis - if/else
@@ -1868,7 +1911,8 @@ public void test0313_if_else() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -1889,7 +1933,8 @@ public void test0314_if_else() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -1910,7 +1955,8 @@ public void test0315_if_else() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -1930,7 +1976,8 @@ public void test0316_if_else() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -2002,7 +2049,8 @@ public void test0320_if_else() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -2039,7 +2087,8 @@ public void test0322_if_else() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -2118,7 +2167,8 @@ public void test0325_if_else_nested() {
 		"	s.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable s may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -2142,7 +2192,8 @@ public void test0326_if_else() {
 		"	s1.toString();\n" + 
 		"	^^\n" + 
 		"Potential null pointer access: The variable s1 may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -2168,7 +2219,8 @@ public void test0327_if_else() {
 		"	s2.toString();\n" + 
 		"	^^\n" + 
 		"Potential null pointer access: The variable s2 may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -2192,7 +2244,8 @@ public void test0328_if_else() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -2213,7 +2266,8 @@ public void test0329_if_else_nested() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -2271,7 +2325,8 @@ public void test0332_if_else() {
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -2295,7 +2350,8 @@ public void test0333_if_else() {
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -2327,7 +2383,8 @@ public void test0334_if_else() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else
@@ -2386,7 +2443,8 @@ public void test0336_if_else() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 
@@ -2482,7 +2540,8 @@ public void test0339_if_else_nested() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else nested
@@ -2507,7 +2566,8 @@ public void test0340_if_else_nested() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else nested
@@ -2529,7 +2589,8 @@ public void test0341_if_else_nested() {
 		"	o1.toString();\n" + 
 		"	^^\n" + 
 		"Potential null pointer access: The variable o1 may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - if/else nested
@@ -2551,7 +2612,8 @@ public void test0342_if_else_nested() {
 		"	o1.toString();\n" + 
 		"	^^\n" + 
 		"Potential null pointer access: The variable o1 may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -2571,7 +2633,8 @@ public void test0401_while() {
 		"	while (o.toString() != null) {/* */}\n" + 
 		"	       ^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -2591,7 +2654,8 @@ public void test0402_while() {
 		"	while (o != null) {/* */}\n" + 
 		"	       ^\n" + 
 		"Null comparison always yields false: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -2653,7 +2717,8 @@ public void test0405_while() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -2673,7 +2738,8 @@ public void test0406_while() {
 		"	while (dummy || o != null) { /* */ }\n" + 
 		"	                ^\n" + 
 		"Null comparison always yields false: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -2696,7 +2762,8 @@ public void test0407_while() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -2751,7 +2818,8 @@ public void test0409_while() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -2824,7 +2892,8 @@ public void test0412_while_if_nested() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -2863,7 +2932,8 @@ public void test0414_while_unknown_parameter() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -2907,7 +2977,8 @@ public void test0416_while() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -2928,7 +2999,8 @@ public void test0417_while() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -2972,7 +3044,8 @@ public void test0419_while() {
 		"	o.toString();      o = null;\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -2997,7 +3070,8 @@ public void test0420_while() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -3039,7 +3113,8 @@ public void test0422_while() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -3063,7 +3138,8 @@ public void test0423_while() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -3109,7 +3185,8 @@ public void test0425_while() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -3130,7 +3207,8 @@ public void test0426_while() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- while
@@ -3154,7 +3232,8 @@ public void test0427_while_return() {
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - while
@@ -3288,7 +3367,8 @@ public void test0433_while() {
 		"	x.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable x can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - while
@@ -3396,7 +3476,8 @@ public void test0438_while() {
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 } 
 
 // null analysis - while
@@ -3433,7 +3514,8 @@ public void test0440_while() {
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - while
@@ -3457,7 +3539,8 @@ public void test0441_while() {
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - while
@@ -3479,7 +3562,8 @@ public void test0442_while() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 } 
 
 // null analysis - while
@@ -3560,7 +3644,8 @@ public void test0445_while_deeply_nested() {
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 } 
 
 // null analysis - while
@@ -3581,7 +3666,8 @@ public void test0446_while() {
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - while
@@ -3639,7 +3725,8 @@ public void test0448_while() {
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 } 
 
 // null analysis - while
@@ -3684,7 +3771,8 @@ public void test0450_while() {
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 } 
 
 // null analysis - while
@@ -3709,7 +3797,8 @@ public void test0451_while_nested() {
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 } 
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
@@ -3808,7 +3897,8 @@ public void test0455_while_nested() {
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 } 
 
 // null analysis - while
@@ -3916,7 +4006,8 @@ public void test0459_while_nested() {
 		"	while (o == null) {\r\n" + 
 		"	       ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - while
@@ -4249,8 +4340,8 @@ public void test0501_try_finally() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n" // because finally assigns to null 
-	);
+		"----------\n", // because finally assigns to null 
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/finally
@@ -4292,7 +4383,8 @@ public void test0503_try_finally() {
 		"	x = null;\n" + 
 		"	^\n" + 
 		"Redundant assignment: The variable x can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/finally
@@ -4314,7 +4406,8 @@ public void test0504_try_finally() {
 		"	if (x != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable x can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/finally
@@ -4360,7 +4453,8 @@ public void test0506_try_finally() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try finally
@@ -4384,7 +4478,8 @@ public void test0507_try_finally() {
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try finally
@@ -4408,7 +4503,8 @@ public void test0508_try_finally() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try finally
@@ -4435,7 +4531,8 @@ public void test0509_try_finally_embedded() {
 		"	o2.toString();\n" + 
 		"	^^\n" + 
 		"Null pointer access: The variable o2 can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try finally
@@ -4505,7 +4602,8 @@ public void test0512_try_finally() {
 		"	x.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable x may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/finally
@@ -4709,7 +4807,8 @@ public void test0518_try_finally() {
 		"	x.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable x may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/finally
@@ -4830,7 +4929,8 @@ public void test0522_try_finally() {
 		"	if(t.bar()) {\n" + 
 		"	   ^\n" + 
 		"Null pointer access: The variable t can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/finally
@@ -4863,7 +4963,8 @@ public void test0523_try_finally() {
 		"	if(t == null ? false : (t == null ? false : t.bar())) {\n" + 
 		"	                        ^\n" + 
 		"Null comparison always yields false: The variable t cannot be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/finally
@@ -4896,7 +4997,8 @@ public void test0524_try_finally() {
 		"	if(t != null ? false : (t == null ? false : t.bar())) {\n" + 
 		"	                        ^\n" + 
 		"Redundant null check: The variable t can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/finally
@@ -4931,7 +5033,8 @@ public void test0525_try_finally_unchecked_exception() {
 		"	o.toString();\r\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/finally
@@ -4966,7 +5069,8 @@ public void test0526_try_finally_unchecked_exception() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 //null analysis -- try/finally
@@ -4998,7 +5102,8 @@ public void test0527_try_finally_unchecked_exception() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/finally
@@ -5028,7 +5133,8 @@ public void test0528_try_finally() {
 		"	if (y != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable y can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try finally
@@ -5058,7 +5164,8 @@ public void test0529_try_finally() {
 		"	o2.toString();\n" + 
 		"	^^\n" + 
 		"Null pointer access: The variable o2 can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/finally
@@ -5089,7 +5196,8 @@ public void test0530_try_finally() {
 		"	y.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable y can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/finally
@@ -5121,7 +5229,8 @@ public void test0531_try_finally() {
 		"	y.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable y can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/finally
@@ -5251,7 +5360,8 @@ public void test0551_try_catch() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - try/catch
@@ -5311,7 +5421,8 @@ public void test0553_try_catch() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - try/catch
@@ -5376,7 +5487,8 @@ public void test0555_try_catch() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - try/catch
@@ -5404,7 +5516,8 @@ public void test0556_try_catch() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - try/catch
@@ -5432,7 +5545,8 @@ public void test0557_try_catch() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - try/catch
@@ -5466,7 +5580,8 @@ public void test0558_try_catch() {
 //		"Null pointer access: The variable o can only be null at this location\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" +
 		// conservative flow analysis softens the error
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - try/catch
@@ -5502,7 +5617,8 @@ public void test0559_try_catch() {
 //		"Null pointer access: The variable o can only be null at this location\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" +
 		// conservative flow analysis softens the error
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - try/catch
@@ -5538,7 +5654,8 @@ public void test0560_try_catch() {
 		"	if (c == null) { // should complain: c can only be null\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable c can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - try/catch
@@ -5565,7 +5682,8 @@ public void test0561_try_catch_unchecked_exception() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - try/catch
@@ -5592,7 +5710,8 @@ public void test0562_try_catch_unchecked_exception() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - try/catch
@@ -5629,7 +5748,8 @@ public void test0563_try_catch() {
 		"	if (ex == null) {\n" + 
 		"	    ^^\n" + 
 		"Null comparison always yields false: The variable ex cannot be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - try/catch
@@ -5819,7 +5939,8 @@ public void test0601_do_while() {
 		"	while (o.toString() != null);\n" + 
 		"	       ^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- do while
@@ -5840,7 +5961,8 @@ public void test0602_do_while() {
 		"	while (o != null);\n" + 
 		"	       ^\n" + 
 		"Null comparison always yields false: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- do while
@@ -5863,7 +5985,8 @@ public void test0603_do_while() {
 		"	while (o == null);\n" + 
 		"	       ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- do while
@@ -5905,7 +6028,8 @@ public void test0605_do_while() {
 		"	while (dummy || o != null);\n" + 
 		"	                ^\n" + 
 		"Null comparison always yields false: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- do while
@@ -5955,7 +6079,8 @@ public void test0607_do_while() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- do while
@@ -5996,7 +6121,8 @@ public void test0609_do_while() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - do while
@@ -6039,7 +6165,8 @@ public void test0611_do_while() {
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // the problem here is that a single pass cannot know for the return
@@ -6115,8 +6242,8 @@ public void _test0614_do_while() {
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o can only be null at this location\n" + 
-		"----------\n"
-	);
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
@@ -6141,8 +6268,8 @@ public void _test0615_do_while() {
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o can only be null at this location\n" + 
-		"----------\n"
-	);
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - do while
@@ -6260,7 +6387,8 @@ public void test0701_for() {
 		"	for (;o.toString() != null;) {/* */}\n" + 
 		"	      ^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- for
@@ -6280,7 +6408,8 @@ public void test0702_for() {
 		"	for (;o != null;) {/* */}\n" + 
 		"	      ^\n" + 
 		"Null comparison always yields false: The variable o can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- for
@@ -6342,7 +6471,8 @@ public void test0705_for() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- for
@@ -6376,7 +6506,8 @@ public void test0708_for() {
 		"	for (;o == null; o.toString()) {\n" + 
 		"	                 ^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- for
@@ -6394,7 +6525,8 @@ public void test0709_for() {
 		"	for (o.toString(); o == null;) { /* */ }\n" + 
 		"	                   ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- for
@@ -6417,7 +6549,8 @@ public void test0710_for() {
 		"	for (o.toString(); bar();) {\n" + 
 		"	     ^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- for
@@ -6438,7 +6571,8 @@ public void test0711_for() {
 			"	for (Object o : t) {/* */}\n" + 
 			"	                ^\n" + 
 			"Null pointer access: The variable t can only be null at this location\n" +  
-			"----------\n");
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -6460,7 +6594,8 @@ public void test0712_for() {
 			"	for (Object o : i) {/* */}\n" + 
 			"	                ^\n" + 
 			"Null pointer access: The variable i can only be null at this location\n" +  
-			"----------\n");
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -6518,7 +6653,8 @@ public void test0715_for() {
 			"	flag.toString();\n" + 
 			"	^^^^\n" + 
 			"Potential null pointer access: The variable flag may be null at this location\n" + 
-			"----------\n");
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -6541,7 +6677,8 @@ public void test0716_for() {
 			"	flag.toString();\n" + 
 			"	^^^^\n" + 
 			"Null pointer access: The variable flag can only be null at this location\n" +  
-			"----------\n");
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -6565,7 +6702,8 @@ public void test0717_for() {
 			"	flag.toString();\n" + 
 			"	^^^^\n" + 
 			"Potential null pointer access: The variable flag may be null at this location\n" + 
-			"----------\n");
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -6586,7 +6724,8 @@ public void test0718_for() {
 		"	flag.toString();\n" + 
 		"	^^^^\n" + 
 		"Null pointer access: The variable flag can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- for
@@ -6638,7 +6777,8 @@ public void test0720_for_continue_break() {
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 	
 // null analysis -- for
@@ -6683,7 +6823,8 @@ public void test0722_for_return() {
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 	
 // null analysis -- for
@@ -6853,7 +6994,8 @@ public void test0730_for() {
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - for
@@ -6877,7 +7019,8 @@ public void test0731_for() {
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - for nested with break
@@ -7028,7 +7171,8 @@ public void test0737_for_unknown_protection() {
 		"	if (b.booleanValue()) {\n" + 
 		"	    ^\n" + 
 		"Null pointer access: The variable b can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis - for with unknown protection
@@ -7256,7 +7400,7 @@ public void _test0746_for_try_catch() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195638
 // variant: do not reset to null
 public void test0747_for_try_catch() {
-	runTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -7273,22 +7417,13 @@ public void test0747_for_try_catch() {
 			"  }\n" + 
 			"}\n"
 			},
-		true /* expectingCompilerErrors */,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	str.charAt(i);\n" + 
 		"	^^^\n" + 
 		"Potential null pointer access: The variable str may be null at this location\n" + 
 		"----------\n" /* expectedCompilerLog */,
-		"" /* expectedOutputString */,
-		"" /* expectedErrorString */,
-		false /* forceExecution */,
-		null /* classLib */,
-		true /* shouldFlushOutputDirectory */, 
-		null /* vmArguments */, 
-		null /* customOptions */,
-		null /* clientRequestor */,
-		false /* skipJavac */);
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- switch
@@ -7337,7 +7472,8 @@ public void test0801_switch() {
 		"	if(o == null) { /* */ }\n" + 
 		"	   ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- switch
@@ -7361,7 +7497,8 @@ public void test0802_switch() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- switch
@@ -7387,7 +7524,8 @@ public void test0803_switch() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- switch
@@ -7417,7 +7555,8 @@ public void test0804_switch() {
 		"	if(o != null) { /* */ }\n" + 
 		"	   ^\n" + 
 		"Redundant null check: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- switch
@@ -7579,7 +7718,8 @@ public void test0903_non_null_protection_tag() {
 		"	o/*aNON-NULL */.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 
@@ -7599,7 +7739,8 @@ public void test0905_non_null_protection_tag() {
 		"	o.toString();/*NN*/\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- non null protection tag
@@ -7618,7 +7759,8 @@ public void test0906_non_null_protection_tag() {
 		"	/*NN*/o.toString();\n" + 
 		"	      ^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127244
@@ -7657,7 +7799,8 @@ public void test0951_assert() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -7679,7 +7822,8 @@ public void test0952_assert() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -7707,7 +7851,8 @@ public void test0953_assert_combined() {
 			"	if (o2 == null) { };\n" + 
 			"	    ^^\n" + 
 			"Redundant null check: The variable o2 can only be null at this location\n" + 
-			"----------\n");
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -7746,7 +7891,8 @@ public void test0955_assert_combined() {
 		"	if (o == null) { };\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -7774,7 +7920,8 @@ public void test0956_assert_combined() {
 		"	if (o == null) { };\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -7955,7 +8102,8 @@ public void test1004() {
 		"	x.foo(null); // 8\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable x may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test1005() {
@@ -8059,7 +8207,8 @@ public void test1009() {
 		"	if (c == null) {// should complain: c can only be null\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable c can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test1010() {
@@ -8106,7 +8255,8 @@ public void test1011() {
 		"	if (other != null) {\n" + 
 		"	    ^^^^^\n" + 
 		"Redundant null check: The variable other cannot be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test1012() {
@@ -8133,8 +8283,8 @@ public void test1012() {
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o can only be null at this location\n" + 
-		"----------\n"
-	);
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // x cannot equal this then null with no assignment in between
@@ -8162,7 +8312,8 @@ public void test1013() {
 		"	x.foo(this);\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable x can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test1014() {
@@ -8184,7 +8335,8 @@ public void test1014() {
 		"	x.foo(null);\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable x may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test1015() {
@@ -8233,7 +8385,8 @@ public void test1016() {
 		"	if (x != null) {\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable x can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test1017() { 
@@ -8257,7 +8410,8 @@ public void test1017() {
 		"	x.foo(null);\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable x can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test1018() {
@@ -8287,7 +8441,8 @@ public void test1018() {
 		"	o = null;\r\n" + 
 		"	^\n" + 
 		"Redundant assignment: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test1019() {
@@ -8405,7 +8560,8 @@ public void test1023() {
 		"	if (o == null) return;\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test1024() {
@@ -8438,7 +8594,8 @@ public void test1024() {
 		"	if (progressJob == null) {\n" + 
 		"	    ^^^^^^^^^^^\n" + 
 		"Redundant null check: The variable progressJob can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test1025() {
@@ -8462,7 +8619,8 @@ public void test1025() {
 		"	if (o == null) return;\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // TODO (philippe) reenable once fixed
@@ -8577,7 +8735,8 @@ public void test1030() {
 		"	if (a == null) {\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable a can only be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test1031() {
@@ -8611,7 +8770,8 @@ public void test1031() {
 		"	if (a == null) {\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable a cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test1032() {
@@ -8637,7 +8797,8 @@ public void test1032() {
 		"	while (o1 != null && (o3 = o1) != null) {\n" + 
 		"	                     ^^^^^^^^^\n" + 
 		"Redundant null check: The variable o3 cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // (simplified to focus on nulls)
@@ -8666,7 +8827,8 @@ public void test1033() {
 		"	if(a!=null)\n" + 
 		"	   ^\n" + 
 		"Null comparison always yields false: The variable a can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // from AssignmentTest#test034, simplified
@@ -8733,7 +8895,8 @@ public void test1036() {
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
@@ -8743,7 +8906,8 @@ public void test1036() {
 public void test1050_options_all_default() {
 	try {
 		setNullRelatedOptions = false;
-		runTest(
+		runConformTest(
+			true, // flush
 			new String[] {
 				"X.java",
 				  "public class X {\n" + 
@@ -8758,7 +8922,6 @@ public void test1050_options_all_default() {
 				  "  }\n" + 
 				  "}\n"
 				  } /* testFiles */,
-			false /* expectingCompilerErrors */,
 			"----------\n" + 
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	o.toString();\n" + 
@@ -8767,13 +8930,7 @@ public void test1050_options_all_default() {
 			"----------\n" /* expectedCompilerLog */,
 			"" /* expectedOutputString */,
 			"" /* expectedErrorString */,
-			false /* forceExecution */,
-			null /* classLib */,
-			true /* shouldFlushOutputDirectory */, 
-			null /* vmArguments */, 
-			null /* customOptions */,
-			null /* clientRequestor */,
-			false /* skipJavac */);
+		    JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	finally {
 		setNullRelatedOptions = true;
@@ -8842,7 +8999,8 @@ public void test1052_options_all_error() {
 		"	p.toString();\r\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable p may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
@@ -8852,34 +9010,35 @@ public void test1053_options_mix() {
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.IGNORE);
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
-			  "public class X {\n" + 
-			  "  void foo(Object p) {\n" + 
-			  "    Object o = null;\n" +
-			  "    if (o != null) {\n" +
-			  "       o = null;\n" +
-			  "    }\n" +
-			  "    if (p == null) {}\n" + // taint p 
-			  "    o.toString();\n" +
-			  "    p.toString();\n" + 
-			  "  }\n" + 
-			  "}\n"},
-		"----------\n" + 
+			"public class X {\n" + 
+			"  void foo(Object p) {\n" + 
+			"    Object o = null;\n" +
+			"    if (o != null) {\n" +
+			"       o = null;\n" +
+			"    }\n" +
+			"    if (p == null) {}\n" + // taint p 
+			"    o.toString();\n" +
+			"    p.toString();\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. ERROR in X.java (at line 8)\r\n" + 
 		"	o.toString();\r\n" + 
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n",
-		null /* no extra class libraries */, 
-		true /* flush output directory */, 
-		customOptions,
-		false /* do not generate output */,
-		false /* do not show category */, 
-		false /* do not show warning token */, 
-		false  /* do not skip javac for this peculiar test */,
-		false  /* do not perform statements recovery */);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
@@ -8889,21 +9048,28 @@ public void test1054_options_mix() {
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
 	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.IGNORE);
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
-			  "public class X {\n" + 
-			  "  void foo(Object p) {\n" + 
-			  "    Object o = null;\n" +
-			  "    if (o != null) {\n" +
-			  "       o = null;\n" +
-			  "    }\n" +
-			  "    if (p == null) {}\n" + // taint p 
-			  "    o.toString();\n" +
-			  "    p.toString();\n" + 
-			  "  }\n" + 
-			  "}\n"},
-		"----------\n" + 
+			"public class X {\n" + 
+			"  void foo(Object p) {\n" + 
+			"    Object o = null;\n" +
+			"    if (o != null) {\n" +
+			"       o = null;\n" +
+			"    }\n" +
+			"    if (p == null) {}\n" + // taint p 
+			"    o.toString();\n" +
+			"    p.toString();\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. ERROR in X.java (at line 4)\r\n" + 
 		"	if (o != null) {\r\n" + 
 		"	    ^\n" + 
@@ -8914,14 +9080,8 @@ public void test1054_options_mix() {
 		"	^\n" + 
 		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n",
-		null /* no extra class libraries */, 
-		true /* flush output directory */, 
-		customOptions,
-		false /* do not generate output */,
-		false /* do not show category */, 
-		false /* do not show warning token */, 
-		false  /* do not skip javac for this peculiar test */,
-		false  /* do not perform statements recovery */);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);		
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
@@ -8931,21 +9091,28 @@ public void test1055_options_mix() {
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
 	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
-			  "public class X {\n" + 
-			  "  void foo(Object p) {\n" + 
-			  "    Object o = null;\n" +
-			  "    if (o != null) {\n" +
-			  "       o = null;\n" +
-			  "    }\n" +
-			  "    if (p == null) {}\n" + // taint p 
-			  "    o.toString();\n" +
-			  "    p.toString();\n" + 
-			  "  }\n" + 
-			  "}\n"},
-		"----------\n" + 
+			"public class X {\n" + 
+			"  void foo(Object p) {\n" + 
+			"    Object o = null;\n" +
+			"    if (o != null) {\n" +
+			"       o = null;\n" +
+			"    }\n" +
+			"    if (p == null) {}\n" + // taint p 
+			"    o.toString();\n" +
+			"    p.toString();\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. ERROR in X.java (at line 4)\r\n" + 
 		"	if (o != null) {\r\n" + 
 		"	    ^\n" + 
@@ -8956,53 +9123,48 @@ public void test1055_options_mix() {
 		"	^\n" + 
 		"Potential null pointer access: The variable p may be null at this location\n" + 
 		"----------\n",
-		null /* no extra class libraries */, 
-		true /* flush output directory */, 
-		customOptions,
-		false /* do not generate output */,
-		false /* do not show category */, 
-		false /* do not show warning token */, 
-		false  /* do not skip javac for this peculiar test */,
-		false  /* do not perform statements recovery */);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);		
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
 // selectively changing error levels
 public void test1056_options_mix_with_SuppressWarnings() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
-	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
-	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			  "public class X {\n" + 
-			  "@SuppressWarnings(\"null\")\n" + 
-			  "  void foo(Object p) {\n" + 
-			  "    Object o = null;\n" +
-			  "    if (o != null) {\n" +
-			  "       o = null;\n" +
-			  "    }\n" +
-			  "    if (p == null) {}\n" + // taint p 
-			  "    o.toString();\n" +
-			  "    p.toString();\n" + 
-			  "  }\n" + 
-			  "}\n"},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\r\n" + 
-		"	o.toString();\r\n" + 
-		"	^\n" + 
-		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n",
-		null /* no extra class libraries */, 
-		true /* flush output directory */, 
-		customOptions,
-		false /* do not generate output */,
-		false /* do not show category */, 
-		false /* do not show warning token */, 
-		false  /* do not skip javac for this peculiar test */,
-		false  /* do not perform statements recovery */);
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
+		customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
+		customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
+		runNegativeTest(
+			// test directory preparation
+			true /* flush output directory */, 
+			new String[] { /* test files */
+				"X.java",
+				"public class X {\n" + 
+				"@SuppressWarnings(\"null\")\n" + 
+				"  void foo(Object p) {\n" + 
+				"    Object o = null;\n" +
+				"    if (o != null) {\n" +
+				"       o = null;\n" +
+				"    }\n" +
+				"    if (p == null) {}\n" + // taint p 
+				"    o.toString();\n" +
+				"    p.toString();\n" + 
+				"  }\n" + 
+				"}\n"
+			},
+			// compiler options
+			null /* no class libraries */,
+			customOptions /* custom options */,
+			// compiler results
+			"----------\n" +  /* expected compiler log */
+			"1. ERROR in X.java (at line 9)\r\n" + 
+			"	o.toString();\r\n" + 
+			"	^\n" + 
+			"Null pointer access: The variable o can only be null at this location\n" + 
+			"----------\n",
+			// javac options
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);		
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
@@ -9024,7 +9186,8 @@ public void test1057_options_instanceof_is_check() {
 		"	if (o instanceof String) {};\n" + 
 		"	    ^\n" + 
 		"instanceof always yields false: The variable o can only be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
@@ -9206,7 +9369,8 @@ public void test2000_flow_info() {
 		"	if (o65 == null) { /* */ }\n" + 
 		"	    ^^^\n" + 
 		"Null comparison always yields false: The variable o65 cannot be null at this location\n" +  
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void test2001_flow_info() {
@@ -9462,7 +9626,8 @@ public void test2009_flow_info() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- flow info
@@ -9498,7 +9663,8 @@ public void test2010_flow_info() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- flow info
@@ -9537,7 +9703,8 @@ public void test2011_flow_info() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- flow info
@@ -9576,7 +9743,8 @@ public void test2012_flow_info() {
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- flow info
@@ -9606,7 +9774,8 @@ public void test2013_flow_info() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n");
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- flow info
