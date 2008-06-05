@@ -33,8 +33,10 @@ public static Test suite() {
 public void test001() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"A.java",
 			"public class A {\n" + 
 			"	void foo() {\n" + 
@@ -42,7 +44,11 @@ public void test001() {
 			"	} //$NON-NLS-1$	\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. ERROR in A.java (at line 3)\n" + 
 		"	System.out.println(\"a\");\n" + 
 		"	                   ^^^\n" + 
@@ -53,16 +59,17 @@ public void test001() {
 		"	  ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 
 public void test002() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"class X {\n" +
 			"	String s = null; //$NON-NLS-1$\n" +
@@ -77,8 +84,12 @@ public void test002() {
 			"	} //$NON-NLS-1$\n" +
 			"	//$NON-NLS-1$\n" +
 			"}//$NON-NLS-3$",
-		}, 
-		"----------\n" + 
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	String s = null; //$NON-NLS-1$\n" + 
 		"	                 ^^^^^^^^^^^^^\n" + 
@@ -114,9 +125,8 @@ public void test002() {
 		"	 ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 public void test003() {
 	Map customOptions = getCompilerOptions();
@@ -169,24 +179,29 @@ public void test004() {
 public void test005() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\r\n" + 
 			"	public static void main(String[] args) {\r\n" + 
 			"		String s = \"\"; //$NON-NLS-1$//$NON-NLS-1$\r\n" + 
 			"    }\r\n" + 
 			"}",
-		}, 
-		"----------\n" + 
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	String s = \"\"; //$NON-NLS-1$//$NON-NLS-1$\n" + 
 		"	                            ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);	
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 public void test006() {
 	Map customOptions = getCompilerOptions();
@@ -218,16 +233,22 @@ public void test006() {
 public void test007() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\r\n" + 
 			"	public static void main(String[] args) {\r\n" + 
 			"		String s = null; //$NON-NLS-1$//$NON-NLS-1$\r\n" + 
 			"    }\r\n" +
 			"}",
-		}, 
-		"----------\n" + 
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	String s = null; //$NON-NLS-1$//$NON-NLS-1$\n" + 
 		"	                 ^^^^^^^^^^^^^\n" + 
@@ -238,23 +259,28 @@ public void test007() {
 		"	                              ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);	
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 public void test008() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\r\n" + 
 			"	public static void main(String[] args) {\r\n" + 
 			"		String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\r\n" + 
 			"    }\r\n" +
 			"}",
-		}, 
-		"----------\n" + 
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" + 
 		"	           ^^^^^^\n" + 
@@ -270,9 +296,8 @@ public void test008() {
 		"	                                ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);	
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 public void test009() {
 	Map customOptions = getCompilerOptions();
@@ -409,8 +434,10 @@ public void test012() {
 public void test013() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -418,23 +445,28 @@ public void test013() {
 			"		System.out.println(s);\n" +
 			"    }\n" +
 			"}",
-		}, 
-		"----------\n" + 
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	String s = \"test1\";\n" + 
 		"	           ^^^^^^^\n" + 
 		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);	
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=112973
 public void test014() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -442,8 +474,12 @@ public void test014() {
 			"		System.out.println(s);\n" +
 			"    }\n" +
 			"}",
-		}, 
-		"----------\n" + 
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	String s = \"test1\"; //$NON-NLS-?$\n" + 
 		"	           ^^^^^^^\n" + 
@@ -454,16 +490,17 @@ public void test014() {
 		"	                    ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);	
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114077
 public void test015() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
 			"	public void foo() {\n" +
@@ -471,8 +508,12 @@ public void test015() {
 			"		String s2= \"\";\n" +
 			"	}\n" +
 			"}",
-		}, 
-		"----------\n" + 
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	String s1= null; //$NON-NLS-1$\n" + 
 		"	                 ^^^^^^^^^^^^^\n" + 
@@ -483,16 +524,17 @@ public void test015() {
 		"	           ^^\n" + 
 		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);	
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114077
 public void test016() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
 			"	private String s1= null; //$NON-NLS-1$\n" +
@@ -501,8 +543,12 @@ public void test016() {
 			"		String s2= \"\";\n" +
 			"	}\n" +
 			"}",
-		}, 
-		"----------\n" + 
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	private String s1= null; //$NON-NLS-1$\n" + 
 		"	                         ^^^^^^^^^^^^^\n" + 
@@ -513,9 +559,8 @@ public void test016() {
 		"	           ^^\n" + 
 		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);	
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148352
 public void test017() {
