@@ -1741,42 +1741,6 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 					JavacTestOptions.SKIP : 
 					JavacTestOptions.DEFAULT /* javac test options */);
 	}
-
-	// WORK candidate for elimination (5 calls)
-	protected void runNegativeTestWithExecution(
-			String[] testFiles, 
-			String expectedCompilerLog, 
-			String expectedOutputString,
-			String expectedErrorString,
-			String[] classLibraries,
-			boolean shouldFlushOutputDirectory, 
-			String[] vmArguments, 
-			Map customOptions,
-			ICompilerRequestor clientRequestor) {
-		runTest(
-	 		// test directory preparation
-			shouldFlushOutputDirectory /* should flush output directory */,
-			testFiles /* test files */,
-			// compiler options
-			classLibraries /* class libraries */,
-			customOptions /* custom options */,
-			false /* do not perform statements recovery */, 
-			null /* no custom requestor */,
-			// compiler results
-			expectedCompilerLog == null || /* expecting compiler errors */
-				expectedCompilerLog.indexOf("ERROR") != -1,
-			expectedCompilerLog /* expected compiler log */,
-			// runtime options
-			true /* force execution */,
-			vmArguments /* vm arguments */, 
-			// runtime results
-			expectedOutputString /* expected output string */,
-			expectedErrorString /* expected error string */,
-			// javac options
-			JavacTestOptions.DEFAULT /* default javac test options */);
-		// WORK javac tests did not exist in the original
-	}
-
 	protected void runTest(
 			String[] testFiles,
 			boolean expectingCompilerErrors,
@@ -2307,6 +2271,77 @@ void runNegativeTest(
 		// runtime results
 		null /* do not check output string */,
 		null /* do not check error string */,
+		// javac options
+		javacTestOptions /* javac test options */);
+}
+//  runNegativeTest(
+//    // test directory preparation
+//    true /* flush output directory */, 
+//    false /* do not flush output directory */,
+//    shouldFlushOutputDirectory /* should flush output directory */,
+//
+//    new String[] { /* test files */
+//    },
+//    null /* no test files */,
+//
+//    // compiler options
+//    null /* no class libraries */,
+//    new String[] { /* class libraries */
+//    },
+//    classLibraries /* class libraries */,
+//
+//    null /* no custom options */,
+//    customOptions /* custom options */,
+//
+//    // compiler results
+//    null /* do not check compiler log */,
+//    "----------\n" + /* expected compiler log */
+//
+//    //runtime results
+//    null /* do not check output string */,
+//    "" /* expected output string */,
+//    expectedOutputString /* expected output string */,
+//
+//    null /* do not check error string */,
+//    "" /* expected error string */,
+//    expectedErrorString /* expected error string */,
+//
+//    // javac options
+//    JavacTestOptions.SKIP /* skip javac tests */);
+//    JavacTestOptions.DEFAULT /* default javac test options */);
+//    javacTestOptions /* javac test options */);
+void runNegativeTest(
+	// test directory preparation
+	boolean shouldFlushOutputDirectory, 
+	String[] testFiles,
+	// compiler options
+	String[] classLibraries,
+	Map customOptions,
+	// compiler results
+	String expectedCompilerLog,
+	// runtime results
+	String expectedOutputString,
+	String expectedErrorString,
+	// javac options
+	JavacTestOptions javacTestOptions) {
+	runTest(
+		// test directory preparation
+		shouldFlushOutputDirectory /* should flush output directory */, 
+		testFiles /* test files */,
+		// compiler options
+		classLibraries /* class libraries */,
+		customOptions /* custom options */,
+		false /* do not perform statements recovery */, 
+		null /* no custom requestor */,
+		// compiler results
+		true /* expecting compiler errors */,
+		expectedCompilerLog /* expected compiler log */,
+		// runtime options
+		true /* force execution */,
+		null /* no vm arguments */,
+		// runtime results
+		expectedOutputString /* expected output string */,
+		expectedErrorString /* expected error string */,
 		// javac options
 		javacTestOptions /* javac test options */);
 }
