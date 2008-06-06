@@ -303,13 +303,17 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		runConformTest(completedFiles);
 	}
 	protected void runNegativeReferenceTest(String[] testFiles, String expected) {
+		runNegativeReferenceTest(testFiles, expected, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	}
+	protected void runNegativeReferenceTest(String[] testFiles, String expected,
+			JavacTestOptions javacTestOptions) {
 		String[] completedFiles = testFiles;
 		if (!useLibrary) {
 			completedFiles = new String[testFiles.length + referencedClasses.length];
 			System.arraycopy(referencedClasses, 0, completedFiles, 0, referencedClasses.length);
 			System.arraycopy(testFiles, 0, completedFiles, referencedClasses.length, testFiles.length);
 		}
-		runNegativeTest(completedFiles, expected);
+		runNegativeTest(completedFiles, expected, javacTestOptions);		
 	}
 	
 	/* (non-Javadoc)

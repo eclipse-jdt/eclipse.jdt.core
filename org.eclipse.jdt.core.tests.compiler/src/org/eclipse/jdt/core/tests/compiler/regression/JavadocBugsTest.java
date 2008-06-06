@@ -375,7 +375,8 @@ public class JavadocBugsTest extends JavadocTest {
 		"	public int foo(String str, Double dbl) throws InterruptedException {\n" + 
 		"	                                  ^^^\n" + 
 		"Javadoc: Missing tag for parameter dbl\n" + 
-		"----------\n"
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -418,11 +419,12 @@ public class JavadocBugsTest extends JavadocTest {
 		   		"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 7)\n" + 
-				"	* @see #X(String)\n" + 
-				"	        ^^^^^^^^^\n" + 
-				"Javadoc: The constructor X(String) is undefined\n" + 
-				"----------\n"
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	* @see #X(String)\n" + 
+			"	        ^^^^^^^^^\n" + 
+			"Javadoc: The constructor X(String) is undefined\n" + 
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug45958b() {
@@ -453,12 +455,13 @@ public class JavadocBugsTest extends JavadocTest {
 		   		"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in XX.java (at line 4)\n" + 
-				"	* @see #X(int)\n" + 
-				"	        ^\n" + 
-				"Javadoc: The method X(int) is undefined for the type XX\n" + 
-				"----------\n"
-			);
+			"1. ERROR in XX.java (at line 4)\n" + 
+			"	* @see #X(int)\n" + 
+			"	        ^\n" + 
+			"Javadoc: The method X(int) is undefined for the type XX\n" + 
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+		);
 	}
 	public void testBug45958c() {
 		runConformTest(
@@ -550,7 +553,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* @see foo  ()\n" + 
 				"	       ^^^\n" + 
 				"Javadoc: foo cannot be resolved to a type\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -689,7 +693,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	public String toString(){\n" + 
 				"	       ^^^^^^\n" + 
 				"Javadoc: Missing tag for return type\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug47339c() {
@@ -711,7 +716,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	public X(String message) {\n" + 
 			"	                ^^^^^^^\n" + 
 			"Javadoc: Missing tag for parameter message\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -745,7 +751,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	public Y(String str) {super(str);}\n" + 
 			"	                ^^^\n" + 
 			"Javadoc: Missing tag for parameter str\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug48064a() {
@@ -774,7 +781,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	public void foo(String str) {super.foo(str);}\n" + 
 			"	                       ^^^\n" + 
 			"Javadoc: Missing tag for parameter str\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -893,7 +901,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
 			"	                                  ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: Missing tag for declared exception IllegalArgumentException\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -967,7 +976,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	*  2) {@link CharOperation Label not empty} tag description not empty\n" + 
 				"	             ^^^^^^^^^^^^^\n" + 
 				"Javadoc: CharOperation cannot be resolved to a type\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1030,7 +1040,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	*  2) {@link CharOperation Label not empty} tag description not empty\n" + 
 				"	             ^^^^^^^^^^^^^\n" + 
 				"Javadoc: CharOperation cannot be resolved to a type\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug48385a() {
@@ -1076,7 +1087,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	*  6) {@link String {} Invalid tag\n" + 
 				"	      ^^^^^^^^^^^^^^^\n" + 
 				"Javadoc: Missing closing brace for inline tag\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1123,7 +1135,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* @param str Last comment\n" + 
 				"	         ^^^\n" + 
 				"Javadoc: Duplicate tag for parameter\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1211,7 +1224,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* @see Unknown\n" + 
 				"	       ^^^^^^^\n" + 
 				"Javadoc: Unknown cannot be resolved to a type\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1277,7 +1291,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* @see java.unknown\n" + 
 				"	       ^^^^^^^^^^^^\n" + 
 				"Javadoc: java.unknown cannot be resolved to a type\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1361,7 +1376,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* @see \"Invalid ref\"	   .\n" + 
 				"	                    ^^^^^\n" + 
 				"Javadoc: Unexpected text\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1416,7 +1432,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	import java.util.Vector;\n" + 
 				"	       ^^^^^^^^^^^^^^^^\n" + 
 				"The import java.util.Vector is never used\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1507,7 +1524,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	*  {@link Object\n" + 
 				"	   ^^^^^^^^^^^^^\n" + 
 				"Javadoc: Missing closing brace for inline tag\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug53279a() {
@@ -1528,7 +1546,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	*  {@link Object\n" + 
 				"	   ^^^^^^^^^^^^^\n" + 
 				"Javadoc: Missing closing brace for inline tag\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug53279b() {
@@ -1553,7 +1572,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	*  {@link        \n" + 
 				"	     ^^^^\n" + 
 				"Javadoc: Missing reference\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug53279c() {
@@ -1579,7 +1599,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	*  {@link\n" + 
 				"	     ^^^^\n" + 
 				"Javadoc: Missing reference\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1612,7 +1633,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	*  @link Object\n" + 
 				"	    ^^^^\n" + 
 				"Javadoc: Unexpected tag\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1653,7 +1675,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* @see Object#equals(Object)xx\n" + 
 				"	                    ^^^^^^^^^^\n" + 
 				"Javadoc: Malformed reference (missing end space separator)\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug62812a() {
@@ -1684,7 +1707,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* {@link Object#equals(Object)xx}\n" + 
 				"	                      ^^^^^^^^^^^\n" + 
 				"Javadoc: Malformed reference (missing end space separator)\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1719,7 +1743,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	public void foo(int a, int b) {\n" + 
 				"	                           ^\n" + 
 				"Javadoc: Missing tag for parameter b\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug51606a() {
@@ -2103,7 +2128,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	int foo() { // should warn on missing tag for return type\n" + 
 			"	^^^\n" + 
 			"Javadoc: Missing tag for return type\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -2200,7 +2226,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* @see Local\n" + 
 				"	       ^^^^^\n" + 
 				"Javadoc: Local cannot be resolved to a type\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -2260,7 +2287,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	*	@return\n" + 
 			"	 	 ^^^^^^\n" + 
 			"Javadoc: Description expected after @return\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	// Javadoc issue a warning on following tests
@@ -2286,7 +2314,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	/**@return** **/\n" + 
 				"	    ^^^^^^\n" + 
 				"Javadoc: Description expected after @return\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug68017javadocWarning2() {
@@ -2328,7 +2357,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	*	@return#text\n" + 
 			"	 	 ^^^^^^^^^^^\n" + 
 			"Javadoc: Invalid tag\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -2408,7 +2438,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	/**@see Y#foo()#\n" + 
 				"	             ^^^\n" + 
 				"Javadoc: Malformed reference (missing end space separator)\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -2541,7 +2572,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* @see <a href=\"invalid\" target=\"_top\">invalid</a> no text allowed after the href\n" + 
 				"	                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Javadoc: Unexpected text\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug68726negative2() {
@@ -2598,7 +2630,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* @see Unknown\n" + 
 				"	       ^^^^^^^\n" + 
 				"Javadoc: Unknown cannot be resolved to a type\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -2655,7 +2688,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	/**@see Object***\n" + 
 				"	        ^^^^^^^^^\n" + 
 				"Javadoc: Malformed reference (missing end space separator)\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug69272fieldValid() {
@@ -2709,7 +2743,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	/**@see #field***\n" + 
 				"	        ^^^^^^^^^\n" + 
 				"Javadoc: Malformed reference (missing end space separator)\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug69272methodValid() {
@@ -2761,7 +2796,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	/**@see Object#wait()***\n" + 
 				"	                   ^^^^^\n" + 
 				"Javadoc: Malformed reference (missing end space separator)\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -2813,7 +2849,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	/**@see <a href=\"http://www.eclipse.org\">text</a>	** **/\n" + 
 				"	                                              ^^^^^^^^^^\n" + 
 				"Javadoc: Unexpected text\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -2863,7 +2900,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	*	@see Unknown \"Valid string reference\"\n" + 
 			"	 	     ^^^^^^^\n" + 
 			"Javadoc: Unknown cannot be resolved to a type\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug69302negative2() {
@@ -2887,7 +2925,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	/**@see Unknown blabla \"Valid string reference\"*/\n" + 
 			"	        ^^^^^^^\n" + 
 			"Javadoc: Unknown cannot be resolved to a type\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -2973,7 +3012,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* {@value #foo()}\r\n" + 
 				"	           ^^^^^\n" + 
 				"Javadoc: Only static field reference is allowed for @value tag\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 			);
 		}
 	}
@@ -3029,7 +3069,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	*	@return      \n" + 
 				"	 	 ^^^^^^\n" + 
 				"Javadoc: Description expected after @return\n" + 
- 				"----------\n"
+ 				"----------\n",
+ 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
  		);
  	}
 
@@ -3065,7 +3106,9 @@ public class JavadocBugsTest extends JavadocTest {
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
 		reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
-		runNegativeTest(units,
+		runConformTest(
+				true,
+				units,
 				"----------\n" + 
 				"1. WARNING in X.java (at line 2)\n" + 
 				"	* @since\n" + 
@@ -3131,7 +3174,10 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* @deprecated\n" + 
 				"	   ^^^^^^^^^^\n" + 
 				"Javadoc: Description expected after @deprecated\n" + 
-				"----------\n"
+				"----------\n",
+				null,
+				null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings
 			);
 	}	
 	public void testBug73352b() {
@@ -3192,7 +3238,9 @@ public class JavadocBugsTest extends JavadocTest {
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
 		reportMissingJavadocDescription = CompilerOptions.RETURN_TAG;
-		runNegativeTest(units,
+		runConformTest(
+			true,
+			units,
 			"----------\n" + 
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	* @return\n" + 
@@ -3203,7 +3251,10 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @see\n" + 
 			"	   ^^^\n" + 
 			"Javadoc: Missing reference\n" + 
-			"----------\n"
+			"----------\n",
+			null,
+			null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings
 			);
 	}
 	
@@ -3258,7 +3309,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	*	@see <a href=\"spec.html#section\">Java Spec<a>\n" + 
 				"	 	                                          ^^^\n" + 
 				"Javadoc: Malformed link reference\n" + 
- 				"----------\n"
+ 				"----------\n",
+ 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
  		);
  	}
 
@@ -3345,7 +3397,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	new Y().bar();\n" + 
 			"	^^^^^^^^^^^^^\n" + 
 			"The method bar() from the type Y is deprecated\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
  		);
  	}
 
@@ -3481,7 +3534,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* {@link <a href=\"invalid\">invalid</a> no text allowed after}\n" + 
 				"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Javadoc: Unexpected text\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	// String references
@@ -3522,7 +3576,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* {@link \"invalid\" no text allowed after the string}\n" + 
 			"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: Unexpected text\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -3584,7 +3639,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	int i3 = A.i000c;\n" + 
 			"	           ^^^^^\n" + 
 			"The field A.i000c is deprecated\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug77510disabled() {
@@ -3642,7 +3698,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	int i3 = A.i000c;\n" + 
 			"	           ^^^^^\n" + 
 			"The field A.i000c is deprecated\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	
@@ -3688,6 +3745,7 @@ public class JavadocBugsTest extends JavadocTest {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
 		runNegativeTest(
+			true,
 			new String[] {
 				"X.java",
 				"/** @deprecated */\n" + 
@@ -3719,6 +3777,8 @@ public class JavadocBugsTest extends JavadocTest {
 					"	 */\n" + 
 					"	public void foo() {}\n" + 
 					"}\n" },
+			null,
+			options,
 			"----------\n" + 
 				"1. ERROR in Y.java (at line 2)\n" + 
 				"	* @see X\n" + 
@@ -3766,9 +3826,7 @@ public class JavadocBugsTest extends JavadocTest {
 				"	         ^^^^^\n" + 
 				"Javadoc: The method foo() from the type X is deprecated\n" + 
 				"----------\n",
-			null,
-			true,
-			options
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug77260nested_disabled() {
@@ -3843,7 +3901,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* @see UnknownClass\n" + 
 				"	       ^^^^^^^^^^^^\n" + 
 				"Javadoc: UnknownClass cannot be resolved to a type\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug77602_Public() {
@@ -3901,7 +3960,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	public void foo(int xxx, Object obj) {}\n" + 
 				"	                                ^^^\n" + 
 				"Javadoc: Missing tag for parameter obj\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -3929,7 +3989,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @param key\'s toto\n" + 
 			"	         ^^^^^\n" + 
 			"Javadoc: Invalid param tag name\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -3957,7 +4018,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @param key\'s toto\n" + 
 			"	         ^^^^^\n" + 
 			"Javadoc: Invalid param tag name\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -4057,7 +4119,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* Link {@link #bar(int)} KO\n" + 
 			"	               ^^^\n" + 
 			"Javadoc: The method bar() in the type B.C is not applicable for the arguments (int)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -4146,7 +4209,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	static int foo(String str) throws NumberFormatException{\n" + 
 			"	                                  ^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: Missing tag for declared exception NumberFormatException\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug90302b() {
@@ -4191,7 +4255,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	static int foo(String str) throws NumberFormatException{\n" + 
 			"	                                  ^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: Missing tag for declared exception NumberFormatException\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -4252,7 +4317,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* @see ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^\n" + 
 				"Javadoc: Invalid member type qualification\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 			);
 		} else {
 			runConformTest(units);
@@ -4313,7 +4379,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* @see ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^\n" + 
 				"Javadoc: Invalid member type qualification\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 			);
 		} else {
 			runConformTest(units);
@@ -4421,7 +4488,7 @@ public class JavadocBugsTest extends JavadocTest {
 		if (complianceLevel <= ClassFileConstants.JDK1_4) {
 			runNegativeTest(units, errors_14);
 		} else {
-			runNegativeTest(units, errors_50);
+			runNegativeTest(units, errors_50, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 		}
 		
 	}
@@ -4495,7 +4562,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @see Test.Member.Level1#Test.Level1()\n" + 
 			"	                          ^^^^^^^^^^^^^\n" + 
 			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug103304e() {
@@ -4592,7 +4660,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @see #Member.Level1(int) Invalid\n" + 
 			"	        ^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -4641,7 +4710,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @ since 2.1\n" + 
 			"	  ^^\n" + 
 			"Javadoc: Invalid tag\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -4754,7 +4824,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @see p.A#bar\n" + 
 			"	       ^^^\n" + 
 			"Javadoc: The type A is deprecated\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug129241b() {
@@ -4780,7 +4851,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @see p.A#bar\n" + 
 			"	       ^^^\n" + 
 			"Javadoc: The type A is deprecated\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug129241c() {
@@ -4882,7 +4954,6 @@ public class JavadocBugsTest extends JavadocTest {
 				" * @see X.Inner.Level2.Level3\n" + 
 				" */\n" + 
 				"public class Test {}\n",
-				"test1/X.java"
 			}
 		);
 	}
@@ -4928,7 +4999,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @see X.Inner.Level2.Level3\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: \'public\' visibility for malformed doc comments hides this \'default\' reference\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug149013_Private02() {
@@ -4972,7 +5044,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @see X.Inner.Level2.Level3\r\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: The type X.Inner is not visible\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug149013_Public02() {
@@ -5017,7 +5090,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @see X.Inner.Level2.Level3\r\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: The type X.Inner is not visible\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug149013_Private03() {
@@ -5058,7 +5132,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @see test1.X.Inner.Level2.Level3\r\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: The type test1.X.Inner is not visible\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug149013_Public03() {
@@ -5100,7 +5175,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @see test1.X.Inner.Level2.Level3\r\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: The type test1.X.Inner is not visible\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -5229,7 +5305,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* {@value Invalid}\n" + 
 				"	          ^^^^^^^^\n" + 
 				"Javadoc: Invalid reference\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 			);
 		}
 	}
@@ -5260,7 +5337,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* {@value Invalid}\n" + 
 				"	          ^^^^^^^^\n" + 
 				"Javadoc: Invalid reference\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 			);
 		}
 	}
@@ -5293,7 +5371,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @see #method(Long) Warning!\n" + 
 			"	        ^^^^^^\n" + 
 			"Javadoc: The method method(long) in the type Test is not applicable for the arguments (Long)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -5322,7 +5401,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @see #foo(MySubInterface)\n" + 
 			"	        ^^^\n" + 
 			"Javadoc: The method foo(MyInterface) in the type Test is not applicable for the arguments (MySubInterface)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -5408,7 +5488,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @return\n" + 
 			"	   ^^^^^^\n" + 
 			"Javadoc: Description expected after @return\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -5480,7 +5561,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	* 	<li>{@value #PRIVATE_CONST}</li>\n" + 
 				"	  	            ^^^^^^^^^^^^^^\n" + 
 				"Javadoc: \'public\' visibility for malformed doc comments hides this \'private\' reference\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 			);
 		}
 	}
@@ -5793,7 +5875,7 @@ public class JavadocBugsTest extends JavadocTest {
 			runNegativeTest(units,error14);
 		}
 		else {
-			runNegativeTest(units,error50);
+			runNegativeTest(units,error50, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 		}
 	}
 	
@@ -5897,7 +5979,7 @@ public class JavadocBugsTest extends JavadocTest {
 			runNegativeTest(units,error14);
 		}
 		else {
-			runNegativeTest(units,error50);
+			runNegativeTest(units,error50, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 		}
 	}
 	
@@ -5928,13 +6010,17 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportMissingJavadocTags = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(
+				true,
+				units,
 				"----------\n" + 
 				"1. WARNING in pkg\\Y.java (at line 8)\n" + 
 				"	public Y(String str) {\n" + 
 				"	                ^^^\n" + 
 				"Javadoc: Missing tag for parameter str\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	
 	public void testBug177009b() {
@@ -5961,13 +6047,15 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportMissingJavadocTags = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(true, units,
 				"----------\n" + 
 				"1. WARNING in pkg\\Y.java (at line 9)\n" + 
 				"	public Y(String str, int anInt, int anotherInt) {\n" + 
 				"	                                    ^^^^^^^^^^\n" + 
 				"Javadoc: Missing tag for parameter anotherInt\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	
 	/**
@@ -5977,70 +6065,78 @@ public class JavadocBugsTest extends JavadocTest {
 	public void testBug190970a() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
-		this.runNegativeTest(new String[] {
-			"pkg/X.java",
-			"public class X {\n" +
-			"private int unused1;\n" +
-			"\n" +
-	        "/**\n" +
-	        " * Same value as {@link #unused1}\n" +
-	        " */\n" +
-	        "private int unused2;\n" +
-			"}\n",
-		},
-		"----------\n" + 
-		"1. WARNING in pkg\\X.java (at line 2)\n" + 
-		"	private int unused1;\n" + 
-		"	            ^^^^^^^\n" + 
-		"The field X.unused1 is never read locally\n" + 
-		"----------\n" + 
-		"2. WARNING in pkg\\X.java (at line 7)\n" + 
-		"	private int unused2;\n" + 
-		"	            ^^^^^^^\n" + 
-		"The field X.unused2 is never read locally\n" + 
-		"----------\n",
-		null,
-		false,
-		customOptions
+		this.runConformTest(
+			true,
+			new String[] {
+				"pkg/X.java",
+				"public class X {\n" +
+				"private int unused1;\n" +
+				"\n" +
+		        "/**\n" +
+		        " * Same value as {@link #unused1}\n" +
+		        " */\n" +
+		        "private int unused2;\n" +
+				"}\n",
+			},
+			null,
+			customOptions,
+			"----------\n" + 
+			"1. WARNING in pkg\\X.java (at line 2)\n" + 
+			"	private int unused1;\n" + 
+			"	            ^^^^^^^\n" + 
+			"The field X.unused1 is never read locally\n" + 
+			"----------\n" + 
+			"2. WARNING in pkg\\X.java (at line 7)\n" + 
+			"	private int unused2;\n" + 
+			"	            ^^^^^^^\n" + 
+			"The field X.unused2 is never read locally\n" + 
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings
 		);
 	}
 	// test unused methods
 	public void testBug190970b() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
-		this.runNegativeTest(new String[] {
-			"pkg/X.java",
-			"package pkg;\n" +
-			"\n" +
-			"public class X {\n" +
-			"private void unused1() {}\n" +
-			"/**\n" +
-			" * Same value as {@link #unused1()}\n" +
-			" */\n" +
-			"private void unused2() {}\n" +
-			"}\n",
-		},
-		"----------\n" + 
-		"1. WARNING in pkg\\X.java (at line 4)\n" + 
-		"	private void unused1() {}\n" + 
-		"	             ^^^^^^^^^\n" + 
-		"The method unused1() from the type X is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in pkg\\X.java (at line 8)\n" + 
-		"	private void unused2() {}\n" + 
-		"	             ^^^^^^^^^\n" + 
-		"The method unused2() from the type X is never used locally\n" + 
-		"----------\n",
-		null,
-		false,
-		customOptions
+		this.runConformTest(
+			true,
+			new String[] {
+				"pkg/X.java",
+				"package pkg;\n" +
+				"\n" +
+				"public class X {\n" +
+				"private void unused1() {}\n" +
+				"/**\n" +
+				" * Same value as {@link #unused1()}\n" +
+				" */\n" +
+				"private void unused2() {}\n" +
+				"}\n",
+			},
+			null,
+			customOptions,
+			"----------\n" + 
+			"1. WARNING in pkg\\X.java (at line 4)\n" + 
+			"	private void unused1() {}\n" + 
+			"	             ^^^^^^^^^\n" + 
+			"The method unused1() from the type X is never used locally\n" + 
+			"----------\n" + 
+			"2. WARNING in pkg\\X.java (at line 8)\n" + 
+			"	private void unused2() {}\n" + 
+			"	             ^^^^^^^^^\n" + 
+			"The method unused2() from the type X is never used locally\n" + 
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings
 		);
 	}
 	// test unused types
 	public void testBug190970c() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
-		this.runNegativeTest(new String[] {
+		runConformTest(
+			true,
+		new String[] {
 			"pkg/X.java",
 			"package pkg;\n" +
 			"\n" +
@@ -6052,6 +6148,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"private class unused2 {}\n" +
 			"}\n",
 		},
+		null,
+		customOptions,
 		"----------\n" + 
 		"1. WARNING in pkg\\X.java (at line 4)\n" + 
 		"	private class unused1 {}\n" + 
@@ -6063,9 +6161,8 @@ public class JavadocBugsTest extends JavadocTest {
 		"	              ^^^^^^^\n" + 
 		"The type X.unused2 is never used locally\n" + 
 		"----------\n",
-		null,
-		false,
-		customOptions
+		null, null,
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings
 		);
 	}
 	
@@ -6360,7 +6457,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	public class Level2_PubPub {}\n" + 
 			"	             ^^^^^^^^^^^^^\n" + 
 			"Javadoc: Missing comment for public declaration\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug86769_Classes2() {
@@ -6462,7 +6560,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	public class Level2_ProPub {} \n" + 
 			"	             ^^^^^^^^^^^^^\n" + 
 			"Javadoc: Missing comment for protected declaration\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug86769_Field1() {
@@ -6511,7 +6610,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	public int pub_pub;\n" + 
 			"	           ^^^^^^^\n" + 
 			"Javadoc: Missing comment for public declaration\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug86769_Fields2() {
@@ -6657,7 +6757,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	public int pub_pub;\n" + 
 			"	           ^^^^^^^\n" + 
 			"Javadoc: Missing comment for private declaration\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug86769_Metthods1() {
@@ -6706,7 +6807,8 @@ public class JavadocBugsTest extends JavadocTest {
 			"	public void pub_pub() {}\n" + 
 			"	            ^^^^^^^^^\n" + 
 			"Javadoc: Missing comment for public declaration\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug86769_Methods2() {
@@ -6769,13 +6871,15 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(true, units,
 				"----------\n" + 
 				"1. WARNING in pkg\\X.java (at line 5)\n" + 
 				"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></\n" + 
 				"	                                                     ^^\n" + 
 				"Javadoc: Malformed link reference\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	
 	public void testBug125518b() {
@@ -6793,13 +6897,15 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(true, units,
 				"----------\n" + 
 				"1. WARNING in pkg\\X.java (at line 5)\n" + 
 				"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></a\n" + 
 				"	                                                     ^^^\n" + 
 				"Javadoc: Malformed link reference\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	
 	public void testBug125518c() {
@@ -6817,13 +6923,15 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(true, units,
 				"----------\n" + 
 				"1. WARNING in pkg\\X.java (at line 5)\n" + 
 				"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></>\n" + 
 				"	                                                     ^^^\n" + 
 				"Javadoc: Malformed link reference\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	
 	public void testBug125518d() {
@@ -6841,13 +6949,15 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(true, units,
 				"----------\n" + 
 				"1. WARNING in pkg\\X.java (at line 5)\n" + 
 				"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></aa>\n" + 
 				"	                                                     ^^^^^\n" + 
 				"Javadoc: Malformed link reference\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	
 	public void testBug125518e() {
@@ -6887,13 +6997,15 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(true, units,
 				"----------\n" + 
 				"1. WARNING in pkg\\X.java (at line 5)\n" + 
 				"	* @see http://www.eclipse.org/\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Javadoc: Invalid URL reference. Double quote the reference or use the href syntax\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	
 	public void testBug168849b() {
@@ -6911,13 +7023,15 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(true, units,
 				"----------\n" + 
 				"1. WARNING in pkg\\X.java (at line 5)\n" + 
 				"	* @see http://ftp.eclipse.org/\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Javadoc: Invalid URL reference. Double quote the reference or use the href syntax\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	
 	public void testBug168849c() {
@@ -6935,13 +7049,16 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(
+				true, units,
 				"----------\n" + 
 				"1. WARNING in pkg\\X.java (at line 5)\n" + 
 				"	* @see ://\n" + 
 				"	   ^^^\n" + 
 				"Javadoc: Missing reference\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	
 	public void testBug168849d() {
@@ -6959,13 +7076,15 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(true, units,
 				"----------\n" + 
 				"1. WARNING in pkg\\X.java (at line 5)\n" + 
 				"	* @see http://www.eclipse.org\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Javadoc: Invalid URL reference. Double quote the reference or use the href syntax\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	
 	public void testBug168849e() {
@@ -7019,13 +7138,15 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(true, units,
 				"----------\n" + 
 				"1. WARNING in pkg\\X.java (at line 5)\n" + 
 				"	* @see http:/ invalid reference\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Javadoc: Malformed reference (missing end space separator)\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	
 	public void testBug168849h() {
@@ -7043,13 +7164,15 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(true, units,
 				"----------\n" + 
 				"1. WARNING in pkg\\X.java (at line 5)\n" + 
 				"	* @see Object:/ invalid reference\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Javadoc: Malformed reference (missing end space separator)\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	
 	public void testBug168849i() {
@@ -7067,13 +7190,15 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(true, units,
 				"----------\n" + 
 				"1. WARNING in pkg\\X.java (at line 5)\n" + 
 				"	* @see http:/ invalid reference\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Javadoc: Malformed reference (missing end space separator)\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	
 	public void testBug168849j() {
@@ -7091,13 +7216,15 @@ public class JavadocBugsTest extends JavadocTest {
 			"}\n"
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
-		runNegativeTest(units,
+		runConformTest(true, units,
 				"----------\n" + 
 				"1. WARNING in pkg\\X.java (at line 5)\n" + 
 				"	* @see Object:/ invalid reference\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Javadoc: Malformed reference (missing end space separator)\n" + 
-				"----------\n");
+				"----------\n",
+				null, null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	/**
 	 * @bug 222902: [Javadoc] Missing description should not be warned in some cases
@@ -7137,7 +7264,7 @@ public class JavadocBugsTest extends JavadocTest {
 		};
 		reportInvalidJavadoc = CompilerOptions.WARNING;
 		reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
-		runNegativeTest(units,
+		runConformTest(true, units,
 			"----------\n" + 
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	* @author\n" + 
@@ -7203,7 +7330,9 @@ public class JavadocBugsTest extends JavadocTest {
 			"	* @serialField\n" + 
 			"	   ^^^^^^^^^^^\n" + 
 			"Javadoc: Description expected after @serialField\n" + 
-			"----------\n"
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings
 		);
 	}
 	/**
@@ -7281,7 +7410,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"\n" + 
 				"}\n"
 			},
-			expectedError
+			expectedError,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 }

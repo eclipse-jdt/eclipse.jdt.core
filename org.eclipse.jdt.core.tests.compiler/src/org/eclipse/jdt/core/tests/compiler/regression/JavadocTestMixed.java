@@ -197,7 +197,8 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "	public class X {\n"
 				+ "	             ^\n"
 				+ "Javadoc: Missing comment for public declaration\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	
 	public void test011() {
@@ -221,7 +222,8 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "	public int x;\n"
 				+ "	           ^\n"
 				+ "Javadoc: Missing comment for public declaration\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	
 	public void test012() {
@@ -245,7 +247,8 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "	public X() {\n"
 				+ "	       ^^^\n"
 				+ "Javadoc: Missing comment for public declaration\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	
 	public void test013() {
@@ -269,7 +272,8 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "	public void foo(int a) {\n"
 				+ "	            ^^^^^^^^^^\n"
 				+ "Javadoc: Missing comment for public declaration\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	
 	/*
@@ -363,7 +367,8 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "	* @param x\n"
 				+ "	   ^^^^^\n"
 				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	
 	public void test023() {
@@ -412,7 +417,8 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "	* @throws InvalidException\n"
 				+ "	   ^^^^^^\n"
 				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	
 	public void test024() {
@@ -465,7 +471,8 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "	public X(String str) {\n"
 				+ "	                ^^^\n"
 				+ "Javadoc: Missing tag for parameter str\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	
 	public void test025() {
@@ -518,7 +525,8 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "	public String foo(java.util.Vector list) {\n"
 				+ "	                                   ^^^^\n"
 				+ "Javadoc: Missing tag for parameter list\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	
 	public void test026() {
@@ -580,7 +588,8 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "	public String foo(java.util.Vector list) {\n"
 				+ "	       ^^^^^^\n"
 				+ "Javadoc: Missing tag for return type\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	
 	/*
@@ -855,7 +864,8 @@ public class JavadocTestMixed extends JavadocTest {
 				"	* @see #\n" + 
 				"	       ^\n" + 
 				"Javadoc: Invalid reference\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 			);
 	}
 }

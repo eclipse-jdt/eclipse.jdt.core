@@ -1933,6 +1933,10 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 		// non-javac part
 		if (shouldFlushOutputDirectory)
 			Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		// complain early in RUN_JAVAC mode (avoid to do it else until we've fixed all tests)
+		if (RUN_JAVAC && testFiles != null && (testFiles.length % 2) != 0) {
+			fail("odd number of strings in testFiles");
+		}
 
 		Requestor requestor =
 			customRequestor instanceof Requestor ?

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -71,7 +71,8 @@ public class JavadocTestForField extends JavadocTest {
 				+ "	* @param x Invalid tag\n"
 				+ "	   ^^^^^\n"
 				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test003() {
@@ -90,7 +91,8 @@ public class JavadocTestForField extends JavadocTest {
 				+ "	* @throws NullPointerException Invalid tag\n"
 				+ "	   ^^^^^^\n"
 				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test004() {
@@ -109,7 +111,8 @@ public class JavadocTestForField extends JavadocTest {
 				+ "	* @exception NullPointerException Invalid tag\n"
 				+ "	   ^^^^^^^^^\n"
 				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test005() {
@@ -128,7 +131,8 @@ public class JavadocTestForField extends JavadocTest {
 				+ "	* @return Invalid tag\n"
 				+ "	   ^^^^^^\n"
 				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test006() {
@@ -165,14 +169,16 @@ public class JavadocTestForField extends JavadocTest {
 				+ "	* @param x Invalid tag\n"
 				+ "	   ^^^^^\n"
 				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	/*
 	 * (non-Javadoc)
 	 * Test @deprecated tag
 	 */
 	public void test007() {
-		this.runNegativeTest(
+		this.runConformTest(
+			true,
 			new String[] {
 				"X.java",
 				"public class X {\n"
@@ -194,7 +200,8 @@ public class JavadocTestForField extends JavadocTest {
 				+ "	x=(new Z()).z;\n"
 				+ "	            ^\n"
 				+ "The field Z.z is deprecated\n"
-				+ "----------\n");
+				+ "----------\n",
+				null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 
 	public void test008() {
@@ -248,7 +255,8 @@ public class JavadocTestForField extends JavadocTest {
 				+ "	* @exception IllegalArgumentException\n"
 				+ "	   ^^^^^^^^^\n"
 				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	/*
@@ -279,7 +287,8 @@ public class JavadocTestForField extends JavadocTest {
 				+ "	* @see \"invalid\" no text allowed after the string\n"
 				+ "	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Unexpected text\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test011() {
@@ -321,7 +330,8 @@ public class JavadocTestForField extends JavadocTest {
 				+ "	* @see <a href=\"invalid\">invalid</a> no text allowed after the href\n"
 				+ "	                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Unexpected text\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test013() {
@@ -656,7 +666,8 @@ public class JavadocTestForField extends JavadocTest {
 				+ "	* @see #smr_foo(char , int[][], String[][][], Vector[][][][]) Invalid ref: invalid arguments declaration\n"
 				+ "	        ^^^^^^^\n"
 				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char, int[][], String[][][], Vector[][][][])\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test042() {
@@ -708,7 +719,8 @@ public class JavadocTestForField extends JavadocTest {
 				+ "	* @see #unknown() Invalid ref: undefined local method reference\n"
 				+ "	        ^^^^^^^\n"
 				+ "Javadoc: The method unknown() is undefined for the type X\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test044() {
@@ -759,7 +771,8 @@ public class JavadocTestForField extends JavadocTest {
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
 				+ "	                             ^^^^^^\n"
 				+ "Javadoc: Vector cannot be resolved to a type\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test045() {

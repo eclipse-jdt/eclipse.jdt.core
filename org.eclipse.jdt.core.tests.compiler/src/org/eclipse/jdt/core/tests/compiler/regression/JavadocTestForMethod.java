@@ -54,7 +54,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	 * Test @deprecated tag
 	 */
 	public void test001() {
-		this.runNegativeTest(
+		this.runConformTest(
+			true,
 			new String[] {
 				"X.java",
 				"public class X {\n"
@@ -77,7 +78,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	new Z().foo();\n"
 				+ "	^^^^^^^^^^^^^\n"
 				+ "The method foo() from the type Z is deprecated\n"
-				+ "----------\n");
+				+ "----------\n",
+				null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 
 	public void test002() {
@@ -136,7 +138,8 @@ public class JavadocTestForMethod extends JavadocTest {
 		"	* @see Y#y\n" + 
 		"	         ^\n" + 
 		"Javadoc: The field Y.y is deprecated\n" + 
-		"----------\n"
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 			);
 	}
 
@@ -240,7 +243,8 @@ public class JavadocTestForMethod extends JavadocTest {
 		"	public String foo(int x) { \n" + 
 		"	                      ^\n" + 
 		"Javadoc: Missing tag for parameter x\n" + 
-		"----------\n"
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 				);
 	}
 
@@ -345,7 +349,8 @@ public class JavadocTestForMethod extends JavadocTest {
 		"	public String foo(int x) { \n" + 
 		"	                      ^\n" + 
 		"Javadoc: Missing tag for parameter x\n" + 
-		"----------\n"
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 				);
 	}
 
@@ -444,7 +449,8 @@ public class JavadocTestForMethod extends JavadocTest {
 		"	public String foo(int x) { \n" + 
 		"	                      ^\n" + 
 		"Javadoc: Missing tag for parameter x\n" + 
-		"----------\n"
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 				);
 	}
 
@@ -499,7 +505,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @param x Invalid param: not an argument\n"
 				+ "	         ^\n"
 				+ "Javadoc: Parameter x is not declared\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test014() {
@@ -545,7 +552,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @param x Invalid param: not an argument\n"
 				+ "	         ^\n"
 				+ "Javadoc: Parameter x is not declared\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test016() {
@@ -590,7 +598,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @param x Invalid param: not an argument\n"
 				+ "	         ^\n"
 				+ "Javadoc: Parameter x is not declared\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test020() {
@@ -619,7 +628,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void p_foo(double a, double b, double c) {\n"
 				+ "	                                             ^\n"
 				+ "Javadoc: Missing tag for parameter c\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test021() {
@@ -644,7 +654,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void p_foo(int a, char b, long c) {\n"
 				+ "	                                      ^\n"
 				+ "Javadoc: Missing tag for parameter c\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test022() {
@@ -669,7 +680,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void p_foo(int a, char b, long c) {\n"
 				+ "	                                      ^\n"
 				+ "Javadoc: Missing tag for parameter c\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test023() {
@@ -694,7 +706,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void p_foo(int a, char b, long c) {\n"
 				+ "	                              ^\n"
 				+ "Javadoc: Missing tag for parameter b\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test024() {
@@ -715,7 +728,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void p_foo(int a, char b, long c) {\n"
 				+ "	                                      ^\n"
 				+ "Javadoc: Missing tag for parameter c\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test025() {
@@ -736,7 +750,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void p_foo(int a, char b, long c) {\n"
 				+ "	                      ^\n"
 				+ "Javadoc: Missing tag for parameter a\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test026() {
@@ -757,7 +772,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void p_foo(int a, char b, long c) {\n"
 				+ "	                              ^\n"
 				+ "Javadoc: Missing tag for parameter b\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test030() {
@@ -790,7 +806,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void p_foo(double a, long b, int c) {\n"
 				+ "	                         ^\n"
 				+ "Javadoc: Missing tag for parameter a\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test031() {
@@ -815,7 +832,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void p_foo(String a) {\n"
 				+ "	                         ^\n"
 				+ "Javadoc: Missing tag for parameter a\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test032() {
@@ -836,7 +854,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @param\n"
 				+ "	   ^^^^^\n"
 				+ "Javadoc: Missing parameter name\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test033() {
@@ -874,7 +893,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void p_foo(java.util.Hashtable h, float f) {\n"
 				+ "	                                               ^\n"
 				+ "Javadoc: Missing tag for parameter f\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test034() {
@@ -906,7 +926,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				"	public void p_foo(int x) {\n" + 
 				"	                      ^\n" + 
 				"Javadoc: Missing tag for parameter x\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -997,7 +1018,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				"	public void p_foo(int x) {\n" + 
 				"	                      ^\n" + 
 				"Javadoc: Missing tag for parameter x\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1024,7 +1046,8 @@ public class JavadocTestForMethod extends JavadocTest {
 			"	public void p_foo(int x) {\n" + 
 			"	                      ^\n" + 
 			"Javadoc: Missing tag for parameter x\n" + 
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	/* (non-Javadoc)
@@ -1069,7 +1092,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @exception IllegalArgumen..Exception.. Invalid exception: invalid class name\n"
 				+ "	            ^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Invalid class name\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test052() {
@@ -1094,7 +1118,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @throws IOException Invalid exception: unknown type\n"
 				+ "	          ^^^^^^^^^^^\n"
 				+ "Javadoc: IOException cannot be resolved to a type\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test053() {
@@ -1120,7 +1145,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @throws FileNotFoundException Invalid exception: known exception but neither thrown nor unchecked\n"
 				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Exception FileNotFoundException is not declared\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test055() {
@@ -1257,7 +1283,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void t_foo() throws IllegalAccessException {\n"
 				+ "	                           ^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Missing tag for declared exception IllegalAccessException\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test061() {
@@ -1287,7 +1314,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void t_foo() throws IllegalAccessException {\n"
 				+ "	                           ^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Missing tag for declared exception IllegalAccessException\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test062() {
@@ -1317,7 +1345,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void t_foo() throws IllegalAccessException {\n"
 				+ "	                           ^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Missing tag for declared exception IllegalAccessException\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test063() {
@@ -1354,7 +1383,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public void t_foo() throws IllegalAccessException {\n"
 				+ "	                           ^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Missing tag for declared exception IllegalAccessException\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test065() {
@@ -1668,7 +1698,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	public Object[] s_foo() {\n"
 				+ "	       ^^^^^^^^\n"
 				+ "Javadoc: Missing tag for return type\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test074() {
@@ -1691,7 +1722,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @return Dimension\n"
 				+ "	   ^^^^^^\n"
 				+ "Javadoc: Duplicate tag for return type\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test075() {
@@ -1712,7 +1744,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @return Invalid return on void method\n"
 				+ "	   ^^^^^^\n"
 				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test076() {
@@ -1745,7 +1778,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @return Invalid return on void method\n"
 				+ "	   ^^^^^^\n"
 				+ "Javadoc: Duplicate tag for return type\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	/* (non-Javadoc)
@@ -1788,7 +1822,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see \"invalid\" no text allowed after the string\n"
 				+ "	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Unexpected text\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test081() {
@@ -1904,7 +1939,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see <a href=\"invalid\">invalid</a> no text allowed after the href\n"
 				+ "	                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Unexpected text\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test086() {
@@ -1954,7 +1990,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see <a href=\"http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/javadoc.html\">Invalid URL link reference</b>\n"
 				+ "	                                                                                                             ^^^^\n"
 				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	// @see Classes references
@@ -2810,7 +2847,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector][][][]) Invalid ref: invalid arguments declaration\n"
 				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test117() {
@@ -2890,7 +2928,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector) Invalid ref: invalid arguments declaration\n"
 				+ "	        ^^^^^^^\n"
 				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[][][], Vector)\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test118() {
@@ -2970,7 +3009,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[][][][10]) Invalid ref: invalid arguments declaration\n"
 				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	public void test120() {
 		this.runConformTest(
@@ -3048,7 +3088,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see #smr_FOO() Invalid ref: undefined local method reference\n"
 				+ "	        ^^^^^^^\n"
 				+ "Javadoc: The method smr_FOO() is undefined for the type X\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test122() {
@@ -3109,7 +3150,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see #smr_foo(boolean) Invalid ref: local method not applicable\n"
 				+ "	        ^^^^^^^\n"
 				+ "Javadoc: The method smr_foo(boolean, int, byte, short, char, long, float, double) in the type X is not applicable for the arguments (boolean)\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test123() {
@@ -3152,7 +3194,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see #smr_foo(String) Invalid ref: local method not applicable\n"
 				+ "	        ^^^^^^^\n"
 				+ "Javadoc: The method smr_foo(String, String, int) in the type X is not applicable for the arguments (String)\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test124() {
@@ -3201,7 +3244,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see #smr_foo(java.util.Vector) Invalid ref: local method not applicable\n"
 				+ "	        ^^^^^^^\n"
 				+ "Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Vector)\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test125() {
@@ -3268,7 +3312,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see #smr_foo(boolean b,int i,byte y,short s,char c,long l,float f,double) Invalid reference: mixed argument declaration\n"
 				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test126() {
@@ -3311,7 +3356,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see #smr_foo(java.lang.String,java.lang.String,int z) Invalid reference: mixed argument declaration\n"
 				+ "	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test127() {
@@ -3379,7 +3425,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see #smr_foo(Hashtable, Vector b, boolean c) Invalid reference: mixed argument declaration\n"
 				+ "	               ^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test130() {
@@ -3458,7 +3505,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see X#smr_FOO() Invalid ref: undefined local method reference\n"
 				+ "	         ^^^^^^^\n"
 				+ "Javadoc: The method smr_FOO() is undefined for the type X\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test132() {
@@ -3514,7 +3562,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see X#smr_foo(java.util.Hashtable,Vector) Invalid ref: local method not applicable\n"
 				+ "	         ^^^^^^^\n"
 				+ "Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Hashtable, Vector)\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test133() {
@@ -3562,7 +3611,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration\n"
 				+ "	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test135() {
@@ -3643,7 +3693,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see test.deep.qualified.name.p.X#smr_FOO() Invalid ref: undefined local method reference\n"
 				+ "	                                    ^^^^^^^\n"
 				+ "Javadoc: The method smr_FOO() is undefined for the type X\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test137() {
@@ -3700,7 +3751,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see test.deep.qualified.name.p.X#smr_foo(java.util.Hashtable,Vector) Invalid ref: local method not applicable\n"
 				+ "	                                    ^^^^^^^\n"
 				+ "Javadoc: The method smr_foo(Hashtable, Vector, boolean) in the type X is not applicable for the arguments (Hashtable, Vector)\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test138() {
@@ -3749,7 +3801,8 @@ public class JavadocTestForMethod extends JavadocTest {
 			"	* @see test.deep.qualified.name.p.X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration\n" + 
 			"	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: Invalid parameters declaration\n" + 
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test140() {
@@ -4292,7 +4345,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "	* @see VisibilityPackage.VpPublic#vm_public((((() Invalid ref: invalid argument declaration\n"
 				+ "	                                           ^^\n"
 				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.DEFAULT);
 	}
 
 	public void test152() {

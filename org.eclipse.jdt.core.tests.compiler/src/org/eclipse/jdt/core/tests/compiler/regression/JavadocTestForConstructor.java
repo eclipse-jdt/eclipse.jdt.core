@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,7 +44,8 @@ public class JavadocTestForConstructor extends JavadocTest {
 	 * Test @deprecated tag
 	 */
 	public void test001() {
-		this.runNegativeTest(
+		this.runConformTest(
+			true,
 			new String[] {
 				"X.java",
 				"public class X {\n"
@@ -67,7 +68,8 @@ public class JavadocTestForConstructor extends JavadocTest {
 				+ "	new Z();\n"
 				+ "	^^^^^^^\n"
 				+ "The constructor Z() is deprecated\n"
-				+ "----------\n");
+				+ "----------\n",
+				null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 
 	public void test002() {
@@ -166,7 +168,8 @@ public class JavadocTestForConstructor extends JavadocTest {
 				+ "	* @param x\n"
 				+ "	   ^^^^^\n"
 				+ "Javadoc: Unexpected tag\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	/*
@@ -197,7 +200,8 @@ public class JavadocTestForConstructor extends JavadocTest {
 				+ "	* @see \"invalid\" no text allowed after the string\n"
 				+ "	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Unexpected text\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test011() {
@@ -241,7 +245,8 @@ public class JavadocTestForConstructor extends JavadocTest {
 				+ "	* @see <a href=\"invalid\">invalid</a> no text allowed after the href\n"
 				+ "	                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Unexpected text\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test013() {
@@ -584,7 +589,8 @@ public class JavadocTestForConstructor extends JavadocTest {
 				+ "	* @see #smr_foo(char[] , int[][], String[][][], Vector[][][]) Invalid ref: invalid arguments declaration\n"
 				+ "	        ^^^^^^^\n"
 				+ "Javadoc: The method smr_foo(char[], int[][], String[][][], Vector[][][][]) in the type X is not applicable for the arguments (char[], int[][], String[][][], Vector[][][])\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test042() {
@@ -634,7 +640,8 @@ public class JavadocTestForConstructor extends JavadocTest {
 				+ "	* @see #unknown() Invalid ref: undefined local method reference\n"
 				+ "	        ^^^^^^^\n"
 				+ "Javadoc: The method unknown() is undefined for the type X\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test044() {
@@ -685,7 +692,8 @@ public class JavadocTestForConstructor extends JavadocTest {
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
 				+ "	                             ^^^^^^\n"
 				+ "Javadoc: Vector cannot be resolved to a type\n"
-				+ "----------\n");
+				+ "----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	public void test045() {

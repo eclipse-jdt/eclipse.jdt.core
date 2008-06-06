@@ -148,7 +148,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	* @param <E> Type parameter\n" + 
 				"	   ^^^^^\n" + 
 				"Javadoc: Unexpected tag\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test007() {
@@ -166,7 +167,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public class X<E, F> {}\n" + 
 				"	                  ^\n" + 
 				"Javadoc: Missing tag for parameter F\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test008() {
@@ -191,7 +193,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	* @param <V> Type parameter 3\n" + 
 				"	          ^\n" + 
 				"Javadoc: V cannot be resolved to a type\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test009() {
@@ -218,7 +221,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	* @param <E> Type parameter 2\n" + 
 				"	          ^\n" + 
 				"Javadoc: E cannot be resolved to a type\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test010() {
@@ -259,7 +263,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	* @param <U> Type parameter 2\n" + 
 				"	          ^\n" + 
 				"Javadoc: Duplicate tag for parameter\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test012() {
@@ -286,7 +291,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public class X<T, U, V> {}\n" + 
 				"	                     ^\n" + 
 				"Javadoc: Missing tag for parameter V\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test013() {
@@ -309,7 +315,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public class X<T, U, V> {}\n" + 
 				"	                     ^\n" + 
 				"Javadoc: Missing tag for parameter V\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test014() {
@@ -332,7 +339,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public class X<T, U, V> {}\n" + 
 				"	                     ^\n" + 
 				"Javadoc: Missing tag for parameter V\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test015() {
@@ -351,7 +359,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public class X<T, U, V> {}\n" + 
 				"	               ^\n" + 
 				"Javadoc: Missing tag for parameter T\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test016() {
@@ -370,7 +379,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public class X<T, U, V> {}\n" + 
 				"	                  ^\n" + 
 				"Javadoc: Missing tag for parameter U\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test017() {
@@ -389,7 +399,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public class X<T, U, V> {}\n" + 
 				"	                     ^\n" + 
 				"Javadoc: Missing tag for parameter V\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test018() {
@@ -412,7 +423,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public class X<T, U, V> {}\n" + 
 				"	                  ^\n" + 
 				"Javadoc: Missing tag for parameter U\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test019() {
@@ -449,7 +461,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public class X<T, U, V> {}\n" + 
 				"	               ^\n" + 
 				"Javadoc: Missing tag for parameter T\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test020() {
@@ -474,7 +487,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public class X<T, U, V> {}\n" + 
 				"	               ^\n" + 
 				"Javadoc: Missing tag for parameter T\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test021() {
@@ -603,7 +617,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	* @param <E> Type parameter\n" + 
 				"	   ^^^^^\n" + 
 				"Javadoc: Unexpected tag\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test027() {
@@ -633,7 +648,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public <E, F> void foo(int val, Object obj) {}\n" + 
 				"	                                       ^^^\n" + 
 				"Javadoc: Missing tag for parameter obj\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test028() {
@@ -682,7 +698,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public <T> void foo(int val, Object obj) {}\n" + 
 				"	                                    ^^^\n" + 
 				"Javadoc: Missing tag for parameter obj\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test029() {
@@ -713,7 +730,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	* @param <E> Type parameter 2\n" + 
 				"	          ^\n" + 
 				"Javadoc: E cannot be resolved to a type\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test030() {
@@ -770,7 +788,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
 				"	                                          ^^^\n" + 
 				"Javadoc: Missing tag for parameter obj\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test032() {
@@ -801,7 +820,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
 				"	                                          ^^^\n" + 
 				"Javadoc: Missing tag for parameter obj\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test033() {
@@ -828,7 +848,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
 				"	                              ^^^\n" + 
 				"Javadoc: Missing tag for parameter val\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test034() {
@@ -885,7 +906,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
 				"	                                          ^^^\n" + 
 				"Javadoc: Missing tag for parameter obj\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test035() {
@@ -922,7 +944,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
 				"	                                          ^^^\n" + 
 				"Javadoc: Missing tag for parameter obj\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	// TODO (david) recovery seems not to work properly here:
@@ -1034,7 +1057,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public class X<E> {}\n" + 
 				"	               ^\n" + 
 				"Javadoc: Missing tag for parameter E\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void test039() {
@@ -1081,7 +1105,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public class X<E> {}\n" + 
 				"	               ^\n" + 
 				"Javadoc: Missing tag for parameter E\n" + 
-				"----------\n"
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1122,7 +1147,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see G#G(Object)\n" + 
 			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The constructor G(Object) is undefined\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1162,7 +1188,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	*  {@link ComparableUtils#compareTo(Object, Object)}.\n" + 
 			"	                          ^^^^^^^^^\n" + 
 			"Javadoc: Bound mismatch: The generic method compareTo(X, X) of type ComparableUtils is not applicable for the arguments (Object, Object). The inferred type Object is not a valid substitute for the bounded parameter <X extends Comparable<? super X>>\n" + 
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 	/**
@@ -1220,7 +1247,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see #Test(T)\n" + 
 			"	        ^^^^^^^\n" + 
 			"Javadoc: The constructor Test(T) is undefined\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug83127b() {
@@ -1264,7 +1292,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Sub#Sub(T)\n" + 
 			"	           ^^^^^^\n" + 
 			"Javadoc: The constructor Sub(T) is undefined\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug83127c() {
@@ -1305,7 +1334,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Sub#Sub(E)\n" + 
 			"	               ^\n" + 
 			"Javadoc: E cannot be resolved to a type\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug83127d() {
@@ -1351,7 +1381,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Unrelated1#Unrelated1(E)\n" + 
 			"	                             ^\n" + 
 			"Javadoc: E cannot be resolved to a type\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug83127e() {
@@ -1397,7 +1428,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Unrelated1#Unrelated1(Object)\n" + 
 			"	                  ^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: The constructor Unrelated1(Object) is undefined\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug83127f() {
@@ -1478,7 +1510,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Unrelated1#Unrelated1(Integer)\n" + 
 			"	                  ^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: The constructor Unrelated1(Integer) is undefined\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug83127h() {
@@ -1520,7 +1553,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Unrelated2#add(T)\n" + 
 			"	                  ^^^\n" + 
 			"Javadoc: The method add(Object) in the type Unrelated2 is not applicable for the arguments (T)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1615,7 +1649,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Test#foo(Exception, boolean, boolean)\n" + 
 			"	            ^^^\n" + 
 			"Javadoc: The method foo(Exception, boolean...) in the type Test is not applicable for the arguments (Exception, boolean, boolean)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1682,7 +1717,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @return unexpected \n" + 
 			"	   ^^^^^^\n" + 
 			"Javadoc: Unexpected tag\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1776,7 +1812,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	public void foo() {}\n" + 
 			"	            ^^^^^\n" + 
 			"Javadoc: Missing comment for public declaration\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -1975,7 +2012,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* See also {@link Inner}\n" + 
 			"	                  ^^^^^\n" + 
 			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug96237_Public04() {
@@ -2013,7 +2051,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Inner\n" + 
 			"	       ^^^^^\n" + 
 			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug96237_Public05() {
@@ -2042,7 +2081,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Test.Inner\n" + 
 			"	       ^^^^^^^^^^\n" + 
 			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug96237_Public06() {
@@ -2089,7 +2129,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Test.Inner.Level2\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug96237_Public07() {
@@ -2153,7 +2194,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Test.Inner.Level2.Level3\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug96237_Public08() {
@@ -2184,7 +2226,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Reference\n" + 
 			"	       ^^^^^^^^^\n" + 
 			"Javadoc: 'public' visibility for malformed doc comments hides this 'default' reference\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug96237_Private01() {
@@ -2229,7 +2272,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* See also {@link Inner} \n" + 
 			"	                  ^^^^^\n" + 
 			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug96237_Private03() {
@@ -2276,7 +2320,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* See also {@link Inner}\n" + 
 			"	                  ^^^^^\n" + 
 			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug96237_Private04() {
@@ -2314,7 +2359,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Inner\n" + 
 			"	       ^^^^^\n" + 
 			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug96237_Private05() {
@@ -2442,7 +2488,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	static class Entry<L, R> {\n" + 
 			"	                      ^\n" + 
 			"Javadoc: Missing tag for parameter R\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug101283b() {
@@ -2480,7 +2527,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	static class Entry<L, R> {\n" + 
 			"	                      ^\n" + 
 			"Javadoc: Missing tag for parameter R\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug101283c() {
@@ -2518,7 +2566,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	class Entry<L, R> {\n" + 
 			"	               ^\n" + 
 			"Javadoc: Missing tag for parameter R\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug101283d() {
@@ -2556,7 +2605,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	class Entry<L, R> {\n" + 
 			"	               ^\n" + 
 			"Javadoc: Missing tag for parameter R\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	// Verify duplicate test case: bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=102735
@@ -2587,7 +2637,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	ComponentFactory#createComponent(V)} method.*/\n" + 
 			"	                                 ^\n" + 
 			"Javadoc: Cannot make a static reference to the non-static type variable V\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug101283f() {
@@ -2849,7 +2900,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Inner#foo()\r\n" + 
 			"	       ^^^^^\n" + 
 			"Javadoc: \'public\' visibility for malformed doc comments hides this \'default\' reference\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	public void testBug119857_Private02() {
@@ -2927,7 +2979,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Inner1#foo()\n" + 
 			"	       ^^^^^^\n" + 
 			"Javadoc: \'public\' visibility for malformed doc comments hides this \'default\' reference\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -3076,7 +3129,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	spades\n" + 
 			"	^^^^^^\n" + 
 			"Javadoc: Missing comment for default declaration\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	
@@ -3115,7 +3169,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	/** @see T.R */\n" + 
 			"	         ^^^\n" + 
 			"Javadoc: Invalid reference\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	
@@ -3171,7 +3226,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Member#foo(Object, Object)\n" + 
 			"	       ^^^^^^\n" + 
 			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	
@@ -3207,7 +3263,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Member#foo(Object, Object)\n" + 
 			"	       ^^^^^^\n" + 
 			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	
@@ -3254,7 +3311,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see #foo(V)\n" + 
 			"	        ^^^\n" + 
 			"Javadoc: The method foo(Object) in the type X.X1.X2.X3.X4 is not applicable for the arguments (V)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -3306,7 +3364,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see A4#foo(Object)\n" + 
 			"	       ^^\n" + 
 			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	
@@ -3352,7 +3411,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see A3.A4#foo(V)\n" + 
 			"	             ^^^\n" + 
 			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (V)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -3398,7 +3458,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see A.A1.A2.A3.A4#foo(V)\n" + 
 			"	                     ^^^\n" + 
 			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (V)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	
@@ -3445,7 +3506,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see #foo(U u)\r\n" + 
 			"	        ^^^\n" + 
 			"Javadoc: The method foo(Object) in the type X.X1.X2.X3.X4 is not applicable for the arguments (U)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -3497,7 +3559,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see A4#foo(T)\n" + 
 			"	          ^^^\n" + 
 			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (T)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -3549,7 +3612,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see A4#foo(S)\n" + 
 			"	          ^^^\n" + 
 			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (S)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	
@@ -3601,7 +3665,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see A4#foo(T)\n" + 
 			"	          ^^^\n" + 
 			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (T)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 
@@ -3653,7 +3718,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see A4#foo(T)\n" + 
 			"	          ^^^\n" + 
 			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (T)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 	
@@ -3793,7 +3859,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see A.A1.A2.A3.A4#foo(R)\r\n" + 
 			"	                     ^^^\n" + 
 			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (R)\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
 	}
 }
