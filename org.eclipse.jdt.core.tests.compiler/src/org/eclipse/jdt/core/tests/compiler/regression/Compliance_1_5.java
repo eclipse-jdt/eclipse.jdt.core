@@ -1168,23 +1168,31 @@ public void test036() {
 public void test037() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
-	this.runNegativeTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"p/X.java",
 			"package p;	\n"+
 			"public class X {\n"+
 			"}\n"+
 			"// TODO: something"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. WARNING in p\\X.java (at line 4)\n" + 
 		"	// TODO: something\n" + 
 		"	   ^^^^^^^^^^^^^^^\n" + 
 		"TODO: something\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// runtime results
+		null /* do not check output string */,
+		null /* do not check error string */,
+		// javac options
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);	
 }
 
 /*
@@ -1196,20 +1204,28 @@ public void test037() {
 public void test038() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
-	this.runNegativeTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"// TODO: something"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. WARNING in X.java (at line 1)\n" + 
 		"	// TODO: something\n" + 
 		"	   ^^^^^^^^^^^^^^^\n" + 
 		"TODO: something\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		// runtime results
+		null /* do not check output string */,
+		null /* do not check error string */,
+		// javac options
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);	
 }
 
 /*
@@ -1777,8 +1793,10 @@ public void test054() {
 	);
 }
 public void test055() {
-	this.runNegativeTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"p/X.java",
 			"package p;\n" + 
 			"public class X {\n" + 
@@ -1806,8 +1824,9 @@ public void test055() {
 			"  new X().new Y().foo(8);\n" + 
 			"}\n" + 
 			"}",
-		}, 
-		"----------\n" + 
+		},
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. WARNING in p\\X.java (at line 11)\n" + 
 		"	void foo(int a);\n" + 
 		"	             ^\n" + 
@@ -1817,8 +1836,12 @@ public void test055() {
 		"	public void foo(int a) {\n" + 
 		"	                    ^\n" + 
 		"The parameter a is hiding a field from type X.I1\n" + 
-		"----------\n"
-	);
+		"----------\n",
+		// runtime results
+		null /* do not check output string */,
+		null /* do not check error string */,
+		// javac options
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);	
 }
 
 public void test056() {
@@ -1899,8 +1922,10 @@ public void test058() {
 }
 
 public void test059() {
-	this.runNegativeTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"p/FieldQualification.java",
 			"package p;\n" + 
 			"public class FieldQualification {\n" + 
@@ -1919,8 +1944,9 @@ public void test059() {
 			"  };\n" + 
 			"}\n" + 
 			"}",
-		}, 
-		"----------\n" + 
+		},
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. WARNING in p\\FieldQualification.java (at line 5)\n" +
 		"	class Local {\n" +
 		"	      ^^^^^\n" +
@@ -1940,7 +1966,12 @@ public void test059() {
 		"	void foo() {\n" + 
 		"	     ^^^^^\n" + 
 		"The method foo() from the type Local is never used locally\n" + 
-		"----------\n");
+		"----------\n",
+		// runtime results
+		null /* do not check output string */,
+		null /* do not check error string */,
+		// javac options
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);	
 }
 
 public void test060() {
@@ -1977,8 +2008,10 @@ public void test060() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=32342
  */
 public void test061() {
-	this.runNegativeTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"p/X.java", //======================
 			"package p;	\n" +
 			"public class X extends q.Y {	\n" +
@@ -1994,12 +2027,18 @@ public void test061() {
 			"	public static class Z {}	\n" +
 			"}	\n"
 		},
-		"----------\n" + 
+		// compiler results
+		"----------\n" +  /* expected compiler log */
 		"1. WARNING in q\\Y.java (at line 3)\n" + 
 		"	private static class X {}	\n" + 
 		"	                     ^\n" + 
 		"The type Y.X is never used locally\n" + 
-		"----------\n");
+		"----------\n",
+		// runtime results
+		null /* do not check output string */,
+		null /* do not check error string */,
+		// javac options
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);	
 }
 /*
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11435
@@ -2515,7 +2554,8 @@ public void test076() {
 		"	* @throws Problem \n" + 
 		"	          ^^^^^^^\n" + 
 		"Javadoc: Exception Problem is not declared\n" + 
-		"----------\n"	);
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 /**
  * Test fix bug 58069 for method.
@@ -2758,8 +2798,10 @@ public void test084() {
  * Test unused import with static
  */
 public void test085() {
-	this.runNegativeTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"A.java",
 			"import static j.l.S.*;\n" + 
 				"import static j.l.S.in;\n" + 
@@ -2773,17 +2815,23 @@ public void test085() {
 				"	public static int in;\n" + 
 				"}\n"
 		},
+		// compiler results
+		"----------\n" +  /* expected compiler log */
+		"1. WARNING in A.java (at line 1)\n" + 
+		"	import static j.l.S.*;\n" + 
+		"	              ^^^^^\n" + 
+		"The import j.l.S is never used\n" + 
 		"----------\n" + 
-			"1. WARNING in A.java (at line 1)\n" + 
-			"	import static j.l.S.*;\n" + 
-			"	              ^^^^^\n" + 
-			"The import j.l.S is never used\n" + 
-			"----------\n" + 
-			"2. WARNING in A.java (at line 2)\n" + 
-			"	import static j.l.S.in;\n" + 
-			"	              ^^^^^^^^\n" + 
-			"The import j.l.S.in is never used\n" + 
-			"----------\n");
+		"2. WARNING in A.java (at line 2)\n" + 
+		"	import static j.l.S.in;\n" + 
+		"	              ^^^^^^^^\n" + 
+		"The import j.l.S.in is never used\n" + 
+		"----------\n",
+		// runtime results
+		null /* do not check output string */,
+		null /* do not check error string */,
+		// javac options
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);	
 }
 /**
  * Test invalid static import syntax
@@ -3437,7 +3485,7 @@ public void test105() {
 			"    void foo(Y p) { }\n" + 
 			"}\n"
 		},
-		"");
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798
 public void test106() {

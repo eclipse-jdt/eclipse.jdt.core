@@ -1055,7 +1055,8 @@ public void test034() {
 			"	* @param x Invalid tag\n" +
 			"	   ^^^^^\n" +
 			"Javadoc: Unexpected tag\n" +
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
 public void test035() {
@@ -1106,7 +1107,8 @@ public void test036() {
 			"	* @see #VALIDE\n" + 
 			"	        ^^^^^^\n" + 
 			"Javadoc: VALIDE cannot be resolved or is not a field\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
 public void test037() {
@@ -1150,7 +1152,8 @@ public void test038() {
 			"	public void foo() {}\n" + 
 			"	            ^^^^^\n" + 
 			"Javadoc: Missing comment for public declaration\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
 public void test039() {
@@ -1188,7 +1191,8 @@ public void test039() {
 			"	* @param x Invalid tag\n" +
 			"	   ^^^^^\n" +
 			"Javadoc: Unexpected tag\n" +
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
 public void test040() {
@@ -1279,7 +1283,8 @@ public void test041() {
 		"	public String val(Object x) { return x.toString(); }\n" + 
 		"	                         ^\n" + 
 		"Javadoc: Missing tag for parameter x\n" + 
-		"----------\n"
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
 public void test042() {
@@ -3159,7 +3164,8 @@ public void test100() {
 		"	private final X thisOne = anEnumValue;\n" + 
 		"	                          ^^^^^^^^^^^\n" + 
 		"Cannot refer to the static enum field X.anEnumValue within an initializer\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }	
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=91761
 public void test101() {
@@ -4077,7 +4083,8 @@ public void test120() {
 		"	final X a2 = B.A;\n" + 
 		"	               ^\n" + 
 		"The static field X.A should be accessed in a static way\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }			
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=92165
 public void test121() {
@@ -4616,7 +4623,8 @@ public void test134() {
 		"	System.out.printf(\"After the %s constructor\\n\",INITIAL);\n" + 
 		"	                                               ^^^^^^^\n" + 
 		"Cannot refer to the static enum field X.INITIAL within an initializer\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=149562
 // a default case is required to consider that b is initialized (in case E 
@@ -4983,23 +4991,29 @@ public void test144() {
 public void test145() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
-				"EnumA.java",
-				"public enum EnumA {\r\n" + 
-				"  B1,\r\n" + 
-				"  B2;\r\n" + 
-				"  public void foo(){}\r\n" + 
-				"}",
-				"ClassC.java",
-				"public class ClassC {\r\n" + 
-				"  void bar() {\r\n" + 
-				"    EnumA.B1.B1.foo();\r\n" + 
-				"    EnumA.B1.B2.foo();\r\n" + 
-				"  }\r\n" + 
-				"}"
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
+			"EnumA.java",
+			"public enum EnumA {\r\n" + 
+			"  B1,\r\n" + 
+			"  B2;\r\n" + 
+			"  public void foo(){}\r\n" + 
+			"}",
+			"ClassC.java",
+			"public class ClassC {\r\n" + 
+			"  void bar() {\r\n" + 
+			"    EnumA.B1.B1.foo();\r\n" + 
+			"    EnumA.B1.B2.foo();\r\n" + 
+			"  }\r\n" + 
+			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in ClassC.java (at line 3)\n" + 
 		"	EnumA.B1.B1.foo();\n" + 
 		"	         ^^\n" + 
@@ -5010,9 +5024,8 @@ public void test145() {
 		"	         ^^\n" + 
 		"The static field EnumA.B2 should be accessed in a static way\n" + 
 		"----------\n",
-		null,
-		true,
-		options);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207915
 public void test146() {
@@ -5068,20 +5081,25 @@ public void test147() {
 			true, // generate output
 			false,
 			false);			
-	this.runConformTest(
-		new String[] {
-				"Y.java",
-				"import p.X;\n" +
-				"public class Y {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		System.out.println(X.E.SUCCESS);\n" + 
-				"	}\n" + 
-				"}\n"
+	runConformTest(
+		// test directory preparation
+		false /* do not flush output directory */,
+		new String[] { /* test files */
+			"Y.java",
+			"import p.X;\n" +
+			"public class Y {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(X.E.SUCCESS);\n" + 
+			"	}\n" + 
+			"}\n"
 		},
-		"null",
-		null,
-		false,
-		null);
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"null" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.Excuse.JavacCompilesBogusReferencedFileAgain /* javac test options */);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502 - variation
 public void test148() {
@@ -5112,20 +5130,25 @@ public void test148() {
 			true, // generate output
 			false,
 			false);			
-	this.runConformTest(
-		new String[] {
-				"Y.java",
-				"import p.X;\n" +
-				"public class Y {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		System.out.println(X.E.SUCCESS);\n" + 
-				"	}\n" + 
-				"}\n"
+	runConformTest(
+		// test directory preparation
+		false /* do not flush output directory */,
+		new String[] { /* test files */
+			"Y.java",
+			"import p.X;\n" +
+			"public class Y {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(X.E.SUCCESS);\n" + 
+			"	}\n" + 
+			"}\n"
 		},
-		"null",
-		null,
-		false,
-		null);
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"null" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.Excuse.JavacCompilesBogusReferencedFileAgain /* javac test options */);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502 - variation
 public void test149() throws Exception {
@@ -5286,7 +5309,8 @@ public void test153() {
 		"	TestEnum.test=10;\n" + 
 		"	         ^^^^\n" + 
 		"Cannot refer to the static enum field TestEnum.test within an initializer\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=228109 - variation
 public void test154() {
@@ -5312,7 +5336,8 @@ public void test154() {
 		"	TestEnum2.test=11;\n" + 
 		"	          ^^^^\n" + 
 		"Cannot refer to the static enum field TestEnum2.test within an initializer\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=228109 - variation
 public void test155() {
@@ -5390,7 +5415,8 @@ public void test157() {
 		"	int field = Foo.val;\n" + 
 		"	                ^^^\n" + 
 		"Cannot refer to the static enum field Foo.val within an initializer\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=228109 - variation
 public void test158() {

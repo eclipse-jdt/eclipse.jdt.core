@@ -3898,7 +3898,8 @@ public class AnnotationTest extends AbstractComparableTest {
 		for (int i = 0, ceil = warnings.length; i < ceil; i++) {
 			customOptions.put(warnings[i], CompilerOptions.WARNING);
 		}
-        this.runNegativeTest(
+        this.runConformTest(
+        	true,
             new String[] {
                 "X.java",
 				"public class X {\n" + 
@@ -3906,6 +3907,8 @@ public class AnnotationTest extends AbstractComparableTest {
 				"  }\n" + 
 				"}\n",
             },
+            null,
+            customOptions,
     		"----------\n" + 
     		"1. WARNING in X.java (at line 1)\n" + 
     		"	public class X {\n" + 
@@ -3923,7 +3926,8 @@ public class AnnotationTest extends AbstractComparableTest {
     		"	                                       ^^^^^\n" + 
     		"Empty block should be documented\n" + 
     		"----------\n",
-			null, true, customOptions);
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }       
     // check @SuppressWarning support
     public void test131() {
@@ -4445,6 +4449,7 @@ public void test142c() {
 	raiseDeprecationReduceInvalidJavadocSeverity.put(
 			CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.WARNING);
     this.runNegativeTest(
+    	true,
         new String[] {
             "X.java",
 			"@SuppressWarnings(\"deprecation\")\n" + 
@@ -4465,6 +4470,8 @@ public void test142c() {
 			"	}	\n" + 
 			"}\n",
         },
+        null,
+        raiseDeprecationReduceInvalidJavadocSeverity,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public class X extends p.OldStuff {\n" + 
@@ -4476,9 +4483,7 @@ public void test142c() {
 		"	^^^^^^^^^^^\n" + 
 		"The method foo() from the type OldStuff is deprecated\n" + 
 		"----------\n",
-		null,
-		true,
-		raiseDeprecationReduceInvalidJavadocSeverity);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }        
     public void test143() {
         this.runNegativeTest(
@@ -4712,7 +4717,8 @@ public void test142c() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98091
     public void test150() {
-        this.runNegativeTest(
+        this.runConformTest(
+        	true,
             new String[] {
                 "X.java",
 				"@SuppressWarnings(\"assertIdentifier\")\n" + 
@@ -4723,7 +4729,9 @@ public void test142c() {
     		"	@SuppressWarnings(\"assertIdentifier\")\n" + 
     		"	                  ^^^^^^^^^^^^^^^^^^\n" + 
     		"Unsupported @SuppressWarnings(\"assertIdentifier\")\n" + 
-    		"----------\n");
+    		"----------\n",
+    		null, null,
+    		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test151() {
@@ -5108,7 +5116,8 @@ public void test142c() {
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PRIVATE);
-	    this.runNegativeTest(
+	    this.runConformTest(
+	    	true,
             new String[] {
                 "X.java",
 				"/**\n" +
@@ -5139,10 +5148,11 @@ public void test142c() {
 				"	public int j;\n" +
 				"}"
             },
+            null,
+            options,
             "",
-			null,
-			true,
-			options
+			null, null,
+			JavacTestOptions.SKIP /* suppressed deprecation related warnings */
 		);
     }
 
@@ -5457,7 +5467,8 @@ public void test142c() {
     public void test169() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
-        this.runNegativeTest(
+        this.runConformTest(
+        	true,
             new String[] {
                 "X.java",
     			"@SuppressWarnings(\"serial\")\n" + 
@@ -5465,13 +5476,16 @@ public void test142c() {
     			"	String s = \"Hello\"; \n" +
     			"}"
             },
+            null,
+            customOptions,
             "----------\n" + 
     		"1. WARNING in X.java (at line 3)\n" + 
     		"	String s = \"Hello\"; \n" + 
     		"	           ^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
     		"----------\n",
-			null, true, customOptions);
+			null, null, 
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
@@ -5493,7 +5507,8 @@ public void test142c() {
     public void test171() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
-        this.runNegativeTest(
+        this.runConformTest(
+        	true,
             new String[] {
                 "X.java",
     			"public class X extends Exception {\n" +
@@ -5503,6 +5518,7 @@ public void test142c() {
     			"	String s2 = \"Hello2\"; \n" +
     			"}"
             },
+            null, customOptions,
     		"----------\n" + 
     		"1. WARNING in X.java (at line 1)\n" + 
     		"	public class X extends Exception {\n" + 
@@ -5519,14 +5535,15 @@ public void test142c() {
     		"	            ^^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
     		"----------\n",
-			null, true, customOptions);
+    		null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test172() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
-        this.runNegativeTest(
-            new String[] {
+        this.runConformTest(
+        	true,
+        	new String[] {
                 "X.java",
     			"@SuppressWarnings(\"serial\")\n" + 
     			"public class X extends Exception {\n" +
@@ -5536,6 +5553,7 @@ public void test142c() {
     			"	String s2 = \"Hello2\"; \n" +
     			"}"
             },
+            null, customOptions,
     		"----------\n" + 
     		"1. WARNING in X.java (at line 5)\n" + 
     		"	@SuppressWarnings(\"serial\")\n" + 
@@ -5547,13 +5565,14 @@ public void test142c() {
     		"	            ^^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
     		"----------\n",
-			null, true, customOptions);
+			null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test173() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
-        this.runNegativeTest(
+        this.runConformTest(
+        	true,
             new String[] {
                 "X.java",
     			"@interface Annot {\n" +
@@ -5567,6 +5586,8 @@ public void test142c() {
     			"	String s2 = \"Hello2\"; \n" +
     			"}"
             },
+            null, 
+            customOptions,
     		"----------\n" + 
     		"1. WARNING in X.java (at line 5)\n" + 
     		"	public class X extends Exception {\n" + 
@@ -5583,7 +5604,7 @@ public void test142c() {
     		"	            ^^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
     		"----------\n",
-			null, true, customOptions);
+			null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test174() {
@@ -5602,11 +5623,13 @@ public void test142c() {
     			"   @SuppressWarnings(\"serial\")\n" + 
     			"	String s2 = \"Hello2\"; \n" +
     			"}";
-		this.runNegativeTest(
+		this.runConformTest(
+			true,
             new String[] {
                 "X.java",
     			source
             },
+            null, customOptions,
     		"----------\n" + 
     		"1. WARNING in X.java (at line 11)\n" + 
     		"	@SuppressWarnings(\"serial\")\n" + 
@@ -5618,7 +5641,7 @@ public void test142c() {
     		"	            ^^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
     		"----------\n",
-			null, true, customOptions);
+			null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test175() {

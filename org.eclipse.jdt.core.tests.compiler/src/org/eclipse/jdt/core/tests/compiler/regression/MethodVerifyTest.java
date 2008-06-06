@@ -1688,7 +1688,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	public void test025e() { // 81618
-		this.runNegativeTest(
+		this.runConformTest(
+			true,
 			new String[] {
 				"X.java",
 				"interface X<T extends X> { T x(); }\n" +
@@ -1715,11 +1716,14 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	abstract class Z implements X { public abstract X x(); }\n" + 
 			"	                                                ^\n" + 
 			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
-			"----------\n"
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings
 		);
 	}		
 	public void test025f() { // 81618
-		this.runNegativeTest(
+		this.runConformTest(
+			true,
 			new String[] {
 				"X.java",
 				"interface X<T extends X> { T[] x(); }\n" +
@@ -1746,7 +1750,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	abstract class Z implements X { public abstract X[] x(); }\n" + 
 			"	                                                ^\n" + 
 			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
-			"----------\n"
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings
 		);
 	}
 
@@ -2731,7 +2737,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
 	public void test041() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
-		this.runNegativeTest(
+		runConformTest(
+			true,
 			new String[] {
 				"X.java",
 				"public class X { public void foo(String... n) {} }\n" +
@@ -2743,13 +2750,17 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	class Y extends X implements I { }\n" + 
 			"	      ^\n" + 
 			"Varargs methods should only override or be overridden by other varargs methods unlike X.foo(String...) and I.foo(String[])\n" + 
-			"----------\n"
+			"----------\n",
+			null,
+			null,
+			JavacTestOptions.EclipseJustification.EclipseBug83902
 			// warning: foo(java.lang.String...) in X cannot implement foo(java.lang.String[]) in I; overridden method has no '...'
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
 	public void test041a() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
-		this.runNegativeTest(
+		this.runConformTest(
+			true,
 			new String[] {
 				"X.java",
 				"public class X { public void foo(String[] n) {} }\n" +
@@ -2761,7 +2772,10 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	class Y extends X implements I { }\n" + 
 			"	      ^\n" + 
 			"Varargs methods should only override or be overridden by other varargs methods unlike X.foo(String[]) and I.foo(String...)\n" + 
-			"----------\n"
+			"----------\n",
+			null,
+			null,
+			JavacTestOptions.EclipseJustification.EclipseBug83902
 			// warning: foo(java.lang.String[]) in X cannot implement foo(java.lang.String...) in I; overriding method is missing '...'
 		);
 	}
@@ -2811,7 +2825,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
 	public void test041d() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
-		this.runNegativeTest(
+		this.runConformTest(
+			true,
 			new String[] {
 				"X.java",
 				"public class X { public Object foo() { return null; } }\n" +
@@ -2823,7 +2838,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	class Y extends X implements I { }\n" + 
 			"	      ^\n" + 
 			"Type safety: The return type Object for foo() from the type X needs unchecked conversion to conform to T from the type I\n" + 
-			"----------\n"
+			"----------\n",
+			null, null,
+			JavacTestOptions.EclipseJustification.EclipseBug83902b
 			// NOTE: javac issues an error & a warning which contradict each other
 			// if the method Object foo() is implemented in Y then only the warning is issued, so X should be allowed to implement the method
 			// Y is not abstract and does not override abstract method <T>foo() in I
@@ -2866,7 +2883,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	abstract class E<A, B> extends C<A> implements I<B> {}\n" + 
 			"	               ^\n" + 
 			"Name clash: The method id(A) of type C<A> has the same erasure as id(B) of type I<B> but does not override it\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.EclipseJustification.EclipseBug72704
 			// javac won't report it until C.id() is made concrete or implemented in E
 		);
 	}
@@ -4674,7 +4692,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101049
 	public void test070() {
-		this.runNegativeTest(
+		this.runConformTest(
+			true,
 			new String[] {
 				"BooleanFactory.java",
 				"interface Factory<T> {\n" +
@@ -4691,7 +4710,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	public <U extends Boolean> U create(Class<U> c) {\n" + 
 			"	                  ^^^^^^^\n" + 
 			"The type parameter U should not be bounded by the final type Boolean. Final types cannot be further extended\n" + 
-			"----------\n"
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107045
@@ -5120,6 +5141,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
 		customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
 		this.runNegativeTest(
+			true,
 			new String[] {
 				"X.java",
 				"public abstract class X implements IAppendable {\n" + 
@@ -5132,15 +5154,15 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	IAppendable append(char c);\n" + 
 				"}\n",
 			},
+			null,
+			customOptions,
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	public X append(char c) {\n" + 
 			"	       ^\n" + 
 			"The return type is incompatible with IAppendable.append(char)\n" + 
 			"----------\n",
-		null,
-		true,
-		customOptions);		
+			JavacTestOptions.SKIP /* we are altering the compatibility settings */);		
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=81222
 	public void test079() {
@@ -7014,8 +7036,10 @@ public void test113() {
 public void test114() {
 	Map options = this.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"class Y {\n" + 
 			"  void foo() {}\n" + 
@@ -7026,16 +7050,18 @@ public void test114() {
 			"  }\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	void foo() {\n" + 
 		"	     ^^^^^\n" + 
 		"The method X.foo() is overriding a method without making a super invocation\n" + 
 		"----------\n",
-		null,
-		true,
-		options
-	);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
 public void test115() {
@@ -7122,8 +7148,10 @@ public void test116() {
 public void test117() {
 	Map options = this.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"class Y {\n" + 
 			"  Object foo() {\n" +
@@ -7142,7 +7170,11 @@ public void test117() {
 			"  }\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	Object foo() {\n" + 
 		"	       ^^^^^\n" + 
@@ -7153,17 +7185,17 @@ public void test117() {
 		"	       ^^^^^\n" + 
 		"The method new Y(){}.foo() is overriding a method without making a super invocation\n" + 
 		"----------\n",
-		null,
-		true,
-		options
-	);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
 public void test118() {
 	Map options = this.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"class Y<E> {\n" + 
 			"	<U extends E> U foo() {\n" + 
@@ -7178,23 +7210,27 @@ public void test118() {
 			"	}\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	<V extends T> V foo() {\n" + 
 		"	                ^^^^^\n" + 
 		"The method X<T>.foo() is overriding a method without making a super invocation\n" + 
 		"----------\n",
-		null,
-		true,
-		options
-	);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
 public void test119() {
 	Map options = this.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"class Y<E> {\n" + 
 			"	E foo() {\n" + 
@@ -7209,16 +7245,18 @@ public void test119() {
 			"	}\n" + 
 			"}"
 		},
-		"----------\n" + 
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	T foo() {\n" + 
 		"	  ^^^^^\n" + 
 		"The method X<T>.foo() is overriding a method without making a super invocation\n" + 
 		"----------\n",
-		null,
-		true,
-		options
-	);
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=161541
 public void test120() {
@@ -7357,7 +7395,7 @@ public void _test124() {
 		"ab");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150655
-// ** variant
+// variant
 public void test125() {
 	this.runNegativeTest(
 		new String[] {
@@ -7378,10 +7416,11 @@ public void test125() {
 		"	return one + X.<String>choose(one, two);\n" + 
 		"	                       ^^^^^^\n" + 
 		"The method choose(String, String) is ambiguous for the type X\n" +  
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.EclipseHasABug.EclipseBug207935);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150655
-// ** variant
+// variant
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176171
 // deprecated by GenericTypeTest#test1203.
 //public void _test126() {
@@ -7494,7 +7533,7 @@ public void test129() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
-// ** variant - Z<Object> is not a subtype of Z<U>, and |Z<U>| = Z, not Z<Object>
+// variant - Z<Object> is not a subtype of Z<U>, and |Z<U>| = Z, not Z<Object>
 public void test130() {
 	this.runNegativeTest(
 		new String[] {
@@ -7512,7 +7551,8 @@ public void test130() {
 		"	public Z<Object> foo(Object o, Object v) { return null; }\n" + 
 		"	       ^^^^^^^^^\n" + 
 		"The return type is incompatible with I<U,V>.foo(Object, V)\n" + 
-		"----------\n"
+		"----------\n",
+		JavacTestOptions.EclipseJustification.EclipseBug180789
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789

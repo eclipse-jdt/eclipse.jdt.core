@@ -142,7 +142,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"public class A implements I {}\n" +
 				"interface I { public static int C = 1; }\n"
 			},
-			"");
+			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 	}
 
 	public void test004() { // test static vs. instance
@@ -1391,7 +1391,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"interface I { int CONSTANT_I = 1; }\n" + 
 				"class B { public static int CONSTANT_B = 1; }",
 			}, 
-			"");
+			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564 - variation
 	public void test038() {
@@ -1520,7 +1520,8 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=134118
 	public void test041() {
-		this.runNegativeTest(
+		this.runConformTest(
+			true,
 			new String[] {
 				"Test.java",
 				"import static p.I.*;\n" + 
@@ -1540,7 +1541,10 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	import static p.J.*;\n" + 
 			"	              ^^^\n" + 
 			"The import p.J is never used\n" + 
-			"----------\n"
+			"----------\n",
+			null,
+			null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=133737
@@ -2168,8 +2172,10 @@ public class StaticImportTest extends AbstractComparableTest {
 		}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
 	public void test061() {
-		this.runConformTest(
-			new String[] {
+		runConformTest(
+			// test directory preparation
+			true /* flush output directory */, 
+			new String[] { /* test files */
 				"p/X.java",
 				"package p;\n" + 
 				"import static q.A.a;\n" + 
@@ -2186,8 +2192,14 @@ public class StaticImportTest extends AbstractComparableTest {
 				"public class A implements B, I {\n" + 
 				"}\n",
 			},
-			"");		
-		}	
+			// compiler results
+			null /* do not check compiler log */,
+			// runtime results
+			"" /* expected output string */,
+			null /* do not check error string */,
+			// javac options
+			JavacTestOptions.EclipseJustification.EclipseBug183211 /* javac test options */);
+	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
 	public void test062() {
 		this.runNegativeTest(
@@ -2256,7 +2268,8 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	System.out.println(b);\n" + 
 			"	                   ^\n" + 
 			"The field b is ambiguous\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.EclipseJustification.EclipseBug183211b
 		);		
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
@@ -2280,7 +2293,8 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	M m;\n" + 
 			"	^\n" + 
 			"The type M is ambiguous\n" + 
-			"----------\n"
+			"----------\n",
+			JavacTestOptions.EclipseJustification.EclipseBug183211
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026

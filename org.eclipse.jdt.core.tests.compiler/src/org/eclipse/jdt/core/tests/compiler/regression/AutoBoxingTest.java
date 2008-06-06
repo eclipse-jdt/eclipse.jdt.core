@@ -2979,8 +2979,10 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84801
 	public void test102() {
-		this.runConformTest(
-			new String[] {
+		runConformTest(
+			// test directory preparation
+			true /* flush output directory */, 
+			new String[] { /* test files */
 				"X.java",
 				"class Cla<A> {\n" + 
 				"	A val;\n" + 
@@ -3019,7 +3021,13 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"	}\n" + 
 				"}\n"
 			},
-			"001122");
+			// compiler results
+			null /* do not check compiler log */,
+			// runtime results
+			"001122" /* expected output string */,
+			"" /* expected error string */,
+			// javac options
+			JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84801 - variation (check warnings)
 	public void test103() {
@@ -3134,8 +3142,10 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779
 public void test105() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"final class Pair<F, S> {\n" + 
 			"	public F first;\n" + 
@@ -3166,12 +3176,20 @@ public void test105() {
 			"	}\n" + 
 			"}\n",
 		},
-		"-2");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"-2" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779 - variation
 public void test106() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"class XSuper<T> {\n" + 
 			"	T value;\n" + 
@@ -3192,12 +3210,20 @@ public void test106() {
 			"	}\n" + 
 			"}\n",
 		},
-		"1");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"1" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779 - variation
 public void test107() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"class XSuper<T> {\n" + 
 			"	T value;\n" + 
@@ -3218,12 +3244,20 @@ public void test107() {
 			"	}\n" + 
 			"}\n",
 		},
-		"1");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"1" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779 - variation
 public void test108() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"class XSuper<T> {\n" + 
 			"	T value;\n" + 
@@ -3244,7 +3278,13 @@ public void test108() {
 			"	}\n" + 
 			"}\n",
 		},
-		"1");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"1" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100043
 public void test109() {
@@ -3280,8 +3320,10 @@ public void test110() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=105524
 public void test111() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"class Wrapper< T >\n" + 
 			"{\n" + 
@@ -3300,7 +3342,13 @@ public void test111() {
 			"    }\n" + 
 			"}\n",
 		},
-		"");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=105284
 public void test112() {
@@ -3498,8 +3546,10 @@ public void test117() {
 
 // Integer array and method with T extends Integer bound
 public void test118() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" + 
 			"    public static <T extends Integer> void foo(final T[] p) {\n" +
@@ -3512,13 +3562,21 @@ public void test118() {
 			"    }\n" + 
 			"}",
 		},
-		"1");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"1" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBug6575821 /* javac test options */);
 }
 
 // Integer as member of a parametrized class
 public void test119() {
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		true /* flush output directory */, 
+		new String[] { /* test files */
 			"X.java",
 			"public class X<T> {\n" + 
 			"    T m;\n" + 
@@ -3532,7 +3590,13 @@ public void test119() {
 			"    }\n" + 
 			"}",
 		},
-		"1");
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"1" /* expected output string */,
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=137918
 public void test120() {

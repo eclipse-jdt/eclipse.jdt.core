@@ -300,7 +300,9 @@ protected static class JavacTestOptions {
 			EclipseHasSomeMoreWarnings = RUN_JAVAC ? 
 				new Excuse(MismatchType.EclipseWarningsJavacNone) : null,
 			EclipseWarningConfiguredAsError = RUN_JAVAC ? 
-				new Excuse(MismatchType.EclipseErrorsJavacWarnings | MismatchType.EclipseErrorsJavacNone) : null;
+				new Excuse(MismatchType.EclipseErrorsJavacWarnings | MismatchType.EclipseErrorsJavacNone) : null,
+			JavacCompilesBogusReferencedFileAgain = RUN_JAVAC ? 
+					new Excuse(MismatchType.JavacErrorsEclipseNone) : null;
 	}
 	Excuse excuseFor(JavacCompiler compiler) {
 		return null;
@@ -314,6 +316,8 @@ protected static class JavacTestOptions {
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseWarnings) : null,
 			EclipseBug177715 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=177715
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug207935 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=207935
+				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) : null,
 			EclipseBug216558 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216558
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug235550 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235550
@@ -331,17 +335,37 @@ protected static class JavacTestOptions {
 			super(mismatchType);
 		}
 		public static EclipseJustification
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712
 			EclipseBug40839 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=40839
 				new EclipseJustification(MismatchType.JavacWarningsEclipseNone) : null,
+			EclipseBug72704 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
+				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) : null,
+			EclipseBug83902 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
+				new EclipseJustification(MismatchType.EclipseWarningsJavacNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
+					}
+				} : null,
+			EclipseBug83902b = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
+				new EclipseJustification(MismatchType.JavacErrorsEclipseWarnings) : null,
 			EclipseBug126712 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712 & http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6342411
 				new EclipseJustification(MismatchType.StandardOutputMismatch) {
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
 					}
-				}: null,
+					// WORK consider adding reversed pivots
+				} : null,
 			EclipseBug126744 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126744
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug180789 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
+				new EclipseJustification(MismatchType.EclipseErrorsJavacWarnings) : null,
+			EclipseBug183211 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211
+				new EclipseJustification(MismatchType.JavacErrorsEclipseNone | MismatchType.EclipseErrorsJavacNone) : null,
+			EclipseBug183211b = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211
+				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
+					}
+				} : null,
 			EclipseBug185422 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug234815 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=234815
@@ -426,12 +450,16 @@ protected static class JavacTestOptions {
 			JavacBug6500701 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6500701 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=209779
 				new JavacHasABug(
 					MismatchType.StandardOutputMismatch) : null,
+			JavacBug6557661 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6557661 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261
+				new JavacHasABug(
+					MismatchType.EclipseErrorsJavacNone) : null,
 			JavacBug6573446 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6573446 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945
 				new JavacHasABug(
 					MismatchType.EclipseErrorsJavacNone) : null,
-			JavacBug6557661 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6557661 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261
+			JavacBug6575821 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6575821
 				new JavacHasABug(
-					MismatchType.EclipseErrorsJavacNone) : null;
+					MismatchType.JavacErrorsEclipseNone,
+					ClassFileConstants.JDK1_6, 10 /* 1.6.0_10_b08 or better - maybe before */) : null;
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
 			JavacBugFixed_6_10 = RUN_JAVAC ?
@@ -445,8 +473,11 @@ protected static class JavacTestOptions {
 		// bugs that have neither been fixed nor formally identified but which outcomes are obvious enough to clear any doubts
 		public static JavacHasABug
 			JavacGeneratesByteCodeUponWhichJavaThrowsAnException = RUN_JAVAC ?
-					new JavacHasABug(
-						MismatchType.StandardOutputMismatch) : null;
+				new JavacHasABug(
+					MismatchType.StandardOutputMismatch) : null,
+			JavacThrowsAnException = RUN_JAVAC ?
+				new JavacHasABug(
+					MismatchType.JavacErrorsEclipseNone) : null;
 	}
 }
 
@@ -1323,6 +1354,7 @@ protected static class JavacTestOptions {
 			Util.delete(outputTestDirectory);
 		}
 	}
+	// WORK factorize all runJavac implementations, including overrides
 	protected boolean runJavac(String options, String[] testFileNames, String currentDirectoryPath) {
 		Process compileProcess = null;
 		try {
@@ -1974,6 +2006,10 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 			exception = e;
 			throw e;
 		} finally {
+			if (expectedCompilerLog != null) {
+				checkCompilerLog(testFiles, requestor, 
+						Util.convertToIndependantLineDelimiter(expectedCompilerLog), exception);
+			}
 			if (exception == null) {
 				if (expectingCompilerErrors) {
 					if (!requestor.hasErrors) {
@@ -1986,10 +2022,6 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 						assertEquals("Unexpected failure", "", requestor.problemLog);
 					}
 				}
-			}
-			if (expectedCompilerLog != null) {
-				checkCompilerLog(testFiles, requestor, 
-						Util.convertToIndependantLineDelimiter(expectedCompilerLog), exception);
 			}
 		}
 		if (!requestor.hasErrors || forceExecution) {
@@ -2156,6 +2188,7 @@ protected void runConformTest(
 //
 //		// compiler results
 //		null /* do not check compiler log */,
+//		"----------\n" +  /* expected compiler log */
 //		"" /* expected compiler log */,
 //
 //		// runtime results
