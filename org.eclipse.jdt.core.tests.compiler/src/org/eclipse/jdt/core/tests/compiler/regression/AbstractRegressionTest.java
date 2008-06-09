@@ -444,12 +444,12 @@ protected static class JavacTestOptions {
 					return this.pivotMinor > compiler.minor ? this : null;
 				}
 			} else if (this.pivotCompliance < 0) {
-				if (this.pivotCompliance > -compiler.compliance) {
+				if (this.pivotCompliance < -compiler.compliance) {
 					return null;
-				} else if (this.pivotCompliance < -compiler.compliance) {
+				} else if (this.pivotCompliance > -compiler.compliance) {
 					return this;
 				} else {
-					return this.pivotMinor > compiler.minor ? this : null;
+					return this.pivotMinor <= compiler.minor ? this : null;
 				}
 			}
 			return this;
