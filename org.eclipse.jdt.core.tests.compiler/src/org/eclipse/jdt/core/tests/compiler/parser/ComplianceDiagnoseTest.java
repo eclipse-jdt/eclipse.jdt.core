@@ -367,8 +367,6 @@ public void test0009() {
 		"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error, type parameters are only available if source level is 1.5\n" + 
 		"----------\n";
-	String expected14ProblemLog =
-		expected13ProblemLog;
 	
 	String expected15ProblemLog = 
 		"----------\n" + 
@@ -377,13 +375,17 @@ public void test0009() {
 		"	                   ^^^^^^\n" + 
 		"The type parameter T1 should not be bounded by the final type String. Final types cannot be further extended\n" + 
 		"----------\n";
-	
-	runComplianceParserTest(
-		testFiles,
-		expected13ProblemLog,
-		expected14ProblemLog,
-		expected15ProblemLog
-	);
+
+	if(this.complianceLevel < ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(testFiles, expected13ProblemLog);
+	} else {
+		runConformTest(
+			true,
+			testFiles, 
+			expected15ProblemLog,
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+	}
 }
 public void test0010() {
 	String[] testFiles = new String[] {

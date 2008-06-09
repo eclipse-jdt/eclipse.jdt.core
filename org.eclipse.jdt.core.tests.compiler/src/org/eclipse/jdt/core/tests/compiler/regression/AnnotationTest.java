@@ -461,6 +461,34 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	@Author(name = @Name(first=\"Bill\", last=\"Yboy\", last=\"dup\")) \n" + 
 			"	                                                ^^^^\n" + 
 			"Duplicate attribute last in annotation @Name\n" + 
+			"----------\n",
+			JavacTestOptions.EclipseJustification.EclipseJustification0001);
+	}
+	// check for duplicate member value pairs - simplified to check javac
+	public void test018b() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface Name {\n" + 
+				"	String first();\n" + 
+				"	String last();\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	@Name(first=\"Bill\", last=\"Yboy\", last=\"dup\")\n" + 
+				"	void foo() {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	@Name(first=\"Bill\", last=\"Yboy\", last=\"dup\")\n" + 
+			"	                    ^^^^\n" + 
+			"Duplicate attribute last in annotation @Name\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	@Name(first=\"Bill\", last=\"Yboy\", last=\"dup\")\n" + 
+			"	                                 ^^^^\n" + 
+			"Duplicate attribute last in annotation @Name\n" + 
 			"----------\n");
 	}
 	
@@ -4330,7 +4358,8 @@ public class AnnotationTest extends AbstractComparableTest {
 				"}\n" + 
 				"\n"
             },
-            expectedOutput);
+            expectedOutput,
+            JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
     }              
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=94867
     public void test141() {
@@ -5659,11 +5688,13 @@ public void test142c() {
     			"   @SuppressWarnings(\"serial\")\n" + 
     			"	String s2 = \"Hello2\"; \n" +
     			"}";
-		this.runNegativeTest(
+		this.runConformTest(
+			true,
             new String[] {
                 "X.java",
     			source
             },
+            null, customOptions,
     		"----------\n" + 
     		"1. WARNING in X.java (at line 9)\n" + 
     		"	@Annot2(value=\"nls\") String s = \"value\"; \n" + 
@@ -5680,7 +5711,7 @@ public void test142c() {
     		"	            ^^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
     		"----------\n",
-			null, true, customOptions);
+			null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220 - variation
     public void test176() {
@@ -5699,11 +5730,13 @@ public void test142c() {
     			"	String s2 = \"Hello2\"; \n" +
     			"	@Annot(value=5) void foo() {}\n" + 
     			"}";
-		this.runNegativeTest(
+		this.runConformTest(
+			true,
             new String[] {
                 "X.java",
     			source
             },
+            null, customOptions,
     		"----------\n" + 
     		"1. WARNING in X.java (at line 9)\n" + 
     		"	@Annot2(value=\"nls\") String s = \"value\"; \n" + 
@@ -5715,7 +5748,7 @@ public void test142c() {
     		"	                   ^^^^^^^^\n" + 
     		"Unnecessary @SuppressWarnings(\"serial\")\n" + 
     		"----------\n",
-			null, true, customOptions);
+			null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=108263
     public void test177() {
@@ -5735,7 +5768,8 @@ public void test142c() {
     }        
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=111076
     public void test178() {
-        this.runConformTest(
+        runConformTest(
+        	true,
             new String[] {
                 "X.java",
     			"import java.util.*;\n" + 
@@ -5749,11 +5783,15 @@ public void test142c() {
     			"	}\n" + 
     			"}\n",
            },
-		"");
+        null,
+		"",
+		null,
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=112433
     public void test179() {
     	this.runConformTest(
+    		true,
     		new String[] {
     			"X.java",
     			"import static java.lang.annotation.ElementType.*;\n" +
@@ -5766,7 +5804,10 @@ public void test142c() {
     			"@Retention(CLASS)\r\n" + 
     			"public @interface X {}"
     		},
-    		"");
+    		"",
+    		"",
+    		null,
+    		JavacTestOptions.EclipseJustification.EclipseBug112433);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=116028
     public void test180() {
@@ -6065,6 +6106,7 @@ public void test142c() {
 // partial recompile - keep a binary
 public void test189() {
 	this.runConformTest(
+		true,
 		new String[] {
 			"A1.java",
 			"@A2(@A1(m1 = \"u\"))\n" +
@@ -6078,9 +6120,13 @@ public void test189() {
 			"  A1[] value();\n" +
 			"}\n",
 		},
-		"");
+		"",
+		"",
+		null,
+		JavacTestOptions.DEFAULT);
 	// keep A2 binary, recompile A1 with a name change
 	this.runConformTest(
+		false, // do not flush A2.class
 		new String[] {
 			"A1.java",
 			"@A2(@A1(m1 = \"u\"))\n" +
@@ -6089,10 +6135,10 @@ public void test189() {
 			"  String m3() default \"v\";\n" +
 			"}\n",
 		},
+		null,
 		"",
 		null,
-		false, // do not flush A2.class
-		null);
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }
 
 // transitive closure on binary types does not need to include annotations 
@@ -6472,6 +6518,7 @@ public void test198() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=138443
 public void test199() {
 	this.runConformTest(
+		true,
 		new String[] {
 			"X.java",
 			"@interface AttributeOverrides {\n" + 
@@ -6490,7 +6537,10 @@ public void test199() {
 			"    @AttributeOverride( name=\"zipCode\", column=@Column( name=\"DIAB99C_TXZIP\")),\n" + 
 			"}) public class X {}"
 		},
-		"");
+		"",
+		"",
+		null,
+		JavacTestOptions.EclipseJustification.EclipseBug112433);
 }
 // JLS 3 - 9.6: cannot override Object's methods
 public void test200() {
@@ -7042,7 +7092,6 @@ public void test216() {
 		"----------\n");
 }
 // extending java.lang.annotation.Annotation
-// **
 public void test217() {
     this.runNegativeTest(
         new String[] {
@@ -7084,7 +7133,6 @@ public void test217() {
 		"----------\n");
 }
 // extending java.lang.annotation.Annotation
-// **
 public void test218() {
     this.runNegativeTest(
         new String[] {
@@ -7115,7 +7163,8 @@ public void test218() {
 		"	constructor.getAnnotation(ann).message();\n" + 
 		"	                               ^^^^^^^\n" + 
 		"The method message() is undefined for the type Annotation\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.JavacHasABug.JavacBug6400189);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=167217
 public void test219() {
@@ -7526,6 +7575,7 @@ public void test230() {
 	Map options = this.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		true,
 		new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -7538,6 +7588,7 @@ public void test230() {
 				"	void foo() {}\n" + 
 				"}\n",
 		},
+		null, options,
 		"----------\n" + 
 		"1. WARNING in X.java (at line 2)\n" + 
 		"	@SuppressWarnings({\"zork\", \"unused\" })\n" + 
@@ -7554,9 +7605,7 @@ public void test230() {
 		"	                           ^^^^^^^^\n" + 
 		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
 		"----------\n",
-		null,
-		false,
-		options);
+		null, null, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
@@ -7564,6 +7613,7 @@ public void test231() {
 	Map options = this.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		true,
 		new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -7578,6 +7628,7 @@ public void test231() {
 				"	Object z;\n" + 
 				"}\n",
 		},
+		null, options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	@SuppressWarnings({\"zork\", \"unused\",\"all\"})\n" + 
@@ -7589,9 +7640,7 @@ public void test231() {
 		"	                  ^^^^^^^^\n" + 
 		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
 		"----------\n",
-		null,
-		false,
-		options);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
@@ -7599,6 +7648,7 @@ public void test232() {
 	Map options = this.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		true,
 		new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -7613,15 +7663,14 @@ public void test232() {
 				"}\n" +
 				"class Y {}",
 		},
+		null, options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	@SuppressWarnings({\"finally\",\"finally\"})\n" + 
 		"	                             ^^^^^^^^^\n" + 
 		"Unnecessary @SuppressWarnings(\"finally\")\n" + 
 		"----------\n",
-		null,
-		false,
-		options);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127533 - variation
@@ -7752,6 +7801,7 @@ public void test238() {
 	Map options = this.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		true,
 		new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -7759,15 +7809,14 @@ public void test238() {
 				"	void foo() {}\n" + 
 				"}\n",
 		},
+		null, options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	@SuppressWarnings({\"zork\",\"all\"})\n" + 
 		"	                   ^^^^^^\n" + 
 		"Unsupported @SuppressWarnings(\"zork\")\n" + 
 		"----------\n",
-		null,
-		false,
-		options);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=77918
 public void test239() {
@@ -7927,6 +7976,7 @@ public void test244() {
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.WARNING);
 	this.runNegativeTest(
+		true,
 		new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -7937,15 +7987,14 @@ public void test244() {
 				"	}\n" + 
 				"}	\n",
 		},
+		null, options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	@SuppressWarnings(\"unchecked\")\n" + 
 		"	                  ^^^^^^^^^^^\n" + 
 		"Unnecessary @SuppressWarnings(\"unchecked\")\n" + 
 		"----------\n",
-		null,
-		false,
-		options);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
 public void test245() {
@@ -7955,6 +8004,7 @@ public void test245() {
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);	
 	this.runNegativeTest(
+		true,
 		new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -7965,15 +8015,14 @@ public void test245() {
 				"	}\n" + 
 				"}	\n",
 		},
+		null, options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" + 
 		"	                               ^^^^^^^^\n" + 
 		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
 		"----------\n",
-		null,
-		false,
-		options);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210213 - variation
 public void test246() {

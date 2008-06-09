@@ -172,7 +172,14 @@ static class JavacCompiler {
 				cmdLine.append(' ');
 				cmdLine.append(sourceFileNames[i]);
 			}
-			compileProcess = Runtime.getRuntime().exec(cmdLine.toString(), null, directory);
+			String cmdLineAsString;
+			// WORK improve double-quotes management on Linux
+			if ("Linux".equals(System.getProperty("os.name"))) {
+				cmdLineAsString = cmdLine.toString().replaceAll("\"", "");
+			} else {
+				cmdLineAsString = cmdLine.toString();
+			}
+			compileProcess = Runtime.getRuntime().exec(cmdLineAsString, null, directory);
 			Logger errorLogger = new Logger(compileProcess.getErrorStream(), 
 					"ERROR", log == null ? new StringBuffer() : log);
 			errorLogger.start();
@@ -285,7 +292,7 @@ protected static class JavacTestOptions {
 		static final int JavaAborted = 0x0400;
 		static final int JavaNotLaunched = 0x0800;
 	}
-	static class Excuse extends JavacTestOptions {
+	public static class Excuse extends JavacTestOptions {
 		protected int mismatchType;
 		Excuse(int mismatchType) {
 			this.mismatchType = mismatchType;
@@ -325,16 +332,22 @@ protected static class JavacTestOptions {
 			EclipseBug235781 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
 				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) : null,
 			EclipseBug235809 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235809
-				new EclipseHasABug(MismatchType.StandardOutputMismatch) : null;
+				new EclipseHasABug(MismatchType.StandardOutputMismatch) : null,
+			EclipseBug236217 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236217
+					new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null;
 	}
-	// Eclipse bugs opened to investigate differences and closed as INVALID
-	// on grounds other than an identified javac bug or Eclipse bugs that
-	// discuss the topic in depth and explain why we made a given choice
+	// Justification based upon:
+	// - Eclipse bugs opened to investigate differences and closed as INVALID
+	//   on grounds other than an identified javac bug;
+	// - Eclipse bugs that discuss the topic in depth and explain why we made a 
+	//   given choice;
+	// - explanations inlined here (no bug available, apparently not worth
+	//   opening one).
 	public static class EclipseJustification extends Excuse {
 		EclipseJustification(int mismatchType) {
 			super(mismatchType);
 		}
-		public static EclipseJustification
+		public static final EclipseJustification
 			EclipseBug40839 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=40839
 				new EclipseJustification(MismatchType.JavacWarningsEclipseNone) : null,
 			EclipseBug72704 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
@@ -347,6 +360,8 @@ protected static class JavacTestOptions {
 				} : null,
 			EclipseBug83902b = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
 				new EclipseJustification(MismatchType.JavacErrorsEclipseWarnings) : null,
+			EclipseBug112433 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=112433
+				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug126712 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712 & http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6342411
 				new EclipseJustification(MismatchType.StandardOutputMismatch) {
 					Excuse excuseFor(JavacCompiler compiler) {
@@ -374,6 +389,14 @@ protected static class JavacTestOptions {
 				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) : null,
 			EclipseBug235546 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235546
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null;
+		public static final EclipseJustification
+			EclipseJustification0001 = RUN_JAVAC ?
+					new EclipseJustification(MismatchType.EclipseErrorsJavacNone) : null;
+			/* javac properly detects duplicate attributes in annotations in the
+			 * simplest case (AnnotationTest#18b) but fails on a slightly more
+			 * complex one where the duplicate is within an embedded annotation;
+			 * there seems to be no reason for not reporting the error 
+			 * (AnnotationTest#18) */
 	}
 	public static class JavacHasABug extends Excuse {
 		long pivotCompliance;
@@ -412,10 +435,18 @@ protected static class JavacTestOptions {
 							this : null;
 				}
 				throw new RuntimeException(); // should not get there
-			} else if (this.pivotCompliance != 0) {
+			} else if (this.pivotCompliance > 0) {
 				if (this.pivotCompliance < compiler.compliance) {
 					return null;
 				} else if (this.pivotCompliance > compiler.compliance) {
+					return this;
+				} else {
+					return this.pivotMinor > compiler.minor ? this : null;
+				}
+			} else if (this.pivotCompliance < 0) {
+				if (this.pivotCompliance > -compiler.compliance) {
+					return null;
+				} else if (this.pivotCompliance < -compiler.compliance) {
 					return this;
 				} else {
 					return this.pivotMinor > compiler.minor ? this : null;
@@ -450,6 +481,13 @@ protected static class JavacTestOptions {
 			JavacBug6500701 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6500701 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=209779
 				new JavacHasABug(
 					MismatchType.StandardOutputMismatch) : null,
+			JavacBug6531075 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6531075
+				new JavacHasABug(
+					MismatchType.StandardOutputMismatch) : null, // fix expected for jdk7 b27
+			JavacBug6569404 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6569404
+				new JavacHasABug(
+					MismatchType.JavacErrorsEclipseNone,
+					-ClassFileConstants.JDK1_6, 10 /* 1.6.0_10_b08 or later */) : null,
 			JavacBug6557661 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6557661 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261
 				new JavacHasABug(
 					MismatchType.EclipseErrorsJavacNone) : null,
@@ -1566,7 +1604,8 @@ protected void runJavac(
 				if (excuse != null && excuse.clears(mismatch)) {
 					excuse = null;
 				} else {
-					System.out.println("----------------------------------------");
+					System.err.println("----------------------------------------");
+					logTestFiles(true, testFiles);
 					switch (mismatch) {
 						case JavacTestOptions.MismatchType.EclipseErrorsJavacNone:
 							assertEquals(testName + " - Eclipse found error(s) but Javac did not find any", 
@@ -2204,7 +2243,7 @@ protected void runConformTest(
 //		JavacTestOptions.SKIP /* skip javac tests */);
 //		JavacTestOptions.DEFAULT /* default javac test options */);
 //		javacTestOptions /* javac test options */);
-void runConformTest(
+protected void runConformTest(
 		// test directory preparation
 		boolean shouldFlushOutputDirectory, 
 		String[] testFiles,
@@ -2305,7 +2344,7 @@ protected void runNegativeTest(
 //		JavacTestOptions.SKIP /* skip javac tests */);
 //		JavacTestOptions.DEFAULT /* default javac test options */);
 //		javacTestOptions /* javac test options */);
-void runNegativeTest(
+protected void runNegativeTest(
 		// test directory preparation
 		boolean shouldFlushOutputDirectory, 
 		String[] testFiles,

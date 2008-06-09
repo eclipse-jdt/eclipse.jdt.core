@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -111,6 +111,7 @@ public void test002() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"p/M1.java",
 			"package p;\n" +
@@ -132,6 +133,7 @@ public void test002() {
 			"  }" +
 			"}\n",
 		}, 
+		null, customOptions,
 		"----------\n" + 
 		"1. ERROR in p\\M1.java (at line 4)\n" + 
 		"	a.N1.N2.N3 m = null;\n" + 
@@ -148,12 +150,7 @@ public void test002() {
 		"	^^^^^^^\n" + 
 		"The method foo() from the type N1.N2.N3 is deprecated\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions,
-		true,
-		false,
-		false);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=161214
 // shows that Member2 is properly tagged as deprecated (use the debugger, since
@@ -192,6 +189,7 @@ public void test004() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"test1/E01.java",
 			"package test1;\n" + 
@@ -208,6 +206,7 @@ public void test004() {
 			"	}\n" + 
 			"}"
 		}, 
+		null, customOptions,
 		"----------\n" + 
 		"1. ERROR in test1\\E02.java (at line 4)\n" + 
 		"	System.out.println(E01.x);\n" + 
@@ -219,12 +218,7 @@ public void test004() {
 		"	                       ^\n" + 
 		"The field E01.y is deprecated\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions,
-		true,
-		false,
-		false);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 public static Class testClass() {
 	return Deprecated15Test.class;

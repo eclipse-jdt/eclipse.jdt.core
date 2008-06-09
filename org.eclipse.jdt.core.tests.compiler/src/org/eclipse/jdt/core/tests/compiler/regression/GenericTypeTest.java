@@ -6866,7 +6866,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// can resolve member through type variable
 	public void test0229() {
-		this.runConformTest(
+		runConformTest(
+			true,
 			new String[] {
 				"X.java",
 				" public class X <T extends XC> {\n" + 
@@ -6879,7 +6880,10 @@ public class GenericTypeTest extends AbstractComparableTest {
 				" 	class MXC {}\n" + 
 				" }\n",
 			},
-			"SUCCESS");
+			null,
+			"SUCCESS",
+			null,
+			JavacTestOptions.JavacHasABug.JavacBug6569404);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69375 - equivalence of wildcards
 	public void test0230() {
@@ -20132,7 +20136,7 @@ public void test0617() {
 				"abstract class Values<T> {\n" + 
 				"}\n",
 	        },
-			JavacTestOptions.DEFAULT);
+			JavacTestOptions.EclipseHasABug.EclipseBug236217);
 	}	
 	public void test0652() {
 	    this.runConformTest(
@@ -25860,7 +25864,8 @@ public void test0822() throws Exception {
 	}
 }
 public void test0823() throws Exception {
-	this.runConformTest(
+	runConformTest(
+		true,
 		new String[] {
 			"X.java",
 			"import java.io.Serializable;\n" + 
@@ -25884,7 +25889,10 @@ public void test0823() throws Exception {
 			"	}\n" + 
 			"}\n",
 		},
-		"AAAA");
+		null,
+		"AAAA",
+		null,
+		JavacTestOptions.JavacHasABug.JavacBug6531075);
 	// 	ensure proper declaring class for #run() invocation
 	String expectedOutput =
 		"  // Method descriptor #15 ()V\n" + 

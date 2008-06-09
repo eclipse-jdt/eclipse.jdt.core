@@ -62,6 +62,7 @@ public void test002() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"class X {\n" +
@@ -77,6 +78,7 @@ public void test002() {
 			"	}\n" +
 			"}",
 		},
+		null, customOptions,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	String s3 = \"test2\"; //$NON-NLS-1$//$NON-NLS-2$\n" + 
@@ -98,14 +100,13 @@ public void test002() {
 		"	                   ^^^^^^^\n" + 
 		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 public void test003() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"class X {\n" +
@@ -121,6 +122,7 @@ public void test003() {
 			"	}\n" +
 			"}",
 		},
+		null, customOptions,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	String s3 = \"test2\"; //$NON-NLS-1$//$NON-NLS-2$\n" + 
@@ -142,14 +144,13 @@ public void test003() {
 		"	                   ^^^^^^^\n" + 
 		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 public void test004() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
-	this.runNegativeTest(
+	this.runConformTest(
+		true,
 		new String[] {
 			"X.java",
 			"class X {\n" +
@@ -165,21 +166,21 @@ public void test004() {
 			"	}\n" +
 			"}",
 		},
+		null, customOptions,
 		"----------\n" + 
 		"1. WARNING in X.java (at line 3)\n" + 
 		"	String s3 = \"test2\"; //$NON-NLS-1$//$NON-NLS-2$\n" + 
 		"	                                  ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162903
 public void test005() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"class X {\n" +
@@ -190,15 +191,14 @@ public void test005() {
 			"	}\n" +
 			"}",
 		},
+		null, customOptions,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	String s6 = \"SUCCESS\";\n" + 
 		"	            ^^^^^^^^^\n" + 
 		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
 		"----------\n",
-		null,
-		true,
-		customOptions);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162903
 public void test006() {
