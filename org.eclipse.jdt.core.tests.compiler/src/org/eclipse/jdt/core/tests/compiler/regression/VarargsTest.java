@@ -688,7 +688,8 @@ public class VarargsTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83379
 	public void test011() {
-		this.runNegativeTest(
+		runConformTest(
+			true,
 			new String[] {
 				"X.java",
 				"public class X { void count(int ... values) {} }\n" +
@@ -715,7 +716,10 @@ public class VarargsTest extends AbstractComparableTest {
 			"	class Z extends Y { void count(int... values) {} }\n" + 
 			"	                         ^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The method count(int...) of type Z should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n");
+			"----------\n",
+			null,
+			null,
+			JavacTestOptions.EclipseHasABug.EclipseBug236379);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77084

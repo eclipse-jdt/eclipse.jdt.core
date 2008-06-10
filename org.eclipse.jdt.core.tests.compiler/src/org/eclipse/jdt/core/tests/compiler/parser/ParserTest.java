@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -252,7 +252,8 @@ public void test011() {
 public void test012() {
 	Hashtable nls = new Hashtable();
 	nls.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
+	runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -262,6 +263,7 @@ public void test012() {
 			"	}\n" +
 			"}\n"
 		},
+		null, nls,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	\"foo\".equals(\"bar\");\n" + 
@@ -273,10 +275,7 @@ public void test012() {
 		"	             ^^^^^\n" + 
 		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
 		"----------\n",
-		null, // custom classpath
-		true, // flush previous output dir content
-		nls // custom options
-	);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=40681
@@ -284,7 +283,8 @@ public void test012() {
 public void test013() {
 	Hashtable nls = new Hashtable();
 	nls.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
+	runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -294,6 +294,7 @@ public void test013() {
 			"	}\n" +
 			"}\n"
 		},
+		null, nls,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	\"foo\".equals(\"bar\");\n" + 
@@ -305,10 +306,7 @@ public void test013() {
 		"	             ^^^^^\n" + 
 		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
 		"----------\n",
-		null, // custom classpath
-		true, // flush previous output dir content
-		nls // custom options
-	);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
@@ -562,23 +560,22 @@ public void test021() {
 public void test022() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
-	this.runNegativeTest(
+	runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"interface X {\n" + 
 			"    int f= 1;;\n" + 
 			"}"
 		},
+		null, options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	int f= 1;;\n" + 
 		"	         ^\n" + 
 		"Unnecessary semicolon\n" + 
 		"----------\n",
-		null, // custom classpath
-		true, // flush previous output dir content
-		options // custom options
-	);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156119
@@ -586,23 +583,22 @@ public void test022() {
 public void test023() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
-	this.runNegativeTest(
+	runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"class X {\n" + 
 			"    int f= 1;;\n" + 
 			"}"
 		},
+		null, options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	int f= 1;;\n" + 
 		"	         ^\n" + 
 		"Unnecessary semicolon\n" + 
 		"----------\n",
-		null, // custom classpath
-		true, // flush previous output dir content
-		options // custom options
-	);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156119
@@ -610,23 +606,22 @@ public void test023() {
 public void test024() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
-	this.runNegativeTest(
+	runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"interface X {\n" + 
 			"    int f= 1;\\u003B\n" + 
 			"}"
 		},
+		null, options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	int f= 1;\\u003B\n" + 
 		"	         ^^^^^^\n" + 
 		"Unnecessary semicolon\n" + 
 		"----------\n",
-		null, // custom classpath
-		true, // flush previous output dir content
-		options // custom options
-	);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=160337
@@ -634,7 +629,8 @@ public void test024() {
 public void test025() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
-	this.runNegativeTest(
+	runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -646,6 +642,7 @@ public void test025() {
 			"        };\n" + 
 			"}"
 		},
+		null, options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	public void foo(int i) {}\n" + 
@@ -657,10 +654,7 @@ public void test025() {
 		"	                       ^^\n" + 
 		"Empty block should be documented\n" + 
 		"----------\n",
-		null, // custom classpath
-		true, // flush previous output dir content
-		options // custom options
-	);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=160337
@@ -668,7 +662,8 @@ public void test025() {
 public void test026() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
-	this.runNegativeTest(
+	runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -686,6 +681,7 @@ public void test026() {
 			"        };\n" + 
 			"}"
 		},
+		null, options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	public void foo(int i) {}\n" + 
@@ -702,10 +698,7 @@ public void test026() {
 		"	                  ^^\n" + 
 		"Empty block should be documented\n" + 
 		"----------\n",
-		null, // custom classpath
-		true, // flush previous output dir content
-		options // custom options
-	);
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 /*

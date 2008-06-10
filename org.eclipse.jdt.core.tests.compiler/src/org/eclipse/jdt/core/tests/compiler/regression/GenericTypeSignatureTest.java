@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -108,6 +108,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	 * Launch compilation in a thread and verify that it does not take more than 5s
 	 * to perform it. Otherwise abort the process and log in console.
 	 */
+	// WORK unify with AbstractRegressionTest
 	protected void runJavac(final String testName, String[] testFiles) {
 		try {
 			// Write files in dir
@@ -140,8 +141,15 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				}
 //				System.out.println(testName+": "+cmdLine.toString());
 //				System.out.println(GenericTypeTest.this.dirPath.toFile().getAbsolutePath());
+				String cmdLineAsString;
+				// WORK improve double-quotes management on Linux
+				if ("Linux".equals(System.getProperty("os.name"))) {
+					cmdLineAsString = cmdLine.toString().replaceAll("\"", "");
+				} else {
+					cmdLineAsString = cmdLine.toString();
+				}
 				// Launch process
-				process = Runtime.getRuntime().exec(cmdLine.toString(), null, GenericTypeSignatureTest.this.dirPath.toFile());
+				process = Runtime.getRuntime().exec(cmdLineAsString, null, GenericTypeSignatureTest.this.dirPath.toFile());
 	            // Log errors
 	            Logger errorLogger = new Logger(process.getErrorStream(), "ERROR");            
 	            

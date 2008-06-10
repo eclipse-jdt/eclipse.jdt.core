@@ -7368,7 +7368,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// generic method of raw type
-	// **
 	public void test0245() {
 		this.runNegativeTest(
 			new String[] {
@@ -7399,7 +7398,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	rx.<String>foo(\"hello\");\n" + 
 			"	           ^^^\n" + 
 			"The method foo(Object) of raw type X is no longer generic; it cannot be parameterized with arguments <String>\n" + 
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.EclipseHasABug.EclipseBug236242);
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69320 parameterized type compatibility
 	public void test0246() {
@@ -10305,7 +10305,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4");
 	}	
 	// checking scenario where generic type and method share the same type parameter name
-	// **
 	public void test0348() {
 		this.runNegativeTest(
 			new String[] {	
@@ -10345,7 +10344,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	public <T extends Exception> T bar(T t) { return t; }\n" + 
 			"	                               ^^^^^^^^\n" + 
 			"The method bar(T) of type new X<R>(){} should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.EclipseHasABug.EclipseBug236242);
 	}	
 	// test wildcard compatibilities
 	public void test0349() {
@@ -13365,7 +13365,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 **
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159
 	public void test0446() {
 		this.runNegativeTest(
 			new String[] {
@@ -13405,7 +13405,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	X<String>.Inner<Integer> d= new X<String>.Inner<Integer>();\n" + 
 			"	                                ^^^^^^^^^^^^^^^\n" + 
 			"Cannot allocate the member type X<String>.Inner<Integer> using a parameterized compound name; use its simple name and an enclosing instance of type X<String>\n" + 
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.EclipseHasABug.EclipseBug236243);
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
@@ -13565,7 +13566,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
-	// **
 	public void test0451() {
 		this.runNegativeTest(
 			new String[] {
@@ -13584,7 +13584,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	X<String>.Inner<Integer> d4 = new X<String>.Inner<Integer>() {};\n" + 
 			"	                                  ^^^^^^^^^^^^^^^\n" + 
 			"Cannot allocate the member type X<String>.Inner<Integer> using a parameterized compound name; use its simple name and an enclosing instance of type X<String>\n" + 
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.EclipseHasABug.EclipseBug236243);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82187
@@ -21127,9 +21128,9 @@ public void test0669() {
 		"");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 (ensure not even a warning)
-// **
 public void test0670() {
-	this.runConformTest(
+	runConformTest(
+		true,
 		new String[] {
 			"X.java",
 			"import java.util.Map;\n" + 
@@ -21175,7 +21176,10 @@ public void test0670() {
 			"	\n" + 
 			"}\n",
 		},
-		"");
+		"",
+		null,
+		null,
+		JavacTestOptions.EclipseJustification.EclipseBug95021);
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 - variation: ensure not even a warning
 public void test0671() {
@@ -25934,7 +25938,8 @@ public void test0823() throws Exception {
 	}
 }
 public void test0824() throws Exception {
-	this.runConformTest(
+	runConformTest(
+		true,
 		new String[] {
 			"X.java",
 			"import java.io.Serializable;\n" + 
@@ -25954,7 +25959,10 @@ public void test0824() throws Exception {
 			"	}\n" + 
 			"}\n",
 		},
-		"AAAA");
+		null,
+		"AAAA",
+		null,
+		JavacTestOptions.JavacHasABug.JavacBug6531075);
 	// 	ensure proper declaring class for #run() invocation
 	String expectedOutput =
 		"  // Method descriptor #17 (Ljava/io/Serializable;)V\n" + 
@@ -30436,7 +30444,8 @@ public void test0947() {
 		"	Box<Runnable> bx = box(b.element);\n" + 
 		"	                   ^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Box<capture#1-of ?> to Box<Runnable>\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.EclipseHasABug.EclipseBug236236);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
 public void test0948() {
@@ -32056,32 +32065,36 @@ public void test0992() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142897
 public void test0993() {
-	this.runConformTest(
-			new String[] {
-				"X.java",//===================
-				"public class X {\n" + 
-				"  public class Inner {\n" + 
-				"    Inner() {\n" +
-				"      System.out.println(\"SUCCESS\");\n" +
-				"    }\n" +
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" +
-				"    new ATest<X>();\n" +
-				"  }\n" + 
-				"}\n" + 
-				"\n" + 
-				"class ATest<T extends X> {\n" + 
-				"   public ATest() {\n" + 
-				"      T instance = makeInstance();\n" + 
-				"      X.Inner peq = instance.new Inner(); //**\n" + 
-				"   }\n" + 
-				"\n" + 
-				"   private T makeInstance() {\n" + 
-				"      return (T) new X();\n" + 
-				"   }\n" + 
-				"}", // =================
-			},
-			"SUCCESS");
+	runConformTest(
+		true,
+		new String[] {
+			"X.java",//===================
+			"public class X {\n" + 
+			"  public class Inner {\n" + 
+			"    Inner() {\n" +
+			"      System.out.println(\"SUCCESS\");\n" +
+			"    }\n" +
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" +
+			"    new ATest<X>();\n" +
+			"  }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class ATest<T extends X> {\n" + 
+			"   public ATest() {\n" + 
+			"      T instance = makeInstance();\n" + 
+			"      X.Inner peq = instance.new Inner(); //**\n" + 
+			"   }\n" + 
+			"\n" + 
+			"   private T makeInstance() {\n" + 
+			"      return (T) new X();\n" + 
+			"   }\n" + 
+			"}", // =================
+		},
+		null,
+		"SUCCESS",
+		null,
+		JavacTestOptions.JavacHasABug.JavacBug6569404);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142897 - variation
 public void test0994() {
@@ -32197,33 +32210,37 @@ public void test0996() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142897 - variation
 public void test0997() {
-	this.runConformTest(
-			new String[] {
-				"X.java",//===================
-				"public class X implements Outer {\n" +
-				"  public static void main(String[] args) {\n" +
-				"    new ATest<X>();\n" +
-				"  }\n" + 
-				"}\n" +
-				"interface Outer {\n" + 
-				"  public class Inner {\n" + 
-				"    Inner() {\n" +
-				"      System.out.println(\"SUCCESS\");\n" +
-				"    }\n" +
-				"  }\n" + 
-				"}\n" + 
-				"\n" + 
-				"class ATest<T extends Outer> {\n" + 
-				"   public ATest() {\n" + 
-				"      Outer.Inner peq = new T.Inner(); //**\n" + 
-				"   }\n" + 
-				"\n" + 
-				"   private T makeInstance() {\n" + 
-				"      return (T) new X();\n" + 
-				"   }\n" + 
-				"}", // =================
-			},
-			"SUCCESS");
+	runConformTest(
+		true,
+		new String[] {
+			"X.java",//===================
+			"public class X implements Outer {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    new ATest<X>();\n" +
+			"  }\n" + 
+			"}\n" +
+			"interface Outer {\n" + 
+			"  public class Inner {\n" + 
+			"    Inner() {\n" +
+			"      System.out.println(\"SUCCESS\");\n" +
+			"    }\n" +
+			"  }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class ATest<T extends Outer> {\n" + 
+			"   public ATest() {\n" + 
+			"      Outer.Inner peq = new T.Inner(); //**\n" + 
+			"   }\n" + 
+			"\n" + 
+			"   private T makeInstance() {\n" + 
+			"      return (T) new X();\n" + 
+			"   }\n" + 
+			"}", // =================
+		},
+		null,
+		"SUCCESS",
+		null,
+		JavacTestOptions.JavacHasABug.JavacBug6569404);
 }
 //regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=144261
 public void test0998() {
@@ -32556,7 +32573,7 @@ public void test1007() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061
 public void test1008() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -32592,7 +32609,8 @@ public void test1008() {
 		"	X x = bar(l, c);\r\n" + 
 		"	          ^\n" + 
 		"Type safety: The expression of type L needs unchecked conversion to conform to L<T>\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.EclipseJustification.EclipseBug148061);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
 public void test1009() {
@@ -32695,7 +32713,7 @@ public void test1011() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
 public void test1012() {
-	this.runNegativeTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -32768,7 +32786,8 @@ public void test1012() {
 		"	C<X> cx = bar3(l, c);\r\n" + 
 		"	               ^\n" + 
 		"Type safety: The expression of type L needs unchecked conversion to conform to L<T>\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.EclipseJustification.EclipseBug148061);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
 public void test1013() {
@@ -32837,7 +32856,8 @@ public void test1013() {
 		"	List<X> lx = bar2(l1, l2);\r\n" + 
 		"	                  ^^\n" + 
 		"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.EclipseJustification.EclipseBug148061);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
 public void test1014() {
@@ -33245,7 +33265,8 @@ public void test1023() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=151275
 public void test1024() {
-	this.runConformTest(
+	runConformTest(
+		true,
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -33262,7 +33283,10 @@ public void test1024() {
 			"	}\n" + 
 			"}", // =================,
 		},
-		"");
+		null,
+		"",
+		null,
+		JavacTestOptions.EclipseJustification.EclipseBug151275);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753
 public void test1025() {
@@ -33587,7 +33611,6 @@ public void test1033() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158519
-// **
 public void test1034() {
 	this.runNegativeTest(
 		new String[] {
@@ -33634,7 +33657,8 @@ public void test1034() {
 		"	return ChainedClosure.getInstance(closure1, closure2);\n" + 
 		"	                      ^^^^^^^^^^^\n" + 
 		"The method getInstance(Closure<? super I>, Closure<? super I>) in the type ChainedClosure is not applicable for the arguments (Closure<capture#10-of ? super J>, Closure<capture#11-of ? super J>)\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.EclipseHasABug.EclipseBug236370);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158531
 public void test1035() {
@@ -34237,7 +34261,8 @@ public void test1043() {
 		"	a.t = a.s;\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from capture#4-of ? extends S to capture#1-of ? extends Long\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.EclipseJustification.EclipseBug159214);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214 - variation
 public void test1044() {
@@ -40447,31 +40472,7 @@ public void test1202() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=168230 - variation
 // split because of https://bugs.eclipse.org/bugs/show_bug.cgi?id=207935
 public void test1203a() {
-	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_7
-		? 	"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	return X.<String>foo(one, two);\n" + 
-			"	                 ^^^\n" + 
-			"The method foo(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	return this.<String>bar(one, two);\n" + 
-			"	                    ^^^\n" + 
-			"The method bar(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
-			"----------\n"
-		: 	"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	return X.<String>foo(one, two);\n" + 
-			"	          ^^^^^^\n" + 
-			"Unused type arguments for the non generic method foo(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 6)\n" + 
-			"	return this.<String>bar(one, two);\n" + 
-			"	             ^^^^^^\n" + 
-			"Unused type arguments for the non generic method bar(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
-			"----------\n";
-	
-	this.runNegativeTest(
+	String[] sources =
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -40482,8 +40483,39 @@ public void test1203a() {
 			"    return this.<String>bar(one, two);\n" + 
 			"  }\n" + 
 			"}\n", // =================
-		},
-		expectedOutput);
+		};
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+		runNegativeTest(
+			sources,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	return X.<String>foo(one, two);\n" + 
+			"	                 ^^^\n" + 
+			"The method foo(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	return this.<String>bar(one, two);\n" + 
+			"	                    ^^^\n" + 
+			"The method bar(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n");
+	} else {
+		runConformTest(
+			true,
+			sources,
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	return X.<String>foo(one, two);\n" + 
+			"	          ^^^^^^\n" + 
+			"Unused type arguments for the non generic method foo(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	return this.<String>bar(one, two);\n" + 
+			"	             ^^^^^^\n" + 
+			"Unused type arguments for the non generic method bar(String, String) of type X; it should not be parameterized with arguments <String>\n" + 
+			"----------\n",
+			null, null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);		
+	}
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=207935
@@ -43366,7 +43398,8 @@ public void test1291() {
 			"	List<C> c = moreGeneric(b);\n" + 
 			"	            ^^^^^^^^^^^\n" + 
 			"Bound mismatch: The generic method moreGeneric(List<E>) of type X is not applicable for the arguments (List<X.B>). The inferred type X.B is not a valid substitute for the bounded parameter <E extends D>\n" + 
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.EclipseJustification.EclipseBug218677);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=218677 - variation
 public void test1292() {
@@ -43603,22 +43636,26 @@ public void test1301() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220361 - variation
 public void test1302() {
-	this.runConformTest(
-			new String[] {
-					"EMap.java",
-					"import java.util.ArrayList;\n" + 
-					"import java.util.Map;\n" + 
-					"\n" + 
-					"public abstract class EMap<A, B> implements Map<A, B> {\n" + 
-					"  public abstract static class Unsettable<K, V> extends EMap<K, V> {\n" + 
-					"    protected class UnsettableEList<E extends Object & Entry<K, V>> extends EList<E> {\n" + 
-					"    }\n" + 
-					"  }\n" + 
-					"  protected class EList<E extends Object & Entry<A,B>> extends ArrayList<E>{\n" + 
-					"  }\n" + 
-					"}\n", // =================
-			},
-			"");
+	runConformTest(
+		true,
+		new String[] {
+			"EMap.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"public abstract class EMap<A, B> implements Map<A, B> {\n" + 
+			"  public abstract static class Unsettable<K, V> extends EMap<K, V> {\n" + 
+			"    protected class UnsettableEList<E extends Object & Entry<K, V>> extends EList<E> {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  protected class EList<E extends Object & Entry<A,B>> extends ArrayList<E>{\n" + 
+			"  }\n" + 
+			"}\n", // =================
+		},
+		null,
+		"",
+		null,
+		JavacTestOptions.EclipseHasABug.EclipseBug159851);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=219625
 public void test1303() {

@@ -778,7 +778,9 @@ public void test004() {
 }
 
 public void test005() {
-	this.runConformTest(new String[] {
+	runConformTest(
+		true,
+		new String[] {
 		"p/X.java",
 		"package p;\n" + 
 		"public class X {\n" + 
@@ -1284,7 +1286,11 @@ public void test005() {
 		"      + \'a\' + \'a\' + \'a\' + \'a\' + \'a\' + \'a\' + \'a\' + \'a\' + \'a\' + \'a\' + \'a\' + \'a\' + \'a\' + \'a\');\n" + 
 		"  }\n" + 
 		"}\n",
-	});
+	},
+	"",
+	null,
+	null,
+	JavacTestOptions.JavacHasABug.JavacThrowsAnException /* stack overflow */);
 }
 
 /*
@@ -3608,11 +3614,15 @@ public void test010() {
 			"    }\n" + 
 			"}");
 	this.runConformTest(
+		true,
 		new String[] {
 			"X.java",
 			sourceCode.toString()
 		},
-		"");
+		null,
+		"",
+		null,
+		JavacTestOptions.JavacHasABug.JavacThrowsAnException /* stack overflow */);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
@@ -3671,11 +3681,15 @@ public void test012() {
 			"    }\n" + 
 			"}");
 	this.runConformTest(
+		true,
 		new String[] {
 			"X.java",
 			sourceCode.toString()
 		},
-		"");
+		null,
+		"",
+		null,
+		JavacTestOptions.JavacHasABug.JavacThrowsAnException /* stack overflow */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 //variant: right member of the topmost expression is left-deep
@@ -3797,7 +3811,9 @@ public void test014() {
 	"");
 }
 public void test015() {
-	this.runConformTest(new String[] {
+	runConformTest(
+		true,
+		new String[] {
 		"X.java",
 		"public class X {\n" + 
 		"	public static int foo(int i) {\n" + 
@@ -11819,10 +11835,13 @@ public void test015() {
 		"		System.out.println(foo(1));\n" + 
 		"	}\n" + 
 		"}"},
+		null,
 		"Enter finally block\n" + 
 		"Inside finally block\n" + 
 		"Leave finally block\n" + 
-		"3");
+		"3",
+		null,
+		JavacTestOptions.EclipseJustification.EclipseBug169017);
 }
 public static Class testClass() {
 	return XLargeTest.class;

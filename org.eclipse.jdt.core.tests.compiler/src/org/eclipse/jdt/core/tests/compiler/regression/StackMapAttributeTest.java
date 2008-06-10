@@ -2226,7 +2226,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"	static void doPrivileged(Object o) {\n" + 
 				"	}\n" + 
 				"}",
-				"BundleException",
+				"BundleException.java",
 				"class BundleException extends Exception {\n" + 
 				"	private static final long serialVersionUID = 5758882959559471648L;\n" + 
 				"\n" + 

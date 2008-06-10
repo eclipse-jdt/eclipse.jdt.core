@@ -309,22 +309,24 @@ protected static class JavacTestOptions {
 			EclipseWarningConfiguredAsError = RUN_JAVAC ? 
 				new Excuse(MismatchType.EclipseErrorsJavacWarnings | MismatchType.EclipseErrorsJavacNone) : null,
 			JavacCompilesBogusReferencedFileAgain = RUN_JAVAC ? 
-					new Excuse(MismatchType.JavacErrorsEclipseNone) : null;
+				new Excuse(MismatchType.JavacErrorsEclipseNone) : null;
 	}
 	Excuse excuseFor(JavacCompiler compiler) {
 		return null;
 	}
 	public static class EclipseHasABug extends Excuse {
-		private EclipseHasABug(int mismatchType) {
+		EclipseHasABug(int mismatchType) {
 			super(mismatchType);
 		}
 		public static EclipseHasABug
+			EclipseBug159851 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159851
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,	
 			EclipseBug166355 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseWarnings) : null,
 			EclipseBug177715 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=177715
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug207935 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=207935
-				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) : null,
+				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone | MismatchType.EclipseWarningsJavacNone) : null,
 			EclipseBug216558 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216558
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug235550 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235550
@@ -334,7 +336,37 @@ protected static class JavacTestOptions {
 			EclipseBug235809 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235809
 				new EclipseHasABug(MismatchType.StandardOutputMismatch) : null,
 			EclipseBug236217 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236217
-					new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null;
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug236236 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236236
+				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
+					}
+				}: null,
+			EclipseBug236242 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236242
+				new EclipseHasABug(MismatchType.EclipseErrorsJavacWarnings) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance > ClassFileConstants.JDK1_6 ? this : null;
+					}
+				}: null,
+			EclipseBug236243 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236243
+				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance > ClassFileConstants.JDK1_6 ? this : null;
+					}
+				}: null,
+			EclipseBug236370 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236370
+				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance > ClassFileConstants.JDK1_6 ? this : null;
+					}
+				}: null,
+			EclipseBug236379 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236379
+				new EclipseHasABug(MismatchType.EclipseWarningsJavacNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
+					}
+				}: null;
 	}
 	// Justification based upon:
 	// - Eclipse bugs opened to investigate differences and closed as INVALID
@@ -360,6 +392,13 @@ protected static class JavacTestOptions {
 				} : null,
 			EclipseBug83902b = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
 				new EclipseJustification(MismatchType.JavacErrorsEclipseWarnings) : null,
+			EclipseBug95021 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021
+				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance > ClassFileConstants.JDK1_6 ? this : null;
+					}
+					// WORK consider adding reversed pivots
+				} : null,
 			EclipseBug112433 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=112433
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug126712 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712 & http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6342411
@@ -371,6 +410,24 @@ protected static class JavacTestOptions {
 				} : null,
 			EclipseBug126744 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126744
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug148061 = 	RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061
+				new EclipseJustification(MismatchType.EclipseErrorsJavacWarnings) : null,
+			EclipseBug151275 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=151275
+				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug159214 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214
+				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
+					}
+					// WORK consider adding reversed pivots
+				} : null,
+			EclipseBug169017 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=169017
+				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
+					}
+					// WORK consider adding reversed pivots
+				} : null,	
 			EclipseBug180789 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
 				new EclipseJustification(MismatchType.EclipseErrorsJavacWarnings) : null,
 			EclipseBug183211 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211
@@ -383,6 +440,13 @@ protected static class JavacTestOptions {
 				} : null,
 			EclipseBug185422 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug218677 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=218677
+				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance > ClassFileConstants.JDK1_6 ? this : null;
+					}
+					// WORK consider adding reversed pivots
+				} : null,
 			EclipseBug234815 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=234815
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug235543 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235543
@@ -513,7 +577,7 @@ protected static class JavacTestOptions {
 			JavacGeneratesByteCodeUponWhichJavaThrowsAnException = RUN_JAVAC ?
 				new JavacHasABug(
 					MismatchType.StandardOutputMismatch) : null,
-			JavacThrowsAnException = RUN_JAVAC ?
+			JavacThrowsAnException = RUN_JAVAC ? // some of these are transient - that is, depend on the system on which the test is run, aka stack overflow
 				new JavacHasABug(
 					MismatchType.JavacErrorsEclipseNone) : null;
 	}
@@ -1476,6 +1540,9 @@ protected void runJavac(
 	while (compilers.hasNext()) {
 		JavacCompiler compiler = (JavacCompiler) compilers.next();
 		if (!options.skip(compiler) && compiler.compliance == complianceLevel) {
+			// WORK this may exclude some compilers under some conditions (when
+			//      complianceLevel is not set); consider accepting the compiler
+			//      in such case and see what happens
 			JavacTestOptions.Excuse excuse = options.excuseFor(compiler);
 			StringBuffer compilerLog = new StringBuffer();
 			File javacOutputDirectory = null;
