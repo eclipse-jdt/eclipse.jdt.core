@@ -173,14 +173,18 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						? (ReferenceBinding) scope.environment().convertToRawType(qualifiedType)
 						: scope.environment().convertToParameterizedType(qualifiedType);
 				}
-			}				
-			if (typeIsConsistent 
-					&& currentType.isStatic() 
-					&& qualifiedType != null 
-					&& ((qualifiedType.isParameterizedType() && ((ParameterizedTypeBinding)qualifiedType).arguments != null) || qualifiedType.isGenericType())) {
-				scope.problemReporter().staticMemberOfParameterizedType(this, scope.environment().createParameterizedType(currentErasure, null, qualifiedType));
-				typeIsConsistent = false;
-			}			
+			} else {
+				if (typeIsConsistent 
+						&& currentType.isStatic() 
+						&& ((qualifiedType.isParameterizedType() && ((ParameterizedTypeBinding)qualifiedType).arguments != null) || qualifiedType.isGenericType())) {
+					scope.problemReporter().staticMemberOfParameterizedType(this, scope.environment().createParameterizedType(currentErasure, null, qualifiedType));
+					typeIsConsistent = false;
+				}			
+				ReferenceBinding enclosingType = currentType.enclosingType();
+				if (enclosingType != null && enclosingType.erasure() != qualifiedType.erasure()) { // qualifier != declaring/enclosing
+					qualifiedType = enclosingType; // inherited member type, leave it associated with its enclosing rather than subtype
+				}
+			}
 			// check generic and arity
 		    TypeReference[] args = this.typeArguments[i];
 		    if (args != null) {

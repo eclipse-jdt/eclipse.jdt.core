@@ -65,6 +65,8 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	static boolean RunJavac = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
 	// WORK unify runJavac methods (do we really need a different one here?)
 
+	IPath dirPath = new Path(OUTPUT_DIR); // WORK check whether needed or not
+
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 //	static {
@@ -75,12 +77,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_1_5);
 	}
-
+	
 	public static Class testClass() {
 		return GenericTypeSignatureTest.class;
 	}
-	
-	IPath dirPath = new Path(OUTPUT_DIR); // WORK check whether needed or not
 	
 	public GenericTypeSignatureTest(String name) {
 		super(name);
@@ -905,36 +905,6 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 	
-	// WORK check whether needed or not
-	/*
-	 * Write given source test files in current output sub-directory.
-	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
-	 */
-	protected void writeFiles(String[] testFiles) {
-		// Compute and create specific dir
-		IPath dirFilePath = (IPath) this.dirPath.clone();
-		File dir = dirFilePath.toFile();
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
-
-		// For each given test files
-		for (int i=0, length=testFiles.length; i<length; i++) {
-			dirFilePath = (IPath) this.dirPath.clone();
-			String contents = testFiles[i+1];
-			String fileName = testFiles[i++];
-			IPath filePath = dirFilePath.append(fileName);
-			if (fileName.lastIndexOf('/') >= 0) {
-				dirFilePath = filePath.removeLastSegments(1);
-				dir = dirFilePath.toFile();
-				if (!dir.exists()) {
-					dir.mkdirs();
-				}
-			}
-			Util.writeToFile(contents, filePath.toString());
-		}
-	}
-
 	public void test012() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -967,7 +937,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}
-	
+
 	public void test013() {
 		final String[] testsSource = new String[] {
 			"X.java",
@@ -1004,6 +974,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}
+	
 	// 59983 - incorrect signature for List<X>
 	public void test014() {
 		final String[] testsSource = new String[] {
@@ -1057,7 +1028,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		} catch (IOException e) {
 			assertTrue(false);
 		}
-	}	
+	}
 	// 70975 - invalid signature for method with array of type variables
 	public void test016() {
 		final String[] testsSource = new String[] {
@@ -1230,7 +1201,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		} catch (IOException e) {
 			assertTrue(false);
 		}
-	}
+	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132 - variation
 	public void test020() {
 		final String[] testsSource = new String[] {
@@ -1261,5 +1232,63 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}
-	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=235921
+	public void test021() throws Exception {
+		this.runConformTest(
+			new String[] {
+					"a/Adapter.java", //========================
+					"package a;\n" + 
+					"public interface Adapter<T> {\n" + 
+					"  interface Setter<V> {}\n" + 
+					"  public <V> Setter<V> makeSetter();\n" + 
+					"}\n",
+					"a/b/Adapter.java", //========================
+					"package a.b;\n" + 
+					"public class Adapter<T> implements a.Adapter<T> {\n" + 
+					"  public <V> Adapter.Setter<V> makeSetter() {\n" + 
+					"    return new Adapter.Setter<V>() {};\n" + 
+					"  }\n" + 
+					"}\n",
+				},
+			"");
+
+		// check generic signature for a/b/Adapter.class
+		ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "a" + File.separator + "b" + File.separator + "Adapter.class");
+		char[] signature = classFileReader.getGenericSignature();
+		assertEquals("Wrong signature1", "<T:Ljava/lang/Object;>Ljava/lang/Object;La/Adapter<TT;>;", new String(signature));			
+
+		// check generic signature for a/b/Adapter$1.class
+		classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "a" + File.separator + "b" + File.separator + "Adapter$1.class");
+		signature = classFileReader.getGenericSignature();
+		assertEquals("Wrong signature2", "Ljava/lang/Object;La/Adapter$Setter<TV;>;", new String(signature));			
+	}
+	// WORK check whether needed or not
+	/*
+	 * Write given source test files in current output sub-directory.
+	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
+	 */
+	protected void writeFiles(String[] testFiles) {
+		// Compute and create specific dir
+		IPath dirFilePath = (IPath) this.dirPath.clone();
+		File dir = dirFilePath.toFile();
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+
+		// For each given test files
+		for (int i=0, length=testFiles.length; i<length; i++) {
+			dirFilePath = (IPath) this.dirPath.clone();
+			String contents = testFiles[i+1];
+			String fileName = testFiles[i++];
+			IPath filePath = dirFilePath.append(fileName);
+			if (fileName.lastIndexOf('/') >= 0) {
+				dirFilePath = filePath.removeLastSegments(1);
+				dir = dirFilePath.toFile();
+				if (!dir.exists()) {
+					dir.mkdirs();
+				}
+			}
+			Util.writeToFile(contents, filePath.toString());
+		}
+	}
 }
