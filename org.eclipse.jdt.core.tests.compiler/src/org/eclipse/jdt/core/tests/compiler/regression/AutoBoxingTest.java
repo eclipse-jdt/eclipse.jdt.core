@@ -4684,4 +4684,42 @@ public void _test158() {
 		},
 		"HIdone");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=236019
+public void test159() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X {\n" + 
+			"    ArrayList params;\n" + 
+			"    public int getSqlParamCount() {\n" + 
+			"        return params == null ? null:params.size();\n" + 
+			"    }\n" + 
+			"    public int getSqlParamCount2() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	ArrayList params;\n" + 
+		"	^^^^^^^^^\n" + 
+		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	return params == null ? null:params.size();\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The expression of type Integer is unboxed into int\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	return params == null ? null:params.size();\n" + 
+		"	                             ^^^^^^^^^^^^^\n" + 
+		"The expression of type int is boxed into Integer\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	return null;\n" + 
+		"	       ^^^^\n" + 
+		"Type mismatch: cannot convert from null to int\n" + 
+		"----------\n");
+}
 }
