@@ -45052,4 +45052,40 @@ public void test1340() {
 			"Type safety : A generic array of Number&Comparable<?> is created for a varargs parameter\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174282 - variation
+public void test1341() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"abstract class AbstractOBOverlaySettings extends AbstractOverlaySettings implements RefSymbolTypeSettings {/*empty*/}\n" + 
+				"abstract class AbstractOverlaySettings implements SymbolTypeSettings {/*empty*/}\n" + 
+				"interface DAFDataController<V> {/*empty*/}\n" + 
+				"interface ReferenceableData {/*empty*/}\n" + 
+				"enum SymbolTypes {/*empty*/}\n" + 
+				"interface SymbolTypeSettings {/*empty*/}\n" + 
+				"interface AllOverlaySettingsController {/*empty*/}\n" + 
+				"interface DAFDataWithRefController<V extends ReferenceableData> extends DAFDataController<V> {/*empty*/}\n" + 
+				"class OBAreaOverlaySettings extends AbstractOBOverlaySettings {/*empty*/}\n" + 
+				"interface RefSymbolTypeSettings extends SymbolTypeSettings, ReferenceableData {/*empty*/}\n" + 
+				"public class X {\n" + 
+				"    public X() {\n" + 
+				"        DAFDataController<? extends SymbolTypeSettings> controller00 = null;\n" + 
+				"        DAFDataWithRefController<OBAreaOverlaySettings> controller01 = \n" + 
+				"            (DAFDataWithRefController<OBAreaOverlaySettings>) controller00;\n" + 
+				"    }\n" + 
+				"    Zork z;\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 15)\n" + 
+			"	(DAFDataWithRefController<OBAreaOverlaySettings>) controller00;\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from DAFDataController<capture#1-of ? extends SymbolTypeSettings> to DAFDataWithRefController<OBAreaOverlaySettings>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 17)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 }
