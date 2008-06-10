@@ -10899,4 +10899,64 @@ public void test284_classpath() {
         "incorrect classpath: p/Y.class\n",
         false/*shouldFlushOutput*/);
 }
+
+// command-line expansion
+public void test285_option_files() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public @interface X {\n" +
+			"}",
+			"options.txt",
+			"-source 1.5"
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\" " +
+        "\"@" + OUTPUT_DIR +  File.separator + "options.txt\"",
+        "" /* expectedOutOutputString */,
+        "" /* stderr */,
+        true /*shouldFlushOutput*/);
+}
+
+// command-line expansion
+public void test286_option_files() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public @interface X {\n" +
+			"}",
+			"options.txt",
+			"-source 1.4"
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\" " +
+        "\"@" + OUTPUT_DIR +  File.separator + "options.txt\"",
+        "" /* expectedOutOutputString */,
+        "----------\n" + /* stderr */
+        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+        "	public @interface X {\n" + 
+        "	                  ^\n" + 
+        "Syntax error, annotation declarations are only available if source level is 1.5\n" + 
+        "----------\n" + 
+        "1 problem (1 error)",
+        true /*shouldFlushOutput*/);
+}
+
+// command-line expansion
+// shows that we don't recurse
+public void test287_option_files() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public @interface X {\n" +
+			"}",
+			"options1.txt",
+			"@options2.txt",
+			"options2.txt",
+			"@options1.txt"
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\" " +
+        "\"@" + OUTPUT_DIR +  File.separator + "options1.txt\"",
+        "" /* expectedOutOutputString */,
+        "Unrecognized option : @options2.txt\n" /* stderr */,
+        true /*shouldFlushOutput*/);
+}
 }
