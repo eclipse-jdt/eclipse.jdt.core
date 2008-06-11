@@ -131,7 +131,13 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				}
 				// Compute command line
 				IPath jdkDir = (new Path(Util.getJREDirectory())).removeLastSegments(1);
-				IPath javacPath = jdkDir.append("bin").append("javac.exe");
+				IPath javacPath;
+				// WORK improve platform management here
+				if ("Linux".equals(System.getProperty("os.name"))) {
+					javacPath = jdkDir.append("bin").append("javac");
+				} else {
+					javacPath = jdkDir.append("bin").append("javac.exe");
+				}
 				StringBuffer cmdLine = new StringBuffer(javacPath.toString());
 				cmdLine.append(" -classpath ");
 				cmdLine.append(cp);
