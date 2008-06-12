@@ -953,4 +953,30 @@ public void _test022_output_streams() throws IOException {
 		System.setErr(systemErr);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=236817
+// according to JavaCompiler#getTask, out should receive supplementary compiler
+// output only; errors should be funneled through the diagnostic listener 
+public void _test023_output_streams() throws IOException {
+	runTest(
+		false /* shouldCompileOK */,
+		new String [] { /* sourceFiles */
+			"X.java",
+			"public class Y {}",
+		}, 
+		null /* standardJavaFileManager */,
+		Arrays.asList("-d", OUTPUT_DIR) /* options */, 
+		new String[] { /* compileFileNames */
+			"X.java"
+		}, 
+		"" /* expectedOutOutputString */, 
+		"----------\n" + /* expectedErrOutputString */
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class Y {}\n" + 
+		"	             ^\n" + 
+		"The public type Y must be defined in its own file\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		true /* shouldFlushOutputDirectory */,
+		null /* classFileNames */);
+}
 }
