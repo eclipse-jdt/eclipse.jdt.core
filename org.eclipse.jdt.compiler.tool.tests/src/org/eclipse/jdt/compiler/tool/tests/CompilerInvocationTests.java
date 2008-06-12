@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.compiler.tool.tests;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -26,7 +28,6 @@ import java.util.logging.LogRecord;
 
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileObject;
-import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
@@ -36,13 +37,11 @@ import javax.tools.JavaFileObject.Kind;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.core.tests.compiler.regression.BatchCompilerTest;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
-public class CompilerInvocationTests extends BatchCompilerTest {
+public class CompilerInvocationTests extends AbstractCompilerToolTest {
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
 //		TESTS_NUMBERS = new int[] { 5 };
@@ -57,30 +56,6 @@ public static Test suite() {
 public static Class<CompilerInvocationTests> testClass() {
 	return CompilerInvocationTests.class;
 }
-static class CompilerInvocationTestsArguments {
-	StandardJavaFileManager standardJavaFileManager;
-	List<String> options;
-	String[] fileNames;
-	CompilerInvocationTestsArguments(
-			StandardJavaFileManager standardJavaFileManager, 
-			List<String> options,
-			String[] fileNames) {
-		this.standardJavaFileManager = standardJavaFileManager;
-		this.options = options;
-		this.fileNames = fileNames;
-	}
-	@Override
-	public String toString() {
-		StringBuffer result = new StringBuffer();
-		for (String option: this.options) {
-			result.append(option);
-			result.append(' ');
-		}
-		return result.toString();
-	}
-}
-private static EclipseCompiler COMPILER = new EclipseCompiler();
-private static JavaCompiler JAVAC_COMPILER = ToolProvider.getSystemJavaCompiler();
 
 protected void checkClassFiles(String[] fileNames) {
 	for (int i = 0, l = fileNames.length; i < l; i++) {
@@ -95,25 +70,6 @@ protected void checkClassFiles(String[] fileNames) {
 		assertNotNull("Could not read " + fileNames[i], reader);
 		assertEquals("Wrong Java version for " + fileNames[i], ClassFileConstants.JDK1_6, reader.getVersion());
 	}
-}
-@Override
-protected boolean invokeCompiler(
-		PrintWriter out, 
-		PrintWriter err,
-		Object extraArguments,
-		TestCompilationProgress compilationProgress) {
-	CompilerInvocationTestsArguments arguments = (CompilerInvocationTestsArguments) extraArguments;
-	StandardJavaFileManager manager = arguments.standardJavaFileManager;
-	if (manager == null) {
-		manager = JAVAC_COMPILER.getStandardFileManager(null, null, null); // will pick defaults up
-	}
-	List<File> files = new ArrayList<File>();
-	String[] fileNames = arguments.fileNames;
-	for (int i = 0, l = fileNames.length; i < l; i++) {
-		files.add(new File(OUTPUT_DIR + File.separator + fileNames[i]));
-	}
-	CompilationTask task = COMPILER.getTask(out, arguments.standardJavaFileManager /* carry the null over */, null, arguments.options, null, manager.getJavaFileObjectsFromFiles(files));
-	return task.call();
 }
 void runTest(
 		boolean shouldCompileOK, 
@@ -133,7 +89,10 @@ void runTest(
 		expectedErrOutputString,
 		shouldFlushOutputDirectory,
 		null /* progress */);
-	checkClassFiles(classFileNames);
+	// TODO maxime introduce stderr comparison based upon specific diagnostic listener
+	if (classFileNames != null) {
+		checkClassFiles(classFileNames);
+	}
 }
 class GetLocationDetector extends ForwardingStandardJavaFileManager<StandardJavaFileManager>  {
 	private Location match;
@@ -955,5 +914,43 @@ public void _test020_sourcepath_with_destination() throws IOException {
 			"bin1/X.class",
 			"bin2/Y.class"
 		});
+}
+// most basic output test
+public void test021_output_streams() throws IOException {
+	ByteArrayOutputStream 
+			outBuffer = new ByteArrayOutputStream(),
+			errBuffer = new ByteArrayOutputStream();
+	CompilationTask task = COMPILER.getTask(
+		new PrintWriter(outBuffer), 
+		JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */), 
+		new CompilerInvocationDiagnosticListener(new PrintWriter(errBuffer)), 
+		Arrays.asList("-v"), null, null);
+	assertTrue(task.call());
+	assertTrue(outBuffer.toString().startsWith("Eclipse Java Compiler"));
+	assertTrue(errBuffer.toString().isEmpty());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=236814
+public void _test022_output_streams() throws IOException {
+	ByteArrayOutputStream 
+			outBuffer = new ByteArrayOutputStream(),
+			errBuffer = new ByteArrayOutputStream();
+	PrintStream 
+		systemOut = System.out,
+		systemErr = System.err;
+	System.setOut(new PrintStream(outBuffer));
+	System.setErr(new PrintStream(errBuffer));
+	CompilationTask task = COMPILER.getTask(
+		null, 
+		JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */), 
+		new CompilerInvocationDiagnosticListener(new PrintWriter(errBuffer)), 
+		Arrays.asList("-v"), null, null);
+	try {
+	assertTrue(task.call());
+	assertTrue(outBuffer.toString().isEmpty());
+	assertTrue(errBuffer.toString().startsWith("Eclipse Java Compiler"));
+	} finally {
+		System.setOut(systemOut);
+		System.setErr(systemErr);
+	}
 }
 }
