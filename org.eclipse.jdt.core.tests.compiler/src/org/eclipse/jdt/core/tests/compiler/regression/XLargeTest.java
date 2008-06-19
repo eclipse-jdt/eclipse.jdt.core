@@ -1290,7 +1290,7 @@ public void test005() {
 	"",
 	null,
 	null,
-	JavacTestOptions.JavacHasABug.JavacThrowsAnException /* stack overflow */);
+	JavacTestOptions.JavacHasABug.JavacThrowsAnException /* stack overflow */); // transient, platform-dependent
 }
 
 /*
@@ -3622,7 +3622,7 @@ public void test010() {
 		null,
 		"",
 		null,
-		JavacTestOptions.JavacHasABug.JavacThrowsAnException /* stack overflow */);
+		JavacTestOptions.JavacHasABug.JavacThrowsAnException /* stack overflow */);  // transient, platform-dependent
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
@@ -3689,7 +3689,7 @@ public void test012() {
 		null,
 		"",
 		null,
-		JavacTestOptions.JavacHasABug.JavacThrowsAnException /* stack overflow */);
+		JavacTestOptions.JavacHasABug.JavacThrowsAnException /* stack overflow */); // transient, platform-dependent
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 //variant: right member of the topmost expression is left-deep

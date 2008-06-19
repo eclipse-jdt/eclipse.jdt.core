@@ -144,14 +144,20 @@ static class JavacCompiler {
 			if ("1.5.0_15-ea".equals(rawVersion)) {
 				return 1500;
 			}
+			if ("1.5.0_16-ea".equals(rawVersion)) { // b01
+				return 1600;
+			}
 		}
 		if (version == JavaCore.VERSION_1_6) {
 			if ("1.6.0_10-ea".equals(rawVersion)) {
 				return 1000;
 			}			
+			if ("1.6.0_10-beta".equals(rawVersion)) { // b24
+				return 1010;
+			}			
 		}
 		if (version == JavaCore.VERSION_1_7) {
-			if ("1.7.0-ea".equals(rawVersion)) { // b23 at the time of writing
+			if ("1.7.0-ea".equals(rawVersion)) {
 				return 0000;
 			}			
 		}
@@ -547,7 +553,8 @@ protected static class JavacTestOptions {
 					MismatchType.StandardOutputMismatch) : null,
 			JavacBug6531075 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6531075
 				new JavacHasABug(
-					MismatchType.StandardOutputMismatch) : null, // fix expected for jdk7 b27
+					MismatchType.StandardOutputMismatch,
+					ClassFileConstants.JDK1_7, 0) : null, // fixed in jdk7 b27; unfortunately, we do not have a distinct minor for this, hence former jdk7s will report an unused excuse
 			JavacBug6569404 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6569404
 				new JavacHasABug(
 					MismatchType.JavacErrorsEclipseNone,
@@ -567,7 +574,11 @@ protected static class JavacTestOptions {
 			JavacBugFixed_6_10 = RUN_JAVAC ?
 				new JavacHasABug(
 					0 /* all */, 
-					ClassFileConstants.JDK1_6, 10 /* 1.6.0_10_b08 or better - maybe before */) : null,
+					ClassFileConstants.JDK1_6, 1000 /* 1.6.0_10_b08 or better - maybe before */) : null,
+			JavacBugFixed_6_10_b24 = RUN_JAVAC ?
+				new JavacHasABug(
+					0 /* all */, 
+					ClassFileConstants.JDK1_6, 1010 /* 1.6.0_10_b24 or better - maybe before */) : null,
 			JavacBugFixed_7 = RUN_JAVAC ?
 				new JavacHasABug(
 					0 /* all */, 

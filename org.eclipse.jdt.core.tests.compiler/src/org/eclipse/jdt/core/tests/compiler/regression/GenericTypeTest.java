@@ -29699,7 +29699,7 @@ public void test0925() {
 		"SUCCESS" /* expected output string */,
 		"" /* expected error string */,
 		// javac options
-		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
+		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10_b24 /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261
 public void test0926() {
