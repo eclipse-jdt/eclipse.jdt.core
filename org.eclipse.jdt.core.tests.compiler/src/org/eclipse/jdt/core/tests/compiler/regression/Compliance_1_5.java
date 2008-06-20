@@ -270,8 +270,10 @@ public void test013() {
 		+"*8* this.bar(): Top.bar()"
 		+"*9* this.foo(): Top.foo()");
 
-	this.runConformTest(
-		new String[] {
+	runConformTest(
+		// test directory preparation
+		false /* do not flush output directory */,
+		new String[] { /* test files */
 			"p1/Updated.java",
 			"package p1; \n"+
 			"public class Updated extends Top { \n"+
@@ -282,7 +284,10 @@ public void test013() {
 			"	String foo() { return \"Updated.foo()\"; }	\n" +
 			"} \n"
 		},
-		"*** METHOD ACCESS ***"
+		// compiler results
+		null /* do not check compiler log */,
+		// runtime results
+		"*** METHOD ACCESS ***" /* expected output string */
 		+"*1* new Updated().bar(): Updated.bar()"
 		+"*2* new Updated().foo(): Updated.foo()"
 		+"*3* new Y().foo(): Updated.foo()"
@@ -292,9 +297,10 @@ public void test013() {
 		+"*7* Y.bar(): Updated.bar()"
 		+"*8* this.bar(): Updated.bar()"
 		+"*9* this.foo(): Updated.foo()",
-		null, // use default class-path
-		false, // do not flush previous output dir content
-		null); // no special vm args		
+		"" /* expected error string */,
+		// javac options
+		JavacTestOptions.JavacHasABug.JavacThrowsAnExceptionForJava_1_5_0_16 /* javac test options */);
+		// transient error
 }
 
 public void test014() {

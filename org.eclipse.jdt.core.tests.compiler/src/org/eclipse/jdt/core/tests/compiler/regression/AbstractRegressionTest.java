@@ -474,13 +474,13 @@ protected static class JavacTestOptions {
 		int[] minorsFixed;
 		static final int NO_FIX = -1;
 		static final int IRRELEVANT = -2;
-		private JavacHasABug(int mismatchType) {
+		JavacHasABug(int mismatchType) {
 			super(mismatchType);
 		}
-		private JavacHasABug(int mismatchType, int[] minorsFixed) {
-			super(mismatchType);
-			this.minorsFixed = minorsFixed;
-		}
+//		private JavacHasABug(int mismatchType, int[] minorsFixed) {
+//			super(mismatchType);
+//			this.minorsFixed = minorsFixed;
+//		}
 		private JavacHasABug(int mismatchType, long pivotCompliance, int pivotMinor) {
 			super(mismatchType);
 			this.pivotCompliance = pivotCompliance;
@@ -590,7 +590,15 @@ protected static class JavacTestOptions {
 					MismatchType.StandardOutputMismatch) : null,
 			JavacThrowsAnException = RUN_JAVAC ? // some of these are transient - that is, depend on the system on which the test is run, aka stack overflow
 				new JavacHasABug(
-					MismatchType.JavacErrorsEclipseNone) : null;
+					MismatchType.JavacErrorsEclipseNone) : null,
+			JavacThrowsAnExceptionForJava_1_5_0_16 = RUN_JAVAC ?
+					new JavacHasABug(
+						MismatchType.JavacErrorsEclipseNone) {
+							Excuse excuseFor(JavacCompiler compiler) {
+								return compiler.compliance != ClassFileConstants.JDK1_5 ||
+										compiler.minor != 1600 ? null : this;
+							}
+					}: null;
 	}
 }
 
