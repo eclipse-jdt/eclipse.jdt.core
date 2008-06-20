@@ -30,6 +30,30 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
+/**
+ * Class to test DOM/AST nodes built for Javadoc comments.
+ * 
+ * Most of tests are 'automatic'. It means that to add a new tests, you only need to
+ * create one or several CUs and put them in org.eclipse.jdt.core.model.tests/workspace/Converter/src/javadoc/testXXX
+ * folder and add the corresponding test in this class:
+ * <pre>
+ * public void testXXX() throws JavaModelException {
+ * 	verifyComments("testXXX");
+ * }
+ * </pre>
+ * 
+ * Note that when a test fails, the easiest way to debug it is to open
+ * a runtime workbench, create a project 'Converter', delete the default 'src' source folder
+ * and replace it by a linked source to the 'src' folder of org.eclipse.jdt.core.model.tests/workspace/Converter/src
+ * in your workspace.
+ * 
+ * Then open the CU on which the test fails in a ASTView and verify the offset/length
+ * of the offending node located at the positions displayed in the console when the test failed...
+ * 
+ * Since 3.4, the failing test also provides the comparision between the source of the comment
+ * and the string get from the built DOM/AST nodes in the comment (see {@link ASTConverterJavadocFlattener})
+ * but this may be not enough to see precisely the origin of the problem.
+ */
 public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 	// Flag to know whether Converter directory should be copied from org.eclipse.jdt.core.tests.model project
@@ -243,221 +267,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		}
 		return runConversion(source, unitName, project);
 	}
-
-// NOT USED
-//	class ASTConverterJavadocFlattener extends ASTVisitor {
-//
-//		/**
-//		 * The string buffer into which the serialized representation of the AST is
-//		 * written.
-//		 */
-//		private StringBuffer buffer;
-//		
-//		private String comment;
-//		
-//		/**
-//		 * Creates a new AST printer.
-//		 */
-//		ASTConverterJavadocFlattener(String comment) {
-//			buffer = new StringBuffer();
-//			comment = comment;
-//		}
-//		
-//		/**
-//		 * Returns the string accumulated in the visit.
-//		 *
-//		 * @return the serialized 
-//		 */
-//		public String getResult() {
-//			return buffer.toString();
-//		}
-//		
-//		/**
-//		 * Resets this printer so that it can be used again.
-//		 */
-//		public void reset() {
-//			buffer.setLength(0);
-//		}
-//
-//		/*
-//		 * @see ASTVisitor#visit(ArrayType)
-//		 */
-//		public boolean visit(ArrayType node) {
-//			node.getComponentType().accept(this);
-//			buffer.append("[]");//$NON-NLS-1$
-//			return false;
-//		}
-//	
-//		/*
-//		 * @see ASTVisitor#visit(BlockComment)
-//		 * @since 3.0
-//		 */
-//		public boolean visit(BlockComment node) {
-//			buffer.append(comment);
-//			return false;
-//		}
-//	
-//		/*
-//		 * @see ASTVisitor#visit(Javadoc)
-//		 */
-//		public boolean visit(Javadoc node) {
-//			
-//			// ignore deprecated node.getComment()
-//			buffer.append("/**");//$NON-NLS-1$
-//			ASTNode e = null;
-//			int start = 3;
-//			for (Iterator it = node.tags().iterator(); it.hasNext(); ) {
-//				e = (ASTNode) it.next();
-//				try {
-//					buffer.append(comment.substring(start, e.getStartPosition()-node.getStartPosition()));
-//					start = e.getStartPosition()-node.getStartPosition();
-//				} catch (IndexOutOfBoundsException ex) {
-//					// do nothing
-//				}
-//				e.accept(this);
-//				start += e.getLength();
-//			}
-//			buffer.append(comment.substring(start, node.getLength()));
-//			return false;
-//		}
-//	
-//		/*
-//		 * @see ASTVisitor#visit(LineComment)
-//		 * @since 3.0
-//		 */
-//		public boolean visit(LineComment node) {
-//			buffer.append(comment);
-//			return false;
-//		}
-//	
-//		/*
-//		 * @see ASTVisitor#visit(MemberRef)
-//		 * @since 3.0
-//		 */
-//		public boolean visit(MemberRef node) {
-//			if (node.getQualifier() != null) {
-//				node.getQualifier().accept(this);
-//			}
-//			buffer.append("#");//$NON-NLS-1$
-//			node.getName().accept(this);
-//			return true;
-//		}
-//		
-//		/*
-//		 * @see ASTVisitor#visit(MethodRef)
-//		 * @since 3.0
-//		 */
-//		public boolean visit(MethodRef node) {
-//			if (node.getQualifier() != null) {
-//				node.getQualifier().accept(this);
-//			}
-//			buffer.append("#");//$NON-NLS-1$
-//			node.getName().accept(this);
-//			buffer.append("(");//$NON-NLS-1$
-//			for (Iterator it = node.parameters().iterator(); it.hasNext(); ) {
-//				MethodRefParameter e = (MethodRefParameter) it.next();
-//				e.accept(this);
-//				if (it.hasNext()) {
-//					buffer.append(",");//$NON-NLS-1$
-//				}
-//			}
-//			buffer.append(")");//$NON-NLS-1$
-//			return true;
-//		}
-//		
-//		/*
-//		 * @see ASTVisitor#visit(MethodRefParameter)
-//		 * @since 3.0
-//		 */
-//		public boolean visit(MethodRefParameter node) {
-//			node.getType().accept(this);
-//			if (node.getName() != null) {
-//				buffer.append(" ");//$NON-NLS-1$
-//				node.getName().accept(this);
-//			}
-//			return true;
-//		}
-//
-//		/*
-//		 * @see ASTVisitor#visit(TagElement)
-//		 * @since 3.0
-//		 */
-//		public boolean visit(TagElement node) {
-//			Javadoc javadoc = null;
-//			int start = 0;
-//			if (node.isNested()) {
-//				// nested tags are always enclosed in braces
-//				buffer.append("{");//$NON-NLS-1$
-//				javadoc = (Javadoc) node.getParent().getParent();
-//				start++;
-//			} else {
-//				javadoc = (Javadoc) node.getParent();
-//			}
-//			start += node.getStartPosition()-javadoc.getStartPosition();
-//			if (node.getTagName() != null) {
-//				buffer.append(node.getTagName());
-//				start += node.getTagName().length();
-//			}
-//			for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
-//				ASTNode e = (ASTNode) it.next();
-//				try {
-//					buffer.append(comment.substring(start, e.getStartPosition()-javadoc.getStartPosition()));
-//					start = e.getStartPosition()-javadoc.getStartPosition();
-//				} catch (IndexOutOfBoundsException ex) {
-//					// do nothing
-//				}
-//				start += e.getLength();
-//				e.accept(this);
-//			}
-//			if (node.isNested()) {
-//				buffer.append("}");//$NON-NLS-1$
-//			}
-//			return true;
-//		}
-//		
-//		/*
-//		 * @see ASTVisitor#visit(TextElement)
-//		 * @since 3.0
-//		 */
-//		public boolean visit(TextElement node) {
-//			buffer.append(node.getText());
-//			return false;
-//		}
-//
-//		/*
-//		 * @see ASTVisitor#visit(PrimitiveType)
-//		 */
-//		public boolean visit(PrimitiveType node) {
-//			buffer.append(node.getPrimitiveTypeCode().toString());
-//			return false;
-//		}
-//	
-//		/*
-//		 * @see ASTVisitor#visit(QualifiedName)
-//		 */
-//		public boolean visit(QualifiedName node) {
-//			node.getQualifier().accept(this);
-//			buffer.append(".");//$NON-NLS-1$
-//			node.getName().accept(this);
-//			return false;
-//		}
-//
-//		/*
-//		 * @see ASTVisitor#visit(SimpleName)
-//		 */
-//		public boolean visit(SimpleName node) {
-//			buffer.append(node.getIdentifier());
-//			return false;
-//		}
-//
-//		/*
-//		 * @see ASTVisitor#visit(SimpleName)
-//		 */
-//		public boolean visit(SimpleType node) {
-//			node.getName().accept(this);
-//			return false;
-//		}
-//	}
 
 	private char getNextChar(char[] source, int idx) {
 			// get next char
@@ -820,7 +629,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	private void verifyPositions(Javadoc docComment, char[] source) {
 		boolean stop = stopOnFailure;
-//		stopOnFailure = false;
+		stopOnFailure = false;
 		// Verify javadoc start and end position
 		int start = docComment.getStartPosition();
 		int end = start+docComment.getLength()-1;
@@ -845,7 +654,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		assumeTrue(prefix+"Misplaced javadoc end at <"+tagStart+'>', source[tagStart-1] == '*' && source[tagStart] == '/');
 		assumeEquals(prefix+"Wrong javadoc length at <"+end+">: ", tagStart, end);
 		stopOnFailure = stop;
-		assertTrue(!stop || failures.size()==0);
+		if (stop && failures.size() > 0) {
+			String expected = new String(source, docComment.getStartPosition(), docComment.getLength());
+			ASTConverterJavadocFlattener flattener = new ASTConverterJavadocFlattener(expected);
+			docComment.accept(flattener);
+			assertEquals("Unexpected errors while verifying javadoc comment positions!", expected, flattener.getResult());
+		}
 	}
 
 	/**
