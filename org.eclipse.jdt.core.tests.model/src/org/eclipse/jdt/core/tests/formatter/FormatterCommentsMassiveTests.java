@@ -15,12 +15,10 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.ComparisonFailure;
@@ -30,16 +28,9 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.ModelTestsUtil;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
-import org.eclipse.jdt.internal.core.util.SimpleDocument;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.text.edits.TextEdit;
@@ -102,77 +93,118 @@ import org.eclipse.text.edits.TextEdit;
  * <code>linesLeading</code> (e.g. ignore white spaces at the beginning of the
  * lines, including the star inside javadoc or block comments):
  * <ul>
- * 	<li>Eclipse 3.0 performance workspace (9951 units):<ul>
+ * 	<li>JUnit 3.8.2 workspace (71 units):
+ * 	<ul>
  * 		<li>0 error</li>
  * 		<li>0 failures</li>
+ * 		<li>0 failures due to old formatter</li>
+ * 		<li>8 files have different lines leading spaces</li>
+ * 		<li>0 files have different spaces</li>
+ *		</ul></li>
+ * 	<li>Eclipse 3.0 performance workspace (9951 units):
+ * 	<ul>
+ * 		<li>0 error</li>
+ * 		<li>1 failures</li>
  * 		<li>8 failures due to old formatter</li>
- * 		<li>723 files have different lines leading spaces</li>
+ * 		<li>722 files have different lines leading spaces</li>
  * 		<li>9 files have different spaces</li>
  *		</ul></li>
- * 	<li>Eclipse 3.4 workspace (16592 units):<ul>
+ * 	<li>Eclipse 3.4 workspace (17890 units):
+ * 	<ul>
  * 		<li>0 error</li>
- * 		<li>11 failures</li>
- * 		<li>17 failures due to old formatter</li>
- * 		<li>1244 files have different lines leading spaces</li>
- * 		<li>11 files have different spaces</li>
+ * 		<li>17 failures</li>
+ * 		<li>21 failures due to old formatter</li>
+ * 		<li>1372 files have different lines leading spaces</li>
+ * 		<li>12 files have different spaces</li>
  *		</ul></li>
- *		<li>ganymede M5 workspace (25819 units):<ul>
- * 		<li>0 error</li>
- * 		<li>12 failures due to different output while reformatting!</li>
- * 		<li>15 failures due to old formatter</li>
- * 		<li>1371 files have different line leading spaces when reformatting!</li>
- * 		<li>14 files have different spaces when reformatting!</li>
- *		</ul></li>
- *		<li>ganymede M6a workspace (26336 units):<ul>
- * 		<li>0 error</li>
- * 		<li>16 failures due to different output while reformatting!</li>
- * 		<li>17 failures due to old formatter</li>
- * 		<li>1469 files have different line leading spaces when reformatting!</li>
- * 		<li>14 files have different spaces when reformatting!</li>
+ *		<li>ganymede workspace (33190 units):
+ *		<ul>
+ * 		<li>1 error</li>
+ * 		<li>21 failures due to different output while reformatting!</li>
+ * 		<li>21 failures due to old formatter</li>
+ * 		<li>1780 files have different line leading spaces when reformatting!</li>
+ * 		<li>20 files have different spaces when reformatting!</li>
  *		</ul></li>
  * </ul>
  */
 public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 
-	private static final String LINE_SEPARATOR = org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR;
 	final File file;
 	final IPath path;
-	List failures = new ArrayList();
-	List expectedFailures = new ArrayList();
-	List leadingWhitespacesFailures = new ArrayList();
-	List whitespacesFailures= new ArrayList();
 	boolean hasSpaceFailure;
-	private int changedHeaderFooter;
-	private int changedPreTags;
-	private int changedCodeTags;
-	private final static boolean DEBUG_TESTS = "true".equals(System.getProperty("debugTests"));
-	private final static String DIR = System.getProperty("dir"); //$NON-NLS-1$
-	private final static String COMPARE = System.getProperty("compare"); //$NON-NLS-1$
-	private final static int IGNORE_SPACES;
-	private final static int ALL_SPACES = 1;	// ignore all spaces
-	private final static int LINES_LEADING_SPACES = 2;	// ignore all spaces at the beginning of all lines
-	private final static int ALL_COMMENTS_SPACES = 3;	// ignore all spaces inside all comments
-	private final static int ALL_COMMENTS_LINES_LEADING_SPACES = 4;	// ignore all spaces at the beginning of all comments lines
+	private DefaultCodeFormatterOptions preferences;
+	private final static File INPUT_DIR = new File(System.getProperty("inputDir"));
+	private final static File OUTPUT_DIR;
+	private final static boolean COMPARE;
 	static {
-		String ignoreSpaces = System.getProperty("ignoreSpaces"); //$NON-NLS-1$
-		int filterValue;
-		if ("all".equals(ignoreSpaces)) {
-			filterValue = ALL_SPACES;
-		} else if ("linesLeading".equals(ignoreSpaces)) {
-			filterValue = LINES_LEADING_SPACES;
-		} else if ("comments".equals(ignoreSpaces)) {
-			filterValue = ALL_COMMENTS_SPACES;
-		} else if ("commentsLinesLeading".equals(ignoreSpaces)) {
-			filterValue = ALL_COMMENTS_LINES_LEADING_SPACES;
-		} else {
-			filterValue = 0; // no filter
+		String dir = System.getProperty("outputDir"); //$NON-NLS-1$
+		File outputDir = null;
+		boolean compare = true;
+		if (dir != null) {
+			outputDir = new File(dir);
+			if (!outputDir.exists()) {
+				compare = false;
+				System.err.println("WARNING: The output directory "+dir+" does not exist...");
+				System.err.println("=> NO comparison will be done! The formatted files will be written there instead.");
+				try {
+	                Thread.sleep(1000);
+                } catch (InterruptedException e) {
+	                // skip
+                }
+			}
 		}
-		IGNORE_SPACES = filterValue;
+		OUTPUT_DIR = outputDir;
+		COMPARE = compare;
 	}
 	private final static int FORMAT_REPEAT  = Integer.parseInt(System.getProperty("repeat", "2")); //$NON-NLS-1$
+	
+	// Failures management
+	int failureIndex;
+	final static int UNEXPECTED_FAILURE = 0;
+	final static int NO_OUTPUT_FAILURE = 1;
+	final static int COMPARISON_FAILURE = 2;
+	final static int REFORMATTING_FAILURE = 3;
+	final static int REFORMATTING_LEADING_FAILURE = 5;
+	final static int REFORMATTING_WHITESPACES_FAILURE = 6;
+	final static int REFORMATTING_EXPECTED_FAILURE = 4;
+	class FormattingFailure {
+		String msg;
+		int kind;
+		List failures = new ArrayList();
+		public FormattingFailure(int kind) {
+			this.kind = kind;
+        }
+		public FormattingFailure(int kind, String msg) {
+			this(kind);
+	        this.msg = msg;
+        }
+		public String toString() {
+			switch (this.kind) {
+				case  0: // unexpected failure
+					return "unexpected failure while formatting";
+				case  1: // no output failure
+					return "no output while formatting";
+				case  2: // comparison failure
+					return "different output while comparing with previous version";
+				default: // different output
+			        return "different output while "+msg;
+			}
+        }
+		
+	}
+	final static FormattingFailure[] FAILURES = new FormattingFailure[REFORMATTING_WHITESPACES_FAILURE+1];
+	{
+		for (int i=UNEXPECTED_FAILURE; i<=COMPARISON_FAILURE; i++) {
+			FAILURES[i] = new FormattingFailure(i);
+		}
+		FAILURES[REFORMATTING_FAILURE] = new FormattingFailure(REFORMATTING_FAILURE, "reformatting twice");
+		FAILURES[REFORMATTING_LEADING_FAILURE] = new FormattingFailure(REFORMATTING_LEADING_FAILURE, "reformatting twice but only by leading whitespaces");
+		FAILURES[REFORMATTING_WHITESPACES_FAILURE] = new FormattingFailure(REFORMATTING_WHITESPACES_FAILURE, "reformatting twice but only by whitespaces");
+		FAILURES[REFORMATTING_EXPECTED_FAILURE] = new FormattingFailure(REFORMATTING_EXPECTED_FAILURE, "reformatting twice but was expected");
+	}
 	private static final int MAX_FAILURES = Integer.parseInt(System.getProperty("maxFailures", "100")); // Max failures using string comparison
 	private static boolean ASSERT_EQUALS_STRINGS = MAX_FAILURES > 0;
-	private final static IPath[] EXPECTED_FAILURES = DIR.indexOf("v34") < 0
+	private final static IPath[] EXPECTED_FAILURES = INPUT_DIR.getPath().indexOf("v34") < 0
 		? new IPath[] {
 			new Path("org/eclipse/jdt/internal/compiler/ast/QualifiedNameReference.java"),
 			new Path("org/eclipse/jdt/internal/eval/CodeSnippetSingleNameReference.java"),
@@ -184,6 +216,7 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 			new Path("org/eclipse/team/internal/ccvs/ui/wizards/UpdateWizard.java"),
 		}
 		:	new IPath[] {
+			// Eclipse
 			new Path("org/eclipse/equinox/internal/p2/director/NewDependencyExpander.java"),
 			new Path("org/eclipse/jdt/core/JavaCore.java"),
 			new Path("org/eclipse/jdt/internal/codeassist/CompletionEngine.java"),
@@ -203,21 +236,16 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
 			new Path("org/eclipse/jdt/internal/core/search/JavaSearchScope.java"),
 			new Path("org/eclipse/jdt/internal/eval/EvaluationContext.java"),
 			new Path("org/eclipse/jdt/internal/ui/text/javadoc/JavadocContentAccess2.java"),
+			new Path("org/eclipse/jdt/internal/apt/pluggable/core/filer/IdeJavaSourceOutputStream.java"),
 			new Path("org/eclipse/team/internal/ccvs/ui/mappings/WorkspaceSubscriberContext.java"),
+			// Ganymede
+			new Path("com/ibm/icu/text/Collator.java"),
+			new Path("org/apache/lucene/analysis/ISOLatin1AccentFilter.java"),
 	};
-	static {
-		// Sort expected failures to allow binary search
-		Arrays.sort(EXPECTED_FAILURES);
-	}
 	
 public static Test suite() {
 	TestSuite suite = new Suite(FormatterCommentsMassiveTests.class.getName());
 	try {
-		File testDir = ModelTestsUtil.getWorkspaceRoot().getLocation().toFile();
-		if (DIR != null) {
-			File dir = new File(DIR);
-			if (dir.exists()) testDir = dir;
-		}
 		FileFilter filter = new FileFilter() {
 			public boolean accept(File pathname) {
 	            return pathname.isDirectory() || pathname.getPath().endsWith(".java");
@@ -227,14 +255,13 @@ public static Test suite() {
 		SimpleDateFormat format = new SimpleDateFormat();
 		Date now = new Date(start);
 		System.out.println("Date of test: "+format.format(now));
-		System.out.print("Get all Java files located in "+testDir+"...");
-		File[] allFiles = ModelTestsUtil.getAllFiles(testDir, filter);
+		System.out.print("Get all Java files located in "+INPUT_DIR+"...");
+		File[] allFiles = ModelTestsUtil.getAllFiles(INPUT_DIR, filter);
 		int length = allFiles.length;
 		System.out.println(length+" found in " + (System.currentTimeMillis() - start) + "ms");
 		for (int i=0; i<length; i++) {
 			suite.addTest(new FormatterCommentsMassiveTests(allFiles[i]));
 		}
-//		ASSERT_EQUALS_STRINGS = length < 15000; 
     } catch (Exception e) {
     	// skip
     }
@@ -244,7 +271,7 @@ public static Test suite() {
 public FormatterCommentsMassiveTests(File file) {
 	super("testCompare");
 	this.file = file;
-	this.path = new Path(file.getPath().substring(DIR.length()+1));
+	this.path = new Path(file.getPath().substring(INPUT_DIR.getPath().length()+1));
 }
 
 /* (non-Javadoc)
@@ -260,6 +287,7 @@ public String getName() {
 public void setUp() throws Exception {
 	super.setUp();
 	this.hasSpaceFailure = false;
+	this.preferences = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
 }
 
 /* (non-Javadoc)
@@ -280,56 +308,38 @@ public void tearDown() throws Exception {
  * @see org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests#tearDownSuite()
  */
 public void tearDownSuite() throws Exception {
+	if (OUTPUT_DIR != null) {
+		if (COMPARE) {
+			System.out.println("Comparison done with output files located in "+OUTPUT_DIR);
+		}
+	}
 	// skip standard model suite tear down
-	int sFailures = this.failures.size();
-	int seFailures = this.expectedFailures.size();
-	int swFailures = this.whitespacesFailures.size();
-	int slwFailures = this.leadingWhitespacesFailures.size();
-	String failuresType = COMPARE != null ? "than old formatter" : "when reformatting";
 	System.out.println();
-	if (sFailures > 0) {
-		System.out.println(sFailures+" files has still different output while reformatting!");
-	}
-	if (seFailures > 0) {
-		System.out.println(seFailures+" files has still different output while reformatting due to old formatter bugs!");
-	}
-	if (slwFailures == 0) {
-		System.out.println("No file has different line leading spaces "+failuresType+" :-)");
-	} else {
-		System.out.println(slwFailures+" files have different line leading spaces "+failuresType+"!");
-	}
-	if (swFailures > 0) {
-		System.out.println(swFailures+" files have different spaces "+failuresType+"!");
-	}
-	if (this.changedHeaderFooter >0) {
-		System.out.println(this.changedHeaderFooter+" differences in header/footer have been found");
-	}
-	if (this.changedPreTags >0) {
-		System.out.println(this.changedPreTags+" differences in <pre> tags (blank lines) have been found");
+	int max = FAILURES.length;
+	for (int i=0; i<max; i++) {
+		List failures = FAILURES[i].failures;
+		int size = failures.size();
+		if (size > 0) {
+			System.out.print(size);
+			System.out.print(" file");
+			if (size == 1) {
+				System.out.print(" has ");
+			} else {
+				System.out.print("s have ");
+			}
+			System.out.print(FAILURES[i]);
+			System.out.println('!');
+		}
 	}
 	System.out.println();
-	if (sFailures > 0) {
-		System.out.println("List of files with different output "+failuresType+":");
-		for (int i=0; i<sFailures; i++) {
-			System.out.println("	- "+this.failures.get(i));
-		}
-	}
-	if (seFailures > 0) {
-		System.out.println("List of files with different output "+failuresType+" (due to old formatter bugs):");
-		for (int i=0; i<seFailures; i++) {
-			System.out.println("	- "+this.expectedFailures.get(i));
-		}
-	}
-	if (slwFailures > 0) {
-		System.out.println("List of files with different line leading spaces "+failuresType+":");
-		for (int i=0; i<slwFailures; i++) {
-			System.out.println("	- "+this.leadingWhitespacesFailures.get(i));
-		}
-	}
-	if (swFailures > 0) {
-		System.out.println("List of files with different spaces "+failuresType+":");
-		for (int i=0; i<swFailures; i++) {
-			System.out.println("	- "+this.whitespacesFailures.get(i));
+	for (int i=0; i<max; i++) {
+		List failures = FAILURES[i].failures;
+		int size = failures.size();
+		if (size > 0) {
+			System.out.println("List of file(s) with "+FAILURES[i]+":");
+			for (int j=0; j<size; j++) {
+				System.out.println("	- "+failures.get(j));
+			}
 		}
 	}
 }
@@ -340,203 +350,54 @@ public void tearDownSuite() throws Exception {
  * The line separators in 'actual' are converted to '\n' before the comparison.
  */
 protected void assertSourceEquals(String message, String expected, String actual) {
+	if (expected == null) {
+		assertNull(message, actual);
+		return;
+	}
 	if (actual == null) {
 		assertEquals(message, expected, null);
 		return;
 	}
+	expected = Util.convertToIndependantLineDelimiter(expected);
 	actual = Util.convertToIndependantLineDelimiter(actual);
-	try {
-		if (ASSERT_EQUALS_STRINGS) {
-			assertEquals(message, expected, actual);
-		} else {
-			assertTrue(message, actual.equals(expected));
-		}
+	if (ASSERT_EQUALS_STRINGS) {
+		assertEquals(message, expected, actual);
+	} else {
+		assertTrue(message, actual.equals(expected));
 	}
-	catch (ComparisonFailure cf) {
-		if ("true".equals(COMPARE)) {
-			String trimmedExpected = expected;
-			String trimmedActual = actual;
-			switch (IGNORE_SPACES) {
-				case ALL_SPACES:
-					trimmedExpected = ModelTestsUtil.removeWhiteSpace(expected);
-					trimmedActual= ModelTestsUtil.removeWhiteSpace(actual);
-					if (trimmedExpected.equals(trimmedActual)) {
-						this.whitespacesFailures.add(this.path);
-						return;
-					}
-					break;
-				case LINES_LEADING_SPACES:
-					trimmedExpected = ModelTestsUtil.trimLinesLeadingWhitespaces(expected);
-					trimmedActual= ModelTestsUtil.trimLinesLeadingWhitespaces(actual);
-					if (trimmedExpected.equals(trimmedActual)) {
-						this.leadingWhitespacesFailures.add(this.path);
-						return;
-					}
-					trimmedExpected = ModelTestsUtil.removeWhiteSpace(expected);
-					trimmedActual= ModelTestsUtil.removeWhiteSpace(actual);
-					if (trimmedExpected.equals(trimmedActual)) {
-						this.whitespacesFailures.add(this.path);
-						return;
-					}
-					break;
-			}
-			if (DEBUG_TESTS && ASSERT_EQUALS_STRINGS) {
-				assertEquals(message, trimmedExpected, trimmedActual);
-			}
-		}
-		this.failures.add(this.path);
-		ASSERT_EQUALS_STRINGS = this.failures.size() < MAX_FAILURES;
-		throw cf;
-	}
-	catch (AssertionFailedError afe) {
-		this.failures.add(this.path);
-		throw afe;
-	}
-}
-
-private String cleanAllKnownDifferences(String comment) {
-	int kind = comment.charAt(1) == '/' ? 1 : comment.charAt(2) == '*' ? 3 : 2;
-	String cleanedComment = comment;
-	switch (kind) {
-		case 1: // line comment
-			cleanedComment = cleanBlankLinesAfterLineComment(comment);
-			break;
-		case 3: // javadoc comment
-			cleanedComment = cleanHeaderAndFooter(comment);
-			String newComment = cleanPreTags(cleanedComment);
-			if (cleanedComment == newComment) {
-				cleanedComment = cleanCodeTags(cleanedComment);
-			} else {
-				cleanedComment = newComment;
-			}
-			break;
-	}
-	return cleanedComment;
-}
-private String cleanHeaderAndFooter(String comment) {
-	int start = 1; // skip starting '/'
-	int length = comment.length();
-	int end = length - 1; // skip ending '/'
-	while (comment.charAt(start) == '*') {
-		// remove all contiguous '*' in header
-		start++;
-	}
-	while (comment.charAt(--end) == '*') {
-		// remove all contiguous '*' in header
-	}
-	if (start > 3 || end < (length - 2)) {
-		this.changedHeaderFooter++;
-		return comment.substring(start, end);
-	}
-	return comment;
-}
-
-private String cleanBlankLinesAfterLineComment(String comment) {
-	int length = comment.length();
-	if (comment.charAt(length-1) == '\n') {
-		length--;
-		if (comment.charAt(length-1) == '\r') {
-			length--;
-		}
-		return comment.substring(0, length);
-	}
-	return comment;
-}
-
-private String cleanCodeTags(String comment) {
-	if (comment.indexOf("<code>") < 0) return comment;
-	StringTokenizer tokenizer = new StringTokenizer(comment, "\r\n\f");
-	StringBuffer buffer = new StringBuffer();
-	while (tokenizer.hasMoreTokens()) {
-		String line = tokenizer.nextToken();
-		if (line.indexOf("<pre>") >= 0) {
-			while (line.indexOf("</pre>") < 0) {
-				line = tokenizer.nextToken();
-			}
-		} else {
-			buffer.append(line);
-			buffer.append("\n");
-		}
-	}
-	this.changedCodeTags++;
-	return buffer.toString();
-}
-
-private String cleanPreTags(String comment) {
-	if (comment.indexOf("<pre>") < 0) return comment;
-	StringTokenizer tokenizer = new StringTokenizer(comment, "\r\n\f");
-	StringBuffer buffer = new StringBuffer();
-	StringBuffer emptyLines = new StringBuffer();
-	String previousLine = null;
-	while (tokenizer.hasMoreTokens()) {
-		String line = tokenizer.nextToken();
-		if (line.trim() == "*") {
-			if (previousLine == null || previousLine.indexOf("<pre>") < 0) {
-				buffer.append(line);
-				buffer.append("\n");
-				continue;
-			} else {
-				emptyLines.append(line);
-				emptyLines.append("\n");
-			}
-		} else if (line.indexOf("<code>") >= 0) {
-			while (line.indexOf("</code>") < 0) {
-				line = tokenizer.nextToken();
-			}
-		} else if (emptyLines.length() != 0) {
-			if (line.indexOf("</pre>") < 0) {
-				buffer.append(emptyLines);
-				emptyLines.setLength(0);
-			}
-			buffer.append(line);
-			buffer.append("\n");
-		} else {
-			buffer.append(line);
-			buffer.append("\n");
-		}
-		previousLine = line;
-	}
-	this.changedPreTags++;
-	return buffer.toString();
 }
 
 DefaultCodeFormatter codeFormatter() {
-	DefaultCodeFormatterOptions preferences = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
-	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.preferences, getDefaultCompilerOptions());
 	return codeFormatter;
 }
 
 void compareFormattedSource() throws IOException, Exception {
-	DefaultCodeFormatter codeFormatter = codeFormatter();
 	String source = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(this.file, null));
 	try {
-		if ("comments".equals(COMPARE)) {
-			String[] oldFormattedComments = formattedComments(source, true);
-			String[] newFormattedComments = formattedComments(source, false);
-			int length = oldFormattedComments == null ? 0 : oldFormattedComments.length;
-			this.abortOnFailure = false;
-			assertEquals("Unexpected number of comments!", length, newFormattedComments == null ? 0 : newFormattedComments.length);
-			for (int i=0; i<length; i++) {
-				String oldComment = oldFormattedComments[i];
-				String newComment = newFormattedComments[i];
-				if (oldComment == null) {
-					assertNull("Unexpected non-null new comment", newComment);
-				} else {
-					String expected = cleanAllKnownDifferences(oldComment);
-					String actual = cleanAllKnownDifferences(newComment);
-					if (!expected.equals(actual)) {
-						String actualResult = runFormatter(codeFormatter, source, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, 0, source.length(), null);
-						String expectedResult = expectedFormattedSource(source);
-						assertEquals("Unexpected difference with formatted comment "+(i+1), Util.convertToIndependantLineDelimiter(expectedResult), Util.convertToIndependantLineDelimiter(actualResult));
-					}
-				}
+		// Format the source
+		String actualResult = runFormatter(codeFormatter(), source, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, 0, source.length(), null);
+
+		// Look for output to compare with
+		File outputFile = new Path(OUTPUT_DIR.getPath()).append(this.path).toFile();
+		if (COMPARE) {
+			String expectedResult = new String(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(outputFile, null));
+			try {
+				assertSourceEquals("Unexpected format output!", expectedResult, actualResult);
+			}
+			catch (ComparisonFailure cf) {
+				this.failureIndex = COMPARISON_FAILURE;
+//				FAILURES[COMPARISON_FAILURE].failures.add(this.path);
+				throw cf;
+			}
+			catch (AssertionFailedError afe) {
+				this.failureIndex = COMPARISON_FAILURE;
+//				FAILURES[COMPARISON_FAILURE].failures.add(this.path);
+				throw afe;
 			}
 		} else {
-			String actualResult = runFormatter(codeFormatter, source, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, 0, source.length(), null);
-			if (!this.hasSpaceFailure && "true".equals(COMPARE)) {
-				String expectedResult = expectedFormattedSource(source);
-				assertLineEquals(actualResult, source, expectedResult, false);
-			}
+			outputFile.getParentFile().mkdirs();
+			Util.writeToFile(actualResult, outputFile.getAbsolutePath());
 		}
 	}
 	catch (Exception e) {
@@ -564,142 +425,6 @@ private String counterToString(int count) {
 			break;
 	}
 	return buffer.toString();
-}
-
-private String expectedFormattedSource(String source) {
-	boolean enableNewCommentFormatter = DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT;
-	try {
-		DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT = false;
-		DefaultCodeFormatter codeFormatter = codeFormatter();
-		Scanner scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_4/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
-		CompilationUnitDeclaration compilationUnitDeclaration = codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
-		final TypeDeclaration[] types = compilationUnitDeclaration.types;
-		int headerEndPosition = types == null ? compilationUnitDeclaration.sourceEnd : types[0].declarationSourceStart;
-		scanner.setSource(source.toCharArray());
-		scanner.lineEnds = codeSnippetParsingUtil.recordedParsingInformation.lineEnds;
-		int[][] commentsPositions = compilationUnitDeclaration.comments;
-		int length = commentsPositions == null ? 0 : commentsPositions.length;
-		String[] formattedComments = new String[length];
-		for (int i=0; i<length; i++) {
-			int[] positions = commentsPositions[i];
-			int commentKind = CodeFormatter.K_JAVA_DOC;
-			int commentStart = positions [0];
-			int commentEnd = positions [1];
-			if (commentEnd < 0) { // line or block comments have negative end position
-				commentEnd = -commentEnd;
-				if (commentStart > 0) { // block comments have positive start position
-					commentKind = CodeFormatter.K_MULTI_LINE_COMMENT;
-				} else {
-					commentStart = -commentStart;
-					commentKind = CodeFormatter.K_SINGLE_LINE_COMMENT;
-				}
-			}
-			if (commentStart >= headerEndPosition) {
-				int indentationLevel = getIndentationLevel(scanner, commentStart);
-				formattedComments[i] = runFormatter(codeFormatter, source.substring(commentStart, commentEnd), commentKind, indentationLevel, 0, commentEnd - commentStart, LINE_SEPARATOR);
-			}
-		}
-		SimpleDocument document = new SimpleDocument(source);
-		for (int i=length-1; i>=0; i--) {
-			if (formattedComments[i] != null) {
-				int[] positions = commentsPositions[i];
-				int commentStart = positions [0];
-				int commentEnd = positions [1];
-				if (commentEnd < 0) { // line or block comments have negative end position
-					commentEnd = -commentEnd;
-					if (commentStart < 0) { // line comments have negative start position
-						commentStart = -commentStart;
-					}
-				}
-				document.replace(commentStart, commentEnd - commentStart, formattedComments[i]);
-			}
-		}
-		String newSource = document.get();
-		String oldResult = runFormatter(codeFormatter, newSource, CodeFormatter.K_COMPILATION_UNIT, 0, 0, newSource.length(), null);
-		return oldResult == null ? newSource : oldResult;
-	}
-	finally {
-		DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT = enableNewCommentFormatter;
-	}
-}
-private String[] formattedComments(String source, boolean old) {
-	boolean enableNewCommentFormatter = DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT;
-	try {
-		DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT = !old;
-		DefaultCodeFormatter codeFormatter = codeFormatter();
-		Scanner scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_4/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
-		CompilationUnitDeclaration compilationUnitDeclaration = codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
-		final TypeDeclaration[] types = compilationUnitDeclaration.types;
-		int headerEndPosition = types == null ? compilationUnitDeclaration.sourceEnd : types[0].declarationSourceStart;
-		scanner.setSource(source.toCharArray());
-		scanner.lineEnds = codeSnippetParsingUtil.recordedParsingInformation.lineEnds;
-		int[][] commentsPositions = compilationUnitDeclaration.comments;
-		int length = commentsPositions == null ? 0 : commentsPositions.length;
-		String[] formattedComments = new String[length];
-		for (int i=0; i<length; i++) {
-			int[] positions = commentsPositions[i];
-			int commentKind = CodeFormatter.K_JAVA_DOC;
-			int commentStart = positions [0];
-			int commentEnd = positions [1];
-			if (commentEnd < 0) { // line or block comments have negative end position
-				commentEnd = -commentEnd;
-				if (commentStart > 0) { // block comments have positive start position
-					commentKind = CodeFormatter.K_MULTI_LINE_COMMENT;
-				} else {
-					commentStart = -commentStart;
-					commentKind = CodeFormatter.K_SINGLE_LINE_COMMENT;
-				}
-			}
-			if (commentStart >= headerEndPosition) {
-				int indentationLevel = getIndentationLevel(scanner, commentStart);
-				formattedComments[i] = runFormatter(codeFormatter, source.substring(commentStart, commentEnd), commentKind, indentationLevel, 0, commentEnd - commentStart, LINE_SEPARATOR);
-			}
-		}
-		return formattedComments;
-	}
-	finally {
-		DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT = enableNewCommentFormatter;
-	}
-}
-
-private int getIndentationLevel(Scanner scanner, int position) {
-	int indentationLevel = 0;
-	int numberOfIndentations = 0;
-	int indentationSize;
-	try {
-		indentationSize = Integer.parseInt(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE);
-	} catch (NumberFormatException nfe) {
-		indentationSize = 4;
-	}
-	int lineNumber = scanner.getLineNumber(position);
-	int lineStart = scanner.getLineStart(lineNumber);
-	scanner.resetTo(lineStart, position-1);
-	while (!scanner.atEnd()) {
-		int ch = scanner.getNextChar();
-		switch (ch) {
-			case '\n':
-				indentationLevel = 0;
-				numberOfIndentations = 0;
-				break;
-			case '\t':
-				numberOfIndentations++;
-				indentationLevel = numberOfIndentations * indentationSize;
-				break;
-			default:
-				indentationLevel++;
-				if ((indentationLevel%indentationSize) == 0) {
-					numberOfIndentations++;
-				}
-				break;
-		}
-	}
-	if ((indentationLevel%indentationSize) != 0) {
-		numberOfIndentations++;
-		indentationLevel = numberOfIndentations * indentationSize;
-	}
-	return numberOfIndentations;
 }
 
 private Map getDefaultCompilerOptions() {
@@ -751,8 +476,8 @@ private Map getDefaultCompilerOptions() {
 	optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, CompilerOptions.DISABLED); 
 	optionsMap.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.IGNORE);
-	optionsMap.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-	optionsMap.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2); 
+	optionsMap.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
+	optionsMap.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6); 
 	optionsMap.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$
 	optionsMap.put(CompilerOptions.OPTION_TaskPriorities, ""); //$NON-NLS-1$
 	optionsMap.put(CompilerOptions.OPTION_TaskCaseSensitive, CompilerOptions.DISABLED);
@@ -761,7 +486,7 @@ private Map getDefaultCompilerOptions() {
 	optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED); 
 	optionsMap.put(CompilerOptions.OPTION_MaxProblemPerUnit, String.valueOf(100));
 	optionsMap.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.DISABLED); 
-	optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
 	return optionsMap;
 }
 
@@ -769,65 +494,139 @@ private boolean isExpectedFailure() {
 	int length = EXPECTED_FAILURES.length;
 	for (int i=0; i<length; i++) {
 		IPath expectedFailure= EXPECTED_FAILURES[i];
-		if (this.path.matchingFirstSegments(expectedFailure) == expectedFailure.segmentCount()) {
-			this.expectedFailures.add(this.path);
+		if (this.path.toString().indexOf(expectedFailure.toString()) >= 0) {
+			this.failureIndex = REFORMATTING_EXPECTED_FAILURE;
+			FAILURES[REFORMATTING_EXPECTED_FAILURE].failures.add(this.path);
 			return true;
 		}
 	}
 	return false;
 }
 
-String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
-	TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
-	if (edit == null) return null;
-	String result = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
+/*
+private boolean runFormatterWithoutComments(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
+	DefaultCodeFormatterOptions preferencesWithoutComment = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
+	preferencesWithoutComment.comment_format_line_comment = false;
+	preferencesWithoutComment.comment_format_block_comment = false;
+	preferencesWithoutComment.comment_format_javadoc_comment = false;
+	DefaultCodeFormatter codeFormatterWithoutComment = new DefaultCodeFormatter(preferencesWithoutComment);
+
+	TextEdit edit = codeFormatterWithoutComment.format(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
+	if (edit == null) return false;
+	String initialResult = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 
 	int count = 1;
-	if (COMPARE == null && length == source.length()) {
-		String previousResult = result;
-		while (count++ < FORMAT_REPEAT) {
-			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
-			if (edit == null) return null;
-			previousResult = result;
-			result = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
+	String result = initialResult;
+	String previousResult = result;
+	while (count++ < FORMAT_REPEAT) {
+		edit = codeFormatterWithoutComment.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
+		if (edit == null) return false;
+		previousResult = result;
+		result = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
+	}
+	return previousResult.equals(result);
+}
+*/
+
+String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
+	TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
+	try {
+		assertNotNull("Formatted source should not be null!", edit);
+	}
+	catch (ComparisonFailure cf) {
+		this.failureIndex = NO_OUTPUT_FAILURE;
+//		FAILURES[NO_OUTPUT_FAILURE].failures.add(this.path);
+		throw cf;
+	}
+	catch (AssertionFailedError afe) {
+		this.failureIndex = NO_OUTPUT_FAILURE;
+//		FAILURES[NO_OUTPUT_FAILURE].failures.add(this.path);
+		throw afe;
+	}
+	String initialResult = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
+
+	int count = 1;
+	String result = initialResult;
+	String previousResult = result;
+	while (count++ < FORMAT_REPEAT) {
+		edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
+		if (edit == null) return null;
+		previousResult = result;
+		result = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
+	}
+	if (!previousResult.equals(result)) {
+
+		// Try to compare without leading spaces
+		String trimmedExpected = ModelTestsUtil.trimLinesLeadingWhitespaces(previousResult);
+		String trimmedActual= ModelTestsUtil.trimLinesLeadingWhitespaces(result);
+		if (trimmedExpected.equals(trimmedActual)) {
+			this.failureIndex = REFORMATTING_LEADING_FAILURE;
+			FAILURES[REFORMATTING_LEADING_FAILURE].failures.add(this.path);
+			this.hasSpaceFailure = true;
+			return initialResult;
 		}
-		if (!previousResult.equals(result)) {
-			switch (IGNORE_SPACES) {
-				case ALL_SPACES:
-					String trimmedExpected = ModelTestsUtil.removeWhiteSpace(previousResult);
-					String trimmedActual= ModelTestsUtil.removeWhiteSpace(result);
-					if (trimmedExpected.equals(trimmedActual)) {
-						this.whitespacesFailures.add(this.path);
-						this.hasSpaceFailure = true;
-						return previousResult;
-					}
-					break;
-				case LINES_LEADING_SPACES:
-					trimmedExpected = ModelTestsUtil.trimLinesLeadingWhitespaces(previousResult);
-					trimmedActual= ModelTestsUtil.trimLinesLeadingWhitespaces(result);
-					if (trimmedExpected.equals(trimmedActual)) {
-						this.leadingWhitespacesFailures.add(this.path);
-						this.hasSpaceFailure = true;
-						return previousResult;
-					}
-					if (ModelTestsUtil.removeWhiteSpace(previousResult).equals(ModelTestsUtil.removeWhiteSpace(result))) {
-						this.whitespacesFailures.add(this.path);
-						this.hasSpaceFailure = true;
-						return previousResult;
-					}
-					break;
+		
+		// Try to compare without spaces at all
+		if (ModelTestsUtil.removeWhiteSpace(previousResult).equals(ModelTestsUtil.removeWhiteSpace(result))) {
+			this.failureIndex = REFORMATTING_WHITESPACES_FAILURE;
+			FAILURES[REFORMATTING_WHITESPACES_FAILURE].failures.add(this.path);
+			this.hasSpaceFailure = true;
+			return initialResult;
+		}
+
+		/*
+		// Try to see if the formatting also fails without comments
+		if (!runFormatterWithoutComments(null, source, kind, indentationLevel, offset, length, lineSeparator)) {
+			return initialResult;
+		}
+
+		// format without comments is OK => there's a problem with comment formatting
+		String counterString = counterToString(count-1);
+		assertSourceEquals(counterString+" formatting is different from first one!", previousResult, result);
+		*/
+		if (!isExpectedFailure()) {
+			String counterString = counterToString(count-1);
+			try {
+				assertSourceEquals(counterString+" formatting is different from first one!", previousResult, result);
 			}
-			if (!isExpectedFailure()) {
-				String counterString = counterToString(count-1);
-				assertSourceEquals(counterString+" formatting is different from first one!", Util.convertToIndependantLineDelimiter(previousResult), Util.convertToIndependantLineDelimiter(result));
+			catch (ComparisonFailure cf) {
+				this.failureIndex = REFORMATTING_FAILURE;
+//				FAILURES[REFORMATTING_FAILURE].failures.add(this.path);
+				throw cf;
 			}
-			result = previousResult;
+			catch (AssertionFailedError afe) {
+				this.failureIndex = REFORMATTING_FAILURE;
+//				FAILURES[REFORMATTING_FAILURE].failures.add(this.path);
+				throw afe;
+			}
 		}
 	}
-	return result;
+	return initialResult;
 }
 
 public void testCompare() throws IOException, Exception {
-	compareFormattedSource();
+	try {
+		compareFormattedSource();
+	}
+	catch (ComparisonFailure cf) {
+		if (this.failureIndex == -1) {
+			FAILURES[UNEXPECTED_FAILURE].failures.add(this.path);
+		} else {
+			FAILURES[this.failureIndex].failures.add(this.path);
+		}
+		throw cf;
+	}
+	catch (AssertionFailedError afe) {
+		if (this.failureIndex == -1) {
+			FAILURES[UNEXPECTED_FAILURE].failures.add(this.path);
+		} else {
+			FAILURES[this.failureIndex].failures.add(this.path);
+		}
+		throw afe;
+	}
+	catch (Exception ex) {
+		FAILURES[UNEXPECTED_FAILURE].failures.add(this.path);
+		throw ex;
+	}
 }
 }
