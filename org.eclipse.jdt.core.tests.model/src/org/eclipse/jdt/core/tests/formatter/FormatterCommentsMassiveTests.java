@@ -180,13 +180,13 @@ public class FormatterCommentsMassiveTests extends FormatterRegressionTests {
         }
 		public String toString() {
 			switch (this.kind) {
-				case  0: // unexpected failure
+				case  UNEXPECTED_FAILURE:
 					return "unexpected failure while formatting";
-				case  1: // no output failure
+				case  NO_OUTPUT_FAILURE:
 					return "no output while formatting";
-				case  2: // comparison failure
+				case  COMPARISON_FAILURE:
 					return "different output while comparing with previous version";
-				default: // different output
+				default:
 			        return "different output while "+msg;
 			}
         }
@@ -387,12 +387,10 @@ void compareFormattedSource() throws IOException, Exception {
 			}
 			catch (ComparisonFailure cf) {
 				this.failureIndex = COMPARISON_FAILURE;
-//				FAILURES[COMPARISON_FAILURE].failures.add(this.path);
 				throw cf;
 			}
 			catch (AssertionFailedError afe) {
 				this.failureIndex = COMPARISON_FAILURE;
-//				FAILURES[COMPARISON_FAILURE].failures.add(this.path);
 				throw afe;
 			}
 		} else {
@@ -535,12 +533,10 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 	}
 	catch (ComparisonFailure cf) {
 		this.failureIndex = NO_OUTPUT_FAILURE;
-//		FAILURES[NO_OUTPUT_FAILURE].failures.add(this.path);
 		throw cf;
 	}
 	catch (AssertionFailedError afe) {
 		this.failureIndex = NO_OUTPUT_FAILURE;
-//		FAILURES[NO_OUTPUT_FAILURE].failures.add(this.path);
 		throw afe;
 	}
 	String initialResult = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
@@ -591,12 +587,10 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 			}
 			catch (ComparisonFailure cf) {
 				this.failureIndex = REFORMATTING_FAILURE;
-//				FAILURES[REFORMATTING_FAILURE].failures.add(this.path);
 				throw cf;
 			}
 			catch (AssertionFailedError afe) {
 				this.failureIndex = REFORMATTING_FAILURE;
-//				FAILURES[REFORMATTING_FAILURE].failures.add(this.path);
 				throw afe;
 			}
 		}
