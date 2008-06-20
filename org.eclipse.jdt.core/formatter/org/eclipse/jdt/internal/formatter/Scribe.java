@@ -1715,8 +1715,9 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 		
 		// 3 - process snippet (@see JavaDocRegion#formatCodeSnippet)
+		// include comments in case of line comments are present in the snippet
 		String formattedSnippet = convertedSnippet;
-		TextEdit edit= CommentFormatterUtil.format2(CodeFormatter.K_UNKNOWN, convertedSnippet, 0, this.lineSeparator, this.formatter.preferences.getMap());
+		TextEdit edit= CommentFormatterUtil.format2(CodeFormatter.K_UNKNOWN | CodeFormatter.F_INCLUDE_COMMENTS, convertedSnippet, 0, this.lineSeparator, this.formatter.preferences.getMap());
 		if (edit != null) {
 			formattedSnippet= CommentFormatterUtil.evaluateFormatterEdit(convertedSnippet, edit, null);
 		}
