@@ -267,7 +267,7 @@ public void testClassFileMemento() {
 /**
  * Tests that a compilation unit can be persisted and restored using its memento.
  */
-public void testCompilationUnitMemento() {
+public void testCompilationUnitMemento1() {
 	ICompilationUnit cu = getCompilationUnit("/P/src/p/X.java");
 	assertMemento(
 		"=P/src<p{X.java",
@@ -277,6 +277,17 @@ public void testCompilationUnitMemento() {
 	assertMemento(
 		"=P/src<{Y.java",
 		cu);
+}
+/*
+ * Ensure that restoring a compilation unit memento with a null owner doesn't create an
+ * invalid handle
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=205917 )
+ */
+public void testCompilationUnitMemento2() throws Exception {
+	ICompilationUnit cu = getCompilationUnit("/P/src/p/X.java");
+	String handleIdentifier = cu.getHandleIdentifier();
+	cu = (ICompilationUnit) JavaCore.create(handleIdentifier, null);
+	assertEquals(cu, cu); // should not throw an NPE
 }
 /**
  * Tests that a binary field in an external jar can be persisted and restored using its memento.
