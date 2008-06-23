@@ -1731,6 +1731,27 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return this.cache.getExistingElement(element);
 	}
 
+	public HashSet getExternalWorkingCopyProjects() {
+		synchronized (this.perWorkingCopyInfos) {
+			HashSet result = null;
+			Iterator values = this.perWorkingCopyInfos.values().iterator();
+			while (values.hasNext()) {
+				Map ownerCopies = (Map) values.next();
+				Iterator workingCopies = ownerCopies.keySet().iterator();
+				while (workingCopies.hasNext()) {
+					ICompilationUnit workingCopy = (ICompilationUnit) workingCopies.next();
+					IJavaProject project = workingCopy.getJavaProject();
+					if (project.getElementName().equals(ExternalJavaProject.EXTERNAL_PROJECT_NAME)) {
+						if (result == null)
+							result = new HashSet();
+						result.add(project);
+					}
+				}
+			}
+			return result;
+		}
+	}
+	
 	/**
 	 * Get workspace eclipse preference for JavaCore plug-in.
 	 */

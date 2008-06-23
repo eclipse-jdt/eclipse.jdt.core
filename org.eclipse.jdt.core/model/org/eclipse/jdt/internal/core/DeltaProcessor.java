@@ -705,8 +705,22 @@ public class DeltaProcessor {
 		try {
 			if (monitor != null) monitor.beginTask("", 1); //$NON-NLS-1$
 
+			boolean hasExternalWorkingCopyProject = false;
 			for (int i = 0, length = elementsScope.length; i < length; i++) {
+				IJavaElement element = elementsScope[i];
 				this.state.addForRefresh(elementsScope[i]);
+				if (element.getElementType() == IJavaElement.JAVA_MODEL) {
+					// ensure external working copies' projects' caches are reset
+					HashSet projects = JavaModelManager.getJavaModelManager().getExternalWorkingCopyProjects();
+					if (projects != null) {
+						hasExternalWorkingCopyProject = true;
+						Iterator iterator = projects.iterator();
+						while (iterator.hasNext()) {
+							JavaProject project = (JavaProject) iterator.next();
+							project.resetCaches();
+						}
+					}
+				}
 			}
 			HashSet elementsToRefresh = this.state.removeExternalElementsToRefresh();
 			boolean hasDelta = elementsToRefresh != null && createExternalArchiveDelta(elementsToRefresh, monitor);
@@ -744,6 +758,9 @@ public class DeltaProcessor {
 				if (this.currentDelta != null) { // if delta has not been fired while creating markers
 					this.fire(this.currentDelta, DEFAULT_CHANGE_EVENT);
 				}
+			} else if (hasExternalWorkingCopyProject) {
+				// flush jar type cache
+				JavaModelManager.getJavaModelManager().resetJarTypeCache();
 			}
 		} finally {
 			this.currentDelta = null;

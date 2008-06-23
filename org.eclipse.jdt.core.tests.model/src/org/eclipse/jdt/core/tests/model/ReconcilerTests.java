@@ -1623,6 +1623,54 @@ public void testExternal2() throws CoreException {
 }
 
 /*
+ * Ensures that an error is detected after refreshing external archives used by
+ * an external working copy.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=216772 )
+ */
+public void testExternal3() throws Exception {
+	try {
+		this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+		this.workingCopy = null;
+		this.problemRequestor =  new ProblemRequestor();
+		createJar(new String[] {
+			"p/Lib.java",
+			"package p;\n" +
+			"public class Lib {\n" +
+			"}"
+		}, getExternalResourcePath("lib.jar"));
+		IClasspathEntry[] classpath = new IClasspathEntry[] {
+			JavaCore.newLibraryEntry(getExternalJCLPath(), null, null),
+			JavaCore.newLibraryEntry(new Path(getExternalResourcePath("lib.jar")), null, null)
+		};
+		this.workingCopy = newExternalWorkingCopy("External.java", classpath, this.problemRequestor,
+			"public class External {\n"+
+			"	p.Lib field;\n"+
+			"}\n"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null/*no owner*/, null);
+	
+		createJar(new String[] {
+			"p/Lib2.java",
+			"package p;\n" +
+			"public class Lib2 {\n" +
+			"}"
+		}, getExternalResourcePath("lib.jar"));
+		getJavaModel().refreshExternalArchives(null, null);
+		this.problemRequestor.reset();
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null/*no owner*/, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. ERROR in / /External.java\n" + 
+			"p.Lib cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteExternalResource("lib.jar");
+	}
+}
+
+/*
  * Ensures that included part of prereq project are visible
  */
 public void testIncludePartOfAnotherProject1() throws CoreException {
