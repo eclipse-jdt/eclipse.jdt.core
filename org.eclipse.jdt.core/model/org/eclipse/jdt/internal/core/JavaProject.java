@@ -1826,12 +1826,12 @@ public class JavaProject
 		PerProjectInfo perProjectInfo = getPerProjectInfo();
 		IClasspathEntry[] resolvedClasspath = perProjectInfo.resolvedClasspath;
 		if (resolvedClasspath == null) {
-			resolveClasspath(perProjectInfo);
+			resolveClasspath(perProjectInfo, false/*don't use previous session values*/);
 			resolvedClasspath = perProjectInfo.resolvedClasspath;
 			if (resolvedClasspath == null) {
 				// another thread reset the resolved classpath, use a temporary PerProjectInfo
 				PerProjectInfo temporaryInfo = new PerProjectInfo(getProject());
-				resolveClasspath(temporaryInfo);
+				resolveClasspath(temporaryInfo, false/*don't use previous session values*/);
 				resolvedClasspath = temporaryInfo.resolvedClasspath;
 			}
 		}
@@ -1859,7 +1859,7 @@ public class JavaProject
 		
 		if (resolvedClasspath == null 
 				|| (unresolvedEntryStatus != null && !unresolvedEntryStatus.isOK())) { // force resolution to ensure initializers are run again
-			resolveClasspath(perProjectInfo);
+			resolveClasspath(perProjectInfo, false/*don't use previous session values*/);
 			synchronized (perProjectInfo) {
 				resolvedClasspath = perProjectInfo.resolvedClasspath;
 				unresolvedEntryStatus = perProjectInfo.unresolvedEntryStatus;
@@ -1867,7 +1867,7 @@ public class JavaProject
 			if (resolvedClasspath == null) {
 				// another thread reset the resolved classpath, use a temporary PerProjectInfo
 				PerProjectInfo temporaryInfo = new PerProjectInfo(getProject());
-				resolveClasspath(temporaryInfo);
+				resolveClasspath(temporaryInfo, false/*don't use previous session values*/);
 				resolvedClasspath = temporaryInfo.resolvedClasspath;
 				unresolvedEntryStatus = temporaryInfo.unresolvedEntryStatus;
 			}
@@ -2503,7 +2503,7 @@ public class JavaProject
 	/*
 	 * Resolve the given perProjectInfo's raw classpath and store the resolved classpath in the perProjectInfo.
 	 */
-	public void resolveClasspath(PerProjectInfo perProjectInfo) throws JavaModelException {
+	public void resolveClasspath(PerProjectInfo perProjectInfo, boolean usePreviousSession) throws JavaModelException {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			manager.setClasspathBeingResolved(this, true);
@@ -2537,7 +2537,7 @@ public class JavaProject
 					case IClasspathEntry.CPE_VARIABLE :
 						IClasspathEntry resolvedEntry = null;
 						try {
-							resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
+							resolvedEntry = manager.getResolvedClasspathEntry(rawEntry, usePreviousSession);
 						} catch (AssertionFailedException e) {
 							// Catch the assertion failure and set status instead
 							// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=55992
@@ -2559,7 +2559,7 @@ public class JavaProject
 						break; 
 	
 					case IClasspathEntry.CPE_CONTAINER :
-						IClasspathContainer container = JavaCore.getClasspathContainer(rawEntry.getPath(), this);
+						IClasspathContainer container = usePreviousSession ? manager.getPreviousSessionContainer(rawEntry.getPath(), this) : JavaCore.getClasspathContainer(rawEntry.getPath(), this);
 						if (container == null){
 							unresolvedEntryStatus = new JavaModelStatus(IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND, this, rawEntry.getPath());
 							break;
