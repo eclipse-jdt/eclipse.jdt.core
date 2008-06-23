@@ -2118,100 +2118,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return containerIDs;
 	}	
 
-	public IClasspathEntry getResolvedClasspathEntry(IClasspathEntry entry, boolean usePreviousSession) {
-
-		if (entry.getEntryKind() != IClasspathEntry.CPE_VARIABLE)
-			return entry;
-
-		IPath resolvedPath = getResolvedVariablePath(entry.getPath(), usePreviousSession);
-		if (resolvedPath == null)
-			return null;
-
-		Object target = JavaModel.getTarget(resolvedPath, false);
-		if (target == null)
-			return null;
-
-		// inside the workspace
-		if (target instanceof IResource) {
-			IResource resolvedResource = (IResource) target;
-			switch (resolvedResource.getType()) {
-
-				case IResource.PROJECT :
-					// internal project
-					return JavaCore.newProjectEntry(
-							resolvedPath,
-							entry.getAccessRules(),
-							entry.combineAccessRules(),
-							entry.getExtraAttributes(),
-							entry.isExported());
-				case IResource.FILE :
-					// internal binary archive
-					return JavaCore.newLibraryEntry(
-							resolvedPath,
-							getResolvedVariablePath(entry.getSourceAttachmentPath(), usePreviousSession),
-							getResolvedVariablePath(entry.getSourceAttachmentRootPath(), usePreviousSession),
-							entry.getAccessRules(),
-							entry.getExtraAttributes(),
-							entry.isExported());
-				case IResource.FOLDER :
-					// internal binary folder
-					return JavaCore.newLibraryEntry(
-							resolvedPath,
-							getResolvedVariablePath(entry.getSourceAttachmentPath(), usePreviousSession),
-							getResolvedVariablePath(entry.getSourceAttachmentRootPath(), usePreviousSession),
-							entry.getAccessRules(),
-							entry.getExtraAttributes(),
-							entry.isExported());
-			}
-		}
-		if (target instanceof File) {
-			File externalFile = JavaModel.getFile(target);
-			if (externalFile != null) {
-				// external binary archive
-				return JavaCore.newLibraryEntry(
-						resolvedPath,
-						getResolvedVariablePath(entry.getSourceAttachmentPath(), usePreviousSession),
-						getResolvedVariablePath(entry.getSourceAttachmentRootPath(), usePreviousSession),
-						entry.getAccessRules(),
-						entry.getExtraAttributes(),
-						entry.isExported());
-			} else { 
-				// non-existing file
-				if (resolvedPath.isAbsolute()){
-					return JavaCore.newLibraryEntry(
-							resolvedPath,
-							getResolvedVariablePath(entry.getSourceAttachmentPath(), usePreviousSession),
-							getResolvedVariablePath(entry.getSourceAttachmentRootPath(), usePreviousSession),
-							entry.getAccessRules(),
-							entry.getExtraAttributes(),
-							entry.isExported());
-				}
-			}
-		} 
-		return null;
-	}
-
-	public IPath getResolvedVariablePath(IPath variablePath, boolean usePreviousSession) {
-
-		if (variablePath == null)
-			return null;
-		int count = variablePath.segmentCount();
-		if (count == 0)
-			return null;
-
-		// lookup variable
-		String variableName = variablePath.segment(0);
-		IPath resolvedPath = usePreviousSession ? getPreviousSessionVariable(variableName) : JavaCore.getClasspathVariable(variableName);
-		if (resolvedPath == null)
-			return null;
-
-		// append path suffix
-		if (count > 1) {
-			resolvedPath = resolvedPath.append(variablePath.removeFirstSegments(1));
-		}
-		return resolvedPath;
-	}
-
 	/**
 	 * Returns the File to use for saving and restoring the last built state for the given project.
 	 */
@@ -4432,8 +4338,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (VERBOSE)
 				traceVariableAndContainers("Loaded", start); //$NON-NLS-1$
 	
-			// listen for resource changes
-			this.deltaState.initializeRootsWithPreviousSession();
 			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			workspace.addResourceChangeListener(
 				this.deltaState,
