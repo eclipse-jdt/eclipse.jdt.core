@@ -558,11 +558,17 @@ public void testInitializeAfterLoad2() throws CoreException {
 		}
 		CancellingInitializer initializer = new CancellingInitializer(new String[] {"P1", "/P1/lib.jar", "P2", "/P2/lib.jar"});
 		ContainerInitializer.setInitializer(initializer);
+		Exception actual = null;
 		try {
 			JavaCore.initializeAfterLoad(progressMonitor);
 		} catch (OperationCanceledException e) {
-			// expected
+			actual = e;
+			ContainerInitializer.setInitializer(null);
 		}
+		assertExceptionEquals(
+			"Unexpected exception", 
+			"org.eclipse.core.runtime.OperationCanceledException",
+			actual);
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
