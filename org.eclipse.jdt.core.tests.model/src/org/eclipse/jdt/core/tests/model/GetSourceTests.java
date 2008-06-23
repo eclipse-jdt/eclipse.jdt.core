@@ -163,6 +163,54 @@ public class GetSourceTests extends ModifyingResourceTests {
 		assertNull("Should not be a constant", constant);
 	}
 
+	/*
+	 * Ensures that the Javadoc range for a method is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=232944 )
+	 */
+	public void testJavadocRange01() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" + 
+				"class A{\n" + 
+				"    /**\n" + 
+				"     * swsw\n" + 
+				"     */\n" + 
+				"    void m(){\n" + 
+				"    }\n" + 
+				"}";
+			createFile("/P/p/A.java", cuSource);
+			IMethod method = getCompilationUnit("/P/p/A.java").getType("A").getMethod("m", new String[0]);
+			assertSourceEquals(
+				"Unexpected Javadoc'", 
+				"/**\n" + 
+				"     * swsw\n" + 
+				"     */",
+				getSource(cuSource, method.getJavadocRange()));
+		} finally {
+			deleteFile("/P/p/A.java");
+		}
+	}
+		
+	/*
+	 * Ensures that the Javadoc range for a class is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=232944 )
+	 */
+	public void testJavadocRange02() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" + 
+				"/** X */class A {}";
+			createFile("/P/p/A.java", cuSource);
+			IType type = getCompilationUnit("/P/p/A.java").getType("A");
+			assertSourceEquals(
+				"Unexpected Javadoc'", 
+				"/** X */",
+				getSource(cuSource, type.getJavadocRange()));
+		} finally {
+			deleteFile("/P/p/A.java");
+		}
+	}
+		
 	/**
 	 * Ensure the source for an import contains the 'import' keyword,
 	 * name, and terminator.
