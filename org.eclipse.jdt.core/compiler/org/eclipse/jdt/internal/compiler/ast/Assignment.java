@@ -98,40 +98,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 
-public static Binding getDirectBinding(Expression someExpression) {
-	if ((someExpression.bits & ASTNode.IgnoreNoEffectAssignCheck) != 0) {
-		return null;
-	}
-	if (someExpression instanceof SingleNameReference) {
-		return ((SingleNameReference)someExpression).binding;
-	} else if (someExpression instanceof FieldReference) {
-		FieldReference fieldRef = (FieldReference)someExpression;
-		if (fieldRef.receiver.isThis() && !(fieldRef.receiver instanceof QualifiedThisReference)) {
-			return fieldRef.binding;
-		}			
-	} else if (someExpression instanceof Assignment) {
-		Expression lhs = ((Assignment)someExpression).lhs;
-		if ((lhs.bits & ASTNode.IsStrictlyAssigned) != 0) {
-			// i = i = ...; // eq to int i = ...;
-			return getDirectBinding (((Assignment)someExpression).lhs);
-		} else if (someExpression instanceof PrefixExpression) {
-			// i = i++; // eq to ++i;
-			return getDirectBinding (((Assignment)someExpression).lhs);
-		}
-	} else if (someExpression instanceof QualifiedNameReference) {
-		QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) someExpression;
-		if (qualifiedNameReference.indexOfFirstFieldBinding != 1
-				&& qualifiedNameReference.otherBindings == null) {
-			// case where a static field is retrieved using ClassName.fieldname
-			return qualifiedNameReference.binding;
-		}
-	}
-//		} else if (someExpression instanceof PostfixExpression) { // recurse for postfix: i++ --> i
-//			// note: "b = b++" is equivalent to doing nothing, not to "b++"
-//			return getDirectBinding(((PostfixExpression) someExpression).lhs);
-	return null;
-}
-
 FieldBinding getLastField(Expression someExpression) {
     if (someExpression instanceof SingleNameReference) {
         if ((someExpression.bits & RestrictiveFlagMASK) == Binding.FIELD) {

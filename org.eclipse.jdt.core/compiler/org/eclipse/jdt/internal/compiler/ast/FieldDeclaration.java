@@ -253,7 +253,7 @@ public void resolve(MethodScope initializationScope) {
 				this.binding.setConstant(Constant.NotAConstant);
 			}
 			// check for assignment with no effect
-			if (this.binding == Assignment.getDirectBinding(this.initialization)) {
+			if (this.binding == Expression.getDirectBinding(this.initialization)) {
 				initializationScope.problemReporter().assignmentHasNoEffect(this, this.name);
 			}					
 		}

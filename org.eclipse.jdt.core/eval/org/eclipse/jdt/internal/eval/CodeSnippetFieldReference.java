@@ -209,32 +209,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 	boolean isStatic;
 	if (this.codegenBinding.canBeSeenBy(this.receiverType, this, currentScope)) {
-		this.receiver.generateCode(currentScope, codeStream, !(isStatic = this.codegenBinding.isStatic()));
-		if (isStatic) {
-			codeStream.getstatic(this.codegenBinding);
-		} else {
-			codeStream.dup();
-			codeStream.getfield(this.codegenBinding);
-		}
-		if (valueRequired) {
-			if (isStatic) {
-				if ((this.codegenBinding.type == TypeBinding.LONG) || (this.codegenBinding.type == TypeBinding.DOUBLE)) {
-					codeStream.dup2();
-				} else {
-					codeStream.dup();
-				}
-			} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
-				if ((this.codegenBinding.type == TypeBinding.LONG) || (this.codegenBinding.type == TypeBinding.DOUBLE)) {
-					codeStream.dup2_x1();
-				} else {
-					codeStream.dup_x1();
-				}
-			}
-		}
-		codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
-		codeStream.sendOperator(postIncrement.operator, this.codegenBinding.type.id);
-		codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
-		fieldStore(codeStream, this.codegenBinding, null, false);
+		super.generatePostIncrement(currentScope, codeStream, postIncrement, valueRequired);
 	} else {
 		this.receiver.generateCode(currentScope, codeStream, !(isStatic = this.codegenBinding.isStatic()));
 		if (isStatic) {

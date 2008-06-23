@@ -315,6 +315,9 @@ public static long getIrritant(int problemID) {
 
 		case IProblem.RedundantSuperinterface:
 			return CompilerOptions.RedundantSuperinterface;
+			
+		case IProblem.ComparingIdentical:
+			return CompilerOptions.ComparingIdentical;
 	}
 	return 0;
 }
@@ -406,6 +409,7 @@ public static int getProblemCategory(int severity, int problemID) {
 				case (int)(CompilerOptions.IncompleteEnumSwitch >>> 32):
 				case (int)(CompilerOptions.FallthroughCase >>> 32):
 				case (int)(CompilerOptions.OverridingMethodWithoutSuperInvocation >>> 32):
+				case (int)(CompilerOptions.ComparingIdentical >>> 32):
 					return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 	
 				case (int)(CompilerOptions.TypeHiding >>> 32):
@@ -743,6 +747,7 @@ public void assignmentHasNoEffect(Assignment location, char[] name){
 			location.sourceStart,
 			location.sourceEnd);
 }
+
 public void attemptToReturnNonVoidExpression(ReturnStatement returnStatement, TypeBinding expectedType) {
 	this.handle(
 		IProblem.VoidMethodReturnsValue,
@@ -751,6 +756,8 @@ public void attemptToReturnNonVoidExpression(ReturnStatement returnStatement, Ty
 		returnStatement.sourceStart,
 		returnStatement.sourceEnd);
 }
+
+
 public void attemptToReturnVoidValue(ReturnStatement returnStatement) {
 	this.handle(
 		IProblem.MethodReturnsVoid,
@@ -1042,6 +1049,17 @@ public void codeSnippetMissingMethod(String className, String missingMethod, Str
 		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
 		start,
 		end);
+}
+public void comparingIdenticalExpressions(Expression comparison){
+	int severity = computeSeverity(IProblem.ComparingIdentical);
+	if (severity == ProblemSeverities.Ignore) return;
+	this.handle(
+			IProblem.ComparingIdentical,
+			NoArgument,
+			NoArgument,
+			severity,
+			comparison.sourceStart,
+			comparison.sourceEnd);
 }
 /*
  * Given the current configuration, answers which category the problem

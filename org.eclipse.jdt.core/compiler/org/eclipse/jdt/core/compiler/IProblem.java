@@ -522,6 +522,9 @@ void setSourceStart(int sourceStart);
 	int ParsingErrorOnKeyword = Syntax + Internal + 209;	
 	int ParsingErrorOnKeywordNoSuggestion = Syntax + Internal + 210;
 
+	/** @since 3.5 */
+	int ComparingIdentical = Internal + 211;
+
 	int UnmatchedBracket = Syntax + Internal + 220;
 	int NoFieldOnBaseType = FieldRelated + 221;
 	int InvalidExpressionAsStatement = Syntax + Internal + 222;

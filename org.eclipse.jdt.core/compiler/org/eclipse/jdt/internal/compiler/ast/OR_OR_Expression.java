@@ -255,6 +255,19 @@ public class OR_OR_Expression extends BinaryExpression {
 		return false;
 	}
 
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.BinaryExpression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public TypeBinding resolveType(BlockScope scope) {
+		TypeBinding result = super.resolveType(scope);
+		// check whether comparing identical expressions
+		Binding leftDirect = Expression.getDirectBinding(left);
+		if (leftDirect != null && leftDirect == Expression.getDirectBinding(right)) {
+			scope.problemReporter().comparingIdenticalExpressions(this);
+		}	
+		return result;
+	}
+	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			left.traverse(visitor, scope);

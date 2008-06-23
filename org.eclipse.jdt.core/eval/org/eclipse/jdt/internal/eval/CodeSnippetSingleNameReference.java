@@ -337,7 +337,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 					Constant assignConstant;
 					if (((assignConstant = expression.constant) != Constant.NotAConstant) 
 							&& (assignConstant.typeID() != TypeIds.T_float) // only for integral types
-							&& (assignConstant.typeID() != TypeIds.T_double)) {
+							&& (assignConstant.typeID() != TypeIds.T_double)) { // TODO (philippe) is this test needed ?
 						switch (operator) {
 							case PLUS :
 								int increment  = assignConstant.intValue();
@@ -357,6 +357,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 								return;
 						}
 					}
+					// fallthrough
 				default :
 					codeStream.load(localBinding);
 			}
@@ -421,38 +422,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		case Binding.FIELD : // assigning to a field
 			FieldBinding fieldBinding = (FieldBinding) this.codegenBinding;
 			if (fieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
-				if (fieldBinding.isStatic()) {
-					codeStream.getstatic(fieldBinding);
-				} else {
-					if ((this.bits & DepthMASK) != 0) {
-						ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((this.bits & DepthMASK) >> DepthSHIFT);
-						Object[] emulationPath = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
-						codeStream.generateOuterAccess(emulationPath, this, targetType, currentScope);
-					} else {
-						generateReceiver(codeStream);
-					}
-					codeStream.dup();
-					codeStream.getfield(fieldBinding);
-				}
-				if (valueRequired) {
-					if (fieldBinding.isStatic()) {
-						if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
-							codeStream.dup2();
-						} else {
-							codeStream.dup();
-						}
-					} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
-						if ((fieldBinding.type == TypeBinding.LONG) || (fieldBinding.type == TypeBinding.DOUBLE)) {
-							codeStream.dup2_x1();
-						} else {
-							codeStream.dup_x1();
-						}
-					}
-				}
-				codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
-				codeStream.sendOperator(postIncrement.operator, fieldBinding.type.id);
-				codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
-				fieldStore(codeStream, fieldBinding, null, false);
+				super.generatePostIncrement(currentScope, codeStream, postIncrement, valueRequired);
 			} else {
 				if (fieldBinding.isStatic()) {
 					codeStream.aconst_null();
@@ -502,32 +472,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 			}
 			return;
 		case Binding.LOCAL : // assigning to a local variable
-			LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
-			// using incr bytecode if possible
-			if (localBinding.type == TypeBinding.INT) {
-				if (valueRequired) {
-					codeStream.load(localBinding);
-				}
-				if (postIncrement.operator == PLUS) {
-					codeStream.iinc(localBinding.resolvedPosition, 1);
-				} else {
-					codeStream.iinc(localBinding.resolvedPosition, -1);
-				}
-			} else {
-				codeStream.load(localBinding);
-				if (valueRequired){
-					if ((localBinding.type == TypeBinding.LONG) || (localBinding.type == TypeBinding.DOUBLE)) {
-						codeStream.dup2();
-					} else {
-						codeStream.dup();
-					}
-				}
-				codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
-				codeStream.sendOperator(postIncrement.operator, localBinding.type.id);
-				codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
-
-				codeStream.store(localBinding, false);
-			}
+			super.generatePostIncrement(currentScope, codeStream, postIncrement, valueRequired);
 	}
 }
 public void generateReceiver(CodeStream codeStream) {

@@ -2056,14 +2056,24 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"10. WARNING in X.java (at line 15)\n" + 
 			"	case 9: return b && b;\n" + 
 			"	               ^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"11. WARNING in X.java (at line 15)\n" + 
+			"	case 9: return b && b;\n" + 
+			"	               ^^^^^^\n" + 
 			"The expression of type boolean is boxed into Boolean\n" + 
 			"----------\n" + 
-			"11. WARNING in X.java (at line 16)\n" + 
+			"12. WARNING in X.java (at line 16)\n" + 
+			"	default: return b || b;\n" + 
+			"	                ^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"13. WARNING in X.java (at line 16)\n" + 
 			"	default: return b || b;\n" + 
 			"	                ^^^^^^\n" + 
 			"The expression of type boolean is boxed into Boolean\n" + 
 			"----------\n" + 
-			"12. ERROR in X.java (at line 22)\n" + 
+			"14. ERROR in X.java (at line 22)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 

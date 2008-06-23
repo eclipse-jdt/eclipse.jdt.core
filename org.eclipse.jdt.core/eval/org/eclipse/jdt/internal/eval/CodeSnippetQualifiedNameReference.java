@@ -30,7 +30,9 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 public class CodeSnippetQualifiedNameReference extends QualifiedNameReference implements EvaluationConstants, ProblemReasons {
@@ -212,22 +214,40 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 
     FieldBinding lastFieldBinding = generateReadSequence(currentScope, codeStream);
 	if (lastFieldBinding.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
-		if (lastFieldBinding.isStatic()){
-			codeStream.getstatic(lastFieldBinding);
+		SyntheticMethodBinding accessor =
+			this.syntheticReadAccessors == null
+				? null
+				: this.syntheticReadAccessors[this.syntheticReadAccessors.length - 1];
+		if (lastFieldBinding.isStatic()) {
+			if (accessor == null) {
+				codeStream.getstatic(lastFieldBinding);
+			} else {
+				codeStream.invokestatic(accessor);
+			}
 		} else {
 			codeStream.dup();
-			codeStream.getfield(lastFieldBinding);
-		}	
+			if (accessor == null) {
+				codeStream.getfield(lastFieldBinding);
+			} else {
+				codeStream.invokestatic(accessor);
+			}
+		}
+		
+		TypeBinding requiredGenericCast = getGenericCast(this.otherCodegenBindings == null ? 0 : this.otherCodegenBindings.length);
+		if (requiredGenericCast != null) codeStream.checkcast(requiredGenericCast);
+		codeStream.generateImplicitConversion(this.implicitConversion);		
+		
 		// duplicate the old field value
+		int operandType = this.implicitConversion & TypeIds.COMPILE_TYPE_MASK;
 		if (valueRequired) {
 			if (lastFieldBinding.isStatic()) {
-				if ((lastFieldBinding.type == TypeBinding.LONG) || (lastFieldBinding.type == TypeBinding.DOUBLE)) {
+				if (operandType == T_long || operandType == T_double) {
 					codeStream.dup2();
 				} else {
 					codeStream.dup();
 				}
 			} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
-				if ((lastFieldBinding.type == TypeBinding.LONG) || (lastFieldBinding.type == TypeBinding.DOUBLE)) {
+				if (operandType == T_long || operandType == T_double) {
 					codeStream.dup2_x1();
 				} else {
 					codeStream.dup_x1();
@@ -235,10 +255,9 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 			}
 		}
 		codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
-		codeStream.sendOperator(postIncrement.operator, lastFieldBinding.type.id);
+		codeStream.sendOperator(postIncrement.operator, operandType);
 		codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
-		
-		fieldStore(codeStream, lastFieldBinding, null, false);
+		fieldStore(codeStream, lastFieldBinding, this.syntheticWriteAccessor, false);		
 	} else {
 		codeStream.generateEmulatedReadAccessForField(lastFieldBinding);
 		if (valueRequired) {

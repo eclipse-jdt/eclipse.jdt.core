@@ -1640,6 +1640,7 @@ public void test012b(){
         "      assertIdentifier   + ''assert'' used as identifier\n" +
         "      boxing               autoboxing conversion\n" +
         "      charConcat         + char[] in String concat\n" +
+        "      compareIdentical   + comparing identical expressions\n" + 
         "      conditionAssign      possible accidental boolean assignment\n" +
         "      constructorName    + method with constructor name\n" +
         "      dep-ann              missing @Deprecated annotation\n" +
@@ -1773,6 +1774,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.annotationSuperInterface\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.assertIdentifier\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.autoboxing\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.comparingIdentical\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecation\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod\" value=\"disabled\"/>\n" + 

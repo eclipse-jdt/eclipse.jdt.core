@@ -510,7 +510,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 					Constant assignConstant;
 					if (((assignConstant = expression.constant) != Constant.NotAConstant) 
 							&& (assignConstant.typeID() != TypeIds.T_float) // only for integral types
-							&& (assignConstant.typeID() != TypeIds.T_double)) {
+							&& (assignConstant.typeID() != TypeIds.T_double)) {// TODO (philippe) is this test needed ?
 						switch (operator) {
 							case PLUS :
 								int increment  = assignConstant.intValue();
@@ -530,6 +530,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 								return;
 						}
 					}
+					// fallthrough
 				default :
 					codeStream.load(localBinding);
 			}

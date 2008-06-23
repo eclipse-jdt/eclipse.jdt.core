@@ -3164,6 +3164,10 @@ protected void handleWarningToken(String token, boolean isEnabling) throws Inval
 		this.options.put(
 			CompilerOptions.OPTION_ReportNoEffectAssignment,
 			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("compareIdentical")) { //$NON-NLS-1$
+		this.options.put(
+				CompilerOptions.OPTION_ReportComparingIdentical,
+				isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 	} else if (token.equals("intfNonInherited") || token.equals("interfaceNonInherited")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
 		this.options.put(
 			CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,

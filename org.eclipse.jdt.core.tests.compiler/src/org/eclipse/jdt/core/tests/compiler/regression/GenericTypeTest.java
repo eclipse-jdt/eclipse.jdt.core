@@ -8949,7 +8949,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	public int foo(T t) { return t.i + t.i() + T.M.j; }\n" + 
 			"	                                           ^^^^^\n" + 
-			"Read access to enclosing field X<T>.M.j is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+			"Read access to enclosing field X<T>.M.j is emulated by a synthetic accessor method\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	class Y extends Zork {\n" + 
@@ -19221,12 +19221,12 @@ public void test0617() {
     		"2. WARNING in X.java (at line 11)\n" + 
     		"	private static class AA extends A {\n" + 
     		"	                     ^^\n" + 
-    		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+    		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
     		"----------\n" + 
     		"3. WARNING in X.java (at line 15)\n" + 
     		"	private static class C extends B<AA> {\n" + 
     		"	                     ^\n" + 
-    		"Access to enclosing constructor X.B<A>() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+    		"Access to enclosing constructor X.B<A>() is emulated by a synthetic accessor method\n" + 
     		"----------\n" + 
     		"4. ERROR in X.java (at line 21)\n" + 
     		"	System.out.println(b instanceof C);\n" + 
@@ -36795,7 +36795,7 @@ public void test1098() {
 		"1. WARNING in X.java (at line 5)\n" + 
 		"	private class Y<T> extends A {\n" + 
 		"	              ^\n" + 
-		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	class Y extends Zork {}\n" + 
@@ -37739,7 +37739,7 @@ public void test1124() {
 		"4. WARNING in X.java (at line 15)\n" + 
 		"	super(null);\n" + 
 		"	^^^^^^^^^^^^\n" + 
-		"Access to enclosing constructor X<T>(T) is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Access to enclosing constructor X<T>(T) is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 19)\n" + 
 		"	for (Map.Entry<String, String> entry : myMap().entrySet()) {\n" + 
@@ -39192,7 +39192,7 @@ public void test1163() {
 		"2. WARNING in X.java (at line 5)\n" + 
 		"	Object o1 = mObj;\n" + 
 		"	            ^^^^\n" + 
-		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 5)\n" + 
 		"	Object o1 = mObj;\n" + 
@@ -39207,7 +39207,7 @@ public void test1163() {
 		"5. WARNING in X.java (at line 7)\n" + 
 		"	Object o2 = mObj;\n" + 
 		"	            ^^^^\n" + 
-		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 7)\n" + 
 		"	Object o2 = mObj;\n" + 
@@ -39222,7 +39222,7 @@ public void test1163() {
 		"8. WARNING in X.java (at line 9)\n" + 
 		"	Object o3 = mObj;\n" + 
 		"	            ^^^^\n" + 
-		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=203061 - variation
@@ -39257,7 +39257,7 @@ public void test1164() {
 		"2. WARNING in X.java (at line 5)\n" + 
 		"	Object o1 = mObj;\n" + 
 		"	            ^^^^\n" + 
-		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 5)\n" + 
 		"	Object o1 = mObj;\n" + 
@@ -39267,7 +39267,7 @@ public void test1164() {
 		"4. WARNING in X.java (at line 6)\n" + 
 		"	mObj = \"1\";\n" + 
 		"	^^^^\n" + 
-		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 6)\n" + 
 		"	mObj = \"1\";\n" + 
@@ -39282,7 +39282,7 @@ public void test1164() {
 		"7. WARNING in X.java (at line 8)\n" + 
 		"	Object o2 = mObj = \"2\";\n" + 
 		"	            ^^^^\n" + 
-		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"8. ERROR in X.java (at line 8)\n" + 
 		"	Object o2 = mObj = \"2\";\n" + 
@@ -39297,12 +39297,12 @@ public void test1164() {
 		"10. WARNING in X.java (at line 10)\n" + 
 		"	Object o3 = mObj;\n" + 
 		"	            ^^^^\n" + 
-		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"11. WARNING in X.java (at line 11)\n" + 
 		"	mObj = \"3\";\n" + 
 		"	^^^^\n" + 
-		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"12. ERROR in X.java (at line 11)\n" + 
 		"	mObj = \"3\";\n" + 
@@ -40968,7 +40968,7 @@ public void test1216() {
 		"1. WARNING in p\\A.java (at line 18)\n" + 
 		"	this.box.set(new P());\n" + 
 		"	             ^^^^^^^\n" + 
-		"Access to enclosing constructor A.P() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Access to enclosing constructor A.P() is emulated by a synthetic accessor method\n" + 
 		"----------\n");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=209153 - variation
@@ -44973,6 +44973,40 @@ public void test1337() {
 			"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot cast from Other2.Member2<capture#1-of ?> to Other<String>.Member\n" + 
 			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=235460
+public void test1338() {
+	this.runConformTest(
+			new String[] {
+				"Derived_A.java", // =================
+				"import java.util.Map;\n" + 
+				"class Base_A {}\n" + 
+				"public class Derived_A extends Base_A {\n" + 
+				"	public Map<Object, Base_B> getMap() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n", // =================
+				"Derived_B.java", // =================
+				"class Base_B<T> {\n" + 
+				"}\n" + 
+				"public class Derived_B extends Base_B<Object> {\n" + 
+				"}\n", // =================				
+			},
+			"");
+	this.runConformTest(
+			new String[] {
+				"InternalCompilerError_Main.java", // =================
+				"public class InternalCompilerError_Main {\n" + 
+				"	public static void main(String args[]) {\n" + 
+				"		Derived_A dummy = new Derived_A();\n" + 
+				"		Derived_B propPrice = (Derived_B)dummy.getMap().get(null);		\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"",
+			null,
+			false,
+			null);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=234619
 public void _test1338() {

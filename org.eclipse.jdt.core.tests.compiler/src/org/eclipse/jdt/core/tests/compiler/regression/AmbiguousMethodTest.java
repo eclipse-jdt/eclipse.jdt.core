@@ -1865,7 +1865,7 @@ public void test051() {
 		"1. WARNING in X.java (at line 9)\n" + 
 		"	bar(new Z());\n" + 
 		"	    ^^^^^^^\n" + 
-		"Access to enclosing constructor X.Z() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Access to enclosing constructor X.Z() is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 13)\n" + 
 		"	private static final class Z implements I {\n" + 
@@ -1931,7 +1931,7 @@ public void test053() {
 		"1. WARNING in X.java (at line 9)\n" + 
 		"	bar(new Z(){});\n" + 
 		"	        ^^^\n" + 
-		"Access to enclosing constructor X.Z() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Access to enclosing constructor X.Z() is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 13)\n" + 
 		"	private static class Z implements I {\n" + 

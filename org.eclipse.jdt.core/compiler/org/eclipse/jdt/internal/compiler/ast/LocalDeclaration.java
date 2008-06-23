@@ -217,7 +217,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				}
 			}
 			// check for assignment with no effect
-			if (this.binding == Assignment.getDirectBinding(this.initialization)) {
+			if (this.binding == Expression.getDirectBinding(this.initialization)) {
 				scope.problemReporter().assignmentHasNoEffect(this, this.name);
 			}
 			// change the constant in the binding when it is final

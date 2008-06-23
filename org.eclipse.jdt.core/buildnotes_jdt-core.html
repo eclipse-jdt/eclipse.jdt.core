@@ -49,12 +49,28 @@ Eclipse SDK 3.5M1 - %date%
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_900">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
-<li>Incremented JDT/Core plug-in id to "3.4.100". Will go to "3.5.0" as soon as an API/feature gets added.
+<li>Incremented JDT/Core plug-in id to "3.5.0", since added new API/feature.
+</li>
+<li>Added a new compiler warning to detect comparisons between identical expressions. This diagnosis is controlled by option: 
+<code>JavaCore.COMPILER_PB_COMPARING_IDENTICAL</code> and produces a problem marker which ID is
+<code>IProblem.ComparingIdentical</code> problem ID.
+<pre>
+Compiler option ID: Reporting Comparison of Identical Expressions.
+When enabled, the compiler will issue an error or a warning if a comparison
+is involving identical operands (e.g <code>'x == x'</code>).
+  - Option id:"org.eclipse.jdt.core.compiler.problem.comparingIdentical"
+  - Possible values: { "error", "warning", "ignore" }
+  - Default: "warning"
+</ul>
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=232944">232944</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=115814">115814</a>
+[compiler] warning on comparing same to same
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=235004">235004</a>
+[compiler] Misleading compiler warning
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=232944">232944</a>
 IMember#getJavadocRange() should end with &quot;*/&quot;
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=222665">222665</a>
 Error opening workbench

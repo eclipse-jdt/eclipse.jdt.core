@@ -808,6 +808,12 @@ public class EqualExpression extends BinaryExpression {
 				CastExpression.checkNeedForArgumentCasts(scope, EQUAL_EQUAL, operatorSignature, left, leftType.id, leftIsCast, right, rightType.id, rightIsCast);
 			}
 			computeConstant(leftType, rightType);
+			
+			// check whether comparing identical expressions
+			Binding leftDirect = Expression.getDirectBinding(left);
+			if (leftDirect != null && leftDirect == Expression.getDirectBinding(right)) {
+				scope.problemReporter().comparingIdenticalExpressions(this);
+			}
 			return this.resolvedType = TypeBinding.BOOLEAN;
 		}
 	
@@ -839,6 +845,11 @@ public class EqualExpression extends BinaryExpression {
 					if (unnecessaryRightCast) scope.problemReporter().unnecessaryCast((CastExpression)right);
 				}
 			}
+			// check whether comparing identical expressions
+			Binding leftDirect = Expression.getDirectBinding(left);
+			if (leftDirect != null && leftDirect == Expression.getDirectBinding(right)) {
+				scope.problemReporter().comparingIdenticalExpressions(this);
+			}			
 			return this.resolvedType = TypeBinding.BOOLEAN;
 		}
 		constant = Constant.NotAConstant;

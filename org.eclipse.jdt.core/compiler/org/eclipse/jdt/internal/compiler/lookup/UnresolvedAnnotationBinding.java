@@ -21,7 +21,7 @@ UnresolvedAnnotationBinding(ReferenceBinding type, ElementValuePair[] pairs, Loo
 
 public ReferenceBinding getAnnotationType() {
 	if (this.typeUnresolved) { // the type is resolved when requested
-		this.type = BinaryTypeBinding.resolveType(this.type, this.env, false);
+		this.type = (ReferenceBinding) BinaryTypeBinding.resolveType(this.type, this.env, false /* no raw conversion for now */);
 			// annotation type are never parameterized
 		this.typeUnresolved = false;
 	}

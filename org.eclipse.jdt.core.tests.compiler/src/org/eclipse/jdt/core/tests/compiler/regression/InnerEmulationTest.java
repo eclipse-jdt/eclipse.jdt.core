@@ -144,7 +144,7 @@ public void test003() {
 		"1. WARNING in A.java (at line 8)\n" + 
 		"	super(getRunnable(), new B().toString()); \n" + 
 		"	                     ^^^^^^^\n" + 
-		"Access to enclosing constructor A.B() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Access to enclosing constructor A.B() is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"2. ERROR in A.java (at line 8)\n" + 
 		"	super(getRunnable(), new B().toString()); \n" + 
@@ -1464,7 +1464,7 @@ public void test033() {
 		"2. WARNING in p1\\A2.java (at line 18)\n" + 
 		"	private class C extends B {	\n" + 
 		"	              ^\n" + 
-		"Access to enclosing constructor A2.B() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Access to enclosing constructor A2.B() is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"3. ERROR in p1\\A2.java (at line 20)\n" + 
 		"	(new D.E(null, null, null, new F(get()) {}) {}).execute();	\n" + 
@@ -1552,7 +1552,7 @@ public void test035() {
 		"2. WARNING in p1\\A2.java (at line 18)\n" + 
 		"	private class C extends B {	\n" + 
 		"	              ^\n" + 
-		"Access to enclosing constructor A2.B() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Access to enclosing constructor A2.B() is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"3. ERROR in p1\\A2.java (at line 20)\n" + 
 		"	(new D.E(null, null, null, new F(get()) {})).execute();	\n" + 
@@ -2979,11 +2979,11 @@ public void test076() {
 				"} 	\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 7)\n" +
-			"	class B extends X {	\n" +
-			"	      ^\n" +
-			"The type B is never used locally\n" +
-			"----------\n" +
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	class B extends X {	\n" + 
+			"	      ^\n" + 
+			"The type B is never used locally\n" + 
+			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	B() {	\n" + 
 			"	^^^\n" + 
@@ -2998,7 +2998,7 @@ public void test076() {
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"	          ^^^\n" + 
-			"Access to enclosing constructor A() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+			"Access to enclosing constructor A() is emulated by a synthetic accessor method\n" + 
 			"----------\n");
 		return;
 	}
@@ -3119,11 +3119,11 @@ public void test078() {
 				"} 	\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 7)\n" +
-			"	class B extends X {	\n" +
-			"	      ^\n" +
-			"The type B is never used locally\n" +
-			"----------\n" +
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	class B extends X {	\n" + 
+			"	      ^\n" + 
+			"The type B is never used locally\n" + 
+			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	B() {	\n" + 
 			"	^^^\n" + 
@@ -3139,7 +3139,7 @@ public void test078() {
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"	          ^^^\n" + 
-			"Access to enclosing constructor A() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+			"Access to enclosing constructor A() is emulated by a synthetic accessor method\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 10)\n" + 
 			"	void foo() { System.out.println(X.this);	} \n" + 
@@ -5649,7 +5649,7 @@ public void test139() {
 		"1. WARNING in X.java (at line 5)\n" + 
 		"	private class Y extends A {\n" + 
 		"	              ^\n" + 
-		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	class Y extends Zork {}\n" + 
@@ -6334,12 +6334,12 @@ public void _test153() {
 				"4. WARNING in X.java (at line 16)\n" + 
 				"	System.out.println(X.this.var1.trim());\n" + 
 				"	                          ^^^^\n" + 
-				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" + 
 				"----------\n" + 
 				"5. WARNING in X.java (at line 17)\n" + 
 				"	System.out.println(var1.trim());\n" + 
 				"	                   ^^^^\n" + 
-				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" + 
 				"----------\n" + 
 				"6. ERROR in X.java (at line 17)\n" + 
 				"	System.out.println(var1.trim());\n" + 
@@ -6422,12 +6422,12 @@ public void test154() {
 				"3. WARNING in X.java (at line 16)\n" + 
 				"	System.out.println(X.this.var1.trim());\n" + 
 				"	                          ^^^^\n" + 
-				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" + 
 				"----------\n" + 
 				"4. WARNING in X.java (at line 17)\n" + 
 				"	System.out.println(var1.trim());\n" + 
 				"	                   ^^^^\n" + 
-				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" + 
 				"----------\n" + 
 				"5. ERROR in X.java (at line 17)\n" + 
 				"	System.out.println(var1.trim());\n" + 

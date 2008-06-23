@@ -1339,4 +1339,64 @@ public void test0036_declared_thrown_checked_exceptions() {
 		null /* clientRequestor */,
 		true /* skipJavac */);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=115814
+public void test0037() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		boolean b1 = args == args;\n" + 
+			"		boolean b2 = args != args;\n" + 
+			"		boolean b3 = b1 == b1;\n" + 
+			"		boolean b4 = b1 != b1;\n" + 
+			"		boolean b5 = b1 && b1;\n" + 
+			"		boolean b6 = b1 || b1;\n" + 
+			"		\n" + 
+			"		boolean b7 = foo() == foo();\n" + 
+			"		boolean b8 = foo() != foo();\n" + 
+			"		boolean b9 = foo() && foo();\n" + 
+			"		boolean b10 = foo() || foo();\n" + 
+			"	}\n" + 
+			"	static boolean foo() { return true; }\n" + 
+			"	Zork z;\n" + 
+			"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	boolean b1 = args == args;\n" + 
+			"	             ^^^^^^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	boolean b2 = args != args;\n" + 
+			"	             ^^^^^^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	boolean b3 = b1 == b1;\n" + 
+			"	             ^^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 6)\n" + 
+			"	boolean b4 = b1 != b1;\n" + 
+			"	             ^^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 7)\n" + 
+			"	boolean b5 = b1 && b1;\n" + 
+			"	             ^^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 8)\n" + 
+			"	boolean b6 = b1 || b1;\n" + 
+			"	             ^^^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 16)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 }

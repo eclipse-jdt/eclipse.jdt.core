@@ -1092,7 +1092,7 @@ public ReferenceBinding getType(char[][] compoundName) {
 
 	if (referenceBinding == null || referenceBinding == TheNotFoundType)
 		return null;
-	referenceBinding = BinaryTypeBinding.resolveType(referenceBinding, this, false); // no raw conversion for now
+	referenceBinding = (ReferenceBinding) BinaryTypeBinding.resolveType(referenceBinding, this, false /* no raw conversion for now */);
 
 	// compoundName refers to a nested type incorrectly (for example, package1.A$B)
 	if (referenceBinding.isNestedType())
@@ -1261,7 +1261,7 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 	ReferenceBinding actualType = (ReferenceBinding) type;
 	if (actualType instanceof UnresolvedReferenceBinding)
 		if (CharOperation.indexOf('$', actualType.compoundName[actualType.compoundName.length - 1]) > 0)
-			actualType = BinaryTypeBinding.resolveType(actualType, this, false); // must resolve member types before asking for enclosingType
+			actualType = (ReferenceBinding) BinaryTypeBinding.resolveType(actualType, this, false /* no raw conversion */); // must resolve member types before asking for enclosingType
 	ReferenceBinding actualEnclosing = actualType.enclosingType();
 	if (actualEnclosing != null) { // convert needed if read some static member type
 		actualEnclosing = (ReferenceBinding) convertToRawType(actualEnclosing, false /*do not force conversion of enclosing types*/);

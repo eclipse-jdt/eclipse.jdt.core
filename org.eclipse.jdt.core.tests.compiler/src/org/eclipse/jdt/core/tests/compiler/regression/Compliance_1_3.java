@@ -3189,7 +3189,7 @@ public void test099() {
 		"1. WARNING in I.java (at line 3)\n" + 
 		"	Object bar(I i) throws CloneNotSupportedException { return i.clone(); }\n" + 
 		"	                                                           ^^^^^^^^^\n" + 
-		"Access to enclosing method clone() from the type Object is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"Access to enclosing method clone() from the type Object is emulated by a synthetic accessor method\n" + 
 		"----------\n"
 		// no compile errors but generates ClassFormatError if run
 	);
