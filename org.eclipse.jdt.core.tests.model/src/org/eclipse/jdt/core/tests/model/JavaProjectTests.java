@@ -11,7 +11,10 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -1459,6 +1462,35 @@ public void testPackageFragmentRootNonJavaResources8() throws CoreException {
 	} finally {
 		deleteProject("P");
 		deleteExternalResource("externalLib");
+	}
+}
+/*
+ * Ensures that the non-Java resources of an external jar package fragment root with non-standard META-INF are correct
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=222665 )
+ */
+public void testPackageFragmentRootNonJavaResources9() throws Exception {
+	try {
+		ZipOutputStream zip = null;
+		try {
+			zip = new ZipOutputStream(new FileOutputStream(getExternalFile("lib.jar")));
+			// the bug occurred only if META-INF/MANIFEST.MF was before META-INF in the ZIP file
+			zip.putNextEntry(new ZipEntry("META-INF/MANIFEST.MF"));
+			zip.putNextEntry(new ZipEntry("META-INF"));
+		} finally {
+			if (zip != null)
+				zip.close();
+		}
+		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("lib.jar")}, "");
+		IPackageFragmentRoot root = getPackageFragmentRoot("P", getExternalResourcePath("lib.jar"));
+		Object[] resources = root.getNonJavaResources();
+		assertResourceTreeEquals(
+			"unexpected non java resources", 
+			"META-INF\n" + 
+			"  MANIFEST.MF",
+			resources);
+	} finally {
+		deleteExternalResource("lib.jar");
+		deleteProject("P");
 	}
 }
 /**
