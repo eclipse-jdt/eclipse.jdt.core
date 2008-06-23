@@ -94,6 +94,10 @@ public class QualifiedTypeReference extends TypeReference {
 					return null;
 			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
 			if (qualifiedType != null) {
+				ReferenceBinding enclosingType = currentType.enclosingType();
+				if (enclosingType != null && enclosingType.erasure() != qualifiedType.erasure()) {
+					qualifiedType = enclosingType; // inherited member type, leave it associated with its enclosing rather than subtype
+				}
 				boolean rawQualified;
 				if (currentType.isGenericType()) {
 					qualifiedType = scope.environment().createRawType(currentType, qualifiedType);

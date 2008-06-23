@@ -157,7 +157,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 
 		PackageBinding packageBinding = binding == null ? null : (PackageBinding) binding;
 		boolean typeIsConsistent = true;
-		ReferenceBinding qualifiedType = null;
+		ReferenceBinding qualifyingType = null;
 		for (int i = packageBinding == null ? 0 : packageBinding.compoundName.length, max = this.tokens.length; i < max; i++) {
 			findNextTypeBinding(i, scope, packageBinding);
 			if (!(this.resolvedType.isValidBinding())) {
@@ -180,21 +180,25 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				return null;
 			}
 			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
-			if (qualifiedType == null) {
-				qualifiedType = currentType.enclosingType(); // if member type
-				if (qualifiedType != null) {
-					qualifiedType = currentType.isStatic()
-						? (ReferenceBinding) scope.environment().convertToRawType(qualifiedType, false /*do not force conversion of enclosing types*/)
-						: scope.environment().convertToParameterizedType(qualifiedType);
+			if (qualifyingType == null) {
+				qualifyingType = currentType.enclosingType(); // if member type
+				if (qualifyingType != null) {
+					qualifyingType = currentType.isStatic()
+						? (ReferenceBinding) scope.environment().convertToRawType(qualifyingType, false /*do not force conversion of enclosing types*/)
+						: scope.environment().convertToParameterizedType(qualifyingType);
 				}
-			}				
-			if (typeIsConsistent 
-						&& currentType.isStatic() 
-						&& qualifiedType != null 
-						&& ((qualifiedType.isParameterizedType() && ((ParameterizedTypeBinding)qualifiedType).arguments != null) || qualifiedType.isGenericType())) {
-				scope.problemReporter().staticMemberOfParameterizedType(this, scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType));
-				typeIsConsistent = false;
-			}			
+			} else {
+				if (typeIsConsistent && currentType.isStatic() 
+						&& ((qualifyingType.isParameterizedType() && ((ParameterizedTypeBinding)qualifyingType).arguments != null) || qualifyingType.isGenericType())) {
+					scope.problemReporter().staticMemberOfParameterizedType(this, scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifyingType));
+					typeIsConsistent = false;
+				}					
+				ReferenceBinding enclosingType = currentType.enclosingType();
+				if (enclosingType != null && enclosingType.erasure() != qualifyingType.erasure()) { // qualifier != declaring/enclosing
+					qualifyingType = enclosingType; // inherited member type, leave it associated with its enclosing rather than subtype
+				}
+			}
+		
 			// check generic and arity
 		    TypeReference[] args = this.typeArguments[i];
 		    if (args != null) {
@@ -233,8 +237,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						scope.problemReporter().nonGenericTypeCannotBeParameterized(i, this, currentType, argTypes);
 						return null;
 					}
-					this.resolvedType =  (qualifiedType != null && qualifiedType.isParameterizedType())
-						? scope.environment().createParameterizedType(currentErasure, null, qualifiedType)
+					this.resolvedType =  (qualifyingType != null && qualifyingType.isParameterizedType())
+						? scope.environment().createParameterizedType(currentErasure, null, qualifyingType)
 						: currentType;
 					if (this.dimensions > 0) {
 						if (dimensions > 255)
@@ -254,32 +258,32 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 								this, scope.environment().createRawType(currentErasure, actualEnclosing), argTypes);
 						typeIsConsistent = false;				
 					}
-				}				
-				ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentErasure, argTypes, qualifiedType);
+				}
+				ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentErasure, argTypes, qualifyingType);
 				// check argument type compatibility
 				if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 					parameterizedType.boundCheck(scope, args);
-				qualifiedType = parameterizedType;
+				qualifyingType = parameterizedType;
 		    } else {
 				ReferenceBinding currentErasure = (ReferenceBinding)currentType.erasure();
 				if (isClassScope)
 					if (((ClassScope) scope).detectHierarchyCycle(currentErasure, this))
 						return null;
 				if (currentErasure.isGenericType()) {
-	   			    if (typeIsConsistent && qualifiedType != null && qualifiedType.isParameterizedType()) {
-						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.environment().createParameterizedType(currentErasure, null, qualifiedType));
+	   			    if (typeIsConsistent && qualifyingType != null && qualifyingType.isParameterizedType()) {
+						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.environment().createParameterizedType(currentErasure, null, qualifyingType));
 						typeIsConsistent = false;
 					}
-	   			    qualifiedType = scope.environment().createRawType(currentErasure, qualifiedType); // raw type
+	   			    qualifyingType = scope.environment().createRawType(currentErasure, qualifyingType); // raw type
 				} else {
-					qualifiedType = (qualifiedType != null && qualifiedType.isParameterizedType())
-													? scope.environment().createParameterizedType(currentErasure, null, qualifiedType)
+					qualifyingType = (qualifyingType != null && qualifyingType.isParameterizedType())
+													? scope.environment().createParameterizedType(currentErasure, null, qualifyingType)
 													: currentType;
 				}
 			}
-			if (isTypeUseDeprecated(qualifiedType, scope))
-				reportDeprecatedType(qualifiedType, scope);		    
-			this.resolvedType = qualifiedType;
+			if (isTypeUseDeprecated(qualifyingType, scope))
+				reportDeprecatedType(qualifyingType, scope);		    
+			this.resolvedType = qualifyingType;
 		}
 		// array type ?
 		if (this.dimensions > 0) {

@@ -157,6 +157,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			}
 			if (isTypeUseDeprecated(currentType, scope))
 				scope.problemReporter().deprecatedType(currentType, this);
+			ReferenceBinding currentEnclosing = currentType.enclosingType();
+			if (currentEnclosing != null && currentEnclosing.erasure() != enclosingType.erasure()) {
+				enclosingType = currentEnclosing; // inherited member type, leave it associated with its enclosing rather than subtype
+			}
 		}
 
 		// check generic and arity
