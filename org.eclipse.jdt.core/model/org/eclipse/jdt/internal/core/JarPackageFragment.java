@@ -90,6 +90,10 @@ private Object[] computeNonJavaResources(ArrayList entryNames) {
 		if (!Util.isJavaLikeFileName(resName)) {
 			IPath filePath = new Path(resName);
 			IPath childPath = filePath.removeFirstSegments(this.names.length);
+			if (jarEntries.containsKey(childPath)) { 
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=222665
+				continue;
+			}
 			JarEntryFile file = new JarEntryFile(filePath.lastSegment());
 			jarEntries.put(childPath, file);
 			if (childPath.segmentCount() == 1) {
