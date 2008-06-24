@@ -2150,4 +2150,34 @@ public void test082() throws CoreException, IOException {
 			"Lp1/X;.foo()V@Lp1/MyAnnot;");
 	}
 
+	/* 
+	 * Ensures that a parameterized type with 2 arguments referring to the same cu that contains an anonymous type with a non-default constructor
+	 * can be created using its key in ASTRequestor#createBindings
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=236445 )
+	 */
+	public void test088() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/A.java",
+				"public class A {\n" + 
+				"	public void foo(C c) {\n" + 
+				"		c.bar(B //|<---Ctrl+Space after B\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class B<V, E> {\n" + 
+				"}",
+				"/P/C.java",
+				"public class C {\n" + 
+				"	public <V, E> void bar(B<V, E> code) {\n" + 
+				"		new D(null) {};  \n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class D {\n" + 
+				"	D(Object o) {}\n" + 
+				"}"
+			},
+			"LA~B<LC;:1TV;LC;:1TE;>;");
+	}
+
+	
 }
