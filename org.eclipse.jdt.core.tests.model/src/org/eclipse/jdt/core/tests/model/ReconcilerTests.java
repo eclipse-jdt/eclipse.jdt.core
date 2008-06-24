@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Hashtable;
 
 import junit.framework.Test;
 
@@ -1082,6 +1083,110 @@ public void testCategories4() throws JavaModelException {
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	f2[*]: {CATEGORIES}"
 	);
+}
+/*
+ * Ensures that changing the source level to make a type valid doesn't report an error any longer
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=233568 )
+ */
+public void testChangeSourceLevel1() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P1", new String[] {"src"}, new String[] {"JCL15_LIB", "/P1/lib.jar"}, "bin", "1.5");
+		Util.createJar(new String[] {
+				"p/enum/X.java",
+				"package p.enum;\n" +
+				"public class X{\n" +
+				"}"
+			}, 
+			p.getProject().getLocation().append("lib.jar").toOSString(),
+			"1.3");
+		refresh(p);
+		setUpWorkingCopy(
+			"/P1/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"  p.enum.X field;\n" +
+			"}");
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		/* At this point, the following error is reported:
+		"----------\n" + 
+		"1. ERROR in /P1/src/p1/X.java (at line 3)\n" + 
+		"	p.enum.X field;\n" + 
+		"	  ^^^^\n" + 
+		"Syntax error on token \"enum\", Identifier expected\n" + 
+		"----------\n"
+		*/
+		
+		this.problemRequestor.reset();
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"1. WARNING in /P1/src/p1/X.java (at line 3)\n" + 
+			"	p.enum.X field;\n" + 
+			"	  ^^^^\n" + 
+			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteProject("P1");
+	}
+}
+/*
+ * Ensures that changing the source level to make a type valid doesn't report an error any longer
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=233568 )
+ */
+public void testChangeSourceLevel2() throws Exception {
+	Hashtable defaultOptions = null;
+	try {
+		defaultOptions = JavaCore.getOptions();
+		Hashtable newOptions = new Hashtable();
+		newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		JavaCore.setOptions(newOptions);
+		IJavaProject p = createJavaProject("P1", new String[] {"src"}, new String[] {"JCL15_LIB", "/P1/lib.jar"}, "bin");
+		Util.createJar(new String[] {
+				"p/enum/X.java",
+				"package p.enum;\n" +
+				"public class X{\n" +
+				"}"
+			}, 
+			p.getProject().getLocation().append("lib.jar").toOSString(),
+			"1.3");
+		refresh(p);
+		setUpWorkingCopy(
+			"/P1/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"  p.enum.X field;\n" +
+			"}");
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		/* At this point, the following error is reported:
+		"----------\n" + 
+		"1. ERROR in /P1/src/p1/X.java (at line 3)\n" + 
+		"	p.enum.X field;\n" + 
+		"	  ^^^^\n" + 
+		"Syntax error on token \"enum\", Identifier expected\n" + 
+		"----------\n"
+		*/
+		
+		this.problemRequestor.reset();
+		newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+		JavaCore.setOptions(newOptions);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"1. WARNING in /P1/src/p1/X.java (at line 3)\n" + 
+			"	p.enum.X field;\n" + 
+			"	  ^^^^\n" + 
+			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteProject("P1");
+		if (defaultOptions != null)
+			JavaCore.setOptions(defaultOptions);
+	}
 }
 /*
  * Ensures that changing a binary folder used as class folder in 2 projects doesn't cause the old binary to be seen

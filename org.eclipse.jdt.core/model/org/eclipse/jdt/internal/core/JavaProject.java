@@ -1390,6 +1390,7 @@ public class JavaProject
 							manager.deltaState.addClasspathValidation(JavaProject.this);
 						}
 						manager.resetProjectOptions(JavaProject.this);
+						JavaProject.this.resetCaches(); // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=233568
     				}
     			}
     		};

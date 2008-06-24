@@ -1284,67 +1284,78 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
          */
         public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
         	String propertyName = event.getKey();
-        	if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)) {
-        		String varName = propertyName.substring(CP_VARIABLE_PREFERENCES_PREFIX.length());
-        		JavaModelManager manager = getJavaModelManager();
-        		if (manager.variablesWithInitializer.contains(varName)) {
-        			// revert preference value as we will not apply it to JavaCore classpath variable
-        			String oldValue = (String) event.getOldValue();
-        			if (oldValue == null) {
-        				// unexpected old value => remove variable from set
-        				manager.variablesWithInitializer.remove(varName);
-        			} else {
-        				manager.getInstancePreferences().put(varName, oldValue);
-        			}
-        		} else {
-        			String newValue = (String)event.getNewValue();
-        			IPath newPath;
-        			if (newValue != null && !(newValue = newValue.trim()).equals(CP_ENTRY_IGNORE)) {
-        				newPath = new Path(newValue);
-        			} else {
-        				newPath = null;
-        			}
-        			try {
-        				SetVariablesOperation operation = new SetVariablesOperation(new String[] {varName}, new IPath[] {newPath}, false/*don't update preferences*/);
-        				operation.runOperation(null/*no progress available*/);
-        			} catch (JavaModelException e) {
-        				Util.log(e, "Could not set classpath variable " + varName + " to " + newPath); //$NON-NLS-1$ //$NON-NLS-2$
-        			}
-        		}
-        	} else if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)) {
-        		recreatePersistedContainer(propertyName, (String)event.getNewValue(), false);
-        	} else if (propertyName.equals(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER) ||
-				propertyName.equals(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER) ||
-				propertyName.equals(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE) ||
-				propertyName.equals(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER) ||
-				propertyName.equals(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH) ||
-				propertyName.equals(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS) ||
-				propertyName.equals(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS) ||
-				propertyName.equals(JavaCore.CORE_INCOMPLETE_CLASSPATH) ||
-				propertyName.equals(JavaCore.CORE_CIRCULAR_CLASSPATH) ||
-				propertyName.equals(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL)) {
-				JavaModelManager manager = JavaModelManager.getJavaModelManager();
-				IJavaModel model = manager.getJavaModel();
-				IJavaProject[] projects;
-				try {
-					projects = model.getJavaProjects();
-					for (int i = 0, pl = projects.length; i < pl; i++) {
-						JavaProject javaProject = (JavaProject) projects[i];
-						manager.deltaState.addClasspathValidation(javaProject);
-						try {
-							// need to touch the project to force validation by DeltaProcessor
-				            javaProject.getProject().touch(null);
-				        } catch (CoreException e) {
-				            // skip
-				        }
+        	if (propertyName.startsWith(JavaCore.PLUGIN_ID)) {
+	        	if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)) {
+	        		String varName = propertyName.substring(CP_VARIABLE_PREFERENCES_PREFIX.length());
+	        		JavaModelManager manager = getJavaModelManager();
+	        		if (manager.variablesWithInitializer.contains(varName)) {
+	        			// revert preference value as we will not apply it to JavaCore classpath variable
+	        			String oldValue = (String) event.getOldValue();
+	        			if (oldValue == null) {
+	        				// unexpected old value => remove variable from set
+	        				manager.variablesWithInitializer.remove(varName);
+	        			} else {
+	        				manager.getInstancePreferences().put(varName, oldValue);
+	        			}
+	        		} else {
+	        			String newValue = (String)event.getNewValue();
+	        			IPath newPath;
+	        			if (newValue != null && !(newValue = newValue.trim()).equals(CP_ENTRY_IGNORE)) {
+	        				newPath = new Path(newValue);
+	        			} else {
+	        				newPath = null;
+	        			}
+	        			try {
+	        				SetVariablesOperation operation = new SetVariablesOperation(new String[] {varName}, new IPath[] {newPath}, false/*don't update preferences*/);
+	        				operation.runOperation(null/*no progress available*/);
+	        			} catch (JavaModelException e) {
+	        				Util.log(e, "Could not set classpath variable " + varName + " to " + newPath); //$NON-NLS-1$ //$NON-NLS-2$
+	        			}
+	        		}
+	        	} else if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)) {
+	        		recreatePersistedContainer(propertyName, (String)event.getNewValue(), false);
+	        	} else if (propertyName.equals(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER) ||
+					propertyName.equals(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER) ||
+					propertyName.equals(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE) ||
+					propertyName.equals(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER) ||
+					propertyName.equals(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH) ||
+					propertyName.equals(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS) ||
+					propertyName.equals(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS) ||
+					propertyName.equals(JavaCore.CORE_INCOMPLETE_CLASSPATH) ||
+					propertyName.equals(JavaCore.CORE_CIRCULAR_CLASSPATH) ||
+					propertyName.equals(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL)) {
+					JavaModelManager manager = JavaModelManager.getJavaModelManager();
+					IJavaModel model = manager.getJavaModel();
+					IJavaProject[] projects;
+					try {
+						projects = model.getJavaProjects();
+						for (int i = 0, pl = projects.length; i < pl; i++) {
+							JavaProject javaProject = (JavaProject) projects[i];
+							manager.deltaState.addClasspathValidation(javaProject);
+							try {
+								// need to touch the project to force validation by DeltaProcessor
+					            javaProject.getProject().touch(null);
+					        } catch (CoreException e) {
+					            // skip
+					        }
+						}
+					} catch (JavaModelException e) {
+						// skip
 					}
-				} catch (JavaModelException e) {
-					// skip
+	        	} else if (propertyName.startsWith(CP_USERLIBRARY_PREFERENCES_PREFIX)) {
+					String libName = propertyName.substring(CP_USERLIBRARY_PREFERENCES_PREFIX.length());
+					UserLibraryManager manager = JavaModelManager.getUserLibraryManager();
+	        		manager.updateUserLibrary(libName, (String)event.getNewValue());
+	        	}
+	        }
+        	// Reset all project caches (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=233568 )
+        	try {
+        		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
+	        	for (int i = 0, length = projects.length; i < length; i++) {
+					((JavaProject) projects[i]).resetCaches();
 				}
-        	} else if (propertyName.startsWith(CP_USERLIBRARY_PREFERENCES_PREFIX)) {
-				String libName = propertyName.substring(CP_USERLIBRARY_PREFERENCES_PREFIX.length());
-				UserLibraryManager manager = JavaModelManager.getUserLibraryManager();
-        		manager.updateUserLibrary(libName, (String)event.getNewValue());
+        	} catch (JavaModelException e) {
+        		// cannot retrieve Java projects
         	}
         }
 	}
