@@ -413,6 +413,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 	protected abstract Object createArgumentReference(char[] name, int dim, boolean isVarargs, Object typeRef, long[] dimPos, long argNamePos) throws InvalidInputException;
+	protected boolean createFakeReference(int start) {
+		// Do nothing by default
+		return true;
+	}
 	protected abstract Object createFieldReference(Object receiver) throws InvalidInputException;
 	protected abstract Object createMethodReference(Object receiver, List arguments) throws InvalidInputException;
 	protected Object createReturnStatement() { return null; }
@@ -618,7 +622,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	/*
 	 * Parse an URL link reference in @see tag
 	 */
-	private boolean parseHref() throws InvalidInputException {
+	protected boolean parseHref() throws InvalidInputException {
 		int start = this.scanner.getCurrentTokenStartPosition();
 		char currentChar = readChar();
 		if (currentChar == 'a' || currentChar == 'A') {
@@ -1104,11 +1108,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 						// verify end line
 						if (verifyEndLine(previousPosition)) {
-							return true;
+							return createFakeReference(start);
 						}
 						if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedText(this.scanner.currentPosition, this.lineEnd);
 						return false;
-					case TerminalTokens.TokenNameLESS : // @see "<a href="URL#Value">label</a>
+					case TerminalTokens.TokenNameLESS : // @see <a href="URL#Value">label</a>
 						// If typeRef != null we may raise a warning here to let user know there's an unused reference...
 						// Currently as javadoc 1.4.2 ignore it, we do the same (see bug 69302)
 						if (typeRef != null) break nextToken;
@@ -1122,7 +1126,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								return false;
 							}
 							// verify end line
-							if (verifyEndLine(previousPosition)) return true;
+							if (verifyEndLine(previousPosition)) {
+								return createFakeReference(start);
+							}
 							if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedText(this.scanner.currentPosition, this.lineEnd);
 						}
 						else if (this.tagValue == TAG_VALUE_VALUE) {

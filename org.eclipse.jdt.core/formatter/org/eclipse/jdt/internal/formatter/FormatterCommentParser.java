@@ -62,6 +62,18 @@ protected Object createArgumentReference(char[] name, int dim, boolean isVarargs
 }
 
 /* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createFakeReference(int)
+ */
+protected boolean createFakeReference(int start) {
+	// synch scanner and parser positions
+	this.scanner.currentPosition = this.index;
+	// create reference in order to be able to format it
+	int lineStart = this.scanner.getLineNumber(start);
+	FormatJavadocReference reference = new FormatJavadocReference(start, this.index-1, lineStart);
+	return pushSeeRef(reference);
+}
+
+/* (non-Javadoc)
  * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#createFieldReference(java.lang.Object)
  */
 protected Object createFieldReference(Object receiver) throws InvalidInputException {
@@ -729,30 +741,7 @@ protected void updateDocComment() {
  * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#verifyEndLine(int)
  */
 protected boolean verifyEndLine(int textPosition) {
-	int endPosition = this.scanner.currentPosition;
-	this.scanner.resetTo(textPosition, this.javadocEnd);
-	boolean tokenizeWhiteSpace = this.scanner.tokenizeWhiteSpace;
-	this.scanner.tokenizeWhiteSpace = true;
-	try {
-		int token = this.scanner.getNextToken();
-		int startPosition = textPosition;
-		if (token == TerminalTokens.TokenNameWHITESPACE) {
-			while (this.scanner.currentCharacter == '*' || ScannerHelper.isWhitespace(this.scanner.currentCharacter)) {
-				token = this.scanner.getNextToken();
-			}
-			startPosition = this.scanner.currentPosition;
-		}
-		createTag();
-		pushText(startPosition, endPosition);
-	}
-	catch (InvalidInputException iie) {
-		// skip
-	}
-	finally {
-		this.scanner.tokenizeWhiteSpace = tokenizeWhiteSpace;
-	}
-	this.scanner.resetTo(endPosition, this.javadocEnd);
-	this.index = endPosition;
+	// do not verify anything at end of line while formatting
 	return true;
 }
 

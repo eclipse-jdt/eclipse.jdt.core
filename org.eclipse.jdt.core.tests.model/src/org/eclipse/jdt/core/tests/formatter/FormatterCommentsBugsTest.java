@@ -956,6 +956,189 @@ public void testBug233224() throws JavaModelException {
 }
 
 /**
+ * @bug 233259: [formatter] html tag should not be split by formatter
+ * @test Ensure that html tag is not split by the new comment formatter
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233259"
+ */
+public void testBug233259a() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	String source = 
+		"public class X {\n" + 
+		"        /**\n" + 
+		"         * @see <a href=\"http://0\">Test</a>\n" + 
+		"         */\n" + 
+		"        void foo() {\n" + 
+		"        }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * @see <a href=\"http://0\">Test</a>\n" +
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug233259b() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	// difference with 3.3 formatter:
+	// split html reference as this allow not to go over the max line width
+	String source = 
+		"public class X {\n" + 
+		"        /**\n" + 
+		"         * @see <a href=\"http://0123\">Test</a>\n" + 
+		"         */\n" + 
+		"        void foo() {\n" + 
+		"        }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * @see <a\n"+
+		"	 *      href=\"http://0123\">Test</a>\n" +
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug233259c() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	String source = 
+		"public class X {\n" + 
+		"        /**\n" + 
+		"         * @see <a href=\"http://012346789\">Test</a>\n" + 
+		"         */\n" + 
+		"        void foo() {\n" + 
+		"        }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * @see <a\n" +
+		"	 *      href=\"http://012346789\">Test</a>\n" +
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug233259d() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	String source = 
+		"public class X {\n" + 
+		"        /**\n" + 
+		"         * @see <a href=\"http://012346789012346789012346789\">Test</a>\n" + 
+		"         */\n" + 
+		"        void foo() {\n" + 
+		"        }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * @see <a\n" +
+		"	 *      href=\"http://012346789012346789012346789\">Test</a>\n" +
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @bug 237942: [formatter] String references are put on next line when over the max line length
+ * @test Ensure that string reference is not put on next line when over the max line width
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=237942"
+ */
+public void testBug237942a() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	String source = 
+		"public class X {\n" + 
+		"        /**\n" + 
+		"         * @see \"string reference: 01234567\"\n" + 
+		"         */\n" + 
+		"        void foo() {\n" + 
+		"        }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * @see \"string reference: 01234567\"\n" +
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug237942b() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	// difference with 3.3 formatter:
+	// do not split string reference as this can lead to javadoc syntax error
+	String source = 
+		"public class X {\n" + 
+		"        /**\n" + 
+		"         * @see \"string reference: 012345678\"\n" + 
+		"         */\n" + 
+		"        void foo() {\n" + 
+		"        }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * @see \"string reference: 012345678\"\n" +
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug237942c() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	// difference with 3.3 formatter:
+	// do not split string reference as this can lead to javadoc syntax error
+	String source = 
+		"public class X {\n" + 
+		"        /**\n" + 
+		"         * @see \"string reference: 01234567 90\"\n" + 
+		"         */\n" + 
+		"        void foo() {\n" + 
+		"        }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * @see \"string reference: 01234567 90\"\n" +
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug237942d() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	// difference with 3.3 formatter:
+	// do not split string reference as this can lead to javadoc syntax error
+	String source = 
+		"public class X {\n" + 
+		"        /**\n" + 
+		"         * @see \"string reference: 01234567890123\"\n" + 
+		"         */\n" + 
+		"        void foo() {\n" + 
+		"        }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"	/**\n" + 
+		"	 * @see \"string reference: 01234567890123\"\n" +
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 234336: [formatter] JavaDocTestCase.testMultiLineCommentIndent* tests fail in I20080527-2000 build
  * @test Ensure that new comment formatter format all comments concerned by selections
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=234336"
