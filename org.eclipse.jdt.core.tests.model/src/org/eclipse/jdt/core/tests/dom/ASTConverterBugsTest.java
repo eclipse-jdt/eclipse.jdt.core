@@ -1024,37 +1024,41 @@ public void testBug223838a() throws JavaModelException {
 	IAnnotationBinding[] annotations = typeBinding.getAnnotations();
 	assertEquals("Got more than one annotation binding", 1, annotations.length);
 }
+
 /**
  * @bug 226357: NPE in MethodBinding.getParameterAnnotations() if some, but not all parameters are annotated
+ * @test Verify that NPE does no longer occur on the given test case
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=226357"
- * @deprecated to remove deprecated warnings
  */
 public void testBug226357() throws CoreException, IOException {
-	workingCopies = new ICompilationUnit[1];
-	workingCopies[0] = getWorkingCopy("/Converter15/src/Test.java",
-		"public class Test {\n" + 
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/Converter15/src/ParameterSubsetAnnotated.java",
+		"public class ParameterSubsetAnnotated {\n" + 
 		"        public @interface NonZero { }\n" + 
 		"        public static int safeDiv(int a, @NonZero int b) {\n" + 
 		"                return a / b;\n" + 
 		"        }\n" + 
 		"}"
 	);
+	workingCopies[1] = getWorkingCopy("/Converter15/src/ParameterSubsetClient.java",
+		"public class ParameterSubsetClient {\n" + 
+		"\n" + 
+		"        public void client() {\n" + 
+		"                ParameterSubsetAnnotated.safeDiv(5, 0);\n" + 
+		"        }\n" + 
+		"\n" + 
+		"}\n"
+	);
 
-	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[0], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
-	MethodDeclaration methodDeclaration = null;
-	switch(unit.getAST().apiLevel()) {
-		case AST.JLS2 :
-			methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
-			break;
-		case AST.JLS3 :
-			methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 1);
-	}
-	assertNotNull("No method declaration", methodDeclaration);
+	CompilationUnit unit = (CompilationUnit) runConversion(workingCopies[1], true/*bindings*/, false/*no statement recovery*/, true/*bindings recovery*/);
+	MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+	ExpressionStatement statement = (ExpressionStatement) methodDeclaration.getBody().statements().get(0);
+	MethodInvocation methodInvocation = (MethodInvocation) statement.getExpression();
 	checkParameterAnnotations(methodDeclaration+" has invalid parameter annotations!",
 		"----- param 1-----\n" + 
 		"----- param 2-----\n" + 
-		"@LTest$NonZero;\n",
-		methodDeclaration.resolveBinding()
+		"@LParameterSubsetAnnotated$NonZero;\n",
+		methodInvocation.resolveMethodBinding()
 	);
 }
 }
