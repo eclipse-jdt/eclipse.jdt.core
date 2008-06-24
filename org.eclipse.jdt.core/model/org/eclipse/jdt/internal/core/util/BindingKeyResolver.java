@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 public class BindingKeyResolver extends BindingKeyParser {
 	Compiler compiler;
@@ -69,22 +70,25 @@ public class BindingKeyResolver extends BindingKeyParser {
 	
 	CompilationUnitDeclaration outerMostParsedUnit;
 	
-	private BindingKeyResolver(BindingKeyParser parser, Compiler compiler, LookupEnvironment environment, int wildcardRank, CompilationUnitDeclaration outerMostParsedUnit) {
+	/*
+	 * A hash set of the file names of already resolved units
+	 */
+	HashtableOfObject resolvedUnits;
+	
+	private BindingKeyResolver(BindingKeyParser parser, Compiler compiler, LookupEnvironment environment, int wildcardRank, CompilationUnitDeclaration outerMostParsedUnit, HashtableOfObject parsedUnits) {
 		super(parser);
 		this.compiler = compiler;
 		this.environment = environment;
 		this.wildcardRank = wildcardRank;
 		this.outerMostParsedUnit = outerMostParsedUnit;
+		this.resolvedUnits = parsedUnits;
 	}
 	
-	public BindingKeyResolver(String key) {
-		this(key, null, null);
-	}
-
 	public BindingKeyResolver(String key, Compiler compiler, LookupEnvironment environment) {
 		super(key);
 		this.compiler = compiler;
 		this.environment = environment;
+		this.resolvedUnits = new HashtableOfObject();
 	}
 	
 	/*
@@ -373,9 +377,11 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public void consumeTopLevelType() {
+		char[] fileName;
 		this.parsedUnit = getCompilationUnitDeclaration();
-		if (this.parsedUnit != null && this.compiler != null) {
-			this.compiler.process(this.parsedUnit, this.compiler.totalUnits+1); // noop if unit has already been resolved
+		if (this.parsedUnit != null && this.compiler != null && !this.resolvedUnits.containsKey(fileName = this.parsedUnit.getFileName())) {
+			this.compiler.process(this.parsedUnit, this.compiler.totalUnits+1); // unit is resolved only once thanks to the resolvedUnits protection
+			this.resolvedUnits.put(fileName, fileName);
 		}
 		if (this.parsedUnit == null) {
 			this.typeBinding = getBinaryBinding();
@@ -570,7 +576,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public BindingKeyParser newParser() {
-		return new BindingKeyResolver(this, this.compiler, this.environment, this.rank, this.outerMostParsedUnit == null ? this.parsedUnit : this.outerMostParsedUnit);
+		return new BindingKeyResolver(this, this.compiler, this.environment, this.rank, this.outerMostParsedUnit == null ? this.parsedUnit : this.outerMostParsedUnit, this.resolvedUnits);
 	}
 	 
 	public String toString() {
