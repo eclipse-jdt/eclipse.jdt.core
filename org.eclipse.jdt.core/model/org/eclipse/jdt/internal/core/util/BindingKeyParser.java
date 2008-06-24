@@ -838,6 +838,7 @@ public class BindingKeyParser {
 	}
 	
 	private void parseReturnType() {
+		this.scanner.index++; // skip ')'
 		BindingKeyParser parser = newParser();
 		parser.parse();
 		consumeParser(parser);
