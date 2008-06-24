@@ -45365,4 +45365,48 @@ public void test1348() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=236707
+public void test1349() {
+	this.runNegativeTest(
+			new String[] {
+				"Scratch.java", // =================
+				"public class Scratch {\n" + 
+				"        private Y rawObject = new Y();\n" + 
+				"        public void caller() {\n" + 
+				"                method(new X<Y<Z>>(), rawObject); // compile error in javac, unchecked conversion in Eclipse\n" + 
+				"                this.<Y<Z>>method(new X<Y<Z>>(), rawObject); // unchecked warning in both\n" + 
+				"        }\n" + 
+				"        public <T> void method(X<T> x, T t) {}\n" + 
+				"}\n" + 
+				"class X<S> {}\n" + 
+				"class Y<S> {}\n" + 
+				"class Z { Zork z; }\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in Scratch.java (at line 2)\n" + 
+			"	private Y rawObject = new Y();\n" + 
+			"	        ^\n" + 
+			"Y is a raw type. References to generic type Y<S> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in Scratch.java (at line 2)\n" + 
+			"	private Y rawObject = new Y();\n" + 
+			"	                          ^\n" + 
+			"Y is a raw type. References to generic type Y<S> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in Scratch.java (at line 4)\n" + 
+			"	method(new X<Y<Z>>(), rawObject); // compile error in javac, unchecked conversion in Eclipse\n" + 
+			"	                      ^^^^^^^^^\n" + 
+			"Type safety: The expression of type Y needs unchecked conversion to conform to Y<Z>\n" + 
+			"----------\n" + 
+			"4. WARNING in Scratch.java (at line 5)\n" + 
+			"	this.<Y<Z>>method(new X<Y<Z>>(), rawObject); // unchecked warning in both\n" + 
+			"	                                 ^^^^^^^^^\n" + 
+			"Type safety: The expression of type Y needs unchecked conversion to conform to Y<Z>\n" + 
+			"----------\n" + 
+			"5. ERROR in Scratch.java (at line 11)\n" + 
+			"	class Z { Zork z; }\n" + 
+			"	          ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 }
