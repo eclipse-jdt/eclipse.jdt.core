@@ -14,10 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -227,29 +224,8 @@ public class InternalExtendedCompletionContext {
 			// Local variable is declared inside an initializer
 			TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
 			
-			IType type = (IType)this.getJavaElementOfCompilationUnit(typeDeclaration, typeDeclaration.binding);
-			if (type != null) {
-				try {
-					IInitializer[] initializers = type.getInitializers();
-					if (initializers != null) {
-						done : for (int i = 0; i < initializers.length; i++) {
-							IInitializer initializer = initializers[i];
-							ISourceRange sourceRange = initializer.getSourceRange();
-							if (sourceRange != null) {
-								int initializerStart = sourceRange.getOffset();
-								int initializerEnd = initializerStart + sourceRange.getLength();
-								if (initializerStart <= local.sourceStart &&
-										local.sourceEnd <= initializerEnd) {
-									parent = (JavaElement)initializer;
-									break done;
-								}
-							}
-						}
-					}
-				} catch (JavaModelException e) {
-					return null;
-				}
-			}
+			JavaElement type = this.getJavaElementOfCompilationUnit(typeDeclaration, typeDeclaration.binding);
+			parent = Util.getUnresolvedJavaElement(local.sourceStart, local.sourceEnd, type);
 		}
 		if (parent == null) return null;
 		
@@ -263,7 +239,7 @@ public class InternalExtendedCompletionContext {
 				Util.typeSignature(local.type),
 				binding.declaration.annotations);
 	}
-	
+
 	private JavaElement getJavaElementOfCompilationUnit(Binding binding) {
 		if (!this.hasComputedEnclosingJavaElements) {
 			computeEnclosingJavaElements();

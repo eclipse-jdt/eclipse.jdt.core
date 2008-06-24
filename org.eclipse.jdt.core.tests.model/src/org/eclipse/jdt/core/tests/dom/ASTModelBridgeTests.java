@@ -1393,6 +1393,29 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	/*
+	 * Ensures that the IJavaElement of an IBinding representing a local variable in an initializer is correct.
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=217287 )
+	 */
+	public void testLocalVariable5() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  {\n" +
+			"    int /*start*/local/*end*/;\n" +
+			"  }\n" +
+			"}"
+		);
+		IBinding binding = ((VariableDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		IJavaElement expected = getLocalVariable(this.workingCopy, "local", "local");
+		assertEquals(
+			"Unexpected Java element",
+			expected,
+			element
+		);
+	}
+
+	/*
 	 * Ensures that the IJavaElement of an IBinding representing a member type is correct.
 	 */
 	public void testMemberType() throws JavaModelException {
