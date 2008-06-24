@@ -590,4 +590,15 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"LA;.m$1()V"
 		);
 	}
+
+	/*
+	 * Ensures that the signature of a field with a capture return type is correct
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=234172 )
+	 */
+	public void test054() {
+		assertBindingKeySignatureEquals(
+			"*",
+			"LX;&LX~Box<!LX~Box;*232;!LX~Box;*232;>;.value)!LX~Box;*232;"
+		);
+	}
 }
