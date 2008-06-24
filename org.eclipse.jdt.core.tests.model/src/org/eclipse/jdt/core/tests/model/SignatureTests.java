@@ -966,6 +966,34 @@ public void testToStringType27() {
 		"? super InputStream",
 		Signature.toString("-QInputStream;"));
 }
+
+/* 
+ * Ensures that the toString() signature of a capture with no bounds is correct
+ */
+public void testToStringType28() {
+	assertEquals(
+		"capture-of ?",
+		Signature.toString("!*"));
+}
+
+/* 
+ * Ensures that the toString() signature of a capture with a super bound is correct
+ */
+public void testToStringType29() {
+	assertEquals(
+		"capture-of ? super java.util.List<T>",
+		Signature.toString("!-Ljava.util.List<TT;>;"));
+}
+
+/* 
+ * Ensures that the toString() signature of a capture with an extends bound is correct
+ */
+public void testToStringType30() {
+	assertEquals(
+		"capture-of ? extends java.util.ArrayList",
+		Signature.toString("!+Ljava.util.ArrayList;"));
+}
+
 /**
  * @see Signature#toString(String, String, String[], boolean, boolean)
  */

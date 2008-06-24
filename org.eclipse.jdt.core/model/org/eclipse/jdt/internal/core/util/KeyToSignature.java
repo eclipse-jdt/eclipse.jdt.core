@@ -57,8 +57,8 @@ public class KeyToSignature extends BindingKeyParser {
 	}
 	
 	public void consumeCapture(int position) {
-		// behave as if it was a wildcard
-		this.signature = ((KeyToSignature) this.arguments.get(0)).signature;
+		this.signature.append('!');
+		this.signature.append(((KeyToSignature) this.arguments.get(0)).signature);
 	}
 		
 	public void consumeLocalType(char[] uniqueKey) {

@@ -10153,4 +10153,27 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"<null>",
 			requestor.getBindings(bindingKeys));
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=120082
+	 */
+	public void test0315() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/pack1/E.java", true/*resolve*/);
+		ASTNode node = buildAST(
+	    	"package pack1;\n" + 
+    		"public class E<X> {\n" + 
+    		"	public static <T> E<T> bar(T t) {\n" + 
+    		"		return null;\n" + 
+    		"	}\n" + 
+    		"\n" + 
+    		"	public void foo(E<?> e) {\n" + 
+    		"		/*start*/bar(e)/*end*/;\n" + 
+    		"	}\n" + 
+    		"}",
+			this.workingCopy);
+		IBinding binding = ((MethodInvocation) node).resolveTypeBinding();
+		assertBindingKeyEquals(
+			"Lpack1/E<Lpack1/E<!Lpack1/E;*122;>;>;",
+			binding.getKey());
+	}
+	
 }
