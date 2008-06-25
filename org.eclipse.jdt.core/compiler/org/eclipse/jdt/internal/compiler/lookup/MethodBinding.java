@@ -528,6 +528,8 @@ public AnnotationBinding[][] getParameterAnnotations() {
 					if (argument.annotations != null) {
 						ASTNode.resolveAnnotations(methodDecl.scope, argument.annotations, argument.binding);
 						allParameterAnnotations[i] = argument.binding.getAnnotations();
+					} else {
+						allParameterAnnotations[i] = Binding.NO_ANNOTATIONS;
 					}
 				}
 			} else {
