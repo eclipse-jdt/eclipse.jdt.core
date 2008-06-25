@@ -841,8 +841,12 @@ public final boolean needBlankFinalFieldInitializationCheck(FieldBinding binding
 				&& !((AbstractMethodDeclaration) methodScope.referenceContext).isInitializationMethod()) { // inside constructor or clinit
 			return false; // found some non-initializer context
 		}
-		if (fieldDeclaringClass == methodScope.enclosingReceiverType()) {
+		ReferenceBinding enclosingType = methodScope.enclosingReceiverType();
+		if (enclosingType == fieldDeclaringClass) {
 			return true; // found the field context, no need to check any further
+		}
+		if (!enclosingType.erasure().isAnonymousType()) {
+			return false; // only check inside anonymous type
 		}
 		methodScope = methodScope.enclosingMethodScope();
 	}

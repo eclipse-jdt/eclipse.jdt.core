@@ -1280,11 +1280,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	public class X <T extends M> extends Super {}\n" + 
 			"	                          ^\n" + 
 			"M cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 3)\n" + 
-			"	class Y <T extends Y.M> extends Super {}\n" + 
-			"	                   ^^^\n" + 
-			"Y.M is a raw type. References to generic type Super.M should be parameterized\n" + 
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98504
@@ -44975,7 +44970,7 @@ public void test1337() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=234619
-public void _test1338() {
+public void test1338() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================
@@ -44999,7 +44994,7 @@ public void _test1338() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=234619 - variation
-public void _test1339() {
+public void test1339() {
 	this.runNegativeTest(
 			new String[] {
 				"java/lang/Object.java", // =================
@@ -45025,8 +45020,43 @@ public void _test1339() {
 			"Type mismatch: cannot convert from Class<capture#2-of ? extends Object> to Exception\n" + 
 			"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=235837
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=235460
 public void test1340() {
+	this.runConformTest(
+			new String[] {
+				"Derived_A.java", // =================
+				"import java.util.Map;\n" + 
+				"class Base_A {}\n" + 
+				"public class Derived_A extends Base_A {\n" + 
+				"	public Map<Object, Base_B> getMap() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n", // =================
+				"Derived_B.java", // =================
+				"class Base_B<T> {\n" + 
+				"}\n" + 
+				"public class Derived_B extends Base_B<Object> {\n" + 
+				"}\n", // =================				
+			},
+			"");
+	this.runConformTest(
+			new String[] {
+				"InternalCompilerError_Main.java", // =================
+				"public class InternalCompilerError_Main {\n" + 
+				"	public static void main(String args[]) {\n" + 
+				"		Derived_A dummy = new Derived_A();\n" + 
+				"		Derived_B propPrice = (Derived_B)dummy.getMap().get(null);		\n" + 
+				"	}\n" + 
+				"}\n", // =================
+			},
+			"",
+			null,
+			false,
+			null);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=235837
+public void test1341() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================
@@ -45052,8 +45082,250 @@ public void test1340() {
 			"Type safety : A generic array of Number&Comparable<?> is created for a varargs parameter\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=235921 - variation
+public void test1342() throws Exception {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.*;\n" + 
+				"interface Adapter<T> {\n" + 
+				"  interface Setter<V> {}\n" + 
+				"  public <V> Setter<V> makeSetter();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X<T> implements Adapter<T> {\n" + 
+				"  public <V> X.Setter<V> makeSetter() {\n" + 
+				"    return new X.Setter<V>() {};\n" + 
+				"  }\n" + 
+				"  void foo() {\n" + 
+				"	  List<Adapter.Setter<T>> l = new ArrayList<X.Setter<T>>();\n" + 
+				"  }\n" + 
+				"}\n", // =================
+			},
+			"");
+	// check X$1
+	String expectedOutput =
+		"// Signature: Ljava/lang/Object;LAdapter$Setter<TV;>;\n" + 
+		"class X$1 implements Adapter$Setter {\n";
+	
+	File f = new File(OUTPUT_DIR + File.separator + "X$1.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+	
+	// check X
+	expectedOutput =
+		"  // Signature: <V:Ljava/lang/Object;>()LAdapter$Setter<TV;>;\n" + 
+		"  // Stack: 3, Locals: 1\n" + 
+		"  public Adapter.Setter makeSetter();\n";
+	
+	f = new File(OUTPUT_DIR + File.separator + "X.class");
+	classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=235921 - variation
+public void test1343() throws Exception {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.*;\n" + 
+				"class Adapter<T> {\n" + 
+				"  class Setter<V> {}\n" + 
+				"  public <V> Setter<V> makeSetter() { return null; }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X<T> extends Adapter<T> {\n" + 
+				"  public <V> X<T>.Setter<V> makeSetter() {\n" + 
+				"    return new X<T>().new Setter<V>() {};\n" + 
+				"  }\n" + 
+				"  void foo() {\n" + 
+				"	  List<Adapter<T>.Setter<T>> l = new ArrayList<X<T>.Setter<T>>();\n" + 
+				"  }\n" + 
+				"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=235921 - variation
+public void test1344() throws Exception {
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.*;\n" + 
+				"class Adapter<T> {\n" + 
+				"  class Setter<V> {}\n" + 
+				"  public <V> Setter<V> makeSetter() { return null; }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X<T> extends Adapter {\n" + 
+				"  public <V> X.Setter makeSetter() {\n" + 
+				"    return new X().new Setter() {};\n" + 
+				"  }\n" + 
+				"  void foo() {\n" + 
+				"	  List<Adapter.Setter> l = new ArrayList<X.Setter>();\n" + 
+				"  }\n" + 
+				"}\n", // =================
+			},
+			"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=235921 - variation
+public void test1345() throws Exception {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.*;\n" + 
+				"class Adapter<T> {\n" + 
+				"  class Setter<V> {}\n" + 
+				"  public <V> Setter<V> makeSetter() { return null; }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X<T> extends Adapter {\n" + 
+				"  public <V> X.Setter makeSetter() {\n" + 
+				"    return (String) new X().new Setter() {};\n" + 
+				"  }\n" + 
+				"  void foo() {\n" + 
+				"          List<Adapter.Setter> l = new ArrayList<X.Setter>();\n" + 
+				"  }\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	public class X<T> extends Adapter {\n" + 
+			"	                          ^^^^^^^\n" + 
+			"Adapter is a raw type. References to generic type Adapter<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	public <V> X.Setter makeSetter() {\n" + 
+			"	           ^^^^^^^^\n" + 
+			"Adapter.Setter is a raw type. References to generic type Adapter<T>.Setter<V> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 8)\n" + 
+			"	public <V> X.Setter makeSetter() {\n" + 
+			"	                    ^^^^^^^^^^^^\n" + 
+			"The method makeSetter() of type X<T> should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	return (String) new X().new Setter() {};\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from new Adapter.Setter(){} to String\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 9)\n" + 
+			"	return (String) new X().new Setter() {};\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from String to Adapter.Setter\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 9)\n" + 
+			"	return (String) new X().new Setter() {};\n" + 
+			"	                    ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 9)\n" + 
+			"	return (String) new X().new Setter() {};\n" + 
+			"	                            ^^^^^^\n" + 
+			"Adapter.Setter is a raw type. References to generic type Adapter<T>.Setter<V> should be parameterized\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 12)\n" + 
+			"	List<Adapter.Setter> l = new ArrayList<X.Setter>();\n" + 
+			"	     ^^^^^^^^^^^^^^\n" + 
+			"Adapter.Setter is a raw type. References to generic type Adapter<T>.Setter<V> should be parameterized\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 12)\n" + 
+			"	List<Adapter.Setter> l = new ArrayList<X.Setter>();\n" + 
+			"	                                       ^^^^^^^^\n" + 
+			"Adapter.Setter is a raw type. References to generic type Adapter<T>.Setter<V> should be parameterized\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=235921 - variation
+public void test1346() throws Exception {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.*;\n" + 
+				"class Adapter<T> {\n" + 
+				"  class Setter<V> {}\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X<T> extends Adapter {\n" + 
+				"  public <V> Adapter.Setter makeSetter() {\n" + 
+				"    return (X.Setter) \"a\";\n" + 
+				"  }\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	public class X<T> extends Adapter {\n" + 
+			"	                          ^^^^^^^\n" + 
+			"Adapter is a raw type. References to generic type Adapter<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	public <V> Adapter.Setter makeSetter() {\n" + 
+			"	           ^^^^^^^^^^^^^^\n" + 
+			"Adapter.Setter is a raw type. References to generic type Adapter<T>.Setter<V> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	return (X.Setter) \"a\";\n" + 
+			"	       ^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from String to Adapter.Setter\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=236220
+public void test1347() throws Exception {
+	this.runNegativeTest(
+			new String[] {
+				"DeprecatedType.java", // =================
+				"class Base {\n" + 
+				"	class Member<U> {\n" + 
+				"   }\n" + 
+				"}\n" + 
+				"\n" + 
+				"@Deprecated\n" + 
+				"public class DeprecatedType<T> extends Base {\n" + 
+				"}\n",
+				"X.java", // =================
+				"public class X {\n" + 
+				"  DeprecatedType.Member m1; // DeprecatedType and Member are raw + indirect access to Member\n" + 
+				"  DeprecatedType.Member<String> m2; // DeprecatedType is raw + indirect access to Member\n" + 
+				"  Zork z;\n" +
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	DeprecatedType.Member m1; // DeprecatedType and Member are raw + indirect access to Member\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type DeprecatedType<T> is deprecated\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 2)\n" + 
+			"	DeprecatedType.Member m1; // DeprecatedType and Member are raw + indirect access to Member\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Base.Member is a raw type. References to generic type Base.Member<U> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 3)\n" + 
+			"	DeprecatedType.Member<String> m2; // DeprecatedType is raw + indirect access to Member\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"The type DeprecatedType is deprecated\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 4)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=174282 - variation
-public void test1341() {
+public void test1348() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================

@@ -1275,5 +1275,41 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}
-	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=235921
+	public void test021() {
+		final String[] testsSource = new String[] {
+			"a/Adapter.java", //========================
+			"package a;\n" + 
+			"public interface Adapter<T> {\n" + 
+			"  interface Setter<V> {}\n" + 
+			"  public <V> Setter<V> makeSetter();\n" + 
+			"}\n",
+			"a/b/Adapter.java", //========================
+			"package a.b;\n" + 
+			"public class Adapter<T> implements a.Adapter<T> {\n" + 
+			"  public <V> Adapter.Setter<V> makeSetter() {\n" + 
+			"    return new Adapter.Setter<V>() {};\n" + 
+			"  }\n" + 
+			"}\n",
+		};
+		this.runConformTest(
+			testsSource,
+			"");
+
+		try {
+			// check generic signature for a/b/Adapter.class
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "a" + File.separator + "b" + File.separator + "Adapter.class");
+			char[] signature = classFileReader.getGenericSignature();
+			assertEquals("Wrong signature1", "<T:Ljava/lang/Object;>Ljava/lang/Object;La/Adapter<TT;>;", new String(signature));			
+
+			// check generic signature for a/b/Adapter$1.class
+			classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "a" + File.separator + "b" + File.separator + "Adapter$1.class");
+			signature = classFileReader.getGenericSignature();
+			assertEquals("Wrong signature2", "Ljava/lang/Object;La/Adapter$Setter<TV;>;", new String(signature));			
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}
 }

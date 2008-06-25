@@ -1004,6 +1004,21 @@ public String toString() {
 	else buffer.append("interface "); //$NON-NLS-1$	
 	buffer.append((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED TYPE"); //$NON-NLS-1$
 
+	if (this.typeVariables == null) {
+		buffer.append("<NULL TYPE VARIABLES>"); //$NON-NLS-1$
+	} else if (this.typeVariables != Binding.NO_TYPE_VARIABLES) {
+		buffer.append("<"); //$NON-NLS-1$
+		for (int i = 0, length = this.typeVariables.length; i < length; i++) {
+			if (i  > 0) buffer.append(", "); //$NON-NLS-1$
+			if (this.typeVariables[i] == null) {
+				buffer.append("NULL TYPE VARIABLE"); //$NON-NLS-1$
+				continue;
+			}
+			char[] varChars = this.typeVariables[i].toString().toCharArray();
+			buffer.append(varChars, 1, varChars.length - 2);
+		}
+		buffer.append(">"); //$NON-NLS-1$
+	}
 	buffer.append("\n\textends "); //$NON-NLS-1$
 	buffer.append((superclass != null) ? superclass.debugName() : "NULL TYPE"); //$NON-NLS-1$
 

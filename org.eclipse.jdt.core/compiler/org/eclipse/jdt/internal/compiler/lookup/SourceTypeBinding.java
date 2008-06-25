@@ -1593,11 +1593,15 @@ public String toString() {
 	if (this.typeVariables == null) {
 		buffer.append("<NULL TYPE VARIABLES>"); //$NON-NLS-1$
 	} else if (this.typeVariables != Binding.NO_TYPE_VARIABLES) {
-		buffer.append("\n\t<"); //$NON-NLS-1$
+		buffer.append("<"); //$NON-NLS-1$
 		for (int i = 0, length = this.typeVariables.length; i < length; i++) {
-			if (i  > 0)
-				buffer.append(", "); //$NON-NLS-1$
-			buffer.append((this.typeVariables[i] != null) ? this.typeVariables[i].toString() : "NULL TYPE VARIABLE"); //$NON-NLS-1$
+			if (i  > 0) buffer.append(", "); //$NON-NLS-1$
+			if (this.typeVariables[i] == null) {
+				buffer.append("NULL TYPE VARIABLE"); //$NON-NLS-1$
+				continue;
+			}
+			char[] varChars = this.typeVariables[i].toString().toCharArray();
+			buffer.append(varChars, 1, varChars.length - 2);
 		}
 		buffer.append(">"); //$NON-NLS-1$
 	}
