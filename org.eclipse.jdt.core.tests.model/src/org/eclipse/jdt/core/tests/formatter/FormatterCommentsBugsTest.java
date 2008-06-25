@@ -1179,4 +1179,127 @@ public void testBug236230f() throws JavaModelException {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 237051: [formatter] Formatter insert blank lines after javadoc if javadoc contains Commons Attributes @@ annotations
+ * @test Ensure that Commons Attributes @@ annotations do not screw up the comment formatter
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=237051"
+ */
+public void testBug237051() throws JavaModelException {
+	String source = 
+		"public interface Test {\n" + 
+		"/**\n" + 
+		" * foo\n" + 
+		" * \n" + 
+		" * @@Foo(\"foo\")\n" + 
+		" */\n" + 
+		"Object doSomething(Object object) throws Exception;\n" + 
+		"}\n" + 
+		"\n";
+	formatSource(source,
+		"public interface Test {\n" + 
+		"	/**\n" + 
+		"	 * foo\n" + 
+		"	 * \n" + 
+		"	 * @@Foo(\"foo\")\n" + 
+		"	 */\n" + 
+		"	Object doSomething(Object object) throws Exception;\n" + 
+		"}\n"
+	);
+}
+public void testBug237051b() throws JavaModelException {
+	String source = 
+		"public interface Test {\n" + 
+		"/**\n" + 
+		" * foo\n" + 
+		" * @@Foo(\"foo\")\n" + 
+		" */\n" + 
+		"Object doSomething(Object object) throws Exception;\n" + 
+		"}\n" + 
+		"\n";
+	formatSource(source,
+		"public interface Test {\n" + 
+		"	/**\n" + 
+		"	 * foo\n" + 
+		"	 * \n" + 
+		"	 * @@Foo(\"foo\")\n" + 
+		"	 */\n" + 
+		"	Object doSomething(Object object) throws Exception;\n" + 
+		"}\n"
+	);
+}
+public void testBug237051c() throws JavaModelException {
+	String source = 
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Returns the download rate in bytes per second.  If the rate is unknown,\n" + 
+		"	 * @{link {@link #UNKNOWN_RATE}} is returned.\n" + 
+		"	 * @return the download rate in bytes per second\n" + 
+		"	 */\n" + 
+		"	public long getTransferRate() {\n" + 
+		"		return -1;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Returns the download rate in bytes per second. If the rate is unknown,\n" + 
+		"	 * \n" + 
+		"	 * @{link {@link #UNKNOWN_RATE} is returned.\n" + 
+		"	 * @return the download rate in bytes per second\n" + 
+		"	 */\n" + 
+		"	public long getTransferRate() {\n" + 
+		"		return -1;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug237051d() throws JavaModelException {
+	String source = 
+		"public class X {\n" + 
+		"\n" + 
+		"	\n" + 
+		"	/**\n" + 
+		"	 * Copies specified input stream to the output stream. Neither stream\n" + 
+		"	 * is closed as part of this operation.\n" + 
+		"	 * \n" + 
+		"	 * @param is input stream\n" + 
+		"	 * @param os output stream\n" + 
+		"	 * @param monitor progress monitor\n" + 
+		"     * @param expectedLength - if > 0, the number of bytes from InputStream will be verified\n" + 
+		"	 * @@return the offset in the input stream where copying stopped. Returns -1 if end of input stream is reached.\n" + 
+		"	 * @since 2.0\n" + 
+		"	 */\n" + 
+		"	public static long foo() {\n" + 
+		"		return -1;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Copies specified input stream to the output stream. Neither stream is\n" + 
+		"	 * closed as part of this operation.\n" + 
+		"	 * \n" + 
+		"	 * @param is\n" + 
+		"	 *            input stream\n" + 
+		"	 * @param os\n" + 
+		"	 *            output stream\n" + 
+		"	 * @param monitor\n" + 
+		"	 *            progress monitor\n" + 
+		"	 * @param expectedLength\n" + 
+		"	 *            - if > 0, the number of bytes from InputStream will be\n" + 
+		"	 *            verified\n" + 
+		"	 * @@return the offset in the input stream where copying stopped. Returns -1\n" + 
+		"	 *          if end of input stream is reached.\n" + 
+		"	 * @since 2.0\n" + 
+		"	 */\n" + 
+		"	public static long foo() {\n" + 
+		"		return -1;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 }
