@@ -151,4 +151,19 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 			"}";
 		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95480
+	public void test007() throws Exception {
+		JavaModelException expected = null;
+		try {
+			IType type = getCompilationUnit("CreateMembers/src/E.java").getType("E");
+			type.createType("class Member {}", type.getField("E1"), false/*don't force*/, null/*no progress*/);
+		} catch (JavaModelException e) {
+			expected = e;
+		}
+		assertExceptionEquals(
+			"Unexpected exception", 
+			"Invalid sibling: E1 [in E [in E.java [in <default> [in src [in CreateMembers]]]]]", 
+			expected);
+	}
 }

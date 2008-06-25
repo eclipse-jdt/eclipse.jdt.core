@@ -102,6 +102,20 @@ protected IJavaModelStatus verifyNameCollision() {
 	}
 	return JavaModelStatus.VERIFIED_OK;
 }
+public IJavaModelStatus verify() {
+	IJavaModelStatus status = super.verify();
+	if (!status.isOK())
+		return status;
+	try {
+		IJavaElement parent = getParentElement();
+		if (this.anchorElement != null && this.anchorElement.getElementType() == IJavaElement.FIELD 
+				&& parent.getElementType() == IJavaElement.TYPE && ((IType)parent).isEnum())
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_SIBLING, this.anchorElement);
+	} catch (JavaModelException e) {
+		return e.getJavaModelStatus();
+	}
+	return JavaModelStatus.VERIFIED_OK;
+}
 private String getASTNodeName() {
 	return ((AbstractTypeDeclaration) this.createdNode).getName().getIdentifier();
 }
