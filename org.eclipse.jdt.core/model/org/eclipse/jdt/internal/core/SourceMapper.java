@@ -345,6 +345,7 @@ public class SourceMapper
 			return;
 		}
 		IPackageFragmentRoot root = (IPackageFragmentRoot) type.getPackageFragment().getParent();
+		IPath pkgFragmentRootPath = root.getPath();
 		final HashSet tempRoots = new HashSet();
 		long time = 0;
 		if (VERBOSE) {
@@ -353,36 +354,40 @@ public class SourceMapper
 		}
 		final HashSet firstLevelPackageNames = new HashSet();
 		boolean containsADefaultPackage = false;
+		boolean containsJavaSource = !pkgFragmentRootPath.equals(this.sourcePath); // used to optimize zip file reading only if source path and root path are equals, otherwise assume that attachment contains Java source
 
 		String sourceLevel = null;
 		String complianceLevel = null;
 		if (root.isArchive()) {
-			JarPackageFragmentRoot jarPackageFragmentRoot = (JarPackageFragmentRoot) root;
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			ZipFile zip = null;
 			try {
-				zip = manager.getZipFile(jarPackageFragmentRoot.getPath());
+				zip = manager.getZipFile(pkgFragmentRootPath);
 				for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
 					ZipEntry entry = (ZipEntry) entries.nextElement();
 					String entryName = entry.getName();
 					if (!entry.isDirectory()) {
-						int index = entryName.indexOf('/');
-						if (index != -1 && Util.isClassFileName(entryName)) {
-							String firstLevelPackageName = entryName.substring(0, index);
-							if (!firstLevelPackageNames.contains(firstLevelPackageName)) {
-								if (sourceLevel == null) {
-									IJavaProject project = root.getJavaProject();
-									sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
-									complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+						if (Util.isClassFileName(entryName)) {
+							int index = entryName.indexOf('/');
+							if (index != -1) {
+								String firstLevelPackageName = entryName.substring(0, index);
+								if (!firstLevelPackageNames.contains(firstLevelPackageName)) {
+									if (sourceLevel == null) {
+										IJavaProject project = root.getJavaProject();
+										sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
+										complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+									}
+									IStatus status = JavaConventions.validatePackageName(firstLevelPackageName, sourceLevel, complianceLevel);
+									if (status.isOK() || status.getSeverity() == IStatus.WARNING) {
+										firstLevelPackageNames.add(firstLevelPackageName);
+									}
 								}
-								IStatus status = JavaConventions.validatePackageName(firstLevelPackageName, sourceLevel, complianceLevel);
-								if (status.isOK() || status.getSeverity() == IStatus.WARNING) {
-									firstLevelPackageNames.add(firstLevelPackageName);
-								}
+							} else {
+								containsADefaultPackage = true;
 							}
-						} else if (Util.isClassFileName(entryName)) {
-							containsADefaultPackage = true;
-						}						
+						} else if (!containsJavaSource && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(entryName)) {
+							containsJavaSource = true;
+						}
 					}
 				}
 			} catch (CoreException e) {
@@ -399,19 +404,21 @@ public class SourceMapper
 						IResource[] members = ((IContainer) resource).members();
 						for (int i = 0, max = members.length; i < max; i++) {
 							IResource member = members[i];
+							String resourceName = member.getName();
 							if (member.getType() == IResource.FOLDER) {
 								if (sourceLevel == null) {
 									IJavaProject project = root.getJavaProject();
 									sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
 									complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 								}
-								String firstLevelPackageName = member.getName();
-								IStatus status = JavaConventions.validatePackageName(firstLevelPackageName, sourceLevel, complianceLevel);
+								IStatus status = JavaConventions.validatePackageName(resourceName, sourceLevel, complianceLevel);
 								if (status.isOK() || status.getSeverity() == IStatus.WARNING) {
-									firstLevelPackageNames.add(firstLevelPackageName);
+									firstLevelPackageNames.add(resourceName);
 								}
-							} else if (Util.isClassFileName(member.getName())) {
+							} else if (Util.isClassFileName(resourceName)) {
 								containsADefaultPackage = true;
+							} else if (!containsJavaSource && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resourceName)) {
+								containsJavaSource = true;
 							}
 						}
 					} catch (CoreException e) {
@@ -421,40 +428,42 @@ public class SourceMapper
 			}
 		}
 
-		Object target = JavaModel.getTarget(this.sourcePath, true);
-		if (target instanceof IContainer) {
-			IContainer folder = (IContainer)target;
-			computeRootPath(folder, firstLevelPackageNames, containsADefaultPackage, tempRoots, folder.getFullPath().segmentCount()/*if external folder, this is the linked folder path*/);
-		} else {
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ZipFile zip = null;
-			try {
-				zip = manager.getZipFile(this.sourcePath);
-				for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
-					ZipEntry entry = (ZipEntry) entries.nextElement();
-					String entryName;
-					if (!entry.isDirectory() && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(entryName = entry.getName())) {
-						IPath path = new Path(entryName);
-						int segmentCount = path.segmentCount();
-						if (segmentCount > 1) {
-							for (int i = 0, max = path.segmentCount() - 1; i < max; i++) {
-								if (firstLevelPackageNames.contains(path.segment(i))) {
-									tempRoots.add(path.uptoSegment(i));
-									// don't break here as this path could contain other first level package names (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=74014)
+		if (containsJavaSource) { // no need to read source attachment if it contains no Java source (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=190840 )
+			Object target = JavaModel.getTarget(this.sourcePath, true);
+			if (target instanceof IContainer) {
+				IContainer folder = (IContainer)target;
+				computeRootPath(folder, firstLevelPackageNames, containsADefaultPackage, tempRoots, folder.getFullPath().segmentCount()/*if external folder, this is the linked folder path*/);
+			} else {
+				JavaModelManager manager = JavaModelManager.getJavaModelManager();
+				ZipFile zip = null;
+				try {
+					zip = manager.getZipFile(this.sourcePath);
+					for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
+						ZipEntry entry = (ZipEntry) entries.nextElement();
+						String entryName;
+						if (!entry.isDirectory() && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(entryName = entry.getName())) {
+							IPath path = new Path(entryName);
+							int segmentCount = path.segmentCount();
+							if (segmentCount > 1) {
+								for (int i = 0, max = path.segmentCount() - 1; i < max; i++) {
+									if (firstLevelPackageNames.contains(path.segment(i))) {
+										tempRoots.add(path.uptoSegment(i));
+										// don't break here as this path could contain other first level package names (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=74014)
+									}
+									if (i == max - 1 && containsADefaultPackage) {
+										tempRoots.add(path.uptoSegment(max));
+									}
 								}
-								if (i == max - 1 && containsADefaultPackage) {
-									tempRoots.add(path.uptoSegment(max));
-								}
+							} else if (containsADefaultPackage) {
+								tempRoots.add(new Path("")); //$NON-NLS-1$
 							}
-						} else if (containsADefaultPackage) {
-							tempRoots.add(new Path("")); //$NON-NLS-1$
 						}
 					}
+				} catch (CoreException e) {
+					// ignore
+				} finally {
+					manager.closeZipFile(zip); // handle null case
 				}
-			} catch (CoreException e) {
-				// ignore
-			} finally {
-				manager.closeZipFile(zip); // handle null case
 			}
 		}
 		int size = tempRoots.size();
