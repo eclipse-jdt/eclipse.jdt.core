@@ -12,6 +12,7 @@ package org.eclipse.jdt.core;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
@@ -114,7 +115,9 @@ void copy(IJavaElement[] elements, IJavaElement[] containers, IJavaElement[] sib
  */
 void delete(IJavaElement[] elements, boolean force, IProgressMonitor monitor) throws JavaModelException;
 /**
- * Returns the Java project with the given name. This is a handle-only method. 
+ * Returns the Java project with the given name. The given name must be a valid
+ * path segment as defined by {@link IPath#isValidSegment(String)}.
+ * This is a handle-only method. 
  * The project may or may not exist.
  * 
  * @param name the name of the Java project
