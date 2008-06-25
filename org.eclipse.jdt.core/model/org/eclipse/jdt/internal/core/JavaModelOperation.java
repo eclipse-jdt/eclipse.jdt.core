@@ -739,7 +739,6 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 					}
 				}
 				deltaProcessor.resetProjectCaches();
-				deltaProcessor.projectCachesToReset.clear();
 				
 				// fire only iff:
 				// - the operation is a top level operation

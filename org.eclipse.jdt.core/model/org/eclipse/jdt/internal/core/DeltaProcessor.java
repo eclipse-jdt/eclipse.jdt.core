@@ -1801,7 +1801,6 @@ public class DeltaProcessor {
 			return this.currentDelta;
 		} finally {
 			this.currentDelta = null;
-			this.projectCachesToReset.clear();
 		}
 	}
 	/*
@@ -1828,6 +1827,8 @@ public class DeltaProcessor {
 			JavaProject project = (JavaProject) iterator.next();
 			project.resetCaches();
 		}
+		
+		this.projectCachesToReset.clear();
 	}
 	/*
 	 * Registers the given delta with this delta processor.
