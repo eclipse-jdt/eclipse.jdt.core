@@ -475,22 +475,7 @@ private void pushText(int start, int end, int htmlIndex, int htmlDepth) {
 	}
 
 	// Add the text
-	int textEnd = end;
-	if (this.javadocTextEnd > 0 && end >= this.javadocTextEnd) {
-		// Special case on javadoc text end, need to retrieve the space
-		// position by rescanning the text
-		int restart = this.spacePosition == -1 ? start : this.spacePosition;
-		this.scanner.resetTo(restart, end-1/* before last star*/);
-		try {
-			if (this.scanner.getNextToken() == TerminalTokens.TokenNameEOF) {
-				textEnd = this.spacePosition;
-			}
-		}
-		catch (InvalidInputException iie) {
-			// do nothing
-		}
-	}
-	FormatJavadocText text = new FormatJavadocText(start, textEnd-1, lineStart, htmlIndex, htmlDepth);
+	FormatJavadocText text = new FormatJavadocText(start, end-1, lineStart, htmlIndex, htmlDepth);
 	previousBlock.addText(text);
 	previousBlock.sourceStart = previousStart;
 	if (lineStart == previousBlock.lineStart) {

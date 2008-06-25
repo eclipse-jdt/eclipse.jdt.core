@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.formatter.comment.CommentRegion;
@@ -487,8 +488,9 @@ public class DefaultCodeFormatter extends CodeFormatter {
 
 	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean includeComments) {
 		if (PROBING_SCANNER == null) {
-			// scanner use to check if the kind could be K_JAVA_DOC, K_MULTI_LINE_COMMENT or K_SINGLE_LINE_COMMENT 
-			PROBING_SCANNER = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3, ClassFileConstants.JDK1_3, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+			// scanner use to check if the kind could be K_JAVA_DOC, K_MULTI_LINE_COMMENT or K_SINGLE_LINE_COMMENT
+			// do not tokenize white spaces to get single comments even with spaces before...
+			PROBING_SCANNER = new Scanner(true, false/*do not tokenize whitespaces*/, false/*nls*/, ClassFileConstants.JDK1_6, ClassFileConstants.JDK1_6, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		}
 		PROBING_SCANNER.setSource(source.toCharArray());
 		
@@ -496,22 +498,22 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		int offset = coveredRegion.getOffset();
 		int length = coveredRegion.getLength();
 		
-		PROBING_SCANNER.resetTo(offset, offset + length);
+		PROBING_SCANNER.resetTo(offset, offset + length - 1);
 		try {
 			int kind = -1;
 			switch(PROBING_SCANNER.getNextToken()) {
 				case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
-					if (PROBING_SCANNER.getCurrentTokenEndPosition() == offset + length - 1) {
+					if (PROBING_SCANNER.getNextToken() == TerminalTokens.TokenNameEOF) {
 						kind = K_MULTI_LINE_COMMENT;
 					}
 					break;
 				case ITerminalSymbols.TokenNameCOMMENT_LINE :
-					if (PROBING_SCANNER.getCurrentTokenEndPosition() == offset + length - 1) {
+					if (PROBING_SCANNER.getNextToken() == TerminalTokens.TokenNameEOF) {
 						kind = K_SINGLE_LINE_COMMENT;
 					}
 					break;
 				case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-					if (PROBING_SCANNER.getCurrentTokenEndPosition() == offset + length - 1) {
+					if (PROBING_SCANNER.getNextToken() == TerminalTokens.TokenNameEOF) {
 						kind = K_JAVA_DOC;
 					}
 					break;

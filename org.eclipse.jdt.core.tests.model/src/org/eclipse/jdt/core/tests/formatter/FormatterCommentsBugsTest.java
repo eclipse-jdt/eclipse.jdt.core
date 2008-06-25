@@ -977,4 +977,206 @@ public void testBug234336() throws JavaModelException {
 		1 /* indentation level */
 	);
 }
+
+/**
+ * @bug 236230: [formatter] SIOOBE while formatting a compilation unit.
+ * @test Ensure that no exception occurs while formatting
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=236230"
+ */
+public void testBug236230() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Need a javadoc comment before to get the exception.\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"  /**\n" + 
+		"   * <p>If there is an authority, it is:\n" + 
+		"   * <pre>\n" + 
+		"   *   //authority/device/pathSegment1/pathSegment2...</pre>\n" + 
+		"   */\n" + 
+		"  public String devicePath() {\n" + 
+		"	  return null;\n" + 
+		"  }\n" + 
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * Need a javadoc comment before to get the exception.\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * <p>\n" + 
+		"	 * If there is an authority, it is:\n" + 
+		"	 * \n" + 
+		"	 * <pre>\n" + 
+		"	 * // authority/device/pathSegment1/pathSegment2...\n" + 
+		"	 * </pre>\n" + 
+		"	 */\n" + 
+		"	public String devicePath() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug236230b() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Need a javadoc comment before to get the exception.\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"  /**\n" + 
+		"   * <p>If there is an authority, it is:\n" + 
+		"   * <pre>//authority/device/pathSegment1/pathSegment2...</pre>\n" + 
+		"   */\n" + 
+		"  public String devicePath() {\n" + 
+		"	  return null;\n" + 
+		"  }\n" + 
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * Need a javadoc comment before to get the exception.\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * <p>\n" + 
+		"	 * If there is an authority, it is:\n" + 
+		"	 * \n" + 
+		"	 * <pre>\n" + 
+		"	 * // authority/device/pathSegment1/pathSegment2...\n" + 
+		"	 * </pre>\n" + 
+		"	 */\n" + 
+		"	public String devicePath() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug236230c() throws JavaModelException {
+	this.preferences.comment_format_header = true;
+	String source = 
+		"/**\n" + 
+		" * Need a javadoc comment before to get the exception.\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"  /**\n" + 
+		"   * <p>If there is an authority, it is:\n" + 
+		"   * <pre>\n" +
+		"			import java.util.List;\n" +
+		"			//            CU         snippet\n" +
+		"			public class X implements List {}\n" +
+		"		</pre>\n" + 
+		"   */\n" + 
+		"  public String devicePath() {\n" + 
+		"	  return null;\n" + 
+		"  }\n" + 
+		"}\n";
+	formatSource(source,
+		"/**\n" + 
+		" * Need a javadoc comment before to get the exception.\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * <p>\n" + 
+		"	 * If there is an authority, it is:\n" + 
+		"	 * \n" + 
+		"	 * <pre>\n" + 
+		"	 * import java.util.List;\n" + 
+		"	 * \n" + 
+		"	 * // CU snippet\n" + 
+		"	 * public class X implements List {\n" + 
+		"	 * }\n" + 
+		"	 * </pre>\n" + 
+		"	 */\n" + 
+		"	public String devicePath() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug236230d() throws JavaModelException {
+	String source = 
+		"/**\n" + 
+		" * Need a javadoc comment before to get the exception.\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"  /**\n" + 
+		"   * <p>If there is an authority, it is:\n" + 
+		"   * <pre>\n" +
+		"			//class	body		snippet\n" +
+		"			public class X {}\n" +
+		"		</pre>\n" + 
+		"   */\n" + 
+		"  public String devicePath() {\n" + 
+		"	  return null;\n" + 
+		"  }\n" + 
+		"}\n";
+	// TODO (frederic) line comment should be formatted when F_INCLUDE_COMMENTS
+	// flag will work for all snippet kinds
+	formatSource(source,
+		"/**\n" + 
+		" * Need a javadoc comment before to get the exception.\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * <p>\n" + 
+		"	 * If there is an authority, it is:\n" + 
+		"	 * \n" + 
+		"	 * <pre>\n" + 
+		"	 * //class	body		snippet\n" + 
+		"	 * public class X {\n" + 
+		"	 * }\n" + 
+		"	 * </pre>\n" + 
+		"	 */\n" + 
+		"	public String devicePath() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Following tests showed possible regressions while implementing the fix...
+public void testBug236230e() throws JavaModelException {
+	String source = 
+		"public class X02 {\n" + 
+		"\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	/**\n" + 
+		"	 * Removes the Java nature from the project.\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X02 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * /** Removes the Java nature from the project.\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug236230f() throws JavaModelException {
+	String source = 
+		"public class X03 {\n" + 
+		"  /** The value of <tt>System.getProperty(\"java.version\")<tt>. **/\n" + 
+		"  static final String JAVA_VERSION = System.getProperty(\"java.version\");\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X03 {\n" + 
+		"	/** The value of <tt>System.getProperty(\"java.version\")<tt>. **/\n" + 
+		"	static final String JAVA_VERSION = System.getProperty(\"java.version\");\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
 }
