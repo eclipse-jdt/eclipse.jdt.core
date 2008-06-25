@@ -2558,6 +2558,7 @@ public class Scribe implements IJavaDocTagConstants {
 								headerLine = false;
 								maxColumn--;
 							}
+							spacePosition = -1;
 						}
 						buffer.append(this.scanner.source, this.scanner.startPosition, tokenLength);
 			    		this.column += tokenLength;

@@ -1302,4 +1302,41 @@ public void testBug237051d() throws JavaModelException {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 238090: [formatter] Formatter insert blank lines after javadoc if javadoc contains Commons Attributes @@ annotations
+ * @test Ensure that no unexpected empty new lines are added while formatting a reference
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=238090"
+ */
+public void testBug238090() throws JavaModelException {
+	this.preferences.comment_line_length = 40;
+	String source = 
+		"package test.bugs;\n" + 
+		"public class LongNameClass {\n" + 
+		"/**\n" + 
+		" * @see test.bugs.\n" + 
+		" * LongNameClass#longNameMethod(java.lang.String)\n" + 
+		" */\n" + 
+		"public void foo() {\n" + 
+		"}\n" + 
+		"\n" + 
+		"void longNameMethod(String str) {\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"package test.bugs;\n" + 
+		"\n" + 
+		"public class LongNameClass {\n" + 
+		"	/**\n" + 
+		"	 * @see test.bugs.\n" + 
+		"	 *      LongNameClass#longNameMethod(java.lang.String)\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	void longNameMethod(String str) {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 }
