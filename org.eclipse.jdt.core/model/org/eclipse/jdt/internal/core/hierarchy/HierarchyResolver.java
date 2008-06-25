@@ -525,7 +525,7 @@ private void reportHierarchy(IType focus, TypeDeclaration focusLocalType, Refere
 		this.builder.connect(suppliedType, this.builder.getHandle(suppliedType, typeBinding), superclass, superinterfaces);
 	}
 	// add java.lang.Object only if the super class is not missing
-	if (!this.hasMissingSuperClass && objectIndex > -1) {
+	if (objectIndex > -1 && (!this.hasMissingSuperClass || this.focusType == null)) {
 		IGenericType objectType = this.typeModels[objectIndex];
 		this.builder.connect(objectType, this.builder.getHandle(objectType, this.typeBindings[objectIndex]), null, null);
 	}

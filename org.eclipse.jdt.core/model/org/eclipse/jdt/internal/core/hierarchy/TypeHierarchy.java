@@ -1471,30 +1471,37 @@ boolean subtypesIncludeSupertypeOf(IType type) {
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append("Focus: "); //$NON-NLS-1$
-	buffer.append(this.focusType == null ? "<NONE>" : ((JavaElement)this.focusType).toStringWithAncestors(false/*don't show key*/)); //$NON-NLS-1$
-	buffer.append("\n"); //$NON-NLS-1$
+	if (this.focusType == null) {
+		buffer.append("<NONE>\n"); //$NON-NLS-1$
+	} else {
+		toString(buffer, this.focusType, 0);
+	}
 	if (exists()) {
 		if (this.focusType != null) {
 			buffer.append("Super types:\n"); //$NON-NLS-1$
-			toString(buffer, this.focusType, 1, true);
+			toString(buffer, this.focusType, 0, true);
 			buffer.append("Sub types:\n"); //$NON-NLS-1$
-			toString(buffer, this.focusType, 1, false);
+			toString(buffer, this.focusType, 0, false);
 		} else {
-			buffer.append("Sub types of root classes:\n"); //$NON-NLS-1$
-			IJavaElement[] roots = Util.sortCopy(getRootClasses());
-			for (int i= 0; i < roots.length; i++) {
-				toString(buffer, (IType) roots[i], 1, false);
+			if (this.rootClasses.size > 0) {
+				IJavaElement[] roots = Util.sortCopy(getRootClasses());
+				buffer.append("Super types of root classes:\n"); //$NON-NLS-1$
+				int length = roots.length;
+				for (int i = 0; i < length; i++) {
+					IJavaElement root = roots[i];
+					toString(buffer, root, 1);
+					toString(buffer, root, 1, true);
+				}
+				buffer.append("Sub types of root classes:\n"); //$NON-NLS-1$
+				for (int i = 0; i < length; i++) {
+					IJavaElement root = roots[i];
+					toString(buffer, root, 1);
+					toString(buffer, root, 1, false);
+				}
+			} else if (this.rootClasses.size == 0) {
+				// see http://bugs.eclipse.org/bugs/show_bug.cgi?id=24691
+				buffer.append("No root classes"); //$NON-NLS-1$
 			}
-		}
-		if (this.rootClasses.size > 1) {
-			buffer.append("Root classes:\n"); //$NON-NLS-1$
-			IJavaElement[] roots = Util.sortCopy(getRootClasses());
-			for (int i = 0, length = roots.length; i < length; i++) {
-				toString(buffer, (IType) roots[i], 1, false);
-			}
-		} else if (this.rootClasses.size == 0) {
-			// see http://bugs.eclipse.org/bugs/show_bug.cgi?id=24691
-			buffer.append("No root classes"); //$NON-NLS-1$
 		}
 	} else {
 		buffer.append("(Hierarchy became stale)"); //$NON-NLS-1$
@@ -1506,18 +1513,20 @@ public String toString() {
  * beginning with the specified indentation level.
  * If ascendant, shows the super types, otherwise show the sub types.
  */
-private void toString(StringBuffer buffer, IType type, int indent, boolean ascendant) {
-	IType[] types= ascendant ? getSupertypes(type) : getSubtypes(type);
+private void toString(StringBuffer buffer, IJavaElement type, int indent, boolean ascendant) {
+	IType[] types= ascendant ? getSupertypes((IType) type) : getSubtypes((IType) type);
 	IJavaElement[] sortedTypes = Util.sortCopy(types);
 	for (int i= 0; i < sortedTypes.length; i++) {
-		for (int j= 0; j < indent; j++) {
-			buffer.append("  "); //$NON-NLS-1$
-		}
-		JavaElement element = (JavaElement)sortedTypes[i];
-		buffer.append(element.toStringWithAncestors(false/*don't show key*/));
-		buffer.append('\n');
-		toString(buffer, types[i], indent + 1, ascendant);
+		toString(buffer, sortedTypes[i], indent + 1);
+		toString(buffer, sortedTypes[i], indent + 1, ascendant);
 	}
+}
+private void toString(StringBuffer buffer, IJavaElement type, int indent) {
+	for (int j= 0; j < indent; j++) {
+		buffer.append("  "); //$NON-NLS-1$
+	}
+	buffer.append(((JavaElement) type).toStringWithAncestors(false/*don't show key*/));
+	buffer.append('\n');
 }
 /**
  * Returns whether one of the types in this hierarchy has a supertype whose simple 

@@ -413,8 +413,7 @@ public void testBinaryInWrongPackage() throws CoreException {
 		assertHierarchyEquals(
 			"Focus: X [in X.class [in <default> [in lib [in P]]]]\n" + 
 			"Super types:\n" + 
-			"Sub types:\n" + 
-			"Root classes:\n",
+			"Sub types:\n",
 			hierarchy);
 	} finally {
 		deleteProject("P");
@@ -788,15 +787,15 @@ public void testFocusWithLocalAndAnonymousTypes() throws JavaModelException {
 		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
 		"Sub types:\n" + 
 		"  <anonymous #1> [in <initializer #2> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    Y2 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"  <anonymous #1> [in field1 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"  <anonymous #1> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"  <anonymous #1> [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"  <anonymous #1> [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"  <anonymous #2> [in field2 [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
 		"  Y1 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"    Y2 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
-		"  Y1 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
+		"    Y2 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"  Y1 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"    Y2 [in <initializer #1> [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n",
 		hierarchy);
 }
 /*
@@ -809,10 +808,10 @@ public void testGeneric01() throws JavaModelException {
 		"Focus: X [in X.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
 		"Super types:\n" + 
 		"  ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
-		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
 		"    AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
-		"    List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
 		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+		"    List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
 		"Sub types:\n",
 		hierarchy
 	);
@@ -827,8 +826,8 @@ public void testGeneric02() throws JavaModelException {
 		"Focus: ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
 		"Super types:\n" + 
 		"  AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
-		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
 		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
 		"Sub types:\n" + 
 		"  X [in X.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
 		"  Y [in Y.java [in <default> [in src [in TypeHierarchy15]]]]\n",
@@ -845,10 +844,10 @@ public void testGeneric03() throws JavaModelException {
 		"Focus: Y [in Y.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
 		"Super types:\n" + 
 		"  ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
-		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
 		"    AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
-		"    List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
 		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+		"    List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
 		"Sub types:\n",
 		hierarchy
 	);
@@ -864,10 +863,10 @@ public void testGeneric04() throws JavaModelException {
 		"Focus: X [in X.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
 		"Super types:\n" + 
 		"  ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
-		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
 		"    AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
-		"    List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
 		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+		"    List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
 		"Sub types:\n",
 		hierarchy
 	);
@@ -1838,22 +1837,66 @@ public void testRegion4() throws CoreException {
 		ITypeHierarchy hierarchy = JavaCore.newTypeHierarchy(region, null, null);
 		assertHierarchyEquals(
 			"Focus: <NONE>\n" + 
+			"Super types of root classes:\n" + 
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
 			"Sub types of root classes:\n" + 
-			"  Class [in Class.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
-			"    Y [in Y.java [in <default> [in <project root> [in P2]]]]\n" + 
-			"    Z [in Z.java [in <default> [in <project root> [in P3]]]]\n" + 
-			"  String [in String.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
-			"    Error [in Error.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
-			"      CloneNotSupportedException [in CloneNotSupportedException.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
-			"        IllegalMonitorStateException [in IllegalMonitorStateException.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
-			"      InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
-			"      RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
-			"    Exception [in Exception.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
-			"  Throwable [in Throwable.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
-			"  X [in X.java [in <default> [in <project root> [in P1]]]]\n",
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"    Class [in Class.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"    String [in String.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"    Throwable [in Throwable.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"      Error [in Error.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"      Exception [in Exception.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"        CloneNotSupportedException [in CloneNotSupportedException.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"        InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"        RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"          IllegalMonitorStateException [in IllegalMonitorStateException.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"    X [in X.java [in <default> [in <project root> [in P1]]]]\n" + 
+			"      Y [in Y.java [in <default> [in <project root> [in P2]]]]\n" + 
+			"      Z [in Z.java [in <default> [in <project root> [in P3]]]]\n",
 			hierarchy);
 	} finally {
 		deleteProjects(new String[] {"P1", "P2", "P3"});
+	}
+}
+/*
+ * Ensures that a type hierarchy on a region that contains a type with a missing super class is correct
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=154865 )
+ */
+public void testRegion5() throws Exception {
+	try {
+		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "");
+		createFolder("/P/p");
+		createFile(
+			"/P/p/X.java",
+			"package p;\n" + 
+			"public class X {\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"}"
+		);
+		createFile(
+			"/P/p/Z.java",
+			"package p;\n" + 
+			"public class Z extends Unknown {\n" + 
+			"}"
+		);
+		IPackageFragment pkg = getPackage("/P/p");
+		IRegion region = JavaCore.newRegion();
+		region.add(pkg);
+		ITypeHierarchy h = pkg.getJavaProject().newTypeHierarchy(region, null);
+		assertHierarchyEquals(
+			"Focus: <NONE>\n" + 
+			"Super types of root classes:\n" + 
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"  Z [in Z.java [in p [in <project root> [in P]]]]\n" + 
+			"Sub types of root classes:\n" + 
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"    X [in X.java [in p [in <project root> [in P]]]]\n" + 
+			"      Y [in X.java [in p [in <project root> [in P]]]]\n" + 
+			"  Z [in Z.java [in p [in <project root> [in P]]]]\n",
+			h);
+	} finally {
+		deleteProject("P");
 	}
 }
 /**
