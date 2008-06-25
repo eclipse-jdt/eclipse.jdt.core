@@ -52,7 +52,7 @@ public class SetClasspathOperation extends ChangeClasspathOperation {
 		try {
 			// set raw classpath and null out resolved info
 			PerProjectInfo perProjectInfo = this.project.getPerProjectInfo();
-			ClasspathChange classpathChange = perProjectInfo.setClasspath(this.newRawClasspath, this.newOutputLocation, JavaModelStatus.VERIFIED_OK/*format is ok*/, null, null, null, null);
+			ClasspathChange classpathChange = perProjectInfo.setRawClasspath(this.newRawClasspath, this.newOutputLocation, JavaModelStatus.VERIFIED_OK/*format is ok*/);
 			
 			// if needed, generate delta, update project ref, create markers, ...
 			classpathChanged(classpathChange);

@@ -1027,6 +1027,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public boolean triedRead;
 		public IClasspathEntry[] rawClasspath;
 		public IJavaModelStatus rawClasspathStatus;
+		public int rawTimeStamp = 0;
 		public boolean writtingRawClasspath = false;
 		public IClasspathEntry[] resolvedClasspath;
 		public IJavaModelStatus unresolvedEntryStatus;
@@ -1068,10 +1069,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		
 		public synchronized ClasspathChange resetResolvedClasspath() {
 			// null out resolved information
-			return setClasspath(this.rawClasspath, this.outputLocation, this.rawClasspathStatus, null, null, null, null);
+			return setResolvedClasspath(null, null, null, null, this.rawTimeStamp);
 		}
 		
-		public synchronized ClasspathChange setClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus, IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries, Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus) {
+		private ClasspathChange setClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus, IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries, Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus) {
 			// remember old info
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			DeltaProcessor deltaProcessor = manager.deltaState.getDeltaProcessor();
@@ -1087,6 +1088,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.javadocCache = new LRUCache(JAVADOC_CACHE_INITIAL_SIZE);
 			
 			return classpathChange;
+		}
+		
+		public synchronized ClasspathChange setRawClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus) {
+			this.rawTimeStamp++;
+			return setClasspath(newRawClasspath, newOutputLocation, newRawClasspathStatus, null/*resolved classpath*/, null/*root to raw map*/, null/*root to resolved map*/, null/*unresolved status*/);
+		}
+		
+		public synchronized ClasspathChange setResolvedClasspath(IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries, Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus, int timeStamp) {
+			if (this.rawTimeStamp != timeStamp)
+				return null;
+			return setClasspath(this.rawClasspath, this.outputLocation, this.rawClasspathStatus, newResolvedClasspath, newRootPathToRawEntries, newRootPathToResolvedEntries, newUnresolvedEntryStatus);
 		}
 		
 		public synchronized IClasspathEntry[] readAndCacheClasspath(JavaProject javaProject) {
@@ -1135,7 +1147,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 			
 			// store new raw classpath, new output and new status, and null out resolved info
-			setClasspath(classpath, output, status, null, null, null, null);
+			setRawClasspath(classpath, output, status);
 			
 			return classpath;
 		}
@@ -1190,7 +1202,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 									return;
 								}
 								// store new raw classpath, new output and new status, and null out resolved info
-								setClasspath(newRawClasspath, newOutputLocation, JavaModelStatus.VERIFIED_OK, null, null, null, null);
+								setRawClasspath(newRawClasspath, newOutputLocation, JavaModelStatus.VERIFIED_OK);
 								result[0] = true;
 							}
 						} finally {

@@ -2512,14 +2512,12 @@ public class JavaProject
 			
 			// get raw info inside a synchronized block to ensure that it is consistent
 			IClasspathEntry[] rawClasspath;
-			IPath outputLocation;
-			IJavaModelStatus rawClasspathStatus;
+			int timeStamp;
 			synchronized (perProjectInfo) {
 				rawClasspath= perProjectInfo.rawClasspath;
 				if (rawClasspath == null)
 					rawClasspath = perProjectInfo.readAndCacheClasspath(this);
-				outputLocation = perProjectInfo.outputLocation;
-				rawClasspathStatus = perProjectInfo.rawClasspathStatus;
+				timeStamp = perProjectInfo.rawTimeStamp;
 			}
 			 			
 			IJavaModelStatus unresolvedEntryStatus = JavaModelStatus.VERIFIED_OK;
@@ -2612,7 +2610,7 @@ public class JavaProject
 			// store resolved info along with the raw info to ensure consistency
 			IClasspathEntry[] resolvedClasspath = new IClasspathEntry[resolvedEntries.size()];
 			resolvedEntries.toArray(resolvedClasspath);
-			perProjectInfo.setClasspath(rawClasspath, outputLocation, rawClasspathStatus, resolvedClasspath, rawReverseMap, rootPathToResolvedEntries, unresolvedEntryStatus);
+			perProjectInfo.setResolvedClasspath(resolvedClasspath, rawReverseMap, rootPathToResolvedEntries, unresolvedEntryStatus, timeStamp);
 		} finally {
 			manager.setClasspathBeingResolved(this, false);
 		}
