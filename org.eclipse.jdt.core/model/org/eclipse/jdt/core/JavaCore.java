@@ -1092,9 +1092,10 @@ public final class JavaCore extends Plugin {
 	 * Compiler option ID: Reporting missing tag description.
 	 * <p>When enabled, the compiler will report a warning or an error for any Javadoc tag missing a required description.
 	 * <p>The severity of the problem is controlled with option {@link #COMPILER_PB_INVALID_JAVADOC}.
-	 * <p>This option is NOT dependent from the Report errors in tags option.
-	 * <p>The initial set of standard tags is a subset of the <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/javadoc.html#javadoctags">Javadoc tags</a>
-	 *       that have a description, text or label. This set may grow in the future. User defined tags are thus not included in the standard tags.
+	 * <p>It does not depend on option {@link #COMPILER_PB_INVALID_JAVADOC_TAGS}.
+	 * <p>When this option is valued to {@link #COMPILER_PB_MISSING_JAVADOC_TAG_DESCRIPTION_ALL_STANDARD_TAGS},
+	 *       a subset of the standard <a href="http://java.sun.com/javase/6/docs/technotes/tools/windows/javadoc.html#javadoctags">Javadoc tags</a>
+	 *       that have a description, text or label are checked. While this set may grow in the future, note that user-defined tags are not and will not be checked. 
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingJavadocTagDescription"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "return_tag", "all_standard_tags", "no_tag" }</code></dd>
