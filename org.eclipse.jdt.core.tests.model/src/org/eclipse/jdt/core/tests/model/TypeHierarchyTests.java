@@ -1711,6 +1711,51 @@ public void testMissingBinarySuperclass2() throws Exception {
 		deleteProject("P");
 	}
 }
+/*
+ * Ensures that a potential subtype in a dependent project doesn't appear in the hierarchy
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=169678 )
+ */
+public void testPotentialSubtypeInDependentProject() throws Exception {
+	try {
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "");
+		createFolder("/P1/p1");
+		createFile(
+			"/P1/p1/X169678.java",
+			"package p1;\n" +
+			"public class X169678 {\n" +
+			"  public static class Y169678 {\n" +
+			"  }\n" +
+			"}"
+		);
+		createFile(
+			"/P1/p1/Z169678.java",
+			"package p1;\n" +
+			"public class Z169678 extends X169678.Y169678 {\n" +
+			"}"
+		);
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createFolder("/P2/p2");
+		createFile(
+			"/P2/p2/Y169678.java",
+			"package p2;\n" +
+			"public class Y169678 {\n" +
+			"}\n" +
+			"class Z169678 extends Y169678 {\n" +
+			"}"
+		);
+		IType type = getCompilationUnit("/P1/p1/X169678.java").getType("X169678").getType("Y169678");
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+		IType[] allTypes = hierarchy.getAllTypes();
+		assertSortedElementsEqual(
+			"Unexpected types in hierarchy", 
+			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"Y169678 [in X169678 [in X169678.java [in p1 [in <project root> [in P1]]]]]\n" + 
+			"Z169678 [in Z169678.java [in p1 [in <project root> [in P1]]]]",
+			allTypes);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
 /**
  * Ensures that a potential subtype that is not in the classpth is handle correctly.
  * (Regression test for PR #1G4GL9R)

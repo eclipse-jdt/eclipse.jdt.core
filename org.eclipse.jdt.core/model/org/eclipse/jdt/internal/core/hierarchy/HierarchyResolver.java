@@ -816,6 +816,21 @@ public ReferenceBinding setFocusType(char[][] compoundName) {
 	this.focusType = this.lookupEnvironment.getCachedType(compoundName);
 	if (this.focusType == null) {
 		this.focusType = this.lookupEnvironment.askForType(compoundName);
+		if (this.focusType == null) {
+			int length = compoundName.length;
+			char[] typeName = compoundName[length-1];
+			int firstDollar = CharOperation.indexOf('$', typeName);
+			if (firstDollar != -1) {
+				compoundName[length-1] = CharOperation.subarray(typeName, 0, firstDollar);
+				this.focusType = this.lookupEnvironment.askForType(compoundName);
+				if (this.focusType != null) {
+					char[][] memberTypeNames = CharOperation.splitOn('$', typeName, firstDollar+1, typeName.length);
+					for (int i = 0; i < memberTypeNames.length; i++) {
+						this.focusType = this.focusType.getMemberType(memberTypeNames[i]);
+					}
+				}
+			}
+		}
 	}
 	return this.focusType;
 }
