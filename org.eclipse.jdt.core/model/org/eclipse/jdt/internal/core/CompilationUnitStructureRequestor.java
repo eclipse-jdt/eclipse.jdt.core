@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -63,6 +64,11 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	 * info objects.
 	 */
 	protected Map newElements;
+	
+	/*
+	 * A table from a handle (with occurenceCount == 1) to the current occurence count for this handle
+	 */
+	private HashtableOfObjectToInt occurenceCounts;
 
 	/**
 	 * Stack of parent scope info objects. The info on the
@@ -115,6 +121,7 @@ protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUn
 	this.unit = unit;
 	this.unitInfo = unitInfo;
 	this.newElements = newElements;
+	this.occurenceCounts = new HashtableOfObjectToInt();
 } 
 /**
  * @see ISourceElementRequestor
@@ -618,11 +625,15 @@ public void exitType(int declarationEnd) {
 }
 /**
  * Resolves duplicate handles by incrementing the occurrence count
- * of the handle being created until there is no conflict.
+ * of the handle being created.
  */
 protected void resolveDuplicates(SourceRefElement handle) {
-	while (this.newElements.containsKey(handle)) {
-		handle.occurrenceCount++;
+	int occurenceCount = this.occurenceCounts.get(handle);
+	if (occurenceCount == -1)
+		this.occurenceCounts.put(handle, 1);
+	else {
+		this.occurenceCounts.put(handle, ++occurenceCount);
+		handle.occurrenceCount = occurenceCount;
 	}
 }
 protected IMemberValuePair getMemberValuePair(MemberValuePair memberValuePair) {
