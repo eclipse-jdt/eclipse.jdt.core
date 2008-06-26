@@ -760,6 +760,56 @@ public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException 
 	}
 }
 
+/*
+ * Ensures that the performance of reconcile on a CU with lots of duplicates is acceptable.
+ * (regression test for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=135906 )
+ */
+public void testReconcileDuplicates() throws JavaModelException {
+	tagAsSummary("Reconcile editor change on file with lots of duplicates", false); // do NOT put in fingerprint
+	
+	// build big file contents
+	StringBuffer contents = new StringBuffer();
+	contents.append("public class CUWithDuplicates {\n");
+	int fooIndex = 0;
+	while (fooIndex < 2000) { // add 2000 duplicate methods
+		contents.append("  void foo() {}\n");
+		contents.append(fooIndex++);
+	}
+	contents.append("} //"); // ensure it ends with a line comment that is edited below
+	
+	ICompilationUnit workingCopy = null;
+	try {
+		// Setup
+		workingCopy = (ICompilationUnit) JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getFile(new Path("/BigProject/src/CUWithDuplicates.java")));
+		workingCopy.becomeWorkingCopy(null);
+		
+		// Warm up
+		int warmup = WARMUP_COUNT / 10;
+		for (int i=0; i<warmup; i++) {
+			workingCopy.getBuffer().setContents(contents.append('a').toString());
+			workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
+		}
+	
+		// Measures
+		resetCounters();
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			workingCopy.getBuffer().setContents(contents.append('a').toString());
+			runGc();
+			startMeasuring();
+			workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
+			stopMeasuring();
+		}
+		
+		// Commit
+		commitMeasurements();
+		assertPerformance();		
+		
+	} finally {
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+	}
+}
+
 /**
  * Ensures that the reconciler does nothing when the source
  * to reconcile with is the same as the current contents.
