@@ -114,12 +114,12 @@ static Object[] computeFolderNonJavaResources(IPackageFragmentRoot root, IContai
  * Compute the non-package resources of this package fragment root.
  */
 private Object[] computeNonJavaResources(IResource underlyingResource, PackageFragmentRoot handle) {
-	Object[] nonJavaResources = NO_NON_JAVA_RESOURCES;
+	Object[] resources = NO_NON_JAVA_RESOURCES;
 	try {
 		// the underlying resource may be a folder or a project (in the case that the project folder
 		// is actually the package fragment root)
 		if (underlyingResource.getType() == IResource.FOLDER || underlyingResource.getType() == IResource.PROJECT) {
-			nonJavaResources = 
+			resources = 
 				computeFolderNonJavaResources(
 					handle, 
 					(IContainer) underlyingResource,  
@@ -129,18 +129,18 @@ private Object[] computeNonJavaResources(IResource underlyingResource, PackageFr
 	} catch (JavaModelException e) {
 		// ignore
 	}
-	return nonJavaResources;
+	return resources;
 }
 /**
  * Returns an array of non-java resources contained in the receiver.
  */
 synchronized Object[] getNonJavaResources(IJavaProject project, IResource underlyingResource, PackageFragmentRoot handle) {
-	Object[] nonJavaResources = this.nonJavaResources;
-	if (nonJavaResources == null) {
-		nonJavaResources = this.computeNonJavaResources(underlyingResource, handle);
-		this.nonJavaResources = nonJavaResources;
+	Object[] resources = this.nonJavaResources;
+	if (resources == null) {
+		resources = this.computeNonJavaResources(underlyingResource, handle);
+		this.nonJavaResources = resources;
 	}
-	return nonJavaResources;
+	return resources;
 }
 /**
  * Returns the kind of this root.

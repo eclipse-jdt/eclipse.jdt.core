@@ -41,7 +41,7 @@ public ElementCache(int size, int overflow) {
  * by closing the element.
  */
 protected boolean close(LRUCacheEntry entry) {
-	Openable element = (Openable) entry._fKey;
+	Openable element = (Openable) entry.key;
 	try {
 		if (!element.canBeRemovedFromCache()) {
 			return false;
@@ -73,8 +73,8 @@ protected void ensureSpaceLimit(Object info, IJavaElement parent) {
 /*
  * Returns a new instance of the receiver.
  */
-protected LRUCache newInstance(int size, int overflow) {
-	return new ElementCache(size, overflow);
+protected LRUCache newInstance(int size, int newOverflow) {
+	return new ElementCache(size, newOverflow);
 }
 
 /*

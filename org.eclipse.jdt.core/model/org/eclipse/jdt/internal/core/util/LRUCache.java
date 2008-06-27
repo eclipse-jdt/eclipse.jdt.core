@@ -44,41 +44,41 @@ public class LRUCache implements Cloneable {
 		/**
 		 * Hash table key
 		 */
-		public Object _fKey;
+		public Object key;
 		 
 		/**
 		 * Hash table value (an LRUCacheEntry object)
 		 */
-		public Object _fValue;		 
+		public Object value;		 
 
 		/**
 		 * Time value for queue sorting
 		 */
-		public int _fTimestamp;
+		public int timestamp;
 		
 		/**
 		 * Cache footprint of this entry
 		 */
-		public int _fSpace;
+		public int space;
 		
 		/**
 		 * Previous entry in queue
 		 */
-		public LRUCacheEntry _fPrevious;
+		public LRUCacheEntry previous;
 			
 		/**
 		 * Next entry in queue
 		 */
-		public LRUCacheEntry _fNext;
+		public LRUCacheEntry next;
 			
 		/**
 		 * Creates a new instance of the receiver with the provided values
 		 * for key, value, and space.
 		 */
 		public LRUCacheEntry (Object key, Object value, int space) {
-			_fKey = key;
-			_fValue = value;
-			_fSpace = space;
+			this.key = key;
+			this.value = value;
+			this.space = space;
 		}
 
 		/**
@@ -86,7 +86,7 @@ public class LRUCache implements Cloneable {
 		 */
 		public String toString() {
 
-			return "LRUCacheEntry [" + _fKey + "-->" + _fValue + "]"; //$NON-NLS-3$ //$NON-NLS-1$ //$NON-NLS-2$
+			return "LRUCacheEntry [" + key + "-->" + value + "]"; //$NON-NLS-3$ //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}	
 
@@ -156,8 +156,8 @@ public class LRUCache implements Cloneable {
 		/* Preserve order of entries by copying from oldest to newest */
 		qEntry = this.entryQueueTail;
 		while (qEntry != null) {
-			newCache.privateAdd (qEntry._fKey, qEntry._fValue, qEntry._fSpace);
-			qEntry = qEntry._fPrevious;
+			newCache.privateAdd (qEntry.key, qEntry.value, qEntry.space);
+			qEntry = qEntry.previous;
 		}
 		return newCache;
 	}
@@ -174,7 +174,7 @@ public class LRUCache implements Cloneable {
 		entryTable = new Hashtable();  // Clear it out
 		entryQueue = entryQueueTail = null;  
 		while (entry != null) {  // send deletion notifications in LRU order
-			entry = entry._fPrevious;
+			entry = entry.previous;
 		}
 	}
 	/**
@@ -203,7 +203,7 @@ public class LRUCache implements Cloneable {
 		if (entry == null) {
 			return key;
 		}
-		return entry._fKey;
+		return entry.key;
 	}
 	/**
 	 * Answers the value in the cache at the given key.
@@ -220,7 +220,7 @@ public class LRUCache implements Cloneable {
 		}
 		
 		this.updateTimestamp (entry);
-		return entry._fValue;
+		return entry.value;
 	}
 	/**
 	 * Returns the amount of space that is current used in the cache.
@@ -257,14 +257,14 @@ public class LRUCache implements Cloneable {
 			
 			public Object nextElement() {
 				entry = (LRUCacheEntry) values.nextElement();
-				return entry._fKey;
+				return entry.key;
 			}
 			
 			public Object getValue() {
 				if (entry == null) {
 					throw new java.util.NoSuchElementException();
 				}
-				return entry._fValue;
+				return entry.value;
 			}
 		};
 	}
@@ -315,7 +315,7 @@ public class LRUCache implements Cloneable {
 		if (entry == null) {
 			return null;
 		}
-		return entry._fValue;
+		return entry.value;
 	}
 	/**
 	 * Adds an entry for the given key/value/space.
@@ -335,19 +335,19 @@ public class LRUCache implements Cloneable {
 	protected void privateAddEntry (LRUCacheEntry entry, boolean shuffle) {
 		
 		if (!shuffle) {
-			entryTable.put (entry._fKey, entry);
-			currentSpace += entry._fSpace;
+			entryTable.put (entry.key, entry);
+			currentSpace += entry.space;
 		}
 		
-		entry._fTimestamp = timestampCounter++;
-		entry._fNext = this.entryQueue;
-		entry._fPrevious = null;
+		entry.timestamp = timestampCounter++;
+		entry.next = this.entryQueue;
+		entry.previous = null;
 		
 		if (entryQueue == null) {
 			/* this is the first and last entry */
 			entryQueueTail = entry;
 		} else {
-			entryQueue._fPrevious = entry;
+			entryQueue.previous = entry;
 		}
 		
 		entryQueue = entry;
@@ -361,26 +361,26 @@ public class LRUCache implements Cloneable {
 		
 		LRUCacheEntry previous, next;
 		
-		previous = entry._fPrevious;
-		next = entry._fNext;
+		previous = entry.previous;
+		next = entry.next;
 		
 		if (!shuffle) {
-			entryTable.remove(entry._fKey);
-			currentSpace -= entry._fSpace;
+			entryTable.remove(entry.key);
+			currentSpace -= entry.space;
 		}
 
 		/* if this was the first entry */
 		if (previous == null) {
 			entryQueue = next;
 		} else {
-			previous._fNext = next;
+			previous.next = next;
 		}
 
 		/* if this was the last entry */
 		if (next == null) {
 			entryQueueTail = previous;
 		} else {
-			next._fPrevious = previous;
+			next.previous = previous;
 		}
 	}
 	/**
@@ -406,12 +406,12 @@ public class LRUCache implements Cloneable {
 			 * the cache.  Otherwise flush the entry and re-add it so as 
 			 * to keep cache within budget
 			 */
-			oldSpace = entry._fSpace;
+			oldSpace = entry.space;
 			newTotal = getCurrentSpace() - oldSpace + newSpace;
 			if (newTotal <= getSpaceLimit()) {
 				updateTimestamp (entry);
-				entry._fValue = value;
-				entry._fSpace = newSpace;
+				entry.value = value;
+				entry.space = newSpace;
 				this.currentSpace = newTotal;
 				return value;
 			} else {
@@ -436,7 +436,7 @@ public class LRUCache implements Cloneable {
 		if (entry == null) {
 			return null;
 		}
-		Object value = entry._fValue;
+		Object value = entry.value;
 		this.privateRemoveEntry (entry, false);
 		return value;
 	}
@@ -519,7 +519,7 @@ public class LRUCache implements Cloneable {
 	 */
 	protected void updateTimestamp (LRUCacheEntry entry) {
 		
-		entry._fTimestamp = timestampCounter++;
+		entry.timestamp = timestampCounter++;
 		if (entryQueue != entry) {
 			this.privateRemoveEntry (entry, true);
 			this.privateAddEntry (entry, true);

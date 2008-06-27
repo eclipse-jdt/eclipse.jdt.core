@@ -163,20 +163,20 @@ public char[] getContents() {
 	if (end == 0)
 		return null;
 
-	// determine the size of the array
-	int size = 0;
+	// determine the length of the array
+	int length = 0;
 	for (int i = 0; i < end; i++)
-		size += ranges[i][1];
+		length += ranges[i][1];
 
-	if (size > 0) {
-		char[] result = new char[size];
+	if (length > 0) {
+		char[] result = new char[length];
 		int current = 0;
 		// copy the results
 		for(int i = 0; i < end; i++) {
 			int[] range = ranges[i];
-			int length = range[1];
-			System.arraycopy(buffer[i], range[0], result, current, length);
-			current += length;
+			int length2 = range[1];
+			System.arraycopy(buffer[i], range[0], result, current, length2);
+			current += length2;
 		}
 		return result;
 	}

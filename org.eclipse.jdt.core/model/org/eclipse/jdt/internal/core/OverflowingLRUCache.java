@@ -91,8 +91,8 @@ public OverflowingLRUCache(int size, int overflow) {
 		/* Preserve order of entries by copying from oldest to newest */
 		qEntry = this.entryQueueTail;
 		while (qEntry != null) {
-			newCache.privateAdd (qEntry._fKey, qEntry._fValue, qEntry._fSpace);
-			qEntry = qEntry._fPrevious;
+			newCache.privateAdd (qEntry.key, qEntry.value, qEntry.space);
+			qEntry = qEntry.previous;
 		}
 		return newCache;
 	}
@@ -113,14 +113,14 @@ protected abstract boolean close(LRUCacheEntry entry);
 		if (entryQueue == null)
 			return new LRUCacheEnumerator(null);
 		LRUCacheEnumerator.LRUEnumeratorElement head = 
-			new LRUCacheEnumerator.LRUEnumeratorElement(entryQueue._fValue);
-		LRUCacheEntry currentEntry = entryQueue._fNext;
+			new LRUCacheEnumerator.LRUEnumeratorElement(entryQueue.value);
+		LRUCacheEntry currentEntry = entryQueue.next;
 		LRUCacheEnumerator.LRUEnumeratorElement currentElement = head;
 		while(currentEntry != null) {
-			currentElement.next = new LRUCacheEnumerator.LRUEnumeratorElement(currentEntry._fValue);
+			currentElement.next = new LRUCacheEnumerator.LRUEnumeratorElement(currentEntry.value);
 			currentElement = currentElement.next;
 			
-			currentEntry = currentEntry._fNext;
+			currentEntry = currentEntry.next;
 		}
 		return new LRUCacheEnumerator(head);
 	}
@@ -178,7 +178,7 @@ public double getLoadFactor() {
 			
 			while (currentSpace + spaceNeeded > limit && entry != null) {
 				this.privateRemoveEntry(entry, false, false);
-				entry = entry._fPrevious;
+				entry = entry.previous;
 			}
 		} finally {
 			timestampsOn = true;
@@ -197,7 +197,7 @@ public double getLoadFactor() {
 	/**
 	 * Returns a new instance of the reciever.
 	 */
-	protected abstract LRUCache newInstance(int size, int overflow);
+	protected abstract LRUCache newInstance(int size, int newOverflow);
 /**
  * For testing purposes only
  */
@@ -206,7 +206,7 @@ public void printStats() {
 	LRUCacheEntry entry = entryQueue;
 	while(entry != null) {
 		forwardListLength++;
-		entry = entry._fNext;
+		entry = entry.next;
 	}
 	System.out.println("Forward length: " + forwardListLength); //$NON-NLS-1$
 	
@@ -214,7 +214,7 @@ public void printStats() {
 	entry = entryQueueTail;
 	while(entry != null) {
 		backwardListLength++;
-		entry = entry._fPrevious;
+		entry = entry.previous;
 	}
 	System.out.println("Backward length: " + backwardListLength); //$NON-NLS-1$
 
@@ -233,7 +233,7 @@ public void printStats() {
 	java.util.HashMap h = new java.util.HashMap();
 	while(keys.hasMoreElements()) {
 		entry = (LRUCacheEntry)entryTable.get(keys.nextElement());
-		Class key = entry._fValue.getClass();
+		Class key = entry.value.getClass();
 		Temp t = (Temp)h.get(key);
 		if (t == null) {
 			h.put(key, new Temp(key));
@@ -271,35 +271,35 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 
 	if (!shuffle) {
 		if (external) {
-			entryTable.remove(entry._fKey);			
-			currentSpace -= entry._fSpace;
+			entryTable.remove(entry.key);			
+			currentSpace -= entry.space;
 		} else {
 			if (!close(entry)) return;
 			// buffer close will recursively call #privateRemoveEntry with external==true
 			// thus entry will already be removed if reaching this point.
-			if (entryTable.get(entry._fKey) == null){
+			if (entryTable.get(entry.key) == null){
 				return;
 			} else {
 				// basic removal
-				entryTable.remove(entry._fKey);			
-				currentSpace -= entry._fSpace;
+				entryTable.remove(entry.key);			
+				currentSpace -= entry.space;
 			}
 		}
 	}
-	LRUCacheEntry previous = entry._fPrevious;
-	LRUCacheEntry next = entry._fNext;
+	LRUCacheEntry previous = entry.previous;
+	LRUCacheEntry next = entry.next;
 		
 	/* if this was the first entry */
 	if (previous == null) {
 		entryQueue = next;
 	} else {
-		previous._fNext = next;
+		previous.next = next;
 	}
 	/* if this was the last entry */
 	if (next == null) {
 		entryQueueTail = previous;
 	} else {
-		next._fPrevious = previous;
+		next.previous = previous;
 	}
 }
 	/**
@@ -325,12 +325,12 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 			 * the cache.  Otherwise flush the entry and re-add it so as 
 			 * to keep cache within budget
 			 */
-			int oldSpace = entry._fSpace;
+			int oldSpace = entry.space;
 			int newTotal = currentSpace - oldSpace + newSpace;
 			if (newTotal <= spaceLimit) {
 				updateTimestamp (entry);
-				entry._fValue = value;
-				entry._fSpace = newSpace;
+				entry.value = value;
+				entry.space = newSpace;
 				currentSpace = newTotal;
 				overflow = 0;
 				return value;
@@ -407,7 +407,7 @@ public String toString() {
  */
 protected void updateTimestamp(LRUCacheEntry entry) {
 	if (timestampsOn) {
-		entry._fTimestamp = timestampCounter++;
+		entry.timestamp = timestampCounter++;
 		if (entryQueue != entry) {
 			this.privateRemoveEntry(entry, true);
 			this.privateAddEntry(entry, true);

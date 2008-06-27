@@ -41,7 +41,7 @@ public BufferCache(int size, int overflow) {
  * by closing the buffer.
  */
 protected boolean close(LRUCacheEntry entry) {
-	IBuffer buffer= (IBuffer) entry._fValue;
+	IBuffer buffer= (IBuffer) entry.value;
 	
 	// prevent buffer that have unsaved changes or working copy buffer to be removed
 	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=39311
@@ -70,7 +70,7 @@ void closeBuffers() {
 	/**
 	 * Returns a new instance of the reciever.
 	 */
-	protected LRUCache newInstance(int size, int overflow) {
-		return new BufferCache(size, overflow);
+	protected LRUCache newInstance(int size, int newOverflow) {
+		return new BufferCache(size, newOverflow);
 	}
 }
