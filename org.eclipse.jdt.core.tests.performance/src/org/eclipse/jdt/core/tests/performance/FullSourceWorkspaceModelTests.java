@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
@@ -807,6 +808,90 @@ public void testReconcileDuplicates() throws JavaModelException {
 	} finally {
 		if (workingCopy != null)
 			workingCopy.discardWorkingCopy();
+	}
+}
+
+/*
+ * Ensures that the performance of reconcile after creating a package fragment in a batch operation is acceptable
+ * (regression test for bug 234718 JarPackageFragmentRoot.computeChildren(..) is slow )
+ */
+public void testPerfBatchCreatePackageAndReconcile() throws CoreException {
+	tagAsSummary("Reconcile editor change after creating a package fragment in a batch operation", false); // do NOT put in fingerprint
+	
+	IJavaProject project = null;
+	try {
+		project = createJavaProject("P234718");
+		IFile bigJar1 = BIG_PROJECT.getProject().getFile(BIG_JAR1_NAME);
+		IFile bigJar2 = BIG_PROJECT.getProject().getFile(BIG_JAR2_NAME);
+		project.setRawClasspath(
+			new IClasspathEntry[] {
+				JavaCore.newSourceEntry(project.getPath()),
+				JavaCore.newLibraryEntry(bigJar1.getFullPath(), null, null),
+				JavaCore.newLibraryEntry(bigJar2.getFullPath(), null, null),
+			}, null);
+		final IPackageFragmentRoot root = project.getPackageFragmentRoot(project.getProject());
+		ICompilationUnit workingCopy  = root.getPackageFragment("").createCompilationUnit(
+			"X.java", 
+			"public class  {\n" +
+			"}"
+			, false, null);
+		workingCopy.becomeWorkingCopy(null);
+		AbstractJavaModelTests.waitUntilIndexesReady();
+		AbstractJavaModelTests.waitForAutoBuild();
+	
+		// Warm up
+		try {
+			final ICompilationUnit copy = workingCopy;
+			IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
+				public void run(IProgressMonitor monitor) throws CoreException {
+					root.createPackageFragment("p2", false/*don't force*/, monitor);
+					copy.reconcile(AST.JLS3, true, null, monitor);
+					int warmup = WARMUP_COUNT / 5;
+					for (int i=0; i<warmup; i++) {
+						copy.reconcile(AST.JLS3, true, null, monitor);
+					}
+				}
+			};
+			try {
+				JavaCore.run(runnable, null);
+			} finally {
+				root.getPackageFragment("p2").delete(false/*don't force*/, null);
+			}
+	
+			// Measures
+			resetCounters();
+			runnable = new IWorkspaceRunnable(){
+				public void run(IProgressMonitor monitor) throws CoreException {
+					root.createPackageFragment("p2", false/*don't force*/, monitor);
+					copy.reconcile(AST.JLS3, true, null, monitor);
+					int iterations = 10;
+					startMeasuring();
+					for (int n=0; n<iterations; n++) {
+						copy.reconcile(AST.JLS3, true, null, monitor);
+					}
+					stopMeasuring();
+				}
+			};
+			for (int i=0; i<MEASURES_COUNT; i++) {
+				runGc();
+				try {
+					JavaCore.run(runnable, null);
+				} finally {
+					root.getPackageFragment("p2").delete(false/*don't force*/, null);
+				}
+			}
+		}
+		finally {
+			workingCopy.discardWorkingCopy();
+		}
+		
+		// Commit
+		commitMeasurements();
+		assertPerformance();
+		
+	} finally {
+		if (project != null)
+			project.getProject().delete(true, null);
 	}
 }
 
