@@ -1209,6 +1209,54 @@ public void testFindType() throws CoreException {
 	}
 }
 
+/*
+ * Performance test for the first time we get the source of a class file in a bug jar with no source attached
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=190840 )
+ */
+public void testGetSourceBigJarNoAttachment() throws CoreException {
+	
+	IJavaProject project = null;
+	try {
+		project = createJavaProject("HugeJarProject");
+		IFile bigJar1 = BIG_PROJECT.getProject().getFile(BIG_JAR1_NAME);
+		project.setRawClasspath(
+			new IClasspathEntry[] {
+				JavaCore.newLibraryEntry(bigJar1.getFullPath(), null, null),
+			}, null);
+		AbstractJavaModelTests.waitUntilIndexesReady();
+		AbstractJavaModelTests.waitForAutoBuild();
+		IPackageFragmentRoot root = project.getPackageFragmentRoot(bigJar1);
+		IClassFile classFile = root.getPackageFragment("p0").getClassFile("X0.class");
+		
+		// warm up
+		int max = 20;
+		int warmup = WARMUP_COUNT / 10;
+		for (int i = 0; i < warmup; i++) {
+			for (int j = 0; j < max; j++) {
+				root.close();
+				classFile.getSource();
+			}
+		}
+			
+		// measure performance
+		for (int i = 0; i < MEASURES_COUNT; i++) {
+			runGc();
+			startMeasuring();
+			for (int j = 0; j < max; j++) {
+				root.close();
+				classFile.getSource();
+			}
+			stopMeasuring();
+		}
+	
+		commitMeasurements();
+		assertPerformance();
+	} finally {
+		if (project != null)
+			project.getProject().delete(false, null);
+	}
+}
+
 protected void resetCounters() {
 	// do nothing
 }
