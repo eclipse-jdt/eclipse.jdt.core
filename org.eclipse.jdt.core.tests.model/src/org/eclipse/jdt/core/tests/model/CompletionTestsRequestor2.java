@@ -41,7 +41,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	private boolean computeEnclosingElement;
 	private String assignableType;
 	
-	public boolean fDebug = false;
+	public boolean debug = false;
 
 	public CompletionTestsRequestor2() {
 		this(false, false);

@@ -47,10 +47,10 @@ public class VerifyTests {
 
 public class VerifyClassLoader extends ClassLoader {
 	/** scanned class path */
-	private String[] fPathItems;
+	private String[] pathItems;
 	
 	/** excluded paths */
-	private String[] fExcluded= {};
+	private String[] excluded= {};
 
 	/**
 	 * Constructs a VerifyClassLoader. It scans the class path
@@ -69,11 +69,11 @@ public class VerifyClassLoader extends ClassLoader {
 			i++;
 		}
 		// second pass: split
-		fPathItems= new String[i];
+		pathItems= new String[i];
 		st= new StringTokenizer(classPath, separator);
 		i= 0;
 		while (st.hasMoreTokens()) {
-			fPathItems[i++]= st.nextToken();
+			pathItems[i++]= st.nextToken();
 		}
 
 	}
@@ -90,8 +90,8 @@ public class VerifyClassLoader extends ClassLoader {
 			return true;
 			
 		// exclude the user defined package paths
-		for (int i= 0; i < fExcluded.length; i++) {
-			if (name.startsWith(fExcluded[i])) {
+		for (int i= 0; i < excluded.length; i++) {
+			if (name.startsWith(excluded[i])) {
 				return true;
 			}
 		}
@@ -159,8 +159,8 @@ public class VerifyClassLoader extends ClassLoader {
 		if (fileName != null) {
 			fileName= fileName.replace('.', '/')+".class";
 			File path= null;
-			for (int i= 0; i < fPathItems.length; i++) {
-				path= new File(fPathItems[i], fileName);
+			for (int i= 0; i < pathItems.length; i++) {
+				path= new File(pathItems[i], fileName);
 				if (path.exists())
 					return path;
 			}

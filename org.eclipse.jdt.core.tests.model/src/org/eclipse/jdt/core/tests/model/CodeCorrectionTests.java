@@ -20,8 +20,8 @@ import org.eclipse.jdt.core.search.*;
 
 
 public class CodeCorrectionTests extends AbstractJavaModelTests {
-	public static boolean fgDebug = false;
-	public static boolean fgSpecific = false;
+	public static boolean DEBUG = false;
+	public static boolean SPECIFIC = false;
 	
 public CodeCorrectionTests(String name) {
 	super(name);

@@ -41,7 +41,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 	}
 	
 	public void test0000() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0000", false, null);
+		IPackageFragment pack1= sourceFolder.createPackageFragment("test0000", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0000;\n");
 		buf.append("public class X {\n");
@@ -58,7 +58,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 	}
 	
 	public void test0001() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0001", false, null);
+		IPackageFragment pack1= sourceFolder.createPackageFragment("test0001", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0001;\n");
 		buf.append("public class X {\n");
@@ -81,7 +81,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 
 
 	public void test0002() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0002", false, null);
+		IPackageFragment pack1= sourceFolder.createPackageFragment("test0002", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0002;\n");
 		buf.append("import java.util.*;\n");
@@ -118,7 +118,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 	}
 
 	public void test0003() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0003", false, null);
+		IPackageFragment pack1= sourceFolder.createPackageFragment("test0003", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0003;\n");
 		buf.append("import java.util.*;\n");
@@ -149,7 +149,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 
 
 	public void test0004() throws Exception {
-		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0004", false, null);
+		IPackageFragment pack1= sourceFolder.createPackageFragment("test0004", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test0004;\n");
 		buf.append("\n");

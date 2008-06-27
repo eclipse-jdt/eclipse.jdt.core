@@ -39,7 +39,7 @@ public abstract class CommentTestCase extends SuiteOfTestCases {
 
 	public static final String DELIMITER= TextUtilities.getDefaultLineDelimiter(new Document());
 
-	private Map fUserOptions;
+	private Map userOptions;
 
 	protected CommentTestCase(String name) {
 		super(name);
@@ -49,27 +49,27 @@ public abstract class CommentTestCase extends SuiteOfTestCases {
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		fUserOptions= null;
+		userOptions= null;
 	}
 	
 	protected abstract int getCommentKind();
 
 	protected Map getUserOptions() {
-		return fUserOptions;
+		return userOptions;
 	}
 	
 	protected void setUserOption(String name, String value) {
-		if (fUserOptions == null)
-			fUserOptions= new HashMap();
+		if (userOptions == null)
+			userOptions= new HashMap();
 		
-		fUserOptions.put(name, value);
+		userOptions.put(name, value);
 	}
 	
 	protected void setUserOption(Map options) {
-		if (fUserOptions == null) {
-			fUserOptions= options;
+		if (userOptions == null) {
+			userOptions= options;
 		} else {
-			fUserOptions.putAll(options);
+			userOptions.putAll(options);
 		}
 	}	
 	

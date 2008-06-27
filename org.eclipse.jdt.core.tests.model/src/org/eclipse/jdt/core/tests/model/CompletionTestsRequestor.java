@@ -18,28 +18,28 @@ import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.Signature;
 
 public class CompletionTestsRequestor extends CompletionRequestor {
-	private Vector fElements = new Vector();
-	private Vector fCompletions = new Vector();
-	private Vector fRelevances = new Vector();
-	private Vector fCompletionStart = new Vector();
-	private Vector fCompletionEnd = new Vector();
+	private Vector elements = new Vector();
+	private Vector completions = new Vector();
+	private Vector relevances = new Vector();
+	private Vector completionStart = new Vector();
+	private Vector completionEnd = new Vector();
 	
-	public boolean fDebug = false;
+	public boolean debug = false;
 
 	private void acceptCommon(CompletionProposal proposal) {
-		fCompletions.addElement(new String(proposal.getCompletion()));
-		fRelevances.addElement(String.valueOf(proposal.getRelevance()));
-		fCompletionStart.addElement(String.valueOf(proposal.getReplaceStart()));
-		fCompletionEnd.addElement(String.valueOf(proposal.getReplaceEnd()));
+		completions.addElement(new String(proposal.getCompletion()));
+		relevances.addElement(String.valueOf(proposal.getRelevance()));
+		completionStart.addElement(String.valueOf(proposal.getReplaceStart()));
+		completionEnd.addElement(String.valueOf(proposal.getReplaceEnd()));
 	}
 	public void accept(CompletionProposal proposal) {
 		char[] typeName = null;
 		switch(proposal.getKind()) {
 			case CompletionProposal.ANONYMOUS_CLASS_DECLARATION :
 				typeName = Signature.getSignatureSimpleName(proposal.getDeclarationSignature());
-				fElements.addElement(new String(typeName));
+				elements.addElement(new String(typeName));
 				this.acceptCommon(proposal);
-				if (fDebug)
+				if (debug)
 					System.out.println("anonymous type " + new String(typeName));
 				break;
 				
@@ -48,15 +48,15 @@ public class CompletionTestsRequestor extends CompletionRequestor {
 					
 				} else if((proposal.getFlags() & Flags.AccInterface) != 0) {
 					typeName = Signature.getSignatureSimpleName(proposal.getSignature());
-					fElements.addElement(new String(typeName));
+					elements.addElement(new String(typeName));
 					this.acceptCommon(proposal);
-					if (fDebug)
+					if (debug)
 						System.out.println("Interface " + new String(typeName));
 				} else {
 					typeName = Signature.getSignatureSimpleName(proposal.getSignature());
-					fElements.addElement(new String(typeName));
+					elements.addElement(new String(typeName));
 					this.acceptCommon(proposal);
-					if (fDebug) {
+					if (debug) {
 						if(Signature.getTypeSignatureKind(proposal.getSignature()) == Signature.TYPE_VARIABLE_SIGNATURE) {
 							System.out.println("type parameter " + new String(typeName));
 						} else {
@@ -67,58 +67,58 @@ public class CompletionTestsRequestor extends CompletionRequestor {
 				break;
 				
 			case CompletionProposal.FIELD_REF :
-				fElements.addElement(new String(proposal.getName()));
+				elements.addElement(new String(proposal.getName()));
 				this.acceptCommon(proposal);
-				if (fDebug)
+				if (debug)
 					System.out.println("Field " + new String(proposal.getName()));
 				break;
 				
 			case CompletionProposal.KEYWORD:
-				fElements.addElement(new String(proposal.getName()));
+				elements.addElement(new String(proposal.getName()));
 				this.acceptCommon(proposal);
-				if (fDebug)
+				if (debug)
 					System.out.println("Keyword " + new String(proposal.getName()));
 				break;
 				
 			case CompletionProposal.LABEL_REF:
-				fElements.addElement(new String(proposal.getName()));
+				elements.addElement(new String(proposal.getName()));
 				this.acceptCommon(proposal);
-				if (fDebug)
+				if (debug)
 					System.out.println("Label " + new String(proposal.getName()));
 				break;
 				
 			case CompletionProposal.LOCAL_VARIABLE_REF:
-				fElements.addElement(new String(proposal.getName()));
+				elements.addElement(new String(proposal.getName()));
 				this.acceptCommon(proposal);
-				if (fDebug)
+				if (debug)
 					System.out.println("Local variable " + new String(proposal.getName()));
 				break;
 				
 			case CompletionProposal.METHOD_REF:
-				fElements.addElement(new String(proposal.getName()));
+				elements.addElement(new String(proposal.getName()));
 				this.acceptCommon(proposal);
-				if (fDebug)
+				if (debug)
 					System.out.println("method " + new String(proposal.getName()));
 				break;
 				
 			case CompletionProposal.METHOD_DECLARATION:
-				fElements.addElement(new String(proposal.getName()));
+				elements.addElement(new String(proposal.getName()));
 				this.acceptCommon(proposal);
-				if (fDebug)
+				if (debug)
 					System.out.println("method declaration " + new String(proposal.getName()));
 				break;
 				
 			case CompletionProposal.PACKAGE_REF:
-				fElements.addElement(new String(proposal.getDeclarationSignature()));
+				elements.addElement(new String(proposal.getDeclarationSignature()));
 				this.acceptCommon(proposal);
-				if (fDebug)
+				if (debug)
 					System.out.println("package " + new String(proposal.getDeclarationSignature()));
 				break;
 				
 			case CompletionProposal.VARIABLE_DECLARATION:
-				fElements.addElement(new String(proposal.getName()));
+				elements.addElement(new String(proposal.getName()));
 				this.acceptCommon(proposal);
-				if (fDebug)
+				if (debug)
 					System.out.println("variable name " + new String(proposal.getName()));
 				break;
 		}
@@ -135,7 +135,7 @@ public class CompletionTestsRequestor extends CompletionRequestor {
 
 	public String getResults(boolean relevance, boolean position) {
 		StringBuffer result = new StringBuffer();
-		int size = fElements.size();
+		int size = elements.size();
 		
 		if (size == 1) {
 			result.append(getResult(0, relevance, position));
@@ -155,24 +155,24 @@ public class CompletionTestsRequestor extends CompletionRequestor {
 	}
 
 	private String getResult(int i, boolean relevance, boolean position) {
-		if(i < 0 || i >= fElements.size())
+		if(i < 0 || i >= elements.size())
 			return "";
 		
 		StringBuffer buffer =  new StringBuffer();
 		buffer.append("element:");
-		buffer.append(fElements.elementAt(i));
+		buffer.append(elements.elementAt(i));
 		buffer.append("    completion:");
-		buffer.append(fCompletions.elementAt(i));
+		buffer.append(completions.elementAt(i));
 		if(position) {
 			buffer.append("    position:[");
-			buffer.append(fCompletionStart.elementAt(i));
+			buffer.append(completionStart.elementAt(i));
 			buffer.append(",");
-			buffer.append(fCompletionEnd.elementAt(i));
+			buffer.append(completionEnd.elementAt(i));
 			buffer.append("]");
 		}
 		if(relevance) {
 			buffer.append("    relevance:");
-			buffer.append(fRelevances.elementAt(i));
+			buffer.append(relevances.elementAt(i));
 		}
 		return buffer.toString();
 	}

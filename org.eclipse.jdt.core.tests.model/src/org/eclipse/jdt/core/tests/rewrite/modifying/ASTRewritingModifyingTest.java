@@ -41,8 +41,8 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 	/** @deprecated using deprecated code */
 	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
 
-	protected IJavaProject fJProject1;
-	protected IPackageFragmentRoot fSourceFolder;
+	protected IJavaProject javaProject;
+	protected IPackageFragmentRoot sourceFolder;
 	
 	private Hashtable oldOptions;
 
@@ -64,8 +64,8 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		
-		fJProject1 = createJavaProject("P", new String[] {"src"}, "bin");
-		fSourceFolder = this.getPackageFragmentRoot("P", "src");
+		javaProject = createJavaProject("P", new String[] {"src"}, "bin");
+		sourceFolder = this.getPackageFragmentRoot("P", "src");
 		
 		Hashtable options = JavaCore.getOptions();
 		this.oldOptions = (Hashtable)options.clone();

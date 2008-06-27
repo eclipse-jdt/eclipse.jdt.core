@@ -17,14 +17,14 @@ import org.eclipse.core.runtime.Status;
 public class JdtCorePerformanceMeterPlugin extends Plugin {
 	
 	private static final String PLUGIN_ID= "com.ibm.zrh.eclipse.test.performance.yourkit"; //$NON-NLS-1$
-	private static JdtCorePerformanceMeterPlugin fgDefault;
+	private static JdtCorePerformanceMeterPlugin DEFAULT;
 	
 	public JdtCorePerformanceMeterPlugin() {
-		fgDefault= this;
+		DEFAULT= this;
 	}
 	
 	public static JdtCorePerformanceMeterPlugin getDefault() {
-		return fgDefault;
+		return DEFAULT;
 	}
 	
 	public static void log(IStatus status) {
